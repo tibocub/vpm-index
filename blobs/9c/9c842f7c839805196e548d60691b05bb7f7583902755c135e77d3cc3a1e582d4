@@ -1,0 +1,122 @@
+-- Discover subagent profiles: Markdown files with YAML frontmatter.
+--
+-- One `agents/**/*.md` root per host config layer, lowest precedence first:
+-- base, user, project, local (`panto.ext.dirs.layers`; see subagents/paths.lua).
+--
+-- A later layer's profile shadows an earlier one with the same resolved name.
+-- Every layer is walked recursively; nesting is organisational only and never
+-- part of a profile's name.
+--
+-- Recognised frontmatter keys, all optional:
+--
+--   name        the profile's identity; defaults to the filename stem
+--   description one line shown in the loadable profile inventory
+--   model       full `provider:model` only
+--   reasoning   passed through as written; the runtime validates it
+--
+-- Unknown keys are ignored so a profile written for another harness still
+-- loads. A `model` that is not Panto's `provider:model` syntax is dropped with
+-- a warning and the child inherits the primary model — a foreign model
+-- spelling must not cost the user a working prompt. Nothing else here is
+-- fatal either: an unreadable file, broken YAML, or a duplicate name inside
+-- one layer produces a warning and discovery continues. Warnings are returned
+-- rather than logged because an extension has no logging channel; the caller
+-- decides where they surface.
+--
+-- Files are read eagerly. Profiles are small and the whole set is needed to
+-- build the activation-time inventory anyway, so lazy bodies would buy
+-- nothing.
+
+local frontmatter = require("subagents.frontmatter")
+local paths = require("subagents.paths")
+
+local MODEL_PATTERN = "^[^%s:]+:[^%s:]+$"
+
+local M = {}
+
+M.MODEL_PATTERN = MODEL_PATTERN
+
+local function trim(s)
+    return (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+local function string_field(data, key)
+    local value = data and data[key]
+    if type(value) ~= "string" then
+        return nil
+    end
+    value = trim(value)
+    if value == "" then
+        return nil
+    end
+    return value
+end
+
+-- Build one profile from a file. Appends to `warnings` on anything odd.
+local function load_profile(path, layer, warnings)
+    local text, err = paths.read_file(path)
+    if not text then
+        warnings[#warnings + 1] = string.format("profile %s: %s", path, tostring(err))
+        return nil
+    end
+
+    local data, body, warning = frontmatter.parse(text)
+    local name = string_field(data, "name") or paths.stem(path)
+    if warning then
+        warnings[#warnings + 1] = string.format("profile %s: %s", name, warning)
+    end
+
+    local model = string_field(data, "model")
+    if model and not model:match(MODEL_PATTERN) then
+        warnings[#warnings + 1] =
+            string.format("profile %s: ignoring model '%s' (not provider:model)", name, model)
+        model = nil
+    end
+
+    return {
+        name = name,
+        description = string_field(data, "description") or "",
+        model = model,
+        reasoning = string_field(data, "reasoning"),
+        body = body,
+        path = path,
+        layer = layer,
+    }
+end
+
+-- discover(roots) -> { list = {...}, by_name = {...}, warnings = {...} }
+--
+-- `roots` defaults to the two config layers and exists so tests can point
+-- discovery at temporary directories. `list` is sorted by name.
+function M.discover(roots)
+    roots = roots or paths.config_roots("agents")
+
+    local by_name = {}
+    local warnings = {}
+
+    for _, root in ipairs(roots) do
+        local seen = {}
+        for _, path in ipairs(paths.walk(root, ".md")) do
+            local profile = load_profile(path, root, warnings)
+            if profile then
+                if seen[profile.name] then
+                    warnings[#warnings + 1] = string.format(
+                        "profile %s: %s shadows %s in the same layer",
+                        profile.name, path, seen[profile.name])
+                end
+                seen[profile.name] = path
+                by_name[profile.name] = profile
+            end
+        end
+    end
+
+    local list = {}
+    for _, profile in pairs(by_name) do
+        list[#list + 1] = profile
+    end
+    table.sort(list, function(a, b) return a.name < b.name end)
+
+    return { list = list, by_name = by_name, warnings = warnings }
+end
+
+return M

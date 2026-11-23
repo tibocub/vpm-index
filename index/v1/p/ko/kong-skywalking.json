@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "kong-skywalking",
+  "versions": {
+    "0.2.0-0": {
+      "bin": [],
+      "deps": [
+        "skywalking-nginx-lua >= 0.6.0"
+      ],
+      "files": {
+        "kong/plugins/skywalking/handler.lua": {
+          "sha256": "87bf4dcc21ba273bdd65a63d782a7e123ae4e3b06b7cfae8b974640014636db3",
+          "size": 3194,
+          "url": "https://raw.githubusercontent.com/apache/skywalking-kong/250f07fb495e7fa0778583414ad705478e15c508/kong/plugins/skywalking/handler.lua"
+        },
+        "kong/plugins/skywalking/schema.lua": {
+          "sha256": "df6b5f47e78990ca7a2d97ff08032f83a8c4cebcfc19855c308f64dedffde80e",
+          "size": 2331,
+          "url": "https://raw.githubusercontent.com/apache/skywalking-kong/250f07fb495e7fa0778583414ad705478e15c508/kong/plugins/skywalking/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/apache/skywalking-kong",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Sun, 09 Jan 2022 08:08:35 GMT",
+        "rockspec": {
+          "date": "Sun, 09 Jan 2022 08:08:35 GMT",
+          "sha256": "707d0f886e110fbabdc2e79291189bbdefbf88745df5f80e5490573d1a1deb3a",
+          "size": 572
+        },
+        "src": {
+          "date": "Sun, 09 Jan 2022 08:08:36 GMT",
+          "sha256": "335f00e0936b86609e9677aa397b8282e513e4e96f152faca86e613b77e80c3d",
+          "size": 61863,
+          "url": "https://luarocks.org/kong-skywalking-0.2.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.skywalking.handler",
+        "kong.plugins.skywalking.schema"
+      ],
+      "origin": {
+        "commit": "250f07fb495e7fa0778583414ad705478e15c508",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/apache/skywalking-kong"
+      },
+      "size": 5525,
+      "summary": "The Kong agent for Apache SkyWalking",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "header-transfer",
+  "versions": {
+    "0.0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/header-transfer/access.lua": {
+          "sha256": "649fdf1de426efefb1c180418a30668cab6494ff57538c14a024ee044048d36f",
+          "size": 5661,
+          "url": "https://raw.githubusercontent.com/syhily/header-transfer/fe4b1628c504e1c8bb6a0f29be28d361fa41e490/access.lua"
+        },
+        "kong/plugins/header-transfer/handler.lua": {
+          "sha256": "35d5b88feaba8ad44b80de49a2b2eec6eb9ccb71275a4c6b64af91cdd6bbaf50",
+          "size": 1324,
+          "url": "https://raw.githubusercontent.com/syhily/header-transfer/fe4b1628c504e1c8bb6a0f29be28d361fa41e490/handler.lua"
+        },
+        "kong/plugins/header-transfer/schema.lua": {
+          "sha256": "8ebea4706448044ee4173399ed919cdbaae3a48caf2204bd7532a5ed1091f7de",
+          "size": 886,
+          "url": "https://raw.githubusercontent.com/syhily/header-transfer/fe4b1628c504e1c8bb6a0f29be28d361fa41e490/schema.lua"
+        }
+      },
+      "homepage": "http://getkong.org",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 07 Jun 2016 10:38:03 GMT",
+        "rockspec": {
+          "date": "Tue, 07 Jun 2016 10:38:03 GMT",
+          "sha256": "bb6f7520a0d045e010c8ad2bdfd97fa2c5aa0a11e1345316aa39be6eb5e920d8",
+          "size": 516
+        },
+        "src": {
+          "date": "Tue, 07 Jun 2016 10:38:05 GMT",
+          "sha256": "916a087ce24285afbc630cfd2b59002e1b069ecce3caeb725d66cbdb449ea502",
+          "size": 5689,
+          "url": "https://luarocks.org/header-transfer-0.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.header-transfer.access",
+        "kong.plugins.header-transfer.handler",
+        "kong.plugins.header-transfer.schema"
+      ],
+      "origin": {
+        "commit": "fe4b1628c504e1c8bb6a0f29be28d361fa41e490",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/syhily/header-transfer"
+      },
+      "size": 7871,
+      "summary": "Header transfer for kong",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "multipart",
+        "stringy"
+      ],
+      "vlr": {
+        "cause": "missing module: stringy",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

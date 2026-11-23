@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-opa",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-cjson",
+        "lua-resty-http",
+        "lua-resty-jwt"
+      ],
+      "files": {
+        "kong/plugins/opa/access.lua": {
+          "sha256": "9f5a6953d19bc9acbdccf9b2726728e3a716691c400fb1a1fc029361c2c350bb",
+          "size": 2464,
+          "url": "https://raw.githubusercontent.com/wada-ama/kong-plugins/7448ce474b3f32f6372240dfcb88cbebcc750ebc/src/kong/plugins/opa/access.lua"
+        },
+        "kong/plugins/opa/handler.lua": {
+          "sha256": "cb8cb6a52e9627b374adbdb5c9b23f3349630e0022c271e45c9546ce4603111c",
+          "size": 606,
+          "url": "https://raw.githubusercontent.com/wada-ama/kong-plugins/7448ce474b3f32f6372240dfcb88cbebcc750ebc/src/kong/plugins/opa/handler.lua"
+        },
+        "kong/plugins/opa/schema.lua": {
+          "sha256": "cc24b53d40c1887a42195d1580153fd43542d0e675d3061f840ab828a81ce297",
+          "size": 2123,
+          "url": "https://raw.githubusercontent.com/wada-ama/kong-plugins/7448ce474b3f32f6372240dfcb88cbebcc750ebc/src/kong/plugins/opa/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/wada-ama/kong-plugins",
+      "host": "openresty",
+      "luarocks": {
+        "date": "Fri, 03 Apr 2020 00:32:58 GMT",
+        "rockspec": {
+          "date": "Fri, 03 Apr 2020 00:32:58 GMT",
+          "sha256": "9b5d5a2085d66fcd7f689a7063e314144ec7c79d5e09eb810366f23c6df92b07",
+          "size": 1038
+        },
+        "src": {
+          "date": "Fri, 03 Apr 2020 00:32:59 GMT",
+          "sha256": "70e3bb4a816dce61c85afb7e3de75a7d4975bb573bd5dc9e98c9af9869b6f9b6",
+          "size": 24996,
+          "url": "https://luarocks.org/kong-plugin-opa-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.opa.access",
+        "kong.plugins.opa.handler",
+        "kong.plugins.opa.schema"
+      ],
+      "origin": {
+        "commit": "7448ce474b3f32f6372240dfcb88cbebcc750ebc",
+        "ref": "v0.1.1",
+        "type": "git",
+        "url": "https://github.com/wada-ama/kong-plugins.git"
+      },
+      "size": 5193,
+      "summary": "Integrate the Open Policy Agent (OPA) for API access management with Kong API Gateway",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

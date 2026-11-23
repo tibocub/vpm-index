@@ -1,0 +1,55 @@
+--imports
+local NaryOp = require("dogma.syn._.NaryOp")
+
+--A pack operator: {*}.
+local PackOp = {}
+PackOp.__index = PackOp
+setmetatable(PackOp, {__index = NaryOp})
+package.loaded[...] = PackOp
+
+--Constructor.
+--
+--@param tok:Token
+--@param
+function PackOp.new(tok)
+  local self
+
+  --(1) create
+  self = setmetatable(NaryOp.new(tok), PackOp)
+  self.children = {}
+  self.finished = false
+
+  --(2) return
+  return self
+end
+
+--@override
+function PackOp:__tostring()
+  local ops
+
+  --(1) get expressions
+  for ix, op in ipairs(self.children) do
+    if ix == 1 then
+      ops = op:__tostring()
+    else
+      ops = ops .. " "
+
+      if op.name then
+        if op.remove then
+          ops = ops .. "-"
+        end
+
+        ops = ops .. op.visib .. op.name
+
+        if op.value then
+          ops = ops .. "=" .. tostring(op.value)
+        end
+      else
+        ops = ops .. tostring(op.value)
+      end
+    end
+  end
+
+  --(2) return
+  return string.format("(pack %s)", ops)
+end

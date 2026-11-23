@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "kong-simple-request-validator",
+  "versions": {
+    "0.0.4-3": {
+      "bin": [],
+      "deps": [
+        "lua-resty-validation >= 2.7-1",
+        "jsonschema >= 0.5-0"
+      ],
+      "files": {
+        "kong/plugins/kong-simple-request-validator/access.lua": {
+          "sha256": "35473db766ba0f6ad9e9b2324f95d0bb00a31bb22725e940056b457768a45299",
+          "size": 7965,
+          "url": "https://raw.githubusercontent.com/brightwang/kong-simple-request-validator/d788d923a9f1bd3ad42d11fc186b29311bc2ccbd/src/access.lua"
+        },
+        "kong/plugins/kong-simple-request-validator/handler.lua": {
+          "sha256": "5a6790a35fc39a7f76e7725ccec9817611f881763cd6277787197e60cd1df41f",
+          "size": 493,
+          "url": "https://raw.githubusercontent.com/brightwang/kong-simple-request-validator/d788d923a9f1bd3ad42d11fc186b29311bc2ccbd/src/handler.lua"
+        },
+        "kong/plugins/kong-simple-request-validator/schema.lua": {
+          "sha256": "0321f8a8c5cf53c9150a3092f2965101d4c383b1507a04a58de41b5826893bef",
+          "size": 645,
+          "url": "https://raw.githubusercontent.com/brightwang/kong-simple-request-validator/d788d923a9f1bd3ad42d11fc186b29311bc2ccbd/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/brightwang/kong-simple-request-validator",
+      "host": "openresty",
+      "license": "MIT License",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 07 Feb 2020 07:28:32 GMT",
+        "rockspec": {
+          "date": "Fri, 07 Feb 2020 07:28:32 GMT",
+          "sha256": "bf5b621cdc4333a3efc5312e63c2f173c68e741a60201155b0949f9679965091",
+          "size": 763
+        },
+        "src": {
+          "date": "Fri, 07 Feb 2020 07:28:36 GMT",
+          "sha256": "627a9d627e7a591dc75fcc2588aed18732257e4330c2af89945e208d86695580",
+          "size": 5945,
+          "url": "https://luarocks.org/kong-simple-request-validator-0.0.4-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-simple-request-validator.access",
+        "kong.plugins.kong-simple-request-validator.handler",
+        "kong.plugins.kong-simple-request-validator.schema"
+      ],
+      "origin": {
+        "commit": "d788d923a9f1bd3ad42d11fc186b29311bc2ccbd",
+        "ref": "0.0.4-3",
+        "type": "git",
+        "url": "https://github.com/brightwang/kong-simple-request-validator.git"
+      },
+      "size": 9103,
+      "summary": "Kong Plugin for Request Validator",
+      "undeclared_requires": [
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

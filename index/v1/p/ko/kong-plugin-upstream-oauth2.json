@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-upstream-oauth2",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/upstream-oauth2/handler.lua": {
+          "sha256": "a8014be752770134552a78bfa676d5e98bc261e1c8a171a896d0044272712c54",
+          "size": 1811,
+          "url": "https://raw.githubusercontent.com/enioka/kong-plugin-upstream-oauth2/917ce8c7ab8a5c6fe214ffbf60e9aaac2b061824/src/handler.lua"
+        },
+        "kong/plugins/upstream-oauth2/schema.lua": {
+          "sha256": "b974a1ff41c3c80d208664dc912bcb12db1607484cef8bd86ee19d1f6e62cb4b",
+          "size": 816,
+          "url": "https://raw.githubusercontent.com/enioka/kong-plugin-upstream-oauth2/917ce8c7ab8a5c6fe214ffbf60e9aaac2b061824/src/schema.lua"
+        },
+        "kong/plugins/upstream-oauth2/tokens.lua": {
+          "sha256": "a63d2fc186822b7cee2356e954f27b3e7dc954ebec17d7bae8a8ed8233af11dd",
+          "size": 2058,
+          "url": "https://raw.githubusercontent.com/enioka/kong-plugin-upstream-oauth2/917ce8c7ab8a5c6fe214ffbf60e9aaac2b061824/src/tokens.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5",
+      "luarocks": {
+        "date": "Fri, 22 Oct 2021 15:21:16 GMT",
+        "rockspec": {
+          "date": "Fri, 22 Oct 2021 15:21:16 GMT",
+          "sha256": "296658431333491162e6962e34777f39dc83165a2eb4a5085523ac2ef695f8b8",
+          "size": 797
+        },
+        "src": {
+          "date": "Fri, 22 Oct 2021 15:21:18 GMT",
+          "sha256": "e67cb23bd6b8c5f14495d3ed692bc26fe40c772d246efb115032ebef28623629",
+          "size": 10722,
+          "url": "https://luarocks.org/kong-plugin-upstream-oauth2-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.upstream-oauth2.handler",
+        "kong.plugins.upstream-oauth2.schema",
+        "kong.plugins.upstream-oauth2.tokens"
+      ],
+      "origin": {
+        "commit": "917ce8c7ab8a5c6fe214ffbf60e9aaac2b061824",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/enioka/kong-plugin-upstream-oauth2"
+      },
+      "size": 4685,
+      "summary": "A Kong plugin to negotiate oauth2 authentication with upstream services",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "ltn12",
+        "socket",
+        "socket.http",
+        "socket.url",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

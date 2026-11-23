@@ -1,0 +1,75 @@
+-- Transport contract (shared with future HTTP):
+-- t:set_callbacks(on_message, on_error); t:send(message, opts) -> handle|nil, err
+-- t:cancel(id, handle); t:close() (nonblocking).
+-- cancel_request cancels a transport handle without sending an MCP-level notice.
+-- `cancel` additionally permits a transport-specific cancellation notification.
+-- opts = {era, protocol_version, method, name, param_headers?};
+-- on_error means the whole transport failed, not a request-level RPC error.
+local async = require('panto_mcp.async')
+local json = require('panto').ext.json
+local M = {}; M.__index = M
+function M.new(transport, opts)
+    opts=opts or {}
+    local self=setmetatable({transport=transport, next_id=0, pending={},
+        timeout_ms=opts.timeout_ms or 300000, timer_factory=opts.timer_factory or async.timer,
+        on_notification=opts.on_notification, on_error=opts.on_error},M)
+    transport:set_callbacks(function(msg) self:receive(msg) end, function(err) self:fail(err) end)
+    return self
+end
+function M:finish(id, value, err)
+    local p=self.pending[id]; if not p then return end
+    self.pending[id]=nil
+    async.close(p.timer)
+    p.future:resolve(value,err)
+end
+function M:receive(msg)
+    if self.closed then return end
+    if type(msg)~='table' or msg.jsonrpc~='2.0' then self:fail('malformed JSON-RPC message'); return end
+    if type(msg.method)=='string' then
+        if msg.id~=nil then
+            local reply={jsonrpc='2.0',id=msg.id}
+            if msg.method=='ping' then reply.result={} else reply.error={code=-32601,message='Method not found'} end
+            self.transport:send(reply,{method=msg.method})
+        elseif self.on_notification then self.on_notification(msg.method,msg.params) end
+    elseif msg.id~=nil and (msg.result~=nil or msg.error~=nil) then
+        self:finish(msg.id,msg.result,msg.error)
+    else self:fail('malformed JSON-RPC response') end
+end
+function M:start(method, params, opts)
+    opts=opts or {}; opts.method=method
+    if self.closed then local f=async.future(); f:resolve(nil,self.error or 'connection closed'); return f end
+    self.next_id=self.next_id+1
+    local id=self.next_id
+    local future=async.future(function() self:cancel(id,'request cancelled') end)
+    local p={future=future,cancel_protocol=opts.cancel_protocol}; self.pending[id]=p
+    p.timer=self.timer_factory(opts.timeout_ms or self.timeout_ms,function() self:cancel(id,'request timed out: ' .. method) end)
+    local ok,h,err=pcall(self.transport.send,self.transport,{jsonrpc='2.0',id=id,method=method,params=params or {}},opts)
+    if not ok or not h then self:finish(id,nil,not ok and h or err or 'send failed') else p.handle=h end
+    return future
+end
+function M:request(method,params,opts) return self:start(method,params,opts):await() end
+function M:notify(method,params,opts)
+    if self.closed then return nil,self.error end
+    opts=opts or {}; opts.method=method
+    return self.transport:send({jsonrpc='2.0',method=method,params=params or {}},opts)
+end
+function M:cancel(id,reason)
+    local p=self.pending[id]; if not p then return end
+    self.pending[id]=nil; async.close(p.timer)
+    if p.cancel_protocol~=false then pcall(self.transport.cancel,self.transport,id,p.handle)
+    elseif type(self.transport.cancel_request)=='function' then pcall(self.transport.cancel_request,self.transport,id,p.handle) end
+    p.future:resolve(nil,reason or 'request cancelled')
+end
+function M:fail(err,abandon)
+    if self.closed then return end
+    self.closed=true; self.error=err or 'connection closed'
+    local pending=self.pending; self.pending={}
+    for _,p in pairs(pending) do
+        async.close(p.timer)
+        if abandon then p.future:abandon(nil,self.error) else p.future:resolve(nil,self.error) end
+    end
+    self.transport:close()
+    if self.on_error then self.on_error(self.error) end
+end
+function M:close(abandon) self:fail('connection closed',abandon) end
+return M

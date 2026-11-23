@@ -1,0 +1,149 @@
+-- voice/VoiceManager.lua
+-- Attached to the LuaCord Client as client.voice.
+-- Tracks one VoiceConnection per guild and coordinates the two-step handshake
+-- that Discord requires (VOICE_STATE_UPDATE + VOICE_SERVER_UPDATE must both
+-- arrive before the voice gateway connect can start).
+--
+-- Integration into Client (in client/init.lua):
+--
+--   local VoiceManager = require("voice.VoiceManager")
+--   -- After self.user is set in the READY handler:
+--   self.voice = VoiceManager.new(self)
+--
+--   -- In the gateway dispatch loop, add:
+--   elseif t == "VOICE_STATE_UPDATE"  then self.voice:_handle_state(d)
+--   elseif t == "VOICE_SERVER_UPDATE" then self.voice:_handle_server(d)
+
+local VoiceConnection = require("voice.VoiceConnection")
+
+local VoiceManager = {}
+VoiceManager.__index = VoiceManager
+
+function VoiceManager.new(client)
+  local self           = setmetatable({}, VoiceManager)
+  self.client          = client
+  -- Map guild_id → VoiceConnection
+  self._connections    = {}
+  -- Pending handshake state waiting for both events:
+  -- Map guild_id → { state=..., server=... }
+  self._pending        = {}
+  return self
+end
+
+-- ── Joining / leaving ────────────────────────────────────────────────────────
+
+--- Join a voice channel.
+-- Sends OP 4 (VOICE_STATE_UPDATE) on the main gateway.
+-- The actual VoiceConnection is created once both VOICE_STATE_UPDATE
+-- and VOICE_SERVER_UPDATE come back from Discord.
+-- @param guild_id   string
+-- @param channel_id string
+-- @param opts       table|nil  { self_mute=false, self_deaf=false }
+-- @return VoiceConnection (not yet ready — listen for "voiceReady" event)
+function VoiceManager:join(guild_id, channel_id, opts)
+  opts = opts or {}
+
+  -- Send the gateway op to move into the channel
+  self.client._gateway:send_voice_state_update(guild_id, channel_id, {
+    self_mute = opts.self_mute or false,
+    self_deaf = opts.self_deaf or false,
+  })
+
+  -- Pre-create the connection object so the caller has a handle immediately
+  local conn = VoiceConnection.new(self.client, guild_id, channel_id)
+  self._connections[guild_id] = conn
+  self._pending[guild_id]     = { conn = conn }
+
+  return conn
+end
+
+--- Leave a voice channel in a guild.
+-- @param guild_id string
+function VoiceManager:leave(guild_id)
+  local conn = self._connections[guild_id]
+  if conn then
+    conn:disconnect()
+    self._connections[guild_id] = nil
+  end
+  self._pending[guild_id] = nil
+
+  -- Notify main gateway
+  self.client._gateway:send_voice_state_update(guild_id, nil)
+end
+
+--- Get the active VoiceConnection for a guild, or nil.
+-- @param guild_id string
+function VoiceManager:get(guild_id)
+  return self._connections[guild_id]
+end
+
+-- ── Gateway event handlers ───────────────────────────────────────────────────
+
+--- Called by the client's gateway dispatch when VOICE_STATE_UPDATE arrives.
+function VoiceManager:_handle_state(d)
+  local guild_id = d.guild_id
+  if not guild_id then return end
+
+  -- Only care about our own state updates
+  if d.user_id ~= (self.client.user and self.client.user.id) then return end
+
+  local pending = self._pending[guild_id]
+  if not pending then return end
+
+  pending.state = d
+
+  -- If we already have the server update, connect now
+  if pending.server then
+    self:_finalize(guild_id)
+  end
+end
+
+--- Called by the client's gateway dispatch when VOICE_SERVER_UPDATE arrives.
+function VoiceManager:_handle_server(d)
+  local guild_id = d.guild_id
+  if not guild_id then return end
+
+  local pending = self._pending[guild_id]
+  if not pending then
+    -- Could be a server migration for an existing connection
+    local conn = self._connections[guild_id]
+    if conn then
+      -- Re-initiate connection with new endpoint/token
+      self._pending[guild_id] = { conn = conn, server = d }
+      if conn.session_id then
+        pending = self._pending[guild_id]
+        pending.state = { session_id = conn.session_id, user_id = self.client.user.id }
+        self:_finalize(guild_id)
+      end
+    end
+    return
+  end
+
+  pending.server = d
+
+  if pending.state then
+    self:_finalize(guild_id)
+  end
+end
+
+--- Both events received — start the actual voice connection.
+function VoiceManager:_finalize(guild_id)
+  local pending = self._pending[guild_id]
+  if not pending or not pending.state or not pending.server then return end
+
+  local conn = pending.conn or self._connections[guild_id]
+  self._pending[guild_id] = nil
+
+  if not conn then return end
+
+  -- Kick off the voice gateway connection
+  local ok, err = pcall(function()
+    conn:connect(pending.server, pending.state)
+  end)
+  if not ok then
+    print("[VoiceManager] Failed to connect voice for guild " .. guild_id .. ": " .. tostring(err))
+    self._connections[guild_id] = nil
+  end
+end
+
+return VoiceManager

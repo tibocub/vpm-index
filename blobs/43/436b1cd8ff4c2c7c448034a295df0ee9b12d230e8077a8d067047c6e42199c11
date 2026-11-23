@@ -1,0 +1,47 @@
+#!/usr/bin/env lua
+local optparse = require('optparse')
+local string = require('string')
+local table = require('table')
+local VERSION = "0.0.1"
+local help = "v" .. tostring(VERSION) .. "\nUsage: elan <command> [<options>]\n\nThe following elan commands are supported:\n\n  $ elan init [--existing] [DIR]\n      Initializes the specified directory with a development environment\n      for the nginx/OpenResty-based elan web framework. Defaults to the\n      current directory. Note that unless the --existing flag is provided,\n      the directory must be empty if it exists and will be created if\n      it doesn't exist.\n\n  $ elan migrate [--apply]\n  $ elan migrate --new NAME [--type=sql|--type=code]\n      Apply the database migrations or create a new migration file.\n      Applying is the default action when only the command is provided.\n      Migrations can be .sql files or code files that export a function\n      that receives a database connection as argument. The 'code file'\n      option must be in the language specified in the configuration of\n      the elan project (lua, moonscript, yuescript).\n\nOptions:\n\n  --apply               Only for the 'migrate' command, applies the\n                        database migrations.\n  --existing            Only for the 'init' command, indicates that\n                        it should initialize an existing elan\n                        repository (will not clone the 'elan-starter'\n                        files, assumes it is already there).\n  -h, --help            Display this help and exit.\n  -n, --new=NAME        Only for the 'migrate' command, creates a new\n                        database migration file with the specified NAME.\n  -t, --type=TYPE       Only for the 'migrate' command, the type of\n                        migration file to create ('sql' or 'code',\n                        default is 'sql').\n  -V, --version         Display the version and exit.\n"
+local parser = optparse(help)
+local arg, opts = parser:parse(_G.arg)
+local unknown_flags
+do
+	local _accum_0 = { }
+	local _len_0 = 1
+	for _index_0 = 1, #arg do
+		local flag = arg[_index_0]
+		if string.match(flag, '^%-%-?[^%-]+') then
+			_accum_0[_len_0] = flag
+			_len_0 = _len_0 + 1
+		end
+	end
+	unknown_flags = _accum_0
+end
+do
+	local _exp_0 = #unknown_flags
+	if 0 == _exp_0 then
+	elseif 1 == _exp_0 then
+		opts:opterr("unrecognized flag: " .. tostring(unknown_flags[1]))
+		return
+	else
+		opts:opterr("unrecognized flags: " .. tostring(table.concat(unknown_flags, ', ')))
+		return
+	end
+end
+local name = table.remove(arg, 1)
+if name then
+	local cmd
+	xpcall(function()
+		cmd = require('elan.bin.commands.' .. name)
+	end, function(err)
+		return opts:opterr("invalid command: " .. tostring(name))
+	end)
+	if not (type(cmd) == 'function') then
+		opts:opterr("invalid command: " .. tostring(name))
+	end
+	return cmd(arg, opts)
+else
+	return opts:opterr("the command is required")
+end

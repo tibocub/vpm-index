@@ -1,0 +1,65 @@
+-- Standalone: panto lua <this file> <JSON {command,args}>. Never require in host.
+-- fds 0/1/2 are inherited by the detached server; fd 3 is the host lifeline.
+local uv = require('luv')
+local json = require('panto').ext.json
+local cfg = assert(json.decode(assert(arg[1], 'missing supervisor configuration')))
+local timers, signals = {}, {}
+local child, pid, stopping, exited
+local function close(h) if h and not h:is_closing() then h:close() end end
+local life = uv.new_pipe(false)
+assert(life:open(3))
+local function alive()
+    return pid and uv.kill(-pid, 0) ~= nil
+end
+local function finish()
+    close(life)
+    for _, h in ipairs(timers) do close(h) end
+    for _, h in ipairs(signals) do close(h) end
+    if exited then close(child) end
+end
+local function timer(ms, repeat_ms, fn)
+    local t = uv.new_timer(); timers[#timers + 1] = t
+    t:start(ms, repeat_ms, fn)
+    return t
+end
+local function shutdown()
+    if stopping then return end
+    stopping = true
+    close(life)
+    -- The host has already closed stdin. Even if the group leader exited,
+    -- descendants still receive the escalation (npx/shell wrappers).
+    timer(2000, 0, function()
+        if alive() then uv.kill(-pid, 'sigterm') end
+        timer(2000, 0, function()
+            if alive() then uv.kill(-pid, 'sigkill') end
+        end)
+    end)
+    timer(0, 50, function() if not alive() then finish() end end)
+end
+local child_env = uv.os_environ()
+for k, v in pairs(cfg.env or {}) do child_env[k] = v end
+local env = {}
+for k, v in pairs(child_env) do env[#env + 1] = k .. '=' .. v end
+child, pid = uv.spawn(cfg.command, {
+    args = cfg.args or {}, stdio = {0, 1, 2}, env = env, detached = true,
+}, function()
+    exited = true
+    close(child)
+    shutdown()
+end)
+if not child then
+    io.stderr:write('panto-mcp supervisor spawn failed: ', tostring(pid), '\n'); io.stderr:flush()
+    close(life)
+else
+    io.stderr:write('PANTO_MCP_PID=', tostring(pid), '\n'); io.stderr:flush()
+    -- The server inherited these descriptors; retaining supervisor copies
+    -- would delay stdout EOF until after the grace period.
+    assert(uv.fs_close(0))
+    assert(uv.fs_close(1))
+    life:read_start(function(_, data) if not data then shutdown() end end)
+    for _, name in ipairs({'sigint', 'sigterm', 'sighup'}) do
+        local s = uv.new_signal(); signals[#signals + 1] = s
+        s:start(name, shutdown)
+    end
+end
+uv.run()

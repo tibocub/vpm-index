@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "lua-nng",
+  "versions": {
+    "master-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://cogarr.net/source/cgit.cgi/lua-nng/about",
+      "license": "BSD/2 Clause",
+      "luarocks": {
+        "date": "Wed, 16 Sep 2020 21:28:15 GMT",
+        "rockspec": {
+          "date": "Wed, 16 Sep 2020 21:28:15 GMT",
+          "sha256": "762905c6bd6b759b24a7fd3a87ff7f6c67ba9b008605d11129777329b9c1e019",
+          "size": 948
+        },
+        "src": {
+          "date": "Wed, 16 Sep 2020 21:28:16 GMT",
+          "sha256": "82fe8a2f499fdeecbd05348721ee2fbd44a54b04cb14daa7da0bd380f2de0122",
+          "size": 14253,
+          "url": "https://luarocks.org/lua-nng-master-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "NNG"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "NNG": {
+              "header": "nng/nng.h",
+              "library": "nng"
+            }
+          },
+          "make": {
+            "build_variables": {
+              "CFLAGS": "$(CFLAGS)",
+              "FIND": "$(FIND)",
+              "LIBFLAG": "$(LIBFLAG)",
+              "LIB_EXTENSION": "$(LIB_EXTENSION)",
+              "LUA_INCDIR": "$(LUA_INCDIR)",
+              "LUA_LIBDIR": "$(LUA_LIBDIR)",
+              "NNG_INCDIR": "$(NNG_INCDIR)",
+              "NNG_LIBDIR": "$(NNG_LIBDIR)"
+            },
+            "install_variables": {
+              "CP": "$(CP)",
+              "INST_LIBDIR": "$(LIBDIR)",
+              "INST_PREFIX": "$(PREFIX)",
+              "LIB_EXTENSION": "$(LIB_EXTENSION)",
+              "LUA_LIBDIR": "$(LUA_LIBDIR)",
+              "NNG_LIBDIR": "$(NNG_LIBDIR)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Wed, 16 Sep 2020 21:28:16 GMT",
+        "sha256": "82fe8a2f499fdeecbd05348721ee2fbd44a54b04cb14daa7da0bd380f2de0122",
+        "size": 14253,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-nng-master-1.src.rock"
+      },
+      "summary": "A simple binding for Nanomessage Next Generation",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

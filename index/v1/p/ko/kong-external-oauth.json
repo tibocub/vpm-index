@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-external-oauth",
+  "versions": {
+    "1.3-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/external-oauth/access.lua": {
+          "sha256": "d44ba8aa4245309a254425869ed8aea41cc3a68a2307b7222f41105519643d7a",
+          "size": 7303,
+          "url": "https://raw.githubusercontent.com/Ehekatl/kong-external-oauth/afd1cf78028e84e273e2ebe5fe444af460f4b9ee/src/access.lua"
+        },
+        "kong/plugins/external-oauth/handler.lua": {
+          "sha256": "13fd8dd82cc28d142593d396884d4af3508ac000e28699345a28efcb988f4fbf",
+          "size": 1246,
+          "url": "https://raw.githubusercontent.com/Ehekatl/kong-external-oauth/afd1cf78028e84e273e2ebe5fe444af460f4b9ee/src/handler.lua"
+        },
+        "kong/plugins/external-oauth/schema.lua": {
+          "sha256": "fcc5d8442e916c41813bf260253e67b6d1f2e29328fd664dd020555231530395",
+          "size": 1695,
+          "url": "https://raw.githubusercontent.com/Ehekatl/kong-external-oauth/afd1cf78028e84e273e2ebe5fe444af460f4b9ee/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 12 Dec 2019 09:32:21 GMT",
+        "rockspec": {
+          "date": "Thu, 12 Dec 2019 09:32:21 GMT",
+          "sha256": "39b8f31237650a6358e4289f958c9a502ee5451898b19d21c90f952f10a548a4",
+          "size": 582
+        },
+        "src": {
+          "date": "Thu, 12 Dec 2019 09:32:22 GMT",
+          "sha256": "a55f6c3cd65f48b08c7d6ce325e8bcc33f81b4afe426d9f2d2daac9bda5ff0a5",
+          "size": 11792,
+          "url": "https://luarocks.org/kong-external-oauth-1.3-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.external-oauth.access",
+        "kong.plugins.external-oauth.handler",
+        "kong.plugins.external-oauth.schema"
+      ],
+      "origin": {
+        "commit": "afd1cf78028e84e273e2ebe5fe444af460f4b9ee",
+        "type": "git",
+        "url": "https://github.com/Ehekatl/kong-external-oauth"
+      },
+      "size": 10244,
+      "summary": "A Kong plugin, that let you use an external Oauth 2.0 provider to protect your API",
+      "undeclared_requires": [
+        "crypto",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "pl.stringx",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.stringx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

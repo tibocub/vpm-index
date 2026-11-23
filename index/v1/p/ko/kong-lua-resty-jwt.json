@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "kong-lua-resty-jwt",
+  "versions": {
+    "0.3.0-0": {
+      "bin": [],
+      "deps": [
+        "lua-resty-openssl >= 0.6.8"
+      ],
+      "files": {
+        "resty/evp.lua": {
+          "sha256": "7fa7e4f3c4c6771b30f3574221d5aae3d9e03c1c45b1fddd442083107c7ae807",
+          "size": 25496,
+          "url": "blob:7fa7e4f3c4c6771b30f3574221d5aae3d9e03c1c45b1fddd442083107c7ae807"
+        },
+        "resty/hmac.lua": {
+          "sha256": "4a1320d9ae09f1a3e4c92f710c514e1c4b45c824cd2e8719dfa4ee809ac28317",
+          "size": 4138,
+          "url": "blob:4a1320d9ae09f1a3e4c92f710c514e1c4b45c824cd2e8719dfa4ee809ac28317"
+        },
+        "resty/jwt-validators.lua": {
+          "sha256": "69a4ff198ad413b45fc0d1898eb73dd1e3aca98c582b113265d66bd960dabb50",
+          "size": 15261,
+          "url": "blob:69a4ff198ad413b45fc0d1898eb73dd1e3aca98c582b113265d66bd960dabb50"
+        },
+        "resty/jwt.lua": {
+          "sha256": "3db5e2b9ac062571622536cf9f872322aaca7637f78cf0ed2e27d998f4160618",
+          "size": 52622,
+          "url": "blob:3db5e2b9ac062571622536cf9f872322aaca7637f78cf0ed2e27d998f4160618"
+        },
+        "resty/utils.lua": {
+          "sha256": "92e981c32f78da586359020b6e362d9689bb357b7010ce9e3b78968b653ff616",
+          "size": 1023,
+          "url": "blob:92e981c32f78da586359020b6e362d9689bb357b7010ce9e3b78968b653ff616"
+        }
+      },
+      "homepage": "https://github.com/Kong/lua-resty-jwt",
+      "host": "openresty",
+      "license": "Apache License Version 2",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Tue, 04 Aug 2026 09:56:22 GMT",
+        "rockspec": {
+          "date": "Tue, 04 Aug 2026 09:56:22 GMT",
+          "sha256": "d532951cc23b0b5879692c61fa82a0f9f8a4094580cfa46bed523bea957cec06",
+          "size": 857
+        },
+        "src": {
+          "date": "Tue, 04 Aug 2026 09:56:24 GMT",
+          "sha256": "0b5673276734e8fe3e592fc4fd0f013f9d8a4ea5e9a902302772ddb043f202cc",
+          "size": 115869,
+          "url": "https://luarocks.org/kong-lua-resty-jwt-0.3.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "resty.evp",
+        "resty.hmac",
+        "resty.jwt",
+        "resty.jwt-validators",
+        "resty.utils"
+      ],
+      "origin": {
+        "date": "Tue, 04 Aug 2026 09:56:24 GMT",
+        "sha256": "0b5673276734e8fe3e592fc4fd0f013f9d8a4ea5e9a902302772ddb043f202cc",
+        "size": 115869,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-lua-resty-jwt-0.3.0-0.src.rock"
+      },
+      "size": 98540,
+      "summary": "JWT for ngx_lua and LuaJIT.",
+      "undeclared_requires": [
+        "resty.random",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

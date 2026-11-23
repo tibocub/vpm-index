@@ -1,0 +1,22 @@
+
+local db = {}
+
+db.view = {
+  {'name',"Name"},
+  {'folder',"Folder",ht="SELECT",rt="folders"},
+  {'note',"Note",ht="PAGE"},
+  {'images',"Images",ht="CHECKBOX"},
+  {"user",     "User", ht='SELECT',rt="users",rf={{"login"}}},
+
+  columns=2,
+}
+
+db.list = {
+  {'name', "Name",ht="SELF"},
+  {'folder',"Folder",ht="SELECT",rt="folders"},
+  {'images',"Images",ht="CHECKBOX"},
+  {'note', "Note",ht="HTML"},
+  {'user'},
+}
+
+return db

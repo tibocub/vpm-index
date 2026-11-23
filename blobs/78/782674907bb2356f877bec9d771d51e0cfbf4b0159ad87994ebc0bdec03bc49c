@@ -1,0 +1,295 @@
+-- ---------------------------------------------------------------------------
+-- Itte Util
+-- ---------------------------------------------------------------------------
+
+--[[
+-- A collection of helper functions used by Itte.
+--]]
+
+local itteutil = {}
+itteutil.docs = {}
+
+
+itteutil.docs.get_docs = [===[  (docstring_table [, func_str [, printd_bool]])
+  Given a table of docstrings and a function name, return the description for
+  the function name. If `name` is unspecified, return descriptions for all
+  functions. If `printd` is unspecified, print to stdout, or if set to false,
+  return results as a string.
+  ]===]
+function itteutil.get_docs(docstr, name, printd)
+  local docs = ""
+  if name ~= nil then
+    -- 2nd-level nested objects, e.g. x.y.func()
+    if itteutil.is_substr(name, "%.") then
+      local sep, _ = string.find(name, "%.")
+      local dk = name:sub(1, sep - 1)
+      local nk = name:sub(sep + 1)
+      docs = "\n" .. name .. " " .. string.gsub(docstr[dk][nk]:sub(3),
+        "  ", "") .. "\n"
+    else
+      docs = "\n" .. name .. " " .. string.gsub(docstr[name]:sub(3), "  ", "")
+        .. "\n"
+    end
+  else
+    -- Sort on-site since associative arrays have no fixed order
+    local dk = itteutil.table_keys(docstr)
+    docs = "\n"
+    for c = 1, #dk do
+      -- 2nd-level nested objects, e.g. x.y.func()
+      if type(docstr[dk[c]]) == "table" then
+        local n_dk = itteutil.table_keys(docstr[dk[c]])
+        for nc = 1, #n_dk do
+          docs = docs .. dk[c] .. "." .. n_dk[nc] .. " " ..
+            string.gsub(docstr[dk[c]][n_dk[nc]]:sub(3), "  ", "") .. "\n"
+        end
+      else
+        docs = docs .. dk[c] .. " " .. string.gsub(docstr[dk[c]]:sub(3),
+          "  ", "") .. "\n"
+      end
+    end
+  end
+
+  if printd == false then
+    return docs
+  else
+    print(docs)
+  end
+end
+
+
+
+itteutil.docs.help = [[  ([func_str])
+  Given a function name, print a corresponding description.
+]]
+function itteutil.help(name)
+  itteutil.get_docs(itteutil.docs, name)
+end
+
+
+itteutil.docs.is_substr = [[  (str, find_str)
+  Check if a string is a substring of another string. Return true if it is a
+  substring, or false otherwise.
+  ]]
+function itteutil.is_substr(str, search)
+  if (string.find(str, search) ~= nil) then
+    return true
+  else
+    return false
+  end
+end
+
+
+itteutil.docs.first_upper = [[  (str)
+  Return a string with the first character in uppercase.
+  ]]
+function itteutil.first_upper(str)
+  return str:sub(1, 1):upper() .. str:sub(2)
+end
+
+
+itteutil.docs.first_lower = [[  (str)
+  Return a string with the first character in lowercase.
+  ]]
+function itteutil.first_lower(str)
+  return str:sub(1, 1):lower() .. str:sub(2)
+end
+
+
+itteutil.docs.split_str = [[  (str, [, pattern_str])
+  Split a string on a pattern separator and return a table of string values,
+  e.g. split_str("Hello world", "%S+"). If no pattern is specified, split
+  string on the space character.
+  ]]
+function itteutil.split_str(str, sep)
+  local tbl = {}
+  local n = 0
+  -- Other patterns: https://www.lua.org/pil/20.2.html
+  if sep == nil then sep = "%S+" end
+  for sub in string.gmatch(str, sep) do
+    n = n + 1
+    tbl[n] = sub
+  end
+  return tbl
+end
+
+
+itteutil.docs.a_or_an = [[  (str)
+  Return the corresponding indefinite article for a word.
+  Does *not* apply to acronyms, e.g. FTP.
+  ]]
+function itteutil.a_or_an(str)
+  local article = "a"
+  if itteutil.is_substr("a e i o u", str:sub(1, 1)) or
+    itteutil.is_substr("ho", str:sub(1, 2)) then
+    article = "an"
+  end
+  if (str == "one") or (itteutil.is_substr("eu", str:sub(1, 2))) or
+    (itteutil.is_substr("uni usa use usi usu", str:sub(1, 3))) then
+    article = "a"
+  end
+  return article
+end
+
+
+itteutil.docs.table_keys = [[  (table)
+  Return a sorted table of keys for an associative table.
+  ]]
+function itteutil.table_keys(tbl)
+  local keys = {}
+  local n = 0
+  for k, v in pairs(tbl) do
+    n = n + 1
+    keys[n] = k
+  end
+  table.sort(keys)
+  return keys
+end
+
+
+itteutil.docs.has_key = [[  (table, find_str)
+  Given a table and string, check whether the string is a key in the table.
+  Return true if found, or false otherwise.
+  ]]
+function itteutil.has_key(tbl, str)
+  local keys = itteutil.table_keys(tbl)
+  -- Primitive check for array-like table with numerical keys
+  if (keys[1] == 1) and (keys[#keys] == #keys) then
+    for k = 1, #keys do
+      if str == tbl[k] then
+        do return true end
+      end
+    end
+  -- Associative table
+  else
+    for k = 1, #keys do
+      if str == keys[k] then
+        do return true end
+      end
+    end
+  end
+  return false
+end
+
+
+itteutil.docs.find_key = [[  (table, find_str)
+  Given a table and string, check whether the string is a key in the table.
+  Return the key if found, or nil otherwise.
+  ]]
+function itteutil.find_key(tbl, str)
+  local keys = itteutil.table_keys(tbl)
+  -- Primitive check for array-like table with numerical keys
+  if (keys[1] == 1) and (keys[#keys] == #keys) then
+    for k = 1, #keys do
+      if str == tbl[k] then
+        do return k end
+      end
+    end
+  -- Associative table
+  else
+    for k = 1, #keys do
+      if str == keys[k] then
+        do return k end
+      end
+    end
+  end
+  return nil
+end
+
+
+
+itteutil.docs.is_entry = [[  (table, key_str, val_str)
+  Given an associative table, a key and value pair as strings, check whether
+  the pair is in the table. Return true if it exists in the table, or false
+  otherwise.
+  ]]
+function itteutil.is_entry(tbl, key, val)
+  for k, v in pairs(tbl) do
+    if (key == k) and (val == v) then
+      do return true end
+    end
+  end
+  return false
+end
+
+
+itteutil.docs.pick = [===[  (table [, num_int [, unique_bool ]])
+  Pseudo-randomly pick entries from a non-associative table and return the
+  entries in a table. If `num` is unspecified, it will return one entry.
+  If `unique` is unspecified, it will return non-recurring values.
+  ]===]
+function itteutil.pick(tbl, num, unique)
+  local picks = {}
+  if num == nil then num = 1 end
+  if unique == nil then unique = true end
+  picks[1] = tbl[math.random(1, #tbl)]
+
+  if (num > 1) and (num <= #tbl) then
+    for n = 2, num do
+      local p = tbl[math.random(1, #tbl)]
+      -- Check for duplicate
+      if unique then
+        local c = 1
+        -- Avoid endless loop if all values in the table are identical
+        while (itteutil.has_key(picks, p)) and (c <= #tbl) do
+          p = tbl[math.random(1, #tbl)]
+          c = c + 1
+        end
+      end
+      picks[n] = p
+    end
+  end
+  return picks
+end
+
+
+itteutil.docs.sleep = [[  (seconds_int)
+  Set a delay in seconds.
+  ]]
+function itteutil.sleep(s)
+  local timer = os.clock()
+  while (os.clock() - timer < s) do end
+end
+
+
+itteutil.docs.debug = [[  (tag_str, debug_str [, enabled_bool])
+  Format and print debug output if `enabled` is true.
+  ]]
+function itteutil.debug(tag, str, enabled)
+  if enabled then
+    local ts = os.date("%Y-%m-%d %H:%M:%S", os.time())
+    print("[" .. ts .. "][" .. tag .. "] " .. str)
+  end
+end
+
+
+itteutil.docs.source_file = [[  (filename_str)
+  Load a source file.
+  ]]
+function itteutil.source_file(str)
+  local func, err = loadfile(str)
+  if func then
+    return func()
+  else
+    itteutil.debug("source_file", "Error: " .. err, true)
+    do return end
+  end
+end
+
+
+
+itteutil.docs.read_file = [[  (filename_str)
+  Open a file and return the contents as a string.
+  ]]
+function itteutil.read_file(str)
+  local file = io.open(str)
+  if io.type(file) == "file" then
+    local contents = file:read("*a")
+    file:close()
+    return contents
+  else
+    itteutil.debug("read_file", "Error: cannot read file.", true)
+  end
+end
+
+
+return itteutil

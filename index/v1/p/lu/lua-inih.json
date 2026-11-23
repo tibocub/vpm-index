@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "lua-inih",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/agladysh/lua-inih",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 16 Dec 2016 18:40:35 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Dec 2016 18:40:35 GMT",
+          "sha256": "780861ad6cc220109be47acebe97144e2281f1da16bd56618e9041ecb1c452a4",
+          "size": 612
+        },
+        "src": {
+          "date": "Fri, 16 Dec 2016 18:40:36 GMT",
+          "sha256": "2a7f21afa5d8b0d6d61544e44fea3838f4418a7cd73e2a88e782f1ca672ab4e7",
+          "size": 18408,
+          "url": "https://luarocks.org/lua-inih-0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "inih"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src/",
+                "lib/inih/"
+              ],
+              "name": "inih",
+              "sources": [
+                "src/lua-inih.c",
+                "lib/inih/ini.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 16 Dec 2016 18:40:36 GMT",
+        "sha256": "2a7f21afa5d8b0d6d61544e44fea3838f4418a7cd73e2a88e782f1ca672ab4e7",
+        "size": 18408,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-inih-0.1-1.src.rock"
+      },
+      "summary": "Bindings for inih, simple .INI file parser",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,171 @@
+-- ============================================================
+-- Shiva Test — Event System Simulation
+-- Simulates FiveM's event system: TriggerEvent, AddEventHandler,
+-- RegisterNetEvent, TriggerServerEvent, TriggerClientEvent.
+-- Tracks fired events for assertions.
+-- ============================================================
+
+local Events = {}
+
+local _handlers = {}  -- { [eventName] = { fn, fn, ... } }
+local _fired    = {}  -- { [eventName] = { { args... }, ... } }
+
+-- ========================
+-- Internal helpers
+-- ========================
+
+local function log(name, args)
+    if not _fired[name] then _fired[name] = {} end
+    _fired[name][#_fired[name] + 1] = args
+end
+
+local function dispatch(name, args)
+    log(name, args)
+    local handlers = _handlers[name]
+    if not handlers then return end
+    for _, fn in ipairs(handlers) do
+        fn(table.unpack(args))
+    end
+end
+
+-- ========================
+-- Install globals
+-- ========================
+
+---@param G table  The global environment (_G)
+---@param mode string  'server' | 'client'
+function Events.install(G, mode)
+    G.AddEventHandler = function(event, fn)
+        if not _handlers[event] then _handlers[event] = {} end
+        _handlers[event][#_handlers[event] + 1] = fn
+    end
+
+    G.RegisterNetEvent = function(event, fn)
+        if not _handlers[event] then _handlers[event] = {} end
+        -- Accept optional handler function (common shorthand in FiveM resources)
+        if type(fn) == 'function' then
+            _handlers[event][#_handlers[event] + 1] = fn
+        end
+    end
+
+    G.RemoveEventHandler = function(event)
+        _handlers[event] = nil
+    end
+
+    G.TriggerEvent = function(event, ...)
+        dispatch(event, { ... })
+    end
+
+    if mode == 'server' then
+        G.TriggerClientEvent = function(event, _source, ...)
+            dispatch(event, { ... })
+        end
+
+        G.TriggerServerEvent = function(event, ...)
+            dispatch(event, { ... })
+        end
+
+        G.RegisterServerEvent = function(event)
+            if not _handlers[event] then _handlers[event] = {} end
+        end
+    else
+        G.TriggerServerEvent = function(event, ...)
+            dispatch(event, { ... })
+        end
+
+        G.TriggerClientEvent = function(event, _source, ...)
+            dispatch(event, { ... })
+        end
+
+        G.TriggerNUICallback = function(name, data, cb)
+            if cb then cb({}) end
+        end
+    end
+
+    G.TriggerNetEvent = G.TriggerEvent
+end
+
+-- ========================
+-- Assertions
+-- ========================
+
+---@param name string
+function Events.assertFired(name)
+    if not _fired[name] or #_fired[name] == 0 then
+        error({ type = 'assertion', message = string.format("Expected event '%s' to have been fired", name) }, 2)
+    end
+end
+
+---@param name string
+---@param expected table
+function Events.assertFiredWith(name, expected)
+    if not _fired[name] or #_fired[name] == 0 then
+        error({ type = 'assertion', message = string.format("Expected event '%s' to have been fired", name) }, 2)
+    end
+
+    local function deepEqual(a, b)
+        if type(a) ~= type(b) then return false end
+        if type(a) ~= 'table' then return a == b end
+        for k, v in pairs(a) do
+            if not deepEqual(v, b[k]) then return false end
+        end
+        for k, v in pairs(b) do
+            if not deepEqual(v, a[k]) then return false end
+        end
+        return true
+    end
+
+    for _, args in ipairs(_fired[name]) do
+        if deepEqual(args, expected) then return end
+        -- also check if expected matches args[1] (single-table payload pattern)
+        if type(expected) == 'table' and type(args[1]) == 'table' and deepEqual(args[1], expected) then
+            return
+        end
+    end
+
+    error({
+        type = 'assertion',
+        message = string.format("Event '%s' was fired but not with the expected payload", name),
+    }, 2)
+end
+
+---@param name string
+function Events.assertNotFired(name)
+    if _fired[name] and #_fired[name] > 0 then
+        error({ type = 'assertion', message = string.format("Expected event '%s' to NOT have been fired", name) }, 2)
+    end
+end
+
+---@param name string
+---@param n integer
+function Events.assertFiredTimes(name, n)
+    local count = (_fired[name] and #_fired[name]) or 0
+    if count ~= n then
+        error({
+            type = 'assertion',
+            message = string.format("Expected event '%s' to fire %d time(s), but fired %d time(s)", name, n, count),
+        }, 2)
+    end
+end
+
+---@return table  Snapshot of all fired events and their call arguments
+function Events.getFired()
+    return _fired
+end
+
+Events.getLog   = Events.getFired
+
+function Events.clearLog()
+    _fired = {}
+end
+
+-- ========================
+-- Lifecycle
+-- ========================
+
+function Events.reset()
+    _handlers = {}
+    _fired    = {}
+end
+
+return Events

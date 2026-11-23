@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-connections-quota",
+  "versions": {
+    "0.1.10-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/connections-quota/expiration.lua": {
+          "sha256": "b85e2d37e5fdf6b03c0346228abb69db3c7221b0f66573a05f27106b95537d49",
+          "size": 116,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-connections-quota/58a735b984735d01ea0d93cf59a241c27af5094c/kong/plugins/connections-quota/expiration.lua"
+        },
+        "kong/plugins/connections-quota/handler.lua": {
+          "sha256": "205e747c4542c7118584e9ac582c21ed0dac623309badaac58b794f3db6f3637",
+          "size": 9113,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-connections-quota/58a735b984735d01ea0d93cf59a241c27af5094c/kong/plugins/connections-quota/handler.lua"
+        },
+        "kong/plugins/connections-quota/policies/init.lua": {
+          "sha256": "5b79ff41edaa4671c14cd985dac2da9c7b6bc5b1b7364c1b14ba67a7ed1d7998",
+          "size": 1491,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-connections-quota/58a735b984735d01ea0d93cf59a241c27af5094c/kong/plugins/connections-quota/policies/init.lua"
+        },
+        "kong/plugins/connections-quota/policies/strategy/local.lua": {
+          "sha256": "4d3badcd92e080ce236edd2ba8f030d26feb1516a1fa49c9c15ec6903034137a",
+          "size": 3569,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-connections-quota/58a735b984735d01ea0d93cf59a241c27af5094c/kong/plugins/connections-quota/policies/strategy/local.lua"
+        },
+        "kong/plugins/connections-quota/policies/strategy/redis.lua": {
+          "sha256": "8af0f175137691c3262c36c124ad244f4fd3180065f02a66c2d5261e46448a3c",
+          "size": 7961,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-connections-quota/58a735b984735d01ea0d93cf59a241c27af5094c/kong/plugins/connections-quota/policies/strategy/redis.lua"
+        },
+        "kong/plugins/connections-quota/schema.lua": {
+          "sha256": "b222c97ac1d6bdadb0b9bed12ee00213afa306b7ecc50c787fea4d2361271418",
+          "size": 3228,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-connections-quota/58a735b984735d01ea0d93cf59a241c27af5094c/kong/plugins/connections-quota/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/figment-networks/kong-plugin-connections-quota",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 16 Sep 2022 13:46:07 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Sep 2022 13:46:07 GMT",
+          "sha256": "a42e25429ebcb635f0f5ab88e55881fdf3d1ac038584fdc6923c17f6216672ce",
+          "size": 1881
+        },
+        "src": {
+          "date": "Fri, 16 Sep 2022 13:46:08 GMT",
+          "sha256": "8ed77a274886f91150ddb42b97089e86fd9ffcecd3e7ea99ce64ad6a0a311068",
+          "size": 27439,
+          "url": "https://luarocks.org/kong-plugin-connections-quota-0.1.10-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.connections-quota.expiration",
+        "kong.plugins.connections-quota.handler",
+        "kong.plugins.connections-quota.policies",
+        "kong.plugins.connections-quota.policies.strategy.local",
+        "kong.plugins.connections-quota.policies.strategy.redis",
+        "kong.plugins.connections-quota.schema"
+      ],
+      "origin": {
+        "commit": "58a735b984735d01ea0d93cf59a241c27af5094c",
+        "ref": "0.1.10",
+        "type": "git",
+        "url": "https://github.com/figment-networks/kong-plugin-connections-quota"
+      },
+      "size": 25478,
+      "summary": "Kong plugin to make sure user can have a limited number of WebSocket connections at a time..",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.reports",
+        "kong.tools.timestamp",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.timestamp",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 6
+      }
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "kind": "lib",
+  "name": "lmpfrlib",
+  "versions": {
+    "20170112-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://www.circuitwizard.de/lmpfrlib/lmpfrlib.html",
+      "license": "LGPL",
+      "lua": ">= 5.3, < 5.5",
+      "luarocks": {
+        "date": "Sat, 07 May 2022 16:12:12 GMT",
+        "rockspec": {
+          "date": "Sat, 07 May 2022 16:12:12 GMT",
+          "sha256": "edd4f6b7381daae273c4378e9ca64b10e9a8db8edb1feb0e8a2ead322b8ff8f4",
+          "size": 1033
+        },
+        "src": {
+          "date": "Sat, 07 May 2022 16:12:14 GMT",
+          "sha256": "318bb0d42e519dd48a80ab2a0d3be23d014d5d5352162b578d377afd06f17df7",
+          "size": 10044,
+          "url": "https://luarocks.org/lmpfrlib-20170112-2.src.rock"
+        }
+      },
+      "modules": [
+        "lmpfrlib"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "GMP",
+          "MPFR"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "GMP": {
+              "header": "gmp",
+              "library": "gmp"
+            },
+            "MPFR": {
+              "header": "mpfr",
+              "library": "mpfr"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(GMP_INCDIR)",
+                "$(MPFR_INCDIR)"
+              ],
+              "libdirs": [
+                "$(GMP_LIBDIR)",
+                "$(MPFR_LIBDIR)"
+              ],
+              "libraries": [
+                "mpfr",
+                "gmp"
+              ],
+              "name": "lmpfrlib",
+              "sources": [
+                "lmpfrlib.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 07 May 2022 16:12:14 GMT",
+        "sha256": "318bb0d42e519dd48a80ab2a0d3be23d014d5d5352162b578d377afd06f17df7",
+        "size": 10044,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lmpfrlib-20170112-2.src.rock"
+      },
+      "summary": "Lua API for the GNU MPFR library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

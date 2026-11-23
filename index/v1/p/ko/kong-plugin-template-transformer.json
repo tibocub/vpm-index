@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-template-transformer",
+  "versions": {
+    "3.2.1-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-http",
+        "lua-resty-template >= 1.9-1"
+      ],
+      "files": {
+        "kong/plugins/template-transformer/handler.lua": {
+          "sha256": "9ba02baa2e6e846b4910e96ff628d7ffe469895fe8bbea7500b14301ed948118",
+          "size": 8530,
+          "url": "https://raw.githubusercontent.com/stone-payments/kong-plugin-template-transformer/f5ee2802694d375754b695ef5ca80abdf1c6cf1d/kong/plugins/template-transformer/handler.lua"
+        },
+        "kong/plugins/template-transformer/schema.lua": {
+          "sha256": "fca14d0167190dc1c6d0a58e61697d4c4b79b586ebc0eaac98fdfc4582db9fff",
+          "size": 602,
+          "url": "https://raw.githubusercontent.com/stone-payments/kong-plugin-template-transformer/f5ee2802694d375754b695ef5ca80abdf1c6cf1d/kong/plugins/template-transformer/schema.lua"
+        },
+        "kong/plugins/template-transformer/template_transformer.lua": {
+          "sha256": "550bd2965742310a44550220cab5eda1a208a84bdd94e852e10f3014174bf169",
+          "size": 154,
+          "url": "https://raw.githubusercontent.com/stone-payments/kong-plugin-template-transformer/f5ee2802694d375754b695ef5ca80abdf1c6cf1d/kong/plugins/template-transformer/template_transformer.lua"
+        },
+        "kong/plugins/template-transformer/utils.lua": {
+          "sha256": "5b468140b145bab64d60aae8680792e3b6878895ebe56fd5bd28669da3cb2017",
+          "size": 1592,
+          "url": "https://raw.githubusercontent.com/stone-payments/kong-plugin-template-transformer/f5ee2802694d375754b695ef5ca80abdf1c6cf1d/kong/plugins/template-transformer/utils.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 16 Jun 2026 18:51:08 GMT",
+        "rockspec": {
+          "date": "Tue, 16 Jun 2026 18:51:08 GMT",
+          "sha256": "cab215a1f14853095262c9258c20f6245e6dc963fee21c2b758285346127727e",
+          "size": 872
+        },
+        "src": {
+          "date": "Tue, 16 Jun 2026 18:51:09 GMT",
+          "sha256": "5bd186d15f3cf5b0307b7f2d437a313dda0ec60d4d165a06979fe107b1d310b6",
+          "size": 37666,
+          "url": "https://luarocks.org/kong-plugin-template-transformer-3.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.template-transformer.handler",
+        "kong.plugins.template-transformer.schema",
+        "kong.plugins.template-transformer.template_transformer",
+        "kong.plugins.template-transformer.utils"
+      ],
+      "origin": {
+        "commit": "f5ee2802694d375754b695ef5ca80abdf1c6cf1d",
+        "ref": "v3.2.1",
+        "type": "git",
+        "url": "https://github.com/stone-payments/kong-plugin-template-transformer"
+      },
+      "size": 10878,
+      "summary": "A Kong plugin that enables template transforming",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing function: decode_array_with_array_mt",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

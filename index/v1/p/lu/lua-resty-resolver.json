@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-resolver",
+  "versions": {
+    "0.06-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-dns >= 0.21-1"
+      ],
+      "files": {
+        "resolver/client.lua": {
+          "sha256": "d832c14e878fd5a41c9eabae2621f0d0fecfb12740f52dc31e0cef9e8cb7ce63",
+          "size": 3315,
+          "url": "https://raw.githubusercontent.com/jkeys089/lua-resty-resolver/df848d752ad4973251eec470fa64fd6305ad8239/lib/resolver/client.lua"
+        },
+        "resolver/master.lua": {
+          "sha256": "ffd654faa2427088f05cf8604df482f26bfe7f198a9fd3c01cf4ded27b49e7a0",
+          "size": 5607,
+          "url": "https://raw.githubusercontent.com/jkeys089/lua-resty-resolver/df848d752ad4973251eec470fa64fd6305ad8239/lib/resolver/master.lua"
+        }
+      },
+      "homepage": "https://github.com/jkeys089/lua-resty-resolver",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 23 Jun 2025 19:10:55 GMT",
+        "rockspec": {
+          "date": "Mon, 23 Jun 2025 19:10:55 GMT",
+          "sha256": "8d558091a10c58f292cc4405bd7c114ab16f542af884854283d144c42a253bff",
+          "size": 1159
+        },
+        "src": {
+          "date": "Mon, 23 Jun 2025 19:10:56 GMT",
+          "sha256": "51d16743cf2f01ebbdf426c5f9d05e89cc72319a428c088ca5b9ebd41447d221",
+          "size": 17529,
+          "url": "https://luarocks.org/lua-resty-resolver-0.06-1.src.rock"
+        }
+      },
+      "modules": [
+        "resolver.client",
+        "resolver.master"
+      ],
+      "origin": {
+        "commit": "df848d752ad4973251eec470fa64fd6305ad8239",
+        "type": "git",
+        "url": "https://github.com/jkeys089/lua-resty-resolver"
+      },
+      "size": 8922,
+      "summary": "Caching DNS resolver for ngx_lua and LuaJIT",
+      "undeclared_requires": [
+        "ngx"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (ngx)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

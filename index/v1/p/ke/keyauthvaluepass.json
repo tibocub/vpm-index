@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "keyauthvaluepass",
+  "versions": {
+    "1.5-4": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/key-auth-value-pass/handler.lua": {
+          "sha256": "33bc7829c8b8f48bc21764962dcf50a8b76400f62693e14576f20cdf1780d633",
+          "size": 1216,
+          "url": "https://raw.githubusercontent.com/jhitzke/key-auth-value-pass/005f016aca59b3d4f646afae414b2519de467430/src/handler.lua"
+        },
+        "kong/plugins/key-auth-value-pass/schema.lua": {
+          "sha256": "7aca2ef0f25bd65844c371b37f8cdf4c105bfafb696cae29587ca93a29dddc55",
+          "size": 163,
+          "url": "https://raw.githubusercontent.com/jhitzke/key-auth-value-pass/005f016aca59b3d4f646afae414b2519de467430/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT/X11",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Wed, 14 Sep 2016 06:20:11 GMT",
+        "rockspec": {
+          "date": "Wed, 14 Sep 2016 06:20:11 GMT",
+          "sha256": "0a8681dba974706cd85d433fbcbd2798dcaa74cc0dc557ff95d7b31d0bc4137a",
+          "size": 496
+        },
+        "src": {
+          "date": "Wed, 14 Sep 2016 06:20:12 GMT",
+          "sha256": "8d478bee7519f31f0f904f8bf4e7c910044f080f212b60d5075126a2ffaf6c3c",
+          "size": 3445,
+          "url": "https://luarocks.org/keyauthvaluepass-1.5-4.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.key-auth-value-pass.handler",
+        "kong.plugins.key-auth-value-pass.schema"
+      ],
+      "origin": {
+        "commit": "005f016aca59b3d4f646afae414b2519de467430",
+        "ref": "1.5-4",
+        "type": "git",
+        "url": "https://github.com/jhitzke/key-auth-value-pass"
+      },
+      "size": 1379,
+      "summary": "Pass a value via custom_id using key-auth, using a given prefix",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

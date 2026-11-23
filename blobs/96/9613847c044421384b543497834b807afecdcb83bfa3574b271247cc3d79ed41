@@ -1,0 +1,109 @@
+local _module_0 = { }
+local string = require('string')
+local ck = require('resty.cookie')
+local url = require('net.url')
+local result = require('elan.result')
+local cjson
+do
+	local _obj_0 = require('elan.built')
+	cjson = _obj_0.cjson
+end
+local _anon_func_0 = function(self)
+	local _exp_0 = self.headers.transfer_encoding
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return ''
+	end
+end
+local make_req_read_body
+make_req_read_body = function(ngxreq)
+	return function(self)
+		if self.raw_body then
+			return self.raw_body
+		end
+		local cl
+		do
+			local _exp_0 = tonumber(self.content_length)
+			if _exp_0 ~= nil then
+				cl = _exp_0
+			else
+				cl = 0
+			end
+		end
+		local is_chunked = string.find(_anon_func_0(self), 'chunked')
+		if cl <= 0 and not is_chunked then
+			return nil, 'no body'
+		end
+		ngxreq.read_body()
+		local body = ngxreq.get_body_data()
+		if not body then
+			body = ngxreq.get_body_file()
+		end
+		if not body then
+			return nil, 'no body'
+		end
+		self.raw_body = body
+		return body
+	end
+end
+local req_parse_body
+req_parse_body = function(self, mime_type, opts)
+	if self.parsed_body then
+		return self.parsed_body
+	end
+	return result.unwrap_any(result.map_ok(result.map_ok(result.to_result(self:read_body()), function(body)
+		if mime_type == nil then
+			mime_type = self.content_type
+		end
+		if 'application/json' == mime_type then
+			return cjson.decode(body)
+		elseif 'application/x-www-form-urlencoded' == mime_type then
+			return url.parseQuery(body)
+		else
+			return nil, "unsupported MIME type: " .. tostring(mime_type)
+		end
+	end), function(parsed)
+		self.parsed_body = parsed
+		return parsed
+	end))
+end
+local _anon_func_1 = function(ngxvars, req)
+	local _exp_0 = ngxvars.query_string
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return ''
+	end
+end
+local new
+new = function(ngxreq, ngxvars, ngxctx)
+	local cookie = ck:new()
+	local req = { }
+	req.ctx = ngxctx
+	req.raw_original_uri = ngxvars.request_uri
+	req.raw_uri = ngxvars.uri .. ngxvars.is_args .. (_anon_func_1(ngxvars, req))
+	req.parsed_uri = nil
+	req.plain_route = nil
+	req.pat_route = nil
+	req.method = string.lower(ngxreq.get_method())
+	req.http_version = ngxreq.http_version()
+	req.is_internal = ngxreq.is_internal()
+	req.is_https = ngxvars.https == 'on'
+	req.remote_addr = tostring(ngxvars.remote_addr) .. ":" .. tostring(ngxvars.remote_port)
+	req.request_id = ngxvars.request_id
+	req.host = ngxvars.host
+	req.content_length = ngxvars.content_length
+	req.content_type = ngxvars.content_type
+	req.headers = ngxreq.get_headers()
+	req.cookie = cookie
+	req.parse_body = req_parse_body
+	req.read_body = make_req_read_body(ngxreq)
+	req.raw_body = nil
+	req.parsed_body = nil
+	req.path_vars = nil
+	req.db = nil
+	return req
+end
+_module_0["new"] = new
+return _module_0

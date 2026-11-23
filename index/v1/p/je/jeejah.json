@@ -1,0 +1,85 @@
+{
+  "kind": "app",
+  "name": "jeejah",
+  "versions": {
+    "0.3.2-1": {
+      "bin": {
+        "jeejah": "bin/jeejah"
+      },
+      "blocked_by": {
+        "name": "luasocket",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "luasocket = 3.0rc1-2"
+      ],
+      "files": {
+        "bencode.lua": {
+          "sha256": "12af32e3d3c7509163e28d1a195f208812f8341ee87ef659a58189bb45290e53",
+          "size": 3048,
+          "url": "https://gitlab.com/technomancy/jeejah/-/raw/23fbb2267b57e72789af947b9e7a1b55ea7070fc/bencode.lua"
+        },
+        "bin/jeejah": {
+          "sha256": "7da7da3245eedc230047207f0e3e7b0c0c58fb23b832d65da62420fbbc1c236c",
+          "size": 1056,
+          "url": "https://gitlab.com/technomancy/jeejah/-/raw/23fbb2267b57e72789af947b9e7a1b55ea7070fc/bin/jeejah"
+        },
+        "jeejah.lua": {
+          "sha256": "ddd774abef75cb39709000143c74efd55bdea31dddd3d0a0b6296b111c4192a8",
+          "size": 12540,
+          "url": "https://gitlab.com/technomancy/jeejah/-/raw/23fbb2267b57e72789af947b9e7a1b55ea7070fc/jeejah.lua"
+        },
+        "jeejah/fenneleval.lua": {
+          "sha256": "df34cecdecd9dc898149471f7004b2e37d50722b97bb1cebe3a68699532ff9df",
+          "size": 2307,
+          "url": "https://gitlab.com/technomancy/jeejah/-/raw/23fbb2267b57e72789af947b9e7a1b55ea7070fc/jeejah/fenneleval.lua"
+        }
+      },
+      "homepage": "https://gitlab.com/technomancy/jeejah",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 07 May 2021 00:23:11 GMT",
+        "rockspec": {
+          "date": "Fri, 07 May 2021 00:23:11 GMT",
+          "sha256": "3ae8feba61c538bb46c3030aa1c86f1b57ea23244c74fcd783dd37f630ff6cf9",
+          "size": 725
+        },
+        "src": {
+          "date": "Fri, 07 May 2021 00:23:12 GMT",
+          "sha256": "1e190c6ac0b395754e8aaa1b87dbfc9cc28c6ad62ba98a3cbd29847b92c411ce",
+          "size": 54904,
+          "url": "https://luarocks.org/jeejah-0.3.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "bencode",
+        "jeejah",
+        "jeejah.fenneleval"
+      ],
+      "origin": {
+        "commit": "23fbb2267b57e72789af947b9e7a1b55ea7070fc",
+        "ref": "0.3.2",
+        "type": "git",
+        "url": "https://gitlab.com/technomancy/jeejah.git"
+      },
+      "size": 18951,
+      "summary": "An nREPL server",
+      "undeclared_requires": [
+        "fennel",
+        "luarocks.loader",
+        "serpent",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

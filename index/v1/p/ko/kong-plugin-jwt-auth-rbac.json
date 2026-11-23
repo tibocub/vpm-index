@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-auth-rbac",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-auth-rbac/handler.lua": {
+          "sha256": "ba15a2711a06a3f3baddd2553151e8fe39675b2a50449e4b8d5fa7c3a45af34a",
+          "size": 5180,
+          "url": "https://raw.githubusercontent.com/prabago/kong-plugin-jwt-auth-rbac/e89f45fee9b9a14ce71b1ce61540d6656d3ae93f/handler.lua"
+        },
+        "kong/plugins/jwt-auth-rbac/schema.lua": {
+          "sha256": "200b2ef3b74eaa76ae164c02d73e35d1056235af714e354fe913b330b1432e49",
+          "size": 638,
+          "url": "https://raw.githubusercontent.com/prabago/kong-plugin-jwt-auth-rbac/e89f45fee9b9a14ce71b1ce61540d6656d3ae93f/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/prabago/kong-plugin-jwt-auth-rbac",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 01 Jul 2020 21:12:17 GMT",
+        "rockspec": {
+          "date": "Wed, 01 Jul 2020 21:12:17 GMT",
+          "sha256": "427768a2ab4db9efe89e11965d02489285e905c24f2b40b36dc370bb3b09e2ef",
+          "size": 650
+        },
+        "src": {
+          "date": "Wed, 01 Jul 2020 21:12:19 GMT",
+          "sha256": "d18a5712a89e42bd3018369a9413c0997e44c7f657e17719131bd09871402c45",
+          "size": 70310,
+          "url": "https://luarocks.org/kong-plugin-jwt-auth-rbac-0.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-auth-rbac.handler",
+        "kong.plugins.jwt-auth-rbac.schema"
+      ],
+      "origin": {
+        "commit": "e89f45fee9b9a14ce71b1ce61540d6656d3ae93f",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/prabago/kong-plugin-jwt-auth-rbac"
+      },
+      "size": 5818,
+      "summary": "A Kong plugin to authorize access based on a roles claim",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

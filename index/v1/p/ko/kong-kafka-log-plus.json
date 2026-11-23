@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "kong-kafka-log-plus",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-kafka",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "lua-resty-kafka >= 0.20-0",
+        "uuid >= 0.3-1"
+      ],
+      "files": {
+        "kong/plugins/kong-kafka-log-plus/handler.lua": {
+          "sha256": "3c4503302f15ec8d1b4acb71253aa2482975740332d3aff15c1a228d8c629c74",
+          "size": 3219,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-kafka-log-plus/eebe09748dc173086fd17b2420a1533cd5a6fd52/kong/plugins/kong-kafka-log-plus/handler.lua"
+        },
+        "kong/plugins/kong-kafka-log-plus/schema.lua": {
+          "sha256": "0e50ec0286ead081ff591f198d077e693c7b0b7a4993bba34dc970151177900f",
+          "size": 875,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-kafka-log-plus/eebe09748dc173086fd17b2420a1533cd5a6fd52/kong/plugins/kong-kafka-log-plus/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Wed, 03 Jul 2024 07:39:15 GMT",
+        "rockspec": {
+          "date": "Wed, 03 Jul 2024 07:39:15 GMT",
+          "sha256": "23f29556e1695e2588de41136d7daeab5461b9ef5e5d6862a76a82d980180249",
+          "size": 654
+        },
+        "src": {
+          "date": "Wed, 03 Jul 2024 07:39:17 GMT",
+          "sha256": "b0596b9526d97a31d394feda6b369612c9ae675ddf324943efe27a4150337cbe",
+          "size": 9077,
+          "url": "https://luarocks.org/kong-kafka-log-plus-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-kafka-log-plus.handler",
+        "kong.plugins.kong-kafka-log-plus.schema"
+      ],
+      "origin": {
+        "commit": "eebe09748dc173086fd17b2420a1533cd5a6fd52",
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/Platformatory/kong-kafka-log-plus"
+      },
+      "size": 4094,
+      "summary": "Demonstrate API composition with Kong",
+      "undeclared_requires": [
+        "inspect",
+        "kong.plugins.base_plugin",
+        "kong.tools.timestamp",
+        "resty.http",
+        "resty.kafka.client",
+        "resty.kafka.producer",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

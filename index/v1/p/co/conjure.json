@@ -1,0 +1,981 @@
+{
+  "kind": "lib",
+  "name": "conjure",
+  "versions": {
+    "4.60.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "conjure-benchmark/bencode.lua": {
+          "sha256": "be07f86f0e3b5232d4780169d9fb653b2581d3e12ac6556527536c5ac478eb5e",
+          "size": 1280,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-benchmark/bencode.lua"
+        },
+        "conjure-benchmark/log.lua": {
+          "sha256": "7a7d1cdabf9fb8f1eb5b5013884c319c85c83d5283ffad537c4d42cc74b95ad2",
+          "size": 798,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-benchmark/log.lua"
+        },
+        "conjure-benchmark/run.lua": {
+          "sha256": "6d5a548638eedaf1b04fbb24ab17c04bf944fb03f4c964a97c0389f9129d1b78",
+          "size": 997,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-benchmark/run.lua"
+        },
+        "conjure-spec/assertions.lua": {
+          "sha256": "cdcd11f2bcd0a4d10166afb23963c56549cf7cd73230ca05612cba67ac86a089",
+          "size": 577,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/assertions.lua"
+        },
+        "conjure-spec/client/clojure/nrepl/action_spec.lua": {
+          "sha256": "5dbef63e0b39256f2dadca9f39fa818fc05ce5edc1dc8bafed706fc3989874cf",
+          "size": 1225,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/clojure/nrepl/action_spec.lua"
+        },
+        "conjure-spec/client/clojure/nrepl/auto-repl_spec.lua": {
+          "sha256": "475596eb8568ca876114f871545c1b39099d594f15503681f48496bed95f297e",
+          "size": 1120,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/clojure/nrepl/auto-repl_spec.lua"
+        },
+        "conjure-spec/client/clojure/nrepl/init_spec.lua": {
+          "sha256": "473d46cf3b253507174851bd6d52d47ce6700f8288fd64d24e6468b7114fe1fe",
+          "size": 2168,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/clojure/nrepl/init_spec.lua"
+        },
+        "conjure-spec/client/clojure/nrepl/server_spec.lua": {
+          "sha256": "758d999e8acea6e685f4575519cd0653b1a6eb2cb158d779609abcdc8e736343",
+          "size": 5475,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/clojure/nrepl/server_spec.lua"
+        },
+        "conjure-spec/client/common-lisp/swank_spec.lua": {
+          "sha256": "fc98e833b1a0c73661f08346dde3d15c4352a62c2c0bdc8e52eadd12568403dd",
+          "size": 6710,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/common-lisp/swank_spec.lua"
+        },
+        "conjure-spec/client/fennel/aniseed_spec.lua": {
+          "sha256": "42f16001b308419e7d36c0ea1a6f2ed34498c3194fc6bd9ee446abcd5dd05073",
+          "size": 4476,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/fennel/aniseed_spec.lua"
+        },
+        "conjure-spec/client/fennel/nfnl_spec.lua": {
+          "sha256": "df07adc3fa72c17e9fa97e27be176fcd54c934ce7899ce17a5fe624fcebe96fb",
+          "size": 1588,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/fennel/nfnl_spec.lua"
+        },
+        "conjure-spec/client/guile/fake-socket.lua": {
+          "sha256": "0ee96cc1b8ebf7459b8e646d12cffd653881873c9c28d87d8e4ea07a424c6cf9",
+          "size": 413,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/guile/fake-socket.lua"
+        },
+        "conjure-spec/client/guile/mock-socket.lua": {
+          "sha256": "8fe26ec749e600053dad80e5e19a3d53551100a805985a6f41d5f80a4cf0b66a",
+          "size": 413,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/guile/mock-socket.lua"
+        },
+        "conjure-spec/client/guile/socket_spec.lua": {
+          "sha256": "7f885cb6ad602e8fd4c9485b6e09b3b60a6eb3cf520cb6fe7a4774dd376d5069",
+          "size": 21260,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/guile/socket_spec.lua"
+        },
+        "conjure-spec/client/scheme/mock-stdio.lua": {
+          "sha256": "53c190af00341047363fb606f7f34d86137b8380ca5f22c7e903968b2c77eae7",
+          "size": 394,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/scheme/mock-stdio.lua"
+        },
+        "conjure-spec/client/scheme/stdio_spec.lua": {
+          "sha256": "cdbbcafa398952f916cee5041161ab7bd3db8a767be5f5bb97db1bfa1c0dad54",
+          "size": 5137,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/scheme/stdio_spec.lua"
+        },
+        "conjure-spec/client/sql/stdio_spec.lua": {
+          "sha256": "ade2a10385c96052d5e0e6b6b7283afc9e3ef8eb453d0ce7571504ea69dc6185",
+          "size": 1174,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client/sql/stdio_spec.lua"
+        },
+        "conjure-spec/client_spec.lua": {
+          "sha256": "bf11b1b2ee2e50220935784d5166ebf087c1e14936f33fc29fe6f993afaddd21",
+          "size": 4603,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/client_spec.lua"
+        },
+        "conjure-spec/config_spec.lua": {
+          "sha256": "a3986a5b049b2fce047e344a793450e2fef79bae0522d26b2f8369824dee347a",
+          "size": 1786,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/config_spec.lua"
+        },
+        "conjure-spec/dynamic_spec.lua": {
+          "sha256": "751d6ce3e2ffef82566cc080cec3cf7acba536db48c423727d69498b2ba0f9c7",
+          "size": 4185,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/dynamic_spec.lua"
+        },
+        "conjure-spec/extract_spec.lua": {
+          "sha256": "6d37edd16cde0eae8fa1f2af524cfe2f9bba134d4d9c644071e894e82d85c862",
+          "size": 4727,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/extract_spec.lua"
+        },
+        "conjure-spec/fs_spec.lua": {
+          "sha256": "f20a9ed29e1a22f9aa43a94e04573f2bccf1f38ea547959ee81d590182439dbc",
+          "size": 6903,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/fs_spec.lua"
+        },
+        "conjure-spec/linked-list_spec.lua": {
+          "sha256": "1e0f7be3b4b1b69f11c7e09fad307a05b6bf56c0562c1f846c2180c9b9c2b499",
+          "size": 3089,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/linked-list_spec.lua"
+        },
+        "conjure-spec/mock-log.lua": {
+          "sha256": "ba21f8f18495b9c4c67e3d93be56481f96b15d5cc03eb5325e525b6bea4ed374",
+          "size": 123,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/mock-log.lua"
+        },
+        "conjure-spec/mock-tree-sitter-completions.lua": {
+          "sha256": "b3f8f2292e6d8f50304ecdf2805a611bab3dfcc9e17737820dcc0d3f7151760d",
+          "size": 554,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/mock-tree-sitter-completions.lua"
+        },
+        "conjure-spec/process_spec.lua": {
+          "sha256": "912d0fbedf123222758852feb41462e9327b126d3a66170786745c7281a6244f",
+          "size": 2326,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/process_spec.lua"
+        },
+        "conjure-spec/promise_spec.lua": {
+          "sha256": "27debffb564ecfd6d10f6bda827d00350d9be7a064b1f3a6b59dfbaa93fbf9d0",
+          "size": 2012,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/promise_spec.lua"
+        },
+        "conjure-spec/remote/mock-swank.lua": {
+          "sha256": "8d5a9b355cdb3462b280194d31509e7648e42a4311843e75cccb0639d61b8b6c",
+          "size": 597,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/remote/mock-swank.lua"
+        },
+        "conjure-spec/remote/stdio2_spec.lua": {
+          "sha256": "1ea9a4ac4c6e6fdb3b80fb4616c2d04bb34282912e39f6ae0f9cb9dade404039",
+          "size": 1069,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/remote/stdio2_spec.lua"
+        },
+        "conjure-spec/remote/stdio_spec.lua": {
+          "sha256": "69906900169ce6c6489c93bd571c9c21094dfb0ca31af6a9d74b0ea29fe91f65",
+          "size": 1066,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/remote/stdio_spec.lua"
+        },
+        "conjure-spec/remote/transport/base64_spec.lua": {
+          "sha256": "b1bef41607ad10ad4974c70c236d04600e0261647abbe1e7f19e739e48fef8c5",
+          "size": 830,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/remote/transport/base64_spec.lua"
+        },
+        "conjure-spec/remote/transport/bencode_spec.lua": {
+          "sha256": "7cf554ecbebc5294537e998568529d9e9e80b15f141125f3be885e019273ffd4",
+          "size": 12166,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/remote/transport/bencode_spec.lua"
+        },
+        "conjure-spec/remote/transport/elisp_spec.lua": {
+          "sha256": "2557584f5c21e1ae9abfaba425ff3c168e7b45503aba1a3267cd38b21189c9a3",
+          "size": 2156,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/remote/transport/elisp_spec.lua"
+        },
+        "conjure-spec/remote/transport/netrepl_spec.lua": {
+          "sha256": "71ad65b6b43b695018a14726eb096db405164d586be3b7ee86e2ffd2cd087014",
+          "size": 3190,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/remote/transport/netrepl_spec.lua"
+        },
+        "conjure-spec/resources_spec.lua": {
+          "sha256": "0efe0f986aeea54c74e43a3e2e3996cd8d03533f2a7cf49433b73b0cc7b8b971",
+          "size": 4536,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/resources_spec.lua"
+        },
+        "conjure-spec/school_spec.lua": {
+          "sha256": "11112747eaa856e6fa1b6d53142a86020417b31c193ccea003648cef5397d397",
+          "size": 694,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/school_spec.lua"
+        },
+        "conjure-spec/stack_spec.lua": {
+          "sha256": "f9ceb69bf62527281ba0dbc5654d11b7db0e04d6ca57ab49001910d066754c4f",
+          "size": 1077,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/stack_spec.lua"
+        },
+        "conjure-spec/text_spec.lua": {
+          "sha256": "a1963b90f9f7b785f8593d412bbb1fac570940b8c5b3f52e71b110fb2cc83a5b",
+          "size": 5761,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/text_spec.lua"
+        },
+        "conjure-spec/tree-sitter-completions_spec.lua": {
+          "sha256": "71d5d6e6849238fbd70628bb7b6ff7d98f7bc5696b9bf774988c1c970bb5c61e",
+          "size": 976,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/tree-sitter-completions_spec.lua"
+        },
+        "conjure-spec/tree-sitter_spec.lua": {
+          "sha256": "244783655a217217c1a6da482bd6e70f5cd0b4057cd11366db6bb7cf4a56655e",
+          "size": 3416,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/tree-sitter_spec.lua"
+        },
+        "conjure-spec/util.lua": {
+          "sha256": "3a9fbadfdcc8d0bdcb410a983d9dbe2787ee2f7a7492f83279542910d557c9f7",
+          "size": 483,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/util.lua"
+        },
+        "conjure-spec/util_spec.lua": {
+          "sha256": "b47b1bcf54f9f85a0f465a65104db21defd13d19a91cdeb54bcaff2aa761646d",
+          "size": 1373,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/util_spec.lua"
+        },
+        "conjure-spec/uuid_spec.lua": {
+          "sha256": "39f28e26ce5c0d3b315af49a0d5076950e81b6f0b6c4d6ad6c1b6c14c2059811",
+          "size": 1340,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure-spec/uuid_spec.lua"
+        },
+        "conjure/aniseed/autoload.lua": {
+          "sha256": "3171084227a356ee1f6f125f3047e971946eb7b028bb87da25c5b71a2d90635b",
+          "size": 1019,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/autoload.lua"
+        },
+        "conjure/aniseed/compile.lua": {
+          "sha256": "23255535304e051e600dfbe0537629b6d15561f59a439359f6219a6f3b39a436",
+          "size": 2990,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/compile.lua"
+        },
+        "conjure/aniseed/core.lua": {
+          "sha256": "eaa08bfc34c0928ef049a8625c4febaf866eeea997b421e1f81296a64f307acd",
+          "size": 9858,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/core.lua"
+        },
+        "conjure/aniseed/deps/fennel.lua": {
+          "sha256": "c1b8628cda9ee3e69c46860614084397ebb1e3b7b1f95e49d8c65c8e26617ed4",
+          "size": 232799,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/deps/fennel.lua"
+        },
+        "conjure/aniseed/deps/fun.lua": {
+          "sha256": "b5364b478f67e13db93c892e0e125bbeab9f92ab5991d202b164251e721f0884",
+          "size": 29003,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/deps/fun.lua"
+        },
+        "conjure/aniseed/deps/nvim.lua": {
+          "sha256": "1fafc71e87bb7192eb0c9ebbde87b19092952a41957c0935ec28cf89ca76ee15",
+          "size": 6937,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/deps/nvim.lua"
+        },
+        "conjure/aniseed/env.lua": {
+          "sha256": "bfbc47f5e07bc00c4434d3eb981373882f41ba270c7c4ff49a295dd6656505e1",
+          "size": 2130,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/env.lua"
+        },
+        "conjure/aniseed/eval.lua": {
+          "sha256": "6f7d7b2fce5c11b239b8d37b1a27b1447d22716770549a4d566921756d857214",
+          "size": 2374,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/eval.lua"
+        },
+        "conjure/aniseed/fennel.lua": {
+          "sha256": "21ffc4c9118ef1c532458d778843b78b6da5dc58b779d228a9df37910409a9ab",
+          "size": 1807,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/fennel.lua"
+        },
+        "conjure/aniseed/fs.lua": {
+          "sha256": "0cc43f69fcccb0f41eb3edc75e5d32b7756e569cb934bd5840582b93a60611b9",
+          "size": 1821,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/fs.lua"
+        },
+        "conjure/aniseed/nvim.lua": {
+          "sha256": "e215623988f92324b20bb0c83f538e68ce25bf636146732d33a425892e6b7ca3",
+          "size": 371,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/nvim.lua"
+        },
+        "conjure/aniseed/nvim/util.lua": {
+          "sha256": "d0a0f2c1ff59afd4cde5d7d653aa4ac848da7fbf105f4df5b0f322745a9da60b",
+          "size": 1790,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/nvim/util.lua"
+        },
+        "conjure/aniseed/setup.lua": {
+          "sha256": "9b2d100c5b19d3e82efb9ff025de1d490bc9855f48e3a8f077255e0a5bd5381a",
+          "size": 1826,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/setup.lua"
+        },
+        "conjure/aniseed/string.lua": {
+          "sha256": "4f77324919d6986802f2e08c972143530df5b077e831ec3bca40ae42a7b4c83f",
+          "size": 2045,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/string.lua"
+        },
+        "conjure/aniseed/test.lua": {
+          "sha256": "70364f8115107a6d7a4edbe47ddfde06cbba7e71123f372f55b8e993bbfa8382",
+          "size": 4997,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/test.lua"
+        },
+        "conjure/aniseed/view.lua": {
+          "sha256": "d2aabb1fea413fcd30788a8fcb4acb169467dfcde783c0e1d7c3f36102b2a8af",
+          "size": 547,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/aniseed/view.lua"
+        },
+        "conjure/buffer.lua": {
+          "sha256": "465610e3c528a06481d7956e9fe32ab04bf1914c0a96b3de548f3f990a95c561",
+          "size": 3524,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/buffer.lua"
+        },
+        "conjure/client.lua": {
+          "sha256": "3d02700ec640c3a0f28a7247e36da97bc2c779d91da91d82e4a051a31de066ef",
+          "size": 4826,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client.lua"
+        },
+        "conjure/client/clojure/nrepl/action.lua": {
+          "sha256": "e4cfb8a0a0a77bbb2a9f2eb0e3b575ec7d671eda2cd176c9557cca54e11e83ad",
+          "size": 28022,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/action.lua"
+        },
+        "conjure/client/clojure/nrepl/auto-repl.lua": {
+          "sha256": "7fcb1fc407946070f82499b87f140fbb1a20caf179c95d7824c2d1336179840e",
+          "size": 2644,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/auto-repl.lua"
+        },
+        "conjure/client/clojure/nrepl/debugger.lua": {
+          "sha256": "7f60af686d74f517d4377458dfc3099906e835a53d2d78d6e990bfe14664f5bd",
+          "size": 2895,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/debugger.lua"
+        },
+        "conjure/client/clojure/nrepl/init.lua": {
+          "sha256": "473b3317a76132080824cc1d95fe0fcb4d9252102e2688f10454cd68028a893c",
+          "size": 10989,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/init.lua"
+        },
+        "conjure/client/clojure/nrepl/parse.lua": {
+          "sha256": "cad2329084de65dbe522cae4b92575f5c9a89e091c99b8ad83b04984fe59c2a2",
+          "size": 703,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/parse.lua"
+        },
+        "conjure/client/clojure/nrepl/server.lua": {
+          "sha256": "f36c308648d63998ebb74f74cdc762e27f17525beb642e83843fac3f66c9d3be",
+          "size": 14660,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/server.lua"
+        },
+        "conjure/client/clojure/nrepl/state.lua": {
+          "sha256": "d378d5492dece175e301b55118703ffb99ad3cd996377067eb1ce89a452048ab",
+          "size": 437,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/state.lua"
+        },
+        "conjure/client/clojure/nrepl/ui.lua": {
+          "sha256": "7fb6cace570bea15db35d93726dd161dd21d9a38f3a5836dbccc3b28fef6532a",
+          "size": 2520,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/clojure/nrepl/ui.lua"
+        },
+        "conjure/client/common-lisp/completions.lua": {
+          "sha256": "a6db6aa886d83d9d9409ccf77846fbf8079dc0e6ffa7a6a44c32ce6b56e73b16",
+          "size": 493,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/common-lisp/completions.lua"
+        },
+        "conjure/client/common-lisp/swank.lua": {
+          "sha256": "3cad608997d853470cd64ae8648d1c0aabc6af0750356266c2383a0dfe11bdae",
+          "size": 9678,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/common-lisp/swank.lua"
+        },
+        "conjure/client/elixir/stdio.lua": {
+          "sha256": "5d0149c4e30bfaf0418c8a7aa5cf506452842f09f587e54ff4b865e246f1115c",
+          "size": 7888,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/elixir/stdio.lua"
+        },
+        "conjure/client/fennel/aniseed.lua": {
+          "sha256": "46647c64fef71ee0d91b9eb3305a08d570b3ab780d21d8f23cad52102f250afe",
+          "size": 9792,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/fennel/aniseed.lua"
+        },
+        "conjure/client/fennel/def-str-util.lua": {
+          "sha256": "baa1763384ecdc14f293e2acde7c741cc546e1491b17e91520fb3accc9ffc70e",
+          "size": 7641,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/fennel/def-str-util.lua"
+        },
+        "conjure/client/fennel/nfnl.lua": {
+          "sha256": "2ef0342356ccb620f25aa6b10491cdffba33431c1a1801714e9c4eab1bf30dc0",
+          "size": 3685,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/fennel/nfnl.lua"
+        },
+        "conjure/client/fennel/stdio.lua": {
+          "sha256": "152f77e5641460ab2e1fec47269793e5e68f652fb29bc5ecb26ec52d8bf79f99",
+          "size": 5273,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/fennel/stdio.lua"
+        },
+        "conjure/client/guile/completions.lua": {
+          "sha256": "40494619c6bb4cae5d82439fbd83ac4c7caade52197c0b641695be1a4d6478b1",
+          "size": 1550,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/guile/completions.lua"
+        },
+        "conjure/client/guile/socket.lua": {
+          "sha256": "d4fcac3288b910731d8274b56f78ee5184f2e764055702fe1b988673c360c267",
+          "size": 10741,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/guile/socket.lua"
+        },
+        "conjure/client/hy/stdio.lua": {
+          "sha256": "3b007eecce8959d766b2bd391d2feb2e50f69f7e1b0e97dd037020df7ec829b6",
+          "size": 6127,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/hy/stdio.lua"
+        },
+        "conjure/client/janet/netrepl.lua": {
+          "sha256": "3a22b305064e1388729c0430d2c3a40f909e963acd90a9c0e66fdda5290c0c12",
+          "size": 4668,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/janet/netrepl.lua"
+        },
+        "conjure/client/janet/stdio.lua": {
+          "sha256": "b54aeaefe69b1b0020112727de3086719ee8627bbb1dfc56c7b7e8313bfe64f7",
+          "size": 4217,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/janet/stdio.lua"
+        },
+        "conjure/client/javascript/import-replacer.lua": {
+          "sha256": "419a2b10c947247a5ca9992b9a8bd640181822d89d45d93086a868b2ae3545c6",
+          "size": 5664,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/javascript/import-replacer.lua"
+        },
+        "conjure/client/javascript/stdio.lua": {
+          "sha256": "79f11793c3030545890027fbe371b40e839f1b90ef91e324dc56698b4f18e381",
+          "size": 7928,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/javascript/stdio.lua"
+        },
+        "conjure/client/javascript/transformers.lua": {
+          "sha256": "74f254f3b5be34e4e4c431355561c61f954ed9dba733d0addcfd8d3db4a0e686",
+          "size": 6936,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/javascript/transformers.lua"
+        },
+        "conjure/client/javascript/ts-common.lua": {
+          "sha256": "024a406cde86fd6e31f22281d691c72a98b6898d556a7f760f19dfc21c4c47a2",
+          "size": 1031,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/javascript/ts-common.lua"
+        },
+        "conjure/client/julia/stdio.lua": {
+          "sha256": "72f9d7347ca149ac7c4792c2afab9ce1abe017c3caa76eaa1865465c1e7adc88",
+          "size": 5767,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/julia/stdio.lua"
+        },
+        "conjure/client/lua/neovim.lua": {
+          "sha256": "f0465431a94c1cb58d42e91ac1901e3ca7646fb4f47ab6e8d14d4e0efdfd121d",
+          "size": 5754,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/lua/neovim.lua"
+        },
+        "conjure/client/php/psysh.lua": {
+          "sha256": "a9550065544dc083fd2823e5270006ac73890345800a5cd41eb1ffaa0edda143",
+          "size": 6297,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/php/psysh.lua"
+        },
+        "conjure/client/python/stdio.lua": {
+          "sha256": "071b396c53b8ab878765999ec11f2d991b55e6389506baabd4e32ec2b72933f6",
+          "size": 9392,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/python/stdio.lua"
+        },
+        "conjure/client/r/stdio.lua": {
+          "sha256": "1c927b0e6220c97b67d9f768c9fd156024b02a12d3a2a40be4b4def03c9ef51b",
+          "size": 4725,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/r/stdio.lua"
+        },
+        "conjure/client/racket/stdio.lua": {
+          "sha256": "5ec554099fede920078ff2a1fee9536b6f4f8e9bff6f4b80c2dec3586afa8c65",
+          "size": 5378,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/racket/stdio.lua"
+        },
+        "conjure/client/ruby/stdio.lua": {
+          "sha256": "11e06c434a54f6a811fca860144c86b676432682dab7417d2482285cb9f36121",
+          "size": 7847,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/ruby/stdio.lua"
+        },
+        "conjure/client/rust/evcxr.lua": {
+          "sha256": "463ec0705920edb3fe40539b8576c5fe6202df34c7e170ec8671a99f7e8c405d",
+          "size": 5624,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/rust/evcxr.lua"
+        },
+        "conjure/client/scheme/completions.lua": {
+          "sha256": "55e9e9c914fdc3ddac2703d762cb35d1a987da93377d4daae760a4be492fcfd8",
+          "size": 1265,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/scheme/completions.lua"
+        },
+        "conjure/client/scheme/keywords.lua": {
+          "sha256": "7c2a57655d8fc9a8b10d1a9a5fe175f5c77b94f104ef0b627ea06f0cccc3ae89",
+          "size": 3809,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/scheme/keywords.lua"
+        },
+        "conjure/client/scheme/stdio.lua": {
+          "sha256": "2a96d8e826f1aab0de32de7dfba4308a52c6520afacdb0839784eaea4f274b64",
+          "size": 5939,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/scheme/stdio.lua"
+        },
+        "conjure/client/snd-s7/stdio.lua": {
+          "sha256": "f2cd520f1f4c2c0aa25c720eaf3c23bf73f717cd5a5942f450bba1d0dc10f038",
+          "size": 4861,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/snd-s7/stdio.lua"
+        },
+        "conjure/client/sql/stdio.lua": {
+          "sha256": "c4008bde17006029dce4fb0fc59f04d683954e57c225e0b1c164a0af190bbd32",
+          "size": 5610,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/client/sql/stdio.lua"
+        },
+        "conjure/config.lua": {
+          "sha256": "776d2a25d08e4b2a4e29fec5f70d1ada0aa14b684cf1771280b21f77ece1850e",
+          "size": 4288,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/config.lua"
+        },
+        "conjure/dynamic.lua": {
+          "sha256": "52b757b5d84e4f56a1a1790256e8aca5a9798d1f08087ca2c5a8c964121e0ee7",
+          "size": 1626,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/dynamic.lua"
+        },
+        "conjure/editor.lua": {
+          "sha256": "914490a4223caec720d47a0ee935e7b561c365c1ddf4d20fd5f8b9b21535f483",
+          "size": 1404,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/editor.lua"
+        },
+        "conjure/eval.lua": {
+          "sha256": "e033d4787094f7e6de17eda39008907b76f281c8e7c56744dc7ada027a7f2e09",
+          "size": 11754,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/eval.lua"
+        },
+        "conjure/event.lua": {
+          "sha256": "971a9247568535241b8b1d62f2bbf1107e9f977700008c67b8c8801cf1afb866",
+          "size": 685,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/event.lua"
+        },
+        "conjure/extract.lua": {
+          "sha256": "0aa8a73a703c705415de6077d9c7bfeca9e67e4ecc29eeda4859e1e05de984e6",
+          "size": 3449,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/extract.lua"
+        },
+        "conjure/extract/searchpair.lua": {
+          "sha256": "6e24b754a3a1c74bc9715e8dee91ee5d3a6986de2494671828437e6f32d8722f",
+          "size": 3854,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/extract/searchpair.lua"
+        },
+        "conjure/fs.lua": {
+          "sha256": "6c3d404ce708531200624e6f6a029fe2188df525c462e8e9b986b46f8618bbc1",
+          "size": 3937,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/fs.lua"
+        },
+        "conjure/hook.lua": {
+          "sha256": "84e361147548f1aad6249fc913736211b72e9f04ee533c76eed99118cce93ffb",
+          "size": 850,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/hook.lua"
+        },
+        "conjure/inline.lua": {
+          "sha256": "34215bd0b1cbbc7cf1f45649816bde1bfe99d363f87eff36ba805006bdcdf534",
+          "size": 927,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/inline.lua"
+        },
+        "conjure/linked-list.lua": {
+          "sha256": "53e98e2a0ab000eec7379cbb4d1f7f75e68d1b15a5260745d98a235e2e332b0f",
+          "size": 1418,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/linked-list.lua"
+        },
+        "conjure/log.lua": {
+          "sha256": "323f195a0b86d56151d4ff7b4ebcd1d89fe60179a844d9bd6bab383a2beefdb4",
+          "size": 19600,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/log.lua"
+        },
+        "conjure/main.lua": {
+          "sha256": "164efc680317c88f1a15034034a5533d4db34e6b97d27383f9ebab77763493ea",
+          "size": 406,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/main.lua"
+        },
+        "conjure/mapping.lua": {
+          "sha256": "2d6c301867f7c5541a48c75601dda4c17f97a366b04523fb46bf4407282b20ce",
+          "size": 9655,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/mapping.lua"
+        },
+        "conjure/net.lua": {
+          "sha256": "88938e7a7511298d3bd38fc5c353b2ef52263ae902838913e441db73d70627d1",
+          "size": 1592,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/net.lua"
+        },
+        "conjure/nfnl/api.lua": {
+          "sha256": "0f5100af642852d2e9a34dd57149639f1f8d7d807b99022f3b592c95c1a67470",
+          "size": 3611,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/api.lua"
+        },
+        "conjure/nfnl/callback.lua": {
+          "sha256": "5e31f52ba0097f1beb4282ce0f60eb5ad3e6ebdc978f03d787e5177eb780b17a",
+          "size": 3621,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/callback.lua"
+        },
+        "conjure/nfnl/compile.lua": {
+          "sha256": "139a2c229d95da7cff10b2fc4c8f265b2935032bedc2a2c55caab586550be9bd",
+          "size": 4509,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/compile.lua"
+        },
+        "conjure/nfnl/config.lua": {
+          "sha256": "d61532119f1740002d1cb904024320368e261e6f248709d81f0274cd90b74893",
+          "size": 4190,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/config.lua"
+        },
+        "conjure/nfnl/core.lua": {
+          "sha256": "fd2b6335e1e45e2a1ee0169763aa510e1810c957415ba68666f3f8b07fc24647",
+          "size": 11216,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/core.lua"
+        },
+        "conjure/nfnl/fennel.lua": {
+          "sha256": "c7b05b453944595a687130485056a6563accdc6e798d9b45454ba59ccb1fa33b",
+          "size": 302680,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/fennel.lua"
+        },
+        "conjure/nfnl/fs.lua": {
+          "sha256": "abee995bc4655d2fb349f48df6d7ac303d28ca42b66eb492af27cad6691a5bd8",
+          "size": 3185,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/fs.lua"
+        },
+        "conjure/nfnl/gc.lua": {
+          "sha256": "a2a562742577fe1b89e097b32b9f21337445e867312071fae88087c69549b624",
+          "size": 1173,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/gc.lua"
+        },
+        "conjure/nfnl/header.lua": {
+          "sha256": "9793c2e34261a9a4b316de9522857f04d7679a225d7e458ad35d7f1268c1e02e",
+          "size": 750,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/header.lua"
+        },
+        "conjure/nfnl/init.lua": {
+          "sha256": "31117c221d3a7d672d2f44c373df34dee6383d49cb7a99e04cb17e69f4bf5f24",
+          "size": 649,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/init.lua"
+        },
+        "conjure/nfnl/module.lua": {
+          "sha256": "e2650eecf85f4d7a07ccc7c6acca9c95cf147c3bcff5628bcebca8156b6de9bb",
+          "size": 950,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/module.lua"
+        },
+        "conjure/nfnl/notify.lua": {
+          "sha256": "5d7e7a22970a8514a9e1cedaa5226dde04bd0d269e7f36b9d67848e7798c9861",
+          "size": 691,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/notify.lua"
+        },
+        "conjure/nfnl/nvim.lua": {
+          "sha256": "9536b9e76547de3da4df2fa9e0182db6a59444c79a2e57633a8c20f1e6d29c69",
+          "size": 360,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/nvim.lua"
+        },
+        "conjure/nfnl/repl.lua": {
+          "sha256": "d78d7e2050215ef93b7e90515adb81295e1f64330bf034ae8bdfb7a1f4395b03",
+          "size": 1741,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/repl.lua"
+        },
+        "conjure/nfnl/string.lua": {
+          "sha256": "0c6b0aee2dc8319a21e223227dfef49ff74285b9d01cb417e56343cd91a074c3",
+          "size": 1836,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/nfnl/string.lua"
+        },
+        "conjure/process.lua": {
+          "sha256": "7206a5fda4d12d2ab411578127474706f04d8fcb13efdbb8888eeb8d5e7586f2",
+          "size": 2048,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/process.lua"
+        },
+        "conjure/promise.lua": {
+          "sha256": "d40b90a3f90e5ae3716559f015cd4d681a38e99ee4bb3f05bd5287be40e7cc56",
+          "size": 1104,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/promise.lua"
+        },
+        "conjure/remote/netrepl.lua": {
+          "sha256": "77b0d8edeeae1ed087d7b96e520794079bf2c5fc62070b285916c187265f835d",
+          "size": 1508,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/netrepl.lua"
+        },
+        "conjure/remote/nrepl.lua": {
+          "sha256": "c07e38eff47375e82f191603c80cd1d29e6e7fa4e29c162fe6403deae9006329",
+          "size": 3964,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/nrepl.lua"
+        },
+        "conjure/remote/socket.lua": {
+          "sha256": "87ecc2fef580ac29e97472b27ba8a127be2ad8ac1d688f7486b4cf81b1ba4bde",
+          "size": 4446,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/socket.lua"
+        },
+        "conjure/remote/stdio-rt.lua": {
+          "sha256": "beee6a656ccabce4e0cca8ea747b86a02304f2685f74825605b2eead80a0e4b7",
+          "size": 4618,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/stdio-rt.lua"
+        },
+        "conjure/remote/stdio.lua": {
+          "sha256": "f9a196c7cf6e4ba07d0675d9836646edd49f80404ca0887735763dd23e8fdebb",
+          "size": 4978,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/stdio.lua"
+        },
+        "conjure/remote/stdio2.lua": {
+          "sha256": "e83f7751bc8d302b083696b1d9c57362ca0770e7a3d6d39052ba4830ba706275",
+          "size": 559,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/stdio2.lua"
+        },
+        "conjure/remote/swank.lua": {
+          "sha256": "d235eab36906e6a9ce745dbd9ef3a2cb00e6550916b11c22c8bac2a10cb71dc5",
+          "size": 1266,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/swank.lua"
+        },
+        "conjure/remote/transport/base64.lua": {
+          "sha256": "0b5aad145864eca60cf356c4bbaf002b66040c5f37b95c3ce1749c4a1e06db6c",
+          "size": 1353,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/transport/base64.lua"
+        },
+        "conjure/remote/transport/bencode.lua": {
+          "sha256": "bcbdcabe5868e96435cdf2f5fe853ca5e51e6a5c904d202b4e7f1364d8f056b9",
+          "size": 4969,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/transport/bencode.lua"
+        },
+        "conjure/remote/transport/elisp.lua": {
+          "sha256": "43cd603a2af2640aa95a04db96d6bfbf19ba63d7d5ce3a4221f91db4e0c5aa88",
+          "size": 2938,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/transport/elisp.lua"
+        },
+        "conjure/remote/transport/netrepl.lua": {
+          "sha256": "f3ace7b3513bf24929a243f491d7f4c6a9e4497ad1812c67de853cdb70a69b33",
+          "size": 1665,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/transport/netrepl.lua"
+        },
+        "conjure/remote/transport/swank.lua": {
+          "sha256": "54e1b6cd0aff4afce3479c174ef4449d5e4fcd81dc5e4503af385ec5be83539d",
+          "size": 537,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/remote/transport/swank.lua"
+        },
+        "conjure/resources.lua": {
+          "sha256": "a9f5aee47b1597e99d1f7fbfa5acf526831a3762739590289103d8c7849461eb",
+          "size": 936,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/resources.lua"
+        },
+        "conjure/school.lua": {
+          "sha256": "67e8337d321d5d4ad9b3c2b463c59d5f5e47c5c3df1eac58a4d1cba8119c6bb4",
+          "size": 8786,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/school.lua"
+        },
+        "conjure/sponsors.lua": {
+          "sha256": "cbb0c51dc18ffbaa82b401909250963e8e120bad6f65b8274da5e926dcc1c76d",
+          "size": 552,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/sponsors.lua"
+        },
+        "conjure/stack.lua": {
+          "sha256": "af77318e25ffa87203181d1864ac8149f64221c9ec178cc5bc28890398fff9ec",
+          "size": 395,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/stack.lua"
+        },
+        "conjure/text.lua": {
+          "sha256": "34d263d5207af038a481692a60b8662207d892ab3e6a42dcbcdc8fd47ce46fac",
+          "size": 2194,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/text.lua"
+        },
+        "conjure/timer.lua": {
+          "sha256": "6ba800805d0a42f8cb61da0854482e0123c17b38f7f2ffd684cc2eae24d1933e",
+          "size": 494,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/timer.lua"
+        },
+        "conjure/tree-sitter-completions.lua": {
+          "sha256": "7054a213d5648009c93b81bbbd717bea7da259e91509a8433a82ada8887f2079",
+          "size": 4617,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/tree-sitter-completions.lua"
+        },
+        "conjure/tree-sitter.lua": {
+          "sha256": "62620fe4d422bf69ac9497ab0cdae0a7052ee6a9b84091f82d3af6b75720ee2f",
+          "size": 6301,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/tree-sitter.lua"
+        },
+        "conjure/util.lua": {
+          "sha256": "43571eb5fac5fab171a2a4ac64be9ea7cbbfc3441f725c1040d49899286d9ef2",
+          "size": 833,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/util.lua"
+        },
+        "conjure/uuid.lua": {
+          "sha256": "08692329fccb30977a20cfdb845263204a119205a0887560ae8e8ff50c7d6029",
+          "size": 6253,
+          "url": "https://raw.githubusercontent.com/Olical/conjure/v4.60.0/lua/conjure/uuid.lua"
+        }
+      },
+      "homepage": "https://conjure.oli.me.uk",
+      "host": "nvim",
+      "license": "Unlicense",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 09 Apr 2026 21:38:10 GMT",
+        "rockspec": {
+          "date": "Thu, 09 Apr 2026 21:38:10 GMT",
+          "sha256": "b07c8f34e2bfdb7996d16638af45a93185506854facb827ca47ea21f04fa477e",
+          "size": 986
+        },
+        "src": {
+          "date": "Thu, 09 Apr 2026 21:38:11 GMT",
+          "sha256": "e7839b1d3d4469639e8befd5776932538ab9b98b6451e017916b2f5d41fb49a7",
+          "size": 1433003,
+          "url": "https://luarocks.org/conjure-4.60.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "conjure-benchmark.bencode",
+        "conjure-benchmark.log",
+        "conjure-benchmark.run",
+        "conjure-spec.assertions",
+        "conjure-spec.client.clojure.nrepl.action_spec",
+        "conjure-spec.client.clojure.nrepl.auto-repl_spec",
+        "conjure-spec.client.clojure.nrepl.init_spec",
+        "conjure-spec.client.clojure.nrepl.server_spec",
+        "conjure-spec.client.common-lisp.swank_spec",
+        "conjure-spec.client.fennel.aniseed_spec",
+        "conjure-spec.client.fennel.nfnl_spec",
+        "conjure-spec.client.guile.fake-socket",
+        "conjure-spec.client.guile.mock-socket",
+        "conjure-spec.client.guile.socket_spec",
+        "conjure-spec.client.scheme.mock-stdio",
+        "conjure-spec.client.scheme.stdio_spec",
+        "conjure-spec.client.sql.stdio_spec",
+        "conjure-spec.client_spec",
+        "conjure-spec.config_spec",
+        "conjure-spec.dynamic_spec",
+        "conjure-spec.extract_spec",
+        "conjure-spec.fs_spec",
+        "conjure-spec.linked-list_spec",
+        "conjure-spec.mock-log",
+        "conjure-spec.mock-tree-sitter-completions",
+        "conjure-spec.process_spec",
+        "conjure-spec.promise_spec",
+        "conjure-spec.remote.mock-swank",
+        "conjure-spec.remote.stdio2_spec",
+        "conjure-spec.remote.stdio_spec",
+        "conjure-spec.remote.transport.base64_spec",
+        "conjure-spec.remote.transport.bencode_spec",
+        "conjure-spec.remote.transport.elisp_spec",
+        "conjure-spec.remote.transport.netrepl_spec",
+        "conjure-spec.resources_spec",
+        "conjure-spec.school_spec",
+        "conjure-spec.stack_spec",
+        "conjure-spec.text_spec",
+        "conjure-spec.tree-sitter-completions_spec",
+        "conjure-spec.tree-sitter_spec",
+        "conjure-spec.util",
+        "conjure-spec.util_spec",
+        "conjure-spec.uuid_spec",
+        "conjure.aniseed.autoload",
+        "conjure.aniseed.compile",
+        "conjure.aniseed.core",
+        "conjure.aniseed.deps.fennel",
+        "conjure.aniseed.deps.fun",
+        "conjure.aniseed.deps.nvim",
+        "conjure.aniseed.env",
+        "conjure.aniseed.eval",
+        "conjure.aniseed.fennel",
+        "conjure.aniseed.fs",
+        "conjure.aniseed.nvim",
+        "conjure.aniseed.nvim.util",
+        "conjure.aniseed.setup",
+        "conjure.aniseed.string",
+        "conjure.aniseed.test",
+        "conjure.aniseed.view",
+        "conjure.buffer",
+        "conjure.client",
+        "conjure.client.clojure.nrepl",
+        "conjure.client.clojure.nrepl.action",
+        "conjure.client.clojure.nrepl.auto-repl",
+        "conjure.client.clojure.nrepl.debugger",
+        "conjure.client.clojure.nrepl.parse",
+        "conjure.client.clojure.nrepl.server",
+        "conjure.client.clojure.nrepl.state",
+        "conjure.client.clojure.nrepl.ui",
+        "conjure.client.common-lisp.completions",
+        "conjure.client.common-lisp.swank",
+        "conjure.client.elixir.stdio",
+        "conjure.client.fennel.aniseed",
+        "conjure.client.fennel.def-str-util",
+        "conjure.client.fennel.nfnl",
+        "conjure.client.fennel.stdio",
+        "conjure.client.guile.completions",
+        "conjure.client.guile.socket",
+        "conjure.client.hy.stdio",
+        "conjure.client.janet.netrepl",
+        "conjure.client.janet.stdio",
+        "conjure.client.javascript.import-replacer",
+        "conjure.client.javascript.stdio",
+        "conjure.client.javascript.transformers",
+        "conjure.client.javascript.ts-common",
+        "conjure.client.julia.stdio",
+        "conjure.client.lua.neovim",
+        "conjure.client.php.psysh",
+        "conjure.client.python.stdio",
+        "conjure.client.r.stdio",
+        "conjure.client.racket.stdio",
+        "conjure.client.ruby.stdio",
+        "conjure.client.rust.evcxr",
+        "conjure.client.scheme.completions",
+        "conjure.client.scheme.keywords",
+        "conjure.client.scheme.stdio",
+        "conjure.client.snd-s7.stdio",
+        "conjure.client.sql.stdio",
+        "conjure.config",
+        "conjure.dynamic",
+        "conjure.editor",
+        "conjure.eval",
+        "conjure.event",
+        "conjure.extract",
+        "conjure.extract.searchpair",
+        "conjure.fs",
+        "conjure.hook",
+        "conjure.inline",
+        "conjure.linked-list",
+        "conjure.log",
+        "conjure.main",
+        "conjure.mapping",
+        "conjure.net",
+        "conjure.nfnl",
+        "conjure.nfnl.api",
+        "conjure.nfnl.callback",
+        "conjure.nfnl.compile",
+        "conjure.nfnl.config",
+        "conjure.nfnl.core",
+        "conjure.nfnl.fennel",
+        "conjure.nfnl.fs",
+        "conjure.nfnl.gc",
+        "conjure.nfnl.header",
+        "conjure.nfnl.module",
+        "conjure.nfnl.notify",
+        "conjure.nfnl.nvim",
+        "conjure.nfnl.repl",
+        "conjure.nfnl.string",
+        "conjure.process",
+        "conjure.promise",
+        "conjure.remote.netrepl",
+        "conjure.remote.nrepl",
+        "conjure.remote.socket",
+        "conjure.remote.stdio",
+        "conjure.remote.stdio-rt",
+        "conjure.remote.stdio2",
+        "conjure.remote.swank",
+        "conjure.remote.transport.base64",
+        "conjure.remote.transport.bencode",
+        "conjure.remote.transport.elisp",
+        "conjure.remote.transport.netrepl",
+        "conjure.remote.transport.swank",
+        "conjure.resources",
+        "conjure.school",
+        "conjure.sponsors",
+        "conjure.stack",
+        "conjure.text",
+        "conjure.timer",
+        "conjure.tree-sitter",
+        "conjure.tree-sitter-completions",
+        "conjure.util",
+        "conjure.uuid"
+      ],
+      "origin": {
+        "sha256": "ca8570e932882695baf7e5f6891979a4864a9903469f4a7fb33ba509486dddca",
+        "type": "archive",
+        "url": "https://github.com/Olical/conjure/archive/v4.60.0.zip"
+      },
+      "size": 1139278,
+      "summary": "Interactive evaluation for Neovim (Clojure, Fennel, Scheme, Python, JavaScript, PHP, R, Lua, Rust and more!)",
+      "undeclared_requires": [
+        "conjure.aniseed.fennel.compiler",
+        "conjure.aniseed.fennel.friend",
+        "conjure.aniseed.fennel.parser",
+        "conjure.aniseed.fennel.repl",
+        "conjure.aniseed.fennel.specials",
+        "conjure.aniseed.fennel.utils",
+        "conjure.aniseed.fennel.view",
+        "conjure.nfnl.fennel.compiler",
+        "conjure.nfnl.fennel.friend",
+        "conjure.nfnl.fennel.parser",
+        "conjure.nfnl.fennel.repl",
+        "conjure.nfnl.fennel.specials",
+        "conjure.nfnl.fennel.utils",
+        "conjure.nfnl.fennel.view",
+        "luassert.assert",
+        "nfnl.core",
+        "plenary.busted",
+        "say"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "kind": "app",
+  "name": "lua-coreutils",
+  "versions": {
+    "0.1.2-1": {
+      "bin": {
+        "false": "bin/false",
+        "pwd": "bin/pwd",
+        "sleep": "bin/sleep",
+        "true": "bin/true",
+        "uname": "bin/uname",
+        "whoami": "bin/whoami",
+        "yes": "bin/yes"
+      },
+      "deps": [
+        "luaposix >= 36.3-1"
+      ],
+      "files": {
+        "bin/false": {
+          "sha256": "155f18f6379d7e4bfb2564decab15d66feb229dbaaeca66cc2f99de1b90b9901",
+          "size": 32,
+          "url": "https://raw.githubusercontent.com/JxJo1/lua-coreutils/f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5/src/false.lua"
+        },
+        "bin/pwd": {
+          "sha256": "936bb611d19257f3337e89ea14cee3b2e64374e1bec0f0de6610b158f18f6c8a",
+          "size": 1202,
+          "url": "https://raw.githubusercontent.com/JxJo1/lua-coreutils/f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5/src/pwd.lua"
+        },
+        "bin/sleep": {
+          "sha256": "2d7c83271ba80143dc3ad67c4ef30231b695353aa768a7db4c08c799bbda5981",
+          "size": 3504,
+          "url": "https://raw.githubusercontent.com/JxJo1/lua-coreutils/f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5/src/sleep.lua"
+        },
+        "bin/true": {
+          "sha256": "49dbe9fc90096efb7964dc4497da3f2b281b2e534a54a92485084cf0c9b387f7",
+          "size": 32,
+          "url": "https://raw.githubusercontent.com/JxJo1/lua-coreutils/f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5/src/true.lua"
+        },
+        "bin/uname": {
+          "sha256": "5979975feeb9c4e66bf287d3b27ba34b2b56e6fcb1304b4f721edefb3cf116be",
+          "size": 2463,
+          "url": "https://raw.githubusercontent.com/JxJo1/lua-coreutils/f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5/src/uname.lua"
+        },
+        "bin/whoami": {
+          "sha256": "7011bb8e3f7764ed2394c988cc5109eb6bfefefed4fe703b734da110715c9e19",
+          "size": 1049,
+          "url": "https://raw.githubusercontent.com/JxJo1/lua-coreutils/f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5/src/whoami.lua"
+        },
+        "bin/yes": {
+          "sha256": "2df229b756cd421fbc5d022bbbabdc51a5307a23c85c950ef8053eaffbeb4d04",
+          "size": 1612,
+          "url": "https://raw.githubusercontent.com/JxJo1/lua-coreutils/f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5/src/yes.lua"
+        }
+      },
+      "homepage": "https://github.com/JxJo1/lua-coreutils",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 10 Nov 2026 19:09:01 GMT",
+        "rockspec": {
+          "date": "Tue, 10 Nov 2026 19:09:01 GMT",
+          "sha256": "b6a851b24c664e88133b8afc61dffc14035178a4a5e5ad768cb7b5c265f5389f",
+          "size": 782
+        },
+        "src": {
+          "date": "Tue, 10 Nov 2026 19:09:02 GMT",
+          "sha256": "19602149be21e1843e2b3df91aa583f6b7f456871ca9a4e1d8915d7524e02873",
+          "size": 11394,
+          "url": "https://luarocks.org/lua-coreutils-0.1.2-1.src.rock"
+        }
+      },
+      "modules": [],
+      "origin": {
+        "commit": "f3d4e44eb5e24c8d25d85ff82fcaa758cf94fef5",
+        "ref": "v0.1.2",
+        "type": "git",
+        "url": "https://github.com/JxJo1/lua-coreutils"
+      },
+      "size": 9894,
+      "summary": "A work-in-progress attempt of reimplementing GNU coreutils commands in pure Lua using luaposix",
+      "undeclared_requires": [
+        "posix.signal",
+        "posix.stdlib",
+        "posix.sys.utsname",
+        "posix.unistd",
+        "src.version"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

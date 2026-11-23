@@ -1,0 +1,84 @@
+-- Fixed-size ring buffer used to hold ingest records awaiting delivery to
+-- Kinesis. When `allow_wrapping` is true and the queue is full, pushing a
+-- new item silently drops the oldest item instead of failing - this gives
+-- lossy backpressure so the request path is never blocked by a slow or
+-- unavailable Kinesis endpoint.
+
+local Queue = {}
+Queue.__index = Queue
+
+function Queue.new(size, allow_wrapping)
+    assert(type(size) == "number" and size > 0, "queue size must be a positive number")
+
+    return setmetatable({
+        _items = {},
+        _size = size,
+        _allow_wrapping = allow_wrapping or false,
+        _head = 1, -- next write position
+        _tail = 1, -- next read position
+        _count = 0,
+    }, Queue)
+end
+
+function Queue:count()
+    return self._count
+end
+
+function Queue:is_empty()
+    return self._count == 0
+end
+
+function Queue:is_full()
+    return self._count >= self._size
+end
+
+-- Pushes an item onto the queue. Returns true on success, or nil + an error
+-- message if the queue is full and wrapping is not allowed.
+function Queue:push(item)
+    if self._count >= self._size then
+        if not self._allow_wrapping then
+            return nil, "queue full"
+        end
+
+        -- Drop the oldest item to make room.
+        self._tail = (self._tail % self._size) + 1
+        self._count = self._count - 1
+    end
+
+    self._items[self._head] = item
+    self._head = (self._head % self._size) + 1
+    self._count = self._count + 1
+
+    return true
+end
+
+-- Pops the oldest item off the queue, or returns nil if it is empty.
+function Queue:pop()
+    if self._count == 0 then
+        return nil
+    end
+
+    local item = self._items[self._tail]
+    self._items[self._tail] = nil
+    self._tail = (self._tail % self._size) + 1
+    self._count = self._count - 1
+
+    return item
+end
+
+-- Pops up to `max` items off the queue and returns them as an array.
+function Queue:drain(max)
+    local drained = {}
+
+    while #drained < max do
+        local item = self:pop()
+        if item == nil then
+            break
+        end
+        drained[#drained + 1] = item
+    end
+
+    return drained
+end
+
+return Queue

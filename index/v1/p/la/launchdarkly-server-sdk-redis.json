@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "launchdarkly-server-sdk-redis",
+  "versions": {
+    "2.2.0-0": {
+      "bin": [],
+      "deps": [
+        "launchdarkly-server-sdk ~> 2"
+      ],
+      "files": [],
+      "homepage": "https://github.com/launchdarkly/lua-server-sdk",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1, <= 5.4",
+      "luarocks": {
+        "date": "Mon, 10 Aug 2026 23:40:11 GMT",
+        "rockspec": {
+          "date": "Mon, 10 Aug 2026 23:40:11 GMT",
+          "sha256": "857e8f556e41eb9239fa8ddc293d9981039bebcc6251ff7148bb707126520da5",
+          "size": 1512
+        },
+        "src": {
+          "date": "Mon, 10 Aug 2026 23:40:12 GMT",
+          "sha256": "b4a5620f2320833dbd60b26840147086e1628207ff8ed1aeb67ba25ff9830054",
+          "size": 89974,
+          "url": "https://luarocks.org/launchdarkly-server-sdk-redis-2.2.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "launchdarkly_server_sdk_redis"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LDREDIS"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LDREDIS": {
+              "header": "launchdarkly/server_side/bindings/c/integrations/redis/redis_source.h",
+              "library": "launchdarkly-cpp-server-redis-source"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LDREDIS_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LDREDIS_LIBDIR)"
+              ],
+              "libraries": [
+                "launchdarkly-cpp-server-redis-source"
+              ],
+              "name": "launchdarkly_server_sdk_redis",
+              "sources": [
+                "launchdarkly-server-sdk-redis.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 10 Aug 2026 23:40:12 GMT",
+        "sha256": "b4a5620f2320833dbd60b26840147086e1628207ff8ed1aeb67ba25ff9830054",
+        "size": 89974,
+        "type": "luarocks",
+        "url": "https://luarocks.org/launchdarkly-server-sdk-redis-2.2.0-0.src.rock"
+      },
+      "summary": "Redis integration for LaunchDarkly Lua Server-side SDK.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

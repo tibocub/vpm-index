@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "digiprime-jwt",
+  "versions": {
+    "0.0.12-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lodash",
+        "reason": "missing-file:lodash.lua/src/lodash.lua"
+      },
+      "deps": [
+        "lodash == 0.02-0",
+        "lua-resty-radixtree == 2.8.1-0"
+      ],
+      "files": {
+        "kong/plugins/digiprime-jwt/asn_sequence.lua": {
+          "sha256": "55ba1150716031e6764998349d33431b8abc443d89d33478f7fe72f9343df2e6",
+          "size": 4196,
+          "url": "https://raw.githubusercontent.com/hhy5861/digiprime-jwt/bd8981491e25e9e5fe057404b24e130a44cce63e/src/asn_sequence.lua"
+        },
+        "kong/plugins/digiprime-jwt/handler.lua": {
+          "sha256": "5b3ad8502ec0f0a1a7fc1f878d5bee9bc62e5436f213aeb527ed296c1f4c7c42",
+          "size": 5740,
+          "url": "https://raw.githubusercontent.com/hhy5861/digiprime-jwt/bd8981491e25e9e5fe057404b24e130a44cce63e/src/handler.lua"
+        },
+        "kong/plugins/digiprime-jwt/jwt_parser.lua": {
+          "sha256": "c2c4f425c395eac9d64d2688c5799c1dd5dc45f4b8261518faf88a4d772c678c",
+          "size": 10708,
+          "url": "https://raw.githubusercontent.com/hhy5861/digiprime-jwt/bd8981491e25e9e5fe057404b24e130a44cce63e/src/jwt_parser.lua"
+        },
+        "kong/plugins/digiprime-jwt/schema.lua": {
+          "sha256": "8e30e9309d1eedf8028b0e78fc7be0e02be0c16ba63c5a471529be18ab47e469",
+          "size": 1452,
+          "url": "https://raw.githubusercontent.com/hhy5861/digiprime-jwt/bd8981491e25e9e5fe057404b24e130a44cce63e/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/hhy5861/digiprime-jwt",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "luarocks": {
+        "date": "Mon, 16 May 2022 13:14:22 GMT",
+        "rockspec": {
+          "date": "Mon, 16 May 2022 13:14:22 GMT",
+          "sha256": "e31a86ae28e52c3b5a4c2929fdb2e8faa29ca511349c4152fbc38335990449dd",
+          "size": 789
+        }
+      },
+      "modules": [
+        "kong.plugins.digiprime-jwt.asn_sequence",
+        "kong.plugins.digiprime-jwt.handler",
+        "kong.plugins.digiprime-jwt.jwt_parser",
+        "kong.plugins.digiprime-jwt.schema"
+      ],
+      "origin": {
+        "commit": "bd8981491e25e9e5fe057404b24e130a44cce63e",
+        "ref": "0.0.12",
+        "type": "git",
+        "url": "https://github.com/hhy5861/digiprime-jwt"
+      },
+      "size": 22096,
+      "summary": "shuinfo digiprime jwt is a auth plugin for Kong",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "lodash",
+        "resty.openssl.digest",
+        "resty.openssl.hmac",
+        "resty.openssl.pkey",
+        "resty.radixtree"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

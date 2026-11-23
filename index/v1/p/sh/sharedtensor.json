@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "sharedtensor",
+  "versions": {
+    "1.0-3": {
+      "bin": [],
+      "blocked_by": {
+        "name": "torch",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "torch >= 7.0"
+      ],
+      "files": [],
+      "homepage": "http://github.com/Hello1024/shared-tensor",
+      "license": "None",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 25 Oct 2015 21:33:43 GMT",
+        "rockspec": {
+          "date": "Sun, 25 Oct 2015 21:33:43 GMT",
+          "sha256": "8217a77f0acdb29f2e665eebf07a2b80dc68e9270f9ae6dcda9bc74b0039d5cb",
+          "size": 706
+        },
+        "src": {
+          "date": "Sun, 25 Oct 2015 21:33:44 GMT",
+          "sha256": "ea260db75cd323b8893572ae8f5d7a3f16d2dd3c652d1a332e92e8babc5b20b1",
+          "size": 7000,
+          "url": "https://luarocks.org/sharedtensor-1.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "sharedtensor"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "libraries": [
+                "m"
+              ],
+              "name": "sharedtensor",
+              "sources": [
+                "src/sharedtensor.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 25 Oct 2015 21:33:44 GMT",
+        "sha256": "ea260db75cd323b8893572ae8f5d7a3f16d2dd3c652d1a332e92e8babc5b20b1",
+        "size": 7000,
+        "type": "luarocks",
+        "url": "https://luarocks.org/sharedtensor-1.0-3.src.rock"
+      },
+      "summary": "A distributed, shared tensor with high performance approximate updates for machine learning.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

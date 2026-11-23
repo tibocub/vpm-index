@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "lrexlib-posix",
+  "versions": {
+    "2.9.4-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/rrthomas/lrexlib",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 17 Aug 2026 16:55:16 GMT",
+        "rockspec": {
+          "date": "Mon, 17 Aug 2026 16:55:16 GMT",
+          "sha256": "04acd00bf4c9bb94e884455d990379cc8173fe32aede0f165039b80a2100d7e1",
+          "size": 847
+        },
+        "src": {
+          "date": "Mon, 17 Aug 2026 16:55:17 GMT",
+          "sha256": "a2c80aff584d7757fb09b752e25fe9057c77fdb743c34e6b67eed8453f38db42",
+          "size": 94927,
+          "url": "https://luarocks.org/lrexlib-posix-2.9.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "rex_posix"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "POSIX"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "POSIX": {
+              "header": "regex.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "VERSION=\"2.9.4\"",
+                "LUA_LIB=",
+                "PCRE2_CODE_UNIT_WIDTH=8"
+              ],
+              "name": "rex_posix",
+              "sources": [
+                "src/common.c",
+                "src/posix/lposix.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 17 Aug 2026 16:55:17 GMT",
+        "sha256": "a2c80aff584d7757fb09b752e25fe9057c77fdb743c34e6b67eed8453f38db42",
+        "size": 94927,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lrexlib-posix-2.9.4-1.src.rock"
+      },
+      "summary": "Regular expression library binding (POSIX flavour).",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+--imports
+local TerminalType = require("dogma.syn.TerminalType")
+local LiteralRoutine = require("dogma.syn._.LiteralRoutine")
+
+--A literal procedure node.
+local LiteralProc = {}
+LiteralProc.__index = LiteralProc
+setmetatable(LiteralProc, {__index = LiteralRoutine})
+package.loaded[...] = LiteralProc
+
+--Constructor.
+function LiteralProc.new(ln, col, async, params, catch, body)
+  return setmetatable(
+    LiteralRoutine.new(TerminalType.FN, ln, col, async, params, catch, body),
+    LiteralProc
+  )
+end
+
+--@override
+function LiteralProc:__tostring()
+  local desc
+
+  if self.data.async then
+    desc = "async fn("
+  else
+    desc = "fn("
+  end
+
+  for i, p in ipairs(self.data.params) do
+    desc = desc .. (i == 1 and "" or ", ") .. p.name
+  end
+  desc = desc .. ")"
+
+  if self.data.catch then
+    desc = desc .. " => " .. tostring(self.data.catch)
+  end
+
+  desc = desc .. "{"
+  for i, s in ipairs(self.data.body) do
+    desc = desc .. (i == 1 and "" or "; ") .. tostring(s)
+  end
+  desc = desc .. "}"
+
+  return desc
+end

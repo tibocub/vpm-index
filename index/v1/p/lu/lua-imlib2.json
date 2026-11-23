@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "lua-imlib2",
+  "versions": {
+    "0.1-4": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "imlib2.lua": {
+          "sha256": "998f932d1fbc47495a12657ac138d0b4c2621faad3beb8534bb744a344ef2bf8",
+          "size": 1516,
+          "url": "blob:998f932d1fbc47495a12657ac138d0b4c2621faad3beb8534bb744a344ef2bf8"
+        }
+      },
+      "homepage": "http://asbradbury.org/projects/lua-imlib2/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 03:11:16 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 03:11:16 GMT",
+          "sha256": "1412eab79c4b527c4bad0d6450e5727f5ed9dc92cefe3350f1c42c39fe725f07",
+          "size": 709
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 03:11:16 GMT",
+          "sha256": "fc5017d4b84c6e144a810a3a658e4df57b40f5e22e1827d10566096709b46334",
+          "size": 18407,
+          "url": "https://luarocks.org/lua-imlib2-0.1-4.src.rock"
+        }
+      },
+      "modules": [
+        "imlib2",
+        "limlib2"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "IMLIB2"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "IMLIB2": {
+              "header": "Imlib2.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(IMLIB2_INCDIR)"
+              ],
+              "libdirs": [
+                "$(IMLIB2_LIBDIR)"
+              ],
+              "libraries": [
+                "Imlib2"
+              ],
+              "name": "limlib2",
+              "sources": [
+                "limlib2.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 03:11:16 GMT",
+        "sha256": "fc5017d4b84c6e144a810a3a658e4df57b40f5e22e1827d10566096709b46334",
+        "size": 18407,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-imlib2-0.1-4.src.rock"
+      },
+      "size": 1516,
+      "summary": "A binding to the imlib2 image manipulation library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

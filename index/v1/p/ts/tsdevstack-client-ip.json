@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "tsdevstack-client-ip",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/tsdevstack-client-ip/handler.lua": {
+          "sha256": "1dfc4818b3ef2c6c0aba31ee8f0f2af118e82aa739f0e0b597e8e159c5eb9e02",
+          "size": 4001,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-client-ip/handler.lua"
+        },
+        "kong/plugins/tsdevstack-client-ip/schema.lua": {
+          "sha256": "a04bf0d0839e9beaea1e3cba150c03ae15e6eeefe15293fc56286b80184290b1",
+          "size": 1341,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-client-ip/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/tsdevstack/kong-plugins",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 18 Nov 2026 11:25:32 GMT",
+        "rockspec": {
+          "date": "Wed, 18 Nov 2026 11:25:32 GMT",
+          "sha256": "11a0b2fdbbbd031d66378bff781502ee493fca2f16430cd37eda26cc138e2439",
+          "size": 736
+        },
+        "src": {
+          "date": "Wed, 18 Nov 2026 11:25:32 GMT",
+          "sha256": "e912b8e4833353dac128b4dcd4c3717023f0f9658e5138c26322fdca56e74959",
+          "size": 37285,
+          "url": "https://luarocks.org/tsdevstack-client-ip-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.tsdevstack-client-ip.handler",
+        "kong.plugins.tsdevstack-client-ip.schema"
+      ],
+      "origin": {
+        "commit": "535e69b7cbb24532dd8582197f7e643b306e90ed",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/tsdevstack/kong-plugins.git"
+      },
+      "size": 5342,
+      "summary": "Rate limits a trusted server's calls per visitor, by the address it forwards",
+      "undeclared_requires": [
+        "bit",
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

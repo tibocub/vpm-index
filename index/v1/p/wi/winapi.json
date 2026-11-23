@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "winapi",
+  "versions": {
+    "1.4.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://stevedonovan.github.io/winapi/api.html",
+      "license": "MIT/X11",
+      "luarocks": {
+        "date": "Fri, 13 Mar 2015 10:51:52 GMT",
+        "rockspec": {
+          "date": "Fri, 13 Mar 2015 10:51:52 GMT",
+          "sha256": "4c63dc6d0ea14059ea1221b4fd8925398320d1b55fc2b1686070ef8fc32ecf7c",
+          "size": 818
+        },
+        "src": {
+          "date": "Fri, 13 Mar 2015 10:51:53 GMT",
+          "sha256": "77dd3b3b0f349f4496be3b3cb4264d2ff3a699df84f761d0a5890600077feac5",
+          "size": 83091,
+          "url": "https://luarocks.org/winapi-1.4.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "winapi"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "PSAPI_VERSION=1"
+              ],
+              "libraries": [
+                "user32",
+                "Advapi32",
+                "shell32",
+                "psapi",
+                "Mpr"
+              ],
+              "name": "winapi",
+              "sources": [
+                "winapi.c",
+                "wutils.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "winapi"
+      },
+      "origin": {
+        "date": "Fri, 13 Mar 2015 10:51:53 GMT",
+        "sha256": "77dd3b3b0f349f4496be3b3cb4264d2ff3a699df84f761d0a5890600077feac5",
+        "size": 83091,
+        "type": "luarocks",
+        "url": "https://luarocks.org/winapi-1.4.2-1.src.rock"
+      },
+      "summary": "Minimal but useful bindings to Windows API",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

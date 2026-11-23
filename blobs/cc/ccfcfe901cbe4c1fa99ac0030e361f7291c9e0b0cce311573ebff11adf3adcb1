@@ -1,0 +1,391 @@
+---@diagnostic disable: duplicate-set-field
+
+local sfs = require "sfs"
+local abi = require "lrocket.abi"
+local utils = require "lrocket.utils"
+local log = require  "lrocket.log"
+local cpreprocessor = require "lrocket.cpreprocessor"
+local ENVIRON = require 'lrocket.environ'
+
+ENVIRON.fetch('CC', 'VSINSTALLDIR')
+
+---@class lrocket.toolchain : lrocket.Toolchain
+local M = {}
+setmetatable(M, M)
+
+---@type lrocket.Toolchain
+local tc
+
+--- Host OS
+M.UNAME = package.config:sub(1, 1) == '\\' and 'Windows' or 'Unix'
+
+M.EXT_BIN_HOST = M.UNAME == 'Windows' and ".exe" or ""
+
+local targettripplet
+
+---@class lrocket.TargetTripple
+---@field arch string
+---@field vendor string
+---@field sys string
+---@field abi string
+local Tripplet = {} do
+	Tripplet.__index = Tripplet
+
+	function Tripplet:__tostring()
+		return string.format("%s-%s-%s%s", self.arch, self.vendor, self.sys, self.abi and "-"..self.abi or "")
+	end
+
+	function Tripplet.__concat(a, b)
+		return tostring(a)..tostring(b)
+	end
+
+	---@param a lrocket.TargetTripple
+	---@param b lrocket.TargetTripple
+	function Tripplet.__eq(a, b)
+		return a.arch == b.arch and a.vendor == b.vendor and a.sys == b.sys
+	end
+
+	function Tripplet:matches(specific)
+		specific = targettripplet(specific)
+		local specificity =
+			((self.arch == specific.arch or self.arch == 'any' or specific.arch == 'any') and 1 or 0) +
+			((self.vendor == specific.vendor or self.vendor == 'any' or specific.vendor == 'any') and 1 or 0) +
+			((self.sys == specific.sys or self.sys == 'any' or specific.vendor == 'any') and 1 or 0)
+
+		return specificity > 0 and specificity
+	end
+
+	function Tripplet.__eq(a, b)
+		return a:matches(b) == 3
+	end
+
+	function Tripplet:inherit(specific)
+		specific = targettripplet(specific)
+		return targettripplet {
+			arch = self.arch == 'any' and specific.arch or self.arch,
+			vendor = self.vendor == 'any' and specific.vendor or self.vendor,
+			sys = self.sys == 'any' and specific.sys or self.sys,
+			abi = self.abi == 'any' and specific.abi or self.abi
+		}
+	end
+
+	function Tripplet:displayname()
+		local res = {}
+		for _, segment in ipairs({ self.arch, self.vendor,self.sys,self.abi })do
+			if segment and segment ~= 'unknown' then
+				table.insert(res, segment)
+			end
+		end
+		return table.concat(res, '-')
+	end
+end
+
+function targettripplet(tripplet)
+	if type(tripplet) == 'table' then
+		return setmetatable({
+			arch = tripplet.arch or 'unknown',
+			vendor = tripplet.vendor or 'unkown',
+			sys = tripplet.sys or 'unkown',
+			abi = tripplet.abi or nil
+		}, Tripplet)
+	else
+		local parts = {}
+		for part in tripplet:gmatch "[^-]+" do parts[#parts+1] = part end
+		-- vendor field is optional
+		if #parts == 2 then
+			parts[3] = parts[2]
+			parts[2] = 'unknown'
+		end
+
+		for i = 1, 3 do
+			parts[i] = parts[i] or parts[i-1] == 'any' and 'any' or 'unknown'
+		end
+
+		---@class lrocket.TargetTripple
+		local t = setmetatable({
+			arch = parts[1],
+			vendor = parts[2],
+			sys = parts[3],
+			abi = parts[4] -- not officially part of the tripplet, but it is often included anyways
+		}, Tripplet)
+		return t
+	end
+end
+
+M.targettripplet = targettripplet
+
+---@class lrocket.CompilerConf
+---@field output string
+---@field optimize? 'speed' | 'space'
+local CompilerConf = {
+	---@type { type: lrocket.CompilerArgType, value: string, priority: integer }[]
+	_args = {},
+	lastarg = 0,
+	added = {
+		c = {},
+		include = {},
+		libdir = {},
+		library = {},
+		object = {},
+		cflag = {},
+		ldflag = {},
+	},
+	---@type 'executable' | 'shared' | 'object'
+	type = 'executable',
+	subsystem = 'cmd',
+} do
+	---@alias lrocket.CompilerArgType 'c' | 'include' | 'libdir' | 'library' | 'object' | 'cflag' | 'ldflag'
+
+	---@param type lrocket.CompilerArgType
+	---@param arg string
+	---@param where 'start'|'end'|'cur'|integer?
+	function CompilerConf:addarg(type, arg, where)
+		where = where or 'cur'
+		local priority = where == 'start' and -1 or where == 'end' and 1 or where == 'cur' and 0 or where
+
+		local info = { type = type, value = arg, priority = priority }
+		table.insert(self._args, info)
+		if not self.added[type] then error(tostring(type).." does not exist", 2) end
+		self.added[type][arg] = true
+	end
+
+	local function stablesort(t, cmp)
+		cmp = cmp or function (a, b) return a < b end
+		for i = 2, #t do
+			local j = i
+			while j >= 2 do
+				local a, b = t[j-1], t[j]
+				if not cmp(b, a) then break end
+				t[j-1], t[j] = b, a
+				j = j - 1
+			end
+		end
+	end
+
+	function CompilerConf:args()
+		stablesort(self._args, function (a, b)
+			return a.priority < b.priority
+		end)
+
+		local i = 0
+		return function ()
+			i = i + 1
+			local arg = self._args[i]
+			if not arg then return nil end
+			return arg.type, arg.value, arg.priority
+		end
+	end
+
+	function CompilerConf:dedupargs()
+		stablesort(self._args, function (a, b)
+			return a.priority < b.priority
+		end)
+
+		-- arg types that should be deduplicated
+		local dedupfilter = { library = true, object = true }
+
+		local seen = {}
+		for i = #self._args, 1, -1 do
+			local arg = self._args[i]
+			local key = arg.type .. ' ' .. arg.value
+
+			if seen[key] and dedupfilter[arg.type] then
+				table.remove(self._args, i)
+			end
+			seen[key] = true
+		end
+	end
+
+	function CompilerConf:addlib(libpath)
+		libpath = sfs.normalize(libpath)
+		local dir, name = sfs.matchPath(libpath, "dB")
+
+		if M.libtype(libpath) == 'static' then
+			self:addarg('object', libpath)
+			return
+		end
+
+		if not self.added.libdir[dir] then
+			self:addarg('libdir', dir)
+		end
+
+		self:addarg('object', libpath) -- sfs.relpath(libpath, dir):sub(3, -5))
+	end
+
+	function CompilerConf:extend(conf)
+		for type, value, priority in conf:args() do
+			self:addarg(type, value, priority)
+		end
+	end
+
+	function CompilerConf:copy()
+		return utils.clone(self, { [CompilerConf] = CompilerConf })
+	end
+
+	CompilerConf.__index = function(self, k)
+		if type(CompilerConf[k]) == 'table' then
+			self[k] = utils.clone(CompilerConf[k])
+			return self[k]
+		else
+			return CompilerConf[k]
+		end
+	end
+end
+
+---@param globalconf lrocket.CompilerConf?
+function M.compilerconf(globalconf)
+	---@type lrocket.CompilerConf
+	local cconf = setmetatable({}, CompilerConf)
+	if globalconf then
+		for type, value, priority in globalconf:args() do
+			cconf:addarg(type, value, priority)
+		end
+	end
+	return cconf
+end
+
+do -- Wrapper for tc
+	---@param conf lrocket.CompilerConf
+	---@return boolean?
+	function M.compile(conf)
+		conf = setmetatable(conf or {}, CompilerConf)
+		return tc.compile(conf)
+	end
+
+	local function checkexists(f)
+		return function(shared_lib)
+			if not sfs.isFile(shared_lib) then
+				return nil, "file not found"
+			end
+
+			return tc[f](shared_lib)
+		end
+	end
+
+	M.libtype = checkexists "libtype"
+	M.libdeps = checkexists "libdeps"
+	M.symbols = checkexists "symbols"
+end
+
+local ASCII_CHAR = "[\t\n\r\32-\126]"
+local READ_CHAR = "[\33-\126]"
+
+M.STRINGS_BLOCK_SIZE = 4096
+
+--- Searchers for readable strings, longer than 3 characters, ending on zero
+---@param bin any
+function M.strings(bin, patterns)
+	local block
+
+	local strings = {}
+	local curstr
+
+	local file = assert(sfs.read(bin, true))
+
+	return coroutine.wrap(function()
+		for i, pat in ipairs(patterns) do
+			for str in file:gmatch(pat) do
+				coroutine.yield(i, str)
+			end
+		end
+	end)
+end
+
+if false then
+	local strs = log.assert(M.strings(...))
+
+	for _, str in ipairs(strs) do
+		print(str)
+	end
+	return
+end
+
+M.preprocess = function(header, inc, defs)
+	header = M.defaultdefs()..'\n'..header
+	return cpreprocessor(header, inc, defs)
+end
+
+---@return table<string, string>
+function M.newenv(deduplicate)
+	local self = {}
+	if deduplicate then
+		self._LRV_DEDUPVARS = "1"
+	end
+
+	---@diagnostic disable-next-line
+	return setmetatable(self, ENVIRON)
+end
+M.ENV = M.newenv()
+
+local DEFAULT_CC = {
+	gnu = 'gcc',
+	msvc = 'cl',
+}
+
+---@param userargs lrocket.TargetSpec
+---@param cfg lrocket.FinalConf
+function M.configure(cfg, userargs)
+	cfg.windows_gui = userargs.windows_gui
+	cfg.link_sibling_deps = userargs.link_sibling_deps
+
+	M.ENV = cfg.env
+
+	if not cfg.toolchain then
+		local CC = M.ENV.CC or M.ENV.VSINSTALLDIR and 'cl' or 'gcc'
+
+		if M.ENV.VSINSTALLDIR and not CC or CC == 'cl' or CC == 'cl.exe' then
+			cfg.toolchain = 'msvc'
+			M.ENV.CC = CC or 'cl'
+		else
+			cfg.toolchain = 'gnu'
+			M.ENV.CC = CC or 'gcc'
+		end
+	else
+		M.ENV.CC = M.ENV.CC or DEFAULT_CC[cfg.toolchain]
+	end
+
+	if cfg.target then
+		if not cfg.toolchain and M.TARGET.sys:find 'windows' then
+			cfg.toolchain = 'msvc'
+		end
+	end
+
+	M.SYSROOT = cfg.sysroot
+	M.TOOLCHAIN = cfg.toolchain
+
+	local modname = "lrocket.toolchain."..cfg.toolchain
+	local internal = {
+		gnu = true,
+		msvc = true,
+	}
+	if not internal[cfg.toolchain] then
+		abi.report(abi.validatemodule(modname, string.format("toolchain '%s'", cfg.toolchain)))
+	end
+	---@class lrocket.Toolchain
+	tc = require(modname)
+	tc.SYSROOT = M.SYSROOT
+	tc.ENV = M.ENV
+	tc.targettripplet = M.targettripplet
+
+	M.__index = tc
+	tc.configure(cfg, userargs)
+
+	cfg.env = tc.ENV
+
+	tc.ENV.CFLAGS   = table.concat(tc.bakeargs('c', cfg.cconf), ' ')
+	tc.ENV.LDFLAGS  = table.concat(tc.bakeargs('l', cfg.cconf), ' ')
+
+	if tc.ENV.CFLAGS == "" then tc.ENV.CFLAGS = nil end
+	if tc.ENV.LDFLAGS == "" then tc.ENV.LDFLAGS = nil end
+
+	tc.ENV.CXXFLAGS = tc.ENV.CFLAGS
+
+	cfg.host = M.targettripplet(tc.HOST)
+end
+
+function M.iswindows(target)
+	return target.sys:find 'win' or target.sys:find 'mingw'
+end
+
+return M
+

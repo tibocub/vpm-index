@@ -1,0 +1,82 @@
+local json = require "cjson"
+local kong = kong
+local ngx = ngx
+
+local EhealthMetricsHandler = {
+  PRIORITY = 10,
+  VERSION = "0.1.0",
+}
+
+local LATENCY_BUCKETS = { 25, 50, 100, 250, 500, 1000, 2000, 5000, 10000, 15000, 30000, 60000 }
+local pis_requests_metric_counter, pis_requests_metric_histogram
+
+function EhealthMetricsHandler:init_worker()
+  package.loaded['prometheus_resty_counter'] = require("resty.counter")
+  local prometheus = require("kong.plugins.prometheus.prometheus").init("prometheus_metrics", "kong_")
+
+  pis_requests_metric_counter = prometheus:counter("pis_requests_counter", "Counter for PIS requests",
+    { "service", "route", "code", "error_text", "client_name" })
+
+  pis_requests_metric_histogram = prometheus:histogram("pis_requests_latency", "PIS requests latency",
+    { "service", "route", "code", "client_name" }, LATENCY_BUCKETS)
+end
+
+local function parse_error_text(body)
+  if body then
+    local result, response = pcall(json.decode, body)
+
+    if not result then
+      return ""
+    end
+
+    local error = response.error or {}
+    return response.message or error.message or ""
+  else
+    return ""
+  end
+end
+
+function EhealthMetricsHandler:body_filter(conf)
+  local chunk = ngx.arg[1]
+  local eof = ngx.arg[2]
+  local ctx = kong.ctx.plugin
+  ctx.chunks = ctx.chunks or {}
+
+  if chunk then
+    table.insert(ctx.chunks, chunk)
+  end
+
+  if eof then
+    ctx.response_body = table.concat(ctx.chunks)
+  end
+end
+
+function EhealthMetricsHandler:log(conf)
+  local message = kong.log.serialize()
+  local service = kong.router.get_service()
+  local route = kong.router.get_route()
+  local status = kong.response.get_status()
+
+  pis_requests_metric_counter:inc(
+    1,
+    {
+      service.name,
+      route.name,
+      status,
+      parse_error_text(kong.ctx.plugin.response_body),
+      ngx.var.upstream_x_client_name
+    }
+  )
+
+  pis_requests_metric_histogram:observe(
+    message.latencies.request,
+    {
+      service.name,
+      route.name,
+      status,
+      ngx.var.upstream_x_client_name
+    }
+  )
+end
+
+return EhealthMetricsHandler

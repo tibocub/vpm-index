@@ -1,0 +1,40 @@
+local cqueues = require"cqueues"
+local poll = cqueues.poll
+
+local monotime = cqueues.monotime
+local setmetatable = setmetatable
+
+local _ENV = {}
+
+local timer = {__name = "lacord.x.timer"}
+
+timer.__index = timer
+
+--- Create a new timer, which will expire `whence` seconds from now.
+--  This object can be given to cqueues to poll.
+function new(whence)
+    return setmetatable({
+        deadline = whence+monotime(),
+        duration = whence
+    }, timer)
+end
+
+function timer.timeout(timer)
+    local left = timer.deadline - monotime()
+    if left > 0 then
+        return left
+    end
+end
+
+--- Restart a timer, so that it expires after its full duration from now.
+function timer.restart(timer)
+    timer.deadline = timer.duration + monotime()
+    return timer
+end
+
+--- Wait for a timer to expire on the current cqueues controller.
+function timer.wait(timer, ...)
+    return poll(timer, ...)
+end
+
+return _ENV

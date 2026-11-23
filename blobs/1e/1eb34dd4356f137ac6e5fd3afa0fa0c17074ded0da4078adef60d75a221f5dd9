@@ -1,0 +1,60 @@
+local json = require('panto').ext.json
+local config = require('panto_mcp.config')
+
+local M = {}
+local function log(err)
+    io.stderr:write('panto-mcp: registration: ', tostring(err), '\n')
+end
+local function invoke(ext, method, name)
+    local ok, value, err = pcall(ext[method], name)
+    if not ok then log(value); return false end
+    if not value then log(err or (method .. ' failed for ' .. name)); return false end
+    return true
+end
+local function tool_spec(manager, server, tool, wire_name)
+    return {
+        name = wire_name,
+        description = tool.description or tool.title or ('MCP tool ' .. tool.name .. ' on ' .. server),
+        schema = tool.inputSchema,
+        handler = function(input)
+            local result = manager:call(server, tool.name, input)
+            if result.is_error then error(result.text, 0) end
+            return {text=result.text, attachments=result.attachments}
+        end,
+    }
+end
+function M.new(ext, manager)
+    local self = {ext=ext, manager=manager, tools={}}
+    function self:reconcile()
+        if type(ext.unregister_tool) ~= 'function' then return end
+        local wanted = {}
+        for server, state in pairs(manager.states) do
+            if state.cfg.expose == 'eager' then
+                for _,tool in ipairs((state.metadata and state.metadata.catalog and state.metadata.catalog.tools) or {}) do
+                    if config.tool_enabled(state.cfg,tool.name) then
+                        local wire=config.tool_name(server,tool.name)
+                        local fingerprint=json.encode({description=tool.description,title=tool.title,schema=tool.inputSchema})
+                        wanted[wire]={server=server,name=tool.name,tool=tool,fingerprint=fingerprint}
+                    end
+                end
+            end
+        end
+        for wire, old in pairs(self.tools) do
+            local current = wanted[wire]
+            if not current or current.fingerprint ~= old.fingerprint or current.server ~= old.server or current.name ~= old.name then
+                if invoke(ext, 'unregister_tool', wire) then self.tools[wire] = nil end
+            end
+        end
+        for wire, current in pairs(wanted) do
+            if not self.tools[wire] then
+                local spec = tool_spec(manager, current.server, current.tool, wire)
+                local ok, value, err = pcall(ext.register_tool, spec)
+                if ok and value then
+                    self.tools[wire] = current
+                else log(ok and (err or ('register_tool failed for ' .. wire)) or value) end
+            end
+        end
+    end
+    return self
+end
+return M

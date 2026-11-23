@@ -1,0 +1,139 @@
+local dir = require "pl.dir"
+local path = require "pl.path"
+local vips = require "vips"
+
+local pkar = require "pocket_archive"
+local logger = pkar.logger
+
+
+M = { fn = {} }
+
+setmetatable(M, {
+    __index = function(t, k)
+        if k == "conf" then
+            if not rawget(t, "_conf") then
+                rawset(
+                    t, "_conf",
+                    dofile(path.join(pkar.config_path, "transformers.lua"))
+                )
+            end
+        end
+        return rawget(t, "_conf")
+    end,
+})
+
+
+--[[-- Process selector.
+Find a matching process configuration for the given mime type and target.
+
+@tparam string mimetype MIME type of the file.
+@tparam string target Processing target.
+
+@treturn table Process configuration.
+@treturn nil If no match was found.
+@treturn string Error message if no match was found.
+]]
+function M.find(mimetype, target)
+    for _, pconf in ipairs(M.conf) do
+        if mimetype:find(pconf.mime) then
+            if pconf.targets[target] then
+                -- Merge the general transformer config with the target's.
+                out = { render_as = pconf.render_as }
+                for k, v in pairs(pconf.targets[target]) do out[k] = v end
+                return out
+            else return nil, "MIME match found but no target match." end
+        end
+    end
+
+    return nil, "No transformer configured for this MIME type and target."
+end
+
+--[[-- Process executor.
+
+@tparam table conf Configuration obtained with @{find()}..
+@tparam string src Source file path.
+@tparam string dest_base Destination file path without the file extension. This
+    will be appended by the transformer configuration or, if not defined, it
+    will match the source extension.
+
+@treturn bool True if successful.
+@treturn string Destination path if successful.
+@treturn bool False If an error occurred.
+@treturn err Error message if an error occurred.
+]]
+M.process = function(conf, src, dest_base)
+    local dest = dest_base .. (conf.ext or path.extension(src))
+    return pcall(M.fn[conf.fn], src, dest, table.unpack(conf))
+end
+
+
+--
+-- Processing functions
+--
+
+-- Resize an image to a maximum size on either dimension.
+M.fn.img_resize = function(src, dest, size)
+    logger:debug(("Resizing image %s with size %d to %s"):format(
+            src, size, dest))
+    -- TODO Make streaming if possible.
+    dir.makepath(path.dirname(dest))
+    local img = vips.Image.thumbnail(src, size)
+
+    img:write_to_file(dest)
+
+    return dest
+end
+
+
+M.fn.type_icon = function(src, dest, rtype)
+    logger:info("TODO implement type icon")
+
+    return dest
+end
+
+
+--- Convert a text file to a thumbnail.
+M.fn.text_to_img = function(src, dest, length, size)
+    local fh = assert(io.open(src), "r")
+    local txt = fh:read(length)
+    fh:close()
+    local ok, img
+    --[[ Unicode text could be cut by `length` in the middle of a multi-byte
+    sequence. That makes the text invalid for the Vips transform.
+    Run up to 7 attempts, each time cutting one byte off the end (any given
+    Unicode symbol can be up to 8 bytes long) until a code point boundary is
+    met and the text is valid for conversion.
+    ]]
+    for i = 1, 7 do
+        if i > 1 then
+            logger:info(("Text decoding failed. Try #%d..."):format(i))
+        end
+        ok, img = pcall(function()
+            return vips.Image.text(txt, {
+                width = size,
+                height = size,
+                font = "sans 16",
+                --dpi = 120,
+            }):invert()
+        end)
+        if ok then break end
+        txt = txt:sub(1, -2)
+    end
+    assert(ok, img)
+
+    img:write_to_file(dest)
+
+    return dest
+end
+
+
+-- Straight copy with no transformation.
+M.fn.copy = function(src, dest)
+    dir.makepath(path.dirname(dest))
+    dir.copyfile(src, dest)
+
+    return dest
+end
+
+
+return M

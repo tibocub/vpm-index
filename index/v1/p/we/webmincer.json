@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "webmincer",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://codeberg.org/fita-slovo/lua-webmincer",
+      "license": "0BSD",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Tue, 17 Nov 2026 21:08:07 GMT",
+        "rockspec": {
+          "date": "Tue, 17 Nov 2026 21:08:07 GMT",
+          "sha256": "ec34765a2b371352f32a31bee854cfa957f5663e81617b397ad91c045e3f73bd",
+          "size": 1033
+        },
+        "src": {
+          "date": "Tue, 17 Nov 2026 21:08:12 GMT",
+          "sha256": "db8e1a457dc018a251dd4853a524ab603cea24a90bc7d5c7d810bba8663de94c",
+          "size": 211313,
+          "url": "https://luarocks.org/webmincer-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "webmincer"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "WebMinCer/src"
+              ],
+              "name": "webmincer",
+              "sources": [
+                "src/luawebmincer.c",
+                "WebMinCer/src/js-mangler.c",
+                "WebMinCer/src/minifier-common.c",
+                "WebMinCer/src/minifier-css.c",
+                "WebMinCer/src/minifier-js.c",
+                "WebMinCer/src/minifier-json.c",
+                "WebMinCer/src/minifier-xml-html.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 17 Nov 2026 21:08:12 GMT",
+        "sha256": "db8e1a457dc018a251dd4853a524ab603cea24a90bc7d5c7d810bba8663de94c",
+        "size": 211313,
+        "type": "luarocks",
+        "url": "https://luarocks.org/webmincer-1.0.0-1.src.rock"
+      },
+      "summary": "HTML, CSS, JS, XML and JSON minification",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

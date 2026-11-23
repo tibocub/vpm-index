@@ -1,0 +1,176 @@
+local ffi = require "ffi"
+
+local loaded, woothee = pcall(ffi.load, "libwoothee")
+
+if not loaded then
+	loaded, woothee = pcall(ffi.load, "libwoothee.so")
+
+	if not loaded then
+		error("Can't locate libwoothee.a or libwoothee.so")
+	end
+end
+
+local _M = {}
+_M.__index = _M
+
+
+function _M:woothee_delete()
+	woothee.woothee_delete(self._instance)
+end
+
+function _M.woothee_parse(useragent)
+	local self = setmetatable({}, _M)
+
+	self._instance = woothee.woothee_parse(useragent)
+
+	return self
+end
+
+function _M:woothee_is_crawler(useragent)
+	return woothee.woothee_is_crawler(useragent)
+end
+
+-- // appliance.h
+function _M:woothee_appliance_challenge_playstation(ua)
+	return woothee.woothee_appliance_challenge_playstation(ua, self._instance)
+end
+
+function _M:woothee_appliance_challenge_nintendo(ua)
+	return woothee.woothee_appliance_challenge_nintendo(ua, self._instance)
+end
+
+function _M:woothee_appliance_challenge_digitaltv(ua)
+	return woothee.woothee_appliance_challenge_digitaltv(ua, self._instance)
+end
+
+
+-- // browser.h
+function _M:woothee_browser_challenge_msie(ua)
+	return woothee.woothee_browser_challenge_msie(ua, self._instance)
+end
+
+function _M:woothee_browser_challenge_safari_chrome(ua)
+	return woothee.woothee_browser_challenge_safari_chrome(ua, self._instance)
+end
+
+function _M:woothee_browser_challenge_firefox(ua)
+	return woothee.woothee_browser_challenge_firefox(ua, self._instance)
+end
+
+function _M:woothee_browser_challenge_opera(ua)
+	return woothee.woothee_browser_challenge_opera(ua, self._instance)
+end
+
+function _M:woothee_browser_challenge_webview(ua)
+	return woothee.woothee_browser_challenge_webview(ua, self._instance)
+end
+
+function _M:woothee_browser_challenge_sleipnir(ua)
+	return woothee.woothee_browser_challenge_sleipnir(ua, self._instance)
+end
+
+
+-- // crawler.h
+function _M:woothee_crawler_challenge_google(ua)
+	return woothee.woothee_crawler_challenge_google(ua, self._instance)
+end
+
+function _M:woothee_crawler_challenge_crawlers(ua)
+	return woothee.woothee_crawler_challenge_crawlers(ua, self._instance)
+end
+
+function _M:woothee_crawler_challenge_maybe_crawler(ua)
+	return woothee.woothee_crawler_challenge_maybe_crawler(ua, self._instance)
+end
+
+
+-- // mobilephone.h
+function _M:woothee_mobilephone_challenge_docomo(ua)
+	return woothee.woothee_mobilephone_challenge_docomo(ua, self._instance)
+end
+
+function _M:woothee_mobilephone_challenge_au(ua)
+	return woothee.woothee_mobilephone_challenge_au(ua, self._instance)
+end
+
+function _M:woothee_mobilephone_challenge_softbank(ua)
+	return woothee.woothee_mobilephone_challenge_softbank(ua, self._instance)
+end
+
+function _M:woothee_mobilephone_challenge_willcom(ua)
+	return woothee.woothee_mobilephone_challenge_willcom(ua, self._instance)
+end
+
+function _M:woothee_mobilephone_challenge_misc(ua)
+	return woothee.woothee_mobilephone_challenge_misc(ua, self._instance)
+end
+
+
+-- // os.h
+function _M:woothee_os_challenge_windows(ua)
+	return woothee.woothee_os_challenge_windows(ua, self._instance)
+end
+
+function _M:woothee_os_challenge_osx(ua)
+	return woothee.woothee_os_challenge_osx(ua, self._instance)
+end
+
+function _M:woothee_os_challenge_linux(ua)
+	return woothee.woothee_os_challenge_linux(ua, self._instance)
+end
+
+function _M:woothee_os_challenge_smartphone(ua)
+	return woothee.woothee_os_challenge_smartphone(ua, self._instance)
+end
+
+function _M:woothee_os_challenge_mobilephone(ua)
+	return woothee.woothee_os_challenge_mobilephone(ua, self._instance)
+end
+
+function _M:woothee_os_challenge_appliance(ua)
+	return woothee.woothee_os_challenge_appliance(ua, self._instance)
+end
+
+function _M:woothee_os_challenge_misc(ua)
+	return woothee.woothee_os_challenge_misc(ua, self._instance)
+end
+
+
+-- // util.h
+function _M:woothee_update(source)
+	woothee.woothee_update(self._instance, source)
+end
+
+function _M:woothee_update_category(category)
+	woothee.woothee_update_category(self._instance, category)
+end
+
+function _M:woothee_update_version(version)
+	woothee.woothee_update_version(self._instance, version)
+end
+
+function _M:woothee_update_os(os)
+	woothee.woothee_update_os(self._instance, os)
+end
+
+function _M:woothee_update_os_version(version)
+	woothee.woothee_update_os_version(self._instance, version)
+end
+
+function _M:woothee_match(regex, caseless, str)
+	return woothee.woothee_match(regex, caseless, str)
+end
+
+function _M:woothee_match_get(regex, caseless, str, n)
+	return ffi.string(woothee.woothee_match_get(regex, caseless, str, n))
+end
+
+function _M:__index(n)
+	if n == "name" or n == "category" or n == "os" or n == "os_version" or n == "version" or n == "vendor" then
+		return ffi.string(self._instance[n])
+	else
+		return rawget(_M, n)
+	end
+end
+
+return _M

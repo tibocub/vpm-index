@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "hdrhistogram",
+  "versions": {
+    "0.1.9-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "hdrhistogram.lua": {
+          "sha256": "27b52cfb4661c3c3ac1d41aff26b9b504dc9d7ea6e9caac83283f86f5c177434",
+          "size": 5768,
+          "url": "blob:27b52cfb4661c3c3ac1d41aff26b9b504dc9d7ea6e9caac83283f86f5c177434"
+        }
+      },
+      "homepage": "https://github.com/slact/lua_hdrhistogram",
+      "license": "MPL",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Sat, 24 Nov 2018 03:15:32 GMT",
+        "rockspec": {
+          "date": "Sat, 24 Nov 2018 03:15:32 GMT",
+          "sha256": "2a919a121f2be686f1da265dce5a5c3a15572f666210fe42d19f4826e7256a55",
+          "size": 947
+        },
+        "src": {
+          "date": "Sat, 24 Nov 2018 03:15:33 GMT",
+          "sha256": "0d143a638bbdf7438a47ed439d867d8fafa1730e2cf640f6105a10eea97b2501",
+          "size": 28541,
+          "url": "https://luarocks.org/hdrhistogram-0.1.9-1.src.rock"
+        }
+      },
+      "modules": [
+        "hdrhistogram",
+        "hdrhistogram.hdr"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "DIST_VERSION=\"0.1.9\""
+              ],
+              "name": "hdrhistogram.hdr",
+              "sources": [
+                "hdr_histogram.c",
+                "lua_hdrhistogram.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 24 Nov 2018 03:15:33 GMT",
+        "sha256": "0d143a638bbdf7438a47ed439d867d8fafa1730e2cf640f6105a10eea97b2501",
+        "size": 28541,
+        "type": "luarocks",
+        "url": "https://luarocks.org/hdrhistogram-0.1.9-1.src.rock"
+      },
+      "size": 5768,
+      "summary": "Lua library wrapping HdrHistogram_c ",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

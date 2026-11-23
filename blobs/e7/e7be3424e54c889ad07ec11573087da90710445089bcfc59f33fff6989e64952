@@ -1,0 +1,248 @@
+require("socket")
+local plpretty = require "pl.pretty"
+local https = require("ssl.https")
+local cjson = require("cjson")
+local base64 = require("base64")
+local PD_BASE_URL = "https://platform.pokitdok.com"
+local USER_AGENT = "pokitdok-lua@1.0-1"
+
+--- Refresh the access token of a PokitDok connection instance
+-- @param context the PokitDok connection instance
+--
+local function refresh_access_token(context)
+    local token = base64.encode(context.client_id .. ":" .. context.client_secret)
+    local req_b = "grant_type=client_credentials"
+    local response_body = {}
+    local res_b, res_c, res_h, res_s = https.request {
+        url = PD_BASE_URL .. "/oauth2/token",
+        method = "POST",
+        headers = {
+            ["Authorization"] = "Basic " .. token,
+            ["Content-Length"] = string.len(req_b),
+            ["Content-Type"] = "application/x-www-form-urlencoded",
+            ["User Agent"] = USER_AGENT
+        },
+        source = ltn12.source.string(req_b),
+        sink = ltn12.sink.table(response_body)
+    }
+    local token = cjson.decode(table.concat(response_body))
+    if res_c == 200 then
+        context.access_token = token.access_token
+        return res_c
+    end
+    return token
+end
+
+--- Make an API Request to PokitDok
+-- @param context the PokitDok connection instance
+-- @param options a table of request options
+--
+local function api_request(context, options)
+    local url = PD_BASE_URL .. '/api/' .. context.version .. options.path
+    local req_b = ""
+    local req_h = {
+        ["Authorization"] = "Bearer " .. context.access_token;
+        ["Content-Type"] = "application/json";
+        ["User Agent"] = USER_AGENT;
+    };
+    if options.json then
+        req_b = cjson.encode(options.json)
+        req_h["Content-Length"] = string.len(req_b)
+    end
+    local response_body = {}
+    local res_b, res_c, res_h, res_s = https.request {
+        url = url,
+        method = options.method or "GET",
+        headers = req_h,
+        source = ltn12.source.string(req_b),
+        sink = ltn12.sink.table(response_body)
+    }
+    if res_c == 400 or res_c == 401 then
+        local token_res = refresh_access_token(context)
+        if token_res == 200 then
+            return api_request(context, options)
+        else
+            return token_res
+        end
+    else
+        return cjson.decode(table.concat(response_body))
+    end
+end
+
+--- Transform a table into query string params
+-- @param t a table of key value pairs
+--
+local function table_to_query_string(t)
+    local qs = '?'
+    for key, value in pairs(t) do
+        qs = qs .. key .. "=" .. value .. "&"
+    end
+    return qs
+end
+
+PokitDok = {}
+
+--- Create a new connection to the PokitDok API
+-- @param client_id the App client ID
+-- @param client_secret the App client secret
+-- @param version the version of the API (v3,v4)
+--
+function PokitDok:new(client_id, client_secret, version)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    self.client_id = client_id
+    self.client_secret = client_secret
+    self.version = version or "v4"
+    self.access_token = ""
+    return o
+end
+
+--- Get a list of activities or Get/Update a single activity
+-- @param options
+-- https://platform.pokitdok.com/documentation/v4#/#activities
+function PokitDok:activities(options)
+    if (options == nil) then
+        options = {}
+    end
+    local method = "GET"
+    if (options.transition ~= nil and options.id ~= nill) then
+        method = "PUT"
+    end
+    local token = options.id or ""
+    return api_request(self, {
+        path = "/activities/" .. token .. table_to_query_string(options),
+        method = method,
+        json = {
+            transition = options.transition
+        }
+    })
+end
+
+--- Submit an authorization request
+-- @param options
+-- https://platform.pokitdok.com/documentation/v4#/#authorizations
+function PokitDok:authorizations(options)
+    return api_request(self, {
+        path = "/authorizations/",
+        method = "POST",
+        json = options
+    })
+end
+
+--- Get a list of cash prices
+-- @param options a table of query string parameters
+-- https://platform.pokitdok.com/documentation/v4#/#cashprices
+function PokitDok:cash_prices(options)
+    if (options == nil) then
+        options = {}
+    end
+    return api_request(self, {
+        path = "/prices/cash" .. table_to_query_string(options),
+        method = "GET"
+    })
+end
+
+--- Submit a claim document
+-- @param options a table representing a claim document
+-- https://platform.pokitdok.com/documentation/v4#/#claims
+function PokitDok:claims(options)
+    return api_request(self, {
+        path = "/claims/",
+        method = "POST",
+        json = options
+    })
+end
+
+--- Get the status of a claim
+-- @param options a table representing a status request
+-- https://platform.pokitdok.com/documentation/v4#/#claimstatus
+function PokitDok:claims_status(options)
+    return api_request(self, {
+        path = "/claims/status",
+        method = "POST",
+        json = options
+    })
+end
+
+--- Submit an eligibilty request
+-- @param options a table representing an eligibility request
+-- https://platform.pokitdok.com/documentation/v4#/#eligibility
+function PokitDok:eligibility(options)
+    return api_request(self, {
+        path = "/eligibility/",
+        method = "POST",
+        json = options
+    })
+end
+
+
+--function PokitDok:enrollment(options)
+--    return api_request(self, {
+--        path = "/enrollment/",
+--        method = "POST",
+--        json = options
+--    })
+--end
+
+--- Get a list of insurance prices
+-- @param options a table of query string parameters
+-- https://platform.pokitdok.com/documentation/v4#/#insuranceprices
+function PokitDok:insurance_prices(options)
+    if (options == nil) then
+        options = {}
+    end
+    return api_request(self, {
+        path = "/prices/insurance" .. table_to_query_string(options),
+        method = "GET"
+    })
+end
+
+--- Get a list of insurance plans
+-- @param options a table of query string parameters
+-- https://platform.pokitdok.com/documentation/v4#/#plans
+function PokitDok:plans(options)
+    if (options == nil) then
+        options = {}
+    end
+    return api_request(self, {
+        path = "/plans/" .. table_to_query_string(options),
+        method = "GET"
+    })
+end
+
+--- Get a list of providers or a single provider
+-- @param options a table of search parameters
+-- https://platform.pokitdok.com/documentation/v4#/#providers
+function PokitDok:providers(options)
+    if (options == nil) then
+        options = {}
+    end
+    local token = options.npi or ""
+    return api_request(self, {
+        path = "/providers/" .. token .. table_to_query_string(options),
+        method = "GET"
+    })
+end
+
+--- Submit a referral document
+-- @param options a table representing a referral document
+-- https://platform.pokitdok.com/documentation/v4#/#referrals
+function PokitDok:referrals(options)
+    return api_request(self, {
+        path = "/referrals/",
+        method = "POST",
+        json = options
+    })
+end
+
+--- Get a list or a single trading partner
+-- @param id a trading partner id
+-- https://platform.pokitdok.com/documentation/v4#/#tradingpartners
+function PokitDok:trading_partners(id)
+    local token = id or ""
+    return api_request(self, {
+        path = "/tradingpartners/" .. token,
+        method = "GET"
+    })
+end

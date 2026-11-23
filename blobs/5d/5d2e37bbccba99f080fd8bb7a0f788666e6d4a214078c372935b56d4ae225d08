@@ -1,0 +1,26 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A self.defer() function.
+local SelfDeferFn = {}
+SelfDeferFn.__index = SelfDeferFn
+setmetatable(SelfDeferFn, {__index = Terminal})
+package.loaded[...] = SelfDeferFn
+
+--Constructor.
+function SelfDeferFn.new(ln, col, arg)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.SELF_DEFER, {line = ln, col = col}), SelfDeferFn)
+  self.arg = arg
+
+  --(2) return
+  return self
+end
+
+--@override
+function SelfDeferFn:__tostring()
+  return string.format("(self.defer %s)", tostring(self.arg))
+end

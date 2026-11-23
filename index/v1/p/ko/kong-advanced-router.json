@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "kong-advanced-router",
+  "versions": {
+    "0.2.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/advanced-router/handler.lua": {
+          "sha256": "8085e984bcf73cf55df87aa9651eec2c3d5913a5cb4599506411841dcbc95c58",
+          "size": 4220,
+          "url": "https://raw.githubusercontent.com/dream11/kong-advanced-router/2df7ab7fd99e710b8ed09555db2d5311310165f1/kong/plugins/advanced-router/handler.lua"
+        },
+        "kong/plugins/advanced-router/io.lua": {
+          "sha256": "19325bc9c3f2c927f4f16ddbce43859e7a878f84e30b1a4ae6fcf34a93dcc2b6",
+          "size": 4343,
+          "url": "https://raw.githubusercontent.com/dream11/kong-advanced-router/2df7ab7fd99e710b8ed09555db2d5311310165f1/kong/plugins/advanced-router/io.lua"
+        },
+        "kong/plugins/advanced-router/schema.lua": {
+          "sha256": "97e806c9d56da7f9ae2e540996351ab92382a02bb949ea6c05c75f94cd41cbff",
+          "size": 6140,
+          "url": "https://raw.githubusercontent.com/dream11/kong-advanced-router/2df7ab7fd99e710b8ed09555db2d5311310165f1/kong/plugins/advanced-router/schema.lua"
+        },
+        "kong/plugins/advanced-router/utils.lua": {
+          "sha256": "d7d425a338008a177e9ba7397ab11cfb805b9d163da14482d5ab45e1fe3ffc79",
+          "size": 1045,
+          "url": "https://raw.githubusercontent.com/dream11/kong-advanced-router/2df7ab7fd99e710b8ed09555db2d5311310165f1/kong/plugins/advanced-router/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/dream11/kong-advanced-router",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 15 Nov 2021 14:40:26 GMT",
+        "rockspec": {
+          "date": "Mon, 15 Nov 2021 14:40:26 GMT",
+          "sha256": "8dd3c75f19f0f26cfa26d99b2aed4415226b8dc7059ce207acbc0cc9bc2f1e51",
+          "size": 882
+        },
+        "src": {
+          "date": "Mon, 15 Nov 2021 14:40:27 GMT",
+          "sha256": "60e28e26f0f894e7cd021097db2edee849204ce39c5289479a6ba1907a155684",
+          "size": 37243,
+          "url": "https://luarocks.org/kong-advanced-router-0.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.advanced-router.handler",
+        "kong.plugins.advanced-router.io",
+        "kong.plugins.advanced-router.schema",
+        "kong.plugins.advanced-router.utils"
+      ],
+      "origin": {
+        "commit": "2df7ab7fd99e710b8ed09555db2d5311310165f1",
+        "ref": "v0.2.1",
+        "type": "git",
+        "url": "https://github.com/dream11/kong-advanced-router"
+      },
+      "size": 15748,
+      "summary": "Kong plugin to route requests based on the response of an IO call",
+      "undeclared_requires": [
+        "date",
+        "inspect",
+        "kong.db.schema.typedefs",
+        "pl.tablex",
+        "pl.utils",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: inspect",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 4
+      }
+    }
+  }
+}

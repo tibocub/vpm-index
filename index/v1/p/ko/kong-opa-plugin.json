@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "kong-opa-plugin",
+  "versions": {
+    "0.0.15-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-cjson",
+        "lua-resty-http",
+        "lua-resty-jwt"
+      ],
+      "files": {
+        "kong/plugins/opa/access.lua": {
+          "sha256": "cfb88cb65b70e0ce999513c52846ca013a8a6cf5be7b1fd52dcbf786fed9c559",
+          "size": 2950,
+          "url": "https://raw.githubusercontent.com/jtbonhomme/kong-plugin-opa/0c39ff409f51839e0e0539365df1201d2df67212/src/kong/plugins/opa/access.lua"
+        },
+        "kong/plugins/opa/handler.lua": {
+          "sha256": "e4beffa53e18631e4788f8235dcb065d024e992a3173dcd4bd6386d65da01215",
+          "size": 714,
+          "url": "https://raw.githubusercontent.com/jtbonhomme/kong-plugin-opa/0c39ff409f51839e0e0539365df1201d2df67212/src/kong/plugins/opa/handler.lua"
+        },
+        "kong/plugins/opa/schema.lua": {
+          "sha256": "cc24b53d40c1887a42195d1580153fd43542d0e675d3061f840ab828a81ce297",
+          "size": 2123,
+          "url": "https://raw.githubusercontent.com/jtbonhomme/kong-plugin-opa/0c39ff409f51839e0e0539365df1201d2df67212/src/kong/plugins/opa/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/jtbonhomme/kong-plugin-opa/tree/master/kong_plugin_opa",
+      "host": "openresty",
+      "luarocks": {
+        "date": "Fri, 20 Nov 2020 07:53:41 GMT",
+        "rockspec": {
+          "date": "Fri, 20 Nov 2020 07:53:41 GMT",
+          "sha256": "60df7e65735ae343524a9878b3a10faaf4e1d974fca6301e05ef314c25a25b15",
+          "size": 1069
+        },
+        "src": {
+          "date": "Fri, 20 Nov 2020 07:53:43 GMT",
+          "sha256": "f8288ae6809f1c1d3a429080459fffe9693bd91533c11411c23fca963ba5fc74",
+          "size": 88040,
+          "url": "https://luarocks.org/kong-opa-plugin-0.0.15-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.opa.access",
+        "kong.plugins.opa.handler",
+        "kong.plugins.opa.schema"
+      ],
+      "origin": {
+        "commit": "0c39ff409f51839e0e0539365df1201d2df67212",
+        "ref": "v0.0.15",
+        "type": "git",
+        "url": "https://github.com/jtbonhomme/kong-plugin-opa.git"
+      },
+      "size": 5787,
+      "summary": "Integrate the Open Policy Agent (OPA) with Kong API Gateway for API access management, fork of opa contrib plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

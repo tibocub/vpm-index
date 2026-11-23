@@ -1,0 +1,17 @@
+
+local VERSION = "1.2.1"
+local ABI_VERSION = "1.2.0"
+
+local lrocket_major, lrocket_minor, lrocket_patch = VERSION:match "^(%d+).(%d+).(%d+)"
+local abi_major, abi_minor, abi_patch = VERSION:match "^(%d+).(%d+).(%d+)"
+
+return {
+	VERSION = VERSION,
+	major = tonumber(lrocket_major),
+	minor = tonumber(lrocket_minor),
+	patch = tonumber(lrocket_patch),
+	ABI_VERSION = ABI_VERSION,
+	abi_major = tonumber(abi_major),
+	abi_minor = tonumber(abi_minor),
+	abi_patch = tonumber(abi_patch),
+}

@@ -1,0 +1,38 @@
+local _module_0 = { }
+local table = require('table')
+local _anon_func_0 = function(allowed, flag)
+	for _index_0 = 1, #allowed do
+		if allowed[_index_0] == flag then
+			return false
+		end
+	end
+	return true
+end
+local validate_flags
+validate_flags = function(cmd, opts, allowed)
+	local invalid_flags
+	do
+		local _accum_0 = { }
+		local _len_0 = 1
+		for flag in pairs(opts) do
+			if (#allowed > 0 and _anon_func_0(allowed, flag)) then
+				_accum_0[_len_0] = flag
+				_len_0 = _len_0 + 1
+			end
+		end
+		invalid_flags = _accum_0
+	end
+	local _exp_0 = #invalid_flags
+	if 0 == _exp_0 then
+		return true
+	elseif 1 == _exp_0 then
+		opts:opterr("invalid flag for command '" .. tostring(cmd) .. "': " .. tostring(invalid_flags[1]))
+		return false
+	else
+		table.sort(invalid_flags)
+		opts:opterr("invalid flags for command '" .. tostring(cmd) .. "': " .. tostring(table.concat(invalid_flags, ", ")))
+		return false
+	end
+end
+_module_0["validate_flags"] = validate_flags
+return _module_0

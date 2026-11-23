@@ -1,0 +1,241 @@
+---@diagnostic disable: duplicate-set-field
+
+local sfs = require "sfs"
+local utils = require "lrocket.utils"
+local log = require "lrocket.log"
+
+---@class lrocket.msvc : lrocket.Toolchain
+local msvc = {}
+
+local function arch()
+	--- idea from: https://github.com/swig/cccl/blob/30e59abb21b8dfb7940421a77c15006a956f15d9/cccl#L58-L93
+	local clheader = assert(sfs.shellout(msvc.CC, "2>&1"))
+	return clheader:find "x64" and "x86_64"
+		or clheader:find "x86" and "i686"
+		or clheader:find "arm64" and "aarch64"
+		or clheader:find "arm" and "arm"
+		or "unknown"
+end
+
+function msvc.defaultdefs()
+	if not msvc.DEFAULT_DEFS then
+		local a = sfs.tmppath()
+		sfs.write(a, "")
+		--- https://developercommunity.visualstudio.com/t/provide-the-ability-to-list-predefined-macros-and/934925
+		msvc.DEFAULT_DEFS = sfs.shellout('cl /EP /Zc:preprocessor /PD /Tc 2>NUL', a)
+		sfs.deltmppath(a)
+	end
+	return msvc.DEFAULT_DEFS
+end
+
+
+function msvc.configure(cfg)
+	msvc.EXT_OBJECT = ".obj"
+	msvc.EXT_ARCHIVE = ".lib"
+	msvc.EXT_SHARED = ".dll"
+	msvc.EXT_BIN = ".exe"
+	msvc.NM = "dumpbin"
+	msvc.CC = msvc.CC or "cl"
+
+	msvc.HOST = msvc.targettripplet(arch().."-pc-windows-msvc")
+	cfg.target = cfg.target:inherit(msvc.HOST)
+	msvc.TARGET = cfg.target
+	msvc.ENV.TARGET = tostring(msvc.TARGET)
+
+	if not sfs.exec(msvc.CC, " > nul 2>&1") then
+		return false, "C compiler not found"
+	else
+		return true
+	end
+end
+
+function msvc.libdeps(shared_lib)
+	local dumpbin, err = sfs.popen(
+		('dumpbin /IMPORTS "%s"'):format(shared_lib),
+		'r'
+	)
+	if not dumpbin then return nil, "dumpbin: "..err end
+
+	local dyn = {}
+	for line in dumpbin:lines() do
+		dyn[#dyn+1] = line:match "^%s*(.-%.dll)$"
+	end
+	return utils.reverse(dyn)
+end
+
+msvc._infocache = {}
+
+function msvc.libtype(library)
+	local key = 'libtype ' .. library
+	if msvc._infocache[key] then return msvc._infocache[key] end
+
+	local info, err = sfs.shellout("lib /list", sfs.quoteArgs(library))
+
+	if not info then return nil, "lib: "..err end
+
+	msvc._infocache[key] = info:find "%.obj%f[\r\n%z]" and "static" or info:find "%.dll%f[\r\n%z]" and "dynamic" or "unknown"
+
+	return msvc._infocache[key]
+end
+
+function msvc.symbols(shared_lib)
+	local dumpbin, err = sfs.popen(
+		('dumpbin /SYMBOLS "%s"'):format(shared_lib),
+		'r'
+	)
+	if not dumpbin then return nil, "dumpbin: "..err end
+
+	local symbols = {}
+	for line in dumpbin:lines() do
+		symbols[#symbols+1] = line:match "|%s*(%w+)"
+	end
+	return symbols
+end
+
+function msvc.arch(static_lib)
+	local dumpbin, err = sfs.popen { "dumpbin", "/headers", sfs.quoteArgs(static_lib) }
+	if not dumpbin then return nil, err end
+
+	local arch
+
+	for line in dumpbin:lines() do
+		local is86 = line:match "14C machine (x86)"
+		local is64 = line:match "8664 machine (x64)"
+
+		if is64 or is86 then
+			arch = is64 and 'x64' or 'x86'
+			break
+		end
+	end
+
+	dumpbin:close()
+
+	return arch
+end
+
+function msvc.archivemembers(library)
+	local lib, err = sfs.popen { "lib", "/nologo", "/list", sfs.quoteArgs(library) }
+	if not lib then return nil, err end
+
+	local out = {}
+	for line in lib:lines() do
+		out[#out+1] = line
+	end
+
+	lib:close()
+
+	return out
+end
+
+---@param conf lrocket.CompilerConf
+function msvc.compile(conf)
+    local compile_command = { msvc.CC }
+
+	msvc.bakeargs('clo', conf, compile_command)
+
+	for i, arg in ipairs(compile_command) do
+		compile_command[i] = sfs.quoteArgs(arg)
+	end
+
+	log.nextlevel 'detail'
+	local ok, err = sfs.shellout(compile_command)
+
+	local cfile
+	for type, value in conf:args() do
+		if type == 'c' then
+			cfile = value
+		end
+	end
+
+	ok = ok and ok
+		:gsub("^"..sfs.getName(cfile)
+		:gsub("%p", "%%%1").."\n", "")
+		:gsub("\n$", "")
+
+	if ok and #ok > 0 then
+		log.failure(log.EXITCODE.GENERAL_ERROR, "%s\n", ok)
+	end
+
+	return not not ok, err
+end
+
+---@param mode 'c'|'l'|'o'|string # c adds cflags, l adds ldflags, o adds output flags
+---@param conf lrocket.CompilerConf
+---@param res string[]?
+---@return string[]
+function msvc.bakeargs(mode, conf, res)
+	res = res or {}
+	local function addarg(...)
+		for _, item in ipairs { ... } do
+			res[#res+1] = tostring(item)
+		end
+	end
+
+	conf:dedupargs()
+
+	addarg "/nologo"
+
+	if conf.optimize then
+		addarg("/O"..(conf.optimize == 'space' and '1' or '2'))
+	end
+
+	if mode:find 'o' then
+		if conf.type == 'object' then
+			addarg("/Fo:"..conf.output)
+		else
+			addarg("/Fe:"..conf.output)
+		end
+	end
+
+	if mode:find 'c' then
+		for type, value in conf:args() do
+			if type == 'c' then
+				local cfile = value
+				addarg("/Tc", cfile)
+			elseif type == 'include' then
+				local path = value
+				addarg("/I", path)
+			end
+		end
+	end
+
+	if mode:find 'l' then
+		if conf.type == 'shared' then
+			addarg "/LD"
+		elseif conf.type == 'object' then
+			addarg "/c"
+		end
+	end
+
+	if mode:find 'l' and conf.type ~= 'object' then
+		addarg("/link", "/nologo")
+
+		for type, value in conf:args() do
+			if type == 'libdir' then
+				local searchpath = value
+				addarg("/LIBPATH:"..searchpath)
+			elseif type == 'library' then
+				local library = value
+				addarg(library)
+			elseif type == 'object' then
+				local object = value
+				addarg(object)
+			elseif type == 'extra' then
+				local extra = value
+				addarg(extra)
+			end
+		end
+
+		for _, lib in ipairs(conf.added.library) do
+			addarg(lib)
+		end
+
+	    if conf.subsystem == 'gui' then
+			addarg "/SUBSYSTEM:WINDOWS"
+		end
+	end
+
+	return res
+end
+
+return msvc

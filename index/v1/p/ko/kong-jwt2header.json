@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "kong-jwt2header",
+  "versions": {
+    "1.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-jwt2header/handler.lua": {
+          "sha256": "61b477652ecdf04c2a75bc81432c0411d9dce824d5bae7da835792b85fa73c7f",
+          "size": 2485,
+          "url": "https://raw.githubusercontent.com/yesinteractive/kong-jwt2header/2d9cef19274177af2dbac109cd062392650a2829/plugin/handler.lua"
+        },
+        "kong/plugins/kong-jwt2header/schema.lua": {
+          "sha256": "fb99da81fcc95e3182950727be36cd4f71f4169a109143e201f57a0c51a54220",
+          "size": 607,
+          "url": "https://raw.githubusercontent.com/yesinteractive/kong-jwt2header/2d9cef19274177af2dbac109cd062392650a2829/plugin/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 20 Nov 2020 15:20:08 GMT",
+        "rockspec": {
+          "date": "Fri, 20 Nov 2020 15:20:08 GMT",
+          "sha256": "c1a1a4f85a730aa1b1b8fa0c608cdcdf79db0c88f78254cbd4ef7b510ee0f8c7",
+          "size": 509
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-jwt2header.handler",
+        "kong.plugins.kong-jwt2header.schema"
+      ],
+      "origin": {
+        "commit": "2d9cef19274177af2dbac109cd062392650a2829",
+        "type": "git",
+        "url": "https://github.com/yesinteractive/kong-jwt2header.git"
+      },
+      "size": 3092,
+      "summary": "Converts JWT claims to Headers to allow for Routing by JWT Claim and/or upstream JWT Claim consumption by header",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.jwt.jwt_parser",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

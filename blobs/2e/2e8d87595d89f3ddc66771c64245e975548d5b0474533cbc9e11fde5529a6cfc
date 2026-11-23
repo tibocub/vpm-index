@@ -1,0 +1,54 @@
+local M = {}
+
+local HOME = 'https://iptvplaylist.app/'
+local TOOLS = {
+  checker = '/iptv-checker',
+  analyzer = '/m3u-playlist-analyzer',
+  viewer = '/m3u-viewer',
+  guides = '/guides'
+}
+
+local function slugify(value)
+  if type(value) ~= 'string' then
+    error('value must be a non-empty string', 2)
+  end
+  local slug = value:lower():gsub('[^a-z0-9]+', '-'):gsub('^%-+', ''):gsub('%-+$', '')
+  if slug == '' then
+    error('value must be a non-empty string', 2)
+  end
+  return slug
+end
+
+function M.playlist_url(country)
+  return HOME .. 'playlists/' .. slugify(country)
+end
+
+function M.tool_url(tool)
+  if type(tool) ~= 'string' then
+    error('tool must be a supported string', 2)
+  end
+  local path = TOOLS[tool:lower():gsub('^%s+', ''):gsub('%s+$', '')]
+  if not path then
+    error('tool must be checker, analyzer, viewer, or guides', 2)
+  end
+  return HOME:gsub('/$', '') .. path
+end
+
+function M.metadata()
+  return {
+    name = 'IPTV Playlist',
+    homepage = HOME,
+    description = 'Public IPTV playlist directory and M3U utility site.',
+    canonicalPages = {
+      home = HOME,
+      playlists = HOME .. 'playlists',
+      checker = M.tool_url('checker'),
+      analyzer = M.tool_url('analyzer'),
+      viewer = M.tool_url('viewer'),
+      guides = M.tool_url('guides')
+    },
+    tags = {'iptv', 'm3u', 'playlist'}
+  }
+end
+
+return M

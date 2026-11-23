@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "yaml",
+  "versions": {
+    "1.1.2-1": {
+      "bin": [],
+      "deps": [
+        "lub >= 1.0.3, < 2"
+      ],
+      "files": {
+        "yaml/init.lua": {
+          "sha256": "b3106cdad497b74e0b054870fc10c14b04085dd674f2d26d581aacdd729714fb",
+          "size": 4691,
+          "url": "blob:b3106cdad497b74e0b054870fc10c14b04085dd674f2d26d581aacdd729714fb"
+        }
+      },
+      "homepage": "http://doc.lubyk.org/yaml.html",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Mon, 11 May 2015 10:37:32 GMT",
+        "rockspec": {
+          "date": "Mon, 11 May 2015 10:37:32 GMT",
+          "sha256": "1dfd432f8c48e9678eb7d81a87cfeafb0446d848d7954d872d2e727c5432b868",
+          "size": 1201
+        },
+        "src": {
+          "date": "Mon, 11 May 2015 10:37:47 GMT",
+          "sha256": "0f63e9b49f8879944372552bc197e567bd70eee6da2f2d5219b3b16a2331837e",
+          "size": 85254,
+          "url": "https://luarocks.org/yaml-1.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "yaml",
+        "yaml.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src"
+              ],
+              "name": "yaml.core",
+              "sources": [
+                "src/api.c",
+                "src/b64.c",
+                "src/dumper.c",
+                "src/emitter.c",
+                "src/loader.c",
+                "src/lyaml.c",
+                "src/parser.c",
+                "src/reader.c",
+                "src/scanner.c",
+                "src/strtod.c",
+                "src/writer.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "yaml"
+      },
+      "origin": {
+        "date": "Mon, 11 May 2015 10:37:47 GMT",
+        "sha256": "0f63e9b49f8879944372552bc197e567bd70eee6da2f2d5219b3b16a2331837e",
+        "size": 85254,
+        "type": "luarocks",
+        "url": "https://luarocks.org/yaml-1.1.2-1.src.rock"
+      },
+      "size": 4691,
+      "summary": "Very fast yaml parser based on libYAML by Kirill Simonov",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

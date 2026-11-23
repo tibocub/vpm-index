@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "kong-proxy-cache-plugin",
+  "versions": {
+    "1.3.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/proxy-cache/api.lua": {
+          "sha256": "d440503931fcb68e02a591634c00e1fa612a622055fcbb047993f1fe713914fa",
+          "size": 5252,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-proxy-cache/e5655751c332aecaa15672ff6f266694f88335fa/kong/plugins/proxy-cache/api.lua"
+        },
+        "kong/plugins/proxy-cache/cache_key.lua": {
+          "sha256": "030f1c321742dae86904d06e024589583930203bfe8b6679c4da2ccb8b778eca",
+          "size": 2618,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-proxy-cache/e5655751c332aecaa15672ff6f266694f88335fa/kong/plugins/proxy-cache/cache_key.lua"
+        },
+        "kong/plugins/proxy-cache/handler.lua": {
+          "sha256": "5fc1bc58b177259ec0381a056684011806412006233551ce96417d58a913c3d4",
+          "size": 11248,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-proxy-cache/e5655751c332aecaa15672ff6f266694f88335fa/kong/plugins/proxy-cache/handler.lua"
+        },
+        "kong/plugins/proxy-cache/schema.lua": {
+          "sha256": "b08327a5e2f2af0758c60415fa54635878c54b3fe856b41be43172366db6b260",
+          "size": 2449,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-proxy-cache/e5655751c332aecaa15672ff6f266694f88335fa/kong/plugins/proxy-cache/schema.lua"
+        },
+        "kong/plugins/proxy-cache/strategies/init.lua": {
+          "sha256": "9a77ca0f6a0199c922b508009c9ac0efb02aac2ef05ec7578ba8d4b90f0e32b2",
+          "size": 561,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-proxy-cache/e5655751c332aecaa15672ff6f266694f88335fa/kong/plugins/proxy-cache/strategies/init.lua"
+        },
+        "kong/plugins/proxy-cache/strategies/memory.lua": {
+          "sha256": "6c28e8606a0560829195bbd788113858c7b308015b4599ac54f7ac4b421c4e14",
+          "size": 3215,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-proxy-cache/e5655751c332aecaa15672ff6f266694f88335fa/kong/plugins/proxy-cache/strategies/memory.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 22 Apr 2020 06:13:50 GMT",
+        "rockspec": {
+          "date": "Wed, 22 Apr 2020 06:13:50 GMT",
+          "sha256": "0106e7461c345ac7b1b2d6c9a3fdead77cde36b550ec152d2792406fb8992df2",
+          "size": 952
+        }
+      },
+      "modules": [
+        "kong.plugins.proxy-cache.api",
+        "kong.plugins.proxy-cache.cache_key",
+        "kong.plugins.proxy-cache.handler",
+        "kong.plugins.proxy-cache.schema",
+        "kong.plugins.proxy-cache.strategies",
+        "kong.plugins.proxy-cache.strategies.memory"
+      ],
+      "origin": {
+        "commit": "e5655751c332aecaa15672ff6f266694f88335fa",
+        "ref": "1.3.1",
+        "type": "git",
+        "url": "https://github.com/Kong/kong-plugin-proxy-cache"
+      },
+      "size": 25343,
+      "summary": "HTTP Proxy Caching for Kong",
+      "undeclared_requires": [
+        "kong.plugins.proxy-cache.strategies.",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 6
+      }
+    }
+  }
+}

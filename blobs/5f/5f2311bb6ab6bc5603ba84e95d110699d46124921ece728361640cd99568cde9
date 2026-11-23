@@ -1,0 +1,26 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A catch() call.
+local CatchFn = {}
+CatchFn.__index = CatchFn
+setmetatable(CatchFn, {__index = Terminal})
+package.loaded[...] = CatchFn
+
+--Constructor.
+function CatchFn.new(ln, col, exp)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.CATCH, {line = ln, col = col}), CatchFn)
+  self.exp = exp
+
+  --(2) return
+  return self
+end
+
+--@override
+function CatchFn:__tostring()
+  return string.format("(catch %s)", tostring(self.exp))
+end

@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "kong-tx-debugger",
+  "versions": {
+    "0.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-tx-debugger/handler.lua": {
+          "sha256": "11029118f4d0ab4003e49369a5d2cad3c923d92db9bde6635c5ed27e98250c0b",
+          "size": 3200,
+          "url": "https://raw.githubusercontent.com/Optum/kong-tx-debugger/77d752b9c06e4e9c915c8ccd5bf8920bd61f83ee/src/handler.lua"
+        },
+        "kong/plugins/kong-tx-debugger/schema.lua": {
+          "sha256": "18aa85e42a0f0d2cda20c41675255ac377832cfb80e8f69ba5a7a61fdde74c3b",
+          "size": 969,
+          "url": "https://raw.githubusercontent.com/Optum/kong-tx-debugger/77d752b9c06e4e9c915c8ccd5bf8920bd61f83ee/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-tx-debugger",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Wed, 09 Sep 2020 22:20:35 GMT",
+        "rockspec": {
+          "date": "Wed, 09 Sep 2020 22:20:35 GMT",
+          "sha256": "03067d6d7773f7b4e8f6612b7880cc9c628b69ad99ad5a3bb1e275e8baf623ef",
+          "size": 650
+        },
+        "src": {
+          "date": "Wed, 09 Sep 2020 22:20:36 GMT",
+          "sha256": "2c5ccca4a7107e80fc773440c078138664fbbe24ed3ef8f42108cfec6413c2d3",
+          "size": 14399,
+          "url": "https://luarocks.org/kong-tx-debugger-0.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-tx-debugger.handler",
+        "kong.plugins.kong-tx-debugger.schema"
+      ],
+      "origin": {
+        "commit": "77d752b9c06e4e9c915c8ccd5bf8920bd61f83ee",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-tx-debugger.git"
+      },
+      "size": 4169,
+      "summary": "Log API Request and Response Data to Kong STDOUT",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-forward-proxy",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [
+        "net-url ~> 0.9-1"
+      ],
+      "files": {
+        "kong/plugins/forward-proxy/access.lua": {
+          "sha256": "c65eb91b2a52086f6693c430b5b15f369465aab44bb8589300295456d42cdf3a",
+          "size": 300,
+          "url": "https://raw.githubusercontent.com/tfabien/kong-forward-proxy/563375ed32cc73b735ee0aff9d8958df88129ca0/src/access.lua"
+        },
+        "kong/plugins/forward-proxy/handler.lua": {
+          "sha256": "5af37b5b0664f77f623db7f8cb5b7ab0f37c2f483e0026f7871d22748bd38cc0",
+          "size": 388,
+          "url": "https://raw.githubusercontent.com/tfabien/kong-forward-proxy/563375ed32cc73b735ee0aff9d8958df88129ca0/src/handler.lua"
+        },
+        "kong/plugins/forward-proxy/schema.lua": {
+          "sha256": "f13a304e9ba25fd35fa8a5f3894348d0aba84931949a46aeb8db214f5ed1124f",
+          "size": 133,
+          "url": "https://raw.githubusercontent.com/tfabien/kong-forward-proxy/563375ed32cc73b735ee0aff9d8958df88129ca0/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 04 Feb 2022 09:19:34 GMT",
+        "rockspec": {
+          "date": "Fri, 04 Feb 2022 09:19:34 GMT",
+          "sha256": "711429a7ed813a1b4183a830b23e42c6821cd4e6f64e9a5f9e53c2e64edaea32",
+          "size": 557
+        }
+      },
+      "modules": [
+        "kong.plugins.forward-proxy.access",
+        "kong.plugins.forward-proxy.handler",
+        "kong.plugins.forward-proxy.schema"
+      ],
+      "origin": {
+        "commit": "563375ed32cc73b735ee0aff9d8958df88129ca0",
+        "type": "git",
+        "url": "https://github.com/tfabien/kong-forward-proxy/"
+      },
+      "size": 821,
+      "summary": "A Kong plugin that allows access to an upstream url through a proxy",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

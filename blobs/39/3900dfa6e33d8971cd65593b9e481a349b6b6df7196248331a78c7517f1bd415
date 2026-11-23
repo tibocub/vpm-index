@@ -1,0 +1,13 @@
+return [[
+export LUA_VERSION=`lua -e 'print(dofile(".luarocks/default-lua-version.lua"))'`
+export LUA_MODULES=`pwd`/lua_modules
+export LUA_PATH="${LUA_MODULES}/share/lua/${LUA_VERSION}/?.lua;${LUA_MODULES}/share/lua/${LUA_VERSION}/?/init.lua;;"
+export LUA_CPATH="${LUA_MODULES}/lib/lua/${LUA_VERSION}/?.so;;"
+
+export PGPASSFILE=`pwd`/run/secrets/pgpass
+export PGHOST=localhost
+export PGPORT=%d
+export PGCONNECT_TIMEOUT=10
+export PGUSER=postgres
+export PGDATABASE=postgres
+]]

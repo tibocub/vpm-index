@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-plugin",
+  "versions": {
+    "1.4.1-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc >= 1.9.0, < 2.0"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "eeecc4b13ae887b518411523d05222a80fe6592585f2261bebb81438a71d9e7e",
+          "size": 367,
+          "url": "https://raw.githubusercontent.com/antiantiops/kong-oidc-plugin/43d2feb0b53bafb944c4155c954d959fb71d8ff4/kong/plugins/oidc/filter.lua"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "8e19f6308a98b512bcd0e0496e7d339f257ab2f25f741d070e9116976cf48a79",
+          "size": 2892,
+          "url": "https://raw.githubusercontent.com/antiantiops/kong-oidc-plugin/43d2feb0b53bafb944c4155c954d959fb71d8ff4/kong/plugins/oidc/handler.lua"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "7f785265f6ec12ded6921362d0edc40a2e10d3a44dbecb0c3c6bc1308bf9cb0a",
+          "size": 2048,
+          "url": "https://raw.githubusercontent.com/antiantiops/kong-oidc-plugin/43d2feb0b53bafb944c4155c954d959fb71d8ff4/kong/plugins/oidc/schema.lua"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "f5bcc5268096d9d506710ae1b1463990f9093d17022823f82554805f0800070d",
+          "size": 813,
+          "url": "https://raw.githubusercontent.com/antiantiops/kong-oidc-plugin/43d2feb0b53bafb944c4155c954d959fb71d8ff4/kong/plugins/oidc/session.lua"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "3fa4c313b6af4cf5b27f048994d16bb8d3fb4d5b65474bafae758fc2ae2d641c",
+          "size": 3364,
+          "url": "https://raw.githubusercontent.com/antiantiops/kong-oidc-plugin/43d2feb0b53bafb944c4155c954d959fb71d8ff4/kong/plugins/oidc/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/antiantiops/kong-oidc-plugin",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 04 Sep 2026 13:42:24 GMT",
+        "rockspec": {
+          "date": "Fri, 04 Sep 2026 13:42:24 GMT",
+          "sha256": "664185baf432997f699dd4c6eb616099d4863fdc65c0a01658e43b7441a780b1",
+          "size": 1030
+        },
+        "src": {
+          "date": "Fri, 04 Sep 2026 13:42:25 GMT",
+          "sha256": "c06f48f7eccec43da29538cfbd41d65dac1ad92863f552722f8385f83485cbcd",
+          "size": 156663,
+          "url": "https://luarocks.org/kong-oidc-plugin-1.4.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "commit": "43d2feb0b53bafb944c4155c954d959fb71d8ff4",
+        "ref": "v1.4.1",
+        "type": "git",
+        "url": "https://github.com/antiantiops/kong-oidc-plugin.git"
+      },
+      "size": 9484,
+      "summary": "A Kong plugin for implementing OpenID Connect Relying Party (RP) functionality for Kong CE / 3.x / 4.x",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

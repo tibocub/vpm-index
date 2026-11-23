@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "lua-nss",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "luasocket ~> 3"
+      ],
+      "files": {
+        "nss/https.lua": {
+          "sha256": "b0205c0009b3367791c3605a3e6b986227d420dcab29331221266c02a716a017",
+          "size": 4032,
+          "url": "blob:b0205c0009b3367791c3605a3e6b986227d420dcab29331221266c02a716a017"
+        }
+      },
+      "homepage": "https://codeberg.org/leso-kn/lua-nss",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 17 Jul 2026 19:01:11 GMT",
+        "rockspec": {
+          "date": "Fri, 17 Jul 2026 19:01:11 GMT",
+          "sha256": "c18c07a8d5c01402efe7fe6c7c145cbeb9d6fb7ee49f67d2f0437b6ef8dc29c3",
+          "size": 472
+        },
+        "src": {
+          "date": "Fri, 17 Jul 2026 19:01:13 GMT",
+          "sha256": "ac1e9d823e6c3909e9015f03f7cc069cab0980384b82481de764a80af957a311",
+          "size": 7614,
+          "url": "https://luarocks.org/lua-nss-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "nss",
+        "nss.https"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "/usr/include/nss",
+                "/usr/include/nspr"
+              ],
+              "libraries": [
+                "nss3",
+                "nspr4",
+                "ssl3"
+              ],
+              "name": "nss",
+              "sources": [
+                "nss/lnss.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 17 Jul 2026 19:01:13 GMT",
+        "sha256": "ac1e9d823e6c3909e9015f03f7cc069cab0980384b82481de764a80af957a311",
+        "size": 7614,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-nss-0.1.0-1.src.rock"
+      },
+      "size": 4032,
+      "undeclared_requires": [
+        "ltn12",
+        "socket",
+        "socket.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

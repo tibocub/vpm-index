@@ -1,0 +1,245 @@
+{
+  "kind": "lib",
+  "name": "lua-sdl2",
+  "versions": {
+    "2.0.5.6.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/Tangent128/luasdl2/",
+      "license": "ISC",
+      "luarocks": {
+        "date": "Sun, 12 Mar 2017 05:51:07 GMT",
+        "rockspec": {
+          "date": "Sun, 12 Mar 2017 05:51:07 GMT",
+          "sha256": "d30a4614ecbf13dc2e5ef14d1546a999ccb2c162d512c3113728eed4fad9a94b",
+          "size": 4331
+        },
+        "src": {
+          "date": "Sun, 12 Mar 2017 05:51:20 GMT",
+          "sha256": "36b626485529f318f284e0cc0c806d5a425fbde4e1e6329d4d5ee9f495ecff62",
+          "size": 11118761,
+          "url": "https://luarocks.org/lua-sdl2-2.0.5.6.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "SDL",
+        "SDL.image",
+        "SDL.mixer",
+        "SDL.net",
+        "SDL.ttf"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SDL2",
+          "SDL2_image",
+          "SDL2_mixer",
+          "SDL2_net",
+          "SDL2_ttf",
+          "platforms"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SDL2": {
+              "header": "SDL2/SDL_scancode.h"
+            },
+            "SDL2_image": {
+              "header": "SDL2/SDL_image.h"
+            },
+            "SDL2_mixer": {
+              "header": "SDL2/SDL_mixer.h"
+            },
+            "SDL2_net": {
+              "header": "SDL2/SDL_net.h"
+            },
+            "SDL2_ttf": {
+              "header": "SDL2/SDL_ttf.h"
+            },
+            "platforms": []
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(SDL2_INCDIR)/SDL2",
+                "src/",
+                "extern/queue/",
+                "./",
+                "rocks/"
+              ],
+              "libdirs": [
+                "$(SDL2_LIBDIR)"
+              ],
+              "libraries": [
+                "SDL2"
+              ],
+              "name": "SDL",
+              "sources": [
+                "common/array.c",
+                "common/common.c",
+                "common/rwops.c",
+                "common/surface.c",
+                "common/table.c",
+                "common/variant.c",
+                "common/video.c",
+                "src/audio.c",
+                "src/channel.c",
+                "src/clipboard.c",
+                "src/cpu.c",
+                "src/display.c",
+                "src/events.c",
+                "src/filesystem.c",
+                "src/gamecontroller.c",
+                "src/gl.c",
+                "src/haptic.c",
+                "src/joystick.c",
+                "src/keyboard.c",
+                "src/logging.c",
+                "src/mouse.c",
+                "src/platform.c",
+                "src/power.c",
+                "src/rectangle.c",
+                "src/renderer.c",
+                "src/SDL.c",
+                "src/texture.c",
+                "src/thread.c",
+                "src/timer.c",
+                "src/window.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "$(SDL2_INCDIR)/SDL2",
+                "src/",
+                "extern/queue/",
+                "./",
+                "rocks/"
+              ],
+              "libdirs": [
+                "$(SDL2_LIBDIR)"
+              ],
+              "libraries": [
+                "SDL2",
+                "SDL2_image"
+              ],
+              "name": "SDL.image",
+              "sources": [
+                "common/array.c",
+                "common/common.c",
+                "common/rwops.c",
+                "common/surface.c",
+                "common/table.c",
+                "common/variant.c",
+                "common/video.c",
+                "sdl-image/src/image.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "$(SDL2_INCDIR)/SDL2",
+                "src/",
+                "extern/queue/",
+                "./",
+                "rocks/"
+              ],
+              "libdirs": [
+                "$(SDL2_LIBDIR)"
+              ],
+              "libraries": [
+                "SDL2",
+                "SDL2_mixer"
+              ],
+              "name": "SDL.mixer",
+              "sources": [
+                "common/array.c",
+                "common/common.c",
+                "common/rwops.c",
+                "common/surface.c",
+                "common/table.c",
+                "common/variant.c",
+                "common/video.c",
+                "sdl-mixer/src/mixer.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "$(SDL2_INCDIR)/SDL2",
+                "src/",
+                "extern/queue/",
+                "./",
+                "rocks/"
+              ],
+              "libdirs": [
+                "$(SDL2_LIBDIR)"
+              ],
+              "libraries": [
+                "SDL2",
+                "SDL2_net"
+              ],
+              "name": "SDL.net",
+              "sources": [
+                "common/array.c",
+                "common/common.c",
+                "common/rwops.c",
+                "common/surface.c",
+                "common/table.c",
+                "common/variant.c",
+                "common/video.c",
+                "sdl-net/src/net.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "$(SDL2_INCDIR)/SDL2",
+                "src/",
+                "extern/queue/",
+                "./",
+                "rocks/"
+              ],
+              "libdirs": [
+                "$(SDL2_LIBDIR)"
+              ],
+              "libraries": [
+                "SDL2",
+                "SDL2_ttf"
+              ],
+              "name": "SDL.ttf",
+              "sources": [
+                "common/array.c",
+                "common/common.c",
+                "common/rwops.c",
+                "common/surface.c",
+                "common/table.c",
+                "common/variant.c",
+                "common/video.c",
+                "sdl-ttf/src/ttf.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "luasdl2-2.0.5-6.0"
+      },
+      "origin": {
+        "date": "Sun, 12 Mar 2017 05:51:20 GMT",
+        "sha256": "36b626485529f318f284e0cc0c806d5a425fbde4e1e6329d4d5ee9f495ecff62",
+        "size": 11118761,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-sdl2-2.0.5.6.0-1.src.rock"
+      },
+      "summary": "Lua-SDL2 is a pure C binding of SDL 2.0 for Lua 5.1, JIT, 5.2, and 5.3",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

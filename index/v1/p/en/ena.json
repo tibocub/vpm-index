@@ -1,0 +1,125 @@
+{
+  "kind": "app",
+  "name": "ena",
+  "versions": {
+    "0.0.2-2": {
+      "bin": {
+        "ena": "bin/ena"
+      },
+      "blocked_by": {
+        "name": "lpeg",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lpeg ~> 1.0.2-1",
+        "luaunit ~> 3.4-1"
+      ],
+      "files": {
+        "bin/ena": {
+          "sha256": "623d37e84a1cd08054bcde8db621131a4d07e97a24ed81efe196d6449c512af3",
+          "size": 5792,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena.lua"
+        },
+        "ena.lua": {
+          "sha256": "623d37e84a1cd08054bcde8db621131a4d07e97a24ed81efe196d6449c512af3",
+          "size": 5792,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena.lua"
+        },
+        "ena/compiler.lua": {
+          "sha256": "0741e2bc2112031bbc31884fe540049101cde629cec0aff640db39f834f518af",
+          "size": 12643,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/compiler.lua"
+        },
+        "ena/helper/common.lua": {
+          "sha256": "89784700cc2b231bcb85d2994520ee940af8fdbbb2ae753b43cc561bb3e48d49",
+          "size": 1681,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/helper/common.lua"
+        },
+        "ena/helper/pegdebug.lua": {
+          "sha256": "040b50b06e08c1f6dd1e956f5085c9eb4401a658b259ac758083e6149f0536e3",
+          "size": 2941,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/helper/pegdebug.lua"
+        },
+        "ena/helper/pt.lua": {
+          "sha256": "5c6c92eaedfa4e15a637ce9f9367fba761ab67e91fa292b9fb07d22d852a17d8",
+          "size": 586,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/helper/pt.lua"
+        },
+        "ena/interpreter.lua": {
+          "sha256": "965fc705dd8f299d48df771a11429ac33cf9339d215e6ab3e79ecba658590782",
+          "size": 12321,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/interpreter.lua"
+        },
+        "ena/lang/literals.lua": {
+          "sha256": "af7665ebe899e47d708b2db3ff3fbbad84ab887ef7021a2d5d3803635d51351f",
+          "size": 1215,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/lang/literals.lua"
+        },
+        "ena/lang/translator.lua": {
+          "sha256": "cd72ce355a149b17caebc7242f333719b0abc3795c8d44ded838e1a0516c3754",
+          "size": 5508,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/lang/translator.lua"
+        },
+        "ena/parser.lua": {
+          "sha256": "ebbd45b3801350d2874ad20841d745ca6f9ad2eadd4375a93c25baab3ea5bb4d",
+          "size": 13275,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/parser.lua"
+        },
+        "ena/spec/e2e.lua": {
+          "sha256": "dd5be2b63470d099a669446d706e535c2a4d67a2333170291774ee7dc3f4d824",
+          "size": 13717,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/spec/e2e.lua"
+        },
+        "ena/transpiler.lua": {
+          "sha256": "60cf15bfffbecea4e14e864a21c9be1b1c1032e5644287098653f64a537c2793",
+          "size": 10110,
+          "url": "https://raw.githubusercontent.com/pgagnidze/ena/cfe6599dbf7e57ec61169355940b8251460733d6/ena/transpiler.lua"
+        }
+      },
+      "homepage": "http://github.com/pgagnidze/ena",
+      "license": "GPLv3",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 31 Jul 2023 11:44:32 GMT",
+        "rockspec": {
+          "date": "Mon, 31 Jul 2023 11:44:32 GMT",
+          "sha256": "d9feb90911203cfb1791e152797e06b1eabacc73c2e038ab65ca5a7be63d7f9b",
+          "size": 1922
+        }
+      },
+      "modules": [
+        "ena",
+        "ena.compiler",
+        "ena.helper.common",
+        "ena.helper.pegdebug",
+        "ena.helper.pt",
+        "ena.interpreter",
+        "ena.lang.literals",
+        "ena.lang.translator",
+        "ena.parser",
+        "ena.spec.e2e",
+        "ena.transpiler"
+      ],
+      "origin": {
+        "commit": "cfe6599dbf7e57ec61169355940b8251460733d6",
+        "type": "git",
+        "url": "https://github.com/pgagnidze/ena.git"
+      },
+      "size": 85581,
+      "summary": "Ena: Georgian Programming Language",
+      "undeclared_requires": [
+        "mobdebug",
+        "serpent"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

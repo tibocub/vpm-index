@@ -1,0 +1,118 @@
+{
+  "kind": "lib",
+  "name": "lualogging",
+  "versions": {
+    "1.8.2-1": {
+      "bin": [],
+      "deps": [
+        "luasocket"
+      ],
+      "files": {
+        "logging.lua": {
+          "sha256": "273af2d8a43f3424f939df09df35b16a5928fa49be656c1266d2847a35b0603a",
+          "size": 15097,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging.lua"
+        },
+        "logging/console.lua": {
+          "sha256": "261243e915dae7ca560eb0b9b5cb978419544861cc8238f3fcb23bab50e0db54",
+          "size": 1519,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/console.lua"
+        },
+        "logging/email.lua": {
+          "sha256": "033178672bd89c3ac8ee7b7afa6cd9a164af19a187eae2a3be9e9470bedd190f",
+          "size": 1666,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/email.lua"
+        },
+        "logging/envconfig.lua": {
+          "sha256": "72ac2b20e877542418c238823d2c6effbbea97b6a9a6eca21072e973609d1cb9",
+          "size": 6157,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/envconfig.lua"
+        },
+        "logging/file.lua": {
+          "sha256": "ade41cf69df0a0b1ce85a79415e683445cf16e156fef258568e9be160c9ccc28",
+          "size": 2255,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/file.lua"
+        },
+        "logging/nginx.lua": {
+          "sha256": "18036ee0d58050ae1ec1cd53c0334cc5d92bef8845ef913ae09761b26178f710",
+          "size": 1565,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/nginx.lua"
+        },
+        "logging/rolling_file.lua": {
+          "sha256": "ec4e0879bdcd73e3b760614d0d53bfd82bcaf68cbe50f9c113965f74fff83f1a",
+          "size": 2920,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/rolling_file.lua"
+        },
+        "logging/rsyslog.lua": {
+          "sha256": "0454ab167ae7aaa973493e97e7509ebd4ed7f54609bbecd7b42596f92259ae9f",
+          "size": 11193,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/rsyslog.lua"
+        },
+        "logging/socket.lua": {
+          "sha256": "230989701010efa0f08ffdceded89e2cefe04b5e0144add0a7cd0d5673a44ca0",
+          "size": 1457,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/socket.lua"
+        },
+        "logging/sql.lua": {
+          "sha256": "25804aa63838a59e706baae948d00576ad4ee1335326f336ad7390cd0e41f564",
+          "size": 2048,
+          "url": "https://raw.githubusercontent.com/lunarmodules/lualogging/465c994788f1bc18fca950934fa5ec9a909f496c/src/logging/sql.lua"
+        }
+      },
+      "homepage": "https://github.com/lunarmodules/lualogging",
+      "host": "openresty",
+      "license": "MIT/X11",
+      "luarocks": {
+        "date": "Fri, 27 Jan 2023 19:31:12 GMT",
+        "rockspec": {
+          "date": "Fri, 27 Jan 2023 19:31:12 GMT",
+          "sha256": "bde2e69c57f823fa96c9e4949546ea8f30ee11a95c88b51c525eecc95f278c98",
+          "size": 1625
+        },
+        "src": {
+          "date": "Fri, 27 Jan 2023 19:31:13 GMT",
+          "sha256": "7bc2dcd13dbe85e48de50f05000b391e467a54d537b44ed856c1f7ad29c3549a",
+          "size": 82217,
+          "url": "https://luarocks.org/lualogging-1.8.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "logging",
+        "logging.console",
+        "logging.email",
+        "logging.envconfig",
+        "logging.file",
+        "logging.nginx",
+        "logging.rolling_file",
+        "logging.rsyslog",
+        "logging.socket",
+        "logging.sql"
+      ],
+      "origin": {
+        "commit": "465c994788f1bc18fca950934fa5ec9a909f496c",
+        "ref": "v1.8.2",
+        "type": "git",
+        "url": "https://github.com/lunarmodules/lualogging.git"
+      },
+      "size": 45877,
+      "summary": "A simple API to use logging features",
+      "undeclared_requires": [
+        "copas",
+        "copas.queue",
+        "coxpcall",
+        "ngx.errlog",
+        "socket",
+        "socket.smtp"
+      ],
+      "vlr": {
+        "cause": "missing module: socket.smtp",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 8,
+        "status": "partial",
+        "total": 10
+      }
+    }
+  }
+}

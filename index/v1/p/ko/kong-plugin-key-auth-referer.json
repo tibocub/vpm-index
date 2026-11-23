@@ -1,0 +1,92 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-key-auth-referer",
+  "versions": {
+    "2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/key-auth-referer/api.lua": {
+          "sha256": "220e64f3d8afb371b97ca70619c642d9c2a091c34b8796e9d32790890ffb1b1a",
+          "size": 1792,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-key-auth-referer/460f1862869ef0ea570f76e1a7bcb62ce845b31e/kong/plugins/key-auth-referer/api.lua"
+        },
+        "kong/plugins/key-auth-referer/daos.lua": {
+          "sha256": "cbee6ddfc0eacccd0b33b1c686f1a32eb367872a5409682b5f75daf56798a348",
+          "size": 573,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-key-auth-referer/460f1862869ef0ea570f76e1a7bcb62ce845b31e/kong/plugins/key-auth-referer/daos.lua"
+        },
+        "kong/plugins/key-auth-referer/handler.lua": {
+          "sha256": "02cdbba6b420e891690323a141a4e473989993b1b3b1eb6db8ced33d00bc1682",
+          "size": 6510,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-key-auth-referer/460f1862869ef0ea570f76e1a7bcb62ce845b31e/kong/plugins/key-auth-referer/handler.lua"
+        },
+        "kong/plugins/key-auth-referer/migrations/cassandra.lua": {
+          "sha256": "e4c282176d35b490e0bbf756af8dff837987c9bb8783d00557efe4654e3de233",
+          "size": 544,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-key-auth-referer/460f1862869ef0ea570f76e1a7bcb62ce845b31e/kong/plugins/key-auth-referer/migrations/cassandra.lua"
+        },
+        "kong/plugins/key-auth-referer/migrations/postgres.lua": {
+          "sha256": "1686f5e7c09109780ef531277ea2924764fcf138a18f4bcba0dcf47f4e6d9031",
+          "size": 882,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-key-auth-referer/460f1862869ef0ea570f76e1a7bcb62ce845b31e/kong/plugins/key-auth-referer/migrations/postgres.lua"
+        },
+        "kong/plugins/key-auth-referer/schema.lua": {
+          "sha256": "d7440faaa48485a24831ccba22ac82b89222c632c2de3bac0cea1360f8ec2d5f",
+          "size": 998,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-key-auth-referer/460f1862869ef0ea570f76e1a7bcb62ce845b31e/kong/plugins/key-auth-referer/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sat, 17 Feb 2018 21:56:49 GMT",
+        "rockspec": {
+          "date": "Sat, 17 Feb 2018 21:56:49 GMT",
+          "sha256": "1b2ca829fce5317898d240e2ed61dbb330b0de65bb50c70cf7cfa45d9d5b87f1",
+          "size": 970
+        },
+        "src": {
+          "date": "Sat, 17 Feb 2018 21:56:52 GMT",
+          "sha256": "ef7342724f65a0a4188f8fd79932ef43ad129bda94d0d1ddc0eb3840bef30412",
+          "size": 12277,
+          "url": "https://luarocks.org/kong-plugin-key-auth-referer-2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.key-auth-referer.api",
+        "kong.plugins.key-auth-referer.daos",
+        "kong.plugins.key-auth-referer.handler",
+        "kong.plugins.key-auth-referer.migrations.cassandra",
+        "kong.plugins.key-auth-referer.migrations.postgres",
+        "kong.plugins.key-auth-referer.schema"
+      ],
+      "origin": {
+        "commit": "460f1862869ef0ea570f76e1a7bcb62ce845b31e",
+        "ref": "v2.0",
+        "type": "git",
+        "url": "https://github.com/eyolas/kong-plugin-key-auth-referer"
+      },
+      "size": 11299,
+      "summary": "Add api key and referer",
+      "undeclared_requires": [
+        "kong.api.crud_helpers",
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.public",
+        "kong.tools.responses",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.api.crud_helpers",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 6
+      }
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "kind": "lib",
+  "name": "sqlite3",
+  "versions": {
+    "0.4.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "sqlite3.lua": {
+          "sha256": "036415fc875bbd313ef506fc9d8dd9a80fc4b377b7196a2afc07c3f725c83a4f",
+          "size": 21423,
+          "url": "blob:036415fc875bbd313ef506fc9d8dd9a80fc4b377b7196a2afc07c3f725c83a4f"
+        },
+        "sqlite3/luasql.lua": {
+          "sha256": "debce521539ad7ffdc935b28ae8f7f12eb2a981fa5a5fe3ce5ab2b5923390e48",
+          "size": 6148,
+          "url": "blob:debce521539ad7ffdc935b28ae8f7f12eb2a981fa5a5fe3ce5ab2b5923390e48"
+        }
+      },
+      "homepage": "http://www.mroth.net/lua-sqlite3",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Fri, 16 Sep 2016 08:17:34 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Sep 2016 08:17:34 GMT",
+          "sha256": "58f89b4973fcb5eabd23e0f1b85b7817efd39d079cfbbfc35776d41457053dcb",
+          "size": 924
+        },
+        "src": {
+          "date": "Fri, 16 Sep 2016 08:17:37 GMT",
+          "sha256": "65b9a484104ee10463e7d33f7687b9e0f3bff666e5045db4bcda03488ce81e3b",
+          "size": 72538,
+          "url": "https://luarocks.org/sqlite3-0.4.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "sqlite3",
+        "sqlite3.core",
+        "sqlite3.luasql"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SQLITE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SQLITE": {
+              "header": "sqlite3.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(SQLITE_INCDIR)"
+              ],
+              "libdirs": [
+                "$(SQLITE_LIBDIR)"
+              ],
+              "libraries": [
+                "sqlite3"
+              ],
+              "name": "sqlite3.core",
+              "sources": [
+                "libluasqlite3.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-sqlite3-0.4.1.1"
+      },
+      "origin": {
+        "date": "Fri, 16 Sep 2016 08:17:37 GMT",
+        "sha256": "65b9a484104ee10463e7d33f7687b9e0f3bff666e5045db4bcda03488ce81e3b",
+        "size": 72538,
+        "type": "luarocks",
+        "url": "https://luarocks.org/sqlite3-0.4.1.1-1.src.rock"
+      },
+      "size": 27571,
+      "summary": "Lua-Sqlite3 is a SQLite3 wrapper for Lua",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "ok",
+        "total": 3
+      }
+    }
+  }
+}

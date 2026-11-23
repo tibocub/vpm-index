@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "external-auth",
+  "versions": {
+    "0.1-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/external-auth/handler.lua": {
+          "sha256": "fcbe30317e224f4ed23a6b493b5ce12adfa81b451e63ea3349f591dcbbff846a",
+          "size": 927,
+          "url": "https://raw.githubusercontent.com/aunkenlabs/kong-external-auth/e15576467069403255d613e600c13ce48e4b9ed8/src/handler.lua"
+        },
+        "kong/plugins/external-auth/schema.lua": {
+          "sha256": "5bdfc649e5abb3ee787a8aeaa5c2d6b5701a20e7f6faaf2cc808b0b97027df73",
+          "size": 267,
+          "url": "https://raw.githubusercontent.com/aunkenlabs/kong-external-auth/e15576467069403255d613e600c13ce48e4b9ed8/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/aunkenlabs/kong-external-auth",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 13 Jul 2018 20:11:46 GMT",
+        "rockspec": {
+          "date": "Fri, 13 Jul 2018 20:11:46 GMT",
+          "sha256": "67b2fc6744bd39b09506b2a3cfd8ff1516de81038c0c8587aec960d55b71409b",
+          "size": 624
+        },
+        "src": {
+          "date": "Fri, 13 Jul 2018 20:11:48 GMT",
+          "sha256": "ad8c91c54c080b77cc80e37bd96981df1ff3294abf7e6ea517be94f778ef04c0",
+          "size": 4440,
+          "url": "https://luarocks.org/external-auth-0.1-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.external-auth.handler",
+        "kong.plugins.external-auth.schema"
+      ],
+      "origin": {
+        "commit": "e15576467069403255d613e600c13ce48e4b9ed8",
+        "ref": "0.1",
+        "type": "git",
+        "url": "https://github.com/aunkenlabs/kong-external-auth"
+      },
+      "size": 1194,
+      "summary": "Kong plugin to authenticate requests using http services.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.responses",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

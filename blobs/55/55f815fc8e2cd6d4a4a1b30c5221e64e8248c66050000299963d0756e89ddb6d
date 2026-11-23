@@ -1,0 +1,242 @@
+local openssl = require 'openssl'
+
+local constants = require 'netacea_constants'
+local NetaceaCookies = {}
+NetaceaCookies.__index = NetaceaCookies
+
+local function base64url_encode(data)
+    local encoded = openssl.base64(data, true)
+    encoded = encoded:gsub('+', '-'):gsub('/', '_'):gsub('=', '')
+    return encoded
+end
+
+local function base64url_decode(data)
+    local padded = data:gsub('-', '+'):gsub('_', '/')
+    local padding = (4 - (#padded % 4)) % 4
+    padded = padded .. string.rep('=', padding)
+    return openssl.base64(padded, false)
+end
+
+local JWE_HEADER = base64url_encode('{"alg":"dir","enc":"A128CBC-HS256"}')
+
+local function url_encode_component(value)
+    return tostring(value):gsub('([^%w%-%.%_%~])', function(c)
+        return string.format('%%%02X', string.byte(c))
+    end)
+end
+
+local function url_decode_component(value)
+    return value:gsub('+', ' '):gsub('%%(%x%x)', function(hex)
+        return string.char(tonumber(hex, 16))
+    end)
+end
+
+local function encode_args(args)
+    local parts = {}
+    for key, value in pairs(args) do
+        table.insert(parts, url_encode_component(key) .. '=' .. url_encode_component(value))
+    end
+    return table.concat(parts, '&')
+end
+
+local function decode_args(str)
+    local result = {}
+    for pair in str:gmatch('[^&]+') do
+        local key, value = pair:match('^([^=]*)=?(.*)$')
+        if key and key ~= '' then
+            result[url_decode_component(key)] = url_decode_component(value)
+        end
+    end
+    return result
+end
+
+local function int64_be(n)
+    local bytes = {}
+    for i = 8, 1, -1 do
+        bytes[i] = string.char(n % 256)
+        n = math.floor(n / 256)
+    end
+    return table.concat(bytes)
+end
+
+function NetaceaCookies.encrypt(cookieEncryptionKey, payload)
+    local cek = base64url_decode(cookieEncryptionKey)
+    local mac_key = cek:sub(1, 16)
+    local enc_key = cek:sub(17, 32)
+
+    local iv = openssl.random(16)
+    local ciphertext = openssl.cipher.encrypt('aes-128-cbc', payload, enc_key, iv, true)
+
+    local aad = JWE_HEADER
+    local al = int64_be(#aad * 8)
+    local tag = openssl.hmac.hmac('sha256', aad .. iv .. ciphertext .. al, mac_key, true)
+    tag = tag:sub(1, 16)
+
+    return table.concat({
+        JWE_HEADER,
+        '',
+        base64url_encode(iv),
+        base64url_encode(ciphertext),
+        base64url_encode(tag)
+    }, '.')
+end
+
+function NetaceaCookies.decrypt(cookieEncryptionKey, value)
+    local header, encryptedKey, ivPart, ciphertextPart, tagPart =
+        value:match('^([^.]*)%.([^.]*)%.([^.]*)%.([^.]*)%.([^.]*)$')
+
+    if not header or header ~= JWE_HEADER or encryptedKey ~= '' then
+        return nil
+    end
+
+    local cek = base64url_decode(cookieEncryptionKey)
+    local mac_key = cek:sub(1, 16)
+    local enc_key = cek:sub(17, 32)
+
+    local iv = base64url_decode(ivPart)
+    local ciphertext = base64url_decode(ciphertextPart)
+    local tag = base64url_decode(tagPart)
+
+    local aad = header
+    local al = int64_be(#aad * 8)
+    local expectedTag = openssl.hmac.hmac('sha256', aad .. iv .. ciphertext .. al, mac_key, true)
+    expectedTag = expectedTag:sub(1, 16)
+
+    if expectedTag ~= tag then
+        return nil
+    end
+
+    local ok, plaintext = pcall(openssl.cipher.decrypt, 'aes-128-cbc', ciphertext, enc_key, iv, true)
+    if not ok or not plaintext then
+        return nil
+    end
+
+    return plaintext
+end
+
+local function buildRandomString(length)
+  local chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  local randomString = ''
+
+  local randomBytes = openssl.random(length)
+
+  for i = 1, length do
+      local byte = string.byte(randomBytes, i)
+      randomString = randomString .. chars:sub((byte % #chars) + 1, (byte % #chars) + 1)
+  end
+
+  return randomString
+end
+
+function NetaceaCookies.newUserId()
+    local randomBytes = buildRandomString(15)
+    return 'c'..randomBytes
+end
+
+--- Formats an HTTP cookie string with expiration
+-- @param name string The cookie name
+-- @param value string The cookie value
+-- @param maxAge number The cookie's lifetime in seconds
+-- @return string Formatted cookie string ready for a Set-Cookie header
+function NetaceaCookies.createSetCookieValues(name, value, maxAge)
+    return name .. '=' .. value .. '; Path=/; Max-Age=' .. tonumber(maxAge)
+end
+
+
+function NetaceaCookies.generateNewCookieValue(
+    cookieEncryptionKey, client, user_id, cookie_id, issue_reason,
+    issue_timestamp, grace_period, match, mitigation, captcha, settings)
+    settings = settings or {}
+    local plaintext = encode_args({
+        cip = client,
+        uid = user_id,
+        cid = cookie_id,
+        isr = issue_reason,
+        ist = issue_timestamp,
+        grp = grace_period,
+        mat = match or 0,
+        mit = mitigation or 0,
+        cap = captcha or 0,
+        fCAPR = settings.fCAPR or 0
+    })
+
+    local encoded = NetaceaCookies.encrypt(cookieEncryptionKey, plaintext)
+
+    return {
+        session_jwe = encoded,
+        session_plaintext = plaintext
+    }
+end
+
+function NetaceaCookies.parseNetaceaSessionCookie(cookie, cookieEncryptionKey, client)
+    if not cookie or cookie == '' then
+        return {
+            valid = false,
+            reason = constants['issueReasons'].NO_SESSION
+        }
+    end
+
+    local decoded_str = NetaceaCookies.decrypt(cookieEncryptionKey, cookie)
+    if not decoded_str then
+        return {
+            valid = false,
+            reason = constants['issueReasons'].INVALID_SESSION
+        }
+    end
+
+    local decoded = decode_args(decoded_str)
+    if not decoded or type(decoded) ~= 'table' then
+        return {
+            valid = false,
+            reason = constants['issueReasons'].INVALID_SESSION
+        }
+    end
+
+    -- Check for required properties
+    local required_fields = {'cip', 'uid', 'cid', 'isr', 'ist', 'grp', 'mat', 'mit', 'cap', 'fCAPR'}
+    for _, field in ipairs(required_fields) do
+        if not decoded[field] then
+            return {
+                valid = false,
+                reason = constants['issueReasons'].INVALID_SESSION
+            }
+        end
+    end
+
+    -- Validate numeric fields
+    local ist = tonumber(decoded.ist)
+    local grp = tonumber(decoded.grp)
+
+    if not ist or not grp then
+        return {
+            valid = false,
+            reason = constants['issueReasons'].INVALID_SESSION
+        }
+    end
+
+    if ist + grp < os.time() then
+        return {
+            valid = false,
+            data = decoded,
+            user_id = decoded.uid,
+            reason = constants['issueReasons'].EXPIRED_SESSION
+        }
+    end
+
+    if client and decoded.cip ~= client then
+        return {
+            valid = false,
+            data = decoded,
+            user_id = decoded.uid,
+            reason = constants['issueReasons'].IP_CHANGE
+        }
+    end
+
+    return {
+        valid = true,
+        user_id = decoded.uid,
+        data = decoded
+    }
+end
+
+return NetaceaCookies

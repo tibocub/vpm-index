@@ -1,0 +1,402 @@
+--[[--
+Tree module.
+
+This module defines a tree class that stores structural metadata in a
+self-contained named graph. The graph can be represented by a JSON document.
+
+Each Pocket Archive resource capable of having members can have a tree
+associated with it. The elements in the tree are lightweight `pas:Proxy` RDF
+resources (not Pocket Archive resources!) that hold `first`, `next`, and
+`ref` attributes to build indefinitely nestable structures and references to
+actual Pocket Archive resources.
+
+Proxies are stored in separate named graphs and are inaccessible to the users,
+but they are used to build the presentation. Their structure is determined by
+the ordering and hierarchy of resources in a laundry list.
+
+A tree graph has a URI of `struct:<random ID>` and includes all the resources of
+the tree structure, including the root, of type `struct:Proxy`. E.g. container
+resource `par:1234` is linked to a tree graph `struct:5678`, which contains
+proxy `struct:1234`, which has a `struct:ref` attribute pointing to `par:1234`;
+and so on for all its branches.
+
+@module tree
+]]
+local json    = require "cjson"
+local path    = require "pl.path"
+local term    = require "volksdata.term"
+local triple  = require "volksdata.triple"
+local graph   = require "volksdata.graph"
+local nsm     = require "volksdata.namespace"
+
+local pkar    = require "pocket_archive"
+local model   = require "pocket_archive.model"
+local repo    = require "pocket_archive.repo"
+
+
+local PFX = "struct:"  --- NS prefix used for tree resources.
+local NS = nsm.get_ns(PFX:gsub(":", ""))
+local PRED_LABEL  = model.uri_map.label
+local PRED_FIRST  = term.new_iriref_ns("pas:first")
+local PRED_NEXT   = term.new_iriref_ns("pas:next")
+local PRED_PATH   = term.new_iriref_ns("pas:path")
+local PRED_REF    = term.new_iriref_ns("pas:ref")
+local TYPE_BRANCH = term.new_iriref_ns("pas:TreeBranch")
+local TYPE_PROXY  = term.new_iriref_ns("pas:Proxy")
+local TYPE_ROOT   = term.new_iriref_ns("pas:TreeRoot")
+
+local NT = pkar.NT
+local logger = pkar.logger
+
+
+--
+-- Private functions.
+--
+
+
+---[[
+--- Create triples for a proxy in the tree graph.
+local function create_proxy(t, pxy_id, attr)
+    pxy_id = pxy_id or model.idgen()
+    attr = attr or {}
+    local s = term.new_iriref_ns(PFX .. pxy_id)
+    t.it:add_iter(triple.new(
+            s, pkar.RDF_TYPE, term.new_iriref_ns("pas:Proxy")))
+
+    for _, tuple in ipairs(attr) do
+        t.it:add_iter(triple.new(s, tuple[1], tuple[2]))
+    end
+
+    return pxy_id
+end
+--]]
+
+
+--- Find previous or parent item of a branch and link to it.
+local function add_inbound_link(t, cur_uri, cur_path)
+    local cur_ref_uri = t:getv(cur_uri, PRED_REF)
+
+    -- Branches have been added so far in the LL order, so we are
+    -- surely adding the new element in the correct order.
+    for p_path, p_id in pairs(t.proxies) do
+        -- Find the closest parent.
+        --[[Skip the current entry if the looked up path:
+          a) is the current path;
+          b) the current path does not begin with it;
+          c) contains a sub-path of the current one.
+          Note that this is not the same as `path.dirname` because it allows
+          an indirect parent if an immediate one is not found.
+        ]]
+        if
+            p_path == cur_path or
+            cur_path:sub(1, #p_path) ~= p_path or
+            cur_path:find("/", #p_path + 2, true)
+        then goto skip end
+
+        local p_uri = term.new_iriref_ns(PFX .. p_id)
+        local first_id = t:getv(p_uri, PRED_FIRST, true)
+
+        -- Then check if it has children already.
+        -- Note that this loop return immediately after setting either an
+        -- inbound `first` or `next`. This is an acyclic graph and a p_path
+        -- cannot be both first and next.
+        if not first_id then
+            logger:debug(("Adding %s as first child of %s."):format(
+                    cur_path, p_path))
+            t.it:add_iter(triple.new(p_uri, PRED_FIRST, cur_uri))
+
+            return
+        end
+
+        -- If first is already taken, go down the linked list
+        -- to the last item.
+        local prev_id = first_id  -- ID that current will be "next" of
+        local prev_s = term.new_iriref_ns(PFX .. prev_id)
+        local next_id = t:getv(prev_s, PRED_NEXT, true)
+
+        while next_id do
+            --logger:debug(("Before: prev: %s, next: %s"):format(
+            --        prev_id or "nil", next_id or "nil"))
+            next_id, prev_id = t:getv(prev_s, PRED_NEXT, true), next_id
+            prev_s = term.new_iriref_ns(PFX .. prev_id)
+            --logger:debug(("After: prev: %s, next: %s"):format(
+            --        prev_id or "nil", next_id or "nil"))
+        end
+        if prev_s ~= cur_uri then
+            logger:debug(("Adding %s as next sibling of %s.")
+                    :format(cur_path, t.proxies[prev_id]))
+            t.it:add_iter(triple.new(prev_s, PRED_NEXT, cur_uri))
+
+            return
+        end
+
+        -- Add membership between references if both have them.
+        local p_ref_id = t:getv(p_uri, PRED_REF, true)
+        if p_ref_id and cur_ref_uri then
+        end
+
+        ::skip::
+    end
+end
+
+
+--- Generate a proxy from a directory in a path.
+local function add_branch_el(t, el_path)
+    -- Skip the root path and already added paths.
+    if el_path == t.path or t.proxies[el_path] then
+        return
+    end
+
+    logger:debug(("Adding branch %s to %s"):format(el_path, t.path))
+    local el_id = create_proxy(t, nil, {
+        { pkar.RDF_TYPE, TYPE_BRANCH },
+        { PRED_PATH, term.new_lit(el_path) },
+        { PRED_LABEL, term.new_lit(path.basename(el_path)) },
+    })
+    t.proxies[el_path] = el_id
+    local el_uri = term.new_iriref_ns(PFX .. el_id)
+
+    add_inbound_link(t, el_uri, el_path)
+
+    return el_id
+end
+
+
+--[[--
+Tree class.
+
+A tree represents an ordered structure related to a Pocket Archive resource.
+It is a data set normally inaccessible to users and entirely system-generated.
+
+A tree is generated by the submission process for every top-level resource in
+the laundry list, if it has members (in the LL, if sub-paths are included or
+if the `member_of` attribute is explicitly set).
+
+A tree is a named graph made up of nested linked lists. All its members are
+preserved in the archive but their URIs are volatile, meaning that the whole
+tree is destroyed and rebuilt with new URIs if the referring root resource is
+updated. Therefore, branch or tree URIs SHOULD NOT be used as permalinks. The
+resources referred to should.
+
+@type pocket_archive.Tree
+]]
+local Tree = {}
+Tree.__index = Tree
+
+
+--[[--
+Tree module.
+
+@module pocket_archive.tree
+]]
+local M = {
+    PFX = PFX,
+    PRED_FIRST = PRED_FIRST,
+    PRED_NEXT = PRED_NEXT,
+    PRED_PATH = PRED_PATH,
+    PRED_REF = PRED_REF,
+    TYPE_PROXY = TYPE_PROXY,
+    TYPE_ROOT = TYPE_ROOT,
+    TYPE_BRANCH = TYPE_BRANCH,
+
+    Tree = Tree,
+}
+
+
+--[[-- Generate a tree graph from a single resource in a submission.
+
+@tparam tbl t Initial tree metadata, including the following keys:
+`id`: Unique ID. If not provided, a random one is generated.
+`ref_id`: ID of the resource that the tree root refers to. Mandatory.
+`sub`: Submission instance. Mandatory.
+`path`: Source path of root element in the LL. Mandatory.
+`shallow`: Whether the tree will be a flat, ordered list, without descending
+    into sub-paths. Default: false.
+]]
+function Tree.new(t)
+    t.id = t.id or model.idgen()
+    t.ref_uri = t.ref_id and model.id_to_uri(t.ref_id)
+            or error("No ref ID provided.")
+    if not t.sub then error("No submission instance provided.") end
+    if not t.path then error("No root path provided.") end
+    if t.shallow then logger:info("Generating a shallow tree.") end
+
+    setmetatable(t, Tree)
+    t.uri = term.new_iriref_ns(PFX .. t.id)
+    t.gr = graph.new(nil, t.uri.data)
+    t.proxies = {}
+
+    -- Build all the branches.
+    t.it = t.it or t.gr:add_init()
+    t:build_branches()
+    if t.it then
+        t.it:add_done()
+        t.it = nil  -- Nil out so that upper recursions don't close it twice.
+    end
+
+    return t
+end
+
+
+--- Generate a tree graph from a stored resource ID.
+function Tree.get(rsrc_id)
+    local rsrc_uri = model.id_to_uri(rsrc_id)
+    local tree_uri = repo.get_single_v(rsrc_uri, "has_tree")
+    if not tree_uri then return end
+
+    t = {
+        id = tree_uri.data:gsub(NS, ""),
+        uri = tree_uri,
+        ref_uri = rsrc_uri,
+        gr = graph.new(repo.store, tree_uri.data),
+    }
+    setmetatable(t, Tree)
+
+    root_uri_ts = t.gr:term_set(
+            pkar.RDF_TYPE, triple.POS_P, TYPE_ROOT, triple.POS_O)
+    t.root_uri = root_uri_ts:iter()()
+
+    return t
+end
+
+
+--[[--
+Recursively build all branches for the tree.
+]]
+function Tree:build_branches(cur_path)
+    if not cur_path then
+        -- We are at the top level. Build the root.
+        cur_path = self.path
+        local root_id = create_proxy(self, nil, {
+            { pkar.RDF_TYPE, TYPE_ROOT },
+            { PRED_LABEL, term.new_lit(path.basename(self.path)) },
+            { PRED_REF, self.ref_uri },
+        })
+        self.root_uri = term.new_iriref_ns(PFX .. root_id)
+        self.proxies[self.path] = root_id
+    end
+    logger:debug("Building branches at " .. cur_path)
+
+    -- Loop through all ordered paths in the SIP and find subpaths of
+    -- the current tree. Note that a sub-path may have been entered BEFORE
+    -- the current entry in the LL.
+    local esc_ptn = "^" .. (pkar.escape_ptn(cur_path .. "/"))
+    for _, br_id in ipairs(self.sub.ord_ids) do
+        local subpath = (self.sub.sip[br_id].data.source_path or NT)[1]
+
+        -- If it is not a descendant at any level, skip this iteration.
+        if not subpath or subpath == cur_path or not subpath:match(esc_ptn) then
+            goto skip
+        end
+        logger:debug("Parsing sub-branch: " .. subpath)
+
+        -- For a shallow tree, only add members.
+        local cur_id = self.sub.path_to_id[cur_path]
+        if self.shallow and not (self.sub.members[cur_id] or NT)[br_id] then
+            goto skip
+        end
+
+        logger:debug("Traversing sub-branch: " .. subpath)
+
+        -- Split the path into empty elements if existing and
+        -- create non- member branches.
+        p_el_id = nil
+        for pos in subpath:gmatch("()/[^/]") do
+            add_branch_el(self, subpath:sub(1, pos - 1))
+        end
+
+        -- Create proxy for the resource in the tree.
+        local proxy_id = add_branch_el(self, subpath)
+        -- Skip paths already processed by upper recursions.
+        if not proxy_id then goto skip end
+        logger:debug(("Added member branch %s to %s"):format(subpath, self.path))
+
+        -- Add member branch metadata.
+        --self.it:add_iter(triple.new(proxy_uri, PRED_PATH, term.new_lit(subpath)))
+        local br_uri = model.id_to_uri(br_id)
+        create_proxy(self, proxy_id, {
+            { pkar.RDF_TYPE, TYPE_BRANCH },
+            { PRED_REF, br_uri },
+            { PRED_LABEL, term.new_lit(path.basename(subpath)) },
+        })
+        --self.proxies[subpath] = proxy_id
+        add_inbound_link(self, term.new_iriref_ns(PFX .. proxy_id), subpath)
+
+        -- If it's not a shallow tree, try recursing in.
+        if not self.shallow then
+            self:build_branches(subpath)
+        end
+
+        ::skip::
+    end
+end
+
+
+--- Variant of repo.get_single_v that works with the current graph.
+function Tree:getv(s, p, is_id)
+    local v = self.gr:attr(s, p):iter()()
+    if not v then return nil end
+
+    return is_id and v.data:gsub(NS, "") or v
+end
+
+
+--[[--
+Generate the representation of a tree structure.
+
+The metadata added to each element are modifiable via a callback function.
+
+@tparam[opt] fn Callback function to modify each element. The function takes
+    two parameters: the first, `el`, is the table of the already populated
+    element. The function MAY modify the element in-place and returns nil. The
+    keys already present in the `el` table passed to the callback are: `id`,
+    `label`, `branches`. The second parameter, `ctx`, is optional and may be
+    passed to this function to get data from or modify additional context
+    variables.
+@param[opt] ctx Additional data to pass to the callback function as a context.
+]]
+function Tree:structure(fn, ctx)
+    local function get_branches(el_uri)
+        --logger:debug("Looking up branch " .. el_uri.data)
+        local ref = self:getv(el_uri, PRED_REF)
+        local struct = {}
+
+        -- Look for branches of the current element.
+        local br_uri = self:getv(el_uri, PRED_FIRST)
+        while br_uri do
+            ref = self:getv(br_uri, PRED_REF)
+            local label =
+                    ref and (repo.get_single_v(ref, "label", true) or NT).data
+                    or (self:getv(br_uri, PRED_LABEL) or NT).data
+            local el = {
+                uri = br_uri.data,
+                ref_id = ref and model.uri_to_id(ref.data),
+                label = label,
+                branches = get_branches(br_uri)
+            }
+            if fn then fn(el, ctx) end
+            table.insert(struct, el)
+
+            br_uri = self:getv(br_uri, PRED_NEXT)
+        end
+
+        return next(struct) and struct
+    end
+
+    return {
+        uri = self.uri.data,
+        root = {
+            uri = self.root_uri.data,
+            ref_id = model.uri_to_id((self:getv(self.root_uri, PRED_REF) or NT).data),
+            label = (self:getv(self.root_uri, PRED_LABEL) or NT).data,
+            branches = get_branches(self.root_uri),
+        }
+    }
+end
+
+
+--- Print tree structure as a JSON string.
+function Tree:__tostring() return json.encode(self:structure()) end
+
+
+return M

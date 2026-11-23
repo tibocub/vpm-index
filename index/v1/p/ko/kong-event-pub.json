@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "kong-event-pub",
+  "versions": {
+    "1.0.0-4": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-kafka",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "lua-resty-kafka = 0.23-0",
+        "lua-resty-jit-uuid = 0.0.7-2",
+        "lua-resty-openssl = 0.8.21-1",
+        "uuid >= 0.3-1"
+      ],
+      "files": {
+        "kong/plugins/kong-event-pub/handler.lua": {
+          "sha256": "7870cbdd4dcfc747a6b8ac458ad51f6a7e58b91320c3415cf95b04bd9cb55c9c",
+          "size": 8373,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-event-pub/6c62193ebc0ce3583bd52081951dd686ae1b34ef/kong/plugins/kong-event-pub/handler.lua"
+        },
+        "kong/plugins/kong-event-pub/schema.lua": {
+          "sha256": "e47a84f5c79961f96129309da0e4ca44e657143f3a71d5f3b010659031717311",
+          "size": 4055,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-event-pub/6c62193ebc0ce3583bd52081951dd686ae1b34ef/kong/plugins/kong-event-pub/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 16 Aug 2024 11:56:40 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Aug 2024 11:56:40 GMT",
+          "sha256": "3e44cc2970089d0c31cb4d926647d9494575d3e78160a257ff1ccf066f9eb4c8",
+          "size": 693
+        },
+        "src": {
+          "date": "Fri, 16 Aug 2024 11:56:41 GMT",
+          "sha256": "3ce1e9384311ab1632a104ea37e35c6c7f5a4bcda566f10e0f7a95c376b42c59",
+          "size": 15254,
+          "url": "https://luarocks.org/kong-event-pub-1.0.0-4.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-event-pub.handler",
+        "kong.plugins.kong-event-pub.schema"
+      ],
+      "origin": {
+        "commit": "6c62193ebc0ce3583bd52081951dd686ae1b34ef",
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/Platformatory/kong-event-pub"
+      },
+      "size": 12428,
+      "summary": "Turn Kong API logs into an event source",
+      "undeclared_requires": [
+        "kong.tools.timestamp",
+        "resty.http",
+        "resty.kafka.client",
+        "resty.kafka.producer",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

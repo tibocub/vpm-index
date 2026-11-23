@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jdy-signature",
+  "versions": {
+    "0.0.4-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jdy-signature/access.lua": {
+          "sha256": "2be3c9830e6393bc78423bff2161368410351d0b20d3ccd8c4692364e871b417",
+          "size": 6946,
+          "url": "https://raw.githubusercontent.com/gogomarine/kong-plugin-jdy-signature/43fa114ba40559a18f547591887671297a6a58cf/kong/plugins/jdy-signature/access.lua"
+        },
+        "kong/plugins/jdy-signature/handler.lua": {
+          "sha256": "96e8224cba8684b2792cd8f1773407854b02f4b24e5706d90cac3ad2aa9ac6d4",
+          "size": 3181,
+          "url": "https://raw.githubusercontent.com/gogomarine/kong-plugin-jdy-signature/43fa114ba40559a18f547591887671297a6a58cf/kong/plugins/jdy-signature/handler.lua"
+        },
+        "kong/plugins/jdy-signature/schema.lua": {
+          "sha256": "7ab16d05df595a5a309274d19c8f6c92db304cb504d0c80a2657a510d72c95ef",
+          "size": 780,
+          "url": "https://raw.githubusercontent.com/gogomarine/kong-plugin-jdy-signature/43fa114ba40559a18f547591887671297a6a58cf/kong/plugins/jdy-signature/schema.lua"
+        }
+      },
+      "homepage": "https://gogomarine.github.io/kong-plugin-jdy-signature",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Wed, 26 Oct 2022 05:55:15 GMT",
+        "rockspec": {
+          "date": "Wed, 26 Oct 2022 05:55:15 GMT",
+          "sha256": "960d6d01a7e4269274d5b3d3913aa0b4d995d9006a5babc75be4e3d140dc0c34",
+          "size": 1127
+        },
+        "src": {
+          "date": "Wed, 26 Oct 2022 05:55:18 GMT",
+          "sha256": "c349243552d833d5dc412481ccd7ba9f3ac7f62946c999780bce57cfa8c79020",
+          "size": 100970,
+          "url": "https://luarocks.org/kong-plugin-jdy-signature-0.0.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jdy-signature.access",
+        "kong.plugins.jdy-signature.handler",
+        "kong.plugins.jdy-signature.schema"
+      ],
+      "origin": {
+        "commit": "43fa114ba40559a18f547591887671297a6a58cf",
+        "ref": "0.0.4",
+        "type": "git",
+        "url": "https://github.com/gogomarine/kong-plugin-jdy-signature.git"
+      },
+      "size": 10907,
+      "summary": "For Jiandaoyun Push Event signature validation.",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.tools.utils",
+        "resty.sha1",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+--imports
+local ObjectStmt = require("dogma.syn._.ObjectStmt")
+
+--A routine statement.
+local RoutineStmt = {}
+RoutineStmt.__index = RoutineStmt
+setmetatable(RoutineStmt, {__index = ObjectStmt})
+package.loaded[...] = RoutineStmt
+
+--Constructor.
+function RoutineStmt.new(stmtType, ln, col, annots, visib, static, async, itype, name, params, body, catch, fin)
+  local self
+
+  --(1) create
+  self = setmetatable(ObjectStmt.new(stmtType, ln, col, name, visib, static), RoutineStmt)
+  self.annots = annots
+  self.async = async
+  self.itype = itype
+  self.params = params
+  self.body = body
+  self.catch = catch
+  self.finally = fin
+
+  --(2) return
+  return self
+end

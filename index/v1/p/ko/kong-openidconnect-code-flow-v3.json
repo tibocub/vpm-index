@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "kong-openidconnect-code-flow-v3",
+  "versions": {
+    "1.1.0-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.8.0"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "1feb05895236f29fc430b4955a0fdf0d6ddc22225f6f8e7fdd993d082c38aced",
+          "size": 357,
+          "url": "https://raw.githubusercontent.com/elisiumm/kong-oidc-v3/244cce70289ff50a7f14258645559765a8561788/kong/plugins/oidc/filter.lua"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "bf0cdc5157773ec4cab0ed87cfa6b31c9aacceb2af1db86305b4bf4120310b63",
+          "size": 6415,
+          "url": "https://raw.githubusercontent.com/elisiumm/kong-oidc-v3/244cce70289ff50a7f14258645559765a8561788/kong/plugins/oidc/handler.lua"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "ba431b6fdba6926c2b767ecb25368cfa7a739e94c78e2571997965d070c50217",
+          "size": 6943,
+          "url": "https://raw.githubusercontent.com/elisiumm/kong-oidc-v3/244cce70289ff50a7f14258645559765a8561788/kong/plugins/oidc/schema.lua"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "1f275427eb762bb309fe0599b5a456611a8f846072568b28b7181787e149915f",
+          "size": 190,
+          "url": "https://raw.githubusercontent.com/elisiumm/kong-oidc-v3/244cce70289ff50a7f14258645559765a8561788/kong/plugins/oidc/session.lua"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "355a7bda8d30544ed2b778f1b41a29fe7f7d08561eb9241f50a09ff9bf3b97ed",
+          "size": 7946,
+          "url": "https://raw.githubusercontent.com/elisiumm/kong-oidc-v3/244cce70289ff50a7f14258645559765a8561788/kong/plugins/oidc/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/elisiumm/kong-oidc-v3",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Sat, 13 Dec 2025 20:48:07 GMT",
+        "rockspec": {
+          "date": "Sat, 13 Dec 2025 20:48:07 GMT",
+          "sha256": "eeaef7d77bac174241c3b93eb7cd8faa02f3b9877cd883a154c12f688884925b",
+          "size": 1821
+        },
+        "src": {
+          "date": "Sat, 13 Dec 2025 20:48:07 GMT",
+          "sha256": "6474f9aa889884ced483a9539d11ef9580876b7db4ab8b6170be61984c13001d",
+          "size": 153253,
+          "url": "https://luarocks.org/kong-openidconnect-code-flow-v3-1.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "commit": "244cce70289ff50a7f14258645559765a8561788",
+        "ref": "v1.1.0",
+        "type": "git",
+        "url": "https://github.com/elisiumm/kong-oidc-v3"
+      },
+      "size": 21851,
+      "summary": "A Kong plugin for implementing the OpenID Connect Relying Party (RP) functionality",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "resty.jwt-validators"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

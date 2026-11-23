@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "luareq",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://codeberg.org/dbluhm/luareq",
+      "license": "MIT",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Thu, 11 Jun 2026 16:04:23 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Jun 2026 16:04:23 GMT",
+          "sha256": "449380dc65ca0a000ea589f1eb0e64140a393aae70b7eac35f8043256686f020",
+          "size": 967
+        },
+        "src": {
+          "date": "Thu, 11 Jun 2026 16:04:24 GMT",
+          "sha256": "24ab87af2b424e5797d296513f8e2b683cb5e076f10b717f1ae7989ef353ddff",
+          "size": 91541,
+          "url": "https://luarocks.org/luareq-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "cmake",
+        "external": [
+          "CURL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "cmake": {
+            "variables": {
+              "CMAKE_BUILD_TYPE": "Release",
+              "CMAKE_INSTALL_PREFIX": "$(PREFIX)",
+              "LUADIR": "$(LUADIR)"
+            }
+          },
+          "external": {
+            "CURL": {
+              "header": "curl/curl.h",
+              "library": "curl"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Thu, 11 Jun 2026 16:04:24 GMT",
+        "sha256": "24ab87af2b424e5797d296513f8e2b683cb5e076f10b717f1ae7989ef353ddff",
+        "size": 91541,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luareq-0.1.1-1.src.rock"
+      },
+      "summary": "Python requests-like HTTP client for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

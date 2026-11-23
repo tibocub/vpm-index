@@ -1,0 +1,166 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-version-gate",
+  "versions": {
+    "0.1.0-4": {
+      "bin": [],
+      "blocked_by": {
+        "name": "kong",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "kong >= 3.4, < 4.0"
+      ],
+      "files": {
+        "kong/plugins/version-gate/constants.lua": {
+          "sha256": "2c095b559d1dec5d3d2742f8b42efebffbb869a3012bec3f57a0c8ab2b2db43f",
+          "size": 600,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/constants.lua"
+        },
+        "kong/plugins/version-gate/ctx.lua": {
+          "sha256": "2d1f83e8a173d7f7c2c7649a7034364b6c887fe81217477eebc1922ad4e94b50",
+          "size": 3669,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/ctx.lua"
+        },
+        "kong/plugins/version-gate/daos.lua": {
+          "sha256": "1232d8379de77e154ca533689af2e42629dd7574bda5a0a390799849f07607c3",
+          "size": 10,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/daos.lua"
+        },
+        "kong/plugins/version-gate/decision_engine.lua": {
+          "sha256": "5ede49f2ecb6c6420372b30abb02bedae25d0adc9d6dd3ee70bc477a1b9125cb",
+          "size": 1304,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/decision_engine.lua"
+        },
+        "kong/plugins/version-gate/enforcement.lua": {
+          "sha256": "d407f15f37f526e0e8fe354e832548f4993095fa2febeae7f8211b46dc7eb2c0",
+          "size": 4292,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/enforcement.lua"
+        },
+        "kong/plugins/version-gate/handler.lua": {
+          "sha256": "878210a23430f7c263f646e8a970405f94d58af86c05638dbb0c4164b6644c5c",
+          "size": 4601,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/handler.lua"
+        },
+        "kong/plugins/version-gate/invariant.lua": {
+          "sha256": "16c9c6336880f4ba4dfd113e25343988a6de7142411234a7fe8d2367f83904a0",
+          "size": 310,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/invariant.lua"
+        },
+        "kong/plugins/version-gate/observability.lua": {
+          "sha256": "c93a854ac8f21d1af29144a0eab2ffb84558d83b7a67221ad588e2e77652b867",
+          "size": 6407,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/observability.lua"
+        },
+        "kong/plugins/version-gate/policy.lua": {
+          "sha256": "6c242aac4fb9ebeb69880856b6bb76a290ed73b871ff716c40ff3333ae1bc187",
+          "size": 7549,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/policy.lua"
+        },
+        "kong/plugins/version-gate/request_coordinator.lua": {
+          "sha256": "a7605a0288205f8631189278c4735e0a9c46e0adec86f48d49ef4478500a9d05",
+          "size": 6159,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/request_coordinator.lua"
+        },
+        "kong/plugins/version-gate/schema.lua": {
+          "sha256": "c3aba22872e76d816afff9d1c54fbb13c0e42f42b2a9169d28a3e0fb8f3b5c68",
+          "size": 9729,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/schema.lua"
+        },
+        "kong/plugins/version-gate/source_readers/kong.lua": {
+          "sha256": "be6ec26733fb4ddf5c1f88a08e1525ab9c010cf251d3abe614d2c5e8afb4cc5d",
+          "size": 5421,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/source_readers/kong.lua"
+        },
+        "kong/plugins/version-gate/state_store.lua": {
+          "sha256": "51bf0f62132427fe9fad6212372f252d8bf625f34f0c308a78ddafe231c3268c",
+          "size": 7538,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/state_store.lua"
+        },
+        "kong/plugins/version-gate/state_store_redis.lua": {
+          "sha256": "4a84e4c6ef6337652efb892f61b947fc920dc63a384ab8a171ebd032a4e0d00c",
+          "size": 8644,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/state_store_redis.lua"
+        },
+        "kong/plugins/version-gate/state_suppression.lua": {
+          "sha256": "e17a105f0828e6fbd1ed20703940dca5b0fc908a875826ec9ee91aa344d1cb4a",
+          "size": 2850,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/state_suppression.lua"
+        },
+        "kong/plugins/version-gate/version_extractor.lua": {
+          "sha256": "4106901c7f64d1f4fcf65ef0263400fb68e420ffbdef1a7476552f721734b0ed",
+          "size": 2056,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/version_extractor.lua"
+        },
+        "kong/plugins/version-gate/version_intake.lua": {
+          "sha256": "840aed9f88f116857fe196084b03f78b60c146d3e074ac60588468234139a0ad",
+          "size": 2293,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/version_intake.lua"
+        },
+        "kong/plugins/version-gate/version_parser.lua": {
+          "sha256": "7962eeb9a59b6e73dd703b538ca293990242755295b90e50d464c8c60b4549ec",
+          "size": 351,
+          "url": "https://raw.githubusercontent.com/erayack/version-gate-kong/fe5ea115e2ca925ee75ee85b9d61ecd7e276d467/kong/plugins/version-gate/version_parser.lua"
+        }
+      },
+      "homepage": "https://github.com/erayack/version-gate-kong",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 16 Oct 2026 21:00:41 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Oct 2026 21:00:41 GMT",
+          "sha256": "f35555cb485678927e8c28d79773b0ced8005805b14974862c9cdb4c6d3244dc",
+          "size": 2455
+        },
+        "src": {
+          "date": "Fri, 16 Oct 2026 21:00:42 GMT",
+          "sha256": "a4e28b2a2748da486c6e09ec0bf1297c12290e3e3c64ec80a4e3d00e2c444a59",
+          "size": 77895,
+          "url": "https://luarocks.org/kong-plugin-version-gate-0.1.0-4.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.version-gate.constants",
+        "kong.plugins.version-gate.ctx",
+        "kong.plugins.version-gate.daos",
+        "kong.plugins.version-gate.decision_engine",
+        "kong.plugins.version-gate.enforcement",
+        "kong.plugins.version-gate.handler",
+        "kong.plugins.version-gate.invariant",
+        "kong.plugins.version-gate.observability",
+        "kong.plugins.version-gate.policy",
+        "kong.plugins.version-gate.request_coordinator",
+        "kong.plugins.version-gate.schema",
+        "kong.plugins.version-gate.source_readers.kong",
+        "kong.plugins.version-gate.state_store",
+        "kong.plugins.version-gate.state_store_redis",
+        "kong.plugins.version-gate.state_suppression",
+        "kong.plugins.version-gate.version_extractor",
+        "kong.plugins.version-gate.version_intake",
+        "kong.plugins.version-gate.version_parser"
+      ],
+      "origin": {
+        "commit": "fe5ea115e2ca925ee75ee85b9d61ecd7e276d467",
+        "ref": "v0.1.0-4",
+        "type": "git",
+        "url": "https://github.com/erayack/version-gate-kong.git"
+      },
+      "size": 73783,
+      "summary": "Kong plugin that enforces monotonic version consistency between request and response headers.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

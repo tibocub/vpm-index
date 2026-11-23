@@ -1,0 +1,26 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A copy call.
+local CopyFn = {}
+CopyFn.__index = CopyFn
+setmetatable(CopyFn, {__index = Terminal})
+package.loaded[...] = CopyFn
+
+--Constructor.
+function CopyFn.new(ln, col, exp)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.COPY, {line=ln, col=col}), CopyFn)
+  self.exp = exp
+
+  --(2) return
+  return self
+end
+
+--@override
+function CopyFn:__tostring()
+  return string.format("(copy %s)", tostring(self.exp))
+end

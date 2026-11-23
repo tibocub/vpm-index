@@ -1,0 +1,49 @@
+local _module_0 = { }
+local inspect = require('inspect')
+local table = require('table')
+local path = require('path')
+local fs = require('path.fs')
+local xtype = require('elan.xtype')
+local load_file_constrained
+do
+	local _obj_0 = require('elan.init.utils')
+	load_file_constrained = _obj_0.load_file_constrained
+end
+local build
+build = function(elandir, cfg)
+	local rootdir = path(elandir, 'queues')
+	local collected, errs = { }, { }
+	for abspath, typ in fs.scandir(rootdir) do
+		local _continue_0 = false
+		repeat
+			local relpath = path.rel(abspath, rootdir)
+			local segment = path.name(relpath)
+			local stem, ext = path.stem(segment), path.suffix(segment)
+			if not (typ == 'file' and ext == cfg.lang.ext) then
+				_continue_0 = true
+				break
+			end
+			local queue = string.sub(relpath, 1, -(#ext + 1))
+			local handler, err = load_file_constrained(abspath, cfg.lang, xtype.iscallable, xtype.isrunnable)
+			if handler then
+				collected[#collected + 1] = {
+					relpath = relpath,
+					handler = handler,
+					queue = queue
+				}
+			else
+				errs[#errs + 1] = err
+			end
+			_continue_0 = true
+		until true
+		if not _continue_0 then
+			break
+		end
+	end
+	if #errs > 0 then
+		return nil, table.concat(errs, '\n')
+	end
+	return collected
+end
+_module_0["build"] = build
+return _module_0

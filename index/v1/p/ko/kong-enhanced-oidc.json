@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "kong-enhanced-oidc",
+  "versions": {
+    "1.0.2-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.6.0"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "1e714dd19e0802539afb534c2b83bcf1640b9a6d66ea29aa62b38e4c74ef67b6",
+          "size": 374,
+          "url": "blob:1e714dd19e0802539afb534c2b83bcf1640b9a6d66ea29aa62b38e4c74ef67b6"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "4688e55bf5772ec33f9b15df1b333046a17f68f52db041ed96147f1ec98aa5f4",
+          "size": 2762,
+          "url": "blob:4688e55bf5772ec33f9b15df1b333046a17f68f52db041ed96147f1ec98aa5f4"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "ba8213c5a819d29717f2dbeeeeeb6dfa6205292534e61d1b2b07494fbcea9026",
+          "size": 2125,
+          "url": "blob:ba8213c5a819d29717f2dbeeeeeb6dfa6205292534e61d1b2b07494fbcea9026"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "95dd1f6afd1d28eb8d04a84309b8d243a69acc01579bdb7d2bcd18a9faede5c4",
+          "size": 458,
+          "url": "blob:95dd1f6afd1d28eb8d04a84309b8d243a69acc01579bdb7d2bcd18a9faede5c4"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "7dd551082161d255381e4b6e00af175859572ed0cdfafac48fdf383fec04a2ac",
+          "size": 3561,
+          "url": "blob:7dd551082161d255381e4b6e00af175859572ed0cdfafac48fdf383fec04a2ac"
+        }
+      },
+      "homepage": "https://github.com/larsw/kong-oidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Tue, 07 Jan 2020 12:57:30 GMT",
+        "rockspec": {
+          "date": "Tue, 07 Jan 2020 12:57:30 GMT",
+          "sha256": "17979a05b7ba350c1e23bfe7116d0291b0a269265be1d7fd999f179b51d519af",
+          "size": 1717
+        },
+        "src": {
+          "date": "Tue, 07 Jan 2020 12:57:35 GMT",
+          "sha256": "39f2d32cd4b68fb4f0b89af88928a210ef66777e06b2e1d268025e430a663bb3",
+          "size": 172883,
+          "url": "https://luarocks.org/kong-enhanced-oidc-1.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "date": "Tue, 07 Jan 2020 12:57:35 GMT",
+        "sha256": "39f2d32cd4b68fb4f0b89af88928a210ef66777e06b2e1d268025e430a663bb3",
+        "size": 172883,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-enhanced-oidc-1.0.2-1.src.rock"
+      },
+      "size": 9280,
+      "summary": "A Kong plugin for implementing the OpenID Connect Relying Party (RP) functionality",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

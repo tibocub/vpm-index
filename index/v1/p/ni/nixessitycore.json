@@ -1,0 +1,83 @@
+{
+  "kind": "app",
+  "name": "nixessitycore",
+  "versions": {
+    "1.1.0-0": {
+      "bin": {
+        "flake_packages": "bin/flake_packages"
+      },
+      "deps": [
+        "luv >= 1.51.0-1",
+        "lua-cjson >= 2.1.0",
+        "lua_cliargs >= 3.0.2",
+        "lualogging >= 1.8.2",
+        "ansicolors >= 1.0.2-3"
+      ],
+      "files": {
+        "bin/flake_packages": {
+          "sha256": "833b2025e0c3d7cf513d4aa15a492ad2621290ae6e6e8105b123f98c08a078f6",
+          "size": 1619,
+          "url": "https://raw.githubusercontent.com/brandishcode/nixessitycore/8bc36d8bd5292468e62cbcec9f16559ecd4572b9/lua/flake_packages.lua"
+        },
+        "nixessitycore.lua": {
+          "sha256": "9573b7701a23e28b0c092911b80c867ea591cdb64a848feef828594b0d21613d",
+          "size": 4137,
+          "url": "https://raw.githubusercontent.com/brandishcode/nixessitycore/8bc36d8bd5292468e62cbcec9f16559ecd4572b9/lua/nixessitycore.lua"
+        },
+        "nixessitycore/process.lua": {
+          "sha256": "c02d3b41ddbeecdb537e297a25af223fd42a1b17d5299e4fe96318b1efe94c14",
+          "size": 1948,
+          "url": "https://raw.githubusercontent.com/brandishcode/nixessitycore/8bc36d8bd5292468e62cbcec9f16559ecd4572b9/lua/nixessitycore/process.lua"
+        },
+        "nixessitycore/utils.lua": {
+          "sha256": "6cd05cf975e4bda596624402467287a9347e16f9c4a46fd3d3365b20615583a1",
+          "size": 641,
+          "url": "https://raw.githubusercontent.com/brandishcode/nixessitycore/8bc36d8bd5292468e62cbcec9f16559ecd4572b9/lua/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/brandishcode/nixessitycore",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 08 Jul 2025 15:12:05 GMT",
+        "rockspec": {
+          "date": "Tue, 08 Jul 2025 15:12:05 GMT",
+          "sha256": "c0e5b644ae4c501ac62b8c63f8f65261e674e58e881a46f63542c2595fba9c55",
+          "size": 901
+        },
+        "src": {
+          "date": "Tue, 08 Jul 2025 15:12:05 GMT",
+          "sha256": "9c935c93d917a1ebb74a9b3fe36eddc9d94256169388aeccd8858647f010ec93",
+          "size": 12661,
+          "url": "https://luarocks.org/nixessitycore-1.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "nixessitycore",
+        "nixessitycore.process",
+        "nixessitycore.utils"
+      ],
+      "origin": {
+        "commit": "8bc36d8bd5292468e62cbcec9f16559ecd4572b9",
+        "ref": "v1.1.0-0",
+        "type": "git",
+        "url": "https://github.com/brandishcode/nixessitycore.git"
+      },
+      "size": 8345,
+      "summary": "Pure lua wrappers for nix commands.",
+      "undeclared_requires": [
+        "log",
+        "luv",
+        "utils"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+local u = {}
+local nonames = {"if", "for", "end", "do", "local", "then", "else", "elseif", "return", "goto", "function", "nil", "false", "true", "repeat", "return", "break", "and", "or", "not", "in", "repeat", "until", "while", "continue"}
+
+u.uglify = function(str)
+	assert(str ~= nil, "Cannot uglify a nil string")
+	assert(type(str) == "string", "Can only uglify strings")
+	local avalchars = {}
+	local capture_chars = {"%", "(", "[", "\13"}
+	local skipchars = {}
+
+	for k, v in pairs(capture_chars) do
+		skipchars[string.byte(v, 1)] = true
+	end
+
+	for k = 1, 128 do
+		if not skipchars[k] then
+			if string.find(str, string.char(k)) then
+				avalchars[k] = false
+			else
+				avalchars[k] = true
+			end
+		end
+	end
+
+	for k, v in pairs(skipchars) do
+		avalchars[k] = false
+	end
+
+	local counts = {}
+	for k, v in ipairs(nonames) do
+		counts[v] = 0
+	end
+	for k,_ in pairs(counts) do
+		for i,j in string.gmatch(str,k) do
+			counts[k] = counts[k] + 1
+		end
+	end
+
+	local prettifycode = [[
+	local function p(s) local r = {%s} for k,v in pairs(r) do s = s:gsub(v[2],v[1]) end return s end]]
+	local replacementtbl = {}
+	local cursor = 1 --Start at 1 because 0 is the null character
+
+	for k, v in ipairs(nonames) do
+		if counts[v] ~= 0 then
+			while not avalchars[cursor] do
+				cursor = cursor + 1
+			end
+
+			replacementtbl[v] = cursor
+			avalchars[cursor] = false
+		end
+	end
+
+	assert(cursor < 128, "Unable to uglify file, not enough unused characters!")
+	local replacementstr = {}
+
+	for k, v in pairs(replacementtbl) do
+		local trs = string.format("{%q,%q}", k, string.char(v))
+		replacementstr[#replacementstr + 1] = trs
+	end
+
+	local frepstr = table.concat(replacementstr, ",")
+	local pcd = string.format(prettifycode, frepstr)
+
+	for k, v in pairs(replacementtbl) do
+		str = str:gsub(k, string.char(v))
+	end
+
+	local numdeepcom = 1
+	local loadname
+	if load then
+		loadname = "load"
+	else
+		loadname = "loadstring"
+	end
+	local uglified = table.concat({pcd, "\n", "return assert(",loadname,"(p([", string.rep("=", numdeepcom), "[", str, "]", string.rep("=", numdeepcom), "])))()"})
+
+	return uglified
+end
+
+--prettifycode = string.format(prettifycode,)
+return u

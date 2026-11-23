@@ -1,0 +1,58 @@
+{
+  "kind": "lib",
+  "name": "kong-ext-auth",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-ext-auth/handler.lua": {
+          "sha256": "dc68ca2ede8767e8038c33da6b59a88a86b8b031744848523dc68c6a389fa8f4",
+          "size": 1137,
+          "url": "https://raw.githubusercontent.com/be-humble/kong-ext-auth/af26c7754ee265b24e339a5747730e21afdd861e/src/handler.lua"
+        },
+        "kong/plugins/kong-ext-auth/schema.lua": {
+          "sha256": "245f1edb9eebc0df5b9d54ce1372c7bdce59af2d8b2eb0792bb727aa9c9c0aaa",
+          "size": 498,
+          "url": "https://raw.githubusercontent.com/be-humble/kong-ext-auth/af26c7754ee265b24e339a5747730e21afdd861e/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/be-humble/kong-ext-auth",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 24 Dec 2023 00:15:22 GMT",
+        "rockspec": {
+          "date": "Sun, 24 Dec 2023 00:15:22 GMT",
+          "sha256": "0725287987feadfdf30805ad20efeae2bbeecde2de5e0b3d8fef6d481d6bdfa4",
+          "size": 635
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-ext-auth.handler",
+        "kong.plugins.kong-ext-auth.schema"
+      ],
+      "origin": {
+        "commit": "af26c7754ee265b24e339a5747730e21afdd861e",
+        "ref": "v0.1.0",
+        "type": "git",
+        "url": "https://github.com/be-humble/kong-ext-auth"
+      },
+      "size": 1635,
+      "summary": "Kong plugin to authenticate requests using external http services.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

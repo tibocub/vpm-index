@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-consumer",
+  "versions": {
+    "0.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/oidc-consumer/handler.lua": {
+          "sha256": "0f0b5975175f57591d8b07ae62ac503326c2acf6258e299bb36e6b4e3c529eb6",
+          "size": 3379,
+          "url": "https://raw.githubusercontent.com/vl4d/kong-oidc-consumer/171199a43abfb80fcfabdb99b9c538eab5eaecb0/kong/plugins/oidc-consumer/handler.lua"
+        },
+        "kong/plugins/oidc-consumer/schema.lua": {
+          "sha256": "6f055594eddace048ec0d12836196c173d5032b5f2ea598fc9c7e9c778e34646",
+          "size": 205,
+          "url": "https://raw.githubusercontent.com/vl4d/kong-oidc-consumer/171199a43abfb80fcfabdb99b9c538eab5eaecb0/kong/plugins/oidc-consumer/schema.lua"
+        },
+        "kong/plugins/oidc-consumer/utils.lua": {
+          "sha256": "a93753895b6d3e6b92c410bd70a6860b3e434ffd149327472ee8295882105c87",
+          "size": 254,
+          "url": "https://raw.githubusercontent.com/vl4d/kong-oidc-consumer/171199a43abfb80fcfabdb99b9c538eab5eaecb0/kong/plugins/oidc-consumer/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/vl4d/kong-oidc-consumer",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 21 Dec 2018 04:19:11 GMT",
+        "rockspec": {
+          "date": "Fri, 21 Dec 2018 04:19:11 GMT",
+          "sha256": "bd7f356b88b4a0e025bcdea0841f5c616dc9dc89fb4b230deb884e97328fb3ad",
+          "size": 1921
+        },
+        "src": {
+          "date": "Fri, 21 Dec 2018 04:19:12 GMT",
+          "sha256": "bc7a38d89ea2714cb0f5f794a1facdfb9ad2c7a4c2b8ec62914df30bbb45c92a",
+          "size": 13059,
+          "url": "https://luarocks.org/kong-oidc-consumer-0.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc-consumer.handler",
+        "kong.plugins.oidc-consumer.schema",
+        "kong.plugins.oidc-consumer.utils"
+      ],
+      "origin": {
+        "commit": "171199a43abfb80fcfabdb99b9c538eab5eaecb0",
+        "ref": "v0.0.1",
+        "type": "git",
+        "url": "https://github.com/vl4d/kong-oidc-consumer"
+      },
+      "size": 3838,
+      "summary": "A Kong plugin for adding/linking consumers to the email response within userInfo returned by the kong-oidc project",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

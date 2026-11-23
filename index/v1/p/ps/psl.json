@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "psl",
+  "versions": {
+    "0.3-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/daurnimator/lua-psl",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 15 Jul 2018 06:21:23 GMT",
+        "rockspec": {
+          "date": "Sun, 15 Jul 2018 06:21:23 GMT",
+          "sha256": "3f7504407b20bb386b67dddcfa439ac0c36820ec18ef15c63e6602742c62faf4",
+          "size": 1120
+        },
+        "src": {
+          "date": "Sun, 15 Jul 2018 06:21:24 GMT",
+          "sha256": "c517439bbeade8e3cdf1a8dcf68f067ff62bbc933f258ba4616585a2f2ff6722",
+          "size": 11632,
+          "url": "https://luarocks.org/psl-0.3-0.src.rock"
+        }
+      },
+      "modules": [
+        "psl"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "PSL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "PSL": {
+              "header": "libpsl.h",
+              "library": "psl"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(PSL_INCDIR)"
+              ],
+              "libdirs": [
+                "$(PSL_LIBDIR)"
+              ],
+              "libraries": [
+                "psl"
+              ],
+              "name": "psl",
+              "sources": [
+                "psl/psl.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-psl-0.3"
+      },
+      "origin": {
+        "date": "Sun, 15 Jul 2018 06:21:24 GMT",
+        "sha256": "c517439bbeade8e3cdf1a8dcf68f067ff62bbc933f258ba4616585a2f2ff6722",
+        "size": 11632,
+        "type": "luarocks",
+        "url": "https://luarocks.org/psl-0.3-0.src.rock"
+      },
+      "summary": "Bindings to libpsl, a C library that handles the Public Suffix List (PSL)",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

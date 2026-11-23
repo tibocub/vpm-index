@@ -1,0 +1,20 @@
+local netacea_headers = {}
+
+-- Strips any inbound x-netacea-* headers before the request is processed, so
+-- a client can't spoof verdict headers that INJECT mode would otherwise trust
+-- downstream.
+function netacea_headers.strip_netacea_headers(txn)
+    for name in pairs(txn.http:req_get_headers()) do
+        if name:sub(1, 10) == "x-netacea-" then
+            txn.http:req_del_header(name)
+        end
+    end
+end
+
+function netacea_headers.inject_verdict_headers(txn, session)
+    txn.http:req_add_header("x-netacea-match", session.match)
+    txn.http:req_add_header("x-netacea-mitigate", session.mitigate)
+    txn.http:req_add_header("x-netacea-captcha", session.captcha)
+end
+
+return netacea_headers

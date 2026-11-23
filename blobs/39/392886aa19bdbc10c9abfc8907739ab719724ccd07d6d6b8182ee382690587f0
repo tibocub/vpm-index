@@ -1,0 +1,142 @@
+--[[
+	The GPLv2 License (GPLv2)
+	Copyright (c) 2022 Jeremy Baxter
+	
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+	
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with this program.	If not, see <http://www.gnu.org/licenses/>.
+]]--
+
+-- Dependencies
+local http = require "socket.http"
+local ltn12 = require "ltn12"
+local cjson = require "cjson"
+
+local chatter = {}
+chatter.user = {}
+
+-- Transaction ID
+local txnid = 0
+
+-- Generates and returns a Lua table containing the access token
+-- and other information for the username and password given.
+-- The device name of the access token will be assigned to client_name,
+-- if client_name isn't nil.
+function chatter.login(username, password, server, client_name)
+	local json
+	if client_name then
+		json = string.format([[
+		{
+			"identifier": {
+				"type": "m.id.user",
+				"user": "%s"
+			},
+			"password": "%s",
+			"initial_device_display_name": "%s",
+			"type": "m.login.password"
+		}
+		]], username, password, client_name)
+	else
+		json = string.format([[
+		{
+			"identifier": {
+				"type": "m.id.user",
+				"user": "%s"
+			},
+			"password": "%s",
+			"type": "m.login.password"
+		}
+		]], username, password)
+	end
+	local respbody = {}
+	local result, respcode, respheaders, respstatus = http.request {
+			method = "POST",
+			url = server .. "/_matrix/client/v3/login",
+			source = ltn12.source.string(json),
+			headers = {
+					["content-type"] = "application/json",
+					["content-length"] = tostring(#json)
+			},
+			sink = ltn12.sink.table(respbody)
+	}
+	return cjson.decode(table.concat(respbody))
+end
+
+-- Returns a table with information about the given event.
+function chatter.get_event(eventid, room, token, server)
+	body = http.request(server .. "/_matrix/client/v3/rooms/" ..
+	room .. "/event/" .. eventid .. "?access_token=" .. token)
+	return cjson.decode(body)
+end
+
+-- If reverse equals true, returns a table with information
+-- about the first n events in the given room.
+-- Otherwise, returns a table with information
+-- about the last n events in the given room.
+function chatter.get_events(n, room, token, server, reverse)
+	local dir = 'b'
+	if reverse then
+		dir = 'f'
+	end
+	body = http.request(server .. "/_matrix/client/v3/rooms/" ..
+	room .. "/messages?dir=" .. dir .. "&limit=" .. tostring(n) .. "&access_token=" .. token)
+	return cjson.decode(body)
+end
+
+-- Returns a table with a list of all the users in the given room.
+function chatter.get_members(room, token, server)
+	body = http.request(server .. "/_matrix/client/v3/rooms/" ..
+	room .. "/members" .. "?access_token=" .. token)
+	return cjson.decode(body)
+end
+
+-- Returns a table with information about the given user.
+function chatter.user.get(user, server)
+	body = http.request(server .. "/_matrix/client/v3/profile/" .. user)
+	return cjson.decode(body)
+end
+
+-- As long as the given user name is valid,
+-- returns the display name of the given user.
+-- Otherwise, returns a table containing the error code and the error message.
+function chatter.user.get_displayname(user, server)
+	local t = chatter.user.get(user, server)
+	return t.displayname or t
+end
+
+-- Sends the given message to the given room, and if msgtype is not nil,
+-- sets the msgtype JSON field to the value of msgtype.
+function chatter.send(message, room, token, server, msgtype)
+	local json
+	json = string.format([[
+	{
+		"body": "%s",
+		"msgtype": "%s"
+	}
+	]], message, msgtype or "m.text")
+	local respbody = {}
+	local result, respcode, respheaders, respstatus = http.request {
+			method = "PUT",
+			url = server .. "/_matrix/client/v3/rooms/" ..
+				room .. "/send/m.room.message/" .. txnid .. "?access_token=" .. token,
+			source = ltn12.source.string(json),
+			headers = {
+					["content-type"] = "application/json",
+					["content-length"] = tostring(#json)
+			},
+			sink = ltn12.sink.table(respbody)
+	}
+	txnid = txnid + 1
+	return cjson.decode(table.concat(respbody))
+end
+
+return chatter

@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-openidc",
+  "versions": {
+    "1.9.3-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-http >= 0.08",
+        "lua-resty-session == 4.2.0-1",
+        "lua-resty-jwt >= 0.2.0",
+        "lua-resty-openssl >= 1.8.0"
+      ],
+      "files": {
+        "resty/openidc.lua": {
+          "sha256": "291521e253c1e0ae5cada85fdf94671556feb50f30e183badd74aa5b527b00e5",
+          "size": 90257,
+          "url": "https://raw.githubusercontent.com/zmartzone/lua-resty-openidc/a4755bffdfe7b122123c972ce5820529c3e83fdc/lib/resty/openidc.lua"
+        }
+      },
+      "homepage": "https://github.com/zmartzone/lua-resty-openidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 25 Oct 2026 01:06:59 GMT",
+        "rockspec": {
+          "date": "Sun, 25 Oct 2026 01:06:59 GMT",
+          "sha256": "88e65f2f77605e4f31ea61d734f4f9ec351d361c58c03ceda9acd3114871fa4f",
+          "size": 1970
+        },
+        "src": {
+          "date": "Sun, 25 Oct 2026 01:10:17 GMT",
+          "sha256": "07b9075d3974d2e039b9af537bc1c2f190652b4b56e8794a45e8c83d869fe414",
+          "size": 116777,
+          "url": "https://luarocks.org/lua-resty-openidc-1.9.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.openidc"
+      ],
+      "origin": {
+        "commit": "a4755bffdfe7b122123c972ce5820529c3e83fdc",
+        "ref": "v1.9.3",
+        "type": "git",
+        "url": "https://github.com/zmartzone/lua-resty-openidc"
+      },
+      "size": 90257,
+      "summary": "A library for NGINX implementing the OpenID Connect Relying Party (RP) and the OAuth 2.0 Resource Server (RS) functionality",
+      "undeclared_requires": [
+        "ngx.base64",
+        "resty.jwt",
+        "resty.jwt-validators",
+        "resty.random",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

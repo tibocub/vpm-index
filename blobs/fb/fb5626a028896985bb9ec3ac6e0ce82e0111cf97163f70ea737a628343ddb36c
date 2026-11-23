@@ -1,0 +1,89 @@
+local json = require('panto').ext.json
+local M = {MAX_OUTPUT=100*1024, MAX_IMAGE=5*1024*1024, MAX_ATTACHMENTS=10*1024*1024}
+local alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+local tokens,bytes={},{}
+for i=1,#alphabet do
+    local c=alphabet:sub(i,i); local v=i-1
+    tokens[c]=string.char((v>>4)&3,(v>>2)&3,v&3)
+end
+for a=0,3 do for b=0,3 do for c=0,3 do for d=0,3 do
+    local key=string.char(a,b,c,d)
+    local value=string.char((a<<6)|(b<<4)|(c<<2)|d)
+    bytes[key]=value=='%' and '%%' or value
+end end end end
+function M.decode64(s,cap)
+    if type(s)~='string' then return nil,'invalid base64' end
+    cap=cap or M.MAX_IMAGE
+    if #s>math.ceil(cap/3)*4 then return nil,'attachment exceeds size cap' end
+    if #s%4~=0 or s:find('[^A-Za-z0-9+/=]') or not s:match('^[A-Za-z0-9+/]*=?=?$') then return nil,'invalid base64' end
+    local symbols=s:gsub('=+$','')
+    local padding=#s-#symbols
+    if padding>2 or (#symbols%4~=0 and #symbols%4~=2 and #symbols%4~=3) or
+        (padding==1 and #symbols%4~=3) or (padding==2 and #symbols%4~=2) then return nil,'invalid base64 padding' end
+    local size=math.floor(#symbols*3/4)
+    if size>cap then return nil,'attachment exceeds size cap' end
+    if #symbols==0 then return '' end
+    -- Table replacements keep both full-string passes in gsub's C loop. Each
+    -- sextet expands to three 2-bit tokens; groups of four tokens form a byte.
+    local bits=symbols:gsub('.',tokens)
+    local rem=#bits%4
+    if rem~=0 then bits=bits .. string.rep('\0',4-rem) end
+    local decoded=bits:gsub('....',bytes)
+    return decoded:sub(1,size)
+end
+function M.cap(text,limit)
+    limit=limit or M.MAX_OUTPUT
+    if #text<=limit then return text end
+    local at=limit
+    while at>0 and text:byte(at+1) and text:byte(at+1)>=128 and text:byte(at+1)<192 do at=at-1 end
+    return text:sub(1,at) .. '\n[truncated at ' .. limit .. ' bytes]'
+end
+function M.map(server,result,err)
+    if err then
+        local message=type(err)=='table' and (tostring(err.message) .. ' (' .. tostring(err.code) .. ')') or tostring(err)
+        return {text=M.cap(server .. ': ' .. message),is_error=true,attachments=json.array({})}
+    end
+    if type(result)~='table' then return {text=server .. ': invalid MCP result',is_error=true,attachments=json.array({})} end
+    if result.resultType=='input_required' then return {text=server .. ': server requested user input; panto does not support it yet',is_error=true,attachments=json.array({})} end
+    local texts,attachments={},json.array({}); local total=0
+    local function text(s) texts[#texts+1]=tostring(s or '') end
+    local function image(data,mime)
+        local bytes,why=M.decode64(data,math.min(M.MAX_IMAGE,M.MAX_ATTACHMENTS-total))
+        if not bytes then text('[' .. why .. ']'); return end
+        total=total+#bytes
+        attachments[#attachments+1]={data=bytes,media_type=mime or 'image/png'}
+    end
+    local content
+    content=function(block)
+        if type(block)~='table' then return end
+        if block.type=='text' then text(block.text)
+        elseif block.type=='image' then image(block.data,block.mimeType)
+        elseif block.type=='audio' then text('[audio ' .. tostring(block.mimeType or 'unknown') .. ', base64 bytes ' .. (type(block.data)=='string' and #block.data or 0) .. ']')
+        elseif block.type=='resource_link' then
+            text(tostring(block.name or '') .. ' ' .. tostring(block.uri or '') .. ' ' .. tostring(block.description or '') ..
+                '\nRead with mcp.read_resource{server=' .. json.encode(server) .. ', uri=' .. json.encode(block.uri or '') .. '}')
+        elseif block.type=='resource' then
+            local r=type(block.resource)=='table' and block.resource or {}; text('Resource: ' .. tostring(r.uri or ''))
+            if r.text then text(r.text)
+            elseif r.blob and type(r.mimeType)=='string' and r.mimeType:match('^image/') then image(r.blob,r.mimeType)
+            else text('[embedded resource ' .. tostring(r.mimeType or 'unknown') .. ', base64 bytes ' .. (type(r.blob)=='string' and #r.blob or 0) .. ']') end
+        else text('[unsupported MCP content: ' .. tostring(block.type) .. ']') end
+    end
+    for _,block in ipairs(type(result.content)=='table' and result.content or {}) do content(block) end
+    for _,resource in ipairs(type(result.contents)=='table' and result.contents or {}) do content({type='resource',resource=resource}) end
+    local structured=result.structuredContent
+    if structured~=nil then
+        local encoded=json.encode(structured)
+        local duplicate=false
+        for _,s in ipairs(texts) do
+            if s==encoded then duplicate=true; break end
+            local ok,decoded=pcall(json.decode,s)
+            if ok and json.encode(decoded)==encoded then duplicate=true; break end
+        end
+        if not duplicate then text(encoded) end
+        if #encoded>M.MAX_OUTPUT then structured=nil end
+    end
+    return {text=M.cap(table.concat(texts,'\n')),attachments=attachments,
+        structured=structured,is_error=result.isError==true}
+end
+return M

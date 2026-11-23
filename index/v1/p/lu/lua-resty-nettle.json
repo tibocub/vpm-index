@@ -1,0 +1,719 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-nettle",
+  "versions": {
+    "2.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "resty/nettle.lua": {
+          "sha256": "4ddc9986fd260a2302f82d5cb48c5839e19fbbeb303bb015955694d919aa0fce",
+          "size": 3174,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle.lua"
+        },
+        "resty/nettle/aes.lua": {
+          "sha256": "b40b7a56604a589e375287d54d905673fc60677adeaa5767bc4c5eb59b9b6fc0",
+          "size": 16656,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/aes.lua"
+        },
+        "resty/nettle/arcfour.lua": {
+          "sha256": "33e4f6004544b6229b2fd99cf0286ed20071a8a117e201e838c700bdf03cf5ac",
+          "size": 1090,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/arcfour.lua"
+        },
+        "resty/nettle/arctwo.lua": {
+          "sha256": "5b1f2331a27106ba8010adeff1d36a58de144cacb119f0ae28ab0223c01d2b64",
+          "size": 1431,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/arctwo.lua"
+        },
+        "resty/nettle/base16.lua": {
+          "sha256": "53a9e611cef07655e8d90aa7c103caba8d17142203e93e12a2439d74000b4431",
+          "size": 2353,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/base16.lua"
+        },
+        "resty/nettle/base64.lua": {
+          "sha256": "4ef54e183861c78e72b5ec866efa6c0f865c1ed59c8853b127b0f761068d6aa5",
+          "size": 3655,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/base64.lua"
+        },
+        "resty/nettle/bcrypt.lua": {
+          "sha256": "368925a50a0cb4e2fc78e869a44f2dd769d0350be32db52210f0cbf4fdfa199c",
+          "size": 842,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/bcrypt.lua"
+        },
+        "resty/nettle/blowfish.lua": {
+          "sha256": "3cefc4f99b128e790da289879ae4deb0fbf108030edbee01bb99521fbcd80934",
+          "size": 1212,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/blowfish.lua"
+        },
+        "resty/nettle/camellia.lua": {
+          "sha256": "af4afe28b54b033bb9119445253c625343cf22f9542ccc8ed7e145106f46df25",
+          "size": 4327,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/camellia.lua"
+        },
+        "resty/nettle/cast128.lua": {
+          "sha256": "71d8d75bef752da71563efd4f6bfabb3db79862457d8371f15736cb839d3a46b",
+          "size": 1248,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/cast128.lua"
+        },
+        "resty/nettle/chacha-poly1305.lua": {
+          "sha256": "636c169bfcb0c15eafee5065dd31e93d6dac831f92e7b9eaa7386f6fd261bb56",
+          "size": 1456,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/chacha-poly1305.lua"
+        },
+        "resty/nettle/chacha.lua": {
+          "sha256": "9e857fd9a44fe49d35537f9e77af649aea3b79baf8c32a42b97bddcd74bb70b4",
+          "size": 1306,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/chacha.lua"
+        },
+        "resty/nettle/cmac.lua": {
+          "sha256": "f65cd38496d5948c812cb81d0a540abd3dd5561e545af9a91fa6aabbe8a67a06",
+          "size": 1925,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/cmac.lua"
+        },
+        "resty/nettle/curve25519.lua": {
+          "sha256": "e8068438f7cf4f2a1c67151affeadbef08ea761d4638630f102c8628bdccee75",
+          "size": 421,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/curve25519.lua"
+        },
+        "resty/nettle/curve448.lua": {
+          "sha256": "4a51fb504fdca00d2486673c669147202d011bd93a85c04a1f83beec30a511aa",
+          "size": 415,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/curve448.lua"
+        },
+        "resty/nettle/des.lua": {
+          "sha256": "d268d42c2cc8196df522ae3b07270e9ed7ac252f1e06ebaaea2e86280869e18e",
+          "size": 4321,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/des.lua"
+        },
+        "resty/nettle/dsa.lua": {
+          "sha256": "f56c74a06502f1dd13fa98143af7c29f9de067f1d75557143a2cee698f93d3de",
+          "size": 935,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/dsa.lua"
+        },
+        "resty/nettle/ecc.lua": {
+          "sha256": "1c877b928531269510beaf5179272308e88e61bb1e3ffbe94566369a4b2136a6",
+          "size": 3671,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/ecc.lua"
+        },
+        "resty/nettle/ecdsa.lua": {
+          "sha256": "16a3b8dd8d208c01656ca0763282711ad19d8dd1d28befd828fe360f32d93bb8",
+          "size": 1308,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/ecdsa.lua"
+        },
+        "resty/nettle/ed25519-sha512.lua": {
+          "sha256": "b6eb02e30c22c9e17cc4bc55390281b86ae377b5662fadc368cfa1bfb3e3a731",
+          "size": 1850,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/ed25519-sha512.lua"
+        },
+        "resty/nettle/ed448-shake256.lua": {
+          "sha256": "0db5ad6b740b7a2b1eb03a519d4a31823ec10852882e107dff475ba0aeb890df",
+          "size": 1842,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/ed448-shake256.lua"
+        },
+        "resty/nettle/eddsa.lua": {
+          "sha256": "46f019098adb6de020ac83e58d4f5f2ad8a98f0341f4916159a212ec89673680",
+          "size": 1316,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/eddsa.lua"
+        },
+        "resty/nettle/gmp.lua": {
+          "sha256": "84b8d727bc76d216c56cd2ecd749bf025b1924724a326ebcb7f5fa318f1f9f3a",
+          "size": 1604,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/gmp.lua"
+        },
+        "resty/nettle/gosthash94.lua": {
+          "sha256": "e09a002a617678e7f7f37a45b8da1778cc69782d8e72e47dae3149b43da452fc",
+          "size": 1036,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/gosthash94.lua"
+        },
+        "resty/nettle/gosthash94cp.lua": {
+          "sha256": "3cda3bdd2a710efabe788b580a9b16913293fd2af90228a843c49df9c67d2c83",
+          "size": 1044,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/gosthash94cp.lua"
+        },
+        "resty/nettle/hmac.lua": {
+          "sha256": "3aa17fa9a7fc33a70f8eb6b989884ef64f9c5edadb7f16bdfe4da6234dc0fc87",
+          "size": 4624,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/hmac.lua"
+        },
+        "resty/nettle/hogweed.lua": {
+          "sha256": "c9b2408f3541a44531e4338d669f1764fec10aebcf4fbc647c74d6863509e2d7",
+          "size": 1649,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/hogweed.lua"
+        },
+        "resty/nettle/knuth-lfib.lua": {
+          "sha256": "0bbb61dab6b0ca17602e37c48662e4b4d7727a5e160577e1c9a635f651e2e734",
+          "size": 1052,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/knuth-lfib.lua"
+        },
+        "resty/nettle/library.lua": {
+          "sha256": "0fd16a5bd5a6959c422c07802c52bb0c1c3c977de27ec49b2f02c72aa7d64ffd",
+          "size": 1679,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/library.lua"
+        },
+        "resty/nettle/md2.lua": {
+          "sha256": "62d3e5cf446f1a4bd97ad3368c4e1564ad72d3e962d5220c829d85f373a6360a",
+          "size": 931,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/md2.lua"
+        },
+        "resty/nettle/md4.lua": {
+          "sha256": "de60ffd292161b2f823efa8ff47e3a6c201d59fd598a6e676e4bf015cc0413a0",
+          "size": 931,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/md4.lua"
+        },
+        "resty/nettle/md5.lua": {
+          "sha256": "2c02cf988e9afe71f090561f1a46a88827e216b6b0aef89a9db2002a428442d3",
+          "size": 931,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/md5.lua"
+        },
+        "resty/nettle/mpz.lua": {
+          "sha256": "66b69e780abc9c14547b272e14ff6be0ccdac96a0408c06fb80c5bc131768990",
+          "size": 1531,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/mpz.lua"
+        },
+        "resty/nettle/padding.lua": {
+          "sha256": "c7fdb7d5e25dc95893e19b037095c4622182301e1f9831eb1f53458eee2117e5",
+          "size": 547,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding.lua"
+        },
+        "resty/nettle/padding/ansix923.lua": {
+          "sha256": "bcf9db4edc094f515550f69dd6e91e6b05ec742f0f978bf43026550136126ef2",
+          "size": 1183,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/ansix923.lua"
+        },
+        "resty/nettle/padding/base64.lua": {
+          "sha256": "360b5eaebd38fb3b0206b483504ed316ddff2a367e444772cf5d4213cce88d07",
+          "size": 489,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/base64.lua"
+        },
+        "resty/nettle/padding/iso10126.lua": {
+          "sha256": "9e786f283fe360bf3fdec45722779d233917a635abeca27d2dcbb187287bfe67",
+          "size": 1103,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/iso10126.lua"
+        },
+        "resty/nettle/padding/iso7816-4.lua": {
+          "sha256": "ff4ed1616a4f470c7911b3fedec5c228ba18fbda6a177e3f2dea6854f75f7192",
+          "size": 1038,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/iso7816-4.lua"
+        },
+        "resty/nettle/padding/nopadding.lua": {
+          "sha256": "7c42af70d355fd04eb21a25986d1f1b538b960a708c4693eea52d3071e10134b",
+          "size": 128,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/nopadding.lua"
+        },
+        "resty/nettle/padding/pkcs7.lua": {
+          "sha256": "1b70eb4be735149d619ad6fa3381d534b29bfb8a03b7b438233629d99e1045b0",
+          "size": 1159,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/pkcs7.lua"
+        },
+        "resty/nettle/padding/spacepadding.lua": {
+          "sha256": "49a562154c6507f4f8541f42c0def9a4c6cb58c0899796124858131674d57fe3",
+          "size": 1042,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/spacepadding.lua"
+        },
+        "resty/nettle/padding/zeropadding.lua": {
+          "sha256": "57e1c9bec8e4f64380f60be716455b09b3bad75c8e6b1f06ae3aa15c4fbb0e2c",
+          "size": 1044,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/padding/zeropadding.lua"
+        },
+        "resty/nettle/pbkdf2.lua": {
+          "sha256": "10f990d021d3dfe9bce395f7659ef23b4a716220ed7faad0856381c768d296c8",
+          "size": 1310,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/pbkdf2.lua"
+        },
+        "resty/nettle/poly1305.lua": {
+          "sha256": "c1122773235f6c5106f463aedee7cab88e71faa64022add420d0b63223de30eb",
+          "size": 1269,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/poly1305.lua"
+        },
+        "resty/nettle/random.lua": {
+          "sha256": "a397d1ef8bdc7e0f50fd38814134745e0494cf4f0e80d3b1687f10530e2696b5",
+          "size": 711,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/random.lua"
+        },
+        "resty/nettle/rc2.lua": {
+          "sha256": "00ec5f13583a1235e97aaa2b6e57c65b708fe92cc40e95f8a5f0358c809643ce",
+          "size": 37,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/rc2.lua"
+        },
+        "resty/nettle/rc4.lua": {
+          "sha256": "087f028db735812f74164de714744cdc71c3cc869a6dccd5fd2a678d283be181",
+          "size": 38,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/rc4.lua"
+        },
+        "resty/nettle/ripemd160.lua": {
+          "sha256": "a3ec435df164a1d4751d4bb35df1d9c4235a519381d44afca851273f577c8965",
+          "size": 1021,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/ripemd160.lua"
+        },
+        "resty/nettle/rsa.lua": {
+          "sha256": "cfc2cd0acd4cf941b717d55dfd1acab7519d48253fb32ccafa014964249a0120",
+          "size": 14724,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/rsa.lua"
+        },
+        "resty/nettle/salsa20.lua": {
+          "sha256": "24dc5314b8a77cd4685f46efdc8223e111531ed82e52b16345a6333bbcf2ebb0",
+          "size": 1963,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/salsa20.lua"
+        },
+        "resty/nettle/serpent.lua": {
+          "sha256": "4fabf3b22cb3009efdf884c8e54db75b29ddeb9524f8cb3efc2eeffd1d8eb95f",
+          "size": 1424,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/serpent.lua"
+        },
+        "resty/nettle/sha1.lua": {
+          "sha256": "3eafdc54f2da3791a601c49893d3e24832a73e4006de57d82af3d31f6f2b7569",
+          "size": 946,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/sha1.lua"
+        },
+        "resty/nettle/sha2.lua": {
+          "sha256": "892c8ed0b490bb979b18f039e23a8120045d1ca978bb9096d247afc07bbc592a",
+          "size": 3006,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/sha2.lua"
+        },
+        "resty/nettle/sha3-shake.lua": {
+          "sha256": "5404bc3d0cad9bf400d0768a21c030f9f2a62899cfc3fe2f7b6920c12b96b477",
+          "size": 1961,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/sha3-shake.lua"
+        },
+        "resty/nettle/sha3.lua": {
+          "sha256": "3964e84ebbbf70711d8872f7096e38b32822a7b7029a2b07f40c609d7ec57eca",
+          "size": 2586,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/sha3.lua"
+        },
+        "resty/nettle/streebog.lua": {
+          "sha256": "afdfe69eec4332cc35824db8ca5c58b2eb7397a7e039f47ad7adec969c6f1e4d",
+          "size": 2045,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/streebog.lua"
+        },
+        "resty/nettle/twofish.lua": {
+          "sha256": "39835890d675bd30c011b90a2f7f0a93f0569480fd64a6c1bf4a3b85293ce062",
+          "size": 5480,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/twofish.lua"
+        },
+        "resty/nettle/types/aes.lua": {
+          "sha256": "258b1da0f06cfe25ed10700d56fd588838579580ce6a7d021ce2c544c99eea25",
+          "size": 2084,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/aes.lua"
+        },
+        "resty/nettle/types/arcfour.lua": {
+          "sha256": "97f8e449ea906c69ab45b666ab9d9bbd5c781bc59d298c900a3790807cd0130f",
+          "size": 516,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/arcfour.lua"
+        },
+        "resty/nettle/types/arctwo.lua": {
+          "sha256": "fd3096048bd4ff8f4943ac8b450818f4576cc421c0df3c764f269fcdf66918fd",
+          "size": 1085,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/arctwo.lua"
+        },
+        "resty/nettle/types/base16.lua": {
+          "sha256": "d690b6007dc58d296a93c271b26a2baefb0d11dcd6a4d6f07fa1a52b30249405",
+          "size": 938,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/base16.lua"
+        },
+        "resty/nettle/types/base64.lua": {
+          "sha256": "7e91243e4fbde187d1672f52136a09fa0ce64f3178a582946a55783fdd7c6382",
+          "size": 1695,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/base64.lua"
+        },
+        "resty/nettle/types/bcrypt.lua": {
+          "sha256": "b63f456ab5eea877246d6502844ae8320cbd071da4eccd2bd97b56adf93e5695",
+          "size": 481,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/bcrypt.lua"
+        },
+        "resty/nettle/types/blowfish.lua": {
+          "sha256": "b22799b3c607e12f3d9d9b0338408966c8b2eb1ba9996c3e9889bd05695c12ca",
+          "size": 697,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/blowfish.lua"
+        },
+        "resty/nettle/types/camellia.lua": {
+          "sha256": "b6f6cb8933748869b562e9129febf9c744d27d8d1750f8b4a12b218369b2df40",
+          "size": 1693,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/camellia.lua"
+        },
+        "resty/nettle/types/cast128.lua": {
+          "sha256": "3689a280c382504802956a26c7f7ac973ee93166ff4680baf04d4fd3166aff78",
+          "size": 702,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/cast128.lua"
+        },
+        "resty/nettle/types/cbc.lua": {
+          "sha256": "38c3294b210262b3d2f1d7fa96db1dc1c98700b5753f9b80506bd0d6888f7e92",
+          "size": 518,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/cbc.lua"
+        },
+        "resty/nettle/types/ccm.lua": {
+          "sha256": "7f273ff699dbb838480660b762e4eaeced7cddab4fe31bce220ad77d15a42958",
+          "size": 6583,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/ccm.lua"
+        },
+        "resty/nettle/types/cfb.lua": {
+          "sha256": "12c09289348b701301bdedad702a92b3cbaef0b20183324816ec58fc5519b62c",
+          "size": 766,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/cfb.lua"
+        },
+        "resty/nettle/types/chacha-poly1305.lua": {
+          "sha256": "77f6654013bc205d5fa61fc9531e7af3ef27b617a903432219d6c87829880afe",
+          "size": 1216,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/chacha-poly1305.lua"
+        },
+        "resty/nettle/types/chacha.lua": {
+          "sha256": "cef7f291fa75238497bc68f3c923095f78008db97aacf37ac7e33b38773be3ac",
+          "size": 514,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/chacha.lua"
+        },
+        "resty/nettle/types/cmac.lua": {
+          "sha256": "b22aa9eea6a699314015bc7b29e04df5a77114151c7600237cd91c636c09ab55",
+          "size": 1284,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/cmac.lua"
+        },
+        "resty/nettle/types/common.lua": {
+          "sha256": "06024fafe40555f024fba7866851ae8d9a190089fcddb2573a7523aa39fbaa51",
+          "size": 2742,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/common.lua"
+        },
+        "resty/nettle/types/ctr.lua": {
+          "sha256": "dc5edd64327b9e254ec4896ed8657849d4b1bcb77812fdf003ce7da232e136f7",
+          "size": 307,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/ctr.lua"
+        },
+        "resty/nettle/types/curve25519.lua": {
+          "sha256": "1d0050ed3d999a449f6f1ec2c55bafce04714d0f04ce46dc257df8c10928b996",
+          "size": 207,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/curve25519.lua"
+        },
+        "resty/nettle/types/curve448.lua": {
+          "sha256": "79d9650a9b94cb8e96c5bc7b5a33d6bca2aea68164f9140c6f4da73ffed5f75f",
+          "size": 201,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/curve448.lua"
+        },
+        "resty/nettle/types/des.lua": {
+          "sha256": "8e8607fa239280c942833510e067a05bea8a122bf152acdc6ca62b9f99392283",
+          "size": 1178,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/des.lua"
+        },
+        "resty/nettle/types/dsa.lua": {
+          "sha256": "751420668ba053372c6913d2995cbbb3d86d7efe3b5f6b31355ef079ef2d6468",
+          "size": 2801,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/dsa.lua"
+        },
+        "resty/nettle/types/eax.lua": {
+          "sha256": "47f7ba730fa43bafb48c574a49c602ac8fc411e0e2ff5e83bac4706c89d708c0",
+          "size": 2354,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/eax.lua"
+        },
+        "resty/nettle/types/ecc.lua": {
+          "sha256": "5197b17a01aacfdbe4a2ed983c0bf45087f9e934416fd8dbc0d5fe02ec20b3f6",
+          "size": 1652,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/ecc.lua"
+        },
+        "resty/nettle/types/ecdsa.lua": {
+          "sha256": "95389ca65d0c4a37e24213a792a0206dcc926f4572dd9f9c9acbebe3d15d45b0",
+          "size": 582,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/ecdsa.lua"
+        },
+        "resty/nettle/types/ed25519-sha512.lua": {
+          "sha256": "8cb2067cbce7e355ccdb4603cff59cd010fedf763fe2066737b64657a4b0abee",
+          "size": 430,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/ed25519-sha512.lua"
+        },
+        "resty/nettle/types/ed448-shake256.lua": {
+          "sha256": "13e8932df62a14346d8bb269b200d185d0204aeed4a0e8081652d381b89336d5",
+          "size": 527,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/ed448-shake256.lua"
+        },
+        "resty/nettle/types/gcm.lua": {
+          "sha256": "8f74520e99a1aa3aece0faafedc4f673bd278047545f3b970c2f11f68c1d6bd1",
+          "size": 5883,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/gcm.lua"
+        },
+        "resty/nettle/types/gosthash94.lua": {
+          "sha256": "a5f58b2a8374e4c86e03b0c40efeb1f9e38aab1460c5454f959537119ccbf29a",
+          "size": 776,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/gosthash94.lua"
+        },
+        "resty/nettle/types/hmac.lua": {
+          "sha256": "28608a69ce5ac78764fccbfd6a455648a46e77f68a50d8ee1acd6865c5df2e5c",
+          "size": 5865,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/hmac.lua"
+        },
+        "resty/nettle/types/knuth-lfib.lua": {
+          "sha256": "23c9658eb520a9513deec1bf4b998b958ceac1539ef4d47abf7cde335d83e499",
+          "size": 541,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/knuth-lfib.lua"
+        },
+        "resty/nettle/types/md2.lua": {
+          "sha256": "121ef6ed449382e5d9f0805554c5abc9df6a0c266830586e281f1a0e8150bbcf",
+          "size": 493,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/md2.lua"
+        },
+        "resty/nettle/types/md4.lua": {
+          "sha256": "c615d3a6b18bdba41af2562f982b05f80687ffe60f57d39e1174117ba8d96f8c",
+          "size": 494,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/md4.lua"
+        },
+        "resty/nettle/types/md5.lua": {
+          "sha256": "64eb603c39a26cd021737c1e4b3768f9d51bdca082746203bae647ce499fe4a7",
+          "size": 495,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/md5.lua"
+        },
+        "resty/nettle/types/mpz.lua": {
+          "sha256": "a86977df8915b8a585ee545ae248a5fd0cdeec8bf2c4fc4403ea1505199c3a7a",
+          "size": 954,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/mpz.lua"
+        },
+        "resty/nettle/types/nettle-types.lua": {
+          "sha256": "c5d8eed0573547984fdc1f26ab24162ddf8773dd491dc37d56d56fdfc6898687",
+          "size": 1173,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/nettle-types.lua"
+        },
+        "resty/nettle/types/pbkdf2.lua": {
+          "sha256": "7d50d774d762fd48dd6cc191d1a2ad8aab0de469d4e10e8cc0910dfe28efa21e",
+          "size": 1288,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/pbkdf2.lua"
+        },
+        "resty/nettle/types/poly1305.lua": {
+          "sha256": "66d5273c654dbd5f90e9900135126c8b4314bc57d0a634c271c9effd9e5e54d4",
+          "size": 1110,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/poly1305.lua"
+        },
+        "resty/nettle/types/ripemd160.lua": {
+          "sha256": "803265e3c5a5871f1b1b0b2a9b91e165fa90449b25d6f47d037501f250ebe3bf",
+          "size": 564,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/ripemd160.lua"
+        },
+        "resty/nettle/types/rsa.lua": {
+          "sha256": "7bad25ea4c23ef81937d7469133b22103e5abed688aa70ae92808abef1c434e4",
+          "size": 8608,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/rsa.lua"
+        },
+        "resty/nettle/types/salsa20.lua": {
+          "sha256": "d41b31437838f3e8558ccdfaa45819f9e9b47bb0c1bfdc02d18860c398dfde8d",
+          "size": 813,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/salsa20.lua"
+        },
+        "resty/nettle/types/serpent.lua": {
+          "sha256": "e91f2c760857c303ed2719a79a643803b9f655b27ccd708b6018a4783d104861",
+          "size": 827,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/serpent.lua"
+        },
+        "resty/nettle/types/sha1.lua": {
+          "sha256": "41d925179a819439e6e45e545f359997aef62e87164d7db32b90cc3c9a526594",
+          "size": 509,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/sha1.lua"
+        },
+        "resty/nettle/types/sha2.lua": {
+          "sha256": "fd56aaec4432d316ee11cebfc6217ec35b568413f3a4660fdf1c9c7622cb1a58",
+          "size": 1739,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/sha2.lua"
+        },
+        "resty/nettle/types/sha3.lua": {
+          "sha256": "3882af81ef4123144158d00cbdc0cfb85df973dae6342d34b59c65ede74034f9",
+          "size": 2059,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/sha3.lua"
+        },
+        "resty/nettle/types/siv-cmac.lua": {
+          "sha256": "742e1a6618531312eb5863d0f1d8d00ddb8f4cb39cdc9dc3fdcc9104d2f9249a",
+          "size": 1978,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/siv-cmac.lua"
+        },
+        "resty/nettle/types/streebog.lua": {
+          "sha256": "a25ea70747f90abeaf546b932f15392a2c9196b6af6ad4f9bef2e002df3cf434",
+          "size": 809,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/streebog.lua"
+        },
+        "resty/nettle/types/twofish.lua": {
+          "sha256": "19a1c8aca039ba2ab69a29e6ab5c122f457f9cd3bea3cd4bcad4cc9365c5c92f",
+          "size": 862,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/twofish.lua"
+        },
+        "resty/nettle/types/umac.lua": {
+          "sha256": "4c2d90bce17df31ced51620fd87f5d9f734d3c76e52b4a6ba850a321a271901c",
+          "size": 3249,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/umac.lua"
+        },
+        "resty/nettle/types/version.lua": {
+          "sha256": "9a334e97019bcd22657dcb5059354ec5c67dd9a8f2fabb2c164643865796fcf0",
+          "size": 135,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/version.lua"
+        },
+        "resty/nettle/types/xts.lua": {
+          "sha256": "564681cec81a6ed7a56c8251769fa3b680b1830bcc4e1c0a2ea67a1ceedcd25e",
+          "size": 2132,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/xts.lua"
+        },
+        "resty/nettle/types/yarrow.lua": {
+          "sha256": "a79150a7568ec710dcc6780ca3764c9f42521b881f45be676726429ff1e3f359",
+          "size": 1072,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/types/yarrow.lua"
+        },
+        "resty/nettle/umac.lua": {
+          "sha256": "fae11bd8daffa6b840978da45d7d2ef1f82596bf9f8fd47fa2d8a6fd327a5e43",
+          "size": 2933,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/umac.lua"
+        },
+        "resty/nettle/version.lua": {
+          "sha256": "421e987d66bc46d0e4914d6d25cff37d90d112130787680dbe2cdc372df96d59",
+          "size": 376,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/version.lua"
+        },
+        "resty/nettle/yarrow.lua": {
+          "sha256": "0abd4c84237ac96260f0b59f6c524e02c16059a094041ae4362c48f6b8ee267f",
+          "size": 1822,
+          "url": "https://raw.githubusercontent.com/bungle/lua-resty-nettle/62deda2a85b5f29a38f53c1c2f071dba4f7cb78d/lib/resty/nettle/yarrow.lua"
+        }
+      },
+      "homepage": "https://github.com/bungle/lua-resty-nettle",
+      "host": "openresty",
+      "license": "BSD",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Wed, 07 Apr 2021 09:52:55 GMT",
+        "rockspec": {
+          "date": "Wed, 07 Apr 2021 09:52:55 GMT",
+          "sha256": "e3c81bb6715b6d44b8d6fc6a58674a669c07da9eecb668e0e29a31241829d3b1",
+          "size": 9474
+        },
+        "src": {
+          "date": "Wed, 07 Apr 2021 09:52:57 GMT",
+          "sha256": "6c03cac7f9912d8d02c33e90d741e51f0d7d9f1e843747a46ae7075784cc4239",
+          "size": 88558,
+          "url": "https://luarocks.org/lua-resty-nettle-2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.nettle",
+        "resty.nettle.aes",
+        "resty.nettle.arcfour",
+        "resty.nettle.arctwo",
+        "resty.nettle.base16",
+        "resty.nettle.base64",
+        "resty.nettle.bcrypt",
+        "resty.nettle.blowfish",
+        "resty.nettle.camellia",
+        "resty.nettle.cast128",
+        "resty.nettle.chacha",
+        "resty.nettle.chacha-poly1305",
+        "resty.nettle.cmac",
+        "resty.nettle.curve25519",
+        "resty.nettle.curve448",
+        "resty.nettle.des",
+        "resty.nettle.dsa",
+        "resty.nettle.ecc",
+        "resty.nettle.ecdsa",
+        "resty.nettle.ed25519-sha512",
+        "resty.nettle.ed448-shake256",
+        "resty.nettle.eddsa",
+        "resty.nettle.gmp",
+        "resty.nettle.gosthash94",
+        "resty.nettle.gosthash94cp",
+        "resty.nettle.hmac",
+        "resty.nettle.hogweed",
+        "resty.nettle.knuth-lfib",
+        "resty.nettle.library",
+        "resty.nettle.md2",
+        "resty.nettle.md4",
+        "resty.nettle.md5",
+        "resty.nettle.mpz",
+        "resty.nettle.padding",
+        "resty.nettle.padding.ansix923",
+        "resty.nettle.padding.base64",
+        "resty.nettle.padding.iso10126",
+        "resty.nettle.padding.iso7816-4",
+        "resty.nettle.padding.nopadding",
+        "resty.nettle.padding.pkcs7",
+        "resty.nettle.padding.spacepadding",
+        "resty.nettle.padding.zeropadding",
+        "resty.nettle.pbkdf2",
+        "resty.nettle.poly1305",
+        "resty.nettle.random",
+        "resty.nettle.rc2",
+        "resty.nettle.rc4",
+        "resty.nettle.ripemd160",
+        "resty.nettle.rsa",
+        "resty.nettle.salsa20",
+        "resty.nettle.serpent",
+        "resty.nettle.sha1",
+        "resty.nettle.sha2",
+        "resty.nettle.sha3",
+        "resty.nettle.sha3-shake",
+        "resty.nettle.streebog",
+        "resty.nettle.twofish",
+        "resty.nettle.types.aes",
+        "resty.nettle.types.arcfour",
+        "resty.nettle.types.arctwo",
+        "resty.nettle.types.base16",
+        "resty.nettle.types.base64",
+        "resty.nettle.types.bcrypt",
+        "resty.nettle.types.blowfish",
+        "resty.nettle.types.camellia",
+        "resty.nettle.types.cast128",
+        "resty.nettle.types.cbc",
+        "resty.nettle.types.ccm",
+        "resty.nettle.types.cfb",
+        "resty.nettle.types.chacha",
+        "resty.nettle.types.chacha-poly1305",
+        "resty.nettle.types.cmac",
+        "resty.nettle.types.common",
+        "resty.nettle.types.ctr",
+        "resty.nettle.types.curve25519",
+        "resty.nettle.types.curve448",
+        "resty.nettle.types.des",
+        "resty.nettle.types.dsa",
+        "resty.nettle.types.eax",
+        "resty.nettle.types.ecc",
+        "resty.nettle.types.ecdsa",
+        "resty.nettle.types.ed25519-sha512",
+        "resty.nettle.types.ed448-shake256",
+        "resty.nettle.types.gcm",
+        "resty.nettle.types.gosthash94",
+        "resty.nettle.types.hmac",
+        "resty.nettle.types.knuth-lfib",
+        "resty.nettle.types.md2",
+        "resty.nettle.types.md4",
+        "resty.nettle.types.md5",
+        "resty.nettle.types.mpz",
+        "resty.nettle.types.nettle-types",
+        "resty.nettle.types.pbkdf2",
+        "resty.nettle.types.poly1305",
+        "resty.nettle.types.ripemd160",
+        "resty.nettle.types.rsa",
+        "resty.nettle.types.salsa20",
+        "resty.nettle.types.serpent",
+        "resty.nettle.types.sha1",
+        "resty.nettle.types.sha2",
+        "resty.nettle.types.sha3",
+        "resty.nettle.types.siv-cmac",
+        "resty.nettle.types.streebog",
+        "resty.nettle.types.twofish",
+        "resty.nettle.types.umac",
+        "resty.nettle.types.version",
+        "resty.nettle.types.xts",
+        "resty.nettle.types.yarrow",
+        "resty.nettle.umac",
+        "resty.nettle.version",
+        "resty.nettle.yarrow"
+      ],
+      "origin": {
+        "commit": "62deda2a85b5f29a38f53c1c2f071dba4f7cb78d",
+        "ref": "v2.1",
+        "type": "git",
+        "url": "https://github.com/bungle/lua-resty-nettle.git"
+      },
+      "size": 203332,
+      "summary": "LuaJIT FFI bindings for Nettle (a low-level cryptographic library)",
+      "undeclared_requires": [
+        "resty.random"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 7,
+        "status": "partial",
+        "total": 111
+      }
+    }
+  }
+}

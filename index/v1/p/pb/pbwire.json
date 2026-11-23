@@ -1,0 +1,80 @@
+{
+  "kind": "lib",
+  "name": "pbwire",
+  "versions": {
+    "0.1.18-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/jinganix/pbwire",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 18 Nov 2026 08:26:46 GMT",
+        "rockspec": {
+          "date": "Wed, 18 Nov 2026 08:26:46 GMT",
+          "sha256": "2be99afa6decb7f9a92f545d9883f42f5049bf25518af2adadcea5ab1f8afa96",
+          "size": 1331
+        },
+        "src": {
+          "date": "Wed, 18 Nov 2026 08:26:49 GMT",
+          "sha256": "3f4805e63b010aa29240130c7d13ca0b4cbbfec42ad422aff8a1743aed5768b7",
+          "size": 709709,
+          "url": "https://luarocks.org/pbwire-0.1.18-1.src.rock"
+        }
+      },
+      "modules": [
+        "pbwire"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "include"
+              ],
+              "name": "pbwire",
+              "sources": [
+                "bindings/lua/runtime/pbwire.c",
+                "src/wire.c",
+                "src/arena.c",
+                "src/schema.c",
+                "src/message.c",
+                "src/encode.c",
+                "src/decode.c",
+                "src/ctx.c",
+                "src/descriptor_set.c",
+                "src/text.c",
+                "src/json.c",
+                "src/stream.c",
+                "src/wkt.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "pbwire-0.1.18"
+      },
+      "origin": {
+        "date": "Wed, 18 Nov 2026 08:26:49 GMT",
+        "sha256": "3f4805e63b010aa29240130c7d13ca0b4cbbfec42ad422aff8a1743aed5768b7",
+        "size": 709709,
+        "type": "luarocks",
+        "url": "https://luarocks.org/pbwire-0.1.18-1.src.rock"
+      },
+      "summary": "Protobuf wire codec: Lua tables through the pbwire C core",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

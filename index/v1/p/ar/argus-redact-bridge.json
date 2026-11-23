@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "argus-redact-bridge",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/argus-redact-bridge/client.lua": {
+          "sha256": "4a31c624def3c7fa861edbd20a5e3da7794a9c1e165d6dff0fe17de783dadbd7",
+          "size": 1167,
+          "url": "https://raw.githubusercontent.com/wan9yu/kong-plugin-argus-redact/9a6fbf05f2e6698eff45c54923a883fdbf1a8233/kong/plugins/argus-redact-bridge/client.lua"
+        },
+        "kong/plugins/argus-redact-bridge/handler.lua": {
+          "sha256": "8b6aade3c51b7f261e258527436a3811069adfb5c039cdfd196838e12c50465a",
+          "size": 4091,
+          "url": "https://raw.githubusercontent.com/wan9yu/kong-plugin-argus-redact/9a6fbf05f2e6698eff45c54923a883fdbf1a8233/kong/plugins/argus-redact-bridge/handler.lua"
+        },
+        "kong/plugins/argus-redact-bridge/json_codec.lua": {
+          "sha256": "3e0f94d3ac8a18f053470ca13e2c8bfc0f30f87845d8d6f4ee74d41e65ade77e",
+          "size": 1808,
+          "url": "https://raw.githubusercontent.com/wan9yu/kong-plugin-argus-redact/9a6fbf05f2e6698eff45c54923a883fdbf1a8233/kong/plugins/argus-redact-bridge/json_codec.lua"
+        },
+        "kong/plugins/argus-redact-bridge/schema.lua": {
+          "sha256": "32095853f3050288abd030c64387846c7fd7e050cfadd927e91d36abaee151c0",
+          "size": 909,
+          "url": "https://raw.githubusercontent.com/wan9yu/kong-plugin-argus-redact/9a6fbf05f2e6698eff45c54923a883fdbf1a8233/kong/plugins/argus-redact-bridge/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/wan9yu/kong-plugin-argus-redact",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 07 May 2026 14:26:46 GMT",
+        "rockspec": {
+          "date": "Thu, 07 May 2026 14:26:46 GMT",
+          "sha256": "4f47881b0c02ad235b3b504c0249bab1b19102743759c05bfd1c346e0d4afd83",
+          "size": 1306
+        },
+        "src": {
+          "date": "Thu, 07 May 2026 14:26:46 GMT",
+          "sha256": "1115982d7ccbc03bb9bbdb7c90461cbb3675716955339f39b9f0b1936e730397",
+          "size": 37570,
+          "url": "https://luarocks.org/argus-redact-bridge-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.argus-redact-bridge.client",
+        "kong.plugins.argus-redact-bridge.handler",
+        "kong.plugins.argus-redact-bridge.json_codec",
+        "kong.plugins.argus-redact-bridge.schema"
+      ],
+      "origin": {
+        "commit": "9a6fbf05f2e6698eff45c54923a883fdbf1a8233",
+        "ref": "v0.1.0",
+        "type": "git",
+        "url": "https://github.com/wan9yu/kong-plugin-argus-redact"
+      },
+      "size": 7975,
+      "summary": "Kong plugin: PII redact/restore around upstream LLM calls via argus-redact",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

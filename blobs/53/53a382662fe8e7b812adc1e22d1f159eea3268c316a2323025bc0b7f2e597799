@@ -1,0 +1,222 @@
+local _module_0 = { }
+local string = require('string')
+local table = require('table')
+local inspect = require('inspect')
+local ngx = require('ngx')
+local cjson, tpl
+do
+	local _obj_0 = require('elan.built')
+	cjson, tpl = _obj_0.cjson, _obj_0.tpl
+end
+local flash = require('elan.http.flash')
+local template_from_path
+template_from_path = function(req)
+	local path = req.plain_route
+	if string.sub(path, 1, 1) == '/' then
+		path = string.sub(path, 2)
+	end
+	if string.sub(path, -1) ~= '/' and #path > 0 then
+		path = path .. '/'
+	end
+	return path .. 'get.tpl'
+end
+local res_render_error
+res_render_error = function(self, req, fail_obj)
+	local status, msg, err, tmpl, ctx = fail_obj.status, fail_obj.msg, fail_obj.err, fail_obj.tpl, fail_obj.ctx
+	if status == nil then
+		status = 400
+	end
+	if msg == nil then
+		msg = 'Something went wrong'
+	end
+	if ctx == nil then
+		ctx = req.ctx.locals
+	end
+	if tmpl == nil then
+		tmpl = template_from_path(req)
+	end
+	if err then
+		ngx.log(ngx.ERR, tostring(msg) .. ": " .. tostring(err))
+	end
+	local msgs
+	do
+		local _exp_0 = ctx.messages
+		if _exp_0 ~= nil then
+			msgs = _exp_0
+		else
+			msgs = { }
+		end
+	end
+	msgs[#msgs + 1] = {
+		type = 'E',
+		message = msg
+	}
+	do
+		local _tab_0 = { }
+		local _idx_0 = 1
+		for _key_0, _value_0 in pairs(ctx) do
+			if _idx_0 == _key_0 then
+				_tab_0[#_tab_0 + 1] = _value_0
+				_idx_0 = _idx_0 + 1
+			else
+				_tab_0[_key_0] = _value_0
+			end
+		end
+		_tab_0.messages = msgs
+		ctx = _tab_0
+	end
+	self.status = status
+	return self:render(tmpl, ctx)
+end
+local _anon_func_0 = function(self)
+	local _exp_0 = self.headers.transfer_encoding
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return ''
+	end
+end
+local res_write
+res_write = function(self, ...)
+	if not self.headers.content_type then
+		self.headers.content_type = 'application/octet-stream'
+	end
+	if self.status == 0 then
+		self.status = ngx.HTTP_OK
+	end
+	local is_chunked = string.find(_anon_func_0(self), 'chunked')
+	if not (self.headers.content_length or is_chunked) then
+		local n = select('#', ...)
+		local i, len = 0, 0
+		while i < n and len >= 0 do
+			i = i + 1
+			local v = select(i, ...)
+			if type(v) == 'string' then
+				len = len + (#v)
+			else
+				len = -1
+			end
+		end
+		if len >= 0 then
+			self.headers.content_length = tostring(len)
+		end
+	end
+	if is_chunked then
+		self.headers.transfer_encoding = string.gsub(self.headers.transfer_encoding, 'chunked', '')
+	end
+	return ngx.print(...)
+end
+local res_write_text
+res_write_text = function(self, ...)
+	if not self.headers.content_type then
+		self.headers.content_type = 'text/plain'
+	end
+	return self:write(...)
+end
+local res_write_json
+res_write_json = function(self, ...)
+	local n = select('#', ...)
+	if 0 == n then
+		if not self.headers.content_type then
+			self.headers.content_type = 'application/json'
+		end
+		return self:write('null')
+	elseif 1 == n then
+		local v, err = cjson.encode((select(1, ...)))
+		if v then
+			if not self.headers.content_type then
+				self.headers.content_type = 'application/json'
+			end
+			return self:write(v)
+		else
+			return nil, err
+		end
+	else
+		local parts = { }
+		for i = 1, n do
+			local v, err = cjson.encode((select(i, ...)))
+			if v then
+				parts[#parts + 1] = v
+			else
+				return nil, err
+			end
+		end
+		if not self.headers.content_type then
+			self.headers.content_type = 'application/jsonl'
+		end
+		return self:write(table.concat(parts, '\n'))
+	end
+end
+local res_render
+res_render = function(self, view, ctx)
+	if type(view) == 'table' and not ctx then
+		ctx = view
+		view = nil
+	end
+	local s, err
+	if view then
+		s, err = tpl.process_file(view, ctx)
+	else
+		if self.default_view then
+			s, err = self.default_view(ctx)
+		else
+			s, err = nil, 'no default view'
+		end
+	end
+	if not s then
+		return nil, err
+	end
+	if not self.headers.content_type then
+		self.headers.content_type = 'text/html'
+	end
+	return self:write(s)
+end
+local res_redirect
+res_redirect = function(self, uri, status)
+	if status then
+		return ngx.redirect(uri, status)
+	else
+		return ngx.redirect(uri)
+	end
+end
+local new
+new = function(cookie)
+	local res
+	do
+		local _with_0 = { }
+		_with_0.headers = ngx.header
+		_with_0.cookie = cookie
+		_with_0.headers_sent = function(self)
+			return ngx.headers_sent
+		end
+		_with_0.send_headers = ngx.send_headers
+		_with_0.redirect = res_redirect
+		_with_0.write = res_write
+		_with_0.write_text = res_write_text
+		_with_0.write_json = res_write_json
+		_with_0.render = res_render
+		_with_0.render_error = res_render_error
+		_with_0.default_view = nil
+		_with_0.flash = flash.flash
+		res = _with_0
+	end
+	local private = { }
+	setmetatable(res, {
+		__newindex = function(t, k, v)
+			if k == 'status' then
+				ngx.status = v
+				return
+			end
+			private[k] = v
+		end,
+		__index = function(t, k)
+			if k == 'status' then
+				return ngx.status
+			end
+			return private[k]
+		end
+	})
+	return res
+end
+_module_0["new"] = new
+return _module_0

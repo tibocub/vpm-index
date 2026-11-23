@@ -1,0 +1,108 @@
+{
+  "kind": "lib",
+  "name": "lua-geoip",
+  "versions": {
+    "0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/agladysh/lua-geoip",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 10 May 2017 16:09:36 GMT",
+        "rockspec": {
+          "date": "Wed, 10 May 2017 16:09:36 GMT",
+          "sha256": "d3dddc488134b5b1e2d4a367d018ef21887011521a8e48dde6f0095b7e5aa91d",
+          "size": 1111
+        },
+        "src": {
+          "date": "Wed, 10 May 2017 16:09:37 GMT",
+          "sha256": "d8808109edf8f43084ab8d7c08daba63a754e1bf10fbdfec52e2c916a6bc0c55",
+          "size": 18356,
+          "url": "https://luarocks.org/lua-geoip-0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "geoip",
+        "geoip.city",
+        "geoip.country"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "GEOIP"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "GEOIP": {
+              "header": "GeoIP.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "src/"
+              ],
+              "libraries": [
+                "GeoIP"
+              ],
+              "name": "geoip",
+              "sources": [
+                "src/lua-geoip.c",
+                "src/database.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "src/"
+              ],
+              "libraries": [
+                "GeoIP"
+              ],
+              "name": "geoip.city",
+              "sources": [
+                "src/database.c",
+                "src/city.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "src/"
+              ],
+              "libraries": [
+                "GeoIP"
+              ],
+              "name": "geoip.country",
+              "sources": [
+                "src/database.c",
+                "src/country.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 10 May 2017 16:09:37 GMT",
+        "sha256": "d8808109edf8f43084ab8d7c08daba63a754e1bf10fbdfec52e2c916a6bc0c55",
+        "size": 18356,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-geoip-0.2-1.src.rock"
+      },
+      "summary": "Bindings for MaxMind's GeoIP library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-google-storage-adapter",
+  "versions": {
+    "3.21.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/google-storage-adapter/access.lua": {
+          "sha256": "e7ed98e8390b181138026d1b51646e7ad1ebb71a38f7e63bf8509db44e91ac9c",
+          "size": 267,
+          "url": "blob:e7ed98e8390b181138026d1b51646e7ad1ebb71a38f7e63bf8509db44e91ac9c"
+        },
+        "kong/plugins/google-storage-adapter/auth.lua": {
+          "sha256": "48a6afc36070bf531055aa4bc35b276e9e3335db38903e0f4309e3a842dbdcad",
+          "size": 3741,
+          "url": "blob:48a6afc36070bf531055aa4bc35b276e9e3335db38903e0f4309e3a842dbdcad"
+        },
+        "kong/plugins/google-storage-adapter/handler.lua": {
+          "sha256": "bb25838d960baf86e28f888b2c29c8d558fae6f0037ffe0d183493e9efe50e19",
+          "size": 436,
+          "url": "blob:bb25838d960baf86e28f888b2c29c8d558fae6f0037ffe0d183493e9efe50e19"
+        },
+        "kong/plugins/google-storage-adapter/header_filter.lua": {
+          "sha256": "b213b6e8b475ebff349fa88d27010cb43d66561f64f717a27552d28367dc9a9a",
+          "size": 2627,
+          "url": "blob:b213b6e8b475ebff349fa88d27010cb43d66561f64f717a27552d28367dc9a9a"
+        },
+        "kong/plugins/google-storage-adapter/path/resolve-old.lua": {
+          "sha256": "3a78a752b693a4079d3c89dfa8f944f397b0ffe30f631e19ffbb0535845fd16a",
+          "size": 2066,
+          "url": "blob:3a78a752b693a4079d3c89dfa8f944f397b0ffe30f631e19ffbb0535845fd16a"
+        },
+        "kong/plugins/google-storage-adapter/path/resolve.lua": {
+          "sha256": "7e3329cb037a64fc7f6fa48512547a3571ae7705f2f4ef6487ca4af2470d8e3a",
+          "size": 7920,
+          "url": "blob:7e3329cb037a64fc7f6fa48512547a3571ae7705f2f4ef6487ca4af2470d8e3a"
+        },
+        "kong/plugins/google-storage-adapter/path/utils.lua": {
+          "sha256": "1514b5d4dd1cc4aa8921929dbd9d9de55463758a2309b80d7bdeee2a340b2132",
+          "size": 2340,
+          "url": "blob:1514b5d4dd1cc4aa8921929dbd9d9de55463758a2309b80d7bdeee2a340b2132"
+        },
+        "kong/plugins/google-storage-adapter/schema.lua": {
+          "sha256": "f96f3996dac8863a66734647de90dd01e198f2e6aea32a604a06d5a3c0073e22",
+          "size": 1547,
+          "url": "blob:f96f3996dac8863a66734647de90dd01e198f2e6aea32a604a06d5a3c0073e22"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 30 Oct 2025 09:02:11 GMT",
+        "rockspec": {
+          "date": "Thu, 30 Oct 2025 09:02:11 GMT",
+          "sha256": "1bdaa0f84d0b57c4a5cdc4dd257f6e022aef574f8cac98e2aeb8ef0e4f0ff1bc",
+          "size": 1462
+        },
+        "src": {
+          "date": "Thu, 30 Oct 2025 09:02:12 GMT",
+          "sha256": "d00b887852bc0b1ac9273ac3975981ae2f9b31c2b89ac13b3a263ca348882c13",
+          "size": 6559,
+          "url": "https://luarocks.org/kong-plugin-google-storage-adapter-3.21.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.google-storage-adapter.access",
+        "kong.plugins.google-storage-adapter.auth",
+        "kong.plugins.google-storage-adapter.handler",
+        "kong.plugins.google-storage-adapter.header_filter",
+        "kong.plugins.google-storage-adapter.path.resolve",
+        "kong.plugins.google-storage-adapter.path.resolve-old",
+        "kong.plugins.google-storage-adapter.path.utils",
+        "kong.plugins.google-storage-adapter.schema"
+      ],
+      "origin": {
+        "sha256": "8a3393ef8d25110987050db8885fc922841180b348fef10da138740eb74d6b78",
+        "type": "archive",
+        "url": "https://storage.googleapis.com/cloud-site-builder-bucket-prod/kong-plugin-google-storage-adapter-3.21.0-0.tar.gz"
+      },
+      "size": 20944,
+      "summary": "A Kong plugin that adapts Google Storage",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.jit-uuid",
+        "resty.openssl.hmac",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

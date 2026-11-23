@@ -1,0 +1,101 @@
+{
+  "kind": "lib",
+  "name": "llhttp",
+  "versions": {
+    "0.0.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "llhttp/enum.lua": {
+          "sha256": "986891ffd77f1c76246f926370b088a74fdcc904f1fbe2230cd28a9344458b07",
+          "size": 16183,
+          "url": "blob:986891ffd77f1c76246f926370b088a74fdcc904f1fbe2230cd28a9344458b07"
+        },
+        "llhttp/ffi.lua": {
+          "sha256": "0918a1bd77f0fecf80ac9c095a672155197e3349ffbe141e03d5bc31826ebf69",
+          "size": 32384,
+          "url": "blob:0918a1bd77f0fecf80ac9c095a672155197e3349ffbe141e03d5bc31826ebf69"
+        },
+        "llhttp/init.lua": {
+          "sha256": "ab09a9ea878101a8d4c5f949037e8015fa16503145f8abda0259114d03a203ef",
+          "size": 98,
+          "url": "blob:ab09a9ea878101a8d4c5f949037e8015fa16503145f8abda0259114d03a203ef"
+        },
+        "llhttp/parser.lua": {
+          "sha256": "8bfabc6bb8ddd4d36b9eaed51586e0a0ea4b412bea836f4aedda47655612d5dd",
+          "size": 4667,
+          "url": "blob:8bfabc6bb8ddd4d36b9eaed51586e0a0ea4b412bea836f4aedda47655612d5dd"
+        }
+      },
+      "homepage": "https://github.com/MunifTanjim/llhttp.lua",
+      "host": "luajit",
+      "license": "MIT",
+      "luajit": true,
+      "luarocks": {
+        "date": "Wed, 09 Nov 2022 16:00:46 GMT",
+        "rockspec": {
+          "date": "Wed, 09 Nov 2022 16:00:46 GMT",
+          "sha256": "c8249c8db503db6cd5db49d0b891d0b12e00f65265a6cbac72775b30f07b3f3e",
+          "size": 992
+        },
+        "src": {
+          "date": "Wed, 09 Nov 2022 16:00:47 GMT",
+          "sha256": "26cc7c1393c2fd5cd65407aff0f8575edb9f615c0fcf6f630f7f35f992fc9552",
+          "size": 75543,
+          "url": "https://luarocks.org/llhttp-0.0.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "llhttp",
+        "llhttp.core",
+        "llhttp.enum",
+        "llhttp.ffi",
+        "llhttp.parser"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "LLHTTP_STRICT_MODE"
+              ],
+              "incdirs": [
+                "llhttp"
+              ],
+              "name": "llhttp.core",
+              "sources": [
+                "llhttp/core/api.c",
+                "llhttp/core/http.c",
+                "llhttp/core/llhttp.c",
+                "llhttp/core/main.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 09 Nov 2022 16:00:47 GMT",
+        "sha256": "26cc7c1393c2fd5cd65407aff0f8575edb9f615c0fcf6f630f7f35f992fc9552",
+        "size": 75543,
+        "type": "luarocks",
+        "url": "https://luarocks.org/llhttp-0.0.6-1.src.rock"
+      },
+      "size": 53332,
+      "summary": "Lua interface for llhttp.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

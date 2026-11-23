@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "luadbi-duckdb",
+  "versions": {
+    "0.7.5-1": {
+      "bin": [],
+      "deps": [
+        "luadbi = 0.7.5"
+      ],
+      "files": [],
+      "homepage": "https://github.com/mwild1/luadbi",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Tue, 09 Jun 2026 18:28:44 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Jun 2026 18:28:44 GMT",
+          "sha256": "e9c2edd9c69b69cd0619fb470d16978a4beba9713a4309d0c17abf7a3689c61f",
+          "size": 1104
+        },
+        "src": {
+          "date": "Tue, 09 Jun 2026 18:28:45 GMT",
+          "sha256": "3960a76833dfd2624260d32fccc82d33bcb875ed46ccdd4cb86567ed60885b3c",
+          "size": 70593,
+          "url": "https://luarocks.org/luadbi-duckdb-0.7.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "dbd.duckdb"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "DUCKDB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "DUCKDB": {
+              "header": "duckdb.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(DUCKDB_INCDIR)",
+                "./"
+              ],
+              "libdirs": [
+                "$(DUCKDB_LIBDIR)"
+              ],
+              "libraries": [
+                "duckdb"
+              ],
+              "name": "dbd.duckdb",
+              "sources": [
+                "dbd/common.c",
+                "dbd/duckdb/main.c",
+                "dbd/duckdb/statement.c",
+                "dbd/duckdb/connection.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 09 Jun 2026 18:28:45 GMT",
+        "sha256": "3960a76833dfd2624260d32fccc82d33bcb875ed46ccdd4cb86567ed60885b3c",
+        "size": 70593,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luadbi-duckdb-0.7.5-1.src.rock"
+      },
+      "summary": "Database abstraction layer",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,468 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 08-11-2023 @author Swarg
+local M = {}
+--
+local base = require('cmd4lua.base')
+local conf = require('cmd4lua.settings')
+
+local D = conf.D
+local dprint = conf.dprint
+local bool_or_def = base.bool_or_def
+
+
+-- Built-in Command Help
+local BUILTIN_HELP = [[
+Cmd4Lua Built-in Commands Help
+ -_h | --_help              -- show this help
+ -_n | --_notations         -- show help about internal Cmd4Lua notations
+ -_H | --_builtin-hints     -- enable/disable adding built-in hints to help
+ -_d | --_debug      (1/0)  -- enable/disable the debug_print. (default is true)
+ -_D | --_devmode    (1/0)  -- in this mode more checks occur and exceptions are
+                               thrown in case of errors.(See more --_devmode help)
+ -_r | --_src-root   (path) -- used to shorten paths of a sources in debug-print
+ -_R | --_src-root-auto     -- try to auto find src-root for current application
+ -_st| --_status            -- show the current settings
+ -_p | --_debug_print       -- call dprint (debug message) for dprint package
+ -_T | --_throw-error       -- call error. (experimental)
+
+]]
+
+local BUIILT_DEVMODE_HELP = [[
+DevMode
+Designed to validate command handlers when writing their code
+In particular, when registering commands, the presence of all relevant
+functions is fully checked and detailed error reports are shown.
+TODO:
+  built-in cmd to validate all sub commands in the cmd tree
+]]
+
+local BUIILT_NOTATIONS = [[
+Internal Notations:
+
+"varname" - tagged name of the inner variable
+ ${NAME}  - The System Envrironment Variables name that can be used instead
+            of an argument or an option key
+
+Required|Optional|Default:                         [Options|Arguments|Commands]
+*         - For options means that this optkey is Required and must be specified.
+*         - For arguments means that this argument can be ommitted (Optional)
+            Otherwise, the input will be considered incorrect
+            And a help with usage will be shown    (method show_help_or_errors)
+*         - For a commands means that this command will be called by default
+            unless another command or help command is specified.
+
+Groups:                                                     [Options|Arguments]
+ *?n      - briefly describes the group to which the element(arg|opt) belongs
+ Where:
+ *        - the Required|Optional mark of the current element mark (see above)
+  ?       - a short group name(a first letter of a group name)
+   n      - a group type: 0 - none-of, 1 - one-of(radio-buttom), 8 - many
+
+GroupTypes:
+0 none-of - any element from this group triggers help showing
+1 one-of  - exactly one element from the group must be specified
+8 many    - you can specify one or more elements
+
+]]
+
+
+--
+--------------------------------------------------------------------------------
+--                      Built-in Internal Commands
+--------------------------------------------------------------------------------
+
+-- return value of the given optkey name and remove this key from a opts list
+---@private
+---@param opts table
+---@param fullname string         - the full name ot the optional key to remove
+---@param shortname string?|nil
+local function remove_opt(opts, fullname, shortname)
+  assert(type(opts) == 'table', 'opts')
+  assert(not fullname or type(fullname) == 'string', 'fullname')
+  assert(not fullname or type(fullname) == 'string', 'shortname')
+  if opts then
+    local val
+    if fullname and opts[fullname] then
+      val = opts[fullname]
+      opts[fullname] = nil
+    end
+    if shortname and opts[shortname] then
+      val = opts[shortname]
+      opts[shortname] = nil
+    end
+    return val
+  end
+end
+
+--
+function M.apply_builtin_commands(obj)
+  if obj then
+    local value
+    local function stop()
+      obj.help_showed = true
+      obj.only_help = true
+    end
+    -- local remove_opt = M.remove_opt
+
+    --------------------------  help  ----------------------------
+
+    if remove_opt(obj.keys, '--_help', '-_h') then
+      obj:print(BUILTIN_HELP)
+      stop()
+    end
+
+    if remove_opt(obj.keys, '--_notations', '-_n') then
+      obj:print(BUIILT_NOTATIONS)
+      stop()
+    end
+
+    -- enable/disable
+    value = remove_opt(obj.keys, '--_show-hints', '-_H')
+    if value then
+      conf.show_help_hints = bool_or_def(value, false)
+    end
+
+    --------------------------  dev  ----------------------------
+
+    if remove_opt(obj.keys, '--_version', '-_V') then
+      obj:print(obj._VERSION)
+      stop()
+    end
+
+    value = remove_opt(obj.keys, '--_debug', '-_d')
+    M.set_debug(obj, value)
+
+    value = remove_opt(obj.keys, '--_dev-mode', '-_D')
+    if value then
+      if base._is_helpcmd(value) then
+        obj:print(BUIILT_DEVMODE_HELP)
+        stop()
+      end
+      conf.devmode = bool_or_def(value, true)
+    end
+
+    -- see M.dev_generate
+    -- Example: my-cmd help --_generate [command for the handler]
+    value = remove_opt(obj.keys, '--_generate', '-_G')
+    if value then -- value is a cli line
+      if bool_or_def(value, true) then
+        -- received key value for pass to the handler
+        obj.dev_generate_cmd = value
+      else
+        obj.dev_generate_cmd = false
+      end
+    end
+
+    -- used by dprint.mk_short_source to shorten too long trace paths in messages
+    value = remove_opt(obj.keys, '--_src-root', '-_r')
+    if value then
+      D.src_root = value
+    end
+
+    -- use -_R -_st to see the result of the search
+    if remove_opt(obj.keys, '--_src-root-auto', '-_R') then
+      if D.find_src_root then
+        D.src_root = D.find_src_root(nil, 2)
+      end
+    end
+
+    -- test output via dprint
+    value = remove_opt(obj.keys, '--_debug_print', '-_p')
+    if value then
+      if not D.is_enabled(conf) then
+        if D.is_enabled() then
+          obj:print('[WARN] debug print is enabled for global scope')
+        end
+        obj:print('[WARN] debug print for cmd4lua is not enabled')
+        obj:print('       to enable for cmd4lua use --_debug [true cmd4lua]')
+      end
+      dprint(value)
+      stop()
+    end
+
+    value = remove_opt(obj.keys, '--_echo', '-_E')
+    if value then
+      obj:print('[ECHO]' .. '(' .. type(value) .. ')' .. D.inspect(value))
+      stop()
+    end
+
+    if remove_opt(obj.keys, '--_fix-print', '-_F') then
+      local msg
+      if obj.print_callback ~= _G.print then
+        obj.print_callback = _G.print
+        msg = 'Fixed'
+      else
+        msg = 'Alredy _G.print'
+      end
+      obj:print(msg)
+      stop()
+    end
+
+    if remove_opt(obj.keys, '--_throw-error', '-_T') then
+      error('stop-execution')
+      stop()
+    end
+
+    -- must be at the end after all optionals keys have been applied
+    if remove_opt(obj.keys, '--_status', '-_S') then
+      obj:print(M.status(obj))
+      stop()
+    end
+
+    return obj
+  end
+end
+
+-- for parser.update_cli_input
+-- to enable debug print(dprint) in cli-app in pre-parsing stage
+function M.is_debug_key(arg)
+  return arg == '-_d' or arg == '--_debug'
+end
+
+--
+-- for -_d | --_debug
+-- --_debug <boolean>  defualt is true
+-- turn on|off global debug-mode for dprint
+--
+-- to disable only one specific module use: --_debug [false cmd4lua]
+--
+---@param value string|nil
+function M.set_debug(obj, value)
+  if type(value) == 'table' then
+    M.set_dprint_for_modules(obj, value)
+    --
+  elseif value then
+    -- global dprint scope
+    local enable = bool_or_def(value, true)
+    if enable and not D.is_enabled() then
+      D.enable()
+    elseif not enable and D.is_enabled() then
+      D.disable()
+    end
+  end
+end
+
+--
+-- UseCase: provide ability to enable|disable dprint for specified module
+-- for all application not only for cmd4lua module
+--
+-- enabledebug-print for given in list module names:
+--
+-- -_debug [ true cmd4lua.parser pkg.module ...]
+--
+---@param modules table<string> first word must be a boolean to enabdle
+function M.set_dprint_for_modules(obj, modules)
+  if type(modules) == 'table' then
+    local enable = nil
+
+    for i, e in pairs(modules) do
+      if i == 1 then
+        enable = bool_or_def(e, nil)
+        if enable == nil then
+          obj:print('[ERROR] Expected enabled flag for dprint')
+          obj:print('First word in list - must be a boolean or 1/0')
+          return
+        end
+      elseif type(e) == 'string' then
+        if e == 'cmd4lua' then
+          e = 'cmd4lua.settings' -- dprint for cmd4lua are stored here
+        end
+        -- try to load module by name
+        local ok, mod = pcall(require, e)
+        if ok and type(mod) == 'table' then
+          obj:print('dprint for: ' .. tostring(e) .. ' is ' .. tostring(enable))
+          D.enable_module(mod, enable)
+        elseif obj then
+          obj:print('Cannot find a module:' .. tostring(e))
+        end
+      end
+    end
+
+    return
+  end
+end
+
+--
+-- show overridden functions and userdata
+--
+---@param w Cmd4Lua
+function M.status(w)
+  local current = w.interface
+  w.interface = {}
+  w:_setup_interfaces() -- gen defaults
+  local default = w.interface
+  w.interface = current -- restore
+
+  local res, max = '', 0
+
+  res = '_G.print: ' .. tostring(_G.print) .. "\n"
+
+  for k, _ in pairs(current) do if #k > max then max = #k end end
+
+  for key, value in pairs(current) do
+    local state, val0 = 'overridden', value
+
+    if value == default[key] then
+      val0 = default[key]
+      state = 'standard'
+      if val0 == _G.print then
+        val0 = tostring(val0) .. ' (_G.print)'
+      end
+    end
+
+    if val0 == w then val0 = 'self' end
+
+    res = res .. string.format("%-" .. max .. "s  %-11s  %s\n",
+      key, state, tostring(val0)
+    )
+  end
+
+  res = res .. "\n" .. string.format(
+    "hints: %s devmod: %s\n" ..
+    "dprint: '%s' is enabled: %s  src-root: %s\n" ..
+    "dprint for cmd4lua: %s  dprint for cmd4lua.parser: %s\n",
+    tostring(conf.show_help_hints), tostring(conf.devmode),
+    tostring(D._VERSION), tostring(D.is_enabled()), tostring(D.src_root),
+    tostring(D.is_enabled(conf)),
+    tostring(D.is_enabled('cmd4lua.parser'))
+  )
+  return res
+end
+
+--------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------
+--         Dev Interfaces for overriding by own implementation
+-------------------------------------------------------------------------------
+
+--
+-- Apply implementations and overriding
+--
+---@param obj table|false
+---@param t table - implementations table with functions to override in Cmd4Lua
+function M.apply_implementations(obj, t)
+  assert(type(t) == 'table', 't')
+  assert(obj == false or base.is_instanceof_cmd4lua(obj), 'Cmd4Lua expected')
+
+  local applied = 0
+
+  local function override(funcname)
+    assert(type(funcname) == 'string', 'funcname')
+    local func = t[funcname]
+
+    if func and type(func) == 'function' then
+      dprint('found implementation for ', funcname)
+      obj.interface[funcname] = func
+      -- pass object for print_userdata (then print is a method of object)
+      local userdata = funcname .. '_userdata'
+      if type(t[userdata]) == 'table' then
+        obj.interface[userdata] = t[userdata]
+      end
+      applied = applied + 1
+    end
+  end
+
+  override('parse_line')
+  override('print_callback')
+  override('generate_handle')
+  override('fix_input_callback')
+
+  dprint('Implementations Applied:', applied)
+  return applied
+end
+
+--
+-- simple "subscribe" to event
+--
+---@param args table - the args(cmd) to this handler
+-- this args passed from a value of the -_G key and by design it used to create
+-- Cmd4Lua for customize own handler
+--
+---@param state Cmd4Lua -- data to handle
+---@diagnostic disable-next-line: unused-local
+function M.generate_handle(args, state)
+  dprint('built-in generate_handle')
+  print([[
+
+This is an interface function - to be overridden by your own implementation
+Usage Example:
+  local Cmd4Lua = require(cmd4lua)
+  M = {
+    generate_handle = function(args, obj)
+    -- your code here
+    end
+  }
+
+  local w = Cmd4Lua.of(args, M)
+    :cmd('first-cmd')
+    :run()
+
+]])
+  return true
+end
+
+--
+-- fix input "on the fly" i.g. for UI
+--
+-- fires when a command is expected but the entered argument
+-- is not one of the known commands
+--
+-- Objective: Provide a way to correct incorrect input
+-- without breaking the chain of execution of a series of nested commands
+--
+-- This can be useful for creating an interactive visual selection of the
+-- desired command when specified incorrectly input.
+-- So that you don't have to completely retype the entire command
+-- from a long nested path
+--
+---@param self Cmd4Lua
+---@return string|nil
+function M.fix_input_callback(self)
+  dprint('[DEFAULT] fix_input_callback', self ~= nil)
+  -- self.original_input
+  -- request new input via UI
+  -- return new_input or nil
+end
+
+--
+-------------------------------------------------------------------------------
+--                             Dev Helpers
+-------------------------------------------------------------------------------
+
+--
+-- Proxy to call you own implementation of the M.Interfaces.generate_handle function
+--
+---@param obj table
+function M.dev_generate(obj)
+  if obj and obj.dev_generate_cmd then
+    dprint("call generate_handle")
+    assert(type(obj.interface) == 'table', 'obj.inreface')
+    return obj.interface.generate_handle(obj.dev_generate_cmd, obj)
+  end
+end
+
+-- export locals for test
+if _G._TEST then
+  --   -- setup test alias for private elements using a modified name
+  M._remove_opt = remove_opt
+end
+
+return M

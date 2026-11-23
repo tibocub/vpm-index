@@ -1,0 +1,274 @@
+local cjson = require("cjson")
+local types
+types = require("tableshape").types
+local response_mt = {
+  __index = {
+    get_output_text = function(self)
+      local parts = { }
+      if self.output then
+        local _list_0 = self.output
+        for _index_0 = 1, #_list_0 do
+          local block = _list_0[_index_0]
+          if block.content then
+            local _list_1 = block.content
+            for _index_1 = 1, #_list_1 do
+              local item = _list_1[_index_1]
+              if item.type == "output_text" and item.text then
+                table.insert(parts, item.text)
+              end
+            end
+          end
+        end
+      elseif self.content then
+        local _list_0 = self.content
+        for _index_0 = 1, #_list_0 do
+          local item = _list_0[_index_0]
+          if item.type == "output_text" and item.text then
+            table.insert(parts, item.text)
+          end
+        end
+      end
+      return table.concat(parts)
+    end,
+    get_images = function(self)
+      local images = { }
+      if self.output then
+        local _list_0 = self.output
+        for _index_0 = 1, #_list_0 do
+          local block = _list_0[_index_0]
+          if block.type == "image_generation_call" and block.result then
+            table.insert(images, {
+              b64_json = block.result
+            })
+          end
+        end
+      end
+      return images
+    end
+  },
+  __tostring = function(self)
+    return self:get_output_text()
+  end
+}
+local response_chunk_mt = {
+  __tostring = function(self)
+    return self.content or ""
+  end
+}
+local add_response_helpers
+add_response_helpers = function(response)
+  if response then
+    setmetatable(response, response_mt)
+  end
+  return response
+end
+local empty = (types["nil"] + types.literal(cjson.null)):describe("nullable")
+local input_content_item = types.one_of({
+  types.partial({
+    type = "input_text",
+    text = types.string
+  }),
+  types.partial({
+    type = "input_image",
+    image_url = types.string
+  }),
+  types.partial({
+    type = "input_file",
+    file_id = types.string
+  }),
+  types.partial({
+    type = "input_file",
+    file_url = types.string
+  }),
+  types.partial({
+    type = "input_file",
+    file_data = types.string,
+    filename = types.string
+  })
+})
+local function_call_output_item = types.partial({
+  type = types.literal("function_call_output"),
+  call_id = types.string,
+  output = types.string
+})
+local input_message = types.partial({
+  role = types.one_of({
+    "system",
+    "developer",
+    "user",
+    "assistant"
+  }),
+  content = types.string + types.array_of(input_content_item)
+})
+local input_format = types.string + types.array_of(input_message + function_call_output_item)
+local content_item = types.one_of({
+  types.partial({
+    type = "output_text",
+    text = types.string,
+    annotations = empty + types.array_of(types.table),
+    logprobs = empty + types.table
+  }),
+  types.partial({
+    type = "input_text",
+    text = types.string,
+    annotations = empty + types.array_of(types.table),
+    logprobs = empty + types.table
+  }),
+  types.partial({
+    type = "tool_use",
+    id = types.string,
+    name = types.string,
+    input = types.table
+  })
+})
+local response_message = types.partial({
+  id = empty + types.string,
+  type = types.literal("message"),
+  role = types.literal("assistant") + types.string,
+  content = types.array_of(content_item),
+  status = empty + types.string
+})
+local function_call_item = types.partial({
+  id = empty + types.string,
+  type = types.literal("function_call"),
+  name = types.string,
+  arguments = types.string,
+  call_id = types.string,
+  status = empty + types.string
+})
+local other_output_item = types.partial({
+  type = types.string
+})
+local output_item = response_message + function_call_item + other_output_item
+local parse_responses_response = types.partial({
+  id = types.string:tag("id"),
+  object = empty + types.literal("response"):tag("object"),
+  output = types.array_of(output_item):tag("output"),
+  model = empty + types.string:tag("model"),
+  usage = empty + types.table:tag("usage"),
+  status = empty + types.string:tag("status")
+})
+local ResponsesChatSession
+do
+  local _class_0
+  local _base_0 = {
+    send = function(self, input, opts)
+      if opts == nil then
+        opts = { }
+      end
+      if type(opts) == "function" then
+        opts = {
+          stream_callback = opts
+        }
+      end
+      local stream_callback = opts.stream_callback
+      local request_opts = {
+        stream = stream_callback and true or nil
+      }
+      for k, v in pairs(opts) do
+        if k ~= "stream_callback" then
+          request_opts[k] = v
+        end
+      end
+      return self:create_response(input, request_opts, stream_callback)
+    end,
+    create_response = function(self, input, opts, stream_callback)
+      if opts == nil then
+        opts = { }
+      end
+      if stream_callback == nil then
+        stream_callback = nil
+      end
+      assert(input, "input must be provided")
+      assert(input_format(input))
+      local merged_opts = {
+        conversation = self.conversation
+      }
+      for k, v in pairs(self.opts) do
+        if not (k == "conversation" or k == "previous_response_id") then
+          merged_opts[k] = v
+        end
+      end
+      if opts then
+        for k, v in pairs(opts) do
+          merged_opts[k] = v
+        end
+      end
+      if not (merged_opts.conversation or merged_opts.previous_response_id) then
+        merged_opts.previous_response_id = self.current_response_id
+      end
+      if stream_callback then
+        merged_opts.stream = merged_opts.stream or true
+      end
+      local accumulated_text = { }
+      local final_response = nil
+      local wrapped_callback
+      if merged_opts.stream then
+        wrapped_callback = function(chunk)
+          local _exp_0 = chunk.type
+          if "response.output_text.delta" == _exp_0 then
+            table.insert(accumulated_text, chunk.delta)
+            if stream_callback then
+              return stream_callback(setmetatable({
+                content = chunk.delta
+              }, response_chunk_mt), chunk)
+            end
+          elseif "response.completed" == _exp_0 then
+            if type(chunk.response) == "table" then
+              local parsed = parse_responses_response(chunk.response)
+              if parsed then
+                add_response_helpers(parsed)
+                final_response = parsed
+              end
+            end
+          end
+        end
+      end
+      local status, response = self.client:create_response(input, merged_opts, wrapped_callback)
+      if status ~= 200 then
+        return nil, "Request failed with status: " .. tostring(status), response
+      end
+      if merged_opts.stream then
+        if final_response then
+          self.current_response_id = final_response.id
+          table.insert(self.response_history, final_response)
+        end
+        return table.concat(accumulated_text)
+      end
+      local parsed_response, err = parse_responses_response(response)
+      if not (parsed_response) then
+        return nil, "Failed to parse response: " .. tostring(err), response
+      end
+      add_response_helpers(parsed_response)
+      self.current_response_id = parsed_response.id
+      table.insert(self.response_history, parsed_response)
+      return parsed_response
+    end
+  }
+  _base_0.__index = _base_0
+  _class_0 = setmetatable({
+    __init = function(self, client, opts)
+      if opts == nil then
+        opts = { }
+      end
+      self.client, self.opts = client, opts
+      self.response_history = { }
+      self.current_response_id = self.opts.previous_response_id
+      self.conversation = self.opts.conversation
+    end,
+    __base = _base_0,
+    __name = "ResponsesChatSession"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  ResponsesChatSession = _class_0
+end
+return {
+  ResponsesChatSession = ResponsesChatSession
+}

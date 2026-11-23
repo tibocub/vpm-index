@@ -1,0 +1,168 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-escher",
+  "versions": {
+    "4.0.2-1": {
+      "bin": [],
+      "deps": [
+        "date 2.1.2-1",
+        "classic 0.1.0-1",
+        "escher 0.4.0-1",
+        "lbase64 20120820-1",
+        "kong-lib-logger >= 0.3.0-1",
+        "lua-easy-crypto 1.0.0"
+      ],
+      "files": {
+        "kong/plugins/escher/access.lua": {
+          "sha256": "552505e97a4a5ef0f0496b3faecc4b40e107aecd930086f32f0a81b894f6c3da",
+          "size": 3138,
+          "url": "blob:552505e97a4a5ef0f0496b3faecc4b40e107aecd930086f32f0a81b894f6c3da"
+        },
+        "kong/plugins/escher/api.lua": {
+          "sha256": "f55bb1f84ce99e103319d37eff05de782903610306c382dd188460aeb6345d37",
+          "size": 2504,
+          "url": "blob:f55bb1f84ce99e103319d37eff05de782903610306c382dd188460aeb6345d37"
+        },
+        "kong/plugins/escher/cache_warmer.lua": {
+          "sha256": "2e8ad57391c34bc2d65f81bbabbddd8a811102174796595a479df801b2d6b697",
+          "size": 563,
+          "url": "blob:2e8ad57391c34bc2d65f81bbabbddd8a811102174796595a479df801b2d6b697"
+        },
+        "kong/plugins/escher/consumer_db.lua": {
+          "sha256": "39700e1659c6fa66666a3831b696eb04109c9f0a9c227b4c6891dc2554c95cd4",
+          "size": 916,
+          "url": "blob:39700e1659c6fa66666a3831b696eb04109c9f0a9c227b4c6891dc2554c95cd4"
+        },
+        "kong/plugins/escher/crypt.lua": {
+          "sha256": "81d1a94912fd241c112d85a2ac4d45b80d936b10b6ec1eb4aa010f2afce160fb",
+          "size": 1395,
+          "url": "blob:81d1a94912fd241c112d85a2ac4d45b80d936b10b6ec1eb4aa010f2afce160fb"
+        },
+        "kong/plugins/escher/daos.lua": {
+          "sha256": "94e81e7a03a47bcb64f31512ac041af46c4e35099ba7f7cbd6a294728b4f812d",
+          "size": 613,
+          "url": "blob:94e81e7a03a47bcb64f31512ac041af46c4e35099ba7f7cbd6a294728b4f812d"
+        },
+        "kong/plugins/escher/encryption_key_path_retriever.lua": {
+          "sha256": "38519fad8393c7bc8c3993c2c3cdf207e9de827f81c20f28545822d889d98550",
+          "size": 541,
+          "url": "blob:38519fad8393c7bc8c3993c2c3cdf207e9de827f81c20f28545822d889d98550"
+        },
+        "kong/plugins/escher/escher_factory.lua": {
+          "sha256": "0825d1031f356768efc731be79aee7e8a7ebe9089c7095ab021798f4cbf07357",
+          "size": 382,
+          "url": "blob:0825d1031f356768efc731be79aee7e8a7ebe9089c7095ab021798f4cbf07357"
+        },
+        "kong/plugins/escher/escher_wrapper.lua": {
+          "sha256": "b633938975e43677d5a6162cb476a5375f6411306a9a4810290daf7c121e433b",
+          "size": 1618,
+          "url": "blob:b633938975e43677d5a6162cb476a5375f6411306a9a4810290daf7c121e433b"
+        },
+        "kong/plugins/escher/handler.lua": {
+          "sha256": "5abf546f1824dd3d4fafe16ec8165c286e434254fb062d9a7c3297e276e6609e",
+          "size": 1428,
+          "url": "blob:5abf546f1824dd3d4fafe16ec8165c286e434254fb062d9a7c3297e276e6609e"
+        },
+        "kong/plugins/escher/init_worker.lua": {
+          "sha256": "2e4e40e0e5bca0d65a602c7830aa6384f8c27265bb19ec5a18593c64d2b86e23",
+          "size": 570,
+          "url": "blob:2e4e40e0e5bca0d65a602c7830aa6384f8c27265bb19ec5a18593c64d2b86e23"
+        },
+        "kong/plugins/escher/key_db.lua": {
+          "sha256": "c23dd24fce771f34cfcf7e9c95c6bfcacce0bed833f18fb148d4354036a6d05e",
+          "size": 1247,
+          "url": "blob:c23dd24fce771f34cfcf7e9c95c6bfcacce0bed833f18fb148d4354036a6d05e"
+        },
+        "kong/plugins/escher/migrations/000_base_escher.lua": {
+          "sha256": "881d454df202cc80f53d4748a8dc469006014a467e3bd564c1afc45a8074fa6b",
+          "size": 937,
+          "url": "blob:881d454df202cc80f53d4748a8dc469006014a467e3bd564c1afc45a8074fa6b"
+        },
+        "kong/plugins/escher/migrations/init.lua": {
+          "sha256": "4c136ba6e37c17bd8a4e24f13d758f915f99915d2b8016ead324134e222d9c77",
+          "size": 32,
+          "url": "blob:4c136ba6e37c17bd8a4e24f13d758f915f99915d2b8016ead324134e222d9c77"
+        },
+        "kong/plugins/escher/plugin_config.lua": {
+          "sha256": "2e97b9040ed5fe7d2f7b9e0b8d7fe62f8a8c68b70c2ec0000f47c4e882b125a5",
+          "size": 903,
+          "url": "blob:2e97b9040ed5fe7d2f7b9e0b8d7fe62f8a8c68b70c2ec0000f47c4e882b125a5"
+        },
+        "kong/plugins/escher/request_elements.lua": {
+          "sha256": "165bb84d9919956b98d6e79c2101eed4fec1469708cb9787d823760f16d47b3e",
+          "size": 421,
+          "url": "blob:165bb84d9919956b98d6e79c2101eed4fec1469708cb9787d823760f16d47b3e"
+        },
+        "kong/plugins/escher/schema.lua": {
+          "sha256": "21d661931543773febde6e4a65fd26ee8cef8a6c309757d7b76514aaa41b8c6d",
+          "size": 3609,
+          "url": "blob:21d661931543773febde6e4a65fd26ee8cef8a6c309757d7b76514aaa41b8c6d"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-escher",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 02 Apr 2020 11:49:34 GMT",
+        "rockspec": {
+          "date": "Thu, 02 Apr 2020 11:49:34 GMT",
+          "sha256": "0b0653600507e3f8c1b749d1b8f24568730f57e06c346e118d9873134c03cc5e",
+          "size": 1968
+        },
+        "src": {
+          "date": "Thu, 02 Apr 2020 11:49:36 GMT",
+          "sha256": "c2728bc0f7992f81d3b0b98044ba29ab9ab344b269a65a83f65eb48b3f572b55",
+          "size": 31026,
+          "url": "https://luarocks.org/kong-plugin-escher-4.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.escher.access",
+        "kong.plugins.escher.api",
+        "kong.plugins.escher.cache_warmer",
+        "kong.plugins.escher.consumer_db",
+        "kong.plugins.escher.crypt",
+        "kong.plugins.escher.daos",
+        "kong.plugins.escher.encryption_key_path_retriever",
+        "kong.plugins.escher.escher_factory",
+        "kong.plugins.escher.escher_wrapper",
+        "kong.plugins.escher.handler",
+        "kong.plugins.escher.init_worker",
+        "kong.plugins.escher.key_db",
+        "kong.plugins.escher.migrations",
+        "kong.plugins.escher.migrations.000_base_escher",
+        "kong.plugins.escher.plugin_config",
+        "kong.plugins.escher.request_elements",
+        "kong.plugins.escher.schema"
+      ],
+      "origin": {
+        "date": "Thu, 02 Apr 2020 11:49:36 GMT",
+        "sha256": "c2728bc0f7992f81d3b0b98044ba29ab9ab344b269a65a83f65eb48b3f572b55",
+        "size": 31026,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-escher-4.0.2-1.src.rock"
+      },
+      "size": 20817,
+      "summary": "Escher auth plugin for Kong API gateway.",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.constants",
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

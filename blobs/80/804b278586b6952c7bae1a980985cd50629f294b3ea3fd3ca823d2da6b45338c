@@ -1,0 +1,24 @@
+--An annotation collection.
+local Annots = {}
+Annots.__index = Annots
+package.loaded[...] = Annots
+
+--Constructor.
+function Annots.new()
+  return setmetatable({_items={}}, Annots)
+end
+
+--Check whether an annotation exists.
+function Annots:has(name)
+  return self._items[name] ~= nil
+end
+
+--Return an annotation.
+function Annots:find(name)
+  return self._items[name]
+end
+
+--Insert an annotation.
+function Annots:insert(annot)
+  self._items[annot.value] = annot
+end

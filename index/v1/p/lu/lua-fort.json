@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "lua-fort",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "fort.lua": {
+          "sha256": "c93adabc58063fa6381aec4abd9f422d133d191fc67c620580b6f0a3dfbe30ce",
+          "size": 15082,
+          "url": "blob:c93adabc58063fa6381aec4abd9f422d133d191fc67c620580b6f0a3dfbe30ce"
+        }
+      },
+      "homepage": "https://nathanrpage97.github.io/lua-fort",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 25 Dec 2023 00:57:06 GMT",
+        "rockspec": {
+          "date": "Mon, 25 Dec 2023 00:57:06 GMT",
+          "sha256": "80933be701881a4955164c413c1df018c1831e5d13f624646d4f973b82fe59fc",
+          "size": 1354
+        },
+        "src": {
+          "date": "Mon, 25 Dec 2023 00:57:07 GMT",
+          "sha256": "be30b575715c222efa9036881f37f5b2fc7c53fd56d4639e280e344253a88649",
+          "size": 110917,
+          "url": "https://luarocks.org/lua-fort-1.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "cfort",
+        "fort"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "FT_CONGIG_DISABLE_WCHAR"
+              ],
+              "name": "cfort",
+              "sources": [
+                "src/lfort.c",
+                "src/fort.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 25 Dec 2023 00:57:07 GMT",
+        "sha256": "be30b575715c222efa9036881f37f5b2fc7c53fd56d4639e280e344253a88649",
+        "size": 110917,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-fort-1.1.0-1.src.rock"
+      },
+      "size": 15082,
+      "summary": "A lua wrapper around the libfort ascii table c library",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "kind": "lib",
+  "name": "stuart-redis",
+  "versions": {
+    "0.2.1-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "stuart",
+        "reason": "source-extract"
+      },
+      "deps": [
+        "net-url ~> 0.9",
+        "stuart ~> 2"
+      ],
+      "files": {
+        "stuart-redis.lua": {
+          "sha256": "a58883c2144273b7b9bc5be7b91689e35ae2b4b7111903906bfa6533aa74c89c",
+          "size": 472,
+          "url": "blob:a58883c2144273b7b9bc5be7b91689e35ae2b4b7111903906bfa6533aa74c89c"
+        },
+        "stuart-redis/RedisConfig.lua": {
+          "sha256": "11d0d8f324be5b1690f63bafc0310bfdfdc276922cf952c69e99a4e002f3f735",
+          "size": 809,
+          "url": "blob:11d0d8f324be5b1690f63bafc0310bfdfdc276922cf952c69e99a4e002f3f735"
+        },
+        "stuart-redis/RedisContext.lua": {
+          "sha256": "834b3e5fe0b0bde5b45bacf13aa9da012dfeee40bf884c7f1b44fb37e3f0fff4",
+          "size": 138,
+          "url": "blob:834b3e5fe0b0bde5b45bacf13aa9da012dfeee40bf884c7f1b44fb37e3f0fff4"
+        },
+        "stuart-redis/RedisEmbeddedContext.lua": {
+          "sha256": "5abffe4de2c6482e570a160c3c9f6581942464e0a62703185ed65543ecd6feac",
+          "size": 6462,
+          "url": "blob:5abffe4de2c6482e570a160c3c9f6581942464e0a62703185ed65543ecd6feac"
+        },
+        "stuart-redis/RedisEndpoint.lua": {
+          "sha256": "200107562f8174493e78330708d25b43780dc5b6d376154cd33aa830bd79c363",
+          "size": 1413,
+          "url": "blob:200107562f8174493e78330708d25b43780dc5b6d376154cd33aa830bd79c363"
+        },
+        "stuart-redis/RedisRemoteContext.lua": {
+          "sha256": "4b64a83226f5c0d15a9a12b121070d4bf0ef9abd98f5308cf2d748c8d86f6c92",
+          "size": 8473,
+          "url": "blob:4b64a83226f5c0d15a9a12b121070d4bf0ef9abd98f5308cf2d748c8d86f6c92"
+        },
+        "stuart-redis/streaming/PubSubReceiver.lua": {
+          "sha256": "2b0bd4f2437600ba8c89d12334cb7865ff8addb5c7e1f729e8ecfee0b49fbd65",
+          "size": 1733,
+          "url": "blob:2b0bd4f2437600ba8c89d12334cb7865ff8addb5c7e1f729e8ecfee0b49fbd65"
+        }
+      },
+      "homepage": "https://gitlab.com/megalithic-llc/stuart-redis",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 11 Nov 2021 14:31:15 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Nov 2021 14:31:15 GMT",
+          "sha256": "7e346f0a8e794430a7eea9ab6d521c7c39ce5813ddb9ea7d1e5ba2cba29a2058",
+          "size": 1338
+        },
+        "src": {
+          "date": "Thu, 11 Nov 2021 14:31:15 GMT",
+          "sha256": "66668f1672de32f5fef97cdad43cd1219bc76202dc311f5c2f3f1d3985576acf",
+          "size": 110429,
+          "url": "https://luarocks.org/stuart-redis-0.2.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "stuart-redis",
+        "stuart-redis.RedisConfig",
+        "stuart-redis.RedisContext",
+        "stuart-redis.RedisEmbeddedContext",
+        "stuart-redis.RedisEndpoint",
+        "stuart-redis.RedisRemoteContext",
+        "stuart-redis.streaming.PubSubReceiver"
+      ],
+      "origin": {
+        "sha256": "3178387a1bf31aa586f260796cf860971468049bc3afddf8da38ba5fb85e8562",
+        "type": "archive",
+        "url": "https://gitlab.com/megalithic-llc/stuart-redis/-/archive/0.2.1-0/stuart-redis-0.2.1-0.tar.gz"
+      },
+      "size": 19500,
+      "summary": "Redis support for Stuart, the Spark runtime for embedding & edge computing",
+      "undeclared_requires": [
+        "stuart",
+        "stuart.Context",
+        "stuart.SparkConf",
+        "stuart.interface",
+        "stuart.internal.logging",
+        "stuart.streaming.Receiver"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

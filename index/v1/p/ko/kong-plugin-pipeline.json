@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-pipeline",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/pipeline/handler.lua": {
+          "sha256": "9813c519c043a38ba43d2112ea097225747eed551387ed10240df2cfc2f1c7e5",
+          "size": 1593,
+          "url": "https://raw.githubusercontent.com/Kong-Study-Group/kong-plugin-pipeline/7b01dfef3f2bcc1f10abcc46efef7946e3237e24/kong/plugins/pipeline/handler.lua"
+        },
+        "kong/plugins/pipeline/schema.lua": {
+          "sha256": "615f2a7eb82452aa0e43e57911f8d9d2a10c6e9678f24f7821ca308de7299d17",
+          "size": 27,
+          "url": "https://raw.githubusercontent.com/Kong-Study-Group/kong-plugin-pipeline/7b01dfef3f2bcc1f10abcc46efef7946e3237e24/kong/plugins/pipeline/schema.lua"
+        },
+        "spec/pipilne/01-access_spec.lua": {
+          "sha256": "e791eae48b75d623039cca192e4733980bc5f6d587f0ff35f27db2a56e5cc94c",
+          "size": 3132,
+          "url": "https://raw.githubusercontent.com/Kong-Study-Group/kong-plugin-pipeline/7b01dfef3f2bcc1f10abcc46efef7946e3237e24/spec/pipilne/01-access_spec.lua"
+        }
+      },
+      "homepage": "https://github.com/Kong-Study-Group/kong-plugin-pipeline",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 26 Apr 2018 02:45:13 GMT",
+        "rockspec": {
+          "date": "Thu, 26 Apr 2018 02:45:13 GMT",
+          "sha256": "0ea481169d6cd62fd5ce03ce2a82a965d8d1b7b089c26cfb2156d13120c2e16f",
+          "size": 638
+        },
+        "src": {
+          "date": "Thu, 26 Apr 2018 02:45:15 GMT",
+          "sha256": "fcc9d20253fd8fd86258eeae91087aa6af80c1eca01a351fd3d046589f89433d",
+          "size": 4993,
+          "url": "https://luarocks.org/kong-plugin-pipeline-0.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.pipeline.handler",
+        "kong.plugins.pipeline.schema",
+        "spec.pipilne.01-access_spec"
+      ],
+      "origin": {
+        "commit": "7b01dfef3f2bcc1f10abcc46efef7946e3237e24",
+        "ref": "0.2.0",
+        "type": "git",
+        "url": "https://github.com/Kong-Study-Group/kong-plugin-pipeline"
+      },
+      "size": 4752,
+      "summary": "Kong custom plugin for hiting the specified upstream target",
+      "undeclared_requires": [
+        "kong.cmd.utils.log",
+        "kong.plugins.base_plugin",
+        "spec.helpers"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

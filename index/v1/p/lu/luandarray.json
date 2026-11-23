@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "luandarray",
+  "versions": {
+    "1.0.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "luandarray/init.lua": {
+          "sha256": "f4721fb66d3ea5007c101a8501a9eae2f916923cfc6d5d93c1299863cf808836",
+          "size": 4281,
+          "url": "blob:f4721fb66d3ea5007c101a8501a9eae2f916923cfc6d5d93c1299863cf808836"
+        }
+      },
+      "homepage": "https://github.com/ErickProgramer/LuaNdarray",
+      "license": "BSD 3-clause",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 18 Nov 2023 20:29:34 GMT",
+        "rockspec": {
+          "date": "Sat, 18 Nov 2023 20:29:34 GMT",
+          "sha256": "6a543c29d1c992fb7414440640a89fa92addf1cc11840af23341c19347529cf4",
+          "size": 1262
+        },
+        "src": {
+          "date": "Sat, 18 Nov 2023 20:29:38 GMT",
+          "sha256": "afe215347212238f6e684b76b2f8ef2129aa2f2a62aaa5a261a363b533127079",
+          "size": 432462,
+          "url": "https://luarocks.org/luandarray-1.0.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "luandarray",
+        "luandarray.core",
+        "luandarray.init"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "luandarray.core",
+              "sources": [
+                "multiarray/arraydims.c",
+                "multiarray/arrayindex.c",
+                "multiarray/arrayinis.c",
+                "multiarray/arrayobj.c",
+                "multiarray/arrayprint.c",
+                "multiarray/cinit.c",
+                "multiarray/converts.c",
+                "multiarray/nlaux.c",
+                "multiarray/arraymath.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 18 Nov 2023 20:29:38 GMT",
+        "sha256": "afe215347212238f6e684b76b2f8ef2129aa2f2a62aaa5a261a363b533127079",
+        "size": 432462,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luandarray-1.0.0-2.src.rock"
+      },
+      "size": 4281,
+      "summary": "Ndarray manipulation quickly and optimally",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "ok",
+        "total": 3
+      }
+    }
+  }
+}

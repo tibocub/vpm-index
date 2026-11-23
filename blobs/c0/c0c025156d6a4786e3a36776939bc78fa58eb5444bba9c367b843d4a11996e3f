@@ -1,0 +1,22 @@
+-- Seedream6App (Lua module)
+-- Seedream 6.0 official website backlink rock.
+
+local M = {}
+
+M.VERSION = "0.1.0"
+M.WEBSITE = "https://www.seedream6.app"
+
+function M.info()
+  return {
+    name = "Seedream6App",
+    version = M.VERSION,
+    website = M.WEBSITE,
+    description = "Seedream 6.0 official website backlink rock."
+  }
+end
+
+function M.website()
+  return M.WEBSITE
+end
+
+return M

@@ -1,0 +1,227 @@
+local core = require("fd_tls.core")
+local ok_cqueues, cqueues = pcall(require, "cqueues")
+
+local M = {}
+
+local function now()
+  if ok_cqueues and type(cqueues.monotime) == "function" then
+    return cqueues.monotime()
+  end
+  return os.time()
+end
+
+local function encode_alpn_wire(alpn)
+  -- OpenSSL expects ALPN as a sequence of length-prefixed protocol strings.
+  -- Keep that encoding in Lua so the C API can stay byte-buffer oriented.
+  if alpn == nil then
+    return nil
+  end
+  if type(alpn) ~= "table" then
+    error("alpn must be a table of protocol strings")
+  end
+  local out = {}
+  for i = 1, #alpn do
+    local p = tostring(alpn[i])
+    local len = #p
+    if len == 0 or len > 255 then
+      error("alpn values must be 1..255 bytes")
+    end
+    out[#out + 1] = string.char(len)
+    out[#out + 1] = p
+  end
+  if #out == 0 then
+    return nil
+  end
+  return table.concat(out)
+end
+
+local function normalize_opts(opts)
+  -- Security defaults are intentionally strict. libp2p-style callers that use
+  -- self-signed certs must opt into insecure_skip_chain_verify=true and then
+  -- authenticate get_peer_cert_der() themselves.
+  local o = opts or {}
+  local out = {
+    close_fd_on_close = o.close_fd_on_close == true,
+    restore_fd_flags_on_close = o.restore_fd_flags_on_close ~= false,
+    require_peer_cert = o.require_peer_cert ~= false,
+    insecure_skip_chain_verify = o.insecure_skip_chain_verify == true,
+    use_default_verify_paths = o.use_default_verify_paths ~= false,
+    cert_pem = o.cert_pem,
+    key_pem = o.key_pem,
+    ca_file = o.ca_file,
+    ca_path = o.ca_path,
+    alpn_wire = encode_alpn_wire(o.alpn),
+  }
+  return out
+end
+
+local function classify_error(err)
+  if err == nil then
+    return { kind = "unknown", message = "unknown error", retryable = false }
+  end
+  if err == "want_read" or err == "want_write" then
+    return { kind = err, message = err, retryable = true }
+  end
+  if err == "eof" or tostring(err):find("closed", 1, true) then
+    return { kind = "closed", message = tostring(err), retryable = false }
+  end
+  if tostring(err):find("handshake", 1, true) or tostring(err):find("certificate", 1, true) then
+    return { kind = "verify", message = tostring(err), retryable = false }
+  end
+  return { kind = "io", message = tostring(err), retryable = false }
+end
+
+local function poll_once(pollable, timeout)
+  if not ok_cqueues then
+    return nil, "cqueues is required for nonblocking helpers"
+  end
+  if pollable == nil then
+    return nil, "pollable is required"
+  end
+  local ok, err = cqueues.poll(pollable, timeout or 0.05)
+  if ok == nil and err ~= nil then
+    return nil, tostring(err)
+  end
+  return true
+end
+
+local Conn = {}
+Conn.__index = Conn
+
+function Conn:handshake_step()
+  -- One native handshake step. Retryable WANT states are converted to a small
+  -- table by classify_error so helpers can poll and resume.
+  local ok, err = self._raw:handshake()
+  if ok then
+    return true
+  end
+  return nil, classify_error(err)
+end
+
+function Conn:handshake_until(pollable, timeout_seconds)
+  -- Blocking-looking helper implemented with cqueues.poll. The native fd is
+  -- nonblocking, so this remains scheduler-friendly under cqueues.
+  local deadline = now() + (timeout_seconds or 5)
+  while now() < deadline do
+    local ok, err = self:handshake_step()
+    if ok then
+      return true
+    end
+    if not err.retryable then
+      return nil, err
+    end
+    local _, poll_err = poll_once(pollable)
+    if poll_err then
+      return nil, { kind = "io", message = poll_err, retryable = false }
+    end
+  end
+  return nil, { kind = "timeout", message = "handshake timeout", retryable = false }
+end
+
+function Conn:read_some(n)
+  local out, err = self._raw:read(n)
+  if out then
+    return out
+  end
+  return nil, classify_error(err)
+end
+
+function Conn:read_exact(n, pollable, timeout_seconds)
+  local deadline = now() + (timeout_seconds or 5)
+  local chunks = {}
+  local got = 0
+  while got < n and now() < deadline do
+    local out, err = self:read_some(n - got)
+    if out then
+      chunks[#chunks + 1] = out
+      got = got + #out
+    elseif err.retryable then
+      local _, poll_err = poll_once(pollable)
+      if poll_err then
+        return nil, { kind = "io", message = poll_err, retryable = false }
+      end
+    else
+      return nil, err
+    end
+  end
+  if got < n then
+    return nil, { kind = "timeout", message = "read timeout", retryable = false }
+  end
+  return table.concat(chunks)
+end
+
+function Conn:write_some(payload)
+  local wrote, err = self._raw:write(payload)
+  if wrote then
+    return wrote
+  end
+  return nil, classify_error(err)
+end
+
+function Conn:write_all(payload, pollable, timeout_seconds)
+  local deadline = now() + (timeout_seconds or 5)
+  local offset = 1
+  while offset <= #payload and now() < deadline do
+    local wrote, err = self:write_some(payload:sub(offset))
+    if wrote then
+      offset = offset + wrote
+    elseif err.retryable then
+      local _, poll_err = poll_once(pollable)
+      if poll_err then
+        return nil, { kind = "io", message = poll_err, retryable = false }
+      end
+    else
+      return nil, err
+    end
+  end
+  if offset <= #payload then
+    return nil, { kind = "timeout", message = "write timeout", retryable = false }
+  end
+  return true
+end
+
+function Conn:get_peer_cert_der()
+  return self._raw:get_peer_cert_der()
+end
+
+function Conn:get_alpn_selected()
+  return self._raw:get_alpn_selected()
+end
+
+function Conn:close()
+  return self._raw:close()
+end
+
+if core._TEST_O_NONBLOCK ~= nil then
+  function Conn:_test_get_fd_flags()
+    return self._raw:_test_get_fd_flags()
+  end
+end
+
+local function wrap(raw)
+  return setmetatable({ _raw = raw }, Conn)
+end
+
+function M.new_client(fd, opts)
+  local raw, err = core.new_client(fd, normalize_opts(opts))
+  if not raw then
+    return nil, err
+  end
+  return wrap(raw)
+end
+
+function M.new_server(fd, opts)
+  local raw, err = core.new_server(fd, normalize_opts(opts))
+  if not raw then
+    return nil, err
+  end
+  return wrap(raw)
+end
+
+M.VERSION = core.VERSION
+if core._TEST_O_NONBLOCK ~= nil then
+  M._TEST_O_NONBLOCK = core._TEST_O_NONBLOCK
+end
+M.classify_error = classify_error
+
+return M

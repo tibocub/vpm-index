@@ -1,0 +1,97 @@
+local xml2lua = require "xml2lua" -- https://github.com/manoelcampos/xml2lua
+local tree = require "xmlhandler.tree"
+
+local _RT = {}
+
+local function copy_array(array)
+  local array_copy = {}
+  for k, v in pairs(array) do
+    array_copy[k] = v
+  end
+  return array_copy
+end
+
+local function get_xml_block(block_path, xml)
+  if (#block_path == 0) then
+    return xml
+  end
+  if not xml then
+    return nil
+  end
+  local next_block = table.remove(block_path, 1)
+  return get_xml_block(block_path, xml[next_block])
+end
+
+local function remove_xml_block(block_path, xml)
+  if (#block_path == 0) then
+    return nil
+  end
+  local next_block = table.remove(block_path, 1)
+  xml[next_block] = remove_xml_block(block_path, xml[next_block])
+  return xml
+end
+
+local function set_basic_auth_header(conf, security_headers_block)
+  local basic_auth_block = security_headers_block[conf.basic_auth_block]
+  if not basic_auth_block then
+    return
+  end
+  local username = basic_auth_block[conf.basic_auth_username_block]
+  if not username then
+    return
+  end
+  local password = basic_auth_block[conf.basic_auth_password_block]
+  if not password then
+    return
+  end
+  password = password[1]
+  local authorization = username .. ':' .. password;
+  local authorization_base_64 = ngx.encode_base64(authorization);
+  kong.service.request.set_header('Authorization', 'Basic ' .. authorization_base_64)
+end
+
+local function set_oauth_token_header(conf, security_headers_block)
+  local bearer_token = 'TODO'
+  kong.service.request.set_header('Authorization', 'Bearer ' .. bearer_token)
+end
+
+function _RT.transform_soap_body(conf, soap_body)
+  if (soap_body == nil) or (soap_body == "") then
+    return nil, "cannot parse empty request body"
+  end
+
+  --kong.log.inspect(soap_body)
+
+  local handler = tree:new()
+  local parser = xml2lua.parser(handler)
+  local ok, err = pcall(parser.parse, parser, soap_body)
+  if not ok then
+    return nil, 'failed to parse request body: ' .. err
+  end
+
+  local request_body = handler.root
+  if (conf.security_block_path) then
+    local security_block = get_xml_block(copy_array(conf.security_block_path), request_body)
+
+    if not security_block then
+      return request_body
+    end
+
+    if (conf.basic_auth_block) then
+      set_basic_auth_header(conf, security_block)
+    elseif (conf.oauth_auth_block) then
+      -- TODO set bearer token authorization header
+      set_oauth_token_header(conf, security_block)
+    end
+
+    if (conf.remove_security_block) then
+      request_body = remove_xml_block(copy_array(conf.security_block_path), request_body)
+    end
+  end
+
+  --kong.log.inspect(request_body)
+
+  return request_body
+end
+
+return _RT

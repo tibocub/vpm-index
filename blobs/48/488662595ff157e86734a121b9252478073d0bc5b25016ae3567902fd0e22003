@@ -1,0 +1,26 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A const call.
+local ConstFn = {}
+ConstFn.__index = ConstFn
+setmetatable(ConstFn, {__index = Terminal})
+package.loaded[...] = ConstFn
+
+--Constructor.
+function ConstFn.new(ln, col, exp)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.CONST, {line=ln, col=col}), ConstFn)
+  self.exp = exp
+
+  --(2) return
+  return self
+end
+
+--@override
+function ConstFn:__tostring()
+  return string.format("(const %s)", tostring(self.exp))
+end

@@ -1,0 +1,105 @@
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local table = _tl_compat and _tl_compat.table or table
+
+local doc = require("cerulean.doc")
+local parser = require("cerulean.parser")
+
+local trivia_doc = {}
+
+
+
+
+function trivia_doc.partition(
+   trivia, anchor_line)
+
+   local same_line = nil
+   local off_line = {}
+   if trivia == nil then
+      return same_line, off_line
+   end
+   for index, comment in ipairs(trivia) do
+      if index == 1 and comment.y == anchor_line then
+         same_line = comment
+      else
+         table.insert(off_line, comment)
+      end
+   end
+   return same_line, off_line
+end
+
+
+
+
+local function joined(comments)
+   local parts = {}
+   for index, comment in ipairs(comments) do
+      if index > 1 then
+         table.insert(parts, doc.text(" "))
+      end
+      table.insert(parts, doc.text(comment.text))
+   end
+   return doc.concat(parts)
+end
+
+
+
+function trivia_doc.append_inline(parts, trivia)
+   if #trivia > 0 then
+      table.insert(parts, doc.text(" "))
+      table.insert(parts, joined(trivia))
+   end
+end
+
+
+
+function trivia_doc.append_leading(parts, leading)
+   if #leading > 0 then
+      table.insert(parts, joined(leading))
+      table.insert(parts, doc.text(" "))
+   end
+end
+
+
+
+function trivia_doc.append_inline_joined(parts, trivia)
+   if #trivia > 0 then
+      table.insert(parts, joined(trivia))
+   end
+end
+
+
+
+function trivia_doc.wrap_element(
+   element, leading, trailing)
+
+   local parts = {}
+   trivia_doc.append_leading(parts, leading)
+   table.insert(parts, element)
+   trivia_doc.append_inline(parts, trailing)
+   return doc.concat(parts)
+end
+
+
+
+function trivia_doc.emit_transition(
+   parts,
+   trivia,
+   anchor_line,
+   next_doc,
+   plain_separator)
+
+   local same_line, off_line = trivia_doc.partition(trivia, anchor_line)
+   if same_line then
+      table.insert(parts, doc.text(" " .. same_line.text))
+   end
+   for _, c in ipairs(off_line) do
+      table.insert(parts, doc.indent_hardline(doc.text(c.text)))
+   end
+   if same_line ~= nil or #off_line > 0 then
+      table.insert(parts, doc.indent_hardline(next_doc))
+   else
+      table.insert(parts, plain_separator)
+      table.insert(parts, next_doc)
+   end
+end
+
+return trivia_doc

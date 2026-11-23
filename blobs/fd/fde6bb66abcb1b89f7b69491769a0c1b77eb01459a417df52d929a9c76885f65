@@ -1,0 +1,237 @@
+local cqs = require"cqueues"
+local api = require"lacord.api"
+local shard = require"lacord.shard"
+local logger = require"lacord.util.logger"
+local util = require"lacord.util"
+local mutex = require"lacord.util.mutex"
+local promise = require"cqueues.promise"
+local signal = require"cqueues.signal"
+local emitter = require"lacord.x.event"
+local intents = require"lacord.util.intents"
+
+local traceback = debug.traceback
+local xpcall = xpcall
+local get = rawget
+local setmetatable = setmetatable
+local pairs = pairs
+local assert = assert
+local ipairs = ipairs
+local _ENV = {}
+
+local client = {__name = "lacord.x.client"}
+
+client.__index = client
+
+
+--- make wrapped coroutines report errors via a debug traceback
+local old_wrap do
+    old_wrap = cqs.interpose('wrap', function(self, ...)
+        return old_wrap(self, function(fn, ...)
+            local s, e = xpcall(fn, traceback, ...)
+            if not s then
+                logger.error(e)
+            end
+        end, ...)
+    end)
+end
+
+--- Creates a new client, which is a collection of various book-keeping tables tracking various discord objects.
+local empty_options = {}
+function new(token, options)
+    options = options or empty_options
+    local newc = setmetatable({
+        api = (options.api_init or api.init){
+            token = "Bot "..token
+           ,precision = "millisecond"
+           ,accept_encoding = true
+           ,track_ratelimits = false
+           ,route_delay = 0
+           ,api_timeout = options.api_timeout
+        }
+       ,shards = {}
+       ,loop = cqs.new()
+       ,identex = mutex.new()
+       ,options = options
+       ,events = { }
+       ,guilds = { }
+       ,receive = true
+       ,ready = emitter.new'ready'
+       ,has_ready = promise.new()
+       ,intents = options.intents or (intents.guilds | intents.guild_messages)
+    }, client)
+
+    -- set up some important events
+    newc:new_event'MESSAGE_CREATE'
+    newc:new_event'INTERACTION_CREATE'
+    newc:new_received'READY'
+    newc:new_received'GUILD_CREATE'
+    newc:new_received'GUILD_DELETE'
+    newc:new_received'DISCONNECT'
+    logger.info('Initialized %s', newc)
+    return newc
+end
+
+--- Creates a new event emitter and adds it to `client.events`.
+function client:new_event(name)
+    self.events[name] = emitter.new(name)
+end
+
+--- Creates a new event emitter and adds it to `client.events`. Then registers the client as an event reeiver.
+function client:new_received(name)
+    self.events[name] = emitter.new(name):listen(self)
+end
+
+--- Factory for gateway urls containing token reset checks.
+function client:refresher()
+    local function regenerate_gateway(ws)
+        local success , gateway, err = self.api:get_gateway_bot()
+        assert(success, err)
+        local limit = gateway.session_start_limit
+        logger.info("TOKEN-%s has used %d/%d sessions.",
+                util.hash(self.api.token),
+                limit.total - limit.remaining,
+                limit.total)
+
+        if limit.remaining == 0 then
+            logger.warn("TOKEN-%s can no longer identify, waiting for %.3f seconds",
+                util.hash(self.api.token),
+                limit.reset_after/1000)
+            cqs.sleep(limit.reset_after/1000)
+            return regenerate_gateway(ws)
+        else
+            return gateway.url
+        end
+    end
+    return regenerate_gateway
+end
+
+--- A little object to hold discord events.
+local ctx_meta = {__name = "lacord.x.eventcontext"}
+function ctx_meta:__index(k)
+    if k == 'shard_id' then return get(self, 1)
+    elseif k == 'event' then return get(self, 2)
+    end
+end
+
+local function context(...)
+    return setmetatable({...}, ctx_meta)
+end
+
+
+--- Factory which produces an event handler for our client.
+function client:eventer()
+    return function(s, t, event)
+        if self.events[t] then
+            self.events[t]:enqueue(context(s.options.id, event))
+        end
+    end
+end
+
+--- Blocks sigterm and sigint to gracefully disconnect shards and then let cqueues drop off.
+local function handlesignals(self)
+    signal.block(signal.SIGINT, signal.SIGTERM)
+    local sig = signal.listen(signal.SIGTERM, signal.SIGINT)
+    local int = sig:wait()
+    local reason = signal.strsignal(int)
+    logger.info("%s received (%d, %q); shutting down.", self, int, reason)
+    for _, s in pairs(self.shards) do
+        s:shutdown()
+    end
+    signal.unblock(signal.SIGINT, signal.SIGTERM)
+end
+
+--- Function which gets our bot's information and then connects the shards.
+local function runner(self)
+    local R = self.api
+        :capture()
+        :get_current_application_information()
+        :get_gateway_bot()
+    if R.success then
+        local gatewayinfo
+        self.app, gatewayinfo  = R:results()
+        self.numshards = gatewayinfo.shards
+        logger.info("starting %s with %d shards.", self, self.numshards)
+        local output = self:eventer()
+        local refresh = self:refresher()
+        for i = 0 , gatewayinfo.shards - 1 do
+            local s = shard.init({
+                token = self.api.token
+                ,id = i
+                ,gateway = refresh
+                ,compress = false
+                ,transport_compression = true
+                ,total_shard_count = gatewayinfo.shards
+                ,large_threshold = 100
+                ,auto_reconnect = true
+                ,loop = cqs.running()
+                ,output = output,
+                intents = self.intents
+            }, self.identex)
+            self.shards[i] = s
+            s:connect()
+        end
+        self.loop:wrap(handlesignals, self)
+    else
+        logger.error(R.error)
+    end
+end
+
+--- Use this to start the client, this will call :loop on the client's cqueues controller.
+function client:run()
+    self.loop:wrap(runner, self)
+    return assert(self.loop:loop())
+end
+
+--- Handles the READY shard event.
+-- This creates new promises for each of the guilds.
+-- This wakes anyone waiting for this client to be ready.
+function client:READY(ctx)
+    for _, ug in ipairs(ctx.event.guilds) do
+        if not self.guilds[ug.id] then
+            self.guilds[ug.id] = promise.new()
+        elseif self.guilds[ug.id]:status() ~= 'pending' then
+            self.guilds[ug.id] = promise.new()
+        end
+    end
+    self.ready:enqueue(ctx)
+    self.has_ready:set(true)
+end
+
+--- Handles the DISCONNECT shard event.
+-- This refreshes the ready promise.
+function client:DISCONNECT()
+    if self.has_ready:status() ~= 'pending' then
+        self.has_ready = promise.new()
+    end
+end
+
+--- Handles the GUILD_CREATE shard event.
+-- This sets the value of the guild, waking anyone waiting for that guild.
+function client:GUILD_CREATE(ctx)
+    if promise.type(self.guilds[ctx.event.id]) then
+        self.guilds[ctx.event.id]:set(true, ctx.event)
+    else
+        self.guilds[ctx.event.id] = promise.new()
+        self.guilds[ctx.event.id]:set(true, ctx.event)
+    end
+end
+
+--- Handles the GUILD_DELETE shard event.
+-- This will refresh any promised guilds if they are unavilable.
+function client:GUILD_DELETE(ctx)
+    if ctx.event.unavailable
+        and promise.type(self.guilds[ctx.event.id])
+        and self.guilds[ctx.event.id]:status() ~= 'pending' then
+            self.guilds[ctx.event.id] = promise.new()
+    else
+        self.guilds[ctx.event.id] = nil
+    end
+end
+
+--- Waits for a specific guild_id to become available.
+function client:wait_guild(guild_id)
+    if self.guilds[guild_id] then return self.guilds[guild_id]:get()
+    else self.has_ready:get() return self.guilds[guild_id]:get() end
+end
+
+return _ENV

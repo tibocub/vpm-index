@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-idempotency",
+  "versions": {
+    "1.1.3-1": {
+      "bin": [],
+      "deps": [
+        "redis-lua == 2.0.4-1"
+      ],
+      "files": {
+        "kong/plugins/idempotency/access.lua": {
+          "sha256": "5a2710b8d8eae7d9f1617ba62c2e0a920331844be9efdd7d5d0b660b8371a27c",
+          "size": 2996,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-idempotency/98dbe5c13cbf6e53ce87d54f56d27566179f72d5/kong/plugins/idempotency/access.lua"
+        },
+        "kong/plugins/idempotency/cache.lua": {
+          "sha256": "a7fdc747a320fbcc6aa92ddbca396515492f9027f44829976720a80e617ba41c",
+          "size": 2676,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-idempotency/98dbe5c13cbf6e53ce87d54f56d27566179f72d5/kong/plugins/idempotency/cache.lua"
+        },
+        "kong/plugins/idempotency/handler.lua": {
+          "sha256": "989ea33e6c03b5d181f1c71ead69d598f4522fa498880481129c069e359e0093",
+          "size": 370,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-idempotency/98dbe5c13cbf6e53ce87d54f56d27566179f72d5/kong/plugins/idempotency/handler.lua"
+        },
+        "kong/plugins/idempotency/response.lua": {
+          "sha256": "7a911ee8a5d893bd0db985d91aa0813c260f81194e8c11558e81cc388bc8c310",
+          "size": 1564,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-idempotency/98dbe5c13cbf6e53ce87d54f56d27566179f72d5/kong/plugins/idempotency/response.lua"
+        },
+        "kong/plugins/idempotency/schema.lua": {
+          "sha256": "3f7eb9d993dad2757aef7c94ba134c495009df6ee071ff3d6b9ed9dfb58a2299",
+          "size": 1079,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-idempotency/98dbe5c13cbf6e53ce87d54f56d27566179f72d5/kong/plugins/idempotency/schema.lua"
+        }
+      },
+      "homepage": "git://github.com/udleinati/kong-plugin-idempotency",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 29 Oct 2026 16:20:20 GMT",
+        "rockspec": {
+          "date": "Thu, 29 Oct 2026 16:20:20 GMT",
+          "sha256": "17891f892b10206c2785e33d920f114a8606d90c5a0e8e6935c6fe7cae2e4225",
+          "size": 901
+        },
+        "src": {
+          "date": "Thu, 29 Oct 2026 16:20:21 GMT",
+          "sha256": "0cbe9b245abaedd3f18259036e73d75a9967827ef63f9fd3df4b26500dcfeca1",
+          "size": 12442,
+          "url": "https://luarocks.org/kong-plugin-idempotency-1.1.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.idempotency.access",
+        "kong.plugins.idempotency.cache",
+        "kong.plugins.idempotency.handler",
+        "kong.plugins.idempotency.response",
+        "kong.plugins.idempotency.schema"
+      ],
+      "origin": {
+        "commit": "98dbe5c13cbf6e53ce87d54f56d27566179f72d5",
+        "ref": "1.1.3",
+        "type": "git",
+        "url": "https://github.com/udleinati/kong-plugin-idempotency"
+      },
+      "size": 8685,
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

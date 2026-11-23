@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "aesfileencrypt",
+  "versions": {
+    "0.1.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/moteus/lua-AesFileEncrypt",
+      "license": "GPL",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 13 Jan 2015 13:21:47 GMT",
+        "rockspec": {
+          "date": "Tue, 13 Jan 2015 13:21:47 GMT",
+          "sha256": "6c78d7157b6aae163fe961ece3c12255616b2a101dafed8e3cfe26bdf647a7cc",
+          "size": 1069
+        },
+        "src": {
+          "date": "Tue, 13 Jan 2015 13:28:35 GMT",
+          "sha256": "1158165102f9ab2a9ac3ed742fd0fe0c248d7037963a98d5886d6ebc498f1e9f",
+          "size": 72537,
+          "url": "https://luarocks.org/aesfileencrypt-0.1.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "AesFileEncrypt"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "USE_SHA1"
+              ],
+              "name": "AesFileEncrypt",
+              "sources": [
+                "src/fileenc/aescrypt.c",
+                "src/fileenc/aeskey.c",
+                "src/fileenc/aestab.c",
+                "src/fileenc/fileenc.c",
+                "src/fileenc/hmac.c",
+                "src/fileenc/aes_modes.c",
+                "src/fileenc/pwd2key.c",
+                "src/fileenc/sha1.c",
+                "src/AesFileEncrypt.c",
+                "src/l52util.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-AesFileEncrypt-0.1.3"
+      },
+      "origin": {
+        "date": "Tue, 13 Jan 2015 13:28:35 GMT",
+        "sha256": "1158165102f9ab2a9ac3ed742fd0fe0c248d7037963a98d5886d6ebc498f1e9f",
+        "size": 72537,
+        "type": "luarocks",
+        "url": "https://luarocks.org/aesfileencrypt-0.1.3-1.src.rock"
+      },
+      "summary": "A simple file encryption library",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

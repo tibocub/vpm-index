@@ -1,0 +1,114 @@
+{
+  "kind": "app",
+  "name": "lua-rote",
+  "versions": {
+    "1.2.1-1": {
+      "bin": {
+        "boxshell.lua": "bin/boxshell.lua"
+      },
+      "deps": [
+        "luaposix",
+        "lcurses"
+      ],
+      "files": {
+        "bin/boxshell.lua": {
+          "sha256": "2b0bb42e1d11559c19bd569c5e79b8325917b52ff662110930e3daddb97ec5c0",
+          "size": 2254,
+          "url": "blob:2b0bb42e1d11559c19bd569c5e79b8325917b52ff662110930e3daddb97ec5c0"
+        },
+        "rote/cursesConsts.lua": {
+          "sha256": "4f70df6ad4834053509b172388d489de69eb9522969b9e400cc162f540e3feea",
+          "size": 1432,
+          "url": "blob:4f70df6ad4834053509b172388d489de69eb9522969b9e400cc162f540e3feea"
+        }
+      },
+      "homepage": "https://starius.github.io/lua-rote",
+      "license": "LGPL 2.1",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 28 Feb 2016 16:45:34 GMT",
+        "rockspec": {
+          "date": "Sun, 28 Feb 2016 16:45:34 GMT",
+          "sha256": "880dce891ee92991e9e1b7bed8dd0c199a9763860f08f2ffc8bf615d5814163c",
+          "size": 3028
+        },
+        "src": {
+          "date": "Sun, 28 Feb 2016 16:45:35 GMT",
+          "sha256": "893481e76188c5f37afeb9f98f80497c479e5de033e5ffb8fc93f3c1daf5493a",
+          "size": 36176,
+          "url": "https://luarocks.org/lua-rote-1.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "rote",
+        "rote.cursesConsts"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "CURSES",
+          "ROTE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "CURSES": {
+              "header": "curses.h"
+            },
+            "ROTE": {
+              "header": "rote/rote.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(ROTE_INCDIR)",
+                "$(CURSES_INCDIR)"
+              ],
+              "libdirs": [
+                "$(ROTE_LIBDIR)"
+              ],
+              "libraries": [
+                "rote"
+              ],
+              "name": "rote",
+              "sources": [
+                "src/rote.c",
+                "src/attr.c",
+                "src/color.c",
+                "src/ncurses.c",
+                "src/lua-rote.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 28 Feb 2016 16:45:35 GMT",
+        "sha256": "893481e76188c5f37afeb9f98f80497c479e5de033e5ffb8fc93f3c1daf5493a",
+        "size": 36176,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-rote-1.2.1-1.src.rock"
+      },
+      "size": 3686,
+      "summary": "Lua binding to ROTE, Terminal Emulation library",
+      "undeclared_requires": [
+        "curses",
+        "posix.signal",
+        "posix.sys.wait"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

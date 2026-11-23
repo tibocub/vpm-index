@@ -1,0 +1,480 @@
+{
+  "kind": "lib",
+  "name": "fzfx.nvim",
+  "versions": {
+    "8.2.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "fzfx.lua": {
+          "sha256": "a7d58665332830100c0cdee3c8c880f76e7774e51f803a72a716d5bb499a930b",
+          "size": 2388,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx.lua"
+        },
+        "fzfx/cfg/_decorator.lua": {
+          "sha256": "2a3a8cd3d806b063d941c7bd43acd63fe61117c2ceb856a1c2feb60b5e515ece",
+          "size": 172,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/_decorator.lua"
+        },
+        "fzfx/cfg/_git.lua": {
+          "sha256": "d0f27584355a8b73d2ebf288b0dfa4d2fe62a92826867b836f947604fdbf68d7",
+          "size": 110,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/_git.lua"
+        },
+        "fzfx/cfg/_grep.lua": {
+          "sha256": "92a9c4d05f557c152fd7d105fdc19b5861dc0065dd9c8adf7432e0d59a696a0a",
+          "size": 2832,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/_grep.lua"
+        },
+        "fzfx/cfg/_lsp.lua": {
+          "sha256": "e7f18fdf2023d487bb22be8241c14e09ef80604f19bdb007d10dea88b1a1b84b",
+          "size": 453,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/_lsp.lua"
+        },
+        "fzfx/cfg/_lsp_locations.lua": {
+          "sha256": "6d0aacb59f3817fe03145a18e29c73443086eb9226857df36eb105de12fa5bf0",
+          "size": 25880,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/_lsp_locations.lua"
+        },
+        "fzfx/cfg/buf_live_grep.lua": {
+          "sha256": "a187fe9e1a3b5601af94e65ce7078073ed2a01940acb14668ccd11c94b307981",
+          "size": 3526,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/buf_live_grep.lua"
+        },
+        "fzfx/cfg/buffers.lua": {
+          "sha256": "feb2404d84ac17b00113e9b150cf9eaac6d1c1c6c717acfb20dbf4bd75c65d34",
+          "size": 3370,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/buffers.lua"
+        },
+        "fzfx/cfg/file_explorer.lua": {
+          "sha256": "eab79badbc496ea6d8365ada2002395164a89435b734b9b78180b1590b1fb8ac",
+          "size": 10539,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/file_explorer.lua"
+        },
+        "fzfx/cfg/files.lua": {
+          "sha256": "2fb9aa2827f5269202a8d2a8788f029397f51be53d5deb6fea8bb26a8796ec86",
+          "size": 3761,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/files.lua"
+        },
+        "fzfx/cfg/git_blame.lua": {
+          "sha256": "be118e1e42f6b11438b4d114450be379f2f6507a549a11af2db38f62dea16447",
+          "size": 3005,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/git_blame.lua"
+        },
+        "fzfx/cfg/git_branches.lua": {
+          "sha256": "e94186e734fd7c276bc7ec536457963636fab4989f831885eb9af47eb5e80583",
+          "size": 5629,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/git_branches.lua"
+        },
+        "fzfx/cfg/git_commits.lua": {
+          "sha256": "0cb4bfb2f1b96b2cf4c296e853a1cc77ace5f3df81c2985f476789dc0a481dfe",
+          "size": 4449,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/git_commits.lua"
+        },
+        "fzfx/cfg/git_files.lua": {
+          "sha256": "d78b1146302a65f4f59e56a56c01091ed3652a7cf7ee26e0bf9dd66afced16f6",
+          "size": 4219,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/git_files.lua"
+        },
+        "fzfx/cfg/git_live_grep.lua": {
+          "sha256": "a9c9165e35841d5373d026ca53c13248a63740144793038ef4e768f06e36e0f6",
+          "size": 2914,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/git_live_grep.lua"
+        },
+        "fzfx/cfg/git_status.lua": {
+          "sha256": "921f4300afd1394edff3222aa99fbc1e628c1ebf9941005620fbff01cb7ceed7",
+          "size": 4116,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/git_status.lua"
+        },
+        "fzfx/cfg/live_grep.lua": {
+          "sha256": "efddb048a37ae52167c2effb15e8c2090c34be12fe49b2ee6548009324bb9d15",
+          "size": 6918,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/live_grep.lua"
+        },
+        "fzfx/cfg/lsp_definitions.lua": {
+          "sha256": "5d9434013759103a642d3f08ca59d8a08a1524c803ab9cb99ee256d0cd22e0bb",
+          "size": 1075,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/lsp_definitions.lua"
+        },
+        "fzfx/cfg/lsp_diagnostics.lua": {
+          "sha256": "4365c8fe26bac0209efa15c1df1d67b901ca4d8456a3ee4e936b6d198cc53480",
+          "size": 8299,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/lsp_diagnostics.lua"
+        },
+        "fzfx/cfg/lsp_implementations.lua": {
+          "sha256": "1a1c56d7c1a7e817ef588c341a093d70c2c9d80715d4aac785c921755e473563",
+          "size": 1049,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/lsp_implementations.lua"
+        },
+        "fzfx/cfg/lsp_incoming_calls.lua": {
+          "sha256": "fb46acf5e9ba1bf62be4fd5c80ecd4f282d699aa8f34b5ead1f9b34447ae9e36",
+          "size": 1049,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/lsp_incoming_calls.lua"
+        },
+        "fzfx/cfg/lsp_outgoing_calls.lua": {
+          "sha256": "aa731584e3bf8ae5885d0a70599e8a09c39ca982aced0e07cdc0bfbe3fbbec8c",
+          "size": 1049,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/lsp_outgoing_calls.lua"
+        },
+        "fzfx/cfg/lsp_references.lua": {
+          "sha256": "a1dc16a29f1fbae8ebb57ff92f5f7015414d4951fee2b806efb0a332f9334e6c",
+          "size": 1026,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/lsp_references.lua"
+        },
+        "fzfx/cfg/lsp_type_definitions.lua": {
+          "sha256": "cd6b81a42eb4aadda74abb00694119f82f4d434eda1b9c82e223684da9104d89",
+          "size": 1051,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/lsp_type_definitions.lua"
+        },
+        "fzfx/cfg/vim_colors.lua": {
+          "sha256": "e7d72e811118b924f66effb64ed69085022da98d6560b51922609f82f2ff38bf",
+          "size": 5582,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/vim_colors.lua"
+        },
+        "fzfx/cfg/vim_command_history.lua": {
+          "sha256": "25e67f5934eb00d02cf268f03efe3fe571679850f86a6a172dcd8c6c7e3123bc",
+          "size": 2520,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/vim_command_history.lua"
+        },
+        "fzfx/cfg/vim_commands.lua": {
+          "sha256": "efe67c41655e6497a51cc97f1a4176180f290384ff4727a24f9546f50461a688",
+          "size": 21041,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/vim_commands.lua"
+        },
+        "fzfx/cfg/vim_keymaps.lua": {
+          "sha256": "c3350ed59be11e889d5495ac05ae47a40630cfef3b36385b0ff19ef2ad49dfe2",
+          "size": 18483,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/vim_keymaps.lua"
+        },
+        "fzfx/cfg/vim_marks.lua": {
+          "sha256": "f489a358dc0f7358275eb126034487848d1eaa27b0ba605dfc91acb3fd9a0d5c",
+          "size": 8985,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/cfg/vim_marks.lua"
+        },
+        "fzfx/commons/async.lua": {
+          "sha256": "f870bb9d9a68bfba88cce151e304e43b79dbc58f632ad0aab038407e2f55f932",
+          "size": 2067,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/async.lua"
+        },
+        "fzfx/commons/color/hl.lua": {
+          "sha256": "c536d6484ae0e9f62279471ddcdd4e28ab3a30138453bfab3314525334351fc0",
+          "size": 1811,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/color/hl.lua"
+        },
+        "fzfx/commons/color/hsl.lua": {
+          "sha256": "5389ca25e1c487e2e8d68e0addbf73d60e00c31e96b938f5bdc73a1f1ba34bdb",
+          "size": 9505,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/color/hsl.lua"
+        },
+        "fzfx/commons/color/term.lua": {
+          "sha256": "f346019ae1eb631305212df721e2e06d6d27587fb6b54e555edb93cd92571230",
+          "size": 3124,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/color/term.lua"
+        },
+        "fzfx/commons/fio.lua": {
+          "sha256": "0ea6c1028a719b3de184ad2a179ffdd69c1bed0ffda4f1a9ac63ff288cd3c176",
+          "size": 13347,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/fio.lua"
+        },
+        "fzfx/commons/logging.lua": {
+          "sha256": "18a2d31cb4132f04ce7a45035b8fbba71dc6a6038ba6b448f3178b6890c34a9f",
+          "size": 14939,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/logging.lua"
+        },
+        "fzfx/commons/num.lua": {
+          "sha256": "b6de6076591323d22cc4f130d9a746455608f56266a19ce4c91d52b3e2a56f05",
+          "size": 4743,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/num.lua"
+        },
+        "fzfx/commons/path.lua": {
+          "sha256": "c3fef4f5e883294ffa30a9b5e4a2848d1f1a6f81fb94a2b1ea88fbac443fd83e",
+          "size": 5242,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/path.lua"
+        },
+        "fzfx/commons/platform.lua": {
+          "sha256": "34c3aef89fdd94d0d48cba53530ca86ef32a3c22b0fc065d17f3759d61bb8016",
+          "size": 408,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/platform.lua"
+        },
+        "fzfx/commons/spawn.lua": {
+          "sha256": "08e79fa24b6fcae06f9f25ca9b32b43ce61dd5a890fdc9b29e97dbf1d4b85282",
+          "size": 6045,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/spawn.lua"
+        },
+        "fzfx/commons/str.lua": {
+          "sha256": "b38346c33c12c1985c52286f2428fb9de1b20141b2d42425c560d4c5cc91d8f3",
+          "size": 6621,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/str.lua"
+        },
+        "fzfx/commons/tbl.lua": {
+          "sha256": "c01ba998136cf62fd61684d3e66e7b58e5ed224c97d8348e5207208c356e21a4",
+          "size": 14339,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/tbl.lua"
+        },
+        "fzfx/commons/uv.lua": {
+          "sha256": "decdf89772fb4ee5f1b5ee31299e6b7c8d6db161fc040c84c9f41aa7ecad16d4",
+          "size": 26,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/uv.lua"
+        },
+        "fzfx/commons/version.lua": {
+          "sha256": "d0f1a402fb2b65d1f98c2de4f19fff2cd38819ba541bebc29d52087dcfe3b940",
+          "size": 1369,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/commons/version.lua"
+        },
+        "fzfx/config.lua": {
+          "sha256": "35584a7661c0b80bc75980442ed070775e24312a66d7bd6fee6dff561e4612b4",
+          "size": 11042,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/config.lua"
+        },
+        "fzfx/detail/child_process_helpers.lua": {
+          "sha256": "cc27d0813149ef9d3ddc9fe10d126fdf68970d28a7f13b633fb08aa10338901d",
+          "size": 2073,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/child_process_helpers.lua"
+        },
+        "fzfx/detail/fzf_helpers.lua": {
+          "sha256": "2924b0b21c9d8ce3693451b51f09e35115ae9ffddb42e6b049adaf49640ddbfb",
+          "size": 12555,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/fzf_helpers.lua"
+        },
+        "fzfx/detail/general.lua": {
+          "sha256": "230317c4244005bbb27fd0c076780b4e4681059c6c9bec204d8f9d484db96d6e",
+          "size": 40066,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/general.lua"
+        },
+        "fzfx/detail/module.lua": {
+          "sha256": "e54d620e97f541aca489eaa8854ef830a321986bf456fd13785bd2104377407c",
+          "size": 2117,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/module.lua"
+        },
+        "fzfx/detail/popup.lua": {
+          "sha256": "c07d3d05d7e71cf171315a6ca2af701d4319913c0cb8b1eaba033d0bb79d1576",
+          "size": 7569,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/popup.lua"
+        },
+        "fzfx/detail/popup/layout_helpers.lua": {
+          "sha256": "febd1d545c236bc0d035b2ae11aeffd12f44e171024973b05f73ea2fd76906ca",
+          "size": 10935,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/popup/layout_helpers.lua"
+        },
+        "fzfx/detail/popup/shell_helpers.lua": {
+          "sha256": "e7ba34876b78c98ef3604cd0d5f6f6983354a816df9aee2eae2d717576a295c8",
+          "size": 1264,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/popup/shell_helpers.lua"
+        },
+        "fzfx/detail/popup/window.lua": {
+          "sha256": "e4c6367069e0202aaf560f0b8a59dced81a80a622418175d61cfe1ad99acbf9d",
+          "size": 6276,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/popup/window.lua"
+        },
+        "fzfx/detail/popup/window_helpers.lua": {
+          "sha256": "85f177c0c6733b595a0323e548a0d4363e2633810c28c31ae3929f216fd80257",
+          "size": 1379,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/popup/window_helpers.lua"
+        },
+        "fzfx/detail/popup/window_manager.lua": {
+          "sha256": "fa50bdbfcb05779351bf5d3693de82407777b0de5904f3e5dcf2864945e29c87",
+          "size": 779,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/popup/window_manager.lua"
+        },
+        "fzfx/detail/rpcserver.lua": {
+          "sha256": "ee0682c2fc4f098e4cf932fcfdb013c7b5948504ae7a9d9154a53e8cf7bfdc88",
+          "size": 4278,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/rpcserver.lua"
+        },
+        "fzfx/detail/yanks.lua": {
+          "sha256": "60877830ea1ba7271839b421adf932adf803cab8aea3807f2915d3df06743e94",
+          "size": 2970,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/detail/yanks.lua"
+        },
+        "fzfx/health.lua": {
+          "sha256": "89b1dc9ed42fd01762164c4d6b3e7b59f96a9c678a160b9fe7c91f6fc7270065",
+          "size": 4721,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/health.lua"
+        },
+        "fzfx/helper/actions.lua": {
+          "sha256": "ac4e3249afa8594f0970c0613a7c2144269f09661f46654ea55a7cddf6cedeff",
+          "size": 21798,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/helper/actions.lua"
+        },
+        "fzfx/helper/parsers.lua": {
+          "sha256": "afb007e2a3f2bd23168f2095d4436c2414464f2e2fbefa0437b6c9a6460c2b65",
+          "size": 24767,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/helper/parsers.lua"
+        },
+        "fzfx/helper/previewer_labels.lua": {
+          "sha256": "59118abafcc0d95585d57ed4eb2f3199da856163dec38dba8f7a6732244b5efb",
+          "size": 5490,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/helper/previewer_labels.lua"
+        },
+        "fzfx/helper/previewers.lua": {
+          "sha256": "14c44884c52d08ef07b3436250c442816e856ec821add855f826b0950c2a75ea",
+          "size": 7880,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/helper/previewers.lua"
+        },
+        "fzfx/helper/provider_decorators/_prepend_icon.lua": {
+          "sha256": "d91fe3886630ef9a33058940b0a9551896cebdf7f9db5f70de130506920586f0",
+          "size": 2276,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/helper/provider_decorators/_prepend_icon.lua"
+        },
+        "fzfx/helper/provider_decorators/prepend_icon_find.lua": {
+          "sha256": "30e1f65925dae47afc695aaeac67c261c3fa674388b82ff35fb4022398ce5586",
+          "size": 391,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/helper/provider_decorators/prepend_icon_find.lua"
+        },
+        "fzfx/helper/provider_decorators/prepend_icon_grep.lua": {
+          "sha256": "bfc613892a44a5ec2505a5ff9e872c008eab9453235aadebb411039a50e6bce5",
+          "size": 425,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/helper/provider_decorators/prepend_icon_grep.lua"
+        },
+        "fzfx/lib/bufs.lua": {
+          "sha256": "b9991bade5a5dfad547862a557f5824cc6f90da679b062d5cd02edda31062bd7",
+          "size": 360,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/lib/bufs.lua"
+        },
+        "fzfx/lib/commands.lua": {
+          "sha256": "942873b52310c0121b58a16ecb745d532ae3cfa97c6a4eaaf03b1234cd446ed8",
+          "size": 4290,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/lib/commands.lua"
+        },
+        "fzfx/lib/constants.lua": {
+          "sha256": "14c399e18ba78da25265cb304028672e1322df9dc93d3492dc09816a4a5c3f46",
+          "size": 2031,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/lib/constants.lua"
+        },
+        "fzfx/lib/env.lua": {
+          "sha256": "b49c9051c2156385222f4f46e3cbab74bb2ff971eacc6ae6acc70e5aa8479535",
+          "size": 313,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/lib/env.lua"
+        },
+        "fzfx/lib/log.lua": {
+          "sha256": "bacd5b9cbbc33321f1202184eecf84454ade2ddeb5086807d5b3002ebe496d22",
+          "size": 3449,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/lib/log.lua"
+        },
+        "fzfx/lib/lsp.lua": {
+          "sha256": "00c94dfcb8163ac6648bb3ad87699cb5cc6152ecd60a1b13446b1dc6eff69da6",
+          "size": 207,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/lib/lsp.lua"
+        },
+        "fzfx/lib/shells.lua": {
+          "sha256": "f83c91b6bc3258c23023b98ef8920619b0977fa32b07e8bed2515f1f9d5e4238",
+          "size": 875,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/lib/shells.lua"
+        },
+        "fzfx/schema.lua": {
+          "sha256": "7f7594468f28fabc3c8f20fa1b9d31403e1f08c5bb7f32d844dc705eac5c0fc8",
+          "size": 7299,
+          "url": "https://raw.githubusercontent.com/linrongbin16/fzfx.nvim/fd28aebc11a433ce7f8a914b82c2692de284b4c8/lua/fzfx/schema.lua"
+        }
+      },
+      "homepage": "https://linrongbin16.github.io/fzfx.nvim/",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 31 Jul 2025 06:01:54 GMT",
+        "rockspec": {
+          "date": "Thu, 31 Jul 2025 06:01:54 GMT",
+          "sha256": "fb1741406708067749d61451ac6800a0b2b4a9960fbf0b21ff84eda2a5519911",
+          "size": 841
+        },
+        "src": {
+          "date": "Thu, 31 Jul 2025 06:01:54 GMT",
+          "sha256": "ed1f0496d10d3005b44177044d1c653795fe1c7cd88ea9cf9402621b876523f9",
+          "size": 283566,
+          "url": "https://luarocks.org/fzfx.nvim-8.2.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "fzfx",
+        "fzfx.cfg._decorator",
+        "fzfx.cfg._git",
+        "fzfx.cfg._grep",
+        "fzfx.cfg._lsp",
+        "fzfx.cfg._lsp_locations",
+        "fzfx.cfg.buf_live_grep",
+        "fzfx.cfg.buffers",
+        "fzfx.cfg.file_explorer",
+        "fzfx.cfg.files",
+        "fzfx.cfg.git_blame",
+        "fzfx.cfg.git_branches",
+        "fzfx.cfg.git_commits",
+        "fzfx.cfg.git_files",
+        "fzfx.cfg.git_live_grep",
+        "fzfx.cfg.git_status",
+        "fzfx.cfg.live_grep",
+        "fzfx.cfg.lsp_definitions",
+        "fzfx.cfg.lsp_diagnostics",
+        "fzfx.cfg.lsp_implementations",
+        "fzfx.cfg.lsp_incoming_calls",
+        "fzfx.cfg.lsp_outgoing_calls",
+        "fzfx.cfg.lsp_references",
+        "fzfx.cfg.lsp_type_definitions",
+        "fzfx.cfg.vim_colors",
+        "fzfx.cfg.vim_command_history",
+        "fzfx.cfg.vim_commands",
+        "fzfx.cfg.vim_keymaps",
+        "fzfx.cfg.vim_marks",
+        "fzfx.commons.async",
+        "fzfx.commons.color.hl",
+        "fzfx.commons.color.hsl",
+        "fzfx.commons.color.term",
+        "fzfx.commons.fio",
+        "fzfx.commons.logging",
+        "fzfx.commons.num",
+        "fzfx.commons.path",
+        "fzfx.commons.platform",
+        "fzfx.commons.spawn",
+        "fzfx.commons.str",
+        "fzfx.commons.tbl",
+        "fzfx.commons.uv",
+        "fzfx.commons.version",
+        "fzfx.config",
+        "fzfx.detail.child_process_helpers",
+        "fzfx.detail.fzf_helpers",
+        "fzfx.detail.general",
+        "fzfx.detail.module",
+        "fzfx.detail.popup",
+        "fzfx.detail.popup.layout_helpers",
+        "fzfx.detail.popup.shell_helpers",
+        "fzfx.detail.popup.window",
+        "fzfx.detail.popup.window_helpers",
+        "fzfx.detail.popup.window_manager",
+        "fzfx.detail.rpcserver",
+        "fzfx.detail.yanks",
+        "fzfx.health",
+        "fzfx.helper.actions",
+        "fzfx.helper.parsers",
+        "fzfx.helper.previewer_labels",
+        "fzfx.helper.previewers",
+        "fzfx.helper.provider_decorators._prepend_icon",
+        "fzfx.helper.provider_decorators.prepend_icon_find",
+        "fzfx.helper.provider_decorators.prepend_icon_grep",
+        "fzfx.lib.bufs",
+        "fzfx.lib.commands",
+        "fzfx.lib.constants",
+        "fzfx.lib.env",
+        "fzfx.lib.log",
+        "fzfx.lib.lsp",
+        "fzfx.lib.shells",
+        "fzfx.schema"
+      ],
+      "origin": {
+        "sha256": "62783964f85e10e0cf28b61f1f8dc49ce51c24c1ac24caccb508093c2893d1bd",
+        "type": "archive",
+        "url": "https://github.com/linrongbin16/fzfx.nvim/archive/fd28aebc11a433ce7f8a914b82c2692de284b4c8.zip"
+      },
+      "size": 428951,
+      "summary": "A Neovim fuzzy finder that updates on every keystroke.",
+      "vlr": {
+        "cause": "missing global: vim",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 14,
+        "status": "partial",
+        "total": 72
+      }
+    }
+  }
+}

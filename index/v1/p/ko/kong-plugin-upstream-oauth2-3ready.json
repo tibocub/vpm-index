@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-upstream-oauth2-3ready",
+  "versions": {
+    "1.3.4-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/upstream-oauth2-3ready/handler.lua": {
+          "sha256": "247911e9442e0e7ecd7794674d3bfc9472556405c26dcbb84e62e20a7b2c6541",
+          "size": 1822,
+          "url": "https://raw.githubusercontent.com/aliostad/kong-plugin-upstream-oauth2/86676708c6e5f6366413ee72698d4bea90023a85/src/handler.lua"
+        },
+        "kong/plugins/upstream-oauth2-3ready/schema.lua": {
+          "sha256": "2dc8e574c7195c84abd8f25e87476a2fdc06a7690be4f0335b56875c5d480a7e",
+          "size": 1132,
+          "url": "https://raw.githubusercontent.com/aliostad/kong-plugin-upstream-oauth2/86676708c6e5f6366413ee72698d4bea90023a85/src/schema.lua"
+        },
+        "kong/plugins/upstream-oauth2-3ready/tokens.lua": {
+          "sha256": "da0f173011aaa9b57d40d26fa19774094ab2b3d3947751333846d24e1c1f7306",
+          "size": 2712,
+          "url": "https://raw.githubusercontent.com/aliostad/kong-plugin-upstream-oauth2/86676708c6e5f6366413ee72698d4bea90023a85/src/tokens.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5",
+      "luarocks": {
+        "date": "Sat, 20 Jul 2024 21:26:12 GMT",
+        "rockspec": {
+          "date": "Sat, 20 Jul 2024 21:26:12 GMT",
+          "sha256": "9c6b96348659cdfdac69117c17b2a8ce2cd5fbf66c5ed6395193424aec548080",
+          "size": 835
+        },
+        "src": {
+          "date": "Sat, 20 Jul 2024 21:26:14 GMT",
+          "sha256": "d7f1f6c8bd22c79ac7aa2f5ddd09b4716a6e7bcc7cfccbfb6d38def9e14bdcb9",
+          "size": 11378,
+          "url": "https://luarocks.org/kong-plugin-upstream-oauth2-3ready-1.3.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.upstream-oauth2-3ready.handler",
+        "kong.plugins.upstream-oauth2-3ready.schema",
+        "kong.plugins.upstream-oauth2-3ready.tokens"
+      ],
+      "origin": {
+        "commit": "86676708c6e5f6366413ee72698d4bea90023a85",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/aliostad/kong-plugin-upstream-oauth2"
+      },
+      "size": 5666,
+      "summary": "A Kong plugin to negotiate oauth2 authentication with upstream services",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "ltn12",
+        "socket",
+        "socket.http",
+        "socket.url",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "missing module: ssl.https",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

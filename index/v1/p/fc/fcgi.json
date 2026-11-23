@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "fcgi",
+  "versions": {
+    "1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/mikejsavage/lua-fcgi",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 14 Dec 2018 15:39:59 GMT",
+        "rockspec": {
+          "date": "Fri, 14 Dec 2018 15:39:59 GMT",
+          "sha256": "37a415e5e4d347ff8a227f218f310e40916d6b873e9931711c34105b0f5d488c",
+          "size": 534
+        },
+        "src": {
+          "date": "Fri, 14 Dec 2018 15:40:01 GMT",
+          "sha256": "f2ea41a787592cd874c71f189aab9a57f4f69c98edf31b7b26ff33b6836ee5da",
+          "size": 5376,
+          "url": "https://luarocks.org/fcgi-1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "fcgi"
+      ],
+      "native": {
+        "build": "make",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "make": {
+            "build_variables": {
+              "LUA_INCDIR": "$(LUA_INCDIR)",
+              "LUA_LIBDIR": "$(LUA_LIBDIR)"
+            },
+            "install": {
+              "lib": {
+                "fcgi": "fcgi.so"
+              }
+            },
+            "install_pass": false
+          }
+        },
+        "prebuilt": true
+      },
+      "origin": {
+        "date": "Fri, 14 Dec 2018 15:40:01 GMT",
+        "sha256": "f2ea41a787592cd874c71f189aab9a57f4f69c98edf31b7b26ff33b6836ee5da",
+        "size": 5376,
+        "type": "luarocks",
+        "url": "https://luarocks.org/fcgi-1.2-1.src.rock"
+      },
+      "summary": "A Lua module for writing FastCGI applications",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

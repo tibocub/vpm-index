@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "strling",
+  "versions": {
+    "4.0.3-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson >= 2.1.0, < 3.0.0"
+      ],
+      "files": {
+        "strling.lua": {
+          "sha256": "b5f7f0c93fa5975fc81a4ba06d65f4f64bfb99d55c0633956a8f935e15c4a772",
+          "size": 8765,
+          "url": "blob:b5f7f0c93fa5975fc81a4ba06d65f4f64bfb99d55c0633956a8f935e15c4a772"
+        },
+        "strling/stdlib_generated.lua": {
+          "sha256": "2253da86ec53fd78eec5171fb86c49d2ebf8b2f8d913a43daaf0add5715f25f8",
+          "size": 1153,
+          "url": "blob:2253da86ec53fd78eec5171fb86c49d2ebf8b2f8d913a43daaf0add5715f25f8"
+        }
+      },
+      "homepage": "https://github.com/strling-lang/strling",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Thu, 19 Nov 2026 16:48:28 GMT",
+        "rockspec": {
+          "date": "Thu, 19 Nov 2026 16:48:28 GMT",
+          "sha256": "19979f66655f833e58e41c7d93ad03087ab6bee15cfa8bf074b3b6866f25d960",
+          "size": 847
+        },
+        "src": {
+          "date": "Thu, 19 Nov 2026 16:48:28 GMT",
+          "sha256": "b9181efc7a5d5774d01c34f201ac9b3f0a9aea470c0b638d8980b0d63e5a9c5a",
+          "size": 12037,
+          "url": "https://luarocks.org/strling-4.0.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "strling",
+        "strling.stdlib_generated",
+        "strling_native"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "libraries": [
+                "dl"
+              ],
+              "name": "strling_native",
+              "sources": [
+                "src/strling_native.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "strling/bindings/lua"
+      },
+      "origin": {
+        "date": "Thu, 19 Nov 2026 16:48:28 GMT",
+        "sha256": "b9181efc7a5d5774d01c34f201ac9b3f0a9aea470c0b638d8980b0d63e5a9c5a",
+        "size": 12037,
+        "type": "luarocks",
+        "url": "https://luarocks.org/strling-4.0.3-1.src.rock"
+      },
+      "size": 9918,
+      "summary": "Thin Lua adapter for the canonical STRling compiler",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "ok",
+        "total": 3
+      }
+    }
+  }
+}

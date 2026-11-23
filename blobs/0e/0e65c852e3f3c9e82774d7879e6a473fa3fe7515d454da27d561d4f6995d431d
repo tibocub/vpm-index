@@ -1,0 +1,42 @@
+local prevfile = require "prevfile"
+
+local nextfile = {}
+
+function nextfile.splitfilename(path)
+	name, ext = path:match("^(.*)(%.%w*)")
+	return name, ext
+end
+
+function nextfile.nextletter(letter)
+	if letter == "z" then return "za" end
+
+	local ascii = letter:byte()
+	local nextascii = ascii + 1
+	return string.char(nextascii)
+end
+
+function nextfile.nextfile(directory, extension)
+	local previous = prevfile.prevfile(directory)
+	if previous == nil then return nil end
+
+	local name, ext = nextfile.splitfilename(previous)
+
+	value = ""
+	if tonumber(name) == nil then
+		local lastletter = name:sub(#name)
+		local nextletter = nextfile.nextletter(lastletter)
+		value = value .. name:gsub(lastletter .. "$", nextletter)
+	else
+		value = value .. name + 1
+	end
+	
+	if extension ~= nil then
+		value = value .. "." .. extension
+	else
+		value = value .. ext
+	end
+
+	return value
+end
+
+return nextfile

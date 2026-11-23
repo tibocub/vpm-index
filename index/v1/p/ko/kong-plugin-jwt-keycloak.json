@@ -1,0 +1,95 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-keycloak",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-keycloak/handler.lua": {
+          "sha256": "03874bfa6186df461e3d49e8fef385c505bda4af1ea42930785cbab893326411",
+          "size": 11538,
+          "url": "https://raw.githubusercontent.com/gbbirkisson/kong-plugin-jwt-keycloak/5860f82b4c4daf226ec3fe553b6ae008d28ffabe/src/handler.lua"
+        },
+        "kong/plugins/jwt-keycloak/key_conversion.lua": {
+          "sha256": "82bce263f6b269d0f54b378ce27c8cc397330f4391feb4a19d4f863fa9ff6508",
+          "size": 2529,
+          "url": "https://raw.githubusercontent.com/gbbirkisson/kong-plugin-jwt-keycloak/5860f82b4c4daf226ec3fe553b6ae008d28ffabe/src/key_conversion.lua"
+        },
+        "kong/plugins/jwt-keycloak/keycloak_keys.lua": {
+          "sha256": "58b86203b0977730697255885a8e0a3b7e32e860ad26513ada4d14ec88eb5bbe",
+          "size": 1755,
+          "url": "https://raw.githubusercontent.com/gbbirkisson/kong-plugin-jwt-keycloak/5860f82b4c4daf226ec3fe553b6ae008d28ffabe/src/keycloak_keys.lua"
+        },
+        "kong/plugins/jwt-keycloak/schema.lua": {
+          "sha256": "f9a798dfd56df3f347ddba06465cd2d652996cd928379a0e9dacc15bba04bd4f",
+          "size": 1886,
+          "url": "https://raw.githubusercontent.com/gbbirkisson/kong-plugin-jwt-keycloak/5860f82b4c4daf226ec3fe553b6ae008d28ffabe/src/schema.lua"
+        },
+        "kong/plugins/jwt-keycloak/validators/issuers.lua": {
+          "sha256": "c7dc09340247b22d1f099720f778de21a50a062a09821fa92f78f8231393cce3",
+          "size": 503,
+          "url": "https://raw.githubusercontent.com/gbbirkisson/kong-plugin-jwt-keycloak/5860f82b4c4daf226ec3fe553b6ae008d28ffabe/src/validators/issuers.lua"
+        },
+        "kong/plugins/jwt-keycloak/validators/roles.lua": {
+          "sha256": "81f2ae4090693bd22c9015bcd0ab3f95726fdd5ab18733580d17dd0e3a1bd8e8",
+          "size": 2384,
+          "url": "https://raw.githubusercontent.com/gbbirkisson/kong-plugin-jwt-keycloak/5860f82b4c4daf226ec3fe553b6ae008d28ffabe/src/validators/roles.lua"
+        },
+        "kong/plugins/jwt-keycloak/validators/scope.lua": {
+          "sha256": "98b947fadf1f6e3a88f9f4d133816c62ad4fb7dab8ec1e509fad5087c02b7827",
+          "size": 517,
+          "url": "https://raw.githubusercontent.com/gbbirkisson/kong-plugin-jwt-keycloak/5860f82b4c4daf226ec3fe553b6ae008d28ffabe/src/validators/scope.lua"
+        }
+      },
+      "homepage": "https://github.com/gbbirkisson/kong-plugin-jwt-keycloak",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5",
+      "luarocks": {
+        "date": "Fri, 08 Nov 2019 07:43:35 GMT",
+        "rockspec": {
+          "date": "Fri, 08 Nov 2019 07:43:35 GMT",
+          "sha256": "ed1f3f69590047988637f9d0bac22ed4e912180d2f18b4c5c712db6bc5b4005c",
+          "size": 1355
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-keycloak.handler",
+        "kong.plugins.jwt-keycloak.key_conversion",
+        "kong.plugins.jwt-keycloak.keycloak_keys",
+        "kong.plugins.jwt-keycloak.schema",
+        "kong.plugins.jwt-keycloak.validators.issuers",
+        "kong.plugins.jwt-keycloak.validators.roles",
+        "kong.plugins.jwt-keycloak.validators.scope"
+      ],
+      "origin": {
+        "commit": "5860f82b4c4daf226ec3fe553b6ae008d28ffabe",
+        "ref": "v1.1.0",
+        "type": "git",
+        "url": "https://github.com/gbbirkisson/kong-plugin-jwt-keycloak"
+      },
+      "size": 21112,
+      "summary": "A Kong plugin that will validate tokens issued by keycloak",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser",
+        "socket",
+        "socket.http",
+        "socket.url",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 7
+      }
+    }
+  }
+}

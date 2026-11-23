@@ -1,0 +1,37 @@
+--imports
+local Stmt = require("dogma.syn._.Stmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--A while statement.
+local WhileStmt = {}
+WhileStmt.__index = WhileStmt
+setmetatable(WhileStmt, {__index = Stmt})
+package.loaded[...] = WhileStmt
+
+--Constructor.
+--
+--@param ln:num     The start line.
+--@param col:num    The start column.
+--@param decl:text  The declaration type: var or const.
+--@param val:Exp    The variable definition.
+--@param cond:Exp   The iteration condition.
+--@param body       The loop body.
+--@param el         The else body.
+--@param catch      The catch clause.
+--@param fin        The finally clause.
+function WhileStmt.new(ln, col, decl, val, cond, body, el, catch, fin)
+  local self
+
+  --(1) create
+  self = setmetatable(Stmt.new(StmtType.WHILE, ln, col), WhileStmt)
+  self.decl = decl
+  self.value = val
+  self.cond = cond
+  self.body = body
+  self.el = el
+  self.catch = catch
+  self.finally = fin
+
+  --(2) return
+  return self
+end

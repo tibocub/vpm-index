@@ -1,0 +1,602 @@
+{
+  "kind": "lib",
+  "name": "overseer.nvim",
+  "versions": {
+    "2.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "cmp_overseer/init.lua": {
+          "sha256": "a19a7e7704636d8c945d8778671b6585978d8577e86b2680b1f88d69b5d32b64",
+          "size": 715,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/cmp_overseer/init.lua"
+        },
+        "lualine/components/overseer.lua": {
+          "sha256": "7b8bac868260cf2e3c12d65d2cf2baa8d19d7d0d4bb5c1f113be27b09eb4bd8f",
+          "size": 2943,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/lualine/components/overseer.lua"
+        },
+        "neotest/client/strategies/overseer.lua": {
+          "sha256": "189c9b39dffcf5851bc6dfd609ce957429a1357ef125404b22a2cc06b88dad3d",
+          "size": 4935,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/neotest/client/strategies/overseer.lua"
+        },
+        "neotest/consumers/overseer.lua": {
+          "sha256": "f8c5f0852082a5e3daa4f96acef1f39c3aca4220b0d80a01d7983bb642cf4793",
+          "size": 2463,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/neotest/consumers/overseer.lua"
+        },
+        "overseer/action_util.lua": {
+          "sha256": "04a136073eb3ebd121049e1dba3c97c855c37f9dd020b80004c51224661357d8",
+          "size": 2747,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/action_util.lua"
+        },
+        "overseer/commands.lua": {
+          "sha256": "584a2887b34bd50674ca1d4df3e534795899dec41bf60ec97d6c32eedb764500",
+          "size": 6989,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/commands.lua"
+        },
+        "overseer/component.lua": {
+          "sha256": "127c672db872a4480c1a9581fb3292d53a0745570fc7490f41eae1973124ddd2",
+          "size": 11863,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component.lua"
+        },
+        "overseer/component/dependencies.lua": {
+          "sha256": "f0615034411ba3d45ae8ab814c6ac36e7ff514b90f877d0d0b6aa96045f6b92a",
+          "size": 3577,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/dependencies.lua"
+        },
+        "overseer/component/dependencies/on_success_complete_dependency.lua": {
+          "sha256": "0cb841ec753dc9e17d61bedaa8e6734281937e6e4e71e80065308e69cce1a2af",
+          "size": 1105,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/dependencies/on_success_complete_dependency.lua"
+        },
+        "overseer/component/display_duration.lua": {
+          "sha256": "a5ad0f36cd507baa734d0c46295a33e15e47450a47133abfaab73ceef46c6270",
+          "size": 222,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/display_duration.lua"
+        },
+        "overseer/component/neotest/link_with_neotest.lua": {
+          "sha256": "eb764cb0da66147ce2dd159ba778b82c30a25495dc6a3bb6bc8aee1861a61eb5",
+          "size": 583,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/neotest/link_with_neotest.lua"
+        },
+        "overseer/component/on_complete_dispose.lua": {
+          "sha256": "6a3bdc545f1bc9ad6ea4a5cd67a48257017fa3dd4e0f59b19fda489d256432ec",
+          "size": 3718,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_complete_dispose.lua"
+        },
+        "overseer/component/on_complete_notify.lua": {
+          "sha256": "aa44371418ba2bf5561df0de83d4b6bcbc2c1e81d7ee907642660a5ff2206178",
+          "size": 1751,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_complete_notify.lua"
+        },
+        "overseer/component/on_complete_restart.lua": {
+          "sha256": "6e0ba1d09ff171889157c5fcc95142dccff426019332cf5ceb028638763a8caf",
+          "size": 1182,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_complete_restart.lua"
+        },
+        "overseer/component/on_exit_set_status.lua": {
+          "sha256": "b6ff79bd10d89401cf7230c8e6b9c7d6a8e355e1423ecf935e0795dc715cfdea",
+          "size": 772,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_exit_set_status.lua"
+        },
+        "overseer/component/on_output_notify.lua": {
+          "sha256": "768dda39810106ea4567e03a4cbcd8af76d1e30aed52cd39fd2a04d2dd5b17ca",
+          "size": 4789,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_output_notify.lua"
+        },
+        "overseer/component/on_output_parse.lua": {
+          "sha256": "2e8d091f9ca19102ffeaa820b130213a649f5f41a074d1949b3b7b030b96a479",
+          "size": 4064,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_output_parse.lua"
+        },
+        "overseer/component/on_output_quickfix.lua": {
+          "sha256": "0e9a2a98bbf50a86c2f89863717da876ed99584ed885e1249e85a3d306530b24",
+          "size": 8280,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_output_quickfix.lua"
+        },
+        "overseer/component/on_output_summarize.lua": {
+          "sha256": "659a6734806b5abf1f1eb26fef1231f6b2114ff6c1ac29daf35e34a0e7a47ff9",
+          "size": 236,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_output_summarize.lua"
+        },
+        "overseer/component/on_output_write_file.lua": {
+          "sha256": "019f6fc3e08b709eeee87069789ead853412a0d63b264e050b9d778d58f93b03",
+          "size": 1049,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_output_write_file.lua"
+        },
+        "overseer/component/on_result_diagnostics.lua": {
+          "sha256": "b13de676093bb232803289fd571d3d2c37ccade87adc80e25ff6ba0b5abe4269",
+          "size": 3579,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_result_diagnostics.lua"
+        },
+        "overseer/component/on_result_diagnostics_quickfix.lua": {
+          "sha256": "f5bc50dc265543efa19086783f6f25d683afe6eb4fb3171aa5378e545ab33928",
+          "size": 2341,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_result_diagnostics_quickfix.lua"
+        },
+        "overseer/component/on_result_diagnostics_trouble.lua": {
+          "sha256": "4a3d68dd609afaa83a95658cccd94cb255c8ac60dcf37e64ecd07541e91007d5",
+          "size": 1024,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_result_diagnostics_trouble.lua"
+        },
+        "overseer/component/on_result_notify.lua": {
+          "sha256": "ebd33b4bbc86d9ba6a4976640a53f09dd15ee2c08cacef7ef04205def1f289e0",
+          "size": 1823,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/on_result_notify.lua"
+        },
+        "overseer/component/open_output.lua": {
+          "sha256": "15ffa6e4918d1319c465e76fe6bb3b58b743e1f7fbed99600c39241373d984ec",
+          "size": 3407,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/open_output.lua"
+        },
+        "overseer/component/orchestrator/on_broadcast_update_orchestrator.lua": {
+          "sha256": "84df62618a5151cde997f82a624c91cdf7483e5425a2595f3270b836e94688cc",
+          "size": 394,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/orchestrator/on_broadcast_update_orchestrator.lua"
+        },
+        "overseer/component/orchestrator/on_status_broadcast.lua": {
+          "sha256": "11fc6ccb68e586797e8af4ef76d8be3040af8bca35b72ea5d46a032528076b28",
+          "size": 443,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/orchestrator/on_status_broadcast.lua"
+        },
+        "overseer/component/restart_on_save.lua": {
+          "sha256": "5d48891d3d5907ebf8732a814eb1599ba02c53f73fca0ea8349e4485c2d6fd37",
+          "size": 4435,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/restart_on_save.lua"
+        },
+        "overseer/component/run_after.lua": {
+          "sha256": "87aab7511e8cd80c75692c265043e20b2865df0a839da04ec41363976da3afa6",
+          "size": 3592,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/run_after.lua"
+        },
+        "overseer/component/timeout.lua": {
+          "sha256": "b23862620918622b3c36725050024bdb7ec3f787115e01a27777c603865321ec",
+          "size": 1064,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/timeout.lua"
+        },
+        "overseer/component/unique.lua": {
+          "sha256": "76035ff81b2febf50fe283671d61f3b24ad49c7d084b25d7efec914e7931514a",
+          "size": 1841,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/component/unique.lua"
+        },
+        "overseer/config.lua": {
+          "sha256": "2e6cf927bf83d57962a6f27b3bf552dc0d22e58bdb2ade2d6347e1b44c27db6a",
+          "size": 12473,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/config.lua"
+        },
+        "overseer/constants.lua": {
+          "sha256": "d8356a67dec0ad49173d7742a996c517c8873b1a73b9395b12efc02aff2cc87b",
+          "size": 352,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/constants.lua"
+        },
+        "overseer/dap.lua": {
+          "sha256": "d16a778fb5629e84f3955cc5ecadba4b3cd6beb2af6187d809a861a6c1042e5e",
+          "size": 2548,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/dap.lua"
+        },
+        "overseer/enum.lua": {
+          "sha256": "4a1386e5fa3f6b622a400c89052cd14cdc70b966d526c5f3ac00a6e998b3cf7c",
+          "size": 446,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/enum.lua"
+        },
+        "overseer/files.lua": {
+          "sha256": "177288b248f65802bdb8bb26c7549abef2bb991d12bb43e2dbb1d42ab3a2fcad",
+          "size": 4564,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/files.lua"
+        },
+        "overseer/form/init.lua": {
+          "sha256": "874181240205b6f3cd9332e5926f36b5ad6d542b737416970629819b551a5a75",
+          "size": 11299,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/form/init.lua"
+        },
+        "overseer/form/utils.lua": {
+          "sha256": "8a75501c204c37d043ad5cd8773fdc5677e61f310cfb450a172b9e9342741c4f",
+          "size": 10026,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/form/utils.lua"
+        },
+        "overseer/health.lua": {
+          "sha256": "de4553a62179de37bb1cd5f622a95e6d3e5ff70659e0c7b616e1459daefb78ad",
+          "size": 1852,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/health.lua"
+        },
+        "overseer/init.lua": {
+          "sha256": "0cf236d18a9bd3384939ffd5c1d23b73ec0a4268c903014e82335980e2875d70",
+          "size": 15984,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/init.lua"
+        },
+        "overseer/json.lua": {
+          "sha256": "7d1d30ff4a982bfe6da0062abae145498e989bc50c04f7f3fc2dcfa70831160f",
+          "size": 2058,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/json.lua"
+        },
+        "overseer/keymap_util.lua": {
+          "sha256": "0a9aff8263696ebd90aec81c31b9583e6efeafdcfb05c3fce8bf18391081771a",
+          "size": 5125,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/keymap_util.lua"
+        },
+        "overseer/layout.lua": {
+          "sha256": "0f9b815aa7f5c3bc767f1754ed8fb60b8c351beacea44dcb254ff585ed086912",
+          "size": 4374,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/layout.lua"
+        },
+        "overseer/log.lua": {
+          "sha256": "8e40ca0cc8e7d4046c56cdd3b1a1609fbad74ab9365cbe04855e2391427d8daf",
+          "size": 2921,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/log.lua"
+        },
+        "overseer/notifier.lua": {
+          "sha256": "65c76150398343f1887871e1612cdd5220d1efb13055e9974a4a32252905f0fc",
+          "size": 2018,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/notifier.lua"
+        },
+        "overseer/parselib.lua": {
+          "sha256": "e003968e508e781cf74e151b98112ab57450f5ccb9ef0f693d05298dedc9daed",
+          "size": 10371,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/parselib.lua"
+        },
+        "overseer/render.lua": {
+          "sha256": "f9ea365e94b3ba78b99a98dd428ea67801fe6296e7123bb1f491e0cc167d41b8",
+          "size": 10257,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/render.lua"
+        },
+        "overseer/shell.lua": {
+          "sha256": "d09241591cce7282204531da9c49a3b7470f769fd2a5494af7eeec6878e7ed51",
+          "size": 5680,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/shell.lua"
+        },
+        "overseer/strategy/init.lua": {
+          "sha256": "ffbd8a0f990372101b52dde77c378c739cec4554fc9be25a211b9c2c46e5ff93",
+          "size": 691,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/strategy/init.lua"
+        },
+        "overseer/strategy/jobstart.lua": {
+          "sha256": "daea883b757359f938d7ea4bfb69bf339eaac58f098995c283798b1ab5ff8f07",
+          "size": 10981,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/strategy/jobstart.lua"
+        },
+        "overseer/strategy/orchestrator.lua": {
+          "sha256": "d9e7ba1df3e433b16580c629504a0d20811c962be4f0c1830629aa1b75825326",
+          "size": 8857,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/strategy/orchestrator.lua"
+        },
+        "overseer/strategy/system.lua": {
+          "sha256": "dd58f1bc331c0575169196b7ae1a19ce141bd04d0dbdaccf8fb516dd31554616",
+          "size": 7953,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/strategy/system.lua"
+        },
+        "overseer/strategy/test.lua": {
+          "sha256": "2c3725f849e9de0aa6799b939a8a793d5f4d48097d880fa6f3af13312bb36096",
+          "size": 1586,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/strategy/test.lua"
+        },
+        "overseer/task.lua": {
+          "sha256": "d1c20e87581c0817e8c9e780d77c65a06b8d5fb2f61bd443c1057779cf74ef5c",
+          "size": 20509,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/task.lua"
+        },
+        "overseer/task_editor.lua": {
+          "sha256": "375d260bf0d5228d1aec334206cd56cd2dd8c67365044fff03a6b839839a7dd9",
+          "size": 14184,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/task_editor.lua"
+        },
+        "overseer/task_list/actions.lua": {
+          "sha256": "32aa5f6133fc005a20792b6f25657825acbf829b64942a42ab0a4193a713c2af",
+          "size": 5351,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/task_list/actions.lua"
+        },
+        "overseer/task_list/init.lua": {
+          "sha256": "2eb93d2cf04d1dfefd9ee4cce6247f356bc22715550371c38ca19b53bc858d64",
+          "size": 6256,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/task_list/init.lua"
+        },
+        "overseer/task_list/keymaps.lua": {
+          "sha256": "4a8a2d3eefd30351fcdb13ee6fcd856500dca31ee123a0ee5524eb8786afa238",
+          "size": 2555,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/task_list/keymaps.lua"
+        },
+        "overseer/task_list/sidebar.lua": {
+          "sha256": "eeefd7da894a996bdb35336271dd810812298d21450283b045bcaafaa9240549",
+          "size": 11419,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/task_list/sidebar.lua"
+        },
+        "overseer/task_view.lua": {
+          "sha256": "1ab3ee0b563d238b3e61ca4517b306fb408fa791bf2e5b557f26ed427d243f01",
+          "size": 5526,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/task_view.lua"
+        },
+        "overseer/template.lua": {
+          "sha256": "ed0f429e0947d54c4d225c4e7c1c473ccfc3185df071b020e340035bb4fc6e32",
+          "size": 21806,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template.lua"
+        },
+        "overseer/template/cargo-make.lua": {
+          "sha256": "caaf299d535b26c15296ada4ec644741b06f8146b40bf041eca8c08bac120d03",
+          "size": 1057,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/cargo-make.lua"
+        },
+        "overseer/template/cargo.lua": {
+          "sha256": "c9c38980dc7dd85bae7bbea4d44519574008e804a1573a7609a91e23b4375440",
+          "size": 3156,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/cargo.lua"
+        },
+        "overseer/template/composer.lua": {
+          "sha256": "dda7d969db9c7945e69c22c15727fd2513e5027ef16a6c244358c8a66f3d5c4e",
+          "size": 938,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/composer.lua"
+        },
+        "overseer/template/deno.lua": {
+          "sha256": "14f7950024eb06e10a9c2878302667403039f66f525472990809335f4370a8df",
+          "size": 970,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/deno.lua"
+        },
+        "overseer/template/just.lua": {
+          "sha256": "7dafd66e77d52409fdd10b6f7a377691338883ef56ae29be17c653004710ab59",
+          "size": 4248,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/just.lua"
+        },
+        "overseer/template/mage.lua": {
+          "sha256": "5a678e55fe824edf0d8efdf3d80364bdb4c016aca62d03fb8b1d17cd0a73d46c",
+          "size": 2334,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/mage.lua"
+        },
+        "overseer/template/make.lua": {
+          "sha256": "4d6b697f87c4014556abe6cd322b3b61c1ca6c18905cb8de025f755dfed52cb7",
+          "size": 1899,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/make.lua"
+        },
+        "overseer/template/mise.lua": {
+          "sha256": "5db3a4b0fc111dee55e5699cf0fec4e09ec085fefc0363230cf6eaac8ede295e",
+          "size": 2082,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/mise.lua"
+        },
+        "overseer/template/mix.lua": {
+          "sha256": "7a7337216509b135dfad168749cd7d8a3bf20c5f8a983438a3427103ddd5441b",
+          "size": 1278,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/mix.lua"
+        },
+        "overseer/template/npm.lua": {
+          "sha256": "7a51254eaaffb9b3dcc075121ae19bf4477d73aea6e36bce7845d4681b6f7652",
+          "size": 4468,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/npm.lua"
+        },
+        "overseer/template/rake.lua": {
+          "sha256": "d2447c41ebb5f0bdbdeedb5d7d617455cf3756a6019f304153313ccfb0dfd749",
+          "size": 2491,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/rake.lua"
+        },
+        "overseer/template/task.lua": {
+          "sha256": "39688b1ebb1b1f191d1eb5ad78fa9906f513595d3783f7ad49ca15ffc3288093",
+          "size": 1772,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/task.lua"
+        },
+        "overseer/template/tox.lua": {
+          "sha256": "f8edbdfad46b6f5f33b5be3c4d431418c84abb79683f70bfc41dc6e3d17cf23a",
+          "size": 1122,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/tox.lua"
+        },
+        "overseer/template/vscode.lua": {
+          "sha256": "154030b8ad4c575b24440e558bd28b6987e33ff5f7f7c1f873ee2e829049a314",
+          "size": 1453,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/template/vscode.lua"
+        },
+        "overseer/util.lua": {
+          "sha256": "bfb44090a5ae00012051a8cb08332348c7fb146f7a696ea5928cbea1ad0d0b52",
+          "size": 22506,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/util.lua"
+        },
+        "overseer/vscode/init.lua": {
+          "sha256": "bcd2eb12c12d811d1ebfe55a291fc835537a8f9862e1a164b3c89a5ff6e3cdc0",
+          "size": 9579,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/init.lua"
+        },
+        "overseer/vscode/problem_matcher.lua": {
+          "sha256": "239b6e2349dbd82182598eb93490d1cca3365ef987c573066f3bdb9b3c5ecfb4",
+          "size": 18049,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/problem_matcher.lua"
+        },
+        "overseer/vscode/provider/func/debug_java.lua": {
+          "sha256": "aaa9c28e7c3c933963e00d26c34ae5744ae2e474bb403614bdd6f68d47356625",
+          "size": 448,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/func/debug_java.lua"
+        },
+        "overseer/vscode/provider/func/debug_node.lua": {
+          "sha256": "c1033ce3bade32ce4621cd5a31227947372e67266c9a620451cf8ae927132ff4",
+          "size": 396,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/func/debug_node.lua"
+        },
+        "overseer/vscode/provider/func/debug_powershell.lua": {
+          "sha256": "019b761f607049d4bd22e65f2c2bbcc2115165cafc64ab552636d1d34d1dfebe",
+          "size": 184,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/func/debug_powershell.lua"
+        },
+        "overseer/vscode/provider/func/init.lua": {
+          "sha256": "fc73fee9a99333cf1e24e0b10a516b9881043f17fb49dec0c3d8bf56a09aff2b",
+          "size": 4756,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/func/init.lua"
+        },
+        "overseer/vscode/provider/npm.lua": {
+          "sha256": "d1c0ad6eb65c0294364a0aa179a33d357a88e4737fd11ef2d1987fbef7acf791",
+          "size": 766,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/npm.lua"
+        },
+        "overseer/vscode/provider/process.lua": {
+          "sha256": "9465fbdeda47672ac7bbaf1735ca1dacf0ede616a08b049de6c886450d9255d4",
+          "size": 158,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/process.lua"
+        },
+        "overseer/vscode/provider/shell.lua": {
+          "sha256": "57b4f8d2a1c788b546715e463a40afca994691adb6665edf836ffd90e0983c1b",
+          "size": 382,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/shell.lua"
+        },
+        "overseer/vscode/provider/typescript.lua": {
+          "sha256": "2899850539e396d197ff9c700dbd9b3ee7b03515ff7d3b48609d1f6af366a745",
+          "size": 534,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/provider/typescript.lua"
+        },
+        "overseer/vscode/variables.lua": {
+          "sha256": "f82e71d3d41e66aeaf35b06f54b981d5809a32871693e25f50784f1e41f6dd22",
+          "size": 4859,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/variables.lua"
+        },
+        "overseer/vscode/vs_util.lua": {
+          "sha256": "99146ec957178e4cc5461ed1429247c40bee318de76e4802c9cb07894fa7f073",
+          "size": 906,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/vscode/vs_util.lua"
+        },
+        "overseer/window.lua": {
+          "sha256": "f19e9798a8695ae4777a7610f44e3aa7c3531b8d42f55663cf408eebe3a27528",
+          "size": 4473,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/overseer/window.lua"
+        },
+        "resession/extensions/overseer.lua": {
+          "sha256": "32bc2317494da3a1cc524f3a9b41728cd58ac7083af31e18d3aa64a6c82b48fc",
+          "size": 1232,
+          "url": "https://raw.githubusercontent.com/stevearc/overseer.nvim/v2.1.0/lua/resession/extensions/overseer.lua"
+        }
+      },
+      "homepage": "https://github.com/stevearc/overseer.nvim",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 12 Jan 2026 20:48:36 GMT",
+        "rockspec": {
+          "date": "Mon, 12 Jan 2026 20:48:36 GMT",
+          "sha256": "edff44e7f5980373bb10316e5853d10ef5b888ceb91f08ac2641f5c063995ed8",
+          "size": 763
+        },
+        "src": {
+          "date": "Mon, 12 Jan 2026 20:48:37 GMT",
+          "sha256": "2e5e102ea9e055e1fd90374b1c9ca8c4de2612b518b499858c0f9eb3c5a9335d",
+          "size": 247396,
+          "url": "https://luarocks.org/overseer.nvim-2.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "cmp_overseer",
+        "lualine.components.overseer",
+        "neotest.client.strategies.overseer",
+        "neotest.consumers.overseer",
+        "overseer",
+        "overseer.action_util",
+        "overseer.commands",
+        "overseer.component",
+        "overseer.component.dependencies",
+        "overseer.component.dependencies.on_success_complete_dependency",
+        "overseer.component.display_duration",
+        "overseer.component.neotest.link_with_neotest",
+        "overseer.component.on_complete_dispose",
+        "overseer.component.on_complete_notify",
+        "overseer.component.on_complete_restart",
+        "overseer.component.on_exit_set_status",
+        "overseer.component.on_output_notify",
+        "overseer.component.on_output_parse",
+        "overseer.component.on_output_quickfix",
+        "overseer.component.on_output_summarize",
+        "overseer.component.on_output_write_file",
+        "overseer.component.on_result_diagnostics",
+        "overseer.component.on_result_diagnostics_quickfix",
+        "overseer.component.on_result_diagnostics_trouble",
+        "overseer.component.on_result_notify",
+        "overseer.component.open_output",
+        "overseer.component.orchestrator.on_broadcast_update_orchestrator",
+        "overseer.component.orchestrator.on_status_broadcast",
+        "overseer.component.restart_on_save",
+        "overseer.component.run_after",
+        "overseer.component.timeout",
+        "overseer.component.unique",
+        "overseer.config",
+        "overseer.constants",
+        "overseer.dap",
+        "overseer.enum",
+        "overseer.files",
+        "overseer.form",
+        "overseer.form.utils",
+        "overseer.health",
+        "overseer.json",
+        "overseer.keymap_util",
+        "overseer.layout",
+        "overseer.log",
+        "overseer.notifier",
+        "overseer.parselib",
+        "overseer.render",
+        "overseer.shell",
+        "overseer.strategy",
+        "overseer.strategy.jobstart",
+        "overseer.strategy.orchestrator",
+        "overseer.strategy.system",
+        "overseer.strategy.test",
+        "overseer.task",
+        "overseer.task_editor",
+        "overseer.task_list",
+        "overseer.task_list.actions",
+        "overseer.task_list.keymaps",
+        "overseer.task_list.sidebar",
+        "overseer.task_view",
+        "overseer.template",
+        "overseer.template.cargo",
+        "overseer.template.cargo-make",
+        "overseer.template.composer",
+        "overseer.template.deno",
+        "overseer.template.just",
+        "overseer.template.mage",
+        "overseer.template.make",
+        "overseer.template.mise",
+        "overseer.template.mix",
+        "overseer.template.npm",
+        "overseer.template.rake",
+        "overseer.template.task",
+        "overseer.template.tox",
+        "overseer.template.vscode",
+        "overseer.util",
+        "overseer.vscode",
+        "overseer.vscode.problem_matcher",
+        "overseer.vscode.provider.func",
+        "overseer.vscode.provider.func.debug_java",
+        "overseer.vscode.provider.func.debug_node",
+        "overseer.vscode.provider.func.debug_powershell",
+        "overseer.vscode.provider.npm",
+        "overseer.vscode.provider.process",
+        "overseer.vscode.provider.shell",
+        "overseer.vscode.provider.typescript",
+        "overseer.vscode.variables",
+        "overseer.vscode.vs_util",
+        "overseer.window",
+        "resession.extensions.overseer"
+      ],
+      "origin": {
+        "sha256": "4423afc476bc6d75a63af8aa01a2128c0a29cb3919b1949e37238310b8a8d63a",
+        "type": "archive",
+        "url": "https://github.com/stevearc/overseer.nvim/archive/v2.1.0.zip"
+      },
+      "size": 406444,
+      "summary": "A task runner and job management plugin for Neovim",
+      "undeclared_requires": [
+        "cmp",
+        "dap",
+        "dap.ext.vscode",
+        "lualine",
+        "lualine.component",
+        "lualine.utils.utils",
+        "neotest",
+        "neotest.config",
+        "neotest.consumers.run",
+        "neotest.lib",
+        "nio",
+        "notify"
+      ],
+      "vlr": {
+        "cause": "missing module: lualine.component",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 23,
+        "status": "partial",
+        "total": 90
+      }
+    }
+  }
+}

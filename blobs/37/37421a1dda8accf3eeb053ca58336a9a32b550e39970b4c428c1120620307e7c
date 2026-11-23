@@ -1,0 +1,162 @@
+local ffi = require "ffi"
+
+ffi.cdef([[
+	// dataset.h
+	typedef struct {
+		char *name;
+		char *type;
+		char *category;
+		char *os;
+		char *vendor;
+	} woothee_data_t;
+
+	typedef struct {
+		woothee_data_t MSIE;
+		woothee_data_t Edge;
+		woothee_data_t Chrome;
+		woothee_data_t Safari;
+		woothee_data_t Firefox;
+		woothee_data_t Opera;
+		woothee_data_t Vivaldi;
+		woothee_data_t Sleipnir;
+		woothee_data_t Webview;
+		woothee_data_t Win;
+		woothee_data_t Win10;
+		woothee_data_t Win8_1;
+		woothee_data_t Win8;
+		woothee_data_t Win7;
+		woothee_data_t WinVista;
+		woothee_data_t WinXP;
+		woothee_data_t Win2000;
+		woothee_data_t WinNT4;
+		woothee_data_t WinMe;
+		woothee_data_t Win98;
+		woothee_data_t Win95;
+		woothee_data_t WinPhone;
+		woothee_data_t WinCE;
+		woothee_data_t OSX;
+		woothee_data_t MacOS;
+		woothee_data_t Linux;
+		woothee_data_t BSD;
+		woothee_data_t ChromeOS;
+		woothee_data_t Android;
+		woothee_data_t iPhone;
+		woothee_data_t iPad;
+		woothee_data_t iPod;
+		woothee_data_t iOS;
+		woothee_data_t FirefoxOS;
+		woothee_data_t BlackBerry;
+		woothee_data_t BlackBerry10;
+		woothee_data_t docomo;
+		woothee_data_t au;
+		woothee_data_t SoftBank;
+		woothee_data_t willcom;
+		woothee_data_t jig;
+		woothee_data_t emobile;
+		woothee_data_t SymbianOS;
+		woothee_data_t MobileTranscoder;
+		woothee_data_t Nintendo3DS;
+		woothee_data_t NintendoDSi;
+		woothee_data_t NintendoWii;
+		woothee_data_t NintendoWiiU;
+		woothee_data_t PSP;
+		woothee_data_t PSVita;
+		woothee_data_t PS3;
+		woothee_data_t PS4;
+		woothee_data_t Xbox360;
+		woothee_data_t XboxOne;
+		woothee_data_t DigitalTV;
+		woothee_data_t SafariRSSReader;
+		woothee_data_t GoogleDesktop;
+		woothee_data_t WindowsRSSReader;
+		woothee_data_t VariousRSSReader;
+		woothee_data_t HTTPLibrary;
+		woothee_data_t GoogleBot;
+		woothee_data_t GoogleBotMobile;
+		woothee_data_t GoogleMediaPartners;
+		woothee_data_t GoogleFeedFetcher;
+		woothee_data_t GoogleAppEngine;
+		woothee_data_t GoogleWebPreview;
+		woothee_data_t YahooSlurp;
+		woothee_data_t YahooJP;
+		woothee_data_t YahooPipes;
+		woothee_data_t Baiduspider;
+		woothee_data_t msnbot;
+		woothee_data_t bingbot;
+		woothee_data_t Yeti;
+		woothee_data_t FeedBurner;
+		woothee_data_t facebook;
+		woothee_data_t twitter;
+		woothee_data_t mixi;
+		woothee_data_t IndyLibrary;
+		woothee_data_t ApplePubSub;
+		woothee_data_t Genieo;
+		woothee_data_t topsyButterfly;
+		woothee_data_t rogerbot;
+		woothee_data_t AhrefsBot;
+		woothee_data_t radian6;
+		woothee_data_t Hatena;
+		woothee_data_t goo;
+		woothee_data_t livedoorFeedFetcher;
+		woothee_data_t VariousCrawler;
+	} woothee_dataset_t;
+
+	// woothee.h
+	typedef struct {
+		char *name;
+		char *category;
+		char *os;
+		char *os_version;
+		char *version;
+		char *vendor;
+	} woothee_t;
+
+	void woothee_delete(woothee_t *self);
+
+	woothee_t * woothee_parse(const char *useragent);
+	int woothee_is_crawler(const char *useragent);
+
+	// appliance.h
+	int woothee_appliance_challenge_playstation(const char *ua, woothee_t *result);
+	int woothee_appliance_challenge_nintendo(const char *ua, woothee_t *result);
+	int woothee_appliance_challenge_digitaltv(const char *ua, woothee_t *result);
+
+	// browser.h
+	int woothee_browser_challenge_msie(const char *ua, woothee_t *result);
+	int woothee_browser_challenge_safari_chrome(const char *ua, woothee_t *result);
+	int woothee_browser_challenge_firefox(const char *ua, woothee_t *result);
+	int woothee_browser_challenge_opera(const char *ua, woothee_t *result);
+	int woothee_browser_challenge_webview(const char *ua, woothee_t *result);
+	int woothee_browser_challenge_sleipnir(const char *ua, woothee_t *result);
+
+	// crawler.h
+	int woothee_crawler_challenge_google(const char *ua, woothee_t *result);
+	int woothee_crawler_challenge_crawlers(const char *ua, woothee_t *result);
+	int woothee_crawler_challenge_maybe_crawler(const char *ua, woothee_t *result);
+
+	// mobilephone.h
+	int woothee_mobilephone_challenge_docomo(const char *ua, woothee_t *result);
+	int woothee_mobilephone_challenge_au(const char *ua, woothee_t *result);
+	int woothee_mobilephone_challenge_softbank(const char *ua, woothee_t *result);
+	int woothee_mobilephone_challenge_willcom(const char *ua, woothee_t *result);
+	int woothee_mobilephone_challenge_misc(const char *ua, woothee_t *result);
+
+	// os.h
+	int woothee_os_challenge_windows(const char *ua, woothee_t *result);
+	int woothee_os_challenge_osx(const char *ua, woothee_t *result);
+	int woothee_os_challenge_linux(const char *ua, woothee_t *result);
+	int woothee_os_challenge_smartphone(const char *ua, woothee_t *result);
+	int woothee_os_challenge_mobilephone(const char *ua, woothee_t *result);
+	int woothee_os_challenge_appliance(const char *ua, woothee_t *result);
+	int woothee_os_challenge_misc(const char *ua, woothee_t *result);
+
+	// util.h
+	void woothee_update(woothee_t *result, woothee_data_t *source);
+	void woothee_update_category(woothee_t *target, char *category);
+	void woothee_update_version(woothee_t *target, char *version);
+	void woothee_update_os(woothee_t *target, char *os);
+	void woothee_update_os_version(woothee_t *target, char *version);
+
+	int woothee_match(const char *regex, int caseless, const char *str);
+	char * woothee_match_get(const char *regex, int caseless, const char *str, int n);
+]])

@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "wayz-kafka-log",
+  "versions": {
+    "0.0.2-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-kafka",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "lua-resty-kafka >= 0.07"
+      ],
+      "files": {
+        "kong/plugins/kafka-log/handler.lua": {
+          "sha256": "4143a79d1e8d401244d2b92c98a440cd17ea8d6205277b95b44ea6c098a8f5d2",
+          "size": 1996,
+          "url": "https://raw.githubusercontent.com/tzssangglass/kong-plugin-kafka-log/d39b1a8ead8b933e3e46aa60884a07961979e7f4/kong/plugins/kafka-log/handler.lua"
+        },
+        "kong/plugins/kafka-log/producers.lua": {
+          "sha256": "2f3bec44182f5dca0f39b692e0a1d524f0d9df40000c4cec8e9cd124b4a5702d",
+          "size": 1395,
+          "url": "https://raw.githubusercontent.com/tzssangglass/kong-plugin-kafka-log/d39b1a8ead8b933e3e46aa60884a07961979e7f4/kong/plugins/kafka-log/producers.lua"
+        },
+        "kong/plugins/kafka-log/schema.lua": {
+          "sha256": "ad2e6253483ecaec73eb95e034d9398927201e69da19aa87ee6d938860780cf7",
+          "size": 2706,
+          "url": "https://raw.githubusercontent.com/tzssangglass/kong-plugin-kafka-log/d39b1a8ead8b933e3e46aa60884a07961979e7f4/kong/plugins/kafka-log/schema.lua"
+        },
+        "kong/plugins/kafka-log/types.lua": {
+          "sha256": "3434b5ae2c3bf148a42d2aacf15763d184bd6c0e43793709e1c6062615c775a9",
+          "size": 399,
+          "url": "https://raw.githubusercontent.com/tzssangglass/kong-plugin-kafka-log/d39b1a8ead8b933e3e46aa60884a07961979e7f4/kong/plugins/kafka-log/types.lua"
+        }
+      },
+      "homepage": "https://github.com/tzssangglass/kong-plugin-kafka-log",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1, < 5.2",
+      "luarocks": {
+        "date": "Fri, 18 Feb 2022 02:54:46 GMT",
+        "rockspec": {
+          "date": "Fri, 18 Feb 2022 02:54:46 GMT",
+          "sha256": "3c0aa7962100ffd048d97fb39d0b5e6ebe5a993de42fd3e13c00f44352456e2b",
+          "size": 779
+        },
+        "src": {
+          "date": "Fri, 18 Feb 2022 02:54:48 GMT",
+          "sha256": "dd27d7698785b6100c5003c0ebbfed3059bf67eb745ccf95c74a946d3e91597d",
+          "size": 12484,
+          "url": "https://luarocks.org/wayz-kafka-log-0.0.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kafka-log.handler",
+        "kong.plugins.kafka-log.producers",
+        "kong.plugins.kafka-log.schema",
+        "kong.plugins.kafka-log.types"
+      ],
+      "origin": {
+        "commit": "d39b1a8ead8b933e3e46aa60884a07961979e7f4",
+        "ref": "0.0.2",
+        "type": "git",
+        "url": "https://github.com/tzssangglass/kong-plugin-kafka-log"
+      },
+      "size": 6496,
+      "summary": "This plugin sends request and response logs to Kafka.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "kong.tools.utils",
+        "resty.kafka.producer"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

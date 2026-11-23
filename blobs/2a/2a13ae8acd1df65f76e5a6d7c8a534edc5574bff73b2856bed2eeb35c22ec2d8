@@ -1,0 +1,115 @@
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local table = _tl_compat and _tl_compat.table or table
+local doc = require("cerulean.doc")
+local parser = require("cerulean.parser")
+local render_builders = require("cerulean.render_builders")
+local trivia_doc = require("cerulean.trivia_doc")
+
+
+
+
+
+local ItemRenderSpec = {}
+
+
+
+
+
+
+local delimited_list_doc = {
+   ItemRenderSpec = ItemRenderSpec,
+}
+
+function ItemRenderSpec.new(
+   force_wrap, render_item, make_separator)
+
+   local self = setmetatable({}, { __index = ItemRenderSpec })
+   self.force_wrap = force_wrap
+   self.render_item = render_item
+   self.make_separator = make_separator
+   return self
+end
+
+
+
+function delimited_list_doc.render_items(
+   item_nodes, dangling, spec)
+
+   local parts = {}
+   local line_before = false
+   for index, item in ipairs(item_nodes) do
+      line_before = render_builders.append_comment_docs(
+      parts, item.leading_comments or {}, line_before)
+
+      local suppress_blank = not spec.force_wrap
+      local pre_item_doc = render_builders.append_lines_pre_node(
+      item, line_before, nil, suppress_blank)
+
+      table.insert(parts, pre_item_doc)
+      local item_parts = {}
+      trivia_doc.append_leading(item_parts, parser.inline_trivia(item, "leading"))
+      table.insert(item_parts, spec.render_item(item))
+      trivia_doc.append_inline(
+      item_parts, parser.inline_trivia(item, "before_separator"))
+
+      table.insert(item_parts, spec.make_separator(item, index == #item_nodes))
+      table.insert(parts, doc.concat(item_parts))
+      table.insert(parts, render_builders.trailing_comment_doc(item))
+      line_before = true
+   end
+   render_builders.append_comment_docs(parts, dangling, line_before)
+
+   local items_doc = doc.concat(parts)
+   if not spec.force_wrap then
+      items_doc = doc.group(items_doc)
+   end
+   return items_doc
+end
+
+local function paren_separator(item, is_last)
+   if is_last then
+      return doc.text("")
+   end
+   local has_trailing = #(item.trailing_comments or {}) > 0
+   return doc.text(has_trailing and "," or ", ")
+end
+
+
+
+
+
+function delimited_list_doc.render_parens(
+   list_node, item_nodes, render_item)
+
+   local after_opener = parser.inline_trivia(list_node, "after_opener")
+   local dangling = list_node.dangling_comments or {}
+   local force_wrap = render_builders.any_items_have_comments(list_node) or
+   #after_opener > 0 or
+   #dangling > 0
+
+   local items_doc = delimited_list_doc.render_items(
+   item_nodes,
+   dangling,
+   ItemRenderSpec.new(force_wrap, render_item, paren_separator))
+
+
+   local function build_body()
+      local items_trimmed = doc.trim_lines(items_doc)
+      local body_parts = { doc.text("(") }
+      if #after_opener > 0 then
+         trivia_doc.append_inline(body_parts, after_opener)
+         table.insert(body_parts, doc.indent_hardline(items_trimmed))
+      else
+         table.insert(body_parts, doc.indent_softline(items_trimmed))
+      end
+      table.insert(body_parts, doc.softclose(")"))
+      return doc.concat(body_parts)
+   end
+
+   local body = build_body()
+   if force_wrap then
+      return doc.concat({ doc.break_parent(), body })
+   end
+   return doc.group(body)
+end
+
+return delimited_list_doc

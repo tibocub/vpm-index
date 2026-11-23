@@ -1,0 +1,397 @@
+{
+  "kind": "app",
+  "name": "multistreamer",
+  "versions": {
+    "12.2.2-0": {
+      "bin": {
+        "multistreamer": "bin/multistreamer"
+      },
+      "deps": [
+        "lua-resty-exec",
+        "lua-resty-jit-uuid",
+        "lua-resty-http",
+        "lapis",
+        "etlua",
+        "luacrypto",
+        "luaposix",
+        "luafilesystem",
+        "lyaml",
+        "redis-lua",
+        "md5"
+      ],
+      "files": {
+        "bin/multistreamer": {
+          "sha256": "4cbc921bb103ec21057f71ef65dbe5c7b1ecd1f795255b2ff010db0d34857599",
+          "size": 78,
+          "url": "blob:4cbc921bb103ec21057f71ef65dbe5c7b1ecd1f795255b2ff010db0d34857599"
+        },
+        "multistreamer/api/v1.lua": {
+          "sha256": "55ed34307fa884bbd139e194a9dde50acc6f731e61ccfa1ed3f0ee666d490135",
+          "size": 12858,
+          "url": "blob:55ed34307fa884bbd139e194a9dde50acc6f731e61ccfa1ed3f0ee666d490135"
+        },
+        "multistreamer/chat_manager.lua": {
+          "sha256": "4abd8e4a667f8e86a81109475f02636530b752d9205210605aedb88e52a9bb3a",
+          "size": 7270,
+          "url": "blob:4abd8e4a667f8e86a81109475f02636530b752d9205210605aedb88e52a9bb3a"
+        },
+        "multistreamer/cli.lua": {
+          "sha256": "e3abba50d7183755e0c44ef4edb68f21a6140f62ea6dc51e9f92b574f66171cc",
+          "size": 6229,
+          "url": "blob:e3abba50d7183755e0c44ef4edb68f21a6140f62ea6dc51e9f92b574f66171cc"
+        },
+        "multistreamer/config.lua": {
+          "sha256": "1c59eeb9c8deb3b531a3fa7199c416c1ef9f4ec0c75ae8194c30aa75bb604e4a",
+          "size": 7096,
+          "url": "blob:1c59eeb9c8deb3b531a3fa7199c416c1ef9f4ec0c75ae8194c30aa75bb604e4a"
+        },
+        "multistreamer/getopt.lua": {
+          "sha256": "febd14d354b91b17a70be912d348b1ccacdf05970aabf551a74df1ef6a673ab1",
+          "size": 3926,
+          "url": "blob:febd14d354b91b17a70be912d348b1ccacdf05970aabf551a74df1ef6a673ab1"
+        },
+        "multistreamer/http.lua": {
+          "sha256": "2cb1302be24745d5278f0ddb35dfc3c0254d82932ad49107de844a2e7a31bfd5",
+          "size": 1553,
+          "url": "blob:2cb1302be24745d5278f0ddb35dfc3c0254d82932ad49107de844a2e7a31bfd5"
+        },
+        "multistreamer/importexport.lua": {
+          "sha256": "eb99c8656697ecb0c57bf7a81ffc5ea431df633b82e150b8de663d15a8834fa7",
+          "size": 5051,
+          "url": "blob:eb99c8656697ecb0c57bf7a81ffc5ea431df633b82e150b8de663d15a8834fa7"
+        },
+        "multistreamer/irc.lua": {
+          "sha256": "c58b6585cbb638c5952fb3c699a42192bd3b7b48f5e62e220edbd8366e1e08d5",
+          "size": 4941,
+          "url": "blob:c58b6585cbb638c5952fb3c699a42192bd3b7b48f5e62e220edbd8366e1e08d5"
+        },
+        "multistreamer/irc/client.lua": {
+          "sha256": "1fe928ab2bef77251a9f8bbd3470ae733e90645910adf29bbca7a7739eaa758c",
+          "size": 5617,
+          "url": "blob:1fe928ab2bef77251a9f8bbd3470ae733e90645910adf29bbca7a7739eaa758c"
+        },
+        "multistreamer/irc/server.lua": {
+          "sha256": "52de174b41eca2d36bc60e02cf03d2373c95694093b6a5ee685cea12659d035f",
+          "size": 31414,
+          "url": "blob:52de174b41eca2d36bc60e02cf03d2373c95694093b6a5ee685cea12659d035f"
+        },
+        "multistreamer/irc/state.lua": {
+          "sha256": "0ae4905e88c07dfbe5bb75731c49a7c161ea19ebac7959d70bd92fc120d53fea",
+          "size": 24281,
+          "url": "blob:0ae4905e88c07dfbe5bb75731c49a7c161ea19ebac7959d70bd92fc120d53fea"
+        },
+        "multistreamer/migrations.lua": {
+          "sha256": "bfc0c4daac45c0e1b2e4d4d3b24473ff42414e09b81271a3d96d6c321b1d536d",
+          "size": 4913,
+          "url": "blob:bfc0c4daac45c0e1b2e4d4d3b24473ff42414e09b81271a3d96d6c321b1d536d"
+        },
+        "multistreamer/models.lua": {
+          "sha256": "0a9f24f7d1a28cfaa777e489956d686c570d37f44b557a419542f8af7c8efda3",
+          "size": 88,
+          "url": "blob:0a9f24f7d1a28cfaa777e489956d686c570d37f44b557a419542f8af7c8efda3"
+        },
+        "multistreamer/models/account.lua": {
+          "sha256": "464f8343d5523a36ed9e67fb35025272eb6c5ad845468079b0a674b17869956d",
+          "size": 3272,
+          "url": "blob:464f8343d5523a36ed9e67fb35025272eb6c5ad845468079b0a674b17869956d"
+        },
+        "multistreamer/models/keystore.lua": {
+          "sha256": "64101f1701d0bc1a4fbd641a3533212f7093a6da60236ac68747ba2d2f93443d",
+          "size": 5316,
+          "url": "blob:64101f1701d0bc1a4fbd641a3533212f7093a6da60236ac68747ba2d2f93443d"
+        },
+        "multistreamer/models/shared_account.lua": {
+          "sha256": "26edb175dc7afd22b54c328363e2861a1185f30a6a1a304ab90900134d9db391",
+          "size": 297,
+          "url": "blob:26edb175dc7afd22b54c328363e2861a1185f30a6a1a304ab90900134d9db391"
+        },
+        "multistreamer/models/shared_stream.lua": {
+          "sha256": "34c1b9bda52d3b9549a1c2b8c0313f245fc8b9ca377d669eef8b1e7e6ad4cdd7",
+          "size": 291,
+          "url": "blob:34c1b9bda52d3b9549a1c2b8c0313f245fc8b9ca377d669eef8b1e7e6ad4cdd7"
+        },
+        "multistreamer/models/stream.lua": {
+          "sha256": "ebf39cb24f65e85fded878347ff866e8e2012fde2f238c2583687e065c2bc8cd",
+          "size": 6089,
+          "url": "blob:ebf39cb24f65e85fded878347ff866e8e2012fde2f238c2583687e065c2bc8cd"
+        },
+        "multistreamer/models/stream_account.lua": {
+          "sha256": "0ae626f8e028f05d5d012fccbe560e537c47d8504d3d429f2c4633bf31cb25a6",
+          "size": 827,
+          "url": "blob:0ae626f8e028f05d5d012fccbe560e537c47d8504d3d429f2c4633bf31cb25a6"
+        },
+        "multistreamer/models/user.lua": {
+          "sha256": "00b6ce0eec6018835c11b3a5cccbb59664857050ec6cd23553411135d3480028",
+          "size": 4472,
+          "url": "blob:00b6ce0eec6018835c11b3a5cccbb59664857050ec6cd23553411135d3480028"
+        },
+        "multistreamer/models/webhook.lua": {
+          "sha256": "5fd72de710871fe36c8091b019d06ea56167e02386132c3bf5b7c5e6e30fee62",
+          "size": 8052,
+          "url": "blob:5fd72de710871fe36c8091b019d06ea56167e02386132c3bf5b7c5e6e30fee62"
+        },
+        "multistreamer/networks.lua": {
+          "sha256": "4d0aab418eee2a3b994c18376600465a2ff1449648f4251dd8b554f93f9e8477",
+          "size": 1124,
+          "url": "blob:4d0aab418eee2a3b994c18376600465a2ff1449648f4251dd8b554f93f9e8477"
+        },
+        "multistreamer/networks/facebook.lua": {
+          "sha256": "5c8d58f44b7c1c1e4bb99fd79a416596ac917b36c63fc2c00fee48601841aebe",
+          "size": 20218,
+          "url": "blob:5c8d58f44b7c1c1e4bb99fd79a416596ac917b36c63fc2c00fee48601841aebe"
+        },
+        "multistreamer/networks/mixer.lua": {
+          "sha256": "7aaf778fb969c3a05de09b52824de15ed4428a117382b77af87fd5ddbf8e43e0",
+          "size": 16089,
+          "url": "blob:7aaf778fb969c3a05de09b52824de15ed4428a117382b77af87fd5ddbf8e43e0"
+        },
+        "multistreamer/networks/rtmp.lua": {
+          "sha256": "9ad86d050a19445236c07e12246bd399b10422f45d78f6044efb6bff1b575250",
+          "size": 2555,
+          "url": "blob:9ad86d050a19445236c07e12246bd399b10422f45d78f6044efb6bff1b575250"
+        },
+        "multistreamer/networks/twitch.lua": {
+          "sha256": "2b44bc53b326bb3aea817fd3087622a7361ae569ea9249ab9ba0120c8eb2c40a",
+          "size": 17672,
+          "url": "blob:2b44bc53b326bb3aea817fd3087622a7361ae569ea9249ab9ba0120c8eb2c40a"
+        },
+        "multistreamer/networks/youtube.lua": {
+          "sha256": "4a7055c117e7f18ba3ae81a6edb2e4f34affbd12adb865aea38c0f652f273383",
+          "size": 21051,
+          "url": "blob:4a7055c117e7f18ba3ae81a6edb2e4f34affbd12adb865aea38c0f652f273383"
+        },
+        "multistreamer/nginx-conf.lua": {
+          "sha256": "7979799594235e0a5e1044d67004daa13f023cc862f345194955313c3b625f42",
+          "size": 4872,
+          "url": "blob:7979799594235e0a5e1044d67004daa13f023cc862f345194955313c3b625f42"
+        },
+        "multistreamer/process_manager.lua": {
+          "sha256": "e027240b793622f88997bd636e4c0e3b739b1a5ed79ce7cd8a64d488b109089b",
+          "size": 8499,
+          "url": "blob:e027240b793622f88997bd636e4c0e3b739b1a5ed79ce7cd8a64d488b109089b"
+        },
+        "multistreamer/redis.lua": {
+          "sha256": "cb7df83fa80f79d2c04444b885a842915be30dfa8d30f1bd8c4ee78589f6bf1e",
+          "size": 1339,
+          "url": "blob:cb7df83fa80f79d2c04444b885a842915be30dfa8d30f1bd8c4ee78589f6bf1e"
+        },
+        "multistreamer/shell.lua": {
+          "sha256": "ff687a0ba4898732161e88ef56e46a6e3ba4e9e1703c9293b6597b4dd078e90a",
+          "size": 784,
+          "url": "blob:ff687a0ba4898732161e88ef56e46a6e3ba4e9e1703c9293b6597b4dd078e90a"
+        },
+        "multistreamer/string.lua": {
+          "sha256": "adc7cd9ba9bfa066212a97fed2da0c40641e715867a258a9f3c04e018799e384",
+          "size": 1708,
+          "url": "blob:adc7cd9ba9bfa066212a97fed2da0c40641e715867a258a9f3c04e018799e384"
+        },
+        "multistreamer/version.lua": {
+          "sha256": "1aafd3af74134d7ffd813b1ed7978bb1e710226b86f14cb4cf791fa32c24c4da",
+          "size": 72,
+          "url": "blob:1aafd3af74134d7ffd813b1ed7978bb1e710226b86f14cb4cf791fa32c24c4da"
+        },
+        "multistreamer/views/account-delete.etlua": {
+          "sha256": "01e35b15c7600abe9442cf8974d6d2fc70a259cb4deac3f3ae79a45fb3984cfb",
+          "size": 760,
+          "url": "blob:01e35b15c7600abe9442cf8974d6d2fc70a259cb4deac3f3ae79a45fb3984cfb"
+        },
+        "multistreamer/views/account-share.etlua": {
+          "sha256": "fcbff85494e043cae7a24539d1dd3aaa12542d887da2f611985b1b65b4e2e7ee",
+          "size": 804,
+          "url": "blob:fcbff85494e043cae7a24539d1dd3aaa12542d887da2f611985b1b65b4e2e7ee"
+        },
+        "multistreamer/views/account.etlua": {
+          "sha256": "353c42a91d74b0f30814d2089353e6fa8c7c29a9ac867fa78e9709323b548e3f",
+          "size": 1457,
+          "url": "blob:353c42a91d74b0f30814d2089353e6fa8c7c29a9ac867fa78e9709323b548e3f"
+        },
+        "multistreamer/views/chat-widget-config.etlua": {
+          "sha256": "7697c7a29b060df63601420045775ae8828bc556418bb7a4b182fceec9d859a1",
+          "size": 5746,
+          "url": "blob:7697c7a29b060df63601420045775ae8828bc556418bb7a4b182fceec9d859a1"
+        },
+        "multistreamer/views/chat.etlua": {
+          "sha256": "113f60cba0f3a580b34d25ac13434eb70a4bb75e7fe20f7ed69ae4cec239806a",
+          "size": 4788,
+          "url": "blob:113f60cba0f3a580b34d25ac13434eb70a4bb75e7fe20f7ed69ae4cec239806a"
+        },
+        "multistreamer/views/chatlayout.etlua": {
+          "sha256": "9b648a9ef2216c8a38a84004bc0b9165b3a0636767cfa62858a5c5b03c01849a",
+          "size": 1840,
+          "url": "blob:9b648a9ef2216c8a38a84004bc0b9165b3a0636767cfa62858a5c5b03c01849a"
+        },
+        "multistreamer/views/index.etlua": {
+          "sha256": "0510ef9305e9d766386acc4e4649e6e86f7bd0d3ebd41e6db1d3db4899089044",
+          "size": 3084,
+          "url": "blob:0510ef9305e9d766386acc4e4649e6e86f7bd0d3ebd41e6db1d3db4899089044"
+        },
+        "multistreamer/views/layout.etlua": {
+          "sha256": "c492c1af15f82ef3ce6f879a4ebc9bbce2ea49683282ce5400afcd5dcb48602a",
+          "size": 1493,
+          "url": "blob:c492c1af15f82ef3ce6f879a4ebc9bbce2ea49683282ce5400afcd5dcb48602a"
+        },
+        "multistreamer/views/login.etlua": {
+          "sha256": "14e10e8a862591ad0a2f04e414e504fbaf7a28c2881bd4ffd4470403f68ded80",
+          "size": 575,
+          "url": "blob:14e10e8a862591ad0a2f04e414e504fbaf7a28c2881bd4ffd4470403f68ded80"
+        },
+        "multistreamer/views/plain.etlua": {
+          "sha256": "edfc1f1dc4356ad6dcacc9479f44fc4e9d26142a890dfaee8115902df29a1430",
+          "size": 28,
+          "url": "blob:edfc1f1dc4356ad6dcacc9479f44fc4e9d26142a890dfaee8115902df29a1430"
+        },
+        "multistreamer/views/profile.etlua": {
+          "sha256": "c3fc33a5cf05acea43a6f946775cd93ea3cdc52955a426e7a8a71da7acdbca3a",
+          "size": 1823,
+          "url": "blob:c3fc33a5cf05acea43a6f946775cd93ea3cdc52955a426e7a8a71da7acdbca3a"
+        },
+        "multistreamer/views/simplelayout.etlua": {
+          "sha256": "152d1ddf29595239ee6fc7ded33b75769fc48e61a1ffa3a338bd398916b9184d",
+          "size": 670,
+          "url": "blob:152d1ddf29595239ee6fc7ded33b75769fc48e61a1ffa3a338bd398916b9184d"
+        },
+        "multistreamer/views/stream-accounts.etlua": {
+          "sha256": "ae4c268248f0fc76e0fa917a1c5280235489b4effc21ebf0832eb85a6c61806f",
+          "size": 1418,
+          "url": "blob:ae4c268248f0fc76e0fa917a1c5280235489b4effc21ebf0832eb85a6c61806f"
+        },
+        "multistreamer/views/stream-advanced.etlua": {
+          "sha256": "e9c0b8cc1488086a2e9db229c2d36c446bef5217ab5bd2b998e5fc597316f361",
+          "size": 1415,
+          "url": "blob:e9c0b8cc1488086a2e9db229c2d36c446bef5217ab5bd2b998e5fc597316f361"
+        },
+        "multistreamer/views/stream-dashboard.etlua": {
+          "sha256": "90314b8d7b9dc70fb567bef0262d4274b69560828158879c2dcf89410dc0aa14",
+          "size": 12188,
+          "url": "blob:90314b8d7b9dc70fb567bef0262d4274b69560828158879c2dcf89410dc0aa14"
+        },
+        "multistreamer/views/stream-delete.etlua": {
+          "sha256": "875d9310eddb80c62b81b74c31d8d4f6a9e83b84c97d5b7c19903f3138785372",
+          "size": 428,
+          "url": "blob:875d9310eddb80c62b81b74c31d8d4f6a9e83b84c97d5b7c19903f3138785372"
+        },
+        "multistreamer/views/stream-functions.etlua": {
+          "sha256": "b48d80baf9123395c2f5363ba133e878dde842dbfb99d4c2c82773c16637b2e2",
+          "size": 741,
+          "url": "blob:b48d80baf9123395c2f5363ba133e878dde842dbfb99d4c2c82773c16637b2e2"
+        },
+        "multistreamer/views/stream-menu.etlua": {
+          "sha256": "30eac8fb934546ef9b056037370a76107a331972de745de4be93ccafd56c3ce9",
+          "size": 1671,
+          "url": "blob:30eac8fb934546ef9b056037370a76107a331972de745de4be93ccafd56c3ce9"
+        },
+        "multistreamer/views/stream-permissions.etlua": {
+          "sha256": "099b8287783507414dae27ee801ab8eb262740bb6e9569b1ac38376c5561ecc2",
+          "size": 1735,
+          "url": "blob:099b8287783507414dae27ee801ab8eb262740bb6e9569b1ac38376c5561ecc2"
+        },
+        "multistreamer/views/stream-webhooks.etlua": {
+          "sha256": "093bf99981ebda32ea21f68f3071c70a52092ff9f75c754eaff2ec680f49ea0d",
+          "size": 2903,
+          "url": "blob:093bf99981ebda32ea21f68f3071c70a52092ff9f75c754eaff2ec680f49ea0d"
+        },
+        "multistreamer/views/stream.etlua": {
+          "sha256": "a92932fc0c6c77f84bc2025867ae683ff1d11deec91236368eb11e0908db53df",
+          "size": 1302,
+          "url": "blob:a92932fc0c6c77f84bc2025867ae683ff1d11deec91236368eb11e0908db53df"
+        },
+        "multistreamer/webapp.lua": {
+          "sha256": "642650330113e3d457e7c079372c7c109b1fe1107e7fcf295c601fd6a60bb00b",
+          "size": 42009,
+          "url": "blob:642650330113e3d457e7c079372c7c109b1fe1107e7fcf295c601fd6a60bb00b"
+        },
+        "multistreamer/websocket/server.lua": {
+          "sha256": "81e2862f815a50c7bf47ef4403d7b51b494b07fbff68e5f4911d9dc35079fda9",
+          "size": 9293,
+          "url": "blob:81e2862f815a50c7bf47ef4403d7b51b494b07fbff68e5f4911d9dc35079fda9"
+        }
+      },
+      "host": "openresty",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 23 Feb 2019 23:28:45 GMT",
+        "rockspec": {
+          "date": "Sat, 23 Feb 2019 23:28:45 GMT",
+          "sha256": "671a2538255207deac3c8b9dc6064f6c5bdf06376ef2dd934bee4c3eca097310",
+          "size": 5130
+        },
+        "src": {
+          "date": "Sat, 23 Feb 2019 23:28:47 GMT",
+          "sha256": "be1ee43a4dd08162df64d49d19a35ea7f5fdc7d3e1cebb131e5d7485642e193a",
+          "size": 623309,
+          "url": "https://luarocks.org/multistreamer-12.2.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "multistreamer.api.v1",
+        "multistreamer.chat_manager",
+        "multistreamer.cli",
+        "multistreamer.config",
+        "multistreamer.getopt",
+        "multistreamer.http",
+        "multistreamer.importexport",
+        "multistreamer.irc",
+        "multistreamer.irc.client",
+        "multistreamer.irc.server",
+        "multistreamer.irc.state",
+        "multistreamer.migrations",
+        "multistreamer.models",
+        "multistreamer.models.account",
+        "multistreamer.models.keystore",
+        "multistreamer.models.shared_account",
+        "multistreamer.models.shared_stream",
+        "multistreamer.models.stream",
+        "multistreamer.models.stream_account",
+        "multistreamer.models.user",
+        "multistreamer.models.webhook",
+        "multistreamer.networks",
+        "multistreamer.networks.facebook",
+        "multistreamer.networks.mixer",
+        "multistreamer.networks.rtmp",
+        "multistreamer.networks.twitch",
+        "multistreamer.networks.youtube",
+        "multistreamer.nginx-conf",
+        "multistreamer.process_manager",
+        "multistreamer.redis",
+        "multistreamer.shell",
+        "multistreamer.string",
+        "multistreamer.version",
+        "multistreamer.webapp",
+        "multistreamer.websocket.server"
+      ],
+      "origin": {
+        "date": "Sat, 23 Feb 2019 23:28:47 GMT",
+        "sha256": "be1ee43a4dd08162df64d49d19a35ea7f5fdc7d3e1cebb131e5d7485642e193a",
+        "size": 623309,
+        "type": "luarocks",
+        "url": "https://luarocks.org/multistreamer-12.2.2-0.src.rock"
+      },
+      "size": 338085,
+      "undeclared_requires": [
+        "luarocks.path",
+        "luarocks.search",
+        "lyaml",
+        "multistreamer.lang",
+        "multistreamer.views.layout",
+        "posix",
+        "posix.sys.stat",
+        "resty.md5",
+        "resty.random",
+        "resty.redis",
+        "resty.sha1",
+        "resty.string",
+        "resty.websocket.client",
+        "resty.websocket.server"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

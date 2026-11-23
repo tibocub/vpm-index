@@ -1,0 +1,83 @@
+local is51 = _VERSION == 'Lua 5.1'
+local unpack = table.unpack or unpack
+local type = type
+
+local function push(sequence, value)
+  local n = sequence.n
+  n = n + 1
+  sequence[n] = value
+  sequence.n = n
+end
+
+local metatable = {}
+
+function metatable:__call(arguments)
+  local format_arguments = { }
+  for i, name in ipairs(self) do
+    local type_name = type(name)
+    if type_name ~= 'string' and type_name ~= 'number' then
+      name = name(arguments)
+      if string.match(name, '^%d+$') then
+        name = tonumber(name)
+      end
+    end
+    local argument = arguments[name]
+    -- Lua 5.1 can't handle nil arguments
+    if is51 then
+      argument = tostring(argument)
+    end
+    format_arguments[i] = argument
+  end
+  return string.format(self.format, unpack(format_arguments, 1, self.n))
+end
+
+-- Compile the format string into a callable that will make the substitutions,
+-- or potentially a plain string, if there are no substitutions.
+local function inner_compile(format)
+  local output = { n = 0 }
+  local init = 1
+  local format_parts = { n = 0 }
+  local format_length = #format
+  while init <= format_length do
+    local percent_index = string.find(format, '%', init, true)
+    push(format_parts, string.sub(format, init, percent_index))
+    if not percent_index then
+      break
+    end
+    if string.find(format, '^%%', percent_index + 1) then
+      push(format_parts, '%')
+      init = percent_index + 2
+    else
+      local start, finish = string.find(format, '^%b()', percent_index + 1)
+      if not start then
+        error('Expected %(...) or %% for pattern starting at character ' .. percent_index)
+      end
+      local argname = inner_compile(string.sub(format, start + 1, finish - 1))
+
+      if type(argname) == 'string' and string.match(argname, '^%d+$') then
+        argname = tonumber(argname)
+      end
+
+      push(output, argname)
+      init = finish + 1
+    end
+  end
+  output.format = table.concat(format_parts, '', 1, format_parts.n)
+  if output.n == 0 then
+    return output.format
+  else
+    return setmetatable(output, metatable)
+  end
+end
+
+local function compile(format)
+  local compiled = inner_compile(format)
+  if type(compiled) == 'string' then
+    -- Still return a callable, even if inner_compile returns a string.
+    return setmetatable({ format = compiled, n = 0 }, metatable)
+  else
+    return compiled
+  end
+end
+
+return compile

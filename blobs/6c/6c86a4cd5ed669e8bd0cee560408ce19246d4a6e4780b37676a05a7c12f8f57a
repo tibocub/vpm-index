@@ -1,0 +1,48 @@
+local site = {}
+
+site.base_url = "https://rewordsai.app"
+
+site.metadata = {
+  name = "ReWords AI",
+  homepage = site.base_url,
+  description = "AI image text editor for editing, replacing, removing, and translating text in photos.",
+  tags = { "rewords", "rewordsai", "image-text", "photo-editor", "ai-editor" }
+}
+
+function site.home_url()
+  return site.base_url
+end
+
+function site.tool_url(slug)
+  local clean = tostring(slug or ""):gsub("^/+", ""):gsub("/+$", "")
+  if clean == "" then
+    return site.base_url
+  end
+  return site.base_url .. "/" .. clean
+end
+
+function site.tools_url()
+  return site.tool_url("tools")
+end
+
+function site.edit_text_in_image_url()
+  return site.tool_url("edit-text-in-image")
+end
+
+function site.replace_text_in_image_url()
+  return site.tool_url("replace-text-in-image")
+end
+
+function site.remove_text_from_image_url()
+  return site.tool_url("remove-text-from-image")
+end
+
+function site.photo_text_editor_url()
+  return site.tool_url("photo-text-editor")
+end
+
+function site.translate_text_in_image_url()
+  return site.tool_url("translate-text-in-image")
+end
+
+return site

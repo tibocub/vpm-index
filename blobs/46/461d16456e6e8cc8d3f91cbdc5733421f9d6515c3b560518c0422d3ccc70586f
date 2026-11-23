@@ -1,0 +1,31 @@
+--- languages.en
+-- @module en
+
+local s = require("say")
+
+s:set_namespace("en")
+
+-- s:set("test.message.ko", "Error, sorry.\nOne:\n%s\nTwo:\n%s")
+
+-- base messages
+s:set("base.no.action.given", "No action given")
+s:set("base.invalid.action", "Invalid action: %s")
+s:set("base.error.raised", "Error raised")
+
+-- repos messages
+s:set("repos.no.action.given", "No action given")
+s:set("repos.invalid.action", "Invalid action in repos: %s")
+s:set("repos.valid.actions", "%s. Valid actions are:")
+s:set("repos.list", "Listing repos in current dir")
+s:set("repos.status", "Status of my repositories")
+s:set("repos.updating.repos", "Updating repositories in %s")
+s:set("repos.updating.external.repos", "Updating other repositories")
+s:set("repos.sync.repo.dir.does.not.exist", "Directory %s does no exists")
+
+-- notify messages
+s:set("notify.number.of.updates.low", "Some packages to update...")
+s:set("notify.number.of.updates.normal", "You should update soon")
+s:set("notify.number.of.updates.critical", "Please update NOW!")
+
+-- storage messages
+s:set("storage.check.paths", "Please check paths: source: %s, destination: %s")

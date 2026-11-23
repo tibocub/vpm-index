@@ -1,0 +1,53 @@
+--[[
+  Módulo de configuração de sessão para o plugin OIDC do Kong.
+  
+  Este módulo lida com a configuração de sessões de usuário para manter o estado de autenticação.
+  Ele utiliza o segredo da sessão para proteger os cookies de sessão ou armazenar informações de sessão no servidor.
+  
+  Funções:
+    - configure: Configura o segredo da sessão baseado nas configurações fornecidas no plugin.
+
+  Autor: [Maryucha M. Mariani]
+  Data: [13-09-24]
+  Versão: 1.4.0
+]]
+
+local M = {}
+
+--[[
+  Função: configure
+  Descrição: Configura o segredo da sessão para proteger o estado de autenticação.
+  Ele decodifica o segredo da sessão, se presente, e o atribui à variável NGINX `session_secret`.
+
+  Parâmetros:
+    - config: Tabela de configuração fornecida pelo plugin, contendo o segredo da sessão (session_secret).
+
+  Fluxo:
+    1. Se `session_secret` for fornecido na configuração, a função tenta decodificar a string Base64.
+    2. Se a decodificação falhar, é retornado um erro 500 (Internal Server Error).
+    3. Se bem-sucedido, o segredo é armazenado na variável NGINX `session_secret`.
+
+  Retornos:
+    - Em caso de erro na decodificação, a função envia uma resposta HTTP 500 e registra um erro no log.
+    - Em caso de sucesso, a função não retorna nenhum valor explícito.
+]]
+function M.configure(config)
+  if config.session_secret then
+    -- Decodifica o segredo da sessão
+    local decoded_session_secret = ngx.decode_base64(config.session_secret)
+    
+    if not decoded_session_secret then
+      -- Log de erro e resposta HTTP 500 em caso de falha na decodificação
+      kong.log.err("Invalid plugin configuration, session secret could not be decoded")
+      return kong.response.error(ngx.HTTP_INTERNAL_SERVER_ERROR, "Session secret could not be decoded")
+    end
+    
+    -- Armazena o segredo decodificado na variável NGINX session_secret
+    ngx.var.session_secret = decoded_session_secret
+    kong.log.debug("Session secret successfully decoded and set")
+  else
+    kong.log.debug("Session secret not provided in plugin configuration")
+  end
+end
+
+return M

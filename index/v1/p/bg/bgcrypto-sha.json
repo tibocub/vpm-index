@@ -1,0 +1,230 @@
+{
+  "kind": "lib",
+  "name": "bgcrypto-sha",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/moteus/bgcrypto-sha",
+      "license": "BSD",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Sun, 05 May 2019 13:44:53 GMT",
+        "rockspec": {
+          "date": "Sun, 05 May 2019 13:44:53 GMT",
+          "sha256": "8e74377580056987a818e6503942aa4e951874d59254f7087ae420b2aa0ba698",
+          "size": 1138
+        },
+        "src": {
+          "date": "Sun, 05 May 2019 13:44:55 GMT",
+          "sha256": "76a2dc883b643f5ea6ecf2ffd787208cc54fe89dec24facb622bbb1e66c11feb",
+          "size": 69642,
+          "url": "https://luarocks.org/bgcrypto-sha-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "bgcrypto.sha1",
+        "bgcrypto.sha224",
+        "bgcrypto.sha256",
+        "bgcrypto.sha384",
+        "bgcrypto.sha512",
+        "bgcrypto.sha512_128",
+        "bgcrypto.sha512_192",
+        "bgcrypto.sha512_224",
+        "bgcrypto.sha512_256"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha1",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha1.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha224",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha224.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha256",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha256.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha384",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha384.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha512",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha512.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha512_128",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha512_128.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha512_192",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha512_192.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha512_224",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha512_224.c"
+              ]
+            },
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/sha"
+              ],
+              "name": "bgcrypto.sha512_256",
+              "sources": [
+                "src/l52util.c",
+                "src/sha/sha1.c",
+                "src/sha/sha2.c",
+                "src/sha/hmac.c",
+                "src/lsha512_256.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-bgcrypto-sha-0.1.0"
+      },
+      "origin": {
+        "date": "Sun, 05 May 2019 13:44:55 GMT",
+        "sha256": "76a2dc883b643f5ea6ecf2ffd787208cc54fe89dec24facb622bbb1e66c11feb",
+        "size": 69642,
+        "type": "luarocks",
+        "url": "https://luarocks.org/bgcrypto-sha-0.1.0-1.src.rock"
+      },
+      "summary": "SHA1/SHA2 digest library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

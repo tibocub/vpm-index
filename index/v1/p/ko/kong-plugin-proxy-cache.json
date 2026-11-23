@@ -1,0 +1,106 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-proxy-cache",
+  "versions": {
+    "2.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/proxy-cache/access.lua": {
+          "sha256": "67f48e7f03385b3fd430d9ecfd35bc04ec47c8e082a5f0a83f41648d1485da40",
+          "size": 1352,
+          "url": "blob:67f48e7f03385b3fd430d9ecfd35bc04ec47c8e082a5f0a83f41648d1485da40"
+        },
+        "kong/plugins/proxy-cache/body_filter.lua": {
+          "sha256": "9066aea85fc5a60aea27c7b4a7581c59acb313e9e6f757ad5dad787937ea9846",
+          "size": 2347,
+          "url": "blob:9066aea85fc5a60aea27c7b4a7581c59acb313e9e6f757ad5dad787937ea9846"
+        },
+        "kong/plugins/proxy-cache/cache.lua": {
+          "sha256": "843946360392cc239fa31dd61ff7aac355fc3226260aa984415546a8c01f97a9",
+          "size": 1409,
+          "url": "blob:843946360392cc239fa31dd61ff7aac355fc3226260aa984415546a8c01f97a9"
+        },
+        "kong/plugins/proxy-cache/encoder.lua": {
+          "sha256": "8d25393574c951480c9fee837e877e071f9aeb2f3cf3a31aa272886fb3ebb5cb",
+          "size": 686,
+          "url": "blob:8d25393574c951480c9fee837e877e071f9aeb2f3cf3a31aa272886fb3ebb5cb"
+        },
+        "kong/plugins/proxy-cache/handler.lua": {
+          "sha256": "900156666c88aa470d5a0767a1d06ee1185ce3ca4edd6807d8391f8bcf115523",
+          "size": 1303,
+          "url": "blob:900156666c88aa470d5a0767a1d06ee1185ce3ca4edd6807d8391f8bcf115523"
+        },
+        "kong/plugins/proxy-cache/header_filter.lua": {
+          "sha256": "46fe2c1c2795bf38513534124bb709fd08f94dbda49923926b5265fd58853f06",
+          "size": 261,
+          "url": "blob:46fe2c1c2795bf38513534124bb709fd08f94dbda49923926b5265fd58853f06"
+        },
+        "kong/plugins/proxy-cache/schema.lua": {
+          "sha256": "96208bd29988e3d5c7a6f17b546d3216ac59ff39914d52ed8ea0ef13f3a41155",
+          "size": 1782,
+          "url": "blob:96208bd29988e3d5c7a6f17b546d3216ac59ff39914d52ed8ea0ef13f3a41155"
+        },
+        "kong/plugins/proxy-cache/storage.lua": {
+          "sha256": "f04a754d48bb6552efc6cdc72a0d9990c01a3be8081080a4596c7dc73977b5a7",
+          "size": 2412,
+          "url": "blob:f04a754d48bb6552efc6cdc72a0d9990c01a3be8081080a4596c7dc73977b5a7"
+        },
+        "kong/plugins/proxy-cache/validators.lua": {
+          "sha256": "981c597aaa7e148643ec5906f0c0ca6fe204d2c2eaf1bae31c1d5eeb3f0b6942",
+          "size": 362,
+          "url": "blob:981c597aaa7e148643ec5906f0c0ca6fe204d2c2eaf1bae31c1d5eeb3f0b6942"
+        }
+      },
+      "homepage": "https://github.com/globocom/kong-plugin-proxy-cache",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 13 Nov 2018 16:46:44 GMT",
+        "rockspec": {
+          "date": "Tue, 13 Nov 2018 16:46:44 GMT",
+          "sha256": "d34c0683563ed156fe4767298e900191190457097aabca12afb64439c24ab7c7",
+          "size": 1101
+        },
+        "src": {
+          "date": "Tue, 13 Nov 2018 16:46:47 GMT",
+          "sha256": "1659a77603132a8a9efc42a3af8ff82e6cfd9e0e90c4699b462bac266f905516",
+          "size": 21490,
+          "url": "https://luarocks.org/kong-plugin-proxy-cache-2.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.proxy-cache.access",
+        "kong.plugins.proxy-cache.body_filter",
+        "kong.plugins.proxy-cache.cache",
+        "kong.plugins.proxy-cache.encoder",
+        "kong.plugins.proxy-cache.handler",
+        "kong.plugins.proxy-cache.header_filter",
+        "kong.plugins.proxy-cache.schema",
+        "kong.plugins.proxy-cache.storage",
+        "kong.plugins.proxy-cache.validators"
+      ],
+      "origin": {
+        "date": "Tue, 13 Nov 2018 16:46:47 GMT",
+        "sha256": "1659a77603132a8a9efc42a3af8ff82e6cfd9e0e90c4699b462bac266f905516",
+        "size": 21490,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-proxy-cache-2.0.0-1.src.rock"
+      },
+      "size": 11914,
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.redis.connector"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.redis.connector)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 5,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

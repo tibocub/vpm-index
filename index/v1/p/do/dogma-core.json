@@ -1,0 +1,856 @@
+{
+  "kind": "lib",
+  "name": "dogma-core",
+  "versions": {
+    "1.0.rc18-4": {
+      "bin": [],
+      "deps": [
+        "md5 >= 1.2",
+        "penlight >= 1.5"
+      ],
+      "files": {
+        "dogma/lex/Lexer.lua": {
+          "sha256": "c186c0c73fb72eaa17bc49804535c05a05c7e2e3a0e836cf79cda85cf0d8c1ca",
+          "size": 26714,
+          "url": "blob:c186c0c73fb72eaa17bc49804535c05a05c7e2e3a0e836cf79cda85cf0d8c1ca"
+        },
+        "dogma/lex/LiteralType.lua": {
+          "sha256": "c35060b6eb81e0acdf5da37b259531bf126ae70aab025d59d340ebcfc684b444",
+          "size": 57,
+          "url": "blob:c35060b6eb81e0acdf5da37b259531bf126ae70aab025d59d340ebcfc684b444"
+        },
+        "dogma/lex/TokenType.lua": {
+          "sha256": "e60d43e39a12a9b5a4ebc4dc4f201a06d9075fa5be69edbdbe551b14d8ab4d6b",
+          "size": 137,
+          "url": "blob:e60d43e39a12a9b5a4ebc4dc4f201a06d9075fa5be69edbdbe551b14d8ab4d6b"
+        },
+        "dogma/lex/_/AdvancedList.lua": {
+          "sha256": "23492fb1e49c5a5771950a10158bd874568cb660e0d22017844de0f9acdbaeec",
+          "size": 658,
+          "url": "blob:23492fb1e49c5a5771950a10158bd874568cb660e0d22017844de0f9acdbaeec"
+        },
+        "dogma/lex/_/Annotation.lua": {
+          "sha256": "744c8b5bbadf41b23687eb2d687d5419af7ab658746146c42a0a6ec91420b07c",
+          "size": 634,
+          "url": "blob:744c8b5bbadf41b23687eb2d687d5419af7ab658746146c42a0a6ec91420b07c"
+        },
+        "dogma/lex/_/Char.lua": {
+          "sha256": "2a6dad2075b563f13b80734eb6a6e00810b3a1a8edd0ef7043c5b95c483fe185",
+          "size": 310,
+          "url": "blob:2a6dad2075b563f13b80734eb6a6e00810b3a1a8edd0ef7043c5b95c483fe185"
+        },
+        "dogma/lex/_/Comment.lua": {
+          "sha256": "8a3b524da9cc478a543618bf7947e7e2ad96c2ba571048697de8c28dff7eaef0",
+          "size": 582,
+          "url": "blob:8a3b524da9cc478a543618bf7947e7e2ad96c2ba571048697de8c28dff7eaef0"
+        },
+        "dogma/lex/_/Directive.lua": {
+          "sha256": "b13523d982c381db8acb9720da6ed39ce54bd158146559d0fc38d9ce083e4d2f",
+          "size": 642,
+          "url": "blob:b13523d982c381db8acb9720da6ed39ce54bd158146559d0fc38d9ce083e4d2f"
+        },
+        "dogma/lex/_/Eol.lua": {
+          "sha256": "d271f00e194eb91c6ee9c15b2154218045fd9ed3a05536a80044a5ac7dfa724c",
+          "size": 503,
+          "url": "blob:d271f00e194eb91c6ee9c15b2154218045fd9ed3a05536a80044a5ac7dfa724c"
+        },
+        "dogma/lex/_/Id.lua": {
+          "sha256": "f50aaec87189cf0cd6d2f43ee5d200f7715a4a8cff8ebc9e7b806a3e3d1507c4",
+          "size": 401,
+          "url": "blob:f50aaec87189cf0cd6d2f43ee5d200f7715a4a8cff8ebc9e7b806a3e3d1507c4"
+        },
+        "dogma/lex/_/Keyword.lua": {
+          "sha256": "aabd887f86c89a40cc9413574538a1f91fb902f8fe8dee486a94e4bbe42a083c",
+          "size": 2136,
+          "url": "blob:aabd887f86c89a40cc9413574538a1f91fb902f8fe8dee486a94e4bbe42a083c"
+        },
+        "dogma/lex/_/Literal.lua": {
+          "sha256": "8c7f994780041a6d72fe7e6003df952fd43fa9032ee3b18587f3cfa9a7c8300e",
+          "size": 784,
+          "url": "blob:8c7f994780041a6d72fe7e6003df952fd43fa9032ee3b18587f3cfa9a7c8300e"
+        },
+        "dogma/lex/_/Name.lua": {
+          "sha256": "5f32ff2add575fffd3ae1a2b2207c422bf0dc0231c544828a583df84750d11b1",
+          "size": 522,
+          "url": "blob:5f32ff2add575fffd3ae1a2b2207c422bf0dc0231c544828a583df84750d11b1"
+        },
+        "dogma/lex/_/ProcessedList.lua": {
+          "sha256": "c82ed5599b79f3f1a84fe5f020bacd09d38b77ad464d1ceea35b02b6feb7f2de",
+          "size": 602,
+          "url": "blob:c82ed5599b79f3f1a84fe5f020bacd09d38b77ad464d1ceea35b02b6feb7f2de"
+        },
+        "dogma/lex/_/Re.lua": {
+          "sha256": "897dd49210c2a607577183e8dd424afe769f464fe6d1b65c4016be106751f030",
+          "size": 590,
+          "url": "blob:897dd49210c2a607577183e8dd424afe769f464fe6d1b65c4016be106751f030"
+        },
+        "dogma/lex/_/Reader.lua": {
+          "sha256": "618bb645e491070a2156d8fe1d712b3ad67428ce6311b72fd2ea09d0d9058638",
+          "size": 2187,
+          "url": "blob:618bb645e491070a2156d8fe1d712b3ad67428ce6311b72fd2ea09d0d9058638"
+        },
+        "dogma/lex/_/Symbol.lua": {
+          "sha256": "e03d629b345ef95060e118ead2848f71d289c95d34f77889ffc8cf4c8d2b478d",
+          "size": 562,
+          "url": "blob:e03d629b345ef95060e118ead2848f71d289c95d34f77889ffc8cf4c8d2b478d"
+        },
+        "dogma/lex/_/Token.lua": {
+          "sha256": "e60bf5ebc2da54c15b6c741f7990bccfcf388f3d4ff733dada9ab46f1d4f73f2",
+          "size": 2177,
+          "url": "blob:e60bf5ebc2da54c15b6c741f7990bccfcf388f3d4ff733dada9ab46f1d4f73f2"
+        },
+        "dogma/syn/DirectiveParser.lua": {
+          "sha256": "80f04fb59f6c91e8c0da5ad9a3cb37d68bc11940561f1b997744ba3a0b19e66a",
+          "size": 4406,
+          "url": "blob:80f04fb59f6c91e8c0da5ad9a3cb37d68bc11940561f1b997744ba3a0b19e66a"
+        },
+        "dogma/syn/DirectiveType.lua": {
+          "sha256": "548b1b98dd27246f43c418b6ea0af05e101417094fd4e7a88d172d9c71db6025",
+          "size": 126,
+          "url": "blob:548b1b98dd27246f43c418b6ea0af05e101417094fd4e7a88d172d9c71db6025"
+        },
+        "dogma/syn/ExpParser.lua": {
+          "sha256": "ed1c904e060c27d3c26c3f7dc0124efde8e342a8520a583cc60365440544d1b3",
+          "size": 45663,
+          "url": "blob:ed1c904e060c27d3c26c3f7dc0124efde8e342a8520a583cc60365440544d1b3"
+        },
+        "dogma/syn/NodeType.lua": {
+          "sha256": "fba58174f6a355e3003d86fb59b3709838b79ce3878ce97d57a514fa51615bc8",
+          "size": 68,
+          "url": "blob:fba58174f6a355e3003d86fb59b3709838b79ce3878ce97d57a514fa51615bc8"
+        },
+        "dogma/syn/NonTerminalType.lua": {
+          "sha256": "8d1a9905d402286167ba0309366cf7fb0bc6015f2307e68bb0da143e8668adc9",
+          "size": 32,
+          "url": "blob:8d1a9905d402286167ba0309366cf7fb0bc6015f2307e68bb0da143e8668adc9"
+        },
+        "dogma/syn/Parser.lua": {
+          "sha256": "cf4290551d74e879587e0a3d8d63ff81b966b6d0b5f489022d5d5f47031b53b3",
+          "size": 6624,
+          "url": "blob:cf4290551d74e879587e0a3d8d63ff81b966b6d0b5f489022d5d5f47031b53b3"
+        },
+        "dogma/syn/SentType.lua": {
+          "sha256": "fdce88d5dde3fd59db833284fee40b1cbca2a2a6d714eb04c11db81f1316f864",
+          "size": 109,
+          "url": "blob:fdce88d5dde3fd59db833284fee40b1cbca2a2a6d714eb04c11db81f1316f864"
+        },
+        "dogma/syn/StmtParser.lua": {
+          "sha256": "41f63a85610a5ad6c41332b7a6108524802f914997c96221f5ba5d0a49b823dd",
+          "size": 53666,
+          "url": "blob:41f63a85610a5ad6c41332b7a6108524802f914997c96221f5ba5d0a49b823dd"
+        },
+        "dogma/syn/StmtType.lua": {
+          "sha256": "85f7ab92ae2153d9919471db86eff96972a82c2dd74aa2e19b0feeb006c16b0f",
+          "size": 453,
+          "url": "blob:85f7ab92ae2153d9919471db86eff96972a82c2dd74aa2e19b0feeb006c16b0f"
+        },
+        "dogma/syn/TerminalType.lua": {
+          "sha256": "79a30807f08cd38baa1778082b921604619107bf7a6739b59dcab645d4b70504",
+          "size": 595,
+          "url": "blob:79a30807f08cd38baa1778082b921604619107bf7a6739b59dcab645d4b70504"
+        },
+        "dogma/syn/UnpackParser.lua": {
+          "sha256": "34592dfeb3c6cf0227ec579d3329f77743f0a7b5136a649eb789c72736fd59a9",
+          "size": 3689,
+          "url": "blob:34592dfeb3c6cf0227ec579d3329f77743f0a7b5136a649eb789c72736fd59a9"
+        },
+        "dogma/syn/_/Annots.lua": {
+          "sha256": "804b278586b6952c7bae1a980985cd50629f294b3ea3fd3ca823d2da6b45338c",
+          "size": 464,
+          "url": "blob:804b278586b6952c7bae1a980985cd50629f294b3ea3fd3ca823d2da6b45338c"
+        },
+        "dogma/syn/_/Arg.lua": {
+          "sha256": "714b1a082fe49ce63b85a638a2e466651d1071174a2a337e5aa769f68fecbc88",
+          "size": 534,
+          "url": "blob:714b1a082fe49ce63b85a638a2e466651d1071174a2a337e5aa769f68fecbc88"
+        },
+        "dogma/syn/_/AsyncStmt.lua": {
+          "sha256": "85b523a762d88d1984d7dfab944e3107223166e26ab3a7f34ee93fbede79c7b1",
+          "size": 611,
+          "url": "blob:85b523a762d88d1984d7dfab944e3107223166e26ab3a7f34ee93fbede79c7b1"
+        },
+        "dogma/syn/_/AwaitFn.lua": {
+          "sha256": "7266f5f67361ab8b6ce6d37f13cfe9134f39c2353d95e51c454eb36adffe9ed4",
+          "size": 575,
+          "url": "blob:7266f5f67361ab8b6ce6d37f13cfe9134f39c2353d95e51c454eb36adffe9ed4"
+        },
+        "dogma/syn/_/BinOp.lua": {
+          "sha256": "3a9eb22e0ae10413c6d458fa23cf69b7ffc5d4c5e43f4983bd4bc0bca34ddc74",
+          "size": 1145,
+          "url": "blob:3a9eb22e0ae10413c6d458fa23cf69b7ffc5d4c5e43f4983bd4bc0bca34ddc74"
+        },
+        "dogma/syn/_/BlockParser.lua": {
+          "sha256": "a44878efd8fa8c659284f14204154574f90946a59dd010661d0e625a90cb392d",
+          "size": 1646,
+          "url": "blob:a44878efd8fa8c659284f14204154574f90946a59dd010661d0e625a90cb392d"
+        },
+        "dogma/syn/_/BreakStmt.lua": {
+          "sha256": "d80e7be21785d5c180f15e1f1a73df5f8bd7c25b89084935452fe6aad2c4053f",
+          "size": 515,
+          "url": "blob:d80e7be21785d5c180f15e1f1a73df5f8bd7c25b89084935452fe6aad2c4053f"
+        },
+        "dogma/syn/_/CallOp.lua": {
+          "sha256": "7a9c1997e9e1b7d5a42ef6b897255276158bb8ce5f1a22acf6da20abc74a5552",
+          "size": 932,
+          "url": "blob:7a9c1997e9e1b7d5a42ef6b897255276158bb8ce5f1a22acf6da20abc74a5552"
+        },
+        "dogma/syn/_/CastFn.lua": {
+          "sha256": "5a0918a7a1011ae6747a535ff5f1f5c1dce1938b6294d1ef382389fbab6521fd",
+          "size": 606,
+          "url": "blob:5a0918a7a1011ae6747a535ff5f1f5c1dce1938b6294d1ef382389fbab6521fd"
+        },
+        "dogma/syn/_/CatchCl.lua": {
+          "sha256": "3412197fa692b68250e67374d7d74f2e812fec490dfbcedf9117e32df7d7ea20",
+          "size": 298,
+          "url": "blob:3412197fa692b68250e67374d7d74f2e812fec490dfbcedf9117e32df7d7ea20"
+        },
+        "dogma/syn/_/CatchFn.lua": {
+          "sha256": "5f2311bb6ab6bc5603ba84e95d110699d46124921ece728361640cd99568cde9",
+          "size": 576,
+          "url": "blob:5f2311bb6ab6bc5603ba84e95d110699d46124921ece728361640cd99568cde9"
+        },
+        "dogma/syn/_/ConstFn.lua": {
+          "sha256": "488662595ff157e86734a121b9252478073d0bc5b25016ae3567902fd0e22003",
+          "size": 570,
+          "url": "blob:488662595ff157e86734a121b9252478073d0bc5b25016ae3567902fd0e22003"
+        },
+        "dogma/syn/_/CopyFn.lua": {
+          "sha256": "a2994b8a84aae47179f94cd307d256c56afc1f44e947e66fa3a76ff782ce5d75",
+          "size": 559,
+          "url": "blob:a2994b8a84aae47179f94cd307d256c56afc1f44e947e66fa3a76ff782ce5d75"
+        },
+        "dogma/syn/_/CoverageDirective.lua": {
+          "sha256": "37cbe744ca16af31d12a5dff868fe74230a7bc471cd50210dbfda6017ee0cec8",
+          "size": 552,
+          "url": "blob:37cbe744ca16af31d12a5dff868fe74230a7bc471cd50210dbfda6017ee0cec8"
+        },
+        "dogma/syn/_/CwaitFn.lua": {
+          "sha256": "4d63b11add4f8cfab88ed8cae4c367b149e86a2dd8909bdbc7f3ad48d0ff3817",
+          "size": 570,
+          "url": "blob:4d63b11add4f8cfab88ed8cae4c367b149e86a2dd8909bdbc7f3ad48d0ff3817"
+        },
+        "dogma/syn/_/DataAccess.lua": {
+          "sha256": "2f4f39fe7bac99e162cf859c987b54a2955233260c08eebac2626d52d38be590",
+          "size": 239,
+          "url": "blob:2f4f39fe7bac99e162cf859c987b54a2955233260c08eebac2626d52d38be590"
+        },
+        "dogma/syn/_/Directive.lua": {
+          "sha256": "6216d849809b42aed92190b0c0fa381f1536fe978afa095c4b2b65ac6f527a8a",
+          "size": 611,
+          "url": "blob:6216d849809b42aed92190b0c0fa381f1536fe978afa095c4b2b65ac6f527a8a"
+        },
+        "dogma/syn/_/DoStmt.lua": {
+          "sha256": "208de092e4545b8687434e2e91c88847a27230b93c9d09f2bf7168a42790e71a",
+          "size": 682,
+          "url": "blob:208de092e4545b8687434e2e91c88847a27230b93c9d09f2bf7168a42790e71a"
+        },
+        "dogma/syn/_/EmitFn.lua": {
+          "sha256": "08fca4a205635ca32ffea9c3c40cc54cd10db6f19408f146a2a5895244e87d22",
+          "size": 930,
+          "url": "blob:08fca4a205635ca32ffea9c3c40cc54cd10db6f19408f146a2a5895244e87d22"
+        },
+        "dogma/syn/_/EnumStmt.lua": {
+          "sha256": "052173f889106bf9d38b4e48cf9b729b1d9b7408ab1e61280950f5adc5629295",
+          "size": 961,
+          "url": "blob:052173f889106bf9d38b4e48cf9b729b1d9b7408ab1e61280950f5adc5629295"
+        },
+        "dogma/syn/_/EnvDirective.lua": {
+          "sha256": "52c120885311cefe535babeaa3ed6b2cb7de5f12701f2b623046d7c5734888f5",
+          "size": 418,
+          "url": "blob:52c120885311cefe535babeaa3ed6b2cb7de5f12701f2b623046d7c5734888f5"
+        },
+        "dogma/syn/_/Exp.lua": {
+          "sha256": "11d01d0fd0e44db1311c7c223c7b5fe8be8ede9413e948fe9c6466307918434e",
+          "size": 886,
+          "url": "blob:11d01d0fd0e44db1311c7c223c7b5fe8be8ede9413e948fe9c6466307918434e"
+        },
+        "dogma/syn/_/ExpSeq.lua": {
+          "sha256": "1166cc34bcc21b7b6c5ce335d05d0a3906122d386f45b687d1779165f9e84bc6",
+          "size": 742,
+          "url": "blob:1166cc34bcc21b7b6c5ce335d05d0a3906122d386f45b687d1779165f9e84bc6"
+        },
+        "dogma/syn/_/ExpectFn.lua": {
+          "sha256": "e84f5cc9b17ef9118174cf4b1ce482ed49251c12d6733b293d2878ddffe446d2",
+          "size": 647,
+          "url": "blob:e84f5cc9b17ef9118174cf4b1ce482ed49251c12d6733b293d2878ddffe446d2"
+        },
+        "dogma/syn/_/ExportStmt.lua": {
+          "sha256": "e89cb53e653fb2fde20bfc30228b03699d6671e6b02f9abc5ccf9a969c3c0c9a",
+          "size": 456,
+          "url": "blob:e89cb53e653fb2fde20bfc30228b03699d6671e6b02f9abc5ccf9a969c3c0c9a"
+        },
+        "dogma/syn/_/FinallyCl.lua": {
+          "sha256": "ff28dd04718ddf8172b202b3c6e8fc09369b6572dcac056363756cbc512af709",
+          "size": 249,
+          "url": "blob:ff28dd04718ddf8172b202b3c6e8fc09369b6572dcac056363756cbc512af709"
+        },
+        "dogma/syn/_/FnStmt.lua": {
+          "sha256": "45bf5007f4970f3f766d87bf6f7a919dc085481265797d8300f6b8650067643a",
+          "size": 689,
+          "url": "blob:45bf5007f4970f3f766d87bf6f7a919dc085481265797d8300f6b8650067643a"
+        },
+        "dogma/syn/_/ForEachStmt.lua": {
+          "sha256": "b3c2a70181df2e55471046cf35c6f27f68b06dcc1b8ffb6986804e251b45da95",
+          "size": 1029,
+          "url": "blob:b3c2a70181df2e55471046cf35c6f27f68b06dcc1b8ffb6986804e251b45da95"
+        },
+        "dogma/syn/_/ForStmt.lua": {
+          "sha256": "e543b4b3a733f374778844407d3d9020ccbba4ac98b92ffa7b630a17cd3f1864",
+          "size": 763,
+          "url": "blob:e543b4b3a733f374778844407d3d9020ccbba4ac98b92ffa7b630a17cd3f1864"
+        },
+        "dogma/syn/_/FromStmt.lua": {
+          "sha256": "337eddf3ef990735c53da81038b0be1f57687f60929210ef6a0e9286e4ad59e2",
+          "size": 747,
+          "url": "blob:337eddf3ef990735c53da81038b0be1f57687f60929210ef6a0e9286e4ad59e2"
+        },
+        "dogma/syn/_/IfDirective.lua": {
+          "sha256": "af7efa27fa38360ef4989af51fbb9d19de8d3403e47cfe26121662a6c5fc92fd",
+          "size": 562,
+          "url": "blob:af7efa27fa38360ef4989af51fbb9d19de8d3403e47cfe26121662a6c5fc92fd"
+        },
+        "dogma/syn/_/IfStmt.lua": {
+          "sha256": "c13b27fc8802db8befbfd903efb1a99794886c9961078ac37abc111f738eca38",
+          "size": 542,
+          "url": "blob:c13b27fc8802db8befbfd903efb1a99794886c9961078ac37abc111f738eca38"
+        },
+        "dogma/syn/_/IfSubExp.lua": {
+          "sha256": "a2451ca40f839fc3467a3aa4773a846e625617bfba8a78a9d1256680073d7a93",
+          "size": 930,
+          "url": "blob:a2451ca40f839fc3467a3aa4773a846e625617bfba8a78a9d1256680073d7a93"
+        },
+        "dogma/syn/_/InsertDirective.lua": {
+          "sha256": "ec02b4b7d2dc20bdc29e9d67e70e391f38bc046341250b3c48f3eb5fd563aca7",
+          "size": 529,
+          "url": "blob:ec02b4b7d2dc20bdc29e9d67e70e391f38bc046341250b3c48f3eb5fd563aca7"
+        },
+        "dogma/syn/_/IntfStmt.lua": {
+          "sha256": "1eef0e3b3577b5a07981b5a81f05662ec1c55401780479eaa17bcb5c6b7baa43",
+          "size": 583,
+          "url": "blob:1eef0e3b3577b5a07981b5a81f05662ec1c55401780479eaa17bcb5c6b7baa43"
+        },
+        "dogma/syn/_/JsonDecodeFn.lua": {
+          "sha256": "c76110ad6946504d36f5e722aa1b4baf06be9831a8842be5c21bc7cfd0f480d9",
+          "size": 681,
+          "url": "blob:c76110ad6946504d36f5e722aa1b4baf06be9831a8842be5c21bc7cfd0f480d9"
+        },
+        "dogma/syn/_/LiteralFn.lua": {
+          "sha256": "97f15c26cfb4321296590466a29bece4ca4347047093c36d1e96a68acb5c9818",
+          "size": 1169,
+          "url": "blob:97f15c26cfb4321296590466a29bece4ca4347047093c36d1e96a68acb5c9818"
+        },
+        "dogma/syn/_/LiteralForList.lua": {
+          "sha256": "77e349aa11c33c6d0e50d6e75093c04d71dbdf8a2d6e68cf5a5d71300a1214c5",
+          "size": 875,
+          "url": "blob:77e349aa11c33c6d0e50d6e75093c04d71dbdf8a2d6e68cf5a5d71300a1214c5"
+        },
+        "dogma/syn/_/LiteralList.lua": {
+          "sha256": "8f4a1007eb89c1e7fb1692f49e84aa940b3546dbb62dd87642bd0dce7c37fe9a",
+          "size": 654,
+          "url": "blob:8f4a1007eb89c1e7fb1692f49e84aa940b3546dbb62dd87642bd0dce7c37fe9a"
+        },
+        "dogma/syn/_/LiteralMap.lua": {
+          "sha256": "2e5b16e4018895c8840bac16dbcc1a648b5000e8cd983aa16e94481af7557eb6",
+          "size": 932,
+          "url": "blob:2e5b16e4018895c8840bac16dbcc1a648b5000e8cd983aa16e94481af7557eb6"
+        },
+        "dogma/syn/_/LiteralProc.lua": {
+          "sha256": "0c81ff5e2a471b04c702acc4a9c83e0dd6a9c20c701dd09d70b95e266032e39c",
+          "size": 1020,
+          "url": "blob:0c81ff5e2a471b04c702acc4a9c83e0dd6a9c20c701dd09d70b95e266032e39c"
+        },
+        "dogma/syn/_/LiteralRoutine.lua": {
+          "sha256": "09181eed4a7efecf35a99fca7815bf941a5f0398e6e7a41606b08f912d582ab1",
+          "size": 544,
+          "url": "blob:09181eed4a7efecf35a99fca7815bf941a5f0398e6e7a41606b08f912d582ab1"
+        },
+        "dogma/syn/_/LiteralSet.lua": {
+          "sha256": "0600f708a85dcda78f2ee378902f87c913d3ac23f958f9b564203588fd038863",
+          "size": 650,
+          "url": "blob:0600f708a85dcda78f2ee378902f87c913d3ac23f958f9b564203588fd038863"
+        },
+        "dogma/syn/_/LiteralXml.lua": {
+          "sha256": "56e6e79bab63fc6ff4bc10b3d8171b5c9cb868dcc4e9ef2aca029850d84abed8",
+          "size": 1025,
+          "url": "blob:56e6e79bab63fc6ff4bc10b3d8171b5c9cb868dcc4e9ef2aca029850d84abed8"
+        },
+        "dogma/syn/_/MawaitFn.lua": {
+          "sha256": "2ac252bcca9a6ab5191ea5d54614d6acc4abab4008e21b0cdf33a0e7991d99db",
+          "size": 779,
+          "url": "blob:2ac252bcca9a6ab5191ea5d54614d6acc4abab4008e21b0cdf33a0e7991d99db"
+        },
+        "dogma/syn/_/MpawaitFn.lua": {
+          "sha256": "18f371bd533135f6cd2b598200c19dac203ef3b5f6880ed6dda0c809fff30dff",
+          "size": 792,
+          "url": "blob:18f371bd533135f6cd2b598200c19dac203ef3b5f6880ed6dda0c809fff30dff"
+        },
+        "dogma/syn/_/NaryOp.lua": {
+          "sha256": "102b880b62d2b653c09b3e69eb9addbe1950492933bfaa6fa84c9aaa73b7857d",
+          "size": 1239,
+          "url": "blob:102b880b62d2b653c09b3e69eb9addbe1950492933bfaa6fa84c9aaa73b7857d"
+        },
+        "dogma/syn/_/NativeFn.lua": {
+          "sha256": "4e88936e2a70a5bfa32170f5f0765a495922b69a643755803bc192c3f1b50d42",
+          "size": 581,
+          "url": "blob:4e88936e2a70a5bfa32170f5f0765a495922b69a643755803bc192c3f1b50d42"
+        },
+        "dogma/syn/_/NewFn.lua": {
+          "sha256": "626df67c23b8ebf2c813792e6c3219fdb72047346cd9bd99105a5b14c0766c70",
+          "size": 548,
+          "url": "blob:626df67c23b8ebf2c813792e6c3219fdb72047346cd9bd99105a5b14c0766c70"
+        },
+        "dogma/syn/_/NextStmt.lua": {
+          "sha256": "dc6a87e2b053c2722241fd5923284cbfe7a684b60dd4e516601cb2b814428e8f",
+          "size": 427,
+          "url": "blob:dc6a87e2b053c2722241fd5923284cbfe7a684b60dd4e516601cb2b814428e8f"
+        },
+        "dogma/syn/_/Node.lua": {
+          "sha256": "1554c3984cdb372e854feb9c7dfd812db58ab94df014c1094605404d20815acf",
+          "size": 405,
+          "url": "blob:1554c3984cdb372e854feb9c7dfd812db58ab94df014c1094605404d20815acf"
+        },
+        "dogma/syn/_/NonTerminal.lua": {
+          "sha256": "df6e74bf478d410545eed17299c8e765f0bdbfd2b1953532d7d2e3afbef5cb0f",
+          "size": 924,
+          "url": "blob:df6e74bf478d410545eed17299c8e765f0bdbfd2b1953532d7d2e3afbef5cb0f"
+        },
+        "dogma/syn/_/ObjectStmt.lua": {
+          "sha256": "a3923b8bf1b9007722856ed282a200f89bfc698f3b165a480dc129b56fa84a04",
+          "size": 737,
+          "url": "blob:a3923b8bf1b9007722856ed282a200f89bfc698f3b165a480dc129b56fa84a04"
+        },
+        "dogma/syn/_/Op.lua": {
+          "sha256": "a0efeefe4bc75fdbc01d25bac4eabeec01da9956bea62d5c81f32c1f6a1acae8",
+          "size": 3934,
+          "url": "blob:a0efeefe4bc75fdbc01d25bac4eabeec01da9956bea62d5c81f32c1f6a1acae8"
+        },
+        "dogma/syn/_/OverloadFn.lua": {
+          "sha256": "ebb3e594ecc23fbbaad8086eb3270df7829ab4093bfba47dbff10085954a85d8",
+          "size": 959,
+          "url": "blob:ebb3e594ecc23fbbaad8086eb3270df7829ab4093bfba47dbff10085954a85d8"
+        },
+        "dogma/syn/_/OverloadParam.lua": {
+          "sha256": "8338874eea08cc07101d7edf290f8794a16cd04b15dd31e7788e03a0ed0dba66",
+          "size": 666,
+          "url": "blob:8338874eea08cc07101d7edf290f8794a16cd04b15dd31e7788e03a0ed0dba66"
+        },
+        "dogma/syn/_/PackLOp.lua": {
+          "sha256": "91fc8d03b0742b0ea034410dbe390937420d013346228abdcac729307d320bac",
+          "size": 705,
+          "url": "blob:91fc8d03b0742b0ea034410dbe390937420d013346228abdcac729307d320bac"
+        },
+        "dogma/syn/_/PackOp.lua": {
+          "sha256": "1fbfcef3999489222318fa87a5452fef2222641cbc2ee31da434247000c2683b",
+          "size": 972,
+          "url": "blob:1fbfcef3999489222318fa87a5452fef2222641cbc2ee31da434247000c2683b"
+        },
+        "dogma/syn/_/Param.lua": {
+          "sha256": "c3959f4bf43afd13efc1fb1603c231cfa8fa6ff4f1f07e0920db87acf3582603",
+          "size": 677,
+          "url": "blob:c3959f4bf43afd13efc1fb1603c231cfa8fa6ff4f1f07e0920db87acf3582603"
+        },
+        "dogma/syn/_/Params.lua": {
+          "sha256": "033d8531d286a57fd6d8ba0c2d785901d3b89e35881598d5179ecf0ee0b193c3",
+          "size": 510,
+          "url": "blob:033d8531d286a57fd6d8ba0c2d785901d3b89e35881598d5179ecf0ee0b193c3"
+        },
+        "dogma/syn/_/PawaitFn.lua": {
+          "sha256": "a3b04fa809f0b1f0d76223595eb075155b1791379118ddfe35f695039fd9f1f3",
+          "size": 585,
+          "url": "blob:a3b04fa809f0b1f0d76223595eb075155b1791379118ddfe35f695039fd9f1f3"
+        },
+        "dogma/syn/_/PcwaitFn.lua": {
+          "sha256": "a09317e49d34d527fd88604029cc9577c8d3d906ff9652482b687fca27118e35",
+          "size": 585,
+          "url": "blob:a09317e49d34d527fd88604029cc9577c8d3d906ff9652482b687fca27118e35"
+        },
+        "dogma/syn/_/PevalFn.lua": {
+          "sha256": "c96b837246bb9bec70d13443f756ea9c31c8c14d0d14218e6d5d3a4163ce66b6",
+          "size": 578,
+          "url": "blob:c96b837246bb9bec70d13443f756ea9c31c8c14d0d14218e6d5d3a4163ce66b6"
+        },
+        "dogma/syn/_/ProcStmt.lua": {
+          "sha256": "d70f06c30a471688db626c98219c2664c5c0ea6f1c9424168cfef49822377b7b",
+          "size": 546,
+          "url": "blob:d70f06c30a471688db626c98219c2664c5c0ea6f1c9424168cfef49822377b7b"
+        },
+        "dogma/syn/_/PubStmt.lua": {
+          "sha256": "c5ac69d8a83eae18b83d713774286775c652341d2571853fcf25e6db851b43f9",
+          "size": 753,
+          "url": "blob:c5ac69d8a83eae18b83d713774286775c652341d2571853fcf25e6db851b43f9"
+        },
+        "dogma/syn/_/PwaitFn.lua": {
+          "sha256": "dd383bf9110fa6adea74c30bf68dc08cb3df1cbabc2c9c41b03ccce990410fdd",
+          "size": 574,
+          "url": "blob:dd383bf9110fa6adea74c30bf68dc08cb3df1cbabc2c9c41b03ccce990410fdd"
+        },
+        "dogma/syn/_/ReactDirective.lua": {
+          "sha256": "fab236f0340e32b1146d9c266d1350b427f352df3e5ba73c0f796eeff2566500",
+          "size": 435,
+          "url": "blob:fab236f0340e32b1146d9c266d1350b427f352df3e5ba73c0f796eeff2566500"
+        },
+        "dogma/syn/_/ReturnStmt.lua": {
+          "sha256": "d0ad4af6c05d4638369cd9d0fab838680b239dfe079fea0b3ea85b600bbcfe7a",
+          "size": 953,
+          "url": "blob:d0ad4af6c05d4638369cd9d0fab838680b239dfe079fea0b3ea85b600bbcfe7a"
+        },
+        "dogma/syn/_/RoutineStmt.lua": {
+          "sha256": "a66552ad1f54d66a80ef9c6eec1b8568e983a0f04d3f003b5418772dcdee251e",
+          "size": 660,
+          "url": "blob:a66552ad1f54d66a80ef9c6eec1b8568e983a0f04d3f003b5418772dcdee251e"
+        },
+        "dogma/syn/_/RunWithDirective.lua": {
+          "sha256": "a49afc58adc2a0a317dbe908b34bff3080282e69986da0de4b3d4a7b68b4b94a",
+          "size": 534,
+          "url": "blob:a49afc58adc2a0a317dbe908b34bff3080282e69986da0de4b3d4a7b68b4b94a"
+        },
+        "dogma/syn/_/SelfDeferFn.lua": {
+          "sha256": "5d2e37bbccba99f080fd8bb7a0f788666e6d4a214078c372935b56d4ae225d08",
+          "size": 627,
+          "url": "blob:5d2e37bbccba99f080fd8bb7a0f788666e6d4a214078c372935b56d4ae225d08"
+        },
+        "dogma/syn/_/SelfDeferredFn.lua": {
+          "sha256": "407e31fa9ac3ae50af59f3159c92d141329787984c1082fa66632fa9eea4424d",
+          "size": 541,
+          "url": "blob:407e31fa9ac3ae50af59f3159c92d141329787984c1082fa66632fa9eea4424d"
+        },
+        "dogma/syn/_/Sent.lua": {
+          "sha256": "df5fd1f93245e3ae4f7e8ea9f4317b38a566d3ed6db1a7dc9ba5723414d3e7fc",
+          "size": 1051,
+          "url": "blob:df5fd1f93245e3ae4f7e8ea9f4317b38a566d3ed6db1a7dc9ba5723414d3e7fc"
+        },
+        "dogma/syn/_/SliceOp.lua": {
+          "sha256": "20a0d8cad66ad4cfe453a403d7db6066948deaf7f432611c029848c1d81cd71e",
+          "size": 846,
+          "url": "blob:20a0d8cad66ad4cfe453a403d7db6066948deaf7f432611c029848c1d81cd71e"
+        },
+        "dogma/syn/_/Stmt.lua": {
+          "sha256": "b4ea03fd4bffbc1b9dd0f0f08ae8d1d266c370e93991009dc36778d655200682",
+          "size": 527,
+          "url": "blob:b4ea03fd4bffbc1b9dd0f0f08ae8d1d266c370e93991009dc36778d655200682"
+        },
+        "dogma/syn/_/StructStmt.lua": {
+          "sha256": "e2f3f23db6aefc3be14e9a08d0f09a36cc48d3ac68d5e3b3f546c4dc04c580a9",
+          "size": 1033,
+          "url": "blob:e2f3f23db6aefc3be14e9a08d0f09a36cc48d3ac68d5e3b3f546c4dc04c580a9"
+        },
+        "dogma/syn/_/SubExp.lua": {
+          "sha256": "8cbf6812b5afdaf4c11ecfebf4e1ccf07fbd4110b2aca044585f52300bb46efd",
+          "size": 558,
+          "url": "blob:8cbf6812b5afdaf4c11ecfebf4e1ccf07fbd4110b2aca044585f52300bb46efd"
+        },
+        "dogma/syn/_/SubParser.lua": {
+          "sha256": "595bac4562025527727ae650f9aaaee6aa77816ced5b2ccbb43641a7f10455c0",
+          "size": 5046,
+          "url": "blob:595bac4562025527727ae650f9aaaee6aa77816ced5b2ccbb43641a7f10455c0"
+        },
+        "dogma/syn/_/SyntaxTree.lua": {
+          "sha256": "58913819c5396841d260a3aeee98aa28dba715571acf50eb6c7ee93f692791f3",
+          "size": 3436,
+          "url": "blob:58913819c5396841d260a3aeee98aa28dba715571acf50eb6c7ee93f692791f3"
+        },
+        "dogma/syn/_/Terminal.lua": {
+          "sha256": "b9f6ca2fef6329aa348122d8f9201bfc34a5dde01738a6afab92c07ec1a87a74",
+          "size": 845,
+          "url": "blob:b9f6ca2fef6329aa348122d8f9201bfc34a5dde01738a6afab92c07ec1a87a74"
+        },
+        "dogma/syn/_/ThrowFn.lua": {
+          "sha256": "b00c451fc21a95743b1d190d2a8ab0f4beb30a17fe4260978e34cf357966752a",
+          "size": 726,
+          "url": "blob:b00c451fc21a95743b1d190d2a8ab0f4beb30a17fe4260978e34cf357966752a"
+        },
+        "dogma/syn/_/TypeDefStmt.lua": {
+          "sha256": "940eda1eae8fb626408e2f9f51f2466e01db2d8c45feeed476e68dd9b317269b",
+          "size": 592,
+          "url": "blob:940eda1eae8fb626408e2f9f51f2466e01db2d8c45feeed476e68dd9b317269b"
+        },
+        "dogma/syn/_/TypeStmt.lua": {
+          "sha256": "9372d79179ea24570171a6381fba61b8ed0204fc4ae807fed2073d9497f6a30a",
+          "size": 717,
+          "url": "blob:9372d79179ea24570171a6381fba61b8ed0204fc4ae807fed2073d9497f6a30a"
+        },
+        "dogma/syn/_/UnaryOp.lua": {
+          "sha256": "afcf43eb024dc6056574b28976c7156be18ea1128e081a544a49df389ed08677",
+          "size": 1225,
+          "url": "blob:afcf43eb024dc6056574b28976c7156be18ea1128e081a544a49df389ed08677"
+        },
+        "dogma/syn/_/Unpack.lua": {
+          "sha256": "b16af2352e39820b58ee17729c8d44b71b46ec2e3d14911c59fd7369a0f6c92d",
+          "size": 672,
+          "url": "blob:b16af2352e39820b58ee17729c8d44b71b46ec2e3d14911c59fd7369a0f6c92d"
+        },
+        "dogma/syn/_/UntilStmt.lua": {
+          "sha256": "03efd6d8b15bae0549e72e2df734beedc03a658fbb0cf23bccf2c6ad6101fdcf",
+          "size": 968,
+          "url": "blob:03efd6d8b15bae0549e72e2df734beedc03a658fbb0cf23bccf2c6ad6101fdcf"
+        },
+        "dogma/syn/_/UpdateOp.lua": {
+          "sha256": "03bfbf45551f7e5f5887470769d8c0b40acaefba8318c2d692f46ada653a1cde",
+          "size": 1188,
+          "url": "blob:03bfbf45551f7e5f5887470769d8c0b40acaefba8318c2d692f46ada653a1cde"
+        },
+        "dogma/syn/_/UseFn.lua": {
+          "sha256": "66789f361150046de04b6ba8d1781ce3cabb321ead54709c9d9d4c398f8b9fb1",
+          "size": 552,
+          "url": "blob:66789f361150046de04b6ba8d1781ce3cabb321ead54709c9d9d4c398f8b9fb1"
+        },
+        "dogma/syn/_/UseStmt.lua": {
+          "sha256": "a04a8222e7ff708168b60681b6fbb830a62f1bd18372867712705f33c8be0b24",
+          "size": 1498,
+          "url": "blob:a04a8222e7ff708168b60681b6fbb830a62f1bd18372867712705f33c8be0b24"
+        },
+        "dogma/syn/_/VarDecl.lua": {
+          "sha256": "37b6540c142a45df82558140e40e63621e4072dd7f568e30581bfc92e746aad7",
+          "size": 477,
+          "url": "blob:37b6540c142a45df82558140e40e63621e4072dd7f568e30581bfc92e746aad7"
+        },
+        "dogma/syn/_/VarStmt.lua": {
+          "sha256": "c3aad7bebb9e31e5caf9de566a0d495e732871ed2114ed6f58a4b5090b8cfbff",
+          "size": 647,
+          "url": "blob:c3aad7bebb9e31e5caf9de566a0d495e732871ed2114ed6f58a4b5090b8cfbff"
+        },
+        "dogma/syn/_/VarStmtParser.lua": {
+          "sha256": "c39eccbe4c03e011e093fbcc12f577376ee19ace8548f404cfe98ceec6284da6",
+          "size": 4935,
+          "url": "blob:c39eccbe4c03e011e093fbcc12f577376ee19ace8548f404cfe98ceec6284da6"
+        },
+        "dogma/syn/_/WhileStmt.lua": {
+          "sha256": "acd6245b70242c08953b8a1c5116e914ee9abced56e5ca760b04cea9e8bddf80",
+          "size": 967,
+          "url": "blob:acd6245b70242c08953b8a1c5116e914ee9abced56e5ca760b04cea9e8bddf80"
+        },
+        "dogma/syn/_/WithDoSubExp.lua": {
+          "sha256": "6970eb4542ef9342c986203adf96ae05eca075c12a843cc0c22a48a45ce6ac25",
+          "size": 1259,
+          "url": "blob:6970eb4542ef9342c986203adf96ae05eca075c12a843cc0c22a48a45ce6ac25"
+        },
+        "dogma/syn/_/WithStmt.lua": {
+          "sha256": "44780c0205d333c8e4ed639624c6060ccd84846927bca1f0d33fcf844f6b4f53",
+          "size": 588,
+          "url": "blob:44780c0205d333c8e4ed639624c6060ccd84846927bca1f0d33fcf844f6b4f53"
+        },
+        "dogma/syn/_/XmlExp.lua": {
+          "sha256": "8a8b0d4243ae6ac49af9d279d43c855e93d073a5182ff59732aaaa4c346b5299",
+          "size": 678,
+          "url": "blob:8a8b0d4243ae6ac49af9d279d43c855e93d073a5182ff59732aaaa4c346b5299"
+        },
+        "dogma/syn/_/YieldStmt.lua": {
+          "sha256": "f1ad800679ac07353a71ed33d4925f7b77de06f586d767875887f94118c9c195",
+          "size": 647,
+          "url": "blob:f1ad800679ac07353a71ed33d4925f7b77de06f586d767875887f94118c9c195"
+        },
+        "dogma/trans/Trans.lua": {
+          "sha256": "a8786e8babd23eed8bda36f491af1e5ddeb0c8dc3d447fc920b2e471f2bfca2d",
+          "size": 1181,
+          "url": "blob:a8786e8babd23eed8bda36f491af1e5ddeb0c8dc3d447fc920b2e471f2bfca2d"
+        },
+        "dogma/trans/js/Trans.lua": {
+          "sha256": "974c430de9054431a36436d4d05ba57bd04929afd239f48573016253df080afb",
+          "size": 3071,
+          "url": "blob:974c430de9054431a36436d4d05ba57bd04929afd239f48573016253df080afb"
+        },
+        "dogma/trans/js/_/DirectiveTrans.lua": {
+          "sha256": "9683d00bc670b53ee613bb9e54b8a915f4cdaabc80ea75e55060315c1787d5e6",
+          "size": 2967,
+          "url": "blob:9683d00bc670b53ee613bb9e54b8a915f4cdaabc80ea75e55060315c1787d5e6"
+        },
+        "dogma/trans/js/_/ExpTrans.lua": {
+          "sha256": "95b42c18196bde3a108f499361df1f750f6c3d4225d94d54683da541a1e1d32c",
+          "size": 31969,
+          "url": "blob:95b42c18196bde3a108f499361df1f750f6c3d4225d94d54683da541a1e1d32c"
+        },
+        "dogma/trans/js/_/StmtTrans.lua": {
+          "sha256": "7d74a08e6ddc0ee0019bcd6837449f609b4ae61237deb134bca8a1e2de9c5f0e",
+          "size": 72057,
+          "url": "blob:7d74a08e6ddc0ee0019bcd6837449f609b4ae61237deb134bca8a1e2de9c5f0e"
+        },
+        "dogma/trans/js/_/SubTrans.lua": {
+          "sha256": "662653d21de46ddcb3e20145d7d53da9c893a354ebc31da1623d7f1004150aa6",
+          "size": 3312,
+          "url": "blob:662653d21de46ddcb3e20145d7d53da9c893a354ebc31da1623d7f1004150aa6"
+        },
+        "dogma/trans/js/_/UnpackTrans.lua": {
+          "sha256": "973300676672dcc29d20bd2358d0ecbf9a333740a465b7f7d16a08cd74a1f828",
+          "size": 6345,
+          "url": "blob:973300676672dcc29d20bd2358d0ecbf9a333740a465b7f7d16a08cd74a1f828"
+        },
+        "dogma/trans/js/_/util.lua": {
+          "sha256": "1c66a1ae43158b0286cf8942a3aa3060ff8715195bb68e9abc3da2eeb0c443fa",
+          "size": 761,
+          "url": "blob:1c66a1ae43158b0286cf8942a3aa3060ff8715195bb68e9abc3da2eeb0c443fa"
+        }
+      },
+      "homepage": "http://dogmalang.com",
+      "license": "",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Fri, 20 Aug 2021 07:47:28 GMT",
+        "rockspec": {
+          "date": "Fri, 20 Aug 2021 07:47:28 GMT",
+          "sha256": "f6ca19514ec488f763b3f0df1f1a715aff3d8ad0b2d992ad386c0e6a40f81e6b",
+          "size": 7949
+        },
+        "src": {
+          "date": "Fri, 20 Aug 2021 07:47:30 GMT",
+          "sha256": "acde83d810ece4041987766f656ce09a04944dc50d2d25057e84d5434e97b5d6",
+          "size": 260743,
+          "url": "https://luarocks.org/dogma-core-1.0.rc18-4.src.rock"
+        }
+      },
+      "modules": [
+        "dogma.lex.Lexer",
+        "dogma.lex.LiteralType",
+        "dogma.lex.TokenType",
+        "dogma.lex._.AdvancedList",
+        "dogma.lex._.Annotation",
+        "dogma.lex._.Char",
+        "dogma.lex._.Comment",
+        "dogma.lex._.Directive",
+        "dogma.lex._.Eol",
+        "dogma.lex._.Id",
+        "dogma.lex._.Keyword",
+        "dogma.lex._.Literal",
+        "dogma.lex._.Name",
+        "dogma.lex._.ProcessedList",
+        "dogma.lex._.Re",
+        "dogma.lex._.Reader",
+        "dogma.lex._.Symbol",
+        "dogma.lex._.Token",
+        "dogma.syn.DirectiveParser",
+        "dogma.syn.DirectiveType",
+        "dogma.syn.ExpParser",
+        "dogma.syn.NodeType",
+        "dogma.syn.NonTerminalType",
+        "dogma.syn.Parser",
+        "dogma.syn.SentType",
+        "dogma.syn.StmtParser",
+        "dogma.syn.StmtType",
+        "dogma.syn.TerminalType",
+        "dogma.syn.UnpackParser",
+        "dogma.syn._.Annots",
+        "dogma.syn._.Arg",
+        "dogma.syn._.AsyncStmt",
+        "dogma.syn._.AwaitFn",
+        "dogma.syn._.BinOp",
+        "dogma.syn._.BlockParser",
+        "dogma.syn._.BreakStmt",
+        "dogma.syn._.CallOp",
+        "dogma.syn._.CastFn",
+        "dogma.syn._.CatchCl",
+        "dogma.syn._.CatchFn",
+        "dogma.syn._.ConstFn",
+        "dogma.syn._.CopyFn",
+        "dogma.syn._.CoverageDirective",
+        "dogma.syn._.CwaitFn",
+        "dogma.syn._.DataAccess",
+        "dogma.syn._.Directive",
+        "dogma.syn._.DoStmt",
+        "dogma.syn._.EmitFn",
+        "dogma.syn._.EnumStmt",
+        "dogma.syn._.EnvDirective",
+        "dogma.syn._.Exp",
+        "dogma.syn._.ExpSeq",
+        "dogma.syn._.ExpectFn",
+        "dogma.syn._.ExportStmt",
+        "dogma.syn._.FinallyCl",
+        "dogma.syn._.FnStmt",
+        "dogma.syn._.ForEachStmt",
+        "dogma.syn._.ForStmt",
+        "dogma.syn._.FromStmt",
+        "dogma.syn._.IfDirective",
+        "dogma.syn._.IfStmt",
+        "dogma.syn._.IfSubExp",
+        "dogma.syn._.InsertDirective",
+        "dogma.syn._.IntfStmt",
+        "dogma.syn._.JsonDecodeFn",
+        "dogma.syn._.LiteralFn",
+        "dogma.syn._.LiteralForList",
+        "dogma.syn._.LiteralList",
+        "dogma.syn._.LiteralMap",
+        "dogma.syn._.LiteralProc",
+        "dogma.syn._.LiteralRoutine",
+        "dogma.syn._.LiteralSet",
+        "dogma.syn._.LiteralXml",
+        "dogma.syn._.MawaitFn",
+        "dogma.syn._.MpawaitFn",
+        "dogma.syn._.NaryOp",
+        "dogma.syn._.NativeFn",
+        "dogma.syn._.NewFn",
+        "dogma.syn._.NextStmt",
+        "dogma.syn._.Node",
+        "dogma.syn._.NonTerminal",
+        "dogma.syn._.ObjectStmt",
+        "dogma.syn._.Op",
+        "dogma.syn._.OverloadFn",
+        "dogma.syn._.OverloadParam",
+        "dogma.syn._.PackLOp",
+        "dogma.syn._.PackOp",
+        "dogma.syn._.Param",
+        "dogma.syn._.Params",
+        "dogma.syn._.PawaitFn",
+        "dogma.syn._.PcwaitFn",
+        "dogma.syn._.PevalFn",
+        "dogma.syn._.ProcStmt",
+        "dogma.syn._.PubStmt",
+        "dogma.syn._.PwaitFn",
+        "dogma.syn._.ReactDirective",
+        "dogma.syn._.ReturnStmt",
+        "dogma.syn._.RoutineStmt",
+        "dogma.syn._.RunWithDirective",
+        "dogma.syn._.SelfDeferFn",
+        "dogma.syn._.SelfDeferredFn",
+        "dogma.syn._.Sent",
+        "dogma.syn._.SliceOp",
+        "dogma.syn._.Stmt",
+        "dogma.syn._.StructStmt",
+        "dogma.syn._.SubExp",
+        "dogma.syn._.SubParser",
+        "dogma.syn._.SyntaxTree",
+        "dogma.syn._.Terminal",
+        "dogma.syn._.ThrowFn",
+        "dogma.syn._.TypeDefStmt",
+        "dogma.syn._.TypeStmt",
+        "dogma.syn._.UnaryOp",
+        "dogma.syn._.Unpack",
+        "dogma.syn._.UntilStmt",
+        "dogma.syn._.UpdateOp",
+        "dogma.syn._.UseFn",
+        "dogma.syn._.UseStmt",
+        "dogma.syn._.VarDecl",
+        "dogma.syn._.VarStmt",
+        "dogma.syn._.VarStmtParser",
+        "dogma.syn._.WhileStmt",
+        "dogma.syn._.WithDoSubExp",
+        "dogma.syn._.WithStmt",
+        "dogma.syn._.XmlExp",
+        "dogma.syn._.YieldStmt",
+        "dogma.trans.Trans",
+        "dogma.trans.js.Trans",
+        "dogma.trans.js._.DirectiveTrans",
+        "dogma.trans.js._.ExpTrans",
+        "dogma.trans.js._.StmtTrans",
+        "dogma.trans.js._.SubTrans",
+        "dogma.trans.js._.UnpackTrans",
+        "dogma.trans.js._.util"
+      ],
+      "origin": {
+        "date": "Fri, 20 Aug 2021 07:47:30 GMT",
+        "sha256": "acde83d810ece4041987766f656ce09a04944dc50d2d25057e84d5434e97b5d6",
+        "size": 260743,
+        "type": "luarocks",
+        "url": "https://luarocks.org/dogma-core-1.0.rc18-4.src.rock"
+      },
+      "size": 362094,
+      "summary": "Dogma kernel.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

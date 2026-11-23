@@ -1,0 +1,130 @@
+{
+  "kind": "lib",
+  "name": "lua-http2tcp",
+  "versions": {
+    "0.0.1-5": {
+      "bin": [],
+      "blocked_by": {
+        "name": "luafilesystem",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "api7-lua-tinyyaml = 0.4.2",
+        "lua-resty-ngxvar = 0.5.2",
+        "luafilesystem = 1.7.0-2"
+      ],
+      "files": {
+        "http2tcp/core.lua": {
+          "sha256": "ed83d601a21013f3a034422253e9120931a96cfc654fd953ada832d3fca93f60",
+          "size": 469,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/core.lua"
+        },
+        "http2tcp/pkg/ctx.lua": {
+          "sha256": "4c32e5e2f3b4424358b73cf0cbcd8a942b0473780429dacd9723fe8af2a10bdd",
+          "size": 4749,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/ctx.lua"
+        },
+        "http2tcp/pkg/io.lua": {
+          "sha256": "d9a656e1dd9b6a956d0e6f7f312e905958453533f12352e4e927331bce4dae5e",
+          "size": 257,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/io.lua"
+        },
+        "http2tcp/pkg/json.lua": {
+          "sha256": "c24766c6ce4a1c58bd1d148f5a2b2f173db858a8a7306045cb2d9e77d0e2132b",
+          "size": 1895,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/json.lua"
+        },
+        "http2tcp/pkg/log.lua": {
+          "sha256": "b9b1995ddbd5c9ccd3cefc8d0f8c37124d0a260c4d577a2159e9f5f3c1522d21",
+          "size": 3280,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/log.lua"
+        },
+        "http2tcp/pkg/request.lua": {
+          "sha256": "9285875dff3d2253a7d2d84147617ab11a4492f10f61c1a7846640123297ba4a",
+          "size": 6420,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/request.lua"
+        },
+        "http2tcp/pkg/response.lua": {
+          "sha256": "2a9acef02a8de6a35d6b781e9862f7f69762147ab42c874351850a94de7ac7d6",
+          "size": 5070,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/response.lua"
+        },
+        "http2tcp/pkg/string.lua": {
+          "sha256": "900685410fa90ab32ed7b70fac48962e0417adcb346bdd9a24d733fe7ee8d020",
+          "size": 1551,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/string.lua"
+        },
+        "http2tcp/pkg/table.lua": {
+          "sha256": "b43fcc55c15db47c0cf0fec8104389c9600f25312a439e54f452c6544f740247",
+          "size": 5276,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/pkg/table.lua"
+        },
+        "http2tcp/proxy.lua": {
+          "sha256": "5c700037f2a9970e0fc4d02fa5a99fcb4450b2866a6e5fbb1755b2ba012a27ed",
+          "size": 2152,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/proxy.lua"
+        },
+        "http2tcp/version.lua": {
+          "sha256": "5ca8f913992868efb9f8c32ed7c3bc836d8fe7c89f3d2d0768c3fe8c6abb63c1",
+          "size": 14,
+          "url": "https://raw.githubusercontent.com/mufanh/lua-http2tcp/bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4/http2tcp/version.lua"
+        }
+      },
+      "homepage": "https://github.com/mufanh/lua-http2tcp",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luajit": true,
+      "luarocks": {
+        "date": "Tue, 23 Aug 2022 07:06:44 GMT",
+        "rockspec": {
+          "date": "Tue, 23 Aug 2022 07:06:44 GMT",
+          "sha256": "2b6115202690f05dd51997d137970fdece8ab03290d7b1a5d6c8d2cde79e1144",
+          "size": 1260
+        },
+        "src": {
+          "date": "Tue, 23 Aug 2022 07:06:47 GMT",
+          "sha256": "a2ed29419d25e807014931acbd72db50e091e1153e7bbc1650a65b9a9cc4c952",
+          "size": 48278,
+          "url": "https://luarocks.org/lua-http2tcp-0.0.1-5.src.rock"
+        }
+      },
+      "modules": [
+        "http2tcp.core",
+        "http2tcp.pkg.ctx",
+        "http2tcp.pkg.io",
+        "http2tcp.pkg.json",
+        "http2tcp.pkg.log",
+        "http2tcp.pkg.request",
+        "http2tcp.pkg.response",
+        "http2tcp.pkg.string",
+        "http2tcp.pkg.table",
+        "http2tcp.proxy",
+        "http2tcp.version"
+      ],
+      "origin": {
+        "commit": "bcc9b6770726bb3f6258bd1c2fcfd2bf17a424e4",
+        "ref": "v0.0.1-5",
+        "type": "git",
+        "url": "https://github.com/mufanh/lua-http2tcp"
+      },
+      "size": 31133,
+      "summary": "tcp服务代理，支持将http报文转为特定格式的tcp报文转发.",
+      "undeclared_requires": [
+        "ngx.errlog",
+        "ngx.re",
+        "ngx.resp",
+        "resty.cookie",
+        "tablepool"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

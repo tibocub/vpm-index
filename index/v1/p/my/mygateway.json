@@ -1,0 +1,51 @@
+{
+  "kind": "lib",
+  "name": "mygateway",
+  "versions": {
+    "0.5-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "luafilesystem",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-resty-libr3 = 0.6",
+        "lua-resty-template = 1.9-1",
+        "lua-resty-etcd = 0.5",
+        "lua-resty-balancer = 0.02rc5",
+        "lua-resty-ngxvar = 0.3",
+        "lua-resty-jit-uuid = 0.0.7",
+        "rapidjson = 0.6.0-1",
+        "lua-resty-healthcheck-iresty = 1.0.0",
+        "lua-resty-jwt = 0.2.0",
+        "lua-resty-cookie = 0.1.0",
+        "opentracing-openresty = 0.1"
+      ],
+      "files": [],
+      "homepage": "https://github.com/apache/incubator-apisix",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Tue, 16 Mar 2021 08:31:28 GMT",
+        "rockspec": {
+          "date": "Tue, 16 Mar 2021 08:31:28 GMT",
+          "sha256": "5f0abb06da6324321c028e148871b11d1e7de5cd8aac71be27606ed2e1d86223",
+          "size": 2156
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "native": "build",
+        "no_plan_reason": "no source rock on luarocks.org"
+      },
+      "origin": {
+        "commit": "a626bde242c9aa15ddb3db1ecc39e233589f3f8a",
+        "ref": "v0.5",
+        "type": "git",
+        "url": "https://github.com/apache/incubator-apisix"
+      },
+      "summary": "APISIX is a cloud-native microservices API gateway, delivering the ultimate performance, security, open source and scalable platform for all your APIs and microservices."
+    }
+  }
+}

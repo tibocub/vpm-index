@@ -1,0 +1,293 @@
+-- agent.rules: inject AGENTS.md (or CLAUDE.md) context into each new
+-- agent's system prompt, and subdirectory rules files into `std.read`
+-- results as the agent explores.
+--
+-- Lifecycle `session_start` events arrive for the primary agent and every
+-- Lua-built child. A `render_header` event separately wraps the primary
+-- agent's welcome banner. Rules are tracked per session so child reads and
+-- prompts cannot share state with the primary or with another child.
+--
+-- A resumed session (`/resume`, `/reload`) starts with a fresh interpreter,
+-- so its state is rebuilt from the stored conversation. Core re-seeds the
+-- system prompt on resume whenever extensions had appended to it, which
+-- drops the rules messages, so they are injected again unless the effective
+-- prompt still carries the same text. Files already attached to read results
+-- are marked seen again so a later read does not repeat them.
+--
+-- Each directory contributes up to two files, from two independent
+-- chains: the shared AGENTS.md (falling back to CLAUDE.md when absent,
+-- never both), then the git-ignored AGENTS.local.md (falling back to
+-- CLAUDE.local.md the same way). Shared is injected before local, so
+-- personal rules refine the team's. Each file found becomes one system
+-- message:
+--
+--     context from <resolved path>:
+--
+--     <file contents>
+--
+-- Symlinks are resolved for injection and deduplication, while the header
+-- shows the full candidate path that was searched. The same real file
+-- reachable from two layers is used once.
+--
+-- A lifecycle `tool_result` handler covers `std.read`: after each read,
+-- walk from the read file's directory (or the directory itself, when one is
+-- read directly) up to — but excluding — that agent's session root, and append
+-- each not-yet-seen rules file to writable `ev.output` as a plaintext section:
+--
+--     ---
+--     context from <resolved path>:
+--
+--     <file contents>
+--
+-- Plaintext (not a protocol attachment) because panto attachments are
+-- binary media (image/PDF) with no filename channel, and OpenAI-style
+-- providers can't carry non-text in tool results at all. A per-session `seen`
+-- set (shared with the system-prompt pass) guarantees each real file is
+-- injected at most once per agent session. The `render_header` handler lists
+-- the full path of every included rules file.
+--
+-- The transcript keeps the read's original output; a separate
+-- `render_tool_result` component wrapper adds one "+ rules: <path>" line per
+-- attached file below it as a visual note.
+
+local uv = require("luv")
+local panto = require("panto")
+
+local M = { name = "agent.rules" }
+
+-- Two independent chains per directory. Within a chain the first file
+-- present wins (AGENTS beats CLAUDE, never both); the chains themselves
+-- are additive, and the shared file is injected before the local one so
+-- local rules refine shared rules.
+local chains = {
+    { "AGENTS.md", "CLAUDE.md" },
+    { "AGENTS.local.md", "CLAUDE.local.md" },
+}
+
+-- Synchronous filesystem wrappers. Event handlers must finish before their
+-- dispatch returns, so `tool_result` cannot yield while it discovers rules.
+-- Normalize luv's synchronous (value, err) results to the (err, value) shape
+-- used below.
+local function fs_realpath(p) local value, err = uv.fs_realpath(p); return err, value end
+local function fs_stat(p) local value, err = uv.fs_stat(p); return err, value end
+local function fs_open(p, flags, mode) local value, err = uv.fs_open(p, flags, mode); return err, value end
+local function fs_fstat(fd) local value, err = uv.fs_fstat(fd); return err, value end
+local function fs_read(fd, size, off) local value, err = uv.fs_read(fd, size, off); return err, value end
+local function fs_close(fd) local value, err = uv.fs_close(fd); return err, value end
+
+-- Per-agent state: each session has its own resolved root, seen rules
+-- files, header paths, and attached paths awaiting transcript rendering.
+local sessions = {}
+
+local function header_component(inner, paths)
+    local value = #paths == 0 and "(none)" or table.concat(paths, ", ")
+    return {
+        render = function(_, width)
+            local colors = panto.ext.style()
+            local lines = inner:render(width)
+            local at = (#lines > 0 and lines[#lines] == "") and #lines or (#lines + 1)
+            table.insert(lines, at, colors.dim .. " rules: " .. value .. colors.reset)
+            return lines
+        end,
+    }
+end
+
+--- The layer directories to search, lowest first: the base and user
+--- layer directories, then the project root itself (rules files live at
+--- the root, not under `.panto/`). All from `panto.ext.dirs`.
+function M.layer_dirs()
+    local base = panto.ext.dirs
+    local dirs = {}
+    for _, layer in ipairs(base.layers) do
+        if layer.name == "base" or layer.name == "user" then
+            dirs[#dirs + 1] = layer.dir
+        end
+    end
+    if base.project_root then dirs[#dirs + 1] = base.project_root end
+    return dirs
+end
+
+--- Read a whole file (nil on any failure).
+local function read_all(path)
+    local oerr, fd = fs_open(path, "r", 0)
+    if not fd then return nil, oerr end
+    local serr, stat = fs_fstat(fd)
+    local rerr, text
+    if stat then
+        rerr, text = fs_read(fd, stat.size, 0)
+    else
+        rerr = serr
+    end
+    fs_close(fd)
+    if not text then return nil, rerr end
+    return text
+end
+
+--- Collect the rules files under `dirs`: a list of { path, display_path,
+--- text }, where `path` is symlink-resolved for injection and
+--- `display_path` is the full candidate path that was searched. Each
+--- directory contributes its shared file (AGENTS.md, else CLAUDE.md) and
+--- then its git-ignored local file (AGENTS.local.md, else
+--- CLAUDE.local.md); a real file already injected for this agent session is
+--- skipped, and newly collected files are marked in `seen`.
+function M.collect(dirs, seen)
+    local out = {}
+    for _, dir in ipairs(dirs) do
+        for _, chain in ipairs(chains) do
+            for _, fname in ipairs(chain) do
+                -- fs_realpath doubles as an existence check (err if missing
+                -- or a broken symlink) and resolves symlinks.
+                local _, real = fs_realpath(dir .. "/" .. fname)
+                if real then
+                    if not seen[real] then
+                        seen[real] = true
+                        local text = read_all(real)
+                        if text then
+                            out[#out + 1] = {
+                                path = real,
+                                display_path = dir .. "/" .. fname,
+                                text = text,
+                            }
+                        end
+                    end
+                    break -- first file in the chain wins
+                end
+            end
+        end
+    end
+    return out
+end
+
+local function dirname(p)
+    local d = p:match("^(.*)/[^/]+$")
+    if d == "" then return "/" end
+    return d
+end
+
+--- Directories to check for a read of `path`: the containing directory
+--- (or `path` itself when it is a directory), then each parent, up to but
+--- EXCLUDING `base` (the session root — its rules are already in the
+--- system prompt). Returned outermost-first, so broader rules land before
+--- more specific ones. Empty when `path` doesn't exist or isn't strictly
+--- under `base`.
+function M.walk_dirs(path, base)
+    if not base then return {} end
+    local _, real = fs_realpath(path)
+    if not real then return {} end
+    local _, st = fs_stat(real)
+    if not st then return {} end
+    local dir = (st.type == "directory") and real or dirname(real)
+    local dirs = {}
+    while dir ~= base and #dir > #base do
+        dirs[#dirs + 1] = dir
+        dir = dirname(dir)
+    end
+    if dir ~= base then return {} end -- never reached the root: outside it
+    -- Reverse: deepest-first -> outermost-first.
+    for i = 1, #dirs // 2 do
+        dirs[i], dirs[#dirs - i + 1] = dirs[#dirs - i + 1], dirs[i]
+    end
+    return dirs
+end
+
+--- `tool_result` handler for `std.read`: append any not-yet-seen rules
+--- files between the read location and that agent's session root to writable
+--- `ev.output` as plaintext sections. The separate `render_tool_result`
+--- handler consumes the paths recorded for the tool call and wraps its
+--- component with a visual note.
+function M.on_read_result(ev)
+    if ev.tool_name ~= "std.read" then return end
+    if ev.result_ok == false then return end
+    local session = sessions[panto.ext.agent:session_id()]
+    if not session then return end
+    local ok, input = pcall(panto.ext.json.decode, ev.input or "")
+    if not ok or type(input) ~= "table" or type(input.path) ~= "string" then return end
+    local extra = M.collect(M.walk_dirs(input.path, session.root), session.seen)
+    if #extra == 0 then return end
+
+    local sections = {}
+    local paths = {}
+    for _, m in ipairs(extra) do
+        sections[#sections + 1] = "\n\n---\ncontext from " .. m.path .. ":\n\n" .. m.text
+        paths[#paths + 1] = m.path
+    end
+    ev.output = (ev.output or "") .. table.concat(sections)
+    if ev.id then session.attached[ev.id] = paths end
+end
+
+local function on_render_tool_result(ev)
+    if ev.tool_name ~= "std.read" then return end
+    local session = sessions[panto.ext.agent:session_id()]
+    local paths = session and session.attached[ev.id]
+    if not paths then return end
+    session.attached[ev.id] = nil
+
+    local comp = ev:get_component()
+    if not comp then return end
+    ev:set_component({
+        render = function(_, width)
+            local colors = panto.ext.style()
+            local lines = comp:render(width)
+            for _, path in ipairs(paths) do
+                lines[#lines + 1] = colors.dim .. "+ rules: " .. path .. colors.reset
+            end
+            return lines
+        end,
+    })
+end
+
+--- What the stored conversation already carries: the set of texts in its
+--- effective system prompt (system blocks after the last `replace`), and the
+--- resolved paths attached to read results since the latest compaction.
+function M.stored(messages)
+    local prompt, attached = {}, {}
+    for _, message in ipairs(messages) do
+        for _, block in ipairs(message.blocks or {}) do
+            if message.role == "system" and (block.type == "system" or block.type == "text") then
+                if block.mode == "replace" then prompt = {} end
+                prompt[block.text] = true
+            elseif block.type == "compaction_summary" then
+                attached = {}
+            elseif block.type == "tool_result" then
+                for _, part in ipairs(block.parts or {}) do
+                    for path in (part.text or ""):gmatch("\n\n%-%-%-\ncontext from (.-):\n\n") do
+                        attached[path] = true
+                    end
+                end
+            end
+        end
+    end
+    return prompt, attached
+end
+
+function M.activate()
+    panto.ext.on("session_start", function(ev)
+        local sid = ev.session_id
+        local _, real_cwd = fs_realpath(ev.cwd or uv.cwd())
+        local session = { root = real_cwd, seen = {}, paths = {}, attached = {} }
+        sessions[sid] = session
+        local prompt = {}
+        if ev.resumed then
+            local ok, messages = pcall(function()
+                return panto.ext.agent:conversation():messages()
+            end)
+            local attached
+            prompt, attached = M.stored(ok and type(messages) == "table" and messages or {})
+            for path in pairs(attached) do session.seen[path] = true end
+        end
+        for _, m in ipairs(M.collect(M.layer_dirs(), session.seen)) do
+            session.paths[#session.paths + 1] = m.display_path
+            local text = "context from " .. m.path .. ":\n\n" .. m.text
+            if not prompt[text] then panto.ext.agent:add_system_message(text) end
+        end
+    end)
+    panto.ext.on("render_header", function(ev)
+        local session = sessions[ev.session_id]
+        local inner = ev:get_component()
+        ev:set_component(header_component(inner, session and session.paths or {}))
+    end)
+    panto.ext.on("tool_result", M.on_read_result)
+    panto.ext.on("render_tool_result", on_render_tool_result)
+end
+
+return M

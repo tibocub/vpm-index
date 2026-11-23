@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "teliksandi",
+  "versions": {
+    "1.0.0-2": {
+      "bin": [],
+      "deps": [
+        "busted >= 1.2",
+        "base64 >= 1.5"
+      ],
+      "files": {
+        "kong/plugins/teliksandi/handler.lua": {
+          "sha256": "c25ac2c83fa870cb1f95b77907949fae8daf8245297c3bd3dbbfc54114e1fd81",
+          "size": 3198,
+          "url": "https://raw.githubusercontent.com/stackdev7/teliksandi/9ce6f2bbacb9be88c0d9976a6b8a11539747765e/kong/plugins/teliksandi/handler.lua"
+        },
+        "kong/plugins/teliksandi/schema.lua": {
+          "sha256": "afdce5463c45a2c37ecb4a8832ded88234a42d0da64d58ef868beb31ccfc3726",
+          "size": 796,
+          "url": "https://raw.githubusercontent.com/stackdev7/teliksandi/9ce6f2bbacb9be88c0d9976a6b8a11539747765e/kong/plugins/teliksandi/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 16 Jul 2021 03:05:08 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Jul 2021 03:05:08 GMT",
+          "sha256": "19e617144554cf1d4b70b158b4d9a8a2d68cd4d90569f8aab85fdad6a34bba8b",
+          "size": 791
+        },
+        "src": {
+          "date": "Fri, 16 Jul 2021 03:05:09 GMT",
+          "sha256": "47cbea73005c73ad0e5aa7a757e7e8ea95080d68e09de387c41048d269eb5b50",
+          "size": 33973,
+          "url": "https://luarocks.org/teliksandi-1.0.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.teliksandi.handler",
+        "kong.plugins.teliksandi.schema"
+      ],
+      "origin": {
+        "commit": "9ce6f2bbacb9be88c0d9976a6b8a11539747765e",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/stackdev7/teliksandi"
+      },
+      "size": 3994,
+      "summary": "Kong plugin for validate incoming request ",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "requests",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

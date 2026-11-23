@@ -1,0 +1,39 @@
+local Role = {}
+Role.__index = Role
+
+---Create a Role structure from Discord payload data.
+---@param data table
+---@param client table
+---@return table
+function Role.new(data, client)
+  assert(type(data) == "table", "Role.new expects a table payload")
+  local self = setmetatable({}, Role)
+  self._client = client
+  self:_patch(data)
+  return self
+end
+
+---Patch this role with fresh payload data.
+---@param data table
+function Role:_patch(data)
+  self.id = data.id or self.id
+  self.name = data.name or self.name
+  self.color = data.color or self.color or 0
+  self.hoist = data.hoist or false
+  self.icon = data.icon or self.icon
+  self.unicode_emoji = data.unicode_emoji or self.unicode_emoji
+  self.position = data.position or self.position or 0
+  self.permissions = tonumber(data.permissions) or self.permissions or 0
+  self.managed = data.managed or false
+  self.mentionable = data.mentionable or false
+  self.guild_id = data.guild_id or self.guild_id
+end
+
+---Get mention string for this role.
+---@return string
+function Role:mention()
+  return "<@&" .. tostring(self.id) .. ">"
+end
+
+return Role
+

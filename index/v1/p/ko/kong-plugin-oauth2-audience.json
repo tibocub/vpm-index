@@ -1,0 +1,103 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-oauth2-audience",
+  "versions": {
+    "0.2.3-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc == 1.7.2-1",
+        "lua-resty-jwt == 0.2.2-0"
+      ],
+      "files": {
+        "kong/plugins/oauth2-audience/access.lua": {
+          "sha256": "00d5443029c4c7c731d1fe00aa81166bbec700867c07650467cde0a6260ce9dd",
+          "size": 14005,
+          "url": "https://raw.githubusercontent.com/TelkomIndonesia/kong-plugin-oauth2-audience/740bbbc043edc02399fbac516a1c61d06b9db413/kong/plugins/oauth2-audience/access.lua"
+        },
+        "kong/plugins/oauth2-audience/daos.lua": {
+          "sha256": "61dae44332b63683d936a73c3812fd167fc8daa21f5b7e9cab78d90767bbfa73",
+          "size": 825,
+          "url": "https://raw.githubusercontent.com/TelkomIndonesia/kong-plugin-oauth2-audience/740bbbc043edc02399fbac516a1c61d06b9db413/kong/plugins/oauth2-audience/daos.lua"
+        },
+        "kong/plugins/oauth2-audience/error.lua": {
+          "sha256": "88d55d88db72a77b0b52f16b6e264db81352dfdc80d494509a604bddf0503d30",
+          "size": 2247,
+          "url": "https://raw.githubusercontent.com/TelkomIndonesia/kong-plugin-oauth2-audience/740bbbc043edc02399fbac516a1c61d06b9db413/kong/plugins/oauth2-audience/error.lua"
+        },
+        "kong/plugins/oauth2-audience/handler.lua": {
+          "sha256": "4ce542f0234c06a94d2d9c93062f5fe9df92988a7051eeddcf5395d3b7f271e3",
+          "size": 388,
+          "url": "https://raw.githubusercontent.com/TelkomIndonesia/kong-plugin-oauth2-audience/740bbbc043edc02399fbac516a1c61d06b9db413/kong/plugins/oauth2-audience/handler.lua"
+        },
+        "kong/plugins/oauth2-audience/migrations/000_base.lua": {
+          "sha256": "c47e3ccaef6feb34f0edccdc69c0dd4f76e6b8ac01deb453234f9a7552a8ec75",
+          "size": 2141,
+          "url": "https://raw.githubusercontent.com/TelkomIndonesia/kong-plugin-oauth2-audience/740bbbc043edc02399fbac516a1c61d06b9db413/kong/plugins/oauth2-audience/migrations/000_base.lua"
+        },
+        "kong/plugins/oauth2-audience/migrations/init.lua": {
+          "sha256": "1473034959ac9d2023d605a9f23153e30a835f42f91fa37c3f028fb6b8e0170a",
+          "size": 24,
+          "url": "https://raw.githubusercontent.com/TelkomIndonesia/kong-plugin-oauth2-audience/740bbbc043edc02399fbac516a1c61d06b9db413/kong/plugins/oauth2-audience/migrations/init.lua"
+        },
+        "kong/plugins/oauth2-audience/schema.lua": {
+          "sha256": "bf40ce1c4038028247ef9c734048075ae048e9778174c89ba090c8205194a574",
+          "size": 4875,
+          "url": "https://raw.githubusercontent.com/TelkomIndonesia/kong-plugin-oauth2-audience/740bbbc043edc02399fbac516a1c61d06b9db413/kong/plugins/oauth2-audience/schema.lua"
+        }
+      },
+      "homepage": "https://luarocks.org/modules/telkomindonesia",
+      "host": "openresty",
+      "luarocks": {
+        "date": "Wed, 02 Dec 2020 07:10:09 GMT",
+        "rockspec": {
+          "date": "Wed, 02 Dec 2020 07:10:09 GMT",
+          "sha256": "d2a5236ef08db7ec4efcc97928ceb59169d35987ff2ba8132d64d60c8ea2164e",
+          "size": 1266
+        },
+        "src": {
+          "date": "Wed, 02 Dec 2020 07:10:09 GMT",
+          "sha256": "b2421fffe3c205ac853d8c17f57fd6054806ab1b3bfffc678ebb2b8bcbb109d8",
+          "size": 33859,
+          "url": "https://luarocks.org/kong-plugin-oauth2-audience-0.2.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oauth2-audience.access",
+        "kong.plugins.oauth2-audience.daos",
+        "kong.plugins.oauth2-audience.error",
+        "kong.plugins.oauth2-audience.handler",
+        "kong.plugins.oauth2-audience.migrations",
+        "kong.plugins.oauth2-audience.migrations.000_base",
+        "kong.plugins.oauth2-audience.schema"
+      ],
+      "origin": {
+        "commit": "740bbbc043edc02399fbac516a1c61d06b9db413",
+        "ref": "0.2.3",
+        "type": "git",
+        "url": "https://github.com/TelkomIndonesia/kong-plugin-oauth2-audience"
+      },
+      "size": 24505,
+      "summary": "Kong authentication plugin to integrate with external OAuth2 / OpenID Connect Provider ",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.",
+        "kong.plugins.base_plugin",
+        "ngx"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+
+--
+-- lua-LIVR : <https://fperrad.frama.io/lua-LIVR/>
+--
+
+local m         = require 'LIVR.Validator'
+local common    = require 'LIVR.Rules.Common'
+local string    = require 'LIVR.Rules.String'
+local numeric   = require 'LIVR.Rules.Numeric'
+local special   = require 'LIVR.Rules.Special'
+local meta      = require 'LIVR.Rules.Meta'
+local modifiers = require 'LIVR.Rules.Modifiers'
+local has_pcre  = pcall(require, 'rex_pcre2') or pcall(require, 'rex_pcre')
+local _ENV = nil
+
+m.default_rules = {
+    required                    = common.required,
+    not_empty                   = common.not_empty,
+    not_empty_list              = common.not_empty_list,
+    any_object                  = common.any_object,
+    one_of                      = string.one_of,
+    min_length                  = string.min_length,
+    max_length                  = string.max_length,
+    length_equal                = string.length_equal,
+    length_between              = string.length_between,
+    like                        = has_pcre and string.like or string.like_lua,
+    like_lua                    = string.like_lua,
+    string                      = string.string,
+    eq                          = string.equal,
+    integer                     = numeric.integer,
+    positive_integer            = numeric.positive_integer,
+    decimal                     = numeric.decimal,
+    positive_decimal            = numeric.positive_decimal,
+    max_number                  = numeric.max_number,
+    min_number                  = numeric.min_number,
+    number_between              = numeric.number_between,
+    email                       = special.email,
+    equal_to_field              = special.equal_to_field,
+    url                         = special.url,
+    iso_date                    = special.iso_date,
+    nested_object               = meta.nested_object,
+    variable_object             = meta.variable_object,
+    list_of                     = meta.list_of,
+    list_of_objects             = meta.list_of_objects,
+    ['or']                      = meta['or'],
+    list_of_different_objects   = meta.list_of_different_objects,
+    trim                        = modifiers.trim,
+    to_lc                       = modifiers.to_lc,
+    to_uc                       = modifiers.to_uc,
+    remove                      = modifiers.remove,
+    leave_only                  = modifiers.leave_only,
+    default                     = modifiers.default,
+}
+
+m._NAME = ...
+m._VERSION = "0.5.2"
+m._DESCRIPTION = "lua-LIVR : Lightweight validator supporting LIVR 2.0"
+m._COPYRIGHT = "Copyright (c) 2018-2026 Francois Perrad"
+return m
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

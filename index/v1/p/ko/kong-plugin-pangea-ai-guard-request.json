@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-pangea-ai-guard-request",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [
+        "kong-plugin-pangea-ai-guard-shared == 0.2.0"
+      ],
+      "files": {
+        "kong/plugins/pangea-ai-guard-request/handler.lua": {
+          "sha256": "e0fc066f5e9216f90f816a4c5990e207de0734f63b040ee35ee9db696db8d370",
+          "size": 822,
+          "url": "blob:e0fc066f5e9216f90f816a4c5990e207de0734f63b040ee35ee9db696db8d370"
+        },
+        "kong/plugins/pangea-ai-guard-request/schema.lua": {
+          "sha256": "268507fb0009a18ddd286e8179dcae1f6a72b7ade246640a70a45a611e8026d7",
+          "size": 2374,
+          "url": "blob:268507fb0009a18ddd286e8179dcae1f6a72b7ade246640a70a45a611e8026d7"
+        }
+      },
+      "homepage": "https://github.com/pangeacyber/pangea-kong",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 04 Aug 2025 22:11:15 GMT",
+        "rockspec": {
+          "date": "Mon, 04 Aug 2025 22:11:15 GMT",
+          "sha256": "eded1fdb141f36c65a0cb3d279ee72ea0676aa686433960b5b57366d47b07636",
+          "size": 1199
+        },
+        "src": {
+          "date": "Mon, 04 Aug 2025 22:11:16 GMT",
+          "sha256": "aeae690de5213fba804d4b725b8336d1fed932442274e83908b4faec5706b70b",
+          "size": 33303,
+          "url": "https://luarocks.org/kong-plugin-pangea-ai-guard-request-0.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.pangea-ai-guard-request.handler",
+        "kong.plugins.pangea-ai-guard-request.schema"
+      ],
+      "origin": {
+        "date": "Mon, 04 Aug 2025 22:11:16 GMT",
+        "sha256": "aeae690de5213fba804d4b725b8336d1fed932442274e83908b4faec5706b70b",
+        "size": 33303,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-pangea-ai-guard-request-0.2.0-1.src.rock"
+      },
+      "size": 3196,
+      "summary": "Kong Gateway plugin to integrate Pangea AI Guard",
+      "undeclared_requires": [
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.tools.gzip"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

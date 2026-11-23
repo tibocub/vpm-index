@@ -1,0 +1,97 @@
+{
+  "kind": "lib",
+  "name": "lua-secureunionid",
+  "versions": {
+    "2.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "secureunionid.lua": {
+          "sha256": "fc83d971ce01dc9bd3b049bf0258dd0e6d7f22fd02db6a100298bf1464e44cf8",
+          "size": 13509,
+          "url": "blob:fc83d971ce01dc9bd3b049bf0258dd0e6d7f22fd02db6a100298bf1464e44cf8"
+        }
+      },
+      "homepage": "https://github.com/ChuanDou2021/lua-secureunionid",
+      "host": "luajit",
+      "license": "Apache-2.0 license",
+      "luajit": true,
+      "luarocks": {
+        "date": "Sat, 09 Sep 2023 09:59:58 GMT",
+        "rockspec": {
+          "date": "Sat, 09 Sep 2023 09:59:58 GMT",
+          "sha256": "bc9d2da228cdceb9bb2d7372607177ba43bbaf98de7ebda754b02d1fa69fd78d",
+          "size": 1604
+        },
+        "src": {
+          "date": "Sat, 09 Sep 2023 10:00:00 GMT",
+          "sha256": "0647455cb04c6bb9b48b060af16480e36e0418cbb126b5c5e9756bd662faad0d",
+          "size": 105461,
+          "url": "https://luarocks.org/lua-secureunionid-2.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "libsecureunionid",
+        "secureunionid"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src/crypto",
+                "src/psi",
+                "src/"
+              ],
+              "name": "libsecureunionid",
+              "sources": [
+                "src/crypto/big_256_56.c",
+                "src/crypto/ecp2_BN254.c",
+                "src/crypto/ecp_BN254.c",
+                "src/crypto/fn_BN254.c",
+                "src/crypto/fp12_BN254.c",
+                "src/crypto/fp2_BN254.c",
+                "src/crypto/fp4_BN254.c",
+                "src/crypto/fp_BN254.c",
+                "src/crypto/hash.c",
+                "src/crypto/hkdf.c",
+                "src/crypto/oct.c",
+                "src/crypto/pair_BN254.c",
+                "src/crypto/rand.c",
+                "src/crypto/randapi.c",
+                "src/crypto/rom_curve_BN254.c",
+                "src/crypto/rom_field_BN254.c",
+                "src/crypto/rom_order_BN254.c",
+                "src/psi/encryption.c",
+                "src/utils.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 09 Sep 2023 10:00:00 GMT",
+        "sha256": "0647455cb04c6bb9b48b060af16480e36e0418cbb126b5c5e9756bd662faad0d",
+        "size": 105461,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-secureunionid-2.2-1.src.rock"
+      },
+      "size": 13509,
+      "summary": "Secure ECC-based DID intersection",
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

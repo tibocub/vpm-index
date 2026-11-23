@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-respond-redirect",
+  "versions": {
+    "0.11.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/respond-redirect/handler.lua": {
+          "sha256": "220d534113ed450552fb21cb6c956436c08f2810d0353794702cdf97a75ac0a4",
+          "size": 2326,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-respond-redirect/0f3ded3fb01a9d3f48d1312331d794d9b618e4e8/kong/plugins/respond-redirect/handler.lua"
+        },
+        "kong/plugins/respond-redirect/redirect_to.lua": {
+          "sha256": "e0eabc0ff921b51a8f343b5a5313af3505f9d8a449b3f1dbac135ca4f5454e8b",
+          "size": 2860,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-respond-redirect/0f3ded3fb01a9d3f48d1312331d794d9b618e4e8/kong/plugins/respond-redirect/redirect_to.lua"
+        },
+        "kong/plugins/respond-redirect/schema.lua": {
+          "sha256": "fec58b3d4b6836914d0916a7411d15921792f3a51eb3411ed5cee6aaba72dccf",
+          "size": 581,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-respond-redirect/0f3ded3fb01a9d3f48d1312331d794d9b618e4e8/kong/plugins/respond-redirect/schema.lua"
+        }
+      },
+      "homepage": "*** please enter a project homepage ***",
+      "host": "openresty",
+      "license": "*** please specify a license ***",
+      "luarocks": {
+        "date": "Wed, 27 Nov 2019 05:18:16 GMT",
+        "rockspec": {
+          "date": "Wed, 27 Nov 2019 05:18:16 GMT",
+          "sha256": "756a4aadda27e9abe12e6d657f4fd9cec409561f970bb5bdbb4eb74da27496d4",
+          "size": 617
+        },
+        "src": {
+          "date": "Wed, 27 Nov 2019 05:18:19 GMT",
+          "sha256": "e9fb87a71dcc121975847640f70e85161d840d0e3d96ee01cc5f88c95c439f75",
+          "size": 48254,
+          "url": "https://luarocks.org/kong-plugin-respond-redirect-0.11.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.respond-redirect.handler",
+        "kong.plugins.respond-redirect.redirect_to",
+        "kong.plugins.respond-redirect.schema"
+      ],
+      "origin": {
+        "commit": "0f3ded3fb01a9d3f48d1312331d794d9b618e4e8",
+        "type": "git",
+        "url": "https://github.com/koreniac/kong-plugin-respond-redirect.git"
+      },
+      "size": 5767,
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.meta",
+        "kong.plugins.base_plugin",
+        "kong.plugins.response-transformer.body_transformer",
+        "kong.plugins.response-transformer.header_transformer",
+        "kong.singletons"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.singletons",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

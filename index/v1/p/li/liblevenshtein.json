@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "liblevenshtein",
+  "versions": {
+    "4.0.0rc5-1": {
+      "bin": [],
+      "deps": [
+        "libdictenstein == 4.0.0rc5-1"
+      ],
+      "files": [],
+      "license": "Apache-2.0",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Fri, 28 Aug 2026 03:38:40 GMT",
+        "rockspec": {
+          "date": "Fri, 28 Aug 2026 03:38:40 GMT",
+          "sha256": "ff9a646b198572f07b824418afeb254ff662567343f85c6877ec26551e891011",
+          "size": 733
+        },
+        "src": {
+          "date": "Fri, 28 Aug 2026 03:38:41 GMT",
+          "sha256": "020f7709439b00fe20c66f2ab7f888be360cb001708e29a05576bd4ef8eb5051",
+          "size": 13792442,
+          "url": "https://luarocks.org/liblevenshtein-4.0.0rc5-1.src.rock"
+        }
+      },
+      "modules": [
+        "vinary_tree.liblevenshtein"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBLEVENSHTEIN"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBLEVENSHTEIN": {
+              "header": "liblevenshtein.h",
+              "library": "liblevenshtein"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBLEVENSHTEIN_INCDIR)",
+                "bindings/lua/include"
+              ],
+              "libdirs": [
+                "$(LIBLEVENSHTEIN_LIBDIR)"
+              ],
+              "libraries": [
+                "liblevenshtein"
+              ],
+              "name": "vinary_tree.liblevenshtein",
+              "sources": [
+                "bindings/lua/src/liblevenshtein_lua.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 28 Aug 2026 03:38:41 GMT",
+        "sha256": "020f7709439b00fe20c66f2ab7f888be360cb001708e29a05576bd4ef8eb5051",
+        "size": 13792442,
+        "type": "luarocks",
+        "url": "https://luarocks.org/liblevenshtein-4.0.0rc5-1.src.rock"
+      },
+      "summary": "Streaming Lua bindings for liblevenshtein",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

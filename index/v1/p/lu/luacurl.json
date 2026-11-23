@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "luacurl",
+  "versions": {
+    "1.2.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://luaforge.net/projects/luacurl/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 03:08:41 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 03:08:41 GMT",
+          "sha256": "fcd7317012bb77ecb428e0d52650806d1ccefddc3f4a8f9a6564aeaf42090894",
+          "size": 920
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 03:08:42 GMT",
+          "sha256": "f1dd902122683a292c9fec65abecd680e9ff511e2786faf3ab2a62114163488c",
+          "size": 10176,
+          "url": "https://luarocks.org/luacurl-1.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "luacurl"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "CURL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "CURL": {
+              "header": "curl/curl.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(CURL_INCDIR)"
+              ],
+              "libdirs": [
+                "$(CURL_LIBDIR)"
+              ],
+              "libraries": [
+                "curl"
+              ],
+              "name": "luacurl",
+              "sources": [
+                "luacurl.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 03:08:42 GMT",
+        "sha256": "f1dd902122683a292c9fec65abecd680e9ff511e2786faf3ab2a62114163488c",
+        "size": 10176,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luacurl-1.2.1-1.src.rock"
+      },
+      "summary": "Lua module binding CURL",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

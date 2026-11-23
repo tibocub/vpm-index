@@ -1,0 +1,124 @@
+local Constants = {}
+
+Constants['idTypesText'] = {}
+Constants['idTypes'] = {
+  NONE = '0',
+  UA = '1',
+  IP = '2',
+  VISITOR = '3',
+  DATACENTER = '4',
+  CUSTOMER_SESSION = '5',
+  ORGANISATION = '6',
+  ASN = '7',
+  COUNTRY = '8',
+  COMBINATION = '9',
+  HEADERFP = 'b'
+}
+
+Constants['mitigationTypesText'] = {}
+Constants['mitigationTypes'] = {
+  NONE = '0',
+  BLOCKED = '1',
+  ALLOW = '2',
+  HARDBLOCKED = '3',
+  FLAGGED = '4',
+  MONETISED = '5'
+}
+
+Constants['captchaStatesText'] = {}
+Constants['captchaStates'] = {
+  NONE = '0',
+  SERVE = '1',
+  PASS = '2',
+  FAIL = '3',
+  COOKIEPASS = '4',
+  COOKIEFAIL = '5'
+}
+
+Constants['checkpointStates'] = {
+  NONE = '0',
+  SIGNAL = '6',
+  POST = '7',
+  SERVE = 'a',
+  PASS = 'b',
+  FAIL = 'c',
+  COOKIEPASS = 'd',
+  COOKIEFAIL = 'e'
+}
+
+-- Matches the ingest schema's NetaceaUserIdCookieStatus values.
+Constants['userIdCookieStatus'] = {
+  NEW = 1,
+  VALID = 2,
+  EXPIRED = 3,
+}
+
+Constants['protectionModes'] = {
+  INGEST = 'INGEST',
+  INJECT = 'INJECT',
+  MITIGATE = 'MITIGATE',
+  BYPASS = 'BYPASS',
+}
+
+Constants['issueReasons'] = {
+    NO_SESSION = 'no_session',
+    EXPIRED_SESSION = 'expired_session',
+    INVALID_SESSION = 'invalid_session',
+    IP_CHANGE = 'ip_change',
+    FORCED_REVALIDATION = 'forced_validation',
+    CAPTCHA_POST = 'captcha_post',
+    CAPTCHA_GET = 'captcha_get',
+}
+
+Constants['matchBcTypes'] = {
+  ['1'] = 'ua',
+  ['2'] = 'ip',
+  ['3'] = 'visitor',
+  ['4'] = 'datacenter',
+  ['5'] = 'customer_session',
+  ['6'] = 'organisation',
+  ['7'] = 'asn',
+  ['8'] = 'country',
+  ['9'] = 'combination',
+  ['b'] = 'headerFP',
+  ['c'] = 'vendorFamily',
+  ['d'] = 'vendorName',
+  ['e'] = 'vendor',
+  ['f'] = 'vendorCrawlerClassification'
+}
+
+Constants['mitigateBcTypes'] = {
+  ['1'] = 'blocked',
+  ['2'] = 'allow',
+  ['3'] = 'hardblocked',
+  ['4'] = 'flagged',
+  ['5'] = 'monetised'
+}
+
+Constants['captchaBcTypes'] = {
+  ['1'] = 'captcha_serve',
+  ['2'] = 'captcha_pass',
+  ['3'] = 'captcha_fail',
+  ['4'] = 'captcha_cookiepass',
+  ['5'] = 'captcha_cookiefail'
+}
+
+Constants['checkpointBcTypes'] = {
+  ['6'] = 'checkpoint_signal',
+  ['7'] = 'checkpoint_post',
+  ['a'] = 'checkpoint_serve',
+  ['b'] = 'checkpoint_pass',
+  ['c'] = 'checkpoint_fail',
+  ['d'] = 'checkpoint_cookiepass',
+  ['e'] = 'checkpoint_cookiefail'
+}
+
+local function reversifyTable(table)
+  for k,v in pairs(Constants[table]) do Constants[table .. 'Text'][v] = k end
+end
+
+reversifyTable('idTypes')
+reversifyTable('mitigationTypes')
+reversifyTable('captchaStates')
+
+return Constants

@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "luse",
+  "versions": {
+    "1.0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://luse.luaforge.net/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 30 Jun 2015 15:38:27 GMT",
+        "rockspec": {
+          "date": "Tue, 30 Jun 2015 15:38:27 GMT",
+          "sha256": "d49f36af1c198cee851a6bb7e19069777b9e993d4e010ec040cffadc401cbbee",
+          "size": 931
+        },
+        "src": {
+          "date": "Tue, 30 Jun 2015 15:38:28 GMT",
+          "sha256": "6e3bab9a974a3d15aafdfa19c9ff4f65d162ee5200ac263631799cf5242d2bd7",
+          "size": 65534,
+          "url": "https://luarocks.org/luse-1.0.2-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "FUSE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "FUSE": {
+              "header": "fuse.h"
+            }
+          },
+          "make": {
+            "variables": {
+              "CC": "$(CC) -I$(LUA_INCDIR) -I$(FUSE_INCDIR)",
+              "INSTALL_TOP_LIB": "$(LIBDIR)",
+              "INSTALL_TOP_SHARE": "$(LUADIR)",
+              "LDFLAGS": "$(LIBFLAG) -L$(LUA_LIBDIR) -L$(FUSE_LIBDIR)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Tue, 30 Jun 2015 15:38:28 GMT",
+        "sha256": "6e3bab9a974a3d15aafdfa19c9ff4f65d162ee5200ac263631799cf5242d2bd7",
+        "size": 65534,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luse-1.0.2-1.src.rock"
+      },
+      "summary": "Lua bindings for the Filesystems in Userspace (FUSE) library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

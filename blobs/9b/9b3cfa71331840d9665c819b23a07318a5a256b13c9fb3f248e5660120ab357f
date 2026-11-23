@@ -1,0 +1,90 @@
+
+--
+-- lua-Loja : <https://fperrad.frama.io/lua-loja>
+--
+
+local lightningmdb = require'lightningmdb'
+local assert = assert
+local require = require
+local setmetatable = setmetatable
+local tonumber = tonumber
+local tostring = tostring
+
+local _ENV = nil
+local m = {}
+
+m.codec = 'ubjson'
+
+local function open(path, flags, mode)
+    local decode = require(m.codec).decode
+    local encode = require(m.codec).encode
+    local env = assert(lightningmdb.env_create())
+    assert(env:open(path, flags or 0, mode or tonumber('0644', 8)))
+    return setmetatable({}, {
+        __index = function (_, k)
+            local txn = assert(env:txn_begin(nil, lightningmdb.MDB_RDONLY))
+            local dbi = assert(txn:dbi_open(nil, 0))
+            local v = txn:get(dbi, encode(k))
+            env:dbi_close(dbi)
+            assert(txn:commit())
+            if v then
+                return decode(v)
+            end
+        end,
+        __newindex = function (_, k, v)
+            local txn = env:txn_begin(nil, 0)
+            local dbi = assert(txn:dbi_open(nil, lightningmdb.MDB_CREATE))
+            if v ~= nil then
+                assert(txn:put(dbi, encode(k), encode(v), 0))
+            else
+                assert(txn:del(dbi, encode(k), ''))
+            end
+            env:dbi_close(dbi)
+            assert(txn:commit())
+        end,
+        __pairs = function ()
+            local txn = env:txn_begin(nil, lightningmdb.MDB_RDONLY)
+            local dbi = assert(txn:dbi_open(nil, 0))
+            local cursor = assert(txn:cursor_open(dbi))
+            return function (_, k)
+                local v
+                if k == nil then
+                    k, v = cursor:get(nil, lightningmdb.MDB_FIRST)
+                else
+                    k, v = cursor:get(encode(k), lightningmdb.MDB_NEXT)
+                end
+                if k and v then
+                    return decode(k), decode(v)
+                end
+                cursor:close()
+                env:dbi_close(dbi)
+                assert(txn:commit())
+            end
+        end,
+        __close = function ()
+            assert(env:sync(0))
+            env:close()
+        end,
+        __call = function (_, meth, ...)
+            local fn = assert(env[meth], "unknown method: " .. tostring(meth))
+            return fn(env, ...)
+        end,
+    })
+end
+
+setmetatable(m, {
+    __call = function (_, path, flags, mode)
+        return open(path, flags, mode)
+    end,
+    __index = lightningmdb,
+})
+
+m._NAME = ...
+m._VERSION = "0.1.0"
+m._DESCRIPTION = "lua-Loja : transparent persistence with a key/value store"
+m._COPYRIGHT = "Copyright (c) 2024 Francois Perrad"
+return m
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

@@ -1,0 +1,27 @@
+local source=debug.getinfo(1,'S').source:sub(2)
+local dir=source:match('^(.*)/[^/]+$') or '.'
+package.path=dir..'/?.lua;'..package.path
+local __glance_support=require('glance_widgets_native.native_support')
+__glance_support.environment.__glance_support=__glance_support
+require('glance_widgets_native.crypto')
+local native=require('glance_widgets_native.index')
+local lib=require('glance_widgets_native.lualib_bundle')
+local sdk={null=__glance_support.null,object=__glance_support.object,array=__glance_support.array,json_encode=__glance_support.encode,json_decode=__glance_support.decode}
+for k,v in pairs(native) do
+ local snake=k:gsub('(%l)(%u)','%1_%2'):lower()
+ if type(v)=='function' then local f=v;sdk[snake]=function(...) return f(nil,...) end;sdk[k]=sdk[snake]
+ else sdk[k]=v end
+end
+for _,name in ipairs({'Matrix','Box','PixelFont'}) do
+ local class=native[name]
+ sdk[name]=setmetatable({}, {__call=function(_,...) return lib.__TS__New(class,...) end,__index=function(_,key)
+  local camel=key:gsub('_([a-z])',string.upper)
+  if type(class[camel])=='function' then return function(...) return class[camel](class,...) end end
+  return class[camel]
+ end})
+ local aliases={}
+ for k,v in pairs(class.prototype) do if type(v)=='function' then local snake=k:gsub('(%l)(%u)','%1_%2'):lower();aliases[snake]=v end end
+ for k,v in pairs(aliases) do class.prototype[k]=v end
+end
+sdk._native,sdk._lib=native,lib
+return sdk

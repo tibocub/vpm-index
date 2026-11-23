@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "luafam",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://lua.net-core.org/sputnik.lua?p=Telesto:About",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 03:04:10 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 03:04:10 GMT",
+          "sha256": "a22e16f7faec2e659be6e4cc3d343d837ba42cab3e8188926ba562600fac6bb7",
+          "size": 746
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 03:04:10 GMT",
+          "sha256": "f27cf7fb3b31d1e17a85d0f6703c5fcc56bd637ed6e9f1b0bf8b73a95671e8e2",
+          "size": 3330,
+          "url": "https://luarocks.org/luafam-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "FAM"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "FAM": {
+              "header": "fam.h"
+            }
+          },
+          "make": {
+            "build_variables": {
+              "CFLAGS": "-I$(LUA_INCDIR) -I$(FAM_INCDIR)",
+              "LDFLAGS": "$(LIBFLAG)",
+              "LIBS": "-lfam -L$(FAM_LIBDIR)",
+              "LUA_PREFIX": "$(LUA_DIR)"
+            },
+            "install_variables": {
+              "INSTALL_PREFIX": "$(LIBDIR)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 03:04:10 GMT",
+        "sha256": "f27cf7fb3b31d1e17a85d0f6703c5fcc56bd637ed6e9f1b0bf8b73a95671e8e2",
+        "size": 3330,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luafam-1.0.0-1.src.rock"
+      },
+      "summary": "Lua File Alteration Monitoring Interface",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

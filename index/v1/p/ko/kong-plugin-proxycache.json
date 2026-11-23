@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-proxycache",
+  "versions": {
+    "0.1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/proxycache/handler.lua": {
+          "sha256": "787e9ee61b217932cb4eea44edb2ebb61b985e54a6f7d44f93e7e6bf9f8ade62",
+          "size": 4211,
+          "url": "https://raw.githubusercontent.com/andy-zhangtao/proxycache/9f16e4ea57889a430f98d81fc9ae6009dae60cab/handler.lua"
+        },
+        "kong/plugins/proxycache/schema.lua": {
+          "sha256": "11c2fbfc41661f9eacc55c40c201ca7293f17bdef194d908a85ed0e2d78439bb",
+          "size": 763,
+          "url": "https://raw.githubusercontent.com/andy-zhangtao/proxycache/9f16e4ea57889a430f98d81fc9ae6009dae60cab/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/andy-zhangtao/proxycache",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 08 Apr 2018 02:03:54 GMT",
+        "rockspec": {
+          "date": "Sun, 08 Apr 2018 02:03:54 GMT",
+          "sha256": "53c6460fbd96d8ef77f8abb6a91b722a4613833d167baa578d8068b012c836a2",
+          "size": 693
+        },
+        "src": {
+          "date": "Sun, 08 Apr 2018 02:03:56 GMT",
+          "sha256": "778dcaa46549805ad6631f5278f2dd339301182a8089d84d3bef0059b6d54d6c",
+          "size": 15968,
+          "url": "https://luarocks.org/kong-plugin-proxycache-0.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.proxycache.handler",
+        "kong.plugins.proxycache.schema"
+      ],
+      "origin": {
+        "commit": "9f16e4ea57889a430f98d81fc9ae6009dae60cab",
+        "ref": "v0.1.2",
+        "type": "git",
+        "url": "https://github.com/andy-zhangtao/proxycache"
+      },
+      "size": 4974,
+      "summary": "Kong Plugin Proxycache. Use for cache response temporary.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.responses",
+        "pl.pretty",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

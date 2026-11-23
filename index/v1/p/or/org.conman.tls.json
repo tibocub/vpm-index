@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "org.conman.tls",
+  "versions": {
+    "2.0.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/spc476/lua-conmanorg/blob/tls-2.0.0/src/tls.c",
+      "license": "LGPL3+",
+      "lua": ">= 5.1, <= 5.4",
+      "luarocks": {
+        "date": "Sat, 30 Jan 2021 05:21:48 GMT",
+        "rockspec": {
+          "date": "Sat, 30 Jan 2021 05:21:48 GMT",
+          "sha256": "76c6fe22a3e171e6ffba87340e1b565cb6014f1519330f4713203f9790c1bedd",
+          "size": 1018
+        },
+        "src": {
+          "date": "Sat, 30 Jan 2021 05:21:49 GMT",
+          "sha256": "adc4c961ee309fc36ca78e0659ea08aafd0626fa01b1772623741d69d2b4c832",
+          "size": 9986,
+          "url": "https://luarocks.org/org.conman.tls-2.0.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "org.conman.tls"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "TLS"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "TLS": {
+              "header": "tls.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(TLS_INCDIR)"
+              ],
+              "libraries": [
+                "tls"
+              ],
+              "name": "org.conman.tls",
+              "sources": [
+                "tls.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 30 Jan 2021 05:21:49 GMT",
+        "sha256": "adc4c961ee309fc36ca78e0659ea08aafd0626fa01b1772623741d69d2b4c832",
+        "size": 9986,
+        "type": "luarocks",
+        "url": "https://luarocks.org/org.conman.tls-2.0.0-3.src.rock"
+      },
+      "summary": "A Lua module that implements TLS via the libtls API.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

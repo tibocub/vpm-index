@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-consumer-cors",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/consumer-cors/handler.lua": {
+          "sha256": "ea9761064361a8c0f15e011cb4fc12db56199394637c7e6309e190168a3bdc2f",
+          "size": 6708,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-consumer-cors/08cc31ad506ebe688dbf6271dd78105af43bcd1e/kong/plugins/consumer-cors/handler.lua"
+        },
+        "kong/plugins/consumer-cors/schema.lua": {
+          "sha256": "8832341778ebe95039c32bcfed1a2bfabb8461ebfc0155edf363b41345dddee0",
+          "size": 1539,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-consumer-cors/08cc31ad506ebe688dbf6271dd78105af43bcd1e/kong/plugins/consumer-cors/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/figment-networks/kong-plugin-consumer-cors",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 10 Mar 2022 14:06:44 GMT",
+        "rockspec": {
+          "date": "Thu, 10 Mar 2022 14:06:44 GMT",
+          "sha256": "d4a32506c2d6b0a81583fd8ae3dff9d72f08d763957c118a35ace368b4d580a9",
+          "size": 1382
+        },
+        "src": {
+          "date": "Thu, 10 Mar 2022 14:06:45 GMT",
+          "sha256": "ae6a445acc6fcd4e164650d3045f84b496b68de64a12503640fb09c77e9fd0a2",
+          "size": 21533,
+          "url": "https://luarocks.org/kong-plugin-consumer-cors-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.consumer-cors.handler",
+        "kong.plugins.consumer-cors.schema"
+      ],
+      "origin": {
+        "commit": "08cc31ad506ebe688dbf6271dd78105af43bcd1e",
+        "ref": "0.1.1",
+        "type": "git",
+        "url": "https://github.com/figment-networks/kong-plugin-consumer-cors"
+      },
+      "size": 8247,
+      "summary": "Kong plugin to control CORS responses per consumer.",
+      "undeclared_requires": [
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "resty.lrucache",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.lrucache)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

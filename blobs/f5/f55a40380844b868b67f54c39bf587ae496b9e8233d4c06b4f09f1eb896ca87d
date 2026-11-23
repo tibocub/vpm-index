@@ -1,0 +1,253 @@
+-- agent.skills: on-demand Agent Skills (agentskills.io) via an
+-- `agent.skill` tool.
+--
+-- Discovery happens once, at activation. Skill directories are searched
+-- lowest priority first — every config layer's `skills/` (from
+-- `panto.ext.dirs`), with the `.agents/skills` interop directories
+-- spliced in after their own layer:
+--
+--     base:    <XDG_DATA_HOME>/panto/agent/skills
+--     user:    <XDG_CONFIG_HOME>/panto/skills
+--              ~/.agents/skills
+--     project: <cwd>/.panto/skills
+--              <cwd>/.agents/skills
+--     local:   <cwd>/.panto/local/skills
+--
+-- The `.agents/skills` variants outrank their own layer's normal directory
+-- but nothing above it (`~/.agents/skills` does not outrank
+-- `<cwd>/.panto/skills`). A skill is any subdirectory containing a
+-- SKILL.md with YAML frontmatter; the frontmatter `name` (not the
+-- directory name) is the skill's identity, and a later directory's skill
+-- shadows an earlier one with the same name.
+--
+-- The surviving names and descriptions are baked into one registered
+-- tool: the description lists every skill, and the input schema
+-- constrains `skill` to the discovered names as an enum. Each skill also
+-- gets a `/skill:<name>` command. Both re-read SKILL.md (so edits mid-session
+-- are picked up) and strip its frontmatter. The command substitutes its
+-- trailing arguments for every `$ARGUMENTS` and submits the instructions as
+-- a native agent turn.
+--
+-- Frontmatter parsing is deliberately minimal: top-level `key: value`
+-- lines only (quoted values unquoted). Nested mappings like `metadata:`
+-- are ignored, which is all this extension needs (`name`, `description`).
+
+local uv = require("luv")
+local panto = require("panto")
+
+-- Siblings resolve differently installed vs. scanned from a checkout (see
+-- init.lua): as a rock this module is `panto-agent.skills`, from a directory
+-- scan it is plain `skills`. Derive the prefix from our own name rather than
+-- probing, so a stale installed rock can never satisfy a checkout's require.
+local frontmatter = require(((...) or ""):match("^(.-)[^.]*$") .. "frontmatter")
+
+local M = { name = "agent.skills", skills = {} }
+
+-- Coroutine-aware libuv await (same shape as agent.rules): arm the
+-- callback form of a uv request, yield, resume with its results. Panto
+-- runs every user-Lua entrypoint (activate, event handlers, tools)
+-- inside a coroutine with the uv loop driven, so this just works.
+local function await(label, arm)
+    local co = assert(coroutine.running(), label .. ": await must run inside a coroutine")
+    local res
+    arm(function(...)
+        res = table.pack(...)
+        local ok, err = coroutine.resume(co)
+        if not ok then error(err, 0) end
+    end)
+    coroutine.yield()
+    return table.unpack(res, 1, res.n)
+end
+
+local function fs_realpath(p) return await("fs_realpath", function(r) uv.fs_realpath(p, r) end) end
+local function fs_open(p, flags, mode) return await("fs_open", function(r) uv.fs_open(p, flags, mode, r) end) end
+local function fs_fstat(fd) return await("fs_fstat", function(r) uv.fs_fstat(fd, r) end) end
+local function fs_read(fd, size, off) return await("fs_read", function(r) uv.fs_read(fd, size, off, r) end) end
+local function fs_close(fd) return await("fs_close", function(r) uv.fs_close(fd, r) end) end
+local function fs_scandir(p) return await("fs_scandir", function(r) uv.fs_scandir(p, r) end) end
+
+--- Read a whole file (nil on any failure).
+local function read_all(path)
+    local oerr, fd = fs_open(path, "r", 0)
+    if not fd then return nil, oerr end
+    local serr, stat = fs_fstat(fd)
+    local rerr, text
+    if stat then
+        rerr, text = fs_read(fd, stat.size, 0)
+    else
+        rerr = serr
+    end
+    fs_close(fd)
+    if not text then return nil, rerr end
+    return text
+end
+
+--- Entry names of a directory ({} when it doesn't exist / isn't readable).
+local function list_dir(dir)
+    local _, req = fs_scandir(dir)
+    if not req then return {} end
+    local names = {}
+    while true do
+        local name = uv.fs_scandir_next(req)
+        if not name then break end
+        names[#names + 1] = name
+    end
+    return names
+end
+
+--- Split SKILL.md into (meta, body). Returns nil unless the file opens
+--- with a `---` frontmatter block containing a non-empty string `name`.
+--- YAML gives values types, so a `name:` that parsed to a number or a list
+--- is treated as absent rather than coerced.
+function M.parse_skill_md(text)
+    local meta, body = frontmatter.parse(text)
+    if type(meta) ~= "table" then return nil end
+    if type(meta.name) ~= "string" or meta.name == "" then return nil end
+    return meta, body
+end
+
+--- The skill directories to search, lowest priority first: each config
+--- layer's `skills/`, with `~/.agents/skills` spliced in after the user
+--- layer and `<root>/.agents/skills` after the project layer. Every path
+--- comes from `panto.ext.dirs`; core owns all environment expansion.
+function M.skill_dirs()
+    local base = panto.ext.dirs
+    local dirs = {}
+    for _, layer in ipairs(base.layers) do
+        dirs[#dirs + 1] = layer.dir .. "/skills"
+        if layer.name == "user" and base.home then
+            dirs[#dirs + 1] = base.home .. "/.agents/skills"
+        elseif layer.name == "project" and base.project_root then
+            dirs[#dirs + 1] = base.project_root .. "/.agents/skills"
+        end
+    end
+    return dirs
+end
+
+--- Scan `dirs` (lowest priority first) and return a map of skill name ->
+--- { dir = <resolved skill directory>, description }. Same-named skills
+--- from later directories shadow earlier ones. Awaits, so it must run
+--- inside a panto entrypoint (or an equivalent harness).
+function M.discover(dirs)
+    local skills = {}
+    for _, dir in ipairs(dirs) do
+        for _, entry in ipairs(list_dir(dir)) do
+            local _, real = fs_realpath(dir .. "/" .. entry)
+            if real then
+                local text = read_all(real .. "/SKILL.md")
+                local meta = text and M.parse_skill_md(text)
+                if meta then
+                    local desc = type(meta.description) == "string" and meta.description or ""
+                    skills[meta.name] = { dir = real, description = desc }
+                end
+            end
+        end
+    end
+    return skills
+end
+
+--- Return a skill's instructions behind a path-resolution preamble.
+--- When `arguments` is provided (including an empty string), substitute it
+--- literally for every `$ARGUMENTS` in the body.
+function M.load(name, arguments)
+    local s = M.skills[name]
+    local text = read_all(s.dir .. "/SKILL.md")
+    if not text then return "failed to read " .. s.dir .. "/SKILL.md" end
+    local meta, body = M.parse_skill_md(text)
+    if not meta then body = text end
+    if arguments ~= nil then
+        body = body:gsub("%$ARGUMENTS", function() return arguments end)
+    end
+    return "Skill '" .. name .. "' is already loaded from " .. s.dir .. "/SKILL.md; follow it directly and do not call agent.skill for it again.\n"
+        .. "Any relative path these instructions reference (scripts/, references/, assets/, ...)"
+        .. " lives under that directory: resolve it against " .. s.dir .. "/.\n\n"
+        .. body
+end
+
+--- Tool handler: return the named skill's instructions. Unknown names come
+--- back as a plain-text error the model can react to.
+function M.on_call(input)
+    local name = type(input) == "table" and type(input.skill) == "string" and input.skill
+    if not name or not M.skills[name] then
+        local names = {}
+        for available in pairs(M.skills) do names[#names + 1] = available end
+        table.sort(names)
+        return "unknown skill: " .. tostring(type(input) == "table" and input.skill or input)
+            .. ". Available skills: " .. table.concat(names, ", ")
+    end
+    return M.load(name)
+end
+
+--- Wrap the discovered skill inventory around an existing session header.
+--- This uses the existing component event API, keeping skills out of panto's
+--- generic core while still composing with its native extension/tool lines.
+function M.header_component(inner, names)
+    local value = #names == 0 and "(none)" or table.concat(names, ", ")
+    return {
+        render = function(_, width)
+            local colors = panto.ext.style()
+            local lines = inner:render(width)
+            local at = (#lines > 0 and lines[#lines] == "") and #lines or (#lines + 1)
+            table.insert(lines, at, colors.dim .. " skills: " .. value .. colors.reset)
+            return lines
+        end,
+    }
+end
+
+local function install_header(names)
+    local listed_commands = {}
+    for _, name in ipairs(names) do listed_commands["skill:" .. name] = true end
+    panto.ext.on("render_header", function(ev)
+        if ev.commands then
+            local visible = {}
+            for _, name in ipairs(ev.commands) do
+                if not listed_commands[name] then visible[#visible + 1] = name end
+            end
+            ev.commands = visible
+        end
+        local inner = ev:get_component()
+        ev:set_component(M.header_component(inner, names))
+    end)
+end
+
+function M.activate()
+    M.skills = M.discover(M.skill_dirs())
+    local names = {}
+    for name in pairs(M.skills) do names[#names + 1] = name end
+    table.sort(names)
+    install_header(names)
+    if #names == 0 then return end -- header still reports `(none)`
+    local lines = {}
+    for _, n in ipairs(names) do
+        local name = n -- each handler must capture this iteration's value
+        local description = M.skills[name].description
+        lines[#lines + 1] = "- " .. name .. ": " .. description
+        panto.ext.register_command {
+            name = "skill:" .. name,
+            description = description ~= "" and description or "Load the " .. name .. " skill.",
+            handler = function(arguments)
+                panto.ext.agent:submit(M.load(name, arguments))
+            end,
+        }
+    end
+    panto.ext.register_tool {
+        name = "agent.skill",
+        description = "Load a skill: expert instructions for a specific kind of task."
+            .. " Call this before starting work a skill covers.\nAvailable skills:\n"
+            .. table.concat(lines, "\n"),
+        schema = {
+            type = "object",
+            properties = {
+                skill = {
+                    type = "string",
+                    enum = names,
+                    description = "Name of the skill to load.",
+                },
+            },
+            required = { "skill" },
+        },
+        handler = M.on_call,
+    }
+end
+
+return M

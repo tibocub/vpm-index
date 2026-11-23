@@ -1,0 +1,568 @@
+{
+  "kind": "lib",
+  "name": "playtime.nvim",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "playtime.lua": {
+          "sha256": "bcc394f42233b2d3460f07bbfa07d4dfabc753fa875843ecd5c10c99e54eb44a",
+          "size": 2852,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime.lua"
+        },
+        "playtime/ai/agent.lua": {
+          "sha256": "22d5ade5b995e1e73bebdd15ed8513a8b8e958e6a20a16d519eef38db2bbb446",
+          "size": 3408,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/ai/agent.lua"
+        },
+        "playtime/ai/search/flat-monte-carlo.lua": {
+          "sha256": "7ebb1c5e3d8a6f6b86651912dcca578f30fdc4a282b97a33fa97d983d874b816",
+          "size": 2974,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/ai/search/flat-monte-carlo.lua"
+        },
+        "playtime/ai/search/soismcts.lua": {
+          "sha256": "95937ef8c4891d2bbcd5d45374f1b78111ee012bf2ac1eec9777c7fdc4641d25",
+          "size": 23631,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/ai/search/soismcts.lua"
+        },
+        "playtime/app/animation-manager.lua": {
+          "sha256": "e09ebfb060313ddd45d4b7917715ec4bc0d1a975cd47887eefcad01dbfb7334c",
+          "size": 9457,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/animation-manager.lua"
+        },
+        "playtime/app/clock.lua": {
+          "sha256": "c6dd3078f8c8dbd449a0c8a74476808869651acfc5787512b76bbe73523fd128",
+          "size": 3149,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/clock.lua"
+        },
+        "playtime/app/engine.lua": {
+          "sha256": "70284e3d23c4265195ddfe51e492725a7a2da104ec7e291b992de8874b4c5a0c",
+          "size": 12376,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/engine.lua"
+        },
+        "playtime/app/event-queue.lua": {
+          "sha256": "4d726c92813b835a1b4375b384e2e45d4b3270f7085aed33b4c1cba662227f05",
+          "size": 4068,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/event-queue.lua"
+        },
+        "playtime/app/init.lua": {
+          "sha256": "6c2274436d5f8304c1c5c838cb250594e1db1f7b2497ec9e8bafab2bb3566c60",
+          "size": 14053,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/init.lua"
+        },
+        "playtime/app/interceptor-chain.lua": {
+          "sha256": "331dda64f01886d01deb35f780b777e2a96c3d8d4161c08002e0864e53d398dd",
+          "size": 3025,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor-chain.lua"
+        },
+        "playtime/app/interceptor/animation.lua": {
+          "sha256": "356d6ee1a2701f560659f654e5fb138739d089e6c369d2cb83b9a41f301fcf3b",
+          "size": 974,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor/animation.lua"
+        },
+        "playtime/app/interceptor/app-dispatcher.lua": {
+          "sha256": "3001c4b4b995c489bea20714f2a83a3dc036e9e8a62b94ce0096365a32f8aae9",
+          "size": 3643,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor/app-dispatcher.lua"
+        },
+        "playtime/app/interceptor/component-dispatcher.lua": {
+          "sha256": "b8d74060cd8f4a1dafa5a336403039e8254ab9a98cd851783f869b47207919f2",
+          "size": 1648,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor/component-dispatcher.lua"
+        },
+        "playtime/app/interceptor/drag.lua": {
+          "sha256": "6d1f6ae14b48bb42461e5bf19565a922b72a8c0eab68b9549a9a0f99bfa03e4a",
+          "size": 8179,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor/drag.lua"
+        },
+        "playtime/app/interceptor/focus.lua": {
+          "sha256": "3938fcfea464e466b6f9c197d20bc1d57d5011582a8f607f2f98c4560a82a335",
+          "size": 6496,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor/focus.lua"
+        },
+        "playtime/app/interceptor/input-group-id.lua": {
+          "sha256": "ed30f39bb17dba1b109da698cc0353e1da2525f1ebca004ca7cd5bfbf2baf7cb",
+          "size": 1328,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor/input-group-id.lua"
+        },
+        "playtime/app/interceptor/interaction-lockout.lua": {
+          "sha256": "757dda176d706757b9f37ead12fa1a56fb2f07bcbe02c8f066ec6d74cdd1deab",
+          "size": 1820,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/interceptor/interaction-lockout.lua"
+        },
+        "playtime/app/state-machine.lua": {
+          "sha256": "62f1719697fca27d607923c5cf23d33226bb24eac21722fae7b1bbca6d79ad3d",
+          "size": 6468,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/state-machine.lua"
+        },
+        "playtime/app/window.lua": {
+          "sha256": "631b5629c60c46a0fa6b4df7f28f8aa1409837e3157ab195c9be723eeee57a9c",
+          "size": 24530,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/app/window.lua"
+        },
+        "playtime/component.lua": {
+          "sha256": "84ad9748cf787471ef3b6082da0f3f289deb1ca5ab5214ad5ce8ea2aca44039d",
+          "size": 3704,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/component.lua"
+        },
+        "playtime/component/card.lua": {
+          "sha256": "a32e2e038b7c4e42ece228b5a866c57c9a9af76a8d455d2d27276546ec84a5aa",
+          "size": 8728,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/component/card.lua"
+        },
+        "playtime/component/game-report.lua": {
+          "sha256": "11e0f1ad2bdfb24481c936945be460357febc8d51db01f4fe74ab42039ce2be1",
+          "size": 5055,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/component/game-report.lua"
+        },
+        "playtime/component/menubar.lua": {
+          "sha256": "8cc216db4b8a06d1b2abf4be452da5063cd32f5af7536182c84c5329864d36fb",
+          "size": 4469,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/component/menubar.lua"
+        },
+        "playtime/config.lua": {
+          "sha256": "e7e483dca34887b9918db6d26fbb87e76426887526f19d636d96b8fc54c00e04",
+          "size": 7811,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/config.lua"
+        },
+        "playtime/error.lua": {
+          "sha256": "39af69ad1d857b08bf5554dae8d60361534a6f1d2ae76660659f261a92b459b6",
+          "size": 1389,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/error.lua"
+        },
+        "playtime/game/bytejack/_meta.lua": {
+          "sha256": "7c3b32dc021c47c5bf35a5dc3025b0a84d95b7aa8e1bb271d3de1e8a76d5e47f",
+          "size": 80,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/bytejack/_meta.lua"
+        },
+        "playtime/game/bytejack/app.lua": {
+          "sha256": "77af37b9fe5f15fd8eec6f0547bbd1c78195a15df43000ef2ebbe5f237afc32e",
+          "size": 14059,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/bytejack/app.lua"
+        },
+        "playtime/game/bytejack/deck.lua": {
+          "sha256": "afac871a428ad860138ff713e7ac19edce0dbab7d16ceda708af751305112c38",
+          "size": 1420,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/bytejack/deck.lua"
+        },
+        "playtime/game/bytejack/logic.lua": {
+          "sha256": "5b32e6aedbda2b5643cf282d7bd8ff06cac45291fcd96ef09576b541950bf5bf",
+          "size": 3359,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/bytejack/logic.lua"
+        },
+        "playtime/game/calculation/app.lua": {
+          "sha256": "858c2cd4d0741720c4342c9cd30bc75beb32ec8ecbe05be5c80571fd7582bf6d",
+          "size": 8173,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/calculation/app.lua"
+        },
+        "playtime/game/calculation/logic.lua": {
+          "sha256": "b2fbbe9740f2a53e66a97c071dc2b5c1f26de9b52d8d5b6c40e8266805e148f4",
+          "size": 12098,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/calculation/logic.lua"
+        },
+        "playtime/game/calculation/meta.lua": {
+          "sha256": "91af31b6fe1e73759cc4e0f0ada25c88b1d9a6e40eece5429869354ff66afd70",
+          "size": 215,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/calculation/meta.lua"
+        },
+        "playtime/game/curds-and-whey/app.lua": {
+          "sha256": "c37202a276cb80b6522850e6f0c825dfdc28928daa51c8d2e19b0723bbdcaf1c",
+          "size": 2927,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/curds-and-whey/app.lua"
+        },
+        "playtime/game/curds-and-whey/logic.lua": {
+          "sha256": "5644d5c07a011858a98646f5570df0dd95c95bc9500467c16fd4cdfa3743ae6e",
+          "size": 14138,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/curds-and-whey/logic.lua"
+        },
+        "playtime/game/curds-and-whey/meta.lua": {
+          "sha256": "7cf7fbeba44dc7883355aad04317eb3e74510445724a4a255457e27d1767cbb8",
+          "size": 212,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/curds-and-whey/meta.lua"
+        },
+        "playtime/game/forty-fortunes/app.lua": {
+          "sha256": "27c8f5fb50d5953ed26debfad1f8efe183844293ecf294cd4299ecae03cd3df6",
+          "size": 3918,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/forty-fortunes/app.lua"
+        },
+        "playtime/game/forty-fortunes/logic.lua": {
+          "sha256": "23b5d80f089fbaf18a78c283520186ff214612f3a263d6bf7c693c8fe47eb3f0",
+          "size": 18605,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/forty-fortunes/logic.lua"
+        },
+        "playtime/game/forty-fortunes/meta.lua": {
+          "sha256": "05378fb5057ffdc32c5505de63510e9af00397929204c3a874ae0cfacb6273ef",
+          "size": 273,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/forty-fortunes/meta.lua"
+        },
+        "playtime/game/freecell/app.lua": {
+          "sha256": "3ded55f1df7978526ba7503a7e6e914bb87d334110a3af53ea3ca19082a03179",
+          "size": 10132,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/freecell/app.lua"
+        },
+        "playtime/game/freecell/logic.lua": {
+          "sha256": "78cfbd027ef02e5ec3913a2585fffaf44e1f0050ce21573397fcfaf14a299624",
+          "size": 49208,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/freecell/logic.lua"
+        },
+        "playtime/game/freecell/meta.lua": {
+          "sha256": "a5434f93bb4bd5c0a3d7b4913f2c39b30a983e25211d0405447ba14f686f66bd",
+          "size": 415,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/freecell/meta.lua"
+        },
+        "playtime/game/hearts/agent.lua": {
+          "sha256": "ef5e2876482566e4cb97af1307b8724726a7f20c2255a3bee12e8e3081d39144",
+          "size": 32412,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/hearts/agent.lua"
+        },
+        "playtime/game/hearts/app.lua": {
+          "sha256": "c559cd01933c0679026c0f797e1b5a0e74fe4298f4df710eec9f9b6d6d606bb2",
+          "size": 38324,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/hearts/app.lua"
+        },
+        "playtime/game/hearts/components.lua": {
+          "sha256": "f802fabfa10a6c1ba1fea3ac6df81568d5a7a1e0f2163f3966e65166ff3df07d",
+          "size": 6941,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/hearts/components.lua"
+        },
+        "playtime/game/hearts/logic.lua": {
+          "sha256": "35fa4a5bf795f41f5b2e35fa7e2c261435058733742dac43806b674681fdd034",
+          "size": 50724,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/hearts/logic.lua"
+        },
+        "playtime/game/meta.lua": {
+          "sha256": "66e17251a13d7f2d6de0ada16f9142cdc8c0f5349d6e4990de626a84eb35db73",
+          "size": 2217,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/meta.lua"
+        },
+        "playtime/game/penguin/app.lua": {
+          "sha256": "96746378ad8a83c3e94e42e40247443d843c11a3307b5204f65de6ebf093c445",
+          "size": 4263,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/penguin/app.lua"
+        },
+        "playtime/game/penguin/logic.lua": {
+          "sha256": "dc6af9caa3e10d64c098c5b0bd7ce69524f098f2b6338f1c8d70f7ecae9bd4d0",
+          "size": 36440,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/penguin/logic.lua"
+        },
+        "playtime/game/penguin/meta.lua": {
+          "sha256": "a63f85bd2bc6c0ecde6f364049cd2bf6d18af8d107a1db7c2a5d3496e28c86cb",
+          "size": 231,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/penguin/meta.lua"
+        },
+        "playtime/game/playtime/app.lua": {
+          "sha256": "102d783ac95a12d62d174969540550ede579f3288d27841eb50c5ceeb1462272",
+          "size": 4771,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/playtime/app.lua"
+        },
+        "playtime/game/set/app.lua": {
+          "sha256": "7d8294009b239269895e3bb95708dcfc6f8a2af8132c09c40da7b54adfef15e8",
+          "size": 29360,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/set/app.lua"
+        },
+        "playtime/game/set/components.lua": {
+          "sha256": "7f9178b22f54fddc797e6898edc25f67aa82357cb88a456f92a073b2857fc097",
+          "size": 5325,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/set/components.lua"
+        },
+        "playtime/game/set/deck.lua": {
+          "sha256": "7ed734f409c218f32252caba177371b02e441ef999bfa521c9c79a8015337597",
+          "size": 1184,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/set/deck.lua"
+        },
+        "playtime/game/set/logic.lua": {
+          "sha256": "980b4169bfb5aaae824e80a40902766648d60c1bd3d9c82ca54fed4013687f6e",
+          "size": 14036,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/set/logic.lua"
+        },
+        "playtime/game/set/meta.lua": {
+          "sha256": "84ac79b60c9f3c52fed3b5a97f57ef318917330fe63cec0ba37ecaf4617e00a9",
+          "size": 251,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/set/meta.lua"
+        },
+        "playtime/game/shared/card-utils.lua": {
+          "sha256": "849c7d1d4030db1c59103254d926b7914612b9482c24edf511f1afa93dfcf975",
+          "size": 14117,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/shared/card-utils.lua"
+        },
+        "playtime/game/shared/french-deck.lua": {
+          "sha256": "da5f7c30bf32d2fc6ba8a3b781622fa7e0010a033a5cf7b24c8241520513328c",
+          "size": 2171,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/shared/french-deck.lua"
+        },
+        "playtime/game/shenzhen-solitaire/app.lua": {
+          "sha256": "d45a09f2ba7d7befb6ef3b57d1f42d8d91be0c4017c48cc2bf860e87086d3f0c",
+          "size": 6448,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/shenzhen-solitaire/app.lua"
+        },
+        "playtime/game/shenzhen-solitaire/components.lua": {
+          "sha256": "8138b119f135808daa22567bc90ca016a0822bd0f02d69aae6e8b4ee0d237ec2",
+          "size": 5372,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/shenzhen-solitaire/components.lua"
+        },
+        "playtime/game/shenzhen-solitaire/deck.lua": {
+          "sha256": "9b3ee4a92cb4a294c81baa1e66cf16890aac7b5cb1cc197de693c494f3945e78",
+          "size": 1277,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/shenzhen-solitaire/deck.lua"
+        },
+        "playtime/game/shenzhen-solitaire/logic.lua": {
+          "sha256": "68d02aae0e14876b3adc095a699be8a906c0250d329e6132c52f6bb3592994e5",
+          "size": 26527,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/shenzhen-solitaire/logic.lua"
+        },
+        "playtime/game/shenzhen-solitaire/meta.lua": {
+          "sha256": "d69ac63581c051719f603cf29febd1bb8e7c145c10eb07cdac1943048d8345e7",
+          "size": 274,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/shenzhen-solitaire/meta.lua"
+        },
+        "playtime/game/spider/app.lua": {
+          "sha256": "3df7745c1a2765027a1d00653f08cfc83a3ddbf6c425d70dd9ad4225322a6242",
+          "size": 4725,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/spider/app.lua"
+        },
+        "playtime/game/spider/logic.lua": {
+          "sha256": "9c43c9e26df3e034bd5b1198f648522d4c988b1ab35bc7ce42c528b3f9ba05ed",
+          "size": 17768,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/spider/logic.lua"
+        },
+        "playtime/game/spider/meta.lua": {
+          "sha256": "066600b9be26a1021d39a0475326c152d1990863451f0ea47bb6e0640abec2cc",
+          "size": 485,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/spider/meta.lua"
+        },
+        "playtime/game/sudoku/app.lua": {
+          "sha256": "dcb9f931d2bdf9cb6c22ca540797ec545211327daea51130ce8707f8df3a5f53",
+          "size": 9570,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sudoku/app.lua"
+        },
+        "playtime/game/sudoku/components.lua": {
+          "sha256": "222d19f6941c27ae21b945a3f6ca63ad9904ff7a4b265e02817bd756091de608",
+          "size": 45251,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sudoku/components.lua"
+        },
+        "playtime/game/sudoku/decoder.lua": {
+          "sha256": "00bdd8eb3872ddc7afe4cca0f7767cfc1a2c3beec775ee6e2eccb15b0f26d928",
+          "size": 1728,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sudoku/decoder.lua"
+        },
+        "playtime/game/sudoku/dlx.lua": {
+          "sha256": "d08c27561201d90c70b0a542c4c1c90830a49e714e186468d646f509cb8036ef",
+          "size": 19120,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sudoku/dlx.lua"
+        },
+        "playtime/game/sudoku/logic.lua": {
+          "sha256": "2fce39074c0e96352d91cd9b1e42f0f5f1ca21738ce101c755c1346beec32201",
+          "size": 6727,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sudoku/logic.lua"
+        },
+        "playtime/game/sudoku/puzzle.lua": {
+          "sha256": "383b4b7cd211a953a714ae0d8d5236ca0fb232e9964a1b4969957263985a3c3d",
+          "size": 8166,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sudoku/puzzle.lua"
+        },
+        "playtime/game/sweeper/app.lua": {
+          "sha256": "ab2b86c0fac4f129910393511a2ef9ffc7524dde59134300cb7b2c94d79e168e",
+          "size": 8184,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sweeper/app.lua"
+        },
+        "playtime/game/sweeper/components.lua": {
+          "sha256": "0bf012e7d2d416cbdcbf280cc91ccf5aeb29c18c8c17dcdbc8175722ff4a46cd",
+          "size": 15850,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sweeper/components.lua"
+        },
+        "playtime/game/sweeper/logic.lua": {
+          "sha256": "deee9b4e8de136e4d7b555e17123659f880463a025ccf5ca95e45af79be9ac84",
+          "size": 12785,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sweeper/logic.lua"
+        },
+        "playtime/game/sweeper/meta.lua": {
+          "sha256": "99f607b25b27d3b4834702077f3bdbfd956e81dff19b1c2cee8c1c20bbd27329",
+          "size": 670,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/sweeper/meta.lua"
+        },
+        "playtime/game/the-emissary/app.lua": {
+          "sha256": "f19b246843bdbfb65646eb6b59ffe3bb2112cfcd512ac38ce5314c3e315ef977",
+          "size": 57612,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/the-emissary/app.lua"
+        },
+        "playtime/game/the-emissary/logic.lua": {
+          "sha256": "ae84e4684a16d5624cbd679c09826eb9cc8821bbe4a8a6878c7b984cad985d11",
+          "size": 30470,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/the-emissary/logic.lua"
+        },
+        "playtime/game/the-emissary/meta.lua": {
+          "sha256": "0ca85ddf231649dc5c30edbc2b32f42b9694f12fc647bc0749d0da53df9ee1f8",
+          "size": 248,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/game/the-emissary/meta.lua"
+        },
+        "playtime/health.lua": {
+          "sha256": "d4802ca1c24ab1d6b91242aa95a1bb7f264e1032dcf8b9fefdccad003dc5534b",
+          "size": 4214,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/health.lua"
+        },
+        "playtime/highlight.lua": {
+          "sha256": "423e4de28b713de18a215714e21159925a026886457685eb6979d6e034413150",
+          "size": 7231,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/highlight.lua"
+        },
+        "playtime/id.lua": {
+          "sha256": "a882d715618419b4e7f88abb6bdb1491e93289dc529aba010b297eaa687bdb58",
+          "size": 746,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/id.lua"
+        },
+        "playtime/logger.lua": {
+          "sha256": "c1e64d6e4bf98735e6941d7ac6fa9f9067c35473eee4d854e574e7e9ecf7fe59",
+          "size": 2506,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/logger.lua"
+        },
+        "playtime/patience/component.lua": {
+          "sha256": "dd383625e2c72e89c011380a08b7550f699e20a21bf3a93192877117adca4e9b",
+          "size": 1357,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/patience/component.lua"
+        },
+        "playtime/patience/init.lua": {
+          "sha256": "95adb141557f9abb1e747b0fa56f55a47ed97e2a43f834ade9e80f1718d5214b",
+          "size": 31689,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/patience/init.lua"
+        },
+        "playtime/prelude/init.lua": {
+          "sha256": "1faf36952f98b24452984c7e20ee230128a749e33ce441524da7900a0fc149b0",
+          "size": 11852,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/prelude/init.lua"
+        },
+        "playtime/serializer.lua": {
+          "sha256": "10ac3b55f9c9b9d028baeaf6adab26c444951f52bc29ba84fc07cd7f181eae2c",
+          "size": 4235,
+          "url": "https://raw.githubusercontent.com/rktjmp/playtime.nvim/v1.1.0/lua/playtime/serializer.lua"
+        }
+      },
+      "homepage": "https://github.com/rktjmp/playtime.nvim",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 16 Jul 2026 16:36:49 GMT",
+        "rockspec": {
+          "date": "Thu, 16 Jul 2026 16:36:49 GMT",
+          "sha256": "a2c3cf6bed012ba9e747f568f68ceca15cc8970f07111fb30f989260d8423454",
+          "size": 791
+        },
+        "src": {
+          "date": "Thu, 16 Jul 2026 16:36:50 GMT",
+          "sha256": "bc73f7f7278f3f0a9a80066e2319abb0f0925f70e16f65418cf6772cd7dc0b14",
+          "size": 767499,
+          "url": "https://luarocks.org/playtime.nvim-1.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "playtime",
+        "playtime.ai.agent",
+        "playtime.ai.search.flat-monte-carlo",
+        "playtime.ai.search.soismcts",
+        "playtime.app",
+        "playtime.app.animation-manager",
+        "playtime.app.clock",
+        "playtime.app.engine",
+        "playtime.app.event-queue",
+        "playtime.app.interceptor-chain",
+        "playtime.app.interceptor.animation",
+        "playtime.app.interceptor.app-dispatcher",
+        "playtime.app.interceptor.component-dispatcher",
+        "playtime.app.interceptor.drag",
+        "playtime.app.interceptor.focus",
+        "playtime.app.interceptor.input-group-id",
+        "playtime.app.interceptor.interaction-lockout",
+        "playtime.app.state-machine",
+        "playtime.app.window",
+        "playtime.component",
+        "playtime.component.card",
+        "playtime.component.game-report",
+        "playtime.component.menubar",
+        "playtime.config",
+        "playtime.error",
+        "playtime.game.bytejack._meta",
+        "playtime.game.bytejack.app",
+        "playtime.game.bytejack.deck",
+        "playtime.game.bytejack.logic",
+        "playtime.game.calculation.app",
+        "playtime.game.calculation.logic",
+        "playtime.game.calculation.meta",
+        "playtime.game.curds-and-whey.app",
+        "playtime.game.curds-and-whey.logic",
+        "playtime.game.curds-and-whey.meta",
+        "playtime.game.forty-fortunes.app",
+        "playtime.game.forty-fortunes.logic",
+        "playtime.game.forty-fortunes.meta",
+        "playtime.game.freecell.app",
+        "playtime.game.freecell.logic",
+        "playtime.game.freecell.meta",
+        "playtime.game.hearts.agent",
+        "playtime.game.hearts.app",
+        "playtime.game.hearts.components",
+        "playtime.game.hearts.logic",
+        "playtime.game.meta",
+        "playtime.game.penguin.app",
+        "playtime.game.penguin.logic",
+        "playtime.game.penguin.meta",
+        "playtime.game.playtime.app",
+        "playtime.game.set.app",
+        "playtime.game.set.components",
+        "playtime.game.set.deck",
+        "playtime.game.set.logic",
+        "playtime.game.set.meta",
+        "playtime.game.shared.card-utils",
+        "playtime.game.shared.french-deck",
+        "playtime.game.shenzhen-solitaire.app",
+        "playtime.game.shenzhen-solitaire.components",
+        "playtime.game.shenzhen-solitaire.deck",
+        "playtime.game.shenzhen-solitaire.logic",
+        "playtime.game.shenzhen-solitaire.meta",
+        "playtime.game.spider.app",
+        "playtime.game.spider.logic",
+        "playtime.game.spider.meta",
+        "playtime.game.sudoku.app",
+        "playtime.game.sudoku.components",
+        "playtime.game.sudoku.decoder",
+        "playtime.game.sudoku.dlx",
+        "playtime.game.sudoku.logic",
+        "playtime.game.sudoku.puzzle",
+        "playtime.game.sweeper.app",
+        "playtime.game.sweeper.components",
+        "playtime.game.sweeper.logic",
+        "playtime.game.sweeper.meta",
+        "playtime.game.the-emissary.app",
+        "playtime.game.the-emissary.logic",
+        "playtime.game.the-emissary.meta",
+        "playtime.health",
+        "playtime.highlight",
+        "playtime.id",
+        "playtime.logger",
+        "playtime.patience",
+        "playtime.patience.component",
+        "playtime.prelude",
+        "playtime.serializer"
+      ],
+      "origin": {
+        "sha256": "fff8ebcaf40f5b3bf179b660ffa0b310867f2b8394dc7a931e0951f276c7d027",
+        "type": "archive",
+        "url": "https://github.com/rktjmp/playtime.nvim/archive/v1.1.0.zip"
+      },
+      "size": 890321,
+      "summary": "🃏 At last! A way to play card games on your computer!",
+      "undeclared_requires": [
+        "bit"
+      ],
+      "vlr": {
+        "cause": "missing global: vim",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 24,
+        "status": "partial",
+        "total": 86
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+-- traceable-ai-extension: AI-firewall request/response eval timeouts.
+--
+-- Presence of this plugin (alongside global `traceable`) enables both
+-- request-phase /eval (run by main `traceable` using request_config) and
+-- response-phase /eval (run here using response_config).
+--
+-- Shared knobs (ext_cap_endpoint, service_name, environment_name) come from
+-- ngx.ctx.shared.traceable_config published by the main plugin. Token for
+-- request /eval and export stays on global `traceable` only.
+return {
+  name = "traceable-ai-extension",
+  fields = {
+    {
+      config = {
+        type = "record",
+        fields = {
+          {
+            request_config = {
+              type = "record",
+              required = true,
+              fields = {
+                { timeout = {
+                  type = "number",
+                  required = false,
+                  default = 500,
+                }},
+                { allow_on_failure = {
+                  type = "boolean",
+                  required = true,
+                  default = true,
+                }},
+              },
+            },
+          },
+          {
+            response_config = {
+              type = "record",
+              required = true,
+              fields = {
+                { timeout = {
+                  type = "number",
+                  required = false,
+                  default = 500,
+                }},
+                { allow_on_failure = {
+                  type = "boolean",
+                  required = true,
+                  default = true,
+                }},
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}

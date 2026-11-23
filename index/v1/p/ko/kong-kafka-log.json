@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "kong-kafka-log",
+  "versions": {
+    "1.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-kafka-log/basic.lua": {
+          "sha256": "488521af8c37317534b5d3bcc7dff91807902ffd108972ece4b64890f766179a",
+          "size": 3895,
+          "url": "https://raw.githubusercontent.com/Optum/kong-kafka-log/41bb3cf8269d32646e731b8f107e8be50b505a0f/src/basic.lua"
+        },
+        "kong/plugins/kong-kafka-log/handler.lua": {
+          "sha256": "35e846689d38d83709618cc27ffd7eeb92ed894ab043e8ba2d06e4fb74506055",
+          "size": 2905,
+          "url": "https://raw.githubusercontent.com/Optum/kong-kafka-log/41bb3cf8269d32646e731b8f107e8be50b505a0f/src/handler.lua"
+        },
+        "kong/plugins/kong-kafka-log/producers.lua": {
+          "sha256": "62eef8522c32b81a01def762dbd9ac0120d8867038d664482bfa1d433f9c4ef5",
+          "size": 1462,
+          "url": "https://raw.githubusercontent.com/Optum/kong-kafka-log/41bb3cf8269d32646e731b8f107e8be50b505a0f/src/producers.lua"
+        },
+        "kong/plugins/kong-kafka-log/schema.lua": {
+          "sha256": "ab68e0c93a5e3117410fdd44d52eb0c5e52289c6456ee0765ad8b9db7fcc7f4e",
+          "size": 2868,
+          "url": "https://raw.githubusercontent.com/Optum/kong-kafka-log/41bb3cf8269d32646e731b8f107e8be50b505a0f/src/schema.lua"
+        },
+        "kong/plugins/kong-kafka-log/types.lua": {
+          "sha256": "3434b5ae2c3bf148a42d2aacf15763d184bd6c0e43793709e1c6062615c775a9",
+          "size": 399,
+          "url": "https://raw.githubusercontent.com/Optum/kong-kafka-log/41bb3cf8269d32646e731b8f107e8be50b505a0f/src/types.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-kafka-log",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luajit": true,
+      "luarocks": {
+        "date": "Tue, 18 Jun 2024 17:32:08 GMT",
+        "rockspec": {
+          "date": "Tue, 18 Jun 2024 17:32:08 GMT",
+          "sha256": "f5f6975266c63dc35472fea0fc77be7eb87f2da51aa6e3c7bdca22c1b1b4bd76",
+          "size": 964
+        },
+        "src": {
+          "date": "Tue, 18 Jun 2024 17:32:09 GMT",
+          "sha256": "1283c2fb517084d18d0acac50ac1391a44a240dc259aaa47f62f68368931856f",
+          "size": 19728,
+          "url": "https://luarocks.org/kong-kafka-log-1.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-kafka-log.basic",
+        "kong.plugins.kong-kafka-log.handler",
+        "kong.plugins.kong-kafka-log.producers",
+        "kong.plugins.kong-kafka-log.schema",
+        "kong.plugins.kong-kafka-log.types"
+      ],
+      "origin": {
+        "commit": "41bb3cf8269d32646e731b8f107e8be50b505a0f",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-kafka-log.git"
+      },
+      "size": 11529,
+      "summary": "Kong plugin designed to log API transactions to Kafka",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "lua_system_constants",
+        "pl.tablex",
+        "resty.kafka.producer",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.tablex",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 5
+      }
+    }
+  }
+}

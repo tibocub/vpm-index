@@ -1,0 +1,150 @@
+local json = require("cjson")
+local http = require("resty.http")
+
+local WibKongHandler = {
+  VERSION = "1.0.0",
+  PRIORITY = 1000,
+}
+
+local function push_data(premature, conf)
+  kong.log.err("push_data started")
+  local shared_dict = ngx.shared.kong_cache
+  local counter, err = shared_dict:get("counter")
+  
+  if not counter then
+    kong.log.err("Failed to get counter: ", err)
+    return
+  end
+
+  local data = {}
+  for i=1, counter do
+    local val, err = shared_dict:get("currBatch_"..i)
+    if not val then
+      kong.log.err("Failed to get currBatch_"..i..": ", err)
+      return
+    end
+    table.insert(data, json.decode(val))
+  end
+
+  local httpc = http.new()
+  local res, err = httpc:request_uri(conf.monitorUrl, {
+    method = "POST",
+    body = json.encode({agentHostname = conf.agentHostname, sessions = data}),
+    headers = {
+      ["Content-Type"] = "application/json",
+      ["Authorization"] = string.format("Bearer %s", conf.bearerToken),
+      ["Host"] = conf.host,
+    },
+  })
+
+  if not res then
+    kong.log.err("request failed: ", err)
+    return
+  end
+
+  -- Reset the counter and clear the batch data
+  shared_dict:set("counter", 0)
+  for i=1, counter do
+    shared_dict:delete("currBatch_"..i)
+  end
+end
+
+function WibKongHandler:access(conf)
+  local host = kong.request.get_host()
+  local path = kong.request.get_path()
+  local headers = ngx.req.get_headers()
+  local method = kong.request.get_method()
+  local req_body = kong.request.get_raw_body()
+  local protocol = ngx.var.server_protocol
+
+  local truncated = false
+  local respBody = ""
+  if kong.ctx.plugin.buffered and #kong.ctx.plugin.buffered > 0 then
+    truncated = true
+    if #kong.ctx.plugin.buffered > conf.maxBodySize then
+      respBody = string.sub(kong.ctx.plugin.buffered, 0, conf.maxBodySize)
+    else
+      respBody = kong.ctx.plugin.buffered
+    end
+  end
+
+  local data = {
+    request = {
+      host = host,
+      path = path,
+      headers = headers,
+      method = method,
+      body = req_body,
+      truncated = truncated,
+      protocol = protocol,
+    },
+    response = {},
+    messageAddr = {},
+    messageBase = {},
+  }
+
+  data.messageAddr.src_addr = kong.client.get_ip()
+  data.messageAddr.src_port = ngx.var.remote_port
+  data.messageAddr.dst_addr = ngx.var.server_addr
+  data.messageAddr.dst_port = ngx.var.server_port
+
+  data.messageBase.input_id = 1
+  data.messageBase.trace_id = 1
+  data.messageBase.timestamp = 1
+  
+  kong.ctx.shared.response_data = data
+end
+
+function WibKongHandler:body_filter(conf)
+  local chunk, eof = ngx.arg[1], ngx.arg[2]
+  local buffered = kong.ctx.shared.responseBuffer
+  if not buffered then
+    buffered = {}
+    kong.ctx.shared.responseBuffer = buffered
+  end
+
+  if chunk ~= "" then
+    buffered[#buffered+1] = chunk
+    if #table.concat(buffered) > conf.maxBodySize then
+      kong.ctx.shared.response_data.response.truncated = true
+      kong.ctx.shared.response_data.response.body = table.concat(buffered, "", 1, conf.maxBodySize)
+    end
+  end
+
+  if eof then
+    if not kong.ctx.shared.response_data.response.body then
+      kong.ctx.shared.response_data.response.body = table.concat(buffered)
+    end
+  end
+end
+
+function WibKongHandler:header_filter(conf)
+  kong.ctx.shared.response_data.response["headers"] = ngx.resp.get_headers()
+end
+
+function WibKongHandler:log(conf)
+  local data = kong.ctx.shared.response_data
+  data.response["status"] = ngx.status
+
+  local shared_dict = ngx.shared.kong_cache
+  local counter = shared_dict:incr("counter", 1, 0)
+
+  local ok, err = shared_dict:set("currBatch_"..counter, json.encode(data))
+  if not ok then
+    kong.log.err("Failed to set currBatch_"..counter..": ", err)
+    return
+  end
+
+  kong.log.crit("currBatch_"..counter.." added successfully")
+
+  if counter >= conf.batchSize then
+    local ok, err = ngx.timer.at(0, push_data, conf)
+    if not ok then
+      kong.log.err("failed to create timer: ", err)
+      return
+    end
+  end
+end
+
+return WibKongHandler
+

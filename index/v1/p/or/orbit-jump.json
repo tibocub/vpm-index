@@ -1,0 +1,823 @@
+{
+  "kind": "lib",
+  "name": "orbit-jump",
+  "versions": {
+    "1.0.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "libs/json.lua": {
+          "sha256": "e09cd895104a3666880af58a892d7ed67bcab73fd2979ebf49188dd6f7443333",
+          "size": 9571,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/libs/json.lua"
+        },
+        "main.lua": {
+          "sha256": "1fd49cf2158d9029d2fe4059b9e3ea0267a6b25a2ef39afb5508b24bd698be4b",
+          "size": 1699,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/main.lua"
+        },
+        "src/audio/sound_generator.lua": {
+          "sha256": "7fce880935d892bc0c125e22087c34e0d20f82d824aac0421c2ee96dca688715",
+          "size": 19581,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/audio/sound_generator.lua"
+        },
+        "src/audio/sound_manager.lua": {
+          "sha256": "23e442dd83d1197c19db0994effd9ffd39aa739c2e3b333f80e019baf08f589d",
+          "size": 5410,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/audio/sound_manager.lua"
+        },
+        "src/core/camera.lua": {
+          "sha256": "3988b2c2c3511d1d653de2f3fe2dcc04f4c656f3215944694991184fdf7dd4e4",
+          "size": 6236,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/core/camera.lua"
+        },
+        "src/core/game.lua": {
+          "sha256": "9d1ff6be879acbb0ea0ffb5d3a6622545979fc6985797b2db2ff9f51bb6e74c9",
+          "size": 37900,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/core/game.lua"
+        },
+        "src/core/game_logic.lua": {
+          "sha256": "7062995326914c38407f9a300184aa2eb83b5187d74edec21e60b948bf2f80ce",
+          "size": 10721,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/core/game_logic.lua"
+        },
+        "src/core/game_state.lua": {
+          "sha256": "2cf875f4a68d5900fdb6c67eeb530e35b95ccdbbc3779af2c7fb674b0bd0b176",
+          "size": 23558,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/core/game_state.lua"
+        },
+        "src/core/renderer.lua": {
+          "sha256": "1e26c135b0eb347cb198621cbec9b3a6b7e06aa1aac0ff6f1aed21dbe654e768",
+          "size": 33325,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/core/renderer.lua"
+        },
+        "src/core/system_orchestrator.lua": {
+          "sha256": "aa4350b7c452f9a2885f11a0b343ca8b2ee0b310a65034039c3af83474dfc711",
+          "size": 21669,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/core/system_orchestrator.lua"
+        },
+        "src/dev/dev_tools.lua": {
+          "sha256": "9de41aeff4cbe8ae59fb9490048b3ba4feba6c8d6a6dda02bf2cf00bf0e423ca",
+          "size": 10430,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/dev/dev_tools.lua"
+        },
+        "src/dev/docs_generator.lua": {
+          "sha256": "8cc53dc7c763772904d566453f25683a46027abfc1a6583930ae5506bf6f7209",
+          "size": 9979,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/dev/docs_generator.lua"
+        },
+        "src/performance/audio_streaming_system.lua": {
+          "sha256": "6da88faaccdeece329670345364c884be86147143a55cf16bc04427b267a1e29",
+          "size": 16811,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/performance/audio_streaming_system.lua"
+        },
+        "src/performance/lod_system.lua": {
+          "sha256": "e7241acfd08df42b3dc67cab39b15666f5387782784871bead3a7a97d8a4d86a",
+          "size": 11870,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/performance/lod_system.lua"
+        },
+        "src/performance/optimized_functions.lua": {
+          "sha256": "b66bb6b9e3fc1543d30ecc44baf44719f069ba76eab480ee6168d317fb059c31",
+          "size": 5264,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/performance/optimized_functions.lua"
+        },
+        "src/performance/performance_monitor.lua": {
+          "sha256": "1af7f4223d78dc70fb8dcb87b83e97e9861755fc85e771e3e6551eba37236ed4",
+          "size": 17680,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/performance/performance_monitor.lua"
+        },
+        "src/performance/performance_system.lua": {
+          "sha256": "33642803780db6391e7d95fae501666a6b17aafa669d0d73f1d418b8e3c442e5",
+          "size": 19640,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/performance/performance_system.lua"
+        },
+        "src/performance/texture_atlas_system.lua": {
+          "sha256": "51a080ea7f81c10770e10e615772de27fe8cee5fd0e08c7f9741872a1e9d2474",
+          "size": 12732,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/performance/texture_atlas_system.lua"
+        },
+        "src/systems/achievement_system.lua": {
+          "sha256": "1b3d4506d5cc00441eb68dc70c3ca93875e23a291ba2f67fd1172c0229833b7a",
+          "size": 22371,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/achievement_system.lua"
+        },
+        "src/systems/analytics/behavior_tracker.lua": {
+          "sha256": "2c8b2e530615f0f941b0e2727e4509720d9d4bef2fbdc7559c559ec6f89ba2c1",
+          "size": 12329,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/analytics/behavior_tracker.lua"
+        },
+        "src/systems/analytics/feedback_analytics.lua": {
+          "sha256": "b4099ec65fcaa8ba9517dfa5648ddb33d2261e9a06fdbf382fd004bdbc523db3",
+          "size": 20225,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/analytics/feedback_analytics.lua"
+        },
+        "src/systems/analytics/insight_generator.lua": {
+          "sha256": "d7a24d2ab6fc7fedcdc42d3c6248c0c6b0f50ad9db5789237e074cc297c724ab",
+          "size": 11690,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/analytics/insight_generator.lua"
+        },
+        "src/systems/analytics/pattern_analyzer.lua": {
+          "sha256": "78e6896c26e1317e23b935d4f88c5836e3155f93b8591edf9e844249899f37c2",
+          "size": 12506,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/analytics/pattern_analyzer.lua"
+        },
+        "src/systems/artifact_system.lua": {
+          "sha256": "5a9de396391ed3665019c959864939624daf2ba2bf14017c958846feb33e1258",
+          "size": 16383,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/artifact_system.lua"
+        },
+        "src/systems/collision_system.lua": {
+          "sha256": "314f0ce39a0919cdddcb7a6acdbdb36caf0dfd8d449380f217d7bea804992270",
+          "size": 13849,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/collision_system.lua"
+        },
+        "src/systems/cosmic_events.lua": {
+          "sha256": "3737622fb3ed4919f7b243d03627e1afc222cea768c81674eee4554c5e9cfcfd",
+          "size": 15153,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/cosmic_events.lua"
+        },
+        "src/systems/daily_streak_system.lua": {
+          "sha256": "878a3d92391712cfa1a5da2ddb387fed0a8981a298e16fc775fedc94af511564",
+          "size": 12384,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/daily_streak_system.lua"
+        },
+        "src/systems/dynamic_config_system.lua": {
+          "sha256": "36587d2491c3df5daf01b289a25caf372ebeb4c7c53b8c09a9a4f4d8797c5ed4",
+          "size": 19292,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/dynamic_config_system.lua"
+        },
+        "src/systems/emotion/emotion_analytics_optimized.lua": {
+          "sha256": "ae86e18e6e959fbadac86dff99444bebfa96920fb972fba5699d73e1cc435488",
+          "size": 19738,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/emotion/emotion_analytics_optimized.lua"
+        },
+        "src/systems/emotion/emotion_core.lua": {
+          "sha256": "7b83b11a19b916d49299c796946fb0b71ef2cd6ce62d1e579f428046a3bd1964",
+          "size": 8675,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/emotion/emotion_core.lua"
+        },
+        "src/systems/emotion/feedback_renderer.lua": {
+          "sha256": "016764d9499c253fd8999ca1bf36f2cde3f4182b06e42ad99d0e631d15074bb2",
+          "size": 13843,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/emotion/feedback_renderer.lua"
+        },
+        "src/systems/enhanced_pullback_indicator.lua": {
+          "sha256": "52e0d93cf4b99578984f9c15cf59ddf5d1844f847a326a5c04e5e6cb24aedfdf",
+          "size": 14644,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/enhanced_pullback_indicator.lua"
+        },
+        "src/systems/feedback_forms_system.lua": {
+          "sha256": "e8be17e96ff8797234ba34f9ddf5c6d0000e4784fd1366418ce73559a309d499",
+          "size": 21083,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/feedback_forms_system.lua"
+        },
+        "src/systems/feedback_integration_system.lua": {
+          "sha256": "aab5558b0d95dcc672b674ba7d73123ec4a7b265d47e33982d7562e9bff8d66b",
+          "size": 23956,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/feedback_integration_system.lua"
+        },
+        "src/systems/feedback_system.lua": {
+          "sha256": "2db72940cf788caf494c6badf19c27b3311d2fdc06845a59cfb16c12ce6d1c42",
+          "size": 15516,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/feedback_system.lua"
+        },
+        "src/systems/global_events_system.lua": {
+          "sha256": "f15fc0a5fdd88d36cbb2dd04254acb3d086c5a27d3cb62a4d525072d86bf368c",
+          "size": 16933,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/global_events_system.lua"
+        },
+        "src/systems/leaderboard_system.lua": {
+          "sha256": "a0f67c8df4f89ed40575e9a61f5e923609fa7612adc887df22e981dee2293034",
+          "size": 17773,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/leaderboard_system.lua"
+        },
+        "src/systems/map_system.lua": {
+          "sha256": "8e32c13f1e58f31c948362087bafb19904df37ed44fa2bfed551984b35e0bb8c",
+          "size": 10471,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/map_system.lua"
+        },
+        "src/systems/mastery_system.lua": {
+          "sha256": "fcfdff458b9781877e0392ce5b6fc78efed279fc8595529255f007d3c0d38127",
+          "size": 15007,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/mastery_system.lua"
+        },
+        "src/systems/mobile_accessibility.lua": {
+          "sha256": "ee04b5846059dfda86caf5ec7f9ebcfaa0f16d2cee8a21943bf056c2f778eb43",
+          "size": 11900,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/mobile_accessibility.lua"
+        },
+        "src/systems/mystery_box_system.lua": {
+          "sha256": "6c956878030c3e80da987b1e63ce1a908ca35ead25a45ac162a8dc7fa6b03259",
+          "size": 20888,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/mystery_box_system.lua"
+        },
+        "src/systems/particle_system.lua": {
+          "sha256": "6b59e5ef91998a65cf5d5b2ec11f223bfc37d6234a679977898b07f9de614e14",
+          "size": 14609,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/particle_system.lua"
+        },
+        "src/systems/performance/performance_metrics.lua": {
+          "sha256": "01b4254ca2436463cd3a784954c706cba4a0c3ddf562f291fa9a55d1fe3451d4",
+          "size": 16200,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/performance/performance_metrics.lua"
+        },
+        "src/systems/performance/performance_system.lua": {
+          "sha256": "2e7d8800595c4afde4bf6fbc26276e3dd86315bb4ff68b3efb33da3edca06bc8",
+          "size": 9098,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/performance/performance_system.lua"
+        },
+        "src/systems/performance/performance_ui.lua": {
+          "sha256": "eb2c157426e7c210840bcce2e0045b8ffaa386d61f7c33c0edc7ba9118713d32",
+          "size": 19379,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/performance/performance_ui.lua"
+        },
+        "src/systems/performance_overlay.lua": {
+          "sha256": "4677621ce12dcf10f970ff44bff92c73a32f09c03b711daef8cb430d185e163d",
+          "size": 9982,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/performance_overlay.lua"
+        },
+        "src/systems/planet_lore.lua": {
+          "sha256": "cfa817d35d4d439d36ab4cb88c91819e0b40edf503de2c64e5026e9679295eac",
+          "size": 10616,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/planet_lore.lua"
+        },
+        "src/systems/player/player_abilities.lua": {
+          "sha256": "fb51de24750c12db0a62cf4cea23292481a5d8218f1e4696f91408132882e460",
+          "size": 15271,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/player/player_abilities.lua"
+        },
+        "src/systems/player/player_movement.lua": {
+          "sha256": "569c52364a6ed97d85a506749a9dde55f2ffd4e86fa86c9ad3a24fe5122ac8c6",
+          "size": 17582,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/player/player_movement.lua"
+        },
+        "src/systems/player/player_state.lua": {
+          "sha256": "a90ce37d2c8b6569474769e0edc8586137f236b29b5957f814dc229238bb8675",
+          "size": 15255,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/player/player_state.lua"
+        },
+        "src/systems/player_analytics.lua": {
+          "sha256": "ee1b3353ada1c7ca03918fc14a27f9bfb89b17616f017ce563bf745d4a691ae0",
+          "size": 11254,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/player_analytics.lua"
+        },
+        "src/systems/player_system.lua": {
+          "sha256": "fcf9b08b3c51ce26d05fc695feff310c470b1fd9c8af99bd2404b2a6585f90bb",
+          "size": 6828,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/player_system.lua"
+        },
+        "src/systems/prestige_system.lua": {
+          "sha256": "c7759aaf22dd4e0d733dbccbf6de9e25d36bf9ea13193edbf4f6d18d4ad5ff54",
+          "size": 13488,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/prestige_system.lua"
+        },
+        "src/systems/progression_system.lua": {
+          "sha256": "33c9eda33d665f1431ec19ce3733a23e25344dd3d06f8dfe55325b5e01e27b5c",
+          "size": 13870,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/progression_system.lua"
+        },
+        "src/systems/random_events_system.lua": {
+          "sha256": "19cccd0c016c2d1bff3b06dd317c77bccd9e5a62a996f3492a5369c3dbcaeaee",
+          "size": 10205,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/random_events_system.lua"
+        },
+        "src/systems/resolution_manager.lua": {
+          "sha256": "e82c76331da1ecf4b169347845e3fc6f3bcee933bc72be726c4c810845c5f429",
+          "size": 9929,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/resolution_manager.lua"
+        },
+        "src/systems/ring_constellations.lua": {
+          "sha256": "e35bd5e44476020260ec332fc08d8816552b656a8ad9f7c76acf6023bbbe1157",
+          "size": 18257,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/ring_constellations.lua"
+        },
+        "src/systems/ring_rarity_system.lua": {
+          "sha256": "95d3f77715e84e69838259d1bbaa09ea5975f133ae2f769b8b2e076d938efc9a",
+          "size": 15392,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/ring_rarity_system.lua"
+        },
+        "src/systems/ring_system.lua": {
+          "sha256": "b8d801d426c6d0f109a4e3f112e23fde102f02975edbcb595e665bb3de3aa2ae",
+          "size": 12785,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/ring_system.lua"
+        },
+        "src/systems/rival_system.lua": {
+          "sha256": "3fe16f084926fbc38e6302ed19433c7cda0555d807190f7bc453c52f504d6b96",
+          "size": 11317,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/rival_system.lua"
+        },
+        "src/systems/save_system.lua": {
+          "sha256": "636cbd525791522638f0c6c4c7984da421cb3259d30dd7410fcd8569590470f3",
+          "size": 18035,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/save_system.lua"
+        },
+        "src/systems/session_stats_system.lua": {
+          "sha256": "d9315ce0aa61e04df2720b51e44e6fc21cc804a3968bb25d49bb061a9bc0b932",
+          "size": 15693,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/session_stats_system.lua"
+        },
+        "src/systems/streak/streak_effects.lua": {
+          "sha256": "554426446fa588be5df37cec4de8f0af73dd0b7ee1c945ae9df936a357e86407",
+          "size": 12571,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/streak/streak_effects.lua"
+        },
+        "src/systems/streak/streak_logic.lua": {
+          "sha256": "b88a2f7a513d466c1807e67a8d66dda1e81d8c0317bd9c5eb0136ad98a640a15",
+          "size": 13627,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/streak/streak_logic.lua"
+        },
+        "src/systems/streak_system.lua": {
+          "sha256": "617fd695fd7b90015912f848399722dcaa4a28b480e7df55c34046bc92316bc6",
+          "size": 34004,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/streak_system.lua"
+        },
+        "src/systems/touch/gesture_definitions.lua": {
+          "sha256": "4a347ac74c2402fda4456c53d3878f02f40a6e6fe922240efd942967a2758739",
+          "size": 6490,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/touch/gesture_definitions.lua"
+        },
+        "src/systems/touch/gesture_recognition.lua": {
+          "sha256": "b3e34ccc4e21ea446e3760f16646cd641845d33f519f7722ca2fbd1584775d27",
+          "size": 11563,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/touch/gesture_recognition.lua"
+        },
+        "src/systems/touch/gesture_ui.lua": {
+          "sha256": "803bb5cca6436e9768d52b9a901ed0a0dc4aa5b87c419006ca61c37d07cff04a",
+          "size": 10511,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/touch/gesture_ui.lua"
+        },
+        "src/systems/touch/touch_gesture_system.lua": {
+          "sha256": "d20179e1de4e44a0258246b719df0191657af3666d3234226deca1089f74f494",
+          "size": 9832,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/touch/touch_gesture_system.lua"
+        },
+        "src/systems/touch_gesture_system.lua": {
+          "sha256": "5ad14c5dc405e7ceb36269b6b9d6f496d57607e716b3138056dc751291223bbd",
+          "size": 21867,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/touch_gesture_system.lua"
+        },
+        "src/systems/upgrade_system.lua": {
+          "sha256": "e378f5fd53e55c84b16ef1b4a4503bb8851620409eeb84b4a256a30bbb01501a",
+          "size": 13158,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/upgrade_system.lua"
+        },
+        "src/systems/warp/warp_core.lua": {
+          "sha256": "b66d96827b64bedd519eab6ebdb902e5598f9dd4ae653d90b42a531a7aefeaa1",
+          "size": 7081,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/warp/warp_core.lua"
+        },
+        "src/systems/warp/warp_energy.lua": {
+          "sha256": "699131610d0df6957421c4e6f6e99f77b9bf306090ad28f89419ba3e87f220c8",
+          "size": 4380,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/warp/warp_energy.lua"
+        },
+        "src/systems/warp/warp_memory.lua": {
+          "sha256": "abb95e861e5d72506f3132921c8d7a6b7eb01dc94137e099921e4ad9b60878ca",
+          "size": 12534,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/warp/warp_memory.lua"
+        },
+        "src/systems/warp/warp_navigation.lua": {
+          "sha256": "7c3d49200a2d2ae0008d24ff3119055b5cc497f47eca486e4e76b7f6e6c356d8",
+          "size": 5931,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/warp/warp_navigation.lua"
+        },
+        "src/systems/warp_drive.lua": {
+          "sha256": "46737987f337070c18442a4ec7d23dc6dab79167ac0c5fb22914647dc9d1e4a1",
+          "size": 9138,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/warp_drive.lua"
+        },
+        "src/systems/warp_zones.lua": {
+          "sha256": "bfdab7ae0cc8a26da9a620635c83e0fedc86cd924b4246fc1dff2f28b27ed8a0",
+          "size": 14966,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/warp_zones.lua"
+        },
+        "src/systems/weekly_challenges_system.lua": {
+          "sha256": "fc345a5e5241cfebd7494e3736f296bd538581ccf49d1515a910330281388efe",
+          "size": 15140,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/weekly_challenges_system.lua"
+        },
+        "src/systems/world_generator.lua": {
+          "sha256": "a141c9aef1a1d25f9331245f6642debca5799c4fbc12bab941f160824a564ca2",
+          "size": 11502,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/world_generator.lua"
+        },
+        "src/systems/xp/xp_definitions.lua": {
+          "sha256": "3ab863d5de2f32405425b41e360462b21ca561d24b546bf437a02549139cf63d",
+          "size": 5565,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/xp/xp_definitions.lua"
+        },
+        "src/systems/xp/xp_logic.lua": {
+          "sha256": "b51e506c6ebb286e4959d0f57480fa2ca3296b56c3c1e991df6dc1f9df23e341",
+          "size": 6607,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/xp/xp_logic.lua"
+        },
+        "src/systems/xp/xp_ui.lua": {
+          "sha256": "d429d1594df4b06651f2685af2c512bbd8563c237b840319634fc354b50a349b",
+          "size": 8952,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/xp/xp_ui.lua"
+        },
+        "src/systems/xp_system.lua": {
+          "sha256": "afd424fa83059a2fefd3f16c48d0557ec1fa4502d9ebbf1917df4989bc657c44",
+          "size": 23474,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/systems/xp_system.lua"
+        },
+        "src/ui/components/button.lua": {
+          "sha256": "bc25dfbf26e49d9c204557b6f6574f755c3c5def34a51abbdbdd561df3e3b0df",
+          "size": 4467,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/components/button.lua"
+        },
+        "src/ui/components/layout.lua": {
+          "sha256": "0c8e8d01c0e221a7fe47fe442344aee1ed61bc19b19e4629a1967edf111681a0",
+          "size": 10523,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/components/layout.lua"
+        },
+        "src/ui/components/notification.lua": {
+          "sha256": "c8630da9cb120725bd037850688a6cf9dc76d1e65c83255b721c4c4dca16b72a",
+          "size": 8130,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/components/notification.lua"
+        },
+        "src/ui/components/progress_bar.lua": {
+          "sha256": "15be05a460c812c4e8d8d2a8c4d0bca7aac592889ebc1473630be77eb540dd9d",
+          "size": 7161,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/components/progress_bar.lua"
+        },
+        "src/ui/debug/debug_config.lua": {
+          "sha256": "953bc64492ed45b9c6c1891e48bec7a6d1d08d1be4f5f22a40112e17443b391a",
+          "size": 7135,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/debug/debug_config.lua"
+        },
+        "src/ui/debug/debug_logging.lua": {
+          "sha256": "13d01b311b3d6aebf21ace6b2758222ebf0de1d5d2ff33e3be46e15461204806",
+          "size": 7301,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/debug/debug_logging.lua"
+        },
+        "src/ui/debug/debug_performance.lua": {
+          "sha256": "e724557b8f36513e5182a89f93541a1d73796a6817eafa26f86223eb03aef771",
+          "size": 8532,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/debug/debug_performance.lua"
+        },
+        "src/ui/debug/debug_rendering.lua": {
+          "sha256": "6d149d61e4b5c9cc0cec82827d32bcbb898823674a8091a5d20561e5d2b22395",
+          "size": 13893,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/debug/debug_rendering.lua"
+        },
+        "src/ui/debug/debug_validation.lua": {
+          "sha256": "e4067936abf5f83667c877c83330fb94dfa2d046235347b45d5cffb2b2aa77a0",
+          "size": 9248,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/debug/debug_validation.lua"
+        },
+        "src/ui/debug/ui_debug_enhanced_new.lua": {
+          "sha256": "920d62d36e826ef644db6589e073b4b10e135b52e03129b347c93de0061a059e",
+          "size": 8435,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/debug/ui_debug_enhanced_new.lua"
+        },
+        "src/ui/enhanced_tutorial_system_new.lua": {
+          "sha256": "ed9a10bb6da7c2a32f18588a8e79c086ec8cf4fa2eeb22039de9c098b476a749",
+          "size": 4800,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/enhanced_tutorial_system_new.lua"
+        },
+        "src/ui/feedback_ui.lua": {
+          "sha256": "97ffb6bc12bfa35556eccf01dd92a983161f55e11044e95ab9b99157d5da4e0f",
+          "size": 11403,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/feedback_ui.lua"
+        },
+        "src/ui/lore_viewer.lua": {
+          "sha256": "502c1c669909f14e5dffa1c5e20cf1723ca3daee042cc46ba3b1d4854b15d748",
+          "size": 13363,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/lore_viewer.lua"
+        },
+        "src/ui/pause_menu.lua": {
+          "sha256": "50f710590b251a56a7538a8d18ca765132061d6c29a6c6fc952427be2e8896f5",
+          "size": 6074,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/pause_menu.lua"
+        },
+        "src/ui/screens/game_ui.lua": {
+          "sha256": "9f34d78f0223e3f6ff8655889d6e2a816ee77fbc3b1b387a25b79465b80658e2",
+          "size": 9735,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/screens/game_ui.lua"
+        },
+        "src/ui/screens/menu_ui.lua": {
+          "sha256": "72763c5d295a435a365230af056c3bd9e5b53ae962f6531c1ee22b48e40867c0",
+          "size": 18388,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/screens/menu_ui.lua"
+        },
+        "src/ui/settings_menu.lua": {
+          "sha256": "61e2bf71d11ee8e2a5f7846edb34bd708cc7e93484ee971d2daef9d560a789d8",
+          "size": 18725,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/settings_menu.lua"
+        },
+        "src/ui/tutorial/tutorial_modules.lua": {
+          "sha256": "42f3297116f17fe9edd4d5641f52067a3de0464c5b06d9c3a247804b9a250ca1",
+          "size": 12770,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/tutorial/tutorial_modules.lua"
+        },
+        "src/ui/tutorial/tutorial_rendering.lua": {
+          "sha256": "d7e97ece047b4638c51b8c998ee6f1883b27d79f9cc962c4a27b2be8585c4bd8",
+          "size": 13485,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/tutorial/tutorial_rendering.lua"
+        },
+        "src/ui/tutorial/tutorial_state.lua": {
+          "sha256": "1d5daf0035fbd22b9a5ed5632d2c70fd90cc579b4b1c176171e307a72fe8deba",
+          "size": 10722,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/tutorial/tutorial_state.lua"
+        },
+        "src/ui/ui_animation_system.lua": {
+          "sha256": "5bcae841cd5475be2bac24a3230cdfd3e9aa9a72d1798473af07420183486b57",
+          "size": 10936,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/ui_animation_system.lua"
+        },
+        "src/ui/ui_system.lua": {
+          "sha256": "3629300b12e15612ccfdcd3a8053f254661f95bad908fcd88856fd0d534e11f8",
+          "size": 9906,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/ui_system_refactored.lua"
+        },
+        "src/ui/ui_system_refactored.lua": {
+          "sha256": "3629300b12e15612ccfdcd3a8053f254661f95bad908fcd88856fd0d534e11f8",
+          "size": 9906,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/ui/ui_system_refactored.lua"
+        },
+        "src/utils/asset_loader.lua": {
+          "sha256": "ca4dcb0d016eed6a10d37d8143aa9eaf40128fa40c9880235ff370b906b02461",
+          "size": 8850,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/asset_loader.lua"
+        },
+        "src/utils/config.lua": {
+          "sha256": "974074042f739128080d76c60e6ba96484773c9dcab07b596f3351be8e557c53",
+          "size": 19211,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/config.lua"
+        },
+        "src/utils/constants.lua": {
+          "sha256": "cddf19dde69fbb6524e77ba4811022f94b9bb1d3253d1e553643d542b0badabb",
+          "size": 655,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/constants.lua"
+        },
+        "src/utils/data/formatting.lua": {
+          "sha256": "224d710a3943305515cdd5ef2111072246b2b763b5cbb0cd1ee160545faff525",
+          "size": 14641,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/data/formatting.lua"
+        },
+        "src/utils/data/serialization.lua": {
+          "sha256": "1bbb791c4571692c86c0cc3d21777e2d04249737978653902abe9fb80aabfcb4",
+          "size": 18173,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/data/serialization.lua"
+        },
+        "src/utils/error_handler.lua": {
+          "sha256": "e4414f143044eb6594aae7fdba2f9c63ea1ccf29b887cc0c990007b0eb614ba2",
+          "size": 1566,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/error_handler.lua"
+        },
+        "src/utils/event_bus.lua": {
+          "sha256": "949dc78465aef13240b4d8206dbd777ea7db579f2d5e92a44b0436a403002622",
+          "size": 5221,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/event_bus.lua"
+        },
+        "src/utils/hot_reload.lua": {
+          "sha256": "4154d9d29f1be2ecfc312aa30f9f959087748589b86ccbbfa3f91aa95f5da3ba",
+          "size": 9094,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/hot_reload.lua"
+        },
+        "src/utils/input/mobile_input.lua": {
+          "sha256": "b7e8f98f8b86c58ff7a7f4dbab865549861714ff588c4efef6497e89abb51373",
+          "size": 16512,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/input/mobile_input.lua"
+        },
+        "src/utils/math/geometry.lua": {
+          "sha256": "b42a1c5a5f8151ad224c304ba8fb25af20b3b11142eb5987f7b7473fb4278479",
+          "size": 7818,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/math/geometry.lua"
+        },
+        "src/utils/math/interpolation.lua": {
+          "sha256": "284e7f46557ff78adbad538548a25e7c52dd22ea7f787b0b1623ed1c499d3180",
+          "size": 11083,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/math/interpolation.lua"
+        },
+        "src/utils/math/vector.lua": {
+          "sha256": "860c76b6f0735dc266f0f69132c5d45791c15b6323731d43e6ae20600b6ce198",
+          "size": 8808,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/math/vector.lua"
+        },
+        "src/utils/module_loader.lua": {
+          "sha256": "e351c9a2ea3d1524d8f8b9eeabef503608d7adc3d0f910526d71e91a3431cf56",
+          "size": 1259,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/module_loader.lua"
+        },
+        "src/utils/object_pool.lua": {
+          "sha256": "21f0a30434dcbb0de244e0c54b58c578bdd542b6870a8fecce7f61cef327e3a0",
+          "size": 3524,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/object_pool.lua"
+        },
+        "src/utils/render_batch.lua": {
+          "sha256": "b16d01867ea784ea1ef7f213bfad3bab467a3152f8dbf5906a6de0a2898a6e29",
+          "size": 9013,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/render_batch.lua"
+        },
+        "src/utils/rendering/drawing.lua": {
+          "sha256": "700eb2714a6ac086210c36ec45c25df4ff2ccc8ce632e546d57dd10c989f5d73",
+          "size": 13617,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/rendering/drawing.lua"
+        },
+        "src/utils/rendering/ui_components.lua": {
+          "sha256": "58d728868c3074fb96dc7891c22570e979c357cc5c9e486c0fc527095a119fe2",
+          "size": 13388,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/rendering/ui_components.lua"
+        },
+        "src/utils/spatial_grid.lua": {
+          "sha256": "bc59bd2e6909c2ab21fef14052ef221226d11f61f33e13dd6dc4aa60fc091aa9",
+          "size": 5689,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/spatial_grid.lua"
+        },
+        "src/utils/utils.lua": {
+          "sha256": "420f9d7ad1d468ae01ec044c2a8195d0a92d2bcd064b602e383d738ae9bd4b0e",
+          "size": 33459,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/utils.lua"
+        },
+        "src/utils/utils_new.lua": {
+          "sha256": "9d8f1f83367d3f8d228baa46190dbc46b0e4aa8ab538184acc881b24cf51df5f",
+          "size": 10322,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/src/utils/utils_new.lua"
+        },
+        "tests/love2d_test_runner.lua": {
+          "sha256": "da87a1ad2f3c2589f97db73f3b6e1e146c422736054c275907aa5b71f26299de",
+          "size": 13765,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/tests/love2d_test_runner.lua"
+        },
+        "tests/run_unified_tests_simple.lua": {
+          "sha256": "c525f66be6d6f8512606a1a4c37a13ff76167da581fc7fd4dd8acded2784db4b",
+          "size": 4004,
+          "url": "https://raw.githubusercontent.com/Hydepwns/orbit-jump/b655448a4713a8519c4b97aa34aaf4c4962d12bc/tests/run_unified_tests_simple.lua"
+        }
+      },
+      "homepage": "https://github.com/Hydepwns/orbit-jump",
+      "license": "MIT",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Sun, 03 Aug 2025 23:11:02 GMT",
+        "rockspec": {
+          "date": "Sun, 03 Aug 2025 23:11:02 GMT",
+          "sha256": "8ef93f9382ff5882bb695b515b6ce5929377d05500f1b9af1cb83e68e9c7983d",
+          "size": 11370
+        },
+        "src": {
+          "date": "Sun, 03 Aug 2025 23:11:05 GMT",
+          "sha256": "2b6e19843e609584eec9934697a42875e16380d6ae980e02dbaee4a736bd944d",
+          "size": 6736288,
+          "url": "https://luarocks.org/orbit-jump-1.0.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "libs.json",
+        "main",
+        "src.audio.sound_generator",
+        "src.audio.sound_manager",
+        "src.core.camera",
+        "src.core.game",
+        "src.core.game_logic",
+        "src.core.game_state",
+        "src.core.renderer",
+        "src.core.system_orchestrator",
+        "src.dev.dev_tools",
+        "src.dev.docs_generator",
+        "src.performance.audio_streaming_system",
+        "src.performance.lod_system",
+        "src.performance.optimized_functions",
+        "src.performance.performance_monitor",
+        "src.performance.performance_system",
+        "src.performance.texture_atlas_system",
+        "src.systems.achievement_system",
+        "src.systems.analytics.behavior_tracker",
+        "src.systems.analytics.feedback_analytics",
+        "src.systems.analytics.insight_generator",
+        "src.systems.analytics.pattern_analyzer",
+        "src.systems.artifact_system",
+        "src.systems.collision_system",
+        "src.systems.cosmic_events",
+        "src.systems.daily_streak_system",
+        "src.systems.dynamic_config_system",
+        "src.systems.emotion.emotion_analytics_optimized",
+        "src.systems.emotion.emotion_core",
+        "src.systems.emotion.feedback_renderer",
+        "src.systems.enhanced_pullback_indicator",
+        "src.systems.feedback_forms_system",
+        "src.systems.feedback_integration_system",
+        "src.systems.feedback_system",
+        "src.systems.global_events_system",
+        "src.systems.leaderboard_system",
+        "src.systems.map_system",
+        "src.systems.mastery_system",
+        "src.systems.mobile_accessibility",
+        "src.systems.mystery_box_system",
+        "src.systems.particle_system",
+        "src.systems.performance.performance_metrics",
+        "src.systems.performance.performance_system",
+        "src.systems.performance.performance_ui",
+        "src.systems.performance_overlay",
+        "src.systems.planet_lore",
+        "src.systems.player.player_abilities",
+        "src.systems.player.player_movement",
+        "src.systems.player.player_state",
+        "src.systems.player_analytics",
+        "src.systems.player_system",
+        "src.systems.prestige_system",
+        "src.systems.progression_system",
+        "src.systems.random_events_system",
+        "src.systems.resolution_manager",
+        "src.systems.ring_constellations",
+        "src.systems.ring_rarity_system",
+        "src.systems.ring_system",
+        "src.systems.rival_system",
+        "src.systems.save_system",
+        "src.systems.session_stats_system",
+        "src.systems.streak.streak_effects",
+        "src.systems.streak.streak_logic",
+        "src.systems.streak_system",
+        "src.systems.touch.gesture_definitions",
+        "src.systems.touch.gesture_recognition",
+        "src.systems.touch.gesture_ui",
+        "src.systems.touch.touch_gesture_system",
+        "src.systems.touch_gesture_system",
+        "src.systems.upgrade_system",
+        "src.systems.warp.warp_core",
+        "src.systems.warp.warp_energy",
+        "src.systems.warp.warp_memory",
+        "src.systems.warp.warp_navigation",
+        "src.systems.warp_drive",
+        "src.systems.warp_zones",
+        "src.systems.weekly_challenges_system",
+        "src.systems.world_generator",
+        "src.systems.xp.xp_definitions",
+        "src.systems.xp.xp_logic",
+        "src.systems.xp.xp_ui",
+        "src.systems.xp_system",
+        "src.ui.components.button",
+        "src.ui.components.layout",
+        "src.ui.components.notification",
+        "src.ui.components.progress_bar",
+        "src.ui.debug.debug_config",
+        "src.ui.debug.debug_logging",
+        "src.ui.debug.debug_performance",
+        "src.ui.debug.debug_rendering",
+        "src.ui.debug.debug_validation",
+        "src.ui.debug.ui_debug_enhanced_new",
+        "src.ui.enhanced_tutorial_system_new",
+        "src.ui.feedback_ui",
+        "src.ui.lore_viewer",
+        "src.ui.pause_menu",
+        "src.ui.screens.game_ui",
+        "src.ui.screens.menu_ui",
+        "src.ui.settings_menu",
+        "src.ui.tutorial.tutorial_modules",
+        "src.ui.tutorial.tutorial_rendering",
+        "src.ui.tutorial.tutorial_state",
+        "src.ui.ui_animation_system",
+        "src.ui.ui_system",
+        "src.ui.ui_system_refactored",
+        "src.utils.asset_loader",
+        "src.utils.config",
+        "src.utils.constants",
+        "src.utils.data.formatting",
+        "src.utils.data.serialization",
+        "src.utils.error_handler",
+        "src.utils.event_bus",
+        "src.utils.hot_reload",
+        "src.utils.input.mobile_input",
+        "src.utils.math.geometry",
+        "src.utils.math.interpolation",
+        "src.utils.math.vector",
+        "src.utils.module_loader",
+        "src.utils.object_pool",
+        "src.utils.render_batch",
+        "src.utils.rendering.drawing",
+        "src.utils.rendering.ui_components",
+        "src.utils.spatial_grid",
+        "src.utils.utils",
+        "src.utils.utils_new",
+        "tests.love2d_test_runner",
+        "tests.run_unified_tests_simple"
+      ],
+      "origin": {
+        "commit": "b655448a4713a8519c4b97aa34aaf4c4962d12bc",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/Hydepwns/orbit-jump.git"
+      },
+      "size": 1649333,
+      "summary": "A gravity-based arcade game with realistic physics and adaptive systems",
+      "undeclared_requires": [
+        "src.systems.emotional_feedback",
+        "src.systems.feedback_analysis_pipeline",
+        "src.systems.performance_monitoring_system",
+        "tests.frameworks.unified_test_framework",
+        "tests.run_tests"
+      ],
+      "vlr": {
+        "cause": "missing global: love",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 119,
+        "status": "partial",
+        "total": 128
+      }
+    }
+  }
+}

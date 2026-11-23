@@ -1,0 +1,41 @@
+local sfs = require "sfs"
+local lua       = require "lrocket.lua"
+local log       = require "lrocket.log"
+local loader = require "lrocket.loader"
+local lra = require "lrocket.build.lra"
+
+---@type lrocket.Generator
+local lua_bundle = {}
+
+local function quoteornil(s)
+	return s and string.format("%q", s) or "nil"
+end
+
+--- Bundles a bundle into a bundle
+function lua_bundle.build(src, output, userargs)
+	local compile = userargs.optimize
+	local lrafile = userargs.keep and sfs.getBaseName(output)..".lra" or sfs.tmppath()
+
+	lra.build(src, lrafile, userargs)
+
+	local tmppath = compile and (userargs.keep and output..".lrocket.lua" or sfs.tmppath()) or nil
+	local file = compile and log.assert(sfs.open(tmppath --[[@as string]], "wb")) or log.assert(sfs.open(output, 'wb'))
+
+	file:write(lua.readsource(loader.BASE_LUA), '\n')
+
+	local lradata = log.assert(sfs.read(lrafile, true))
+	file:write(string.format("main(lra_newstrh(%q), %s, %s)", lradata, quoteornil(src.rpath), quoteornil(src.rcpath)), '\n')
+	file:close()
+
+	if compile then
+		log.assert(lua.compile(tmppath --[[@as string]], output, lua.chunkname(output, sfs.getBaseName(output)), not userargs.debug))
+	end
+
+	if not userargs.keep then
+		sfs.deltmppath(lrafile)
+		if tmppath then sfs.deltmppath(tmppath) end
+	end
+end
+
+return lua_bundle
+

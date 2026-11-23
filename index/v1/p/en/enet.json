@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "enet",
+  "versions": {
+    "1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://leafo.net/lua-enet",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 10 Oct 2014 16:50:21 GMT",
+        "rockspec": {
+          "date": "Fri, 10 Oct 2014 16:50:21 GMT",
+          "sha256": "2aff7eafcdc61db5570e2e6dac18f24c5c9cb589671dce5b60356b3a5cc7c049",
+          "size": 645
+        },
+        "src": {
+          "date": "Fri, 10 Oct 2014 16:50:22 GMT",
+          "sha256": "bd82c74bb817b2a94d53059e192658b7dc81154e5fa4f02edf7feb3074f1bcf7",
+          "size": 14233,
+          "url": "https://luarocks.org/enet-1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "enet"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "ENET"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "ENET": {
+              "header": "enet/enet.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(ENET_INCDIR)"
+              ],
+              "libdirs": [
+                "$(ENET_LIBDIR)"
+              ],
+              "libraries": [
+                "enet"
+              ],
+              "name": "enet",
+              "sources": [
+                "enet.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 10 Oct 2014 16:50:22 GMT",
+        "sha256": "bd82c74bb817b2a94d53059e192658b7dc81154e5fa4f02edf7feb3074f1bcf7",
+        "size": 14233,
+        "type": "luarocks",
+        "url": "https://luarocks.org/enet-1.2-1.src.rock"
+      },
+      "summary": "A library for doing network communication in Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+local function install_header(ext,servers)
+    local names={}
+    for name in pairs(servers) do names[#names+1]=name end
+    table.sort(names)
+    local value=#names==0 and '(none)' or table.concat(names,', ')
+    ext.on('render_header',function(ev)
+        local inner=ev:get_component()
+        ev:set_component({render=function(_,width)
+            local colors=ext.style()
+            local lines=inner:render(width)
+            local at=lines[#lines]=='' and #lines or #lines+1
+            table.insert(lines,at,colors.dim .. ' mcp: ' .. value .. colors.reset)
+            return lines
+        end})
+    end)
+end
+
+return {name='mcp',activate=function()
+    local ext=require('panto').ext
+    local config=require('panto_mcp.config')
+    local raw_mcp=ext.config and ext.config.mcp
+    local settings,servers,warnings=config.parse(raw_mcp,ext.dirs)
+    install_header(ext,servers)
+    for _,warning in ipairs(warnings) do io.stderr:write('panto-mcp: ',warning,'\n') end
+    local tools=require('panto_mcp.tools')
+    local prompts=require('panto_mcp.prompts')
+    if not next(servers) then
+        if type(raw_mcp)=='table' then tools.register_status(ext,require('panto_mcp.manager').new(settings,{}),warnings) end
+        return
+    end
+
+    local dynamic_tools=type(ext.unregister_tool)=='function' and type(ext.register_tool)=='function'
+    local dynamic_commands=type(ext.unregister_command)=='function' and type(ext.register_command)=='function'
+    if not dynamic_tools then
+        for _,server in pairs(servers) do
+            if server.expose=='eager' then
+                warnings[#warnings+1]=server.name..': eager not yet supported on this panto build; using search mode'
+                server.expose='search'
+            end
+        end
+    end
+    local search_enabled=false
+    for _,server in pairs(servers) do search_enabled=search_enabled or server.expose=='search' end
+
+    local eager
+    local prompt_commands
+    local turn={busy=false}
+    local resource_registered=search_enabled
+    local manager
+    local function maybe_register_resource(name,metadata)
+        local state=manager.states[name]
+        if not resource_registered and state and state.cfg.expose=='eager'
+            and type(metadata.capabilities)=='table' and type(metadata.capabilities.resources)=='table' then
+            resource_registered=tools.register_resource(ext,manager) or resource_registered
+        end
+    end
+    local function reconcile_catalog(name,metadata,warm)
+        if eager then eager:reconcile() end
+        if prompt_commands then prompt_commands.reconcile(name,metadata,warm) end
+        maybe_register_resource(name,metadata)
+    end
+    manager=require('panto_mcp.manager').new(settings,servers,{on_catalog=function(name,metadata)
+        reconcile_catalog(name,metadata,false)
+    end})
+    eager=require('panto_mcp.eager').new(ext,manager)
+    prompt_commands=prompts.commands(ext,manager,turn,dynamic_commands,warnings)
+    require('panto_mcp.namespace').install(manager)
+    tools.register(ext,manager,warnings,search_enabled,search_enabled)
+    for name,state in pairs(manager.states) do
+        if state.metadata then reconcile_catalog(name,state.metadata,true) end
+    end
+    prompts.track_busy(ext,turn,prompt_commands)
+    tools.hint(ext,servers)
+    ext.on('session_end',function() manager:close() end)
+    manager:start_cold()
+end}

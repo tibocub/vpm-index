@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "fzy",
+  "versions": {
+    "1.0.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "fzy.lua": {
+          "sha256": "c7885a942e311c9077ad4f194ae83e4f145a4547fbc729194d3967cd5179a332",
+          "size": 205,
+          "url": "blob:c7885a942e311c9077ad4f194ae83e4f145a4547fbc729194d3967cd5179a332"
+        },
+        "fzy_lua.lua": {
+          "sha256": "e45b8737db157cb15e2e203cd0325b02f58f9ff551d5e70ad964eae501e2e44f",
+          "size": 7344,
+          "url": "blob:e45b8737db157cb15e2e203cd0325b02f58f9ff551d5e70ad964eae501e2e44f"
+        }
+      },
+      "homepage": "https://github.com/swarn/fzy-lua",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 08 Mar 2024 17:20:38 GMT",
+        "rockspec": {
+          "date": "Fri, 08 Mar 2024 17:20:38 GMT",
+          "sha256": "2a58a992c5b421e566557a46c1fdccee72c12fe9582d9767a16b1c2d9d3aa01d",
+          "size": 1222
+        },
+        "src": {
+          "date": "Fri, 08 Mar 2024 17:20:38 GMT",
+          "sha256": "5e6a5d78e0d38990b4ed3d199371f4b4ea1ae3128cc8922db4b65df485d639ee",
+          "size": 29369,
+          "url": "https://luarocks.org/fzy-1.0.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "fzy",
+        "fzy_lua",
+        "fzy_native"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "LUA_COMPAT_5_1"
+              ],
+              "name": "fzy_native",
+              "sources": [
+                "src/fzy_native.c",
+                "src/match.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "fzy-lua-1.0.3"
+      },
+      "origin": {
+        "date": "Fri, 08 Mar 2024 17:20:38 GMT",
+        "sha256": "5e6a5d78e0d38990b4ed3d199371f4b4ea1ae3128cc8922db4b65df485d639ee",
+        "size": 29369,
+        "type": "luarocks",
+        "url": "https://luarocks.org/fzy-1.0.3-1.src.rock"
+      },
+      "size": 7549,
+      "summary": "A lua implementation of the fzy fuzzy matching algorithm",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "ok",
+        "total": 3
+      }
+    }
+  }
+}

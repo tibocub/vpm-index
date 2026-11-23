@@ -1,0 +1,42 @@
+local package = require('package')
+local string = require('string')
+local table = require('table')
+local info = require('path.info')
+local package_config
+do
+	local _exp_0 = package.config
+	if _exp_0 ~= nil then
+		package_config = _exp_0
+	else
+		package_config = tostring(info.sep) .. "\n;\n?\n"
+	end
+end
+local DIRSEP, PATSEP, MARK = string.match(package_config("(.-)\n(.-)\n(.-)\n"))
+MARK = string.gsub(MARK, '.', function(c)
+	return "%" .. c
+end)
+local readable
+readable = function(filename)
+	local f = io.open(filename)
+	if not f then
+		return false
+	end
+	f:close()
+	return true
+end
+local searchpath
+searchpath = function(name, path)
+	name = string.gsub(name, "%.", DIRSEP)
+	local index, errs = 0, { }
+	repeat
+		local term, next = string.find(path, PATSEP, index + 1, true)
+		local spath = term and string.sub(path, index + 1, term - 1) or string.sub(path, index + 1)
+		local filename = string.gsub(spath, MARK, name)
+		if readable(filename) then
+			return filename
+		end
+		errs[#errs + 1] = "no file '" .. tostring(filename) .. "'"
+		index = next
+	until term == nil
+	return nil, table.concat(errs, '\n')
+end

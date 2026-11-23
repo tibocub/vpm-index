@@ -1,0 +1,40 @@
+local Snowflake = {}
+
+Snowflake.DISCORD_EPOCH = 1420070400000
+
+function Snowflake.timestamp(id)
+  local n = tonumber(id)
+  assert(n, "snowflake id must be numeric-like")
+  return math.floor(n / 4194304) + Snowflake.DISCORD_EPOCH
+end
+
+function Snowflake.date(id)
+  local ms = Snowflake.timestamp(id)
+  return os.date("!%Y-%m-%dT%H:%M:%SZ", math.floor(ms / 1000))
+end
+
+function Snowflake.workerId(id)
+  local n = tonumber(id)
+  assert(n, "snowflake id must be numeric-like")
+  return math.floor(n / 1024) % 32
+end
+
+function Snowflake.processId(id)
+  local n = tonumber(id)
+  assert(n, "snowflake id must be numeric-like")
+  return math.floor(n / 32) % 32
+end
+
+function Snowflake.increment(id)
+  local n = tonumber(id)
+  assert(n, "snowflake id must be numeric-like")
+  return n % 4096
+end
+
+function Snowflake.fromTimestamp(unixMs)
+  assert(type(unixMs) == "number", "unixMs must be a number")
+  return tostring(math.floor((unixMs - Snowflake.DISCORD_EPOCH) * 4194304))
+end
+
+return Snowflake
+

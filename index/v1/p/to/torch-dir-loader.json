@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "torch-dir-loader",
+  "versions": {
+    "0.6-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "torch",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "torch >= 7.0",
+        "argcheck >= 2.0",
+        "luafilesystem >= 1.6.3",
+        "paths",
+        "moses >= 1.4.0"
+      ],
+      "files": [],
+      "homepage": "https://github.com/gforge/torch-dir-loader",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 31 Jan 2017 11:36:07 GMT",
+        "rockspec": {
+          "date": "Tue, 31 Jan 2017 11:36:07 GMT",
+          "sha256": "b2310adadf8f4eada3195bd7044376cbeb3c6ad4afe55b84ae4b8874402841cb",
+          "size": 781
+        },
+        "src": {
+          "date": "Tue, 31 Jan 2017 11:36:09 GMT",
+          "sha256": "2d49b5e2dcb15dd963490c3014c4ef6de3497051c9df024bfa0bbe16815de36d",
+          "size": 5235,
+          "url": "https://luarocks.org/torch-dir-loader-0.6-0.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "cmake",
+        "native": "build",
+        "plan": {
+          "cmake": {
+            "variables": {
+              "CMAKE_BUILD_TYPE": "Release",
+              "LUA_CPATH": "$(LIBDIR)",
+              "LUA_PATH": "$(LUADIR)"
+            }
+          }
+        },
+        "srcdir": "torch-dir-loader-0.6-0"
+      },
+      "origin": {
+        "date": "Tue, 31 Jan 2017 11:36:09 GMT",
+        "sha256": "2d49b5e2dcb15dd963490c3014c4ef6de3497051c9df024bfa0bbe16815de36d",
+        "size": 5235,
+        "type": "luarocks",
+        "url": "https://luarocks.org/torch-dir-loader-0.6-0.src.rock"
+      },
+      "summary": "Loads a directory of files",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

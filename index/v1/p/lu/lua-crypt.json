@@ -1,0 +1,80 @@
+{
+  "kind": "lib",
+  "name": "lua-crypt",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "crypt.lua": {
+          "sha256": "aad29fd12594f4722bbe6acd29772ca5c5b8f48e1495c5b9b51245c4436bdc5e",
+          "size": 5398,
+          "url": "blob:aad29fd12594f4722bbe6acd29772ca5c5b8f48e1495c5b9b51245c4436bdc5e"
+        }
+      },
+      "homepage": "https://github.com/jprjr/lua-crypt",
+      "license": "MIT",
+      "lua": "",
+      "luarocks": {
+        "date": "Wed, 27 May 2026 22:05:13 GMT",
+        "rockspec": {
+          "date": "Wed, 27 May 2026 22:05:13 GMT",
+          "sha256": "7a63c70aa8ad3baed2317c8829163b02f73eb244e32e246f026107bc42997f2f",
+          "size": 828
+        },
+        "src": {
+          "date": "Wed, 27 May 2026 22:05:14 GMT",
+          "sha256": "7960ba6e5ce2195674684b9ba47e6ac54e889354d61b19b2efbe37d9620a0a7e",
+          "size": 32053,
+          "url": "https://luarocks.org/lua-crypt-1.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "crypt",
+        "crypt.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "crypt.core",
+              "sources": [
+                "src/base64.c",
+                "src/crypt.c",
+                "src/crypt_blowfish.c",
+                "src/crypt_md5.c",
+                "src/crypt_sha256.c",
+                "src/crypt_sha512.c",
+                "src/luasha.c",
+                "src/luassha.c",
+                "src/sha1.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 27 May 2026 22:05:14 GMT",
+        "sha256": "7960ba6e5ce2195674684b9ba47e6ac54e889354d61b19b2efbe37d9620a0a7e",
+        "size": 32053,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-crypt-1.1.0-1.src.rock"
+      },
+      "size": 5398,
+      "summary": "https://buffering.party/software/lua-crypt/",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

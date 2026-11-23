@@ -1,0 +1,19 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A self.deferred() function.
+local SelfDeferredFn = {}
+SelfDeferredFn.__index = SelfDeferredFn
+setmetatable(SelfDeferredFn, {__index = Terminal})
+package.loaded[...] = SelfDeferredFn
+
+--Constructor.
+function SelfDeferredFn.new(ln, col)
+  return setmetatable(Terminal.new(TerminalType.SELF_DEFERRED, {line = ln, col = col}), SelfDeferredFn)
+end
+
+--@override
+function SelfDeferredFn:__tostring()
+  return "(self.deferred)"
+end

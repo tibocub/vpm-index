@@ -1,0 +1,101 @@
+{
+  "kind": "lib",
+  "name": "luamqttc",
+  "versions": {
+    "1.1.4-1": {
+      "bin": [],
+      "deps": [
+        "luasocket",
+        "luasec"
+      ],
+      "files": {
+        "luamqttc/client.lua": {
+          "sha256": "e147a2f37c95c2a06682708af86f92147c67bd3fa0dac18d1036d458845f8df4",
+          "size": 9764,
+          "url": "blob:e147a2f37c95c2a06682708af86f92147c67bd3fa0dac18d1036d458845f8df4"
+        },
+        "luamqttc/timer.lua": {
+          "sha256": "eca094c292226a9b9b483b5a71de04c61699c5af9a74b87254080e075ee28ccc",
+          "size": 464,
+          "url": "blob:eca094c292226a9b9b483b5a71de04c61699c5af9a74b87254080e075ee28ccc"
+        }
+      },
+      "homepage": "https://github.com/Yongke/luamqttc",
+      "license": "EPL/EDL",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 08 Feb 2018 02:05:06 GMT",
+        "rockspec": {
+          "date": "Thu, 08 Feb 2018 02:05:06 GMT",
+          "sha256": "2de8f3f3f2a987cc5e0bd58b053a0552fa47a66910c3f40c9dd59a2c71d2b91b",
+          "size": 1827
+        },
+        "src": {
+          "date": "Thu, 08 Feb 2018 02:05:08 GMT",
+          "sha256": "c0b8c7167c9c3c7e6e65d526f6f232a4d95ed4f2bafc714d3a400e69c00abeec",
+          "size": 63506,
+          "url": "https://luarocks.org/luamqttc-1.1.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "luamqttc.client",
+        "luamqttc.timer",
+        "mqttpacket"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src",
+                "deps/lua-compat-5.2"
+              ],
+              "name": "mqttpacket",
+              "sources": [
+                "deps/lua-compat-5.2/compat-5.2.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTConnectClient.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTConnectServer.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTDeserializePublish.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTFormat.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTPacket.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTSerializePublish.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTSubscribeClient.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTSubscribeServer.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTUnsubscribeClient.c",
+                "deps/org.eclipse.paho.mqtt.embedded-c/MQTTPacket/src/MQTTUnsubscribeServer.c",
+                "src/luamqttpacket.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 08 Feb 2018 02:05:08 GMT",
+        "sha256": "c0b8c7167c9c3c7e6e65d526f6f232a4d95ed4f2bafc714d3a400e69c00abeec",
+        "size": 63506,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luamqttc-1.1.4-1.src.rock"
+      },
+      "size": 10228,
+      "summary": "A lua mqtt client",
+      "undeclared_requires": [
+        "socket",
+        "ssl"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

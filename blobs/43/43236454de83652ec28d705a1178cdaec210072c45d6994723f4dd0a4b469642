@@ -1,0 +1,689 @@
+local M = {}
+
+local function split_lines(text)
+    text = text:gsub("\r\n", "\n")
+    local lines, start = {}, 1
+    while true do
+        local newline = text:find("\n", start, true)
+        if not newline then
+            lines[#lines + 1] = { text = text:sub(start), terminated = false }
+            break
+        end
+        lines[#lines + 1] = { text = text:sub(start, newline - 1), terminated = true }
+        start = newline + 1
+    end
+    return lines, text
+end
+
+local function fence(line)
+    local spaces = line:match("^( *)") or ""
+    if #spaces > 3 then return nil end
+    local rest = line:sub(#spaces + 1)
+    local char = rest:sub(1, 1)
+    if char ~= "`" and char ~= "~" then return nil end
+    local run = rest:match("^(" .. char .. "+)") or ""
+    if #run < 3 then return nil end
+    return char, #run, rest:sub(#run + 1)
+end
+
+local function is_close_fence(line, char, length)
+    local found_char, found_length, tail = fence(line)
+    return found_char == char and found_length >= length and tail:match("^[ \t]*$") ~= nil
+end
+
+local function filter_source(source)
+    local lines, normalized = split_lines(source)
+    local filtered, open_char, open_length = {}, nil, nil
+    for i, line in ipairs(lines) do
+        local text = line.text
+        if open_char then
+            filtered[i] = ""
+            if is_close_fence(text, open_char, open_length) then
+                open_char, open_length = nil, nil
+            end
+        else
+            local char, length = fence(text)
+            if char then
+                filtered[i] = ""
+                open_char, open_length = char, length
+            else
+                filtered[i] = text
+            end
+        end
+    end
+    return table.concat(filtered, "\n"), lines, normalized
+end
+
+local function control_at(text, at)
+    if text:sub(at, at) ~= "\27" then return nil end
+    local second = text:sub(at + 1, at + 1)
+    if second == "[" then
+        for i = at + 2, #text do
+            local byte = text:byte(i)
+            if byte >= 0x40 and byte <= 0x7e then return text:sub(at, i), i + 1 end
+        end
+    elseif second == "]" then
+        local i = at + 2
+        while i <= #text do
+            local byte = text:byte(i)
+            if byte == 7 then return text:sub(at, i), i + 1 end
+            if byte == 0x1b and text:sub(i + 1, i + 1) == "\\" then
+                return text:sub(at, i + 1), i + 2
+            end
+            i = i + 1
+        end
+    end
+    if second ~= "" then return text:sub(at, at + 1), at + 2 end
+    return text:sub(at), #text + 1
+end
+
+local function update_style(sequence, state)
+    if sequence:sub(1, 2) == "\27[" and sequence:sub(-1) == "m" then
+        local params = sequence:sub(3, -2)
+        local resets = params == ""
+        for code in params:gmatch("[^;:]+") do
+            if code == "0" then resets = true end
+        end
+        state.sgr = resets and sequence or state.sgr .. sequence
+    elseif sequence:sub(1, 2) == "\27]" then
+        local body = sequence:sub(3):gsub("\7$", ""):gsub("\27\\$", "")
+        local _, uri = body:match("^(8;[^;]*;)(.*)$")
+        if uri ~= nil then
+            state.link = uri == "" and "" or sequence
+        end
+    end
+end
+
+local function tokenize(line)
+    local words, state, token = {}, { sgr = "", link = "" }, nil
+    local function finish()
+        if token then
+            token.text = token.text .. (state.link ~= "" and "\27]8;;\27\\" or "") .. "\27[0m"
+            words[#words + 1] = token
+            token = nil
+        end
+    end
+
+    local i = 1
+    while i <= #line do
+        local sequence, after = control_at(line, i)
+        if sequence then
+            update_style(sequence, state)
+            if token then token.text = token.text .. sequence end
+            i = after
+        else
+            local byte = line:byte(i)
+            local whitespace = byte == 32 or byte == 9 or byte == 11 or byte == 12 or byte == 13
+            if whitespace then
+                finish()
+            else
+                if not token then
+                    token = { text = state.sgr .. state.link }
+                end
+                token.text = token.text .. line:sub(i, i)
+            end
+            i = i + 1
+        end
+    end
+    finish()
+    return words
+end
+
+local function visible_line_count(lines, complete)
+    local n = 0
+    for _, line in ipairs(lines) do
+        if line.terminated or complete then n = n + 1 end
+    end
+    return n
+end
+
+local function viewport_width(value)
+    if type(value) ~= "number" or value ~= value or value <= 0 or value >= math.huge then return 0 end
+    return math.floor(value)
+end
+
+local function char_at(text, at)
+    local first = text:byte(at)
+    local length = first < 0x80 and 1 or first < 0xe0 and 2 or first < 0xf0 and 3 or 4
+    local after = math.min(#text + 1, at + length)
+    return text:sub(at, after - 1), after
+end
+
+local function codepoint(char)
+    local ok, value = pcall(utf8.codepoint, char)
+    return ok and value or char:byte()
+end
+
+local function combining(cp)
+    return (cp >= 0x0300 and cp <= 0x036f)
+        or (cp >= 0x0483 and cp <= 0x0489)
+        or (cp >= 0x0591 and cp <= 0x05bd)
+        or cp == 0x05bf or (cp >= 0x05c1 and cp <= 0x05c2)
+        or (cp >= 0x0610 and cp <= 0x061a)
+        or (cp >= 0x064b and cp <= 0x065f) or cp == 0x0670
+        or (cp >= 0x06d6 and cp <= 0x06ed)
+        or (cp >= 0x0900 and cp <= 0x0903)
+        or (cp >= 0x093a and cp <= 0x094f)
+        or (cp >= 0x1ab0 and cp <= 0x1aff)
+        or (cp >= 0x1dc0 and cp <= 0x1dff)
+        or (cp >= 0x20d0 and cp <= 0x20ff)
+        or cp == 0x200d
+        or (cp >= 0xfe00 and cp <= 0xfe0f)
+        or (cp >= 0xfe20 and cp <= 0xfe2f)
+        or (cp >= 0x1f3fb and cp <= 0x1f3ff)
+        or (cp >= 0xe0100 and cp <= 0xe01ef)
+end
+
+local function punctuation(cp, char)
+    if cp < 0x80 then return char:match("^%p$") ~= nil end
+    return cp == 0x00a1 or cp == 0x00a7 or cp == 0x00ab or cp == 0x00b6
+        or cp == 0x00b7 or cp == 0x00bb or cp == 0x00bf
+        or cp == 0x037e or cp == 0x0387
+        or (cp >= 0x055a and cp <= 0x055f) or cp == 0x0589 or cp == 0x058a
+        or cp == 0x05be or cp == 0x05c0 or cp == 0x05c3 or cp == 0x05c6
+        or (cp >= 0x0609 and cp <= 0x060a) or cp == 0x060c or cp == 0x061b
+        or (cp >= 0x061d and cp <= 0x061f) or (cp >= 0x066a and cp <= 0x066d)
+        or cp == 0x06d4 or cp == 0x0964 or cp == 0x0965 or cp == 0x0e4f
+        or (cp >= 0x0f0d and cp <= 0x0f12) or (cp >= 0x17d4 and cp <= 0x17da)
+        or (cp >= 0x1800 and cp <= 0x180a)
+        or (cp >= 0x2000 and cp <= 0x206f) or (cp >= 0x2e00 and cp <= 0x2e7f)
+        or (cp >= 0x3001 and cp <= 0x303f) or (cp >= 0xa4fe and cp <= 0xa4ff)
+        or (cp >= 0xfe10 and cp <= 0xfe1f) or (cp >= 0xfe30 and cp <= 0xfe4f)
+        or (cp >= 0xff01 and cp <= 0xff0f) or (cp >= 0xff1a and cp <= 0xff20)
+        or (cp >= 0xff3b and cp <= 0xff40) or (cp >= 0xff5b and cp <= 0xff65)
+end
+
+local function visible_chars(text)
+    local chars, i = {}, 1
+    while i <= #text do
+        local sequence, after = control_at(text, i)
+        if sequence then
+            i = after
+        else
+            local char
+            char, i = char_at(text, i)
+            local cp = codepoint(char)
+            chars[#chars + 1] = {
+                text = char,
+                visible = not combining(cp),
+                word_char = not combining(cp) and not punctuation(cp, char),
+            }
+        end
+    end
+    return chars
+end
+
+local function focus_index(length)
+    if length <= 1 then return 1 end
+    if length <= 5 then return 2 end
+    if length <= 9 then return 3 end
+    if length <= 13 then return 4 end
+    return 5
+end
+
+local function styled_clip(text, skip, limit, measure)
+    local output, skipped, used, i = {}, 0, 0, 1
+    local clipping = skip > 0
+    while i <= #text do
+        local sequence, after = control_at(text, i)
+        if sequence then
+            output[#output + 1] = sequence
+            i = after
+        else
+            local char
+            char, i = char_at(text, i)
+            local char_width = measure(char)
+            if clipping and skipped + char_width <= skip then
+                skipped = skipped + char_width
+            else
+                clipping = false
+                if char_width == 0 or used + char_width <= limit then
+                    output[#output + 1] = char
+                    used = used + char_width
+                else
+                    break
+                end
+            end
+        end
+    end
+    output[#output + 1] = "\27]8;;\27\\\27[0m"
+    return table.concat(output)
+end
+
+local Player = {}
+Player.__index = Player
+
+function Player.new(options)
+    local self = setmetatable({
+        highlight = assert(options.highlight),
+        width = assert(options.width),
+        truncate = assert(options.truncate),
+        style = options.style or function() return {} end,
+        new_timer = assert(options.new_timer),
+        mount_component = assert(options.mount),
+        acquire_mode = assert(options.input_mode),
+        settings = assert(options.settings),
+        save_wpm = assert(options.save_wpm),
+        persistence_error = options.persistence_error,
+        wpm = options.settings.wpm,
+        source = "",
+        source_complete = false,
+        generation = 0,
+        block_index = nil,
+        cursor = 1,
+        active = false,
+        released = true,
+        mode = nil,
+        mount = nil,
+        timer = nil,
+        timer_token = 0,
+        playback = nil,
+        paused = false,
+        current_word = nil,
+        status = "No assistant text yet",
+        read_count = 0,
+    }, Player)
+    self.component = { render = function(_, width) return self:render(width) end }
+    return self
+end
+
+function Player:_invalidate()
+    local handle = self.mount
+    if handle then pcall(handle.invalidate, handle) end
+end
+
+function Player:_close_timer(timer)
+    if not timer then return end
+    pcall(function()
+        if timer.is_active and timer:is_active() then timer:stop() end
+    end)
+    pcall(function()
+        if not timer.is_closing or not timer:is_closing() then timer:close() end
+    end)
+end
+
+function Player:_cancel_timer()
+    self.timer_token = self.timer_token + 1
+    local timer = self.timer
+    self.timer = nil
+    self:_close_timer(timer)
+end
+
+function Player:_release()
+    if self.released then return end
+    self.released = true
+    self.active = false
+    self.paused = false
+    self:_cancel_timer()
+    self.playback = nil
+    self.current_word = nil
+    local mount = self.mount
+    self.mount = nil
+    if mount then pcall(mount.unmount, mount) end
+    self.mode = nil
+end
+
+function Player:mode_exited(reason, message)
+    if not self.released then
+        self.status = reason == "error" and ("Input mode error: " .. tostring(message or "unknown error")) or "RSVP closed"
+        self:_release()
+    end
+end
+
+function Player:cancel(reason)
+    if self.released and not self.active then return end
+    local mode = self.mode
+    self.status = reason == "error" and "RSVP stopped after an error" or "RSVP stopped"
+    self:_release()
+    if mode then pcall(mode.close, mode) end
+end
+
+function Player:_mode_spec()
+    local self_ref = self
+    return {
+        keys = {
+            { key = "ctrl+s", desc = "start/next", run = function() self_ref:next() end },
+            { key = "space", desc = "pause/resume", run = function() self_ref:toggle_pause() end },
+            { key = "-", desc = "slower", run = function() self_ref:adjust(-1) end },
+            { key = "+", desc = "faster", run = function() self_ref:adjust(1) end },
+            { key = "escape", desc = "exit", run = function(mode) mode:close() end },
+        },
+        on_exit = function(reason, message) self_ref:mode_exited(reason, message) end,
+    }
+end
+
+function Player:activate()
+    if self.active then return nil, "already_active" end
+    local mode, why = self.acquire_mode(self:_mode_spec())
+    if not mode then return nil, why end
+
+    self.released = false
+    self.active = true
+    self.mode = mode
+    self.status = "Ready · Ctrl+S to start"
+    local ok, mounted = pcall(self.mount_component, self.component, "above_input")
+    if not ok then
+        self:cancel("error")
+        return nil, tostring(mounted)
+    end
+    self.mount = mounted
+    self:_invalidate()
+    return true
+end
+
+function Player:set_source(text, complete, block_index)
+    self.generation = self.generation + 1
+    self.block_index = block_index
+    self.source = type(text) == "string" and text or ""
+    self.source_complete = complete == true
+    self.cursor = 1
+    self.read_count = 0
+    self:_cancel_timer()
+    self.playback = nil
+    self.paused = false
+    self.current_word = nil
+    self.status = self.active and "New text available · Ctrl+S" or (self.source == "" and "No assistant text yet" or "Ready")
+    self:_invalidate()
+    return self.generation
+end
+
+function Player:update_source(text, complete, block_index)
+    if block_index ~= self.block_index then return false end
+    self.source = type(text) == "string" and text or ""
+    self.source_complete = complete == true
+    self:_invalidate()
+    return true
+end
+
+function Player:snapshot_source(text)
+    self:set_source(text, true, nil)
+end
+
+function Player:_prepared(filtered_source)
+    local ok, styled = pcall(self.highlight, filtered_source)
+    if not ok then return nil, "Markdown rendering failed: " .. tostring(styled) end
+    if type(styled) ~= "string" then return nil, "Markdown rendering failed: expected ANSI text" end
+    local styled_lines = split_lines(styled)
+    local source_lines = split_lines(filtered_source)
+    if #styled_lines ~= #source_lines then
+        return nil, "Markdown rendering failed: source line boundaries changed"
+    end
+    return styled_lines
+end
+
+function Player:_readable(start_segment)
+    local filtered, lines = filter_source(self.source)
+    local line_limit = visible_line_count(lines, self.source_complete)
+    local styled_lines, err = self:_prepared(filtered)
+    if not styled_lines then return nil, nil, err end
+
+    local readable, skipped_to = {}, math.max(1, start_segment)
+    for i = 1, line_limit do
+        local words = tokenize(styled_lines[i].text)
+        if #words > 0 then
+            readable[#readable + 1] = { index = i, words = words }
+        elseif i >= skipped_to then
+            skipped_to = i + 1
+        end
+    end
+    return readable, skipped_to, filtered
+end
+
+function Player:_next_candidate(start_segment)
+    local readable, skipped_to, filtered = self:_readable(start_segment)
+    if not readable then return nil, nil, filtered end
+    for rank, paragraph in ipairs(readable) do
+        if paragraph.index >= start_segment then
+            paragraph.rank = rank
+            paragraph.total = #readable
+            return paragraph, paragraph.index, nil, filtered
+        end
+    end
+    return nil, skipped_to, nil, filtered
+end
+
+function Player:_schedule()
+    self:_cancel_timer()
+    if not self.active or self.paused or not self.playback then return end
+    local timer = self.new_timer()
+    local token = self.timer_token
+    local generation = self.generation
+    local playback = self.playback
+    self.timer = timer
+    local delay = math.max(1, math.floor(60000 / self.wpm + 0.5))
+    local ok, err = pcall(timer.start, timer, delay, 0, function()
+        self:_close_timer(timer)
+        if self.timer == timer then self.timer = nil end
+        if token ~= self.timer_token or generation ~= self.generation or not self.active
+            or self.paused or self.playback ~= playback then
+            return
+        end
+        self.timer_token = self.timer_token + 1
+        local success, failure = pcall(function() self:_word_interval_complete() end)
+        if not success then
+            self:cancel("error")
+            self.status = "Playback error: " .. tostring(failure)
+        end
+    end)
+    if not ok then
+        self:_close_timer(timer)
+        if self.timer == timer then self.timer = nil end
+        self:cancel("error")
+        self.status = "Timer error: " .. tostring(err)
+    end
+end
+
+function Player:_word_interval_complete()
+    local playback = self.playback
+    if not playback then return end
+    if playback.word_index < #playback.words then
+        playback.word_index = playback.word_index + 1
+        self.current_word = playback.words[playback.word_index].text
+        self:_schedule()
+        self:_invalidate()
+        return
+    end
+
+    self.cursor = playback.index + 1
+    self.read_count = self.read_count + 1
+    self.playback = nil
+    self.current_word = nil
+    self.paused = false
+    local next_one, skipped_to, err = self:_next_candidate(self.cursor)
+    if err then
+        self.status = err
+    elseif next_one then
+        self.status = "Paragraph complete · Ctrl+S for next"
+    elseif self.source_complete then
+        self.status = "Nothing more to read"
+    else
+        self.cursor = math.max(self.cursor, skipped_to or self.cursor)
+        self.status = "Paragraph complete · waiting for more text"
+    end
+    self:_invalidate()
+end
+
+function Player:next()
+    if not self.active or self.playback then return false end
+    local paragraph, skipped_to, err, filtered = self:_next_candidate(self.cursor)
+    if err then
+        self.status = err
+        self.current_word = nil
+        self:_invalidate()
+        return false
+    end
+    if not paragraph then
+        if self.source_complete then
+            self.status = "Nothing more to read"
+        else
+            self.cursor = math.max(self.cursor, skipped_to or self.cursor)
+            self.status = "Waiting for the next paragraph"
+        end
+        self.current_word = nil
+        self:_invalidate()
+        return false
+    end
+
+    self.cursor = math.max(self.cursor, skipped_to or self.cursor)
+    self.playback = {
+        index = paragraph.index,
+        rank = paragraph.rank,
+        total = paragraph.total,
+        words = paragraph.words,
+        word_index = 1,
+        filtered_source = filtered,
+        source_generation = self.generation,
+    }
+    self.current_word = paragraph.words[1].text
+    self.paused = false
+    self.status = "Playing"
+    self:_schedule()
+    self:_invalidate()
+    return true
+end
+
+function Player:toggle_pause()
+    if not self.playback then return false end
+    if self.paused then
+        self.paused = false
+        self.status = "Playing"
+        self:_schedule()
+    else
+        self.paused = true
+        self.status = "Paused"
+        self:_cancel_timer()
+    end
+    self:_invalidate()
+    return true
+end
+
+function Player:suspend()
+    if self.playback and not self.paused then
+        self.paused = true
+        self.status = "Paused · Space to resume"
+        self:_cancel_timer()
+        self:_invalidate()
+    end
+end
+
+function Player:adjust(direction)
+    local candidate = math.max(self.settings.min_wpm, self.wpm + self.settings.wpm_step * direction)
+    if candidate ~= self.wpm then
+        self.wpm = candidate
+        local ok, result, err = pcall(self.save_wpm, self.wpm)
+        if not ok then
+            self.persistence_error = "WPM save failed: " .. tostring(result)
+        elseif result ~= true then
+            self.persistence_error = "WPM save failed: " .. tostring(err or "state API rejected the value")
+        else
+            self.persistence_error = nil
+        end
+    end
+    self:_invalidate()
+    return self.wpm
+end
+
+function Player:_theme_signature()
+    local ok, style = pcall(self.style)
+    if not ok or type(style) ~= "table" then return "" end
+    return tostring(style.welcome or "") .. "\0" .. tostring(style.tool_header or "")
+end
+
+function Player:_refresh_active_theme()
+    local playback = self.playback
+    if not playback then return end
+    local signature = self:_theme_signature()
+    if signature == playback.theme_signature then return end
+    local styled, err = self:_prepared(playback.filtered_source)
+    if not styled then
+        self.status = err
+        return
+    end
+    local words = tokenize(styled[playback.index].text)
+    if #words == #playback.words then
+        playback.words = words
+        self.current_word = words[playback.word_index].text
+        playback.theme_signature = signature
+    end
+end
+
+function Player:_measure(text)
+    local ok, value = pcall(self.width, text)
+    if ok and type(value) == "number" and value == value and value >= 0 and value < math.huge then
+        return value
+    end
+    return 0
+end
+
+function Player:_focus_offset(text)
+    local chars = visible_chars(text)
+    local length = 0
+    for _, char in ipairs(chars) do
+        if char.word_char then length = length + 1 end
+    end
+    local target = focus_index(length)
+    local before, seen = {}, 0
+    for _, char in ipairs(chars) do
+        if length == 0 then
+            if char.visible then break end
+        elseif char.word_char then
+            seen = seen + 1
+            if seen == target then break end
+        end
+        before[#before + 1] = char.text
+    end
+    return self:_measure(table.concat(before))
+end
+
+function Player:_fit(text, width)
+    if width <= 0 then return "" end
+    if self:_measure(text) <= width then return text end
+    local ok, result = pcall(self.truncate, text, width)
+    if ok and type(result) == "string" and self:_measure(result) <= width then return result end
+    return styled_clip(text, 0, width, function(char) return self:_measure(char) end)
+end
+
+function Player:_center(text, width)
+    width = viewport_width(width)
+    if width == 0 then return "" end
+    text = self:_fit(text, width)
+    local text_width = math.min(width, self:_measure(text))
+    return string.rep(" ", math.floor(math.max(0, width - text_width) / 2)) .. text
+end
+
+function Player:_at_focus(text, width, column)
+    if width <= 0 then return "" end
+    local offset = self:_focus_offset(text)
+    local left = column - 1 - offset
+    if left >= 0 then
+        return self:_fit(string.rep(" ", left) .. text, width)
+    end
+    return styled_clip(text, -left, width, function(char) return self:_measure(char) end)
+end
+
+function Player:render(width)
+    self:_refresh_active_theme()
+    width = viewport_width(width)
+    local column = width > 0 and (math.floor(width / 2) + 1) or 0
+    local marker = column > 0 and (string.rep(" ", column - 1) .. "|") or ""
+    local word = self.current_word or "RSVP"
+    local detail
+    if self.playback then
+        detail = string.format("%g WPM · paragraph %d/%d · %s", self.wpm, self.playback.rank, self.playback.total,
+            self.status:find("failed", 1, true) and "styling failed" or (self.paused and "paused" or "playing"))
+    elseif self.status == "Nothing more to read" then
+        detail = string.format("%g WPM · %d paragraphs read · %s", self.wpm, self.read_count, self.status)
+    else
+        detail = string.format("%g WPM · paragraph %d · %s", self.wpm, self.read_count + 1, self.status)
+    end
+    local rows = { marker, self:_at_focus(word, width, column), marker, self:_center(detail, width) }
+    if self.persistence_error then
+        rows[#rows + 1] = self:_center(self.persistence_error, width)
+    end
+    return rows
+end
+
+M.Player = Player
+M.filter_source = filter_source
+M.tokenize = tokenize
+return M

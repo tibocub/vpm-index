@@ -1,0 +1,876 @@
+{
+  "kind": "lib",
+  "name": "neogit",
+  "versions": {
+    "3.0.0-1": {
+      "bin": [],
+      "deps": [
+        "plenary.nvim"
+      ],
+      "files": {
+        "neogit.lua": {
+          "sha256": "c9de040da456ad7fb229f1b096adb28d4f7e3d2dbb2cb20b243ad417f103122c",
+          "size": 6842,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit.lua"
+        },
+        "neogit/autocmds.lua": {
+          "sha256": "48c850ce9694383c485c7ccbeaecfd01d52aae94336f9065f3084d992775e67e",
+          "size": 1650,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/autocmds.lua"
+        },
+        "neogit/buffers/commit_select_view/init.lua": {
+          "sha256": "68489951438a2044d002862269b986dd52465a2b64303aad7b59feb556b043ef",
+          "size": 3165,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/commit_select_view/init.lua"
+        },
+        "neogit/buffers/commit_select_view/ui.lua": {
+          "sha256": "884c3d7596eae605d8e688dc9316c0ed8c2c0888af722af16a79621eb3ed9acf",
+          "size": 535,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/commit_select_view/ui.lua"
+        },
+        "neogit/buffers/commit_view/init.lua": {
+          "sha256": "7453e8b1f3f3e1c6a7ca671ac4153011075f38aefd1b04283d704f9115069da2",
+          "size": 12738,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/commit_view/init.lua"
+        },
+        "neogit/buffers/commit_view/parsing.lua": {
+          "sha256": "27050ccfb17737da35950beb775314c94ed1c87f6e32f6952a56e4d01016b7f9",
+          "size": 848,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/commit_view/parsing.lua"
+        },
+        "neogit/buffers/commit_view/ui.lua": {
+          "sha256": "c6e539545fb2b6399890ea8a464f6173b07280c9d8df6ac275f92d5405277940",
+          "size": 2498,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/commit_view/ui.lua"
+        },
+        "neogit/buffers/common.lua": {
+          "sha256": "0a25a63df36b3cb5185c9ef02bd7ec85125e8373c26ccd4478e3c8c88aa2d2f7",
+          "size": 10966,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/common.lua"
+        },
+        "neogit/buffers/diff/init.lua": {
+          "sha256": "d53ac4b0ecdbef060675a1c3c03c5d25912d4dc909f8e4b5c77d22f4b5bacbab",
+          "size": 3239,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/diff/init.lua"
+        },
+        "neogit/buffers/diff/ui.lua": {
+          "sha256": "5d377d196bafcce441d7b194832cad0f198ee8dce812c87627315d47dd1e87c9",
+          "size": 1119,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/diff/ui.lua"
+        },
+        "neogit/buffers/editor/init.lua": {
+          "sha256": "d6e23094f1361b8d0c26cf0f3086a1c8b82dab702cca2b680f33987ad8c00943",
+          "size": 8459,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/editor/init.lua"
+        },
+        "neogit/buffers/fuzzy_finder.lua": {
+          "sha256": "8594693de5ff8076895a538b81805529fd78d3fb90a5a969e869426d460fc891",
+          "size": 1786,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/fuzzy_finder.lua"
+        },
+        "neogit/buffers/git_command_history.lua": {
+          "sha256": "503449588c359ae6e21fb737d5299a943e032887bd70ac68b3901001eefb9c89",
+          "size": 3540,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/git_command_history.lua"
+        },
+        "neogit/buffers/log_view/init.lua": {
+          "sha256": "6ca1e55bb92d9137df59b050ca8aed9d3788e69ef24ea11b3dddf7bfc9ea26e1",
+          "size": 11302,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/log_view/init.lua"
+        },
+        "neogit/buffers/log_view/ui.lua": {
+          "sha256": "bf46e74e0f427dede083810d79bb287d8a48d8a8c372bc7a955007483bd6aacd",
+          "size": 994,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/log_view/ui.lua"
+        },
+        "neogit/buffers/process/init.lua": {
+          "sha256": "9cd49f2b26c640f1d502c5e6b84cb8f38fb361acd6431e724db41a809fc5af4f",
+          "size": 2465,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/process/init.lua"
+        },
+        "neogit/buffers/rebase_editor/init.lua": {
+          "sha256": "2e47b8716dd153db7b48e94eff585adb0f46f46d420cb57061aaf34fadad5a5c",
+          "size": 7973,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/rebase_editor/init.lua"
+        },
+        "neogit/buffers/reflog_view/init.lua": {
+          "sha256": "f9abc3767b38b708dbc35af223e1d652de6eff2d60111f769a5a97ba68e2e543",
+          "size": 8413,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/reflog_view/init.lua"
+        },
+        "neogit/buffers/reflog_view/ui.lua": {
+          "sha256": "140a142ceeb2978821ea1a79cf7126572a9cb164b8f36ce193d63323dab643f8",
+          "size": 1845,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/reflog_view/ui.lua"
+        },
+        "neogit/buffers/refs_view/init.lua": {
+          "sha256": "419b28c349d9b177df27d556b6f17496b51e7752dcb13066fbdc1df788603555",
+          "size": 11423,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/refs_view/init.lua"
+        },
+        "neogit/buffers/refs_view/ui.lua": {
+          "sha256": "c54f4523e04a2a756301afca8a0ead032973da1391fe9525529fa8dc23149e09",
+          "size": 4370,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/refs_view/ui.lua"
+        },
+        "neogit/buffers/stash_list_view/init.lua": {
+          "sha256": "df8704fce25c595de8ea5ac759d668b078ed2608b0c450827211c995ad152700",
+          "size": 9219,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/stash_list_view/init.lua"
+        },
+        "neogit/buffers/stash_list_view/ui.lua": {
+          "sha256": "5ae377263f45fba16b2ffc3cf34c1597bbfdd2be725e038d167b0ffd81603b45",
+          "size": 901,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/stash_list_view/ui.lua"
+        },
+        "neogit/buffers/status/actions.lua": {
+          "sha256": "3903db989357d2b4b63ed895511fccaa86f81cd7af58cf1835a8956e896e7116",
+          "size": 47912,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/status/actions.lua"
+        },
+        "neogit/buffers/status/init.lua": {
+          "sha256": "c0afc2f8475d660ebc07f4f5e7f8b30e0788b6f0ecafc1edb45294df3429d3fd",
+          "size": 13354,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/status/init.lua"
+        },
+        "neogit/buffers/status/ui.lua": {
+          "sha256": "fc6266fde8625262956b65e858b51c4832a427207c2deb758079a9be5a01ce49",
+          "size": 25283,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/buffers/status/ui.lua"
+        },
+        "neogit/client.lua": {
+          "sha256": "bc38eed6155ed0f32c57f42887ca4432a3faaec6be0b06be4aaf8168e9133ea7",
+          "size": 4561,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/client.lua"
+        },
+        "neogit/config.lua": {
+          "sha256": "924cec7580e1af23bca93df239c7e9d9bfb9a217f46880001a097067fb121c73",
+          "size": 44393,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/config.lua"
+        },
+        "neogit/integrations/diffview.lua": {
+          "sha256": "6fe012c2f6fa97a82a763a2a2fa8d8fd9e3361496c5d018bfccb048dc0b022a1",
+          "size": 4798,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/integrations/diffview.lua"
+        },
+        "neogit/lib.lua": {
+          "sha256": "78f85c6c27fa18a3d61b4d9f2f652425f3601c256d2e8294257871f18160515a",
+          "size": 138,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib.lua"
+        },
+        "neogit/lib/ansi.lua": {
+          "sha256": "e30a63b681ce9fd72e7174624575648aaac3fca07e360442b60c7a37a63af34c",
+          "size": 1394,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/ansi.lua"
+        },
+        "neogit/lib/buffer.lua": {
+          "sha256": "f1450733996b269d049bbf3e25a79016c8ead25241d129e40c6de9f9360551d5",
+          "size": 27792,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/buffer.lua"
+        },
+        "neogit/lib/collection.lua": {
+          "sha256": "1f1372534b0c4c057bca6d8aa01703f24469493ff8cad6b272ec383ac8b0524b",
+          "size": 1385,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/collection.lua"
+        },
+        "neogit/lib/color.lua": {
+          "sha256": "fd32b3101865ae0865e0b1bd03eaeafe5b46855b1d3df6c023d5f8b8fa1862d4",
+          "size": 8219,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/color.lua"
+        },
+        "neogit/lib/event.lua": {
+          "sha256": "88395227922e91296e8343197f7fdd4ef80a7abd05fa047d485d278ef8c2831c",
+          "size": 255,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/event.lua"
+        },
+        "neogit/lib/finder.lua": {
+          "sha256": "8672def0412c34fc983ae26ff7b6ce26e4465c69896939947053031434706079",
+          "size": 11330,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/finder.lua"
+        },
+        "neogit/lib/git.lua": {
+          "sha256": "50ab42aa8012d6ab9a88abf87a70a43641b2933c7a59bce06508153ff40e2bf6",
+          "size": 1337,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git.lua"
+        },
+        "neogit/lib/git/bisect.lua": {
+          "sha256": "820e9b910a2a6efac58ccbb6a9ba3b4e4a7ca95830ec43bea108acc15be3afc9",
+          "size": 2379,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/bisect.lua"
+        },
+        "neogit/lib/git/branch.lua": {
+          "sha256": "dfd4f0c55173480727496ed1f81c25143f2dacf8ebb5cbcbf601aebcbc7f1b51",
+          "size": 12573,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/branch.lua"
+        },
+        "neogit/lib/git/cherry.lua": {
+          "sha256": "1ec7f25db00a5e7deac5887ee838879112e7037c87f32b4a0044cec7fcf1094d",
+          "size": 451,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/cherry.lua"
+        },
+        "neogit/lib/git/cherry_pick.lua": {
+          "sha256": "7babd562bcf094d63d39ffe0be0f494b4fa0698a0f049c723e9856dc8aa961e5",
+          "size": 2952,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/cherry_pick.lua"
+        },
+        "neogit/lib/git/cli.lua": {
+          "sha256": "528e1add076c424a4e0950db89cab16cff0d0463de37bdd64bf9ee756b885f40",
+          "size": 29933,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/cli.lua"
+        },
+        "neogit/lib/git/config.lua": {
+          "sha256": "4d230b342c776c48c5882b154ce58abd5f00015abcca04a3aea1678d2bf3c8eb",
+          "size": 3572,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/config.lua"
+        },
+        "neogit/lib/git/diff.lua": {
+          "sha256": "39ef5295a1cf73d50d4b541cb5cf0e3c5358a8b9e3462763c436878d77c0588e",
+          "size": 9488,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/diff.lua"
+        },
+        "neogit/lib/git/fetch.lua": {
+          "sha256": "ed1776488568189231b56d979b3984fb834bc61758baac6bb9425e70dced8286",
+          "size": 573,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/fetch.lua"
+        },
+        "neogit/lib/git/files.lua": {
+          "sha256": "d6d9d780745a4c3b8e67c316732c7e04eb48f02f8432785aa1fe2b4e65988e9a",
+          "size": 1796,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/files.lua"
+        },
+        "neogit/lib/git/hooks.lua": {
+          "sha256": "da7c89a5511139bb4bdb2054e94fde6d54ff1e775847a546f8299c2d4487dc3e",
+          "size": 1600,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/hooks.lua"
+        },
+        "neogit/lib/git/index.lua": {
+          "sha256": "97d5d6760d9fb74c048b93790551376db8662b65c2816e777596d03fe347b5a6",
+          "size": 5181,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/index.lua"
+        },
+        "neogit/lib/git/init.lua": {
+          "sha256": "81c925a60cd3b7d20738d6e0269241b7fc72232b3a78943e32391f2012eec850",
+          "size": 1062,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/init.lua"
+        },
+        "neogit/lib/git/log.lua": {
+          "sha256": "690fb7012096bbeb50171cee7937b0a29309e1b4228fb87e39243854df2a4d14",
+          "size": 15516,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/log.lua"
+        },
+        "neogit/lib/git/merge.lua": {
+          "sha256": "565a4c6767759dd1a4216834fe9185f135f3894c0842da6c95f6bf24b5d69321",
+          "size": 2030,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/merge.lua"
+        },
+        "neogit/lib/git/pull.lua": {
+          "sha256": "c5d48429910c5609584f3614f96de44a579d825155b8fa5e006c24527fc189f0",
+          "size": 1046,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/pull.lua"
+        },
+        "neogit/lib/git/push.lua": {
+          "sha256": "5b167bb1410def601a5e7248a7b06f2b1b5276cd4b859c6d48c2d114a1101715",
+          "size": 1626,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/push.lua"
+        },
+        "neogit/lib/git/rebase.lua": {
+          "sha256": "01cefc771a1b83155aae501645b1d81dabaf998fe9118fb9befc471df9ebf836",
+          "size": 8244,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/rebase.lua"
+        },
+        "neogit/lib/git/reflog.lua": {
+          "sha256": "102aa73bc94fbaa855a700cae21db37103d37b2f4ffbd607d7125b67269150f7",
+          "size": 2160,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/reflog.lua"
+        },
+        "neogit/lib/git/refs.lua": {
+          "sha256": "440e63eca1bd654e2d42e60478f5a4b8017b0a0a2b9b4f56afff414f4cfb1af7",
+          "size": 3662,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/refs.lua"
+        },
+        "neogit/lib/git/remote.lua": {
+          "sha256": "cf065e88953d961fe3118ac6b1fcaac33456b288c525735b5c5be3cb02f3d3cb",
+          "size": 4503,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/remote.lua"
+        },
+        "neogit/lib/git/repository.lua": {
+          "sha256": "148beaf13e3a7482bbb705f905754855127eb227baf6b1c7676bbf57f8dc67c5",
+          "size": 8750,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/repository.lua"
+        },
+        "neogit/lib/git/reset.lua": {
+          "sha256": "6623b5b83e932e4d7fec198c20975190a16de39ebababee8f2bdde03d3fb9263",
+          "size": 1524,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/reset.lua"
+        },
+        "neogit/lib/git/rev_parse.lua": {
+          "sha256": "b21650ab6d0d01dc28cf1af755b073737c7a7f0a1ab55906effc722480a445e0",
+          "size": 1012,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/rev_parse.lua"
+        },
+        "neogit/lib/git/revert.lua": {
+          "sha256": "227c1ce9c5bf1217015a922ca19b04decf1ec1e261f472995a2255c6a13f9183",
+          "size": 771,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/revert.lua"
+        },
+        "neogit/lib/git/sequencer.lua": {
+          "sha256": "dff9b2d1c060346cf895945223363c09afae4d61fe27aefcc535099680c8f609",
+          "size": 2758,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/sequencer.lua"
+        },
+        "neogit/lib/git/stash.lua": {
+          "sha256": "9b6dcb115528d864f7ca13369f97b538797762b084e18fb2d9325db791f61635",
+          "size": 3718,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/stash.lua"
+        },
+        "neogit/lib/git/status.lua": {
+          "sha256": "815274413ef4f6a5d77ab541ee9e7572a52820e27328957602c5ae6c80a5067a",
+          "size": 7803,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/status.lua"
+        },
+        "neogit/lib/git/tag.lua": {
+          "sha256": "ce837f02355a9a1053aecb072be2b93132942d569f76ef00e1569ef8b49f5c39",
+          "size": 1227,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/tag.lua"
+        },
+        "neogit/lib/git/worktree.lua": {
+          "sha256": "da1dd7f0c3821703b8f2b4e795a5ab3f97757dd49dcb906520aee6b79f966a2d",
+          "size": 2411,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/git/worktree.lua"
+        },
+        "neogit/lib/graph/kitty.lua": {
+          "sha256": "034c7cccfef32e9114ba48c5b18b203b2ce036661fe9c42bc6bf94040247eb0e",
+          "size": 34728,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/graph/kitty.lua"
+        },
+        "neogit/lib/graph/unicode.lua": {
+          "sha256": "ebcdfe32a1a9d51c2b4a62268331c3718117029ba4b91f879c8263f87f6d7fcf",
+          "size": 17911,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/graph/unicode.lua"
+        },
+        "neogit/lib/hl.lua": {
+          "sha256": "1c1e0c36f44aa23764dc1d6130b4833f1ca62fe23d85922276a16ae1796ca599",
+          "size": 17365,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/hl.lua"
+        },
+        "neogit/lib/input.lua": {
+          "sha256": "b90fea991487558b8320e3a8721494cfe027f6022119660216f025e2376852b1",
+          "size": 2953,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/input.lua"
+        },
+        "neogit/lib/item_filter.lua": {
+          "sha256": "c4255f86d5390c96469001bdb0a433bf7c1c03cb0cf0a870490c697b4e71b1e0",
+          "size": 1151,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/item_filter.lua"
+        },
+        "neogit/lib/notification.lua": {
+          "sha256": "69c26179e4b76e5be4f218fa529d526f069f5dfbb96bc2250c1ca80959ddf760",
+          "size": 1137,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/notification.lua"
+        },
+        "neogit/lib/popup/builder.lua": {
+          "sha256": "096d0f7282389f40cb7f6b1817686427dccd215e838825ef136e5fb79d33dade",
+          "size": 14797,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/popup/builder.lua"
+        },
+        "neogit/lib/popup/init.lua": {
+          "sha256": "eebf0b66d7228e08c5d9db54bef33f7915f875d04e4b5e3c1848db7a4ba23be1",
+          "size": 12497,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/popup/init.lua"
+        },
+        "neogit/lib/popup/ui.lua": {
+          "sha256": "a759ac34143453fcd4fb3508b03328b09e9664ddc6c9077fef2cb86b45acf1d8",
+          "size": 7110,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/popup/ui.lua"
+        },
+        "neogit/lib/record.lua": {
+          "sha256": "5401802f1821595feb0df9f50a41a9b7eb0da4c23744cf1aba6b9bf6fa0e12fe",
+          "size": 2309,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/record.lua"
+        },
+        "neogit/lib/rpc.lua": {
+          "sha256": "def6c691109d8f44b44e42335bc19dccc40e80cb98204c89a1958b198333171d",
+          "size": 972,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/rpc.lua"
+        },
+        "neogit/lib/signs.lua": {
+          "sha256": "d7d687dea0f046f39daedd226b308f858d9df9a5dfcfe3b02d2770d092f20936",
+          "size": 465,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/signs.lua"
+        },
+        "neogit/lib/state.lua": {
+          "sha256": "ef01eb56f976dce85bf43cea114ce217c6a42d07e4ad254807294c65bcdb8e0e",
+          "size": 2600,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/state.lua"
+        },
+        "neogit/lib/ui/component.lua": {
+          "sha256": "0741bbbd6f38e80ee5e84cf98526156d0438bce0581a17f8f8fc03dc7ccd567a",
+          "size": 4552,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/ui/component.lua"
+        },
+        "neogit/lib/ui/debug.lua": {
+          "sha256": "1fb37490dec44a877ceb0dab4ca942337215f5b75cf7a326b9635fe704d7e5cf",
+          "size": 1727,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/ui/debug.lua"
+        },
+        "neogit/lib/ui/helpers.lua": {
+          "sha256": "eec205c22be8255dd448de65f80aeac98eaeefa8e2dd265516fd85f1ac04ac40",
+          "size": 566,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/ui/helpers.lua"
+        },
+        "neogit/lib/ui/init.lua": {
+          "sha256": "dd42580062f15510fbb00b67eeb1cb48f32abcb89d8b3a381964d4794732e53f",
+          "size": 20217,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/ui/init.lua"
+        },
+        "neogit/lib/ui/renderer.lua": {
+          "sha256": "db29e0d616eb8474224a91cf6160cecfde90fad823044ab27110a8b729157cf6",
+          "size": 8501,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/ui/renderer.lua"
+        },
+        "neogit/lib/util.lua": {
+          "sha256": "fd501ac9b6df629ab21c7e4f0a439abf4e8e893f561bbd24dc082b75b3caf3b6",
+          "size": 12672,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/lib/util.lua"
+        },
+        "neogit/logger.lua": {
+          "sha256": "811d204ba078b6a3fed1a32f51232bea74a7f9d026596dc25c315ddfdd8b8ce1",
+          "size": 3946,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/logger.lua"
+        },
+        "neogit/popups/bisect/actions.lua": {
+          "sha256": "bd4b26dc1922aea7f00daf1c80d8a0abbb7f53d6b8f876858dc637750b053e6f",
+          "size": 3412,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/bisect/actions.lua"
+        },
+        "neogit/popups/bisect/init.lua": {
+          "sha256": "072d6b7b08fccaf393ef6ad0ea5e90195463381346574e5f7610fbff77b4c8ba",
+          "size": 1239,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/bisect/init.lua"
+        },
+        "neogit/popups/branch/actions.lua": {
+          "sha256": "f1e910b519611dc29e853698d3f170bf69e2baf37b21ed70b861e69dbdb064be",
+          "size": 12306,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/branch/actions.lua"
+        },
+        "neogit/popups/branch/init.lua": {
+          "sha256": "878fc48e0bd2b758a5855843d1662b4b29264a87aec95e47b1811410c6e2da7b",
+          "size": 2924,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/branch/init.lua"
+        },
+        "neogit/popups/branch_config/actions.lua": {
+          "sha256": "8222b54ae8ebe451a680e6afbb93b177a1d4682facc6fa2f0e08d69380782e2c",
+          "size": 2202,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/branch_config/actions.lua"
+        },
+        "neogit/popups/branch_config/init.lua": {
+          "sha256": "6da8e58c30d31300695cc17d3b987955c6e4b74dd1d7a4348795581bb6b10b1f",
+          "size": 3278,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/branch_config/init.lua"
+        },
+        "neogit/popups/cherry_pick/actions.lua": {
+          "sha256": "3ecd323cd2bf53a891d02e55f4468acacddded6e304477264d4ceae0a79f63a3",
+          "size": 4013,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/cherry_pick/actions.lua"
+        },
+        "neogit/popups/cherry_pick/init.lua": {
+          "sha256": "ff08daba6b8e3bf4adb6a1ba4f0eee1a677ff4b56eb79f3075542b7a8621a8c8",
+          "size": 1949,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/cherry_pick/init.lua"
+        },
+        "neogit/popups/commit/actions.lua": {
+          "sha256": "dd1eaa2c9ee9bbe02f6617be77a33beedf02a0bf7565dd6d1f68656defcceab4",
+          "size": 5334,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/commit/actions.lua"
+        },
+        "neogit/popups/commit/init.lua": {
+          "sha256": "63a0c953727d4e34f180a3e1a0989ee475e8b8ec2eef6a0f023dde04ee37a61e",
+          "size": 1679,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/commit/init.lua"
+        },
+        "neogit/popups/diff/actions.lua": {
+          "sha256": "c52b27c87e00fb9fa4ba73ffa5fe1963b9825eec0a1a0146f7805b013dc4282c",
+          "size": 2862,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/diff/actions.lua"
+        },
+        "neogit/popups/diff/init.lua": {
+          "sha256": "1a4808a24cf748c4ec923113dad2b3be7f4729de191b21fa4789daa820c6f044",
+          "size": 1062,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/diff/init.lua"
+        },
+        "neogit/popups/fetch/actions.lua": {
+          "sha256": "5ec6c453733ece371bd8e7b538dc3aaa33a5759dd453c714c9181db3f72117e0",
+          "size": 3274,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/fetch/actions.lua"
+        },
+        "neogit/popups/fetch/init.lua": {
+          "sha256": "27a70b51a19c9148262c80485af7dceef4f50c05b3fd7beff06fce98cf0b96aa",
+          "size": 1191,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/fetch/init.lua"
+        },
+        "neogit/popups/help/actions.lua": {
+          "sha256": "5aed30557d4ab946f92ce84929b0c24903188ccdf07fce74831a25b703ab6e30",
+          "size": 4184,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/help/actions.lua"
+        },
+        "neogit/popups/help/init.lua": {
+          "sha256": "9e27430b08e997bfcd9135715e3e0ce8fb86464bcca14eaabdce8b8841efb423",
+          "size": 839,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/help/init.lua"
+        },
+        "neogit/popups/ignore/actions.lua": {
+          "sha256": "dbe8865946cb487029e255a6d0cd005b75c397558cc0ff429bae8e5185efceed",
+          "size": 1852,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/ignore/actions.lua"
+        },
+        "neogit/popups/ignore/init.lua": {
+          "sha256": "80a7f947b40eedbe32a79074542aca0342aa96be13a526c20ad4ad72d460e707",
+          "size": 1032,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/ignore/init.lua"
+        },
+        "neogit/popups/init.lua": {
+          "sha256": "99f94f347d8164f67caf6aa2bc55323be1881c01ab64b0dd80e3d474bc9524eb",
+          "size": 1076,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/init.lua"
+        },
+        "neogit/popups/log/actions.lua": {
+          "sha256": "32915cf6ad5d9593bbbd57cafddab3a41c215be36416292f789fbca05ecebdfc",
+          "size": 4728,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/log/actions.lua"
+        },
+        "neogit/popups/log/init.lua": {
+          "sha256": "fa9b530b16974accd996ac407691893d21db1e5f558d9c67a484cc7dc842d996",
+          "size": 4103,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/log/init.lua"
+        },
+        "neogit/popups/margin/actions.lua": {
+          "sha256": "d7b38694307a8da72560667ce66615da445ed1d968d4f3abbd66aefb62231e77",
+          "size": 949,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/margin/actions.lua"
+        },
+        "neogit/popups/margin/init.lua": {
+          "sha256": "91edac22de6e427753c09763f70caa24f9ffc6cdc01c2002703fa05ba0e389e7",
+          "size": 1829,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/margin/init.lua"
+        },
+        "neogit/popups/merge/actions.lua": {
+          "sha256": "3edff95c3a7616fe5de862b5422c2343cb545b40a309040d9b09998506509ef2",
+          "size": 1908,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/merge/actions.lua"
+        },
+        "neogit/popups/merge/init.lua": {
+          "sha256": "15938d29123917880984c323f523a7cd3039d0345e757ee2b594acc04825b3a1",
+          "size": 2399,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/merge/init.lua"
+        },
+        "neogit/popups/pull/actions.lua": {
+          "sha256": "1e224c74ef01f7b5640550e91c076573fb05a3b53c84615579054111ca4472b7",
+          "size": 2411,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/pull/actions.lua"
+        },
+        "neogit/popups/pull/init.lua": {
+          "sha256": "1fd1006cef62fba8373d021e4df3117c61495cee94ac9486be230bd33249c1f6",
+          "size": 1648,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/pull/init.lua"
+        },
+        "neogit/popups/push/actions.lua": {
+          "sha256": "67a0fe74661100dbb176b6ab899f89e59cbf9001d65b2544d667486a945d52df",
+          "size": 5687,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/push/actions.lua"
+        },
+        "neogit/popups/push/init.lua": {
+          "sha256": "9f13d18ba483f5cbbbce1ce6fd021004f1418498785c8b23accb294ace11ac2b",
+          "size": 1822,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/push/init.lua"
+        },
+        "neogit/popups/rebase/actions.lua": {
+          "sha256": "34e12865d404f0c58b1d271c9c6983e57cb3aceda124806e45c18c41cf6afb0d",
+          "size": 4483,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/rebase/actions.lua"
+        },
+        "neogit/popups/rebase/init.lua": {
+          "sha256": "4dc5ccf1c6f339bfa47835d1b2014cae4d5ad62e3af7cc085f5fd99f04a000d0",
+          "size": 2738,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/rebase/init.lua"
+        },
+        "neogit/popups/remote/actions.lua": {
+          "sha256": "6b41fb0a0e234007c2686ff15dcbb812d76aecdf1af20357fda8ec3582825290",
+          "size": 4110,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/remote/actions.lua"
+        },
+        "neogit/popups/remote/init.lua": {
+          "sha256": "e6f3ee4efb767fedda18ccc410e98b84bbec5a059ba1289953294e41145ebcbf",
+          "size": 1213,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/remote/init.lua"
+        },
+        "neogit/popups/remote_config/init.lua": {
+          "sha256": "82ee0421bc585c5ac344fff8750e473a4c842f25a6f1bfba562dc775caa158a6",
+          "size": 1231,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/remote_config/init.lua"
+        },
+        "neogit/popups/reset/actions.lua": {
+          "sha256": "3624793c425ef6a3e9141d1ca1a3d030444ba4276de971db0ed7e914bcdfeeff",
+          "size": 3070,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/reset/actions.lua"
+        },
+        "neogit/popups/reset/init.lua": {
+          "sha256": "d21d5a55cd38f1b7a66462122b0b0b77beb24ab00d80a9e61046a5fe48a2fe73",
+          "size": 782,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/reset/init.lua"
+        },
+        "neogit/popups/revert/actions.lua": {
+          "sha256": "d19d415a23f16c469d19c35807bf0c92b7d673eb2b170b595d27b2fb54c6c259",
+          "size": 2002,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/revert/actions.lua"
+        },
+        "neogit/popups/revert/init.lua": {
+          "sha256": "c8984da2500bf801645345fdc5f19388291c9fafe40a5a1b170a72ecf53a350f",
+          "size": 1698,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/revert/init.lua"
+        },
+        "neogit/popups/stash/actions.lua": {
+          "sha256": "43a5f0bff739dfa1b0fe9d2692e1d9cf4a8bd21b8ae4dab246d3f5a11ef2eafa",
+          "size": 1674,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/stash/actions.lua"
+        },
+        "neogit/popups/stash/init.lua": {
+          "sha256": "e12655846066cde48d79c7aa14c699163b5592efdc47da3ce265afc4b9ae63d6",
+          "size": 1295,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/stash/init.lua"
+        },
+        "neogit/popups/tag/actions.lua": {
+          "sha256": "35e7e2e809e28d96c04c0ac2cee8049e1a9fdd094e5f9ce96bf78c8312345eaf",
+          "size": 4245,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/tag/actions.lua"
+        },
+        "neogit/popups/tag/init.lua": {
+          "sha256": "14889d996783eed065e152b771d650965aaf8e3dac27c13231b513fcec5d3a15",
+          "size": 702,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/tag/init.lua"
+        },
+        "neogit/popups/worktree/actions.lua": {
+          "sha256": "71316bf6f499fccb55689e3dd1f3a3711ee4fb632b0b7724075a56e10c022513",
+          "size": 5565,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/worktree/actions.lua"
+        },
+        "neogit/popups/worktree/init.lua": {
+          "sha256": "4516deb8aca2bfb21a1663d4949b67c21cddb18c4b347c411c1d163e9160e8cf",
+          "size": 541,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/popups/worktree/init.lua"
+        },
+        "neogit/process.lua": {
+          "sha256": "4444466f40120264a658f3148d9deee1b6f032d2ba77ba96cf15417ef70da3ad",
+          "size": 10555,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/process.lua"
+        },
+        "neogit/runner.lua": {
+          "sha256": "51654df647ce6ea726a7d5f7965b40842c1dd99021333a8f1089aa35fa2edde3",
+          "size": 4366,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/runner.lua"
+        },
+        "neogit/spinner.lua": {
+          "sha256": "33bfbe02d8e45d0217700f74d6af00fe56adbacd90e42a670d9dd47a913edbcd",
+          "size": 1267,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/spinner.lua"
+        },
+        "neogit/vendor/types.lua": {
+          "sha256": "dbe2998ca1443297373b852111460374ec2413d9da38b1b6cefb83978d74adc9",
+          "size": 606,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/vendor/types.lua"
+        },
+        "neogit/watcher.lua": {
+          "sha256": "5f0802d20565c3bfc0b63326c914991b7d1bdf73721c27a0e217fd82f4fe6896",
+          "size": 3548,
+          "url": "https://raw.githubusercontent.com/NeogitOrg/neogit/v3.0.0/lua/neogit/watcher.lua"
+        }
+      },
+      "homepage": "https://github.com/NeogitOrg/neogit",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 14 Nov 2025 11:10:57 GMT",
+        "rockspec": {
+          "date": "Fri, 14 Nov 2025 11:10:57 GMT",
+          "sha256": "c1067e919fe838834d8f543d02966853df8c41ac1f2441d4f785d106ee879b69",
+          "size": 774
+        },
+        "src": {
+          "date": "Fri, 14 Nov 2025 11:10:58 GMT",
+          "sha256": "6447996ade283479f1aabe6bbd39ce571fc4c30e1ef011df95a8192250e3c1f7",
+          "size": 345521,
+          "url": "https://luarocks.org/neogit-3.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "neogit",
+        "neogit.autocmds",
+        "neogit.buffers.commit_select_view",
+        "neogit.buffers.commit_select_view.ui",
+        "neogit.buffers.commit_view",
+        "neogit.buffers.commit_view.parsing",
+        "neogit.buffers.commit_view.ui",
+        "neogit.buffers.common",
+        "neogit.buffers.diff",
+        "neogit.buffers.diff.ui",
+        "neogit.buffers.editor",
+        "neogit.buffers.fuzzy_finder",
+        "neogit.buffers.git_command_history",
+        "neogit.buffers.log_view",
+        "neogit.buffers.log_view.ui",
+        "neogit.buffers.process",
+        "neogit.buffers.rebase_editor",
+        "neogit.buffers.reflog_view",
+        "neogit.buffers.reflog_view.ui",
+        "neogit.buffers.refs_view",
+        "neogit.buffers.refs_view.ui",
+        "neogit.buffers.stash_list_view",
+        "neogit.buffers.stash_list_view.ui",
+        "neogit.buffers.status",
+        "neogit.buffers.status.actions",
+        "neogit.buffers.status.ui",
+        "neogit.client",
+        "neogit.config",
+        "neogit.integrations.diffview",
+        "neogit.lib",
+        "neogit.lib.ansi",
+        "neogit.lib.buffer",
+        "neogit.lib.collection",
+        "neogit.lib.color",
+        "neogit.lib.event",
+        "neogit.lib.finder",
+        "neogit.lib.git",
+        "neogit.lib.git",
+        "neogit.lib.git.bisect",
+        "neogit.lib.git.branch",
+        "neogit.lib.git.cherry",
+        "neogit.lib.git.cherry_pick",
+        "neogit.lib.git.cli",
+        "neogit.lib.git.config",
+        "neogit.lib.git.diff",
+        "neogit.lib.git.fetch",
+        "neogit.lib.git.files",
+        "neogit.lib.git.hooks",
+        "neogit.lib.git.index",
+        "neogit.lib.git.log",
+        "neogit.lib.git.merge",
+        "neogit.lib.git.pull",
+        "neogit.lib.git.push",
+        "neogit.lib.git.rebase",
+        "neogit.lib.git.reflog",
+        "neogit.lib.git.refs",
+        "neogit.lib.git.remote",
+        "neogit.lib.git.repository",
+        "neogit.lib.git.reset",
+        "neogit.lib.git.rev_parse",
+        "neogit.lib.git.revert",
+        "neogit.lib.git.sequencer",
+        "neogit.lib.git.stash",
+        "neogit.lib.git.status",
+        "neogit.lib.git.tag",
+        "neogit.lib.git.worktree",
+        "neogit.lib.graph.kitty",
+        "neogit.lib.graph.unicode",
+        "neogit.lib.hl",
+        "neogit.lib.input",
+        "neogit.lib.item_filter",
+        "neogit.lib.notification",
+        "neogit.lib.popup",
+        "neogit.lib.popup.builder",
+        "neogit.lib.popup.ui",
+        "neogit.lib.record",
+        "neogit.lib.rpc",
+        "neogit.lib.signs",
+        "neogit.lib.state",
+        "neogit.lib.ui",
+        "neogit.lib.ui.component",
+        "neogit.lib.ui.debug",
+        "neogit.lib.ui.helpers",
+        "neogit.lib.ui.renderer",
+        "neogit.lib.util",
+        "neogit.logger",
+        "neogit.popups",
+        "neogit.popups.bisect",
+        "neogit.popups.bisect.actions",
+        "neogit.popups.branch",
+        "neogit.popups.branch.actions",
+        "neogit.popups.branch_config",
+        "neogit.popups.branch_config.actions",
+        "neogit.popups.cherry_pick",
+        "neogit.popups.cherry_pick.actions",
+        "neogit.popups.commit",
+        "neogit.popups.commit.actions",
+        "neogit.popups.diff",
+        "neogit.popups.diff.actions",
+        "neogit.popups.fetch",
+        "neogit.popups.fetch.actions",
+        "neogit.popups.help",
+        "neogit.popups.help.actions",
+        "neogit.popups.ignore",
+        "neogit.popups.ignore.actions",
+        "neogit.popups.log",
+        "neogit.popups.log.actions",
+        "neogit.popups.margin",
+        "neogit.popups.margin.actions",
+        "neogit.popups.merge",
+        "neogit.popups.merge.actions",
+        "neogit.popups.pull",
+        "neogit.popups.pull.actions",
+        "neogit.popups.push",
+        "neogit.popups.push.actions",
+        "neogit.popups.rebase",
+        "neogit.popups.rebase.actions",
+        "neogit.popups.remote",
+        "neogit.popups.remote.actions",
+        "neogit.popups.remote_config",
+        "neogit.popups.reset",
+        "neogit.popups.reset.actions",
+        "neogit.popups.revert",
+        "neogit.popups.revert.actions",
+        "neogit.popups.stash",
+        "neogit.popups.stash.actions",
+        "neogit.popups.tag",
+        "neogit.popups.tag.actions",
+        "neogit.popups.worktree",
+        "neogit.popups.worktree.actions",
+        "neogit.process",
+        "neogit.runner",
+        "neogit.spinner",
+        "neogit.vendor.types",
+        "neogit.watcher"
+      ],
+      "origin": {
+        "sha256": "1ba1adbe197580dad292c84b71e9f37dfce585a40c60d5e46717aafad46d3be4",
+        "type": "archive",
+        "url": "https://github.com/NeogitOrg/neogit/archive/v3.0.0.zip"
+      },
+      "size": 755821,
+      "summary": "An interactive and powerful Git interface for Neovim, inspired by Magit",
+      "undeclared_requires": [
+        "diffview.api.views.diff.diff_view",
+        "diffview.lib",
+        "diffview.utils",
+        "diffview.vcs.adapters.git.rev",
+        "diffview.vcs.rev",
+        "fzf-lua",
+        "mini.pick",
+        "snacks.picker",
+        "telescope",
+        "telescope.actions",
+        "telescope.actions.state",
+        "telescope.finders",
+        "telescope.pickers",
+        "telescope.sorters"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

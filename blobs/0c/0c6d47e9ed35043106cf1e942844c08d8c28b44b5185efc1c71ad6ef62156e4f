@@ -1,0 +1,49 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+local schema = {
+  name = "jwt-verifier",
+  fields = {
+    { consumer  = typedefs.no_consumer },
+    { protocols = typedefs.protocols_http },
+    { config = {
+        type   = "record",
+        fields = {
+          {
+            discovery_urls = {
+              required = true,
+              type     = "set",
+              elements = typedefs.url,
+              len_min  = 1,
+            },
+          },
+          {
+            allowed_issuers = {
+              required = true,
+              type     = "set",
+              len_min  = 1,
+              elements = {
+                 type = "string",
+              },
+            },
+          },
+          {
+            verify_claims = {
+              required = false,
+              type     = "boolean",
+              default  = true,
+            }
+          },
+          {
+            ssl_verify = {
+              required = false,
+              type     = "boolean",
+              default  = true,
+            }
+          },
+        },
+      },
+    },
+  },
+}
+
+return schema

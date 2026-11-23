@@ -1,0 +1,302 @@
+--- functional programming
+-- @module functional
+-- @author José María Alonso
+--
+
+local fun = require("fun")
+local inspect = require("inspect")
+
+local functional = {}
+
+--- Concatenate a list of tables
+-- @int a The first number
+-- @int b The second number
+-- @return a table contatenated
+-- @usage local table = functional.contatenate_tables({ 1, 2}, { 3, 4})
+function functional.concatenate_tables(...)
+   local function _concat(t1, t2)
+      for _, v in ipairs(t2) do
+         t1[#t1 + 1] = v
+      end
+      return t1
+   end
+   return fun.reduce(_concat, {}, { ... })
+end
+
+--- extracts keys from a map and sort them in a map
+-- @function sorted_keys
+-- @tparam table the map
+function functional.sorted_keys(t)
+   local sorted_keys = {}
+   for k, _ in pairs(t) do
+      table.insert(sorted_keys, k)
+   end
+   table.sort(sorted_keys, function(a, b)
+      return tostring(a) < tostring(b)
+   end)
+   return sorted_keys
+end
+
+function functional.iter_sorted(t)
+   local sorted_keys = functional.sorted_keys(t)
+   -- print(inspect(sorted_keys))
+   return fun.map(function(k)
+      return k, t[k]
+   end, sorted_keys)
+end
+
+-- function functional.each_sorted(f, t)
+--    local sorted_keys = functional.sorted_keys(t)
+--    local sorted_iterator = fun.map(function(k)
+--       return k, t[k]
+--    end, fun.iter(sorted_keys))
+--    fun.each(f, sorted_iterator)
+-- end
+--- Maps a function to a table
+-- function map
+-- tparam function f the function to map
+-- tparam table seq input table
+-- return the table mapped
+-- usage local table = functional.map(function (x) return x + a end, { 1, 2})
+--
+
+--- Hola
+-- @function map
+-- @tparam function f function to map
+-- @param seq something that can be iterated
+function functional.map(f, seq)
+   return fun.totable(fun.map(f, seq))
+end
+
+function functional.map_reduce(f, g, init, seq)
+   return fun.reduce(g, init, fun.map(f, seq))
+end
+
+function functional.prepend(prefix, list)
+   assert(prefix)
+   if list == nil then
+      return ""
+   else
+      local result = table.concat(
+         fun.totable(fun.map(function(x)
+            return ("%s %s"):format(prefix, x)
+         end, list)),
+         " "
+      )
+      return result
+   end
+end
+
+function functional.reverse_table(t)
+   return fun.reduce(function(acc, x)
+      table.insert(acc, 1, x)
+      return acc
+   end, {}, t)
+end
+
+function functional.trampoline(f, ...)
+   local result = f(...)
+   while type(result) == "function" do
+      result = result()
+   end
+   return result
+end
+
+--- converts a boolean into yes or no
+-- @function yon
+---@tparam boolean predicate
+function functional.yon(predicate)
+   if predicate then
+      return "y"
+   else
+      return "n"
+   end
+end
+
+--- binds parameters to a function
+-- @function bind
+-- @tparam function function
+function functional.bind(f, ...)
+   local bound_args = table.pack(...)
+   local number_of_bound_args = bound_args.n
+   return function(...)
+      local actual_args = table.pack(...)
+      local number_of_actual_args = actual_args.n
+      local calling_args = {}
+      local number_of_calling_args = number_of_bound_args + number_of_actual_args
+      fun.each(function(i)
+         if i <= number_of_bound_args then
+            calling_args[i] = bound_args[i]
+         else
+            calling_args[i] = actual_args[i - number_of_bound_args]
+         end
+      end, fun.range(number_of_calling_args))
+      return f(table.unpack(calling_args, 1, number_of_calling_args))
+   end
+end
+
+--- Complement Functor
+-- @param predicate
+-- @return complement of predicate
+function functional.complement(predicate)
+   return function(...)
+      return not predicate(...)
+   end
+end
+
+--- Compositor Functor
+-- @param list of functions: f1, f2, f3, ..., fn-1, fn
+-- @return function fn(fn-1(...(f3(f2(f1))))))
+function functional.compose(...)
+   local list_of_functions = { ... }
+   -- Can be written using function name
+   return functional.Y(function(rec)
+      return function(...)
+         local args = { ... }
+         -- return functional.Y(function(rec)
+         local result = table.pack(list_of_functions[1](table.unpack(args)))
+         table.remove(list_of_functions, 1)
+         if #list_of_functions == 0 then
+            return table.unpack(result)
+         else
+            return rec(table.unpack(result))
+         end
+      end
+   end)
+end
+
+function functional.memoize(f)
+   local cache = {}
+   --- TODO: use hash to compute index for various parameters
+   --return function(...)
+   return function(x)
+      if cache[x] == nil then
+         cache[x] = f(x)
+      end
+      return cache[x]
+   end
+end
+
+-- Combinators
+
+-- λa.a                  I    Identity              Moses Schönfinkel    1924
+functional.I = function(a)
+   return a
+end
+
+-- λab.a                 K    Kestrel               Moses Schönfinkel    1924
+functional.K = function(a)
+   return function(_)
+      return a
+   end
+end
+
+-- λab.b                 κ    Kite
+functional.Ki = function(_)
+   return function(b)
+      return b
+   end
+end
+
+-- λab.abb               W    Warbler               Haskell Curry        1931
+---functional.W = function(_)
+--- return function(b)
+---  return b
+--end
+-- end
+
+-- λabc.acb              C    Cardinal              Moses Schönfinkel    1924
+functional.C = function(a)
+   return function(b)
+      return function(c)
+         return a(b)(c)
+      end
+   end
+end
+
+-- λa.aa                 M    Mockingbird           Raymond Smullyan     1985
+functional.M = function(a)
+   return a(a)
+end
+
+-- λabc.a(bc)            B    Bluebird              Moses Schönfinkel    1924
+functional.B = function(a)
+   return function(b)
+      return function(c)
+         return a(b(c))
+      end
+   end
+end
+
+-- λabcd.a(bcd)          B₁   Blackbird             Haskell Curry        1931
+functional.B1 = function(a)
+   return function(b)
+      return function(c)
+         return function(d)
+            return a(b(c)(d))
+         end
+      end
+   end
+end
+
+-- λab.ba                T    Thrush
+functional.T = function(a)
+   return function(b)
+      return b(a)
+   end
+end
+
+-- λabc.cab              V    Vireo
+functional.V = function(a)
+   return function(b)
+      return function(c)
+         return c(a)(b)
+      end
+   end
+end
+
+-- Fixed-point combinator
+-- Y=λf.(λx.f(xx))(λx.f(xx))
+-- For eager languages like Lua:
+-- Z=λf.(λx.f(λy.xxy))(λx.f(λy.xxy))
+functional.Y = function(f)
+   return (function(x)
+      return f(function(...)
+         return x(x)(...)
+      end)
+   end)(function(x)
+      return f(function(...)
+         return x(x)(...)
+      end)
+   end)
+end
+
+-- This works too
+functional.YY = function(f)
+   return (function(x)
+      return x(x)
+   end)(function(x)
+      return f(function(...)
+         return x(x)(...)
+      end)
+   end)
+end
+
+-- λabcde.a(bcde)        B₂   Bunting               Haskell Curry        1931
+-- λabcd.a(b(cd))        B₃   Becard                Haskell Curry        1931
+-- λabc.ac(bc)           S    Starling              Moses Schönfinkel    1924
+-- λabc.a(bc)c           Σ    Violet Starling
+-- λabcd.ab(cd)          D    Dove                  Raymond Smullyan     1985
+-- λabcd.a(bc)d          Δ    Zebra Dove
+-- λabcd.a(bd)(cd)       Φ    Phoenix               Haskell Curry        1931
+-- λabcd.a(bc)(bd)       Ψ    Psi                   Haskell Curry        1931
+-- λabcde.abc(de)        D₁   Dickcissel
+-- λabcde.a(bc)(de)      D₂   Dovekie               Raymond Smullyan     1985
+-- λabcde.ab(cde)        E    Eagle                 Raymond Smullyan     1985
+-- λabcde.a(bcd)e        ε    Golden Eagle    ..
+-- λabcd.ab(cbd)         N    Eastern Nicator
+-- λabcd.a(bcd)d         ν    Western Nicator
+-- λabcde.a(bde)(cde)    Φ₁   Pheasant              Haskell Curry        1931
+-- λabcdefg.a(bcd)(efg)  Ê 	Bald Eagle            Raymond Smullyan     1985
+
+return functional

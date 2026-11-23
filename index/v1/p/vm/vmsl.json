@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "vmsl",
+  "versions": {
+    "1.1-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/pessoa736/VectorAndMatrixSystemLua",
+      "license": "MIT",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Tue, 17 Feb 2026 17:35:00 GMT",
+        "rockspec": {
+          "date": "Tue, 17 Feb 2026 17:35:00 GMT",
+          "sha256": "ec590e0884811fc92ef4edb24308cb7d088b7941e58775bcc0f18565248d6c98",
+          "size": 794
+        },
+        "src": {
+          "date": "Tue, 17 Feb 2026 17:35:01 GMT",
+          "sha256": "44b677c085181e8ab5e58f43706aff6a43ff460d0085aa37fda6ff2b79665258",
+          "size": 53556,
+          "url": "https://luarocks.org/vmsl-1.1-2.src.rock"
+        }
+      },
+      "modules": [
+        "matrix",
+        "vectors"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "matrix",
+              "sources": [
+                "src/matrix.c"
+              ]
+            },
+            {
+              "name": "vectors",
+              "sources": [
+                "src/vector.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 17 Feb 2026 17:35:01 GMT",
+        "sha256": "44b677c085181e8ab5e58f43706aff6a43ff460d0085aa37fda6ff2b79665258",
+        "size": 53556,
+        "type": "luarocks",
+        "url": "https://luarocks.org/vmsl-1.1-2.src.rock"
+      },
+      "summary": "Fast Lua library for N-dimensional vectors and M×N matrices (C implementation).",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

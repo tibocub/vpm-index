@@ -1,0 +1,146 @@
+local md = require 'discount'
+local sfs = require 'sfs'
+local yaml = require 'yaml'
+
+if vim then
+	-- TODO: why the heck does lpeglabel not work inside nvim? kick their ass and submit a pull request that fixes their **stack smashin** issue
+	package.loaded.lpeglabel = vim.lpeg
+	package.loaded.relabel = require 're'
+	package.loaded.relabel.calcline = function() return '<unsuppored inside neovim>' end
+else
+	package.loaded.lpeg = require 'lpeglabel'
+end
+
+local hl = require 'syntaxhighlight'
+local xml = require 'xmlpeg'
+
+--
+
+local function unescape(html)
+	return html:gsub('&amp;', '&'):gsub('&lt;', '<'):gsub('&gt;', '>')
+end
+
+--
+
+local pmd3 = {}
+
+pmd3.head = [[
+	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+
+	<style>
+
+	body
+	{
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+		font-size: 14px;
+		line-height: 1.6;
+	}
+
+	.task-list-item { list-style-type: none; }
+	.task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+
+	/** MathJax */
+
+	mjx-stretchy-h mjx-c:empty { width: 100% !important; }
+	mjx-stretchy-h mjx-c:empty:before { content: "" !important; border-top: .01em solid currentcolor !important; transform: none !important; width: 100%; }
+
+	/** Theming */
+
+	.vscode-light pre {
+		background-color: rgba(220, 220, 220, 0.4);
+	}
+
+	.vscode-dark pre {
+		background-color: rgba(10, 10, 10, 0.4);
+	}
+
+	.vscode-high-contrast pre {
+		background-color: rgb(0, 0, 0);
+	}
+
+	.vscode-high-contrast h1 {
+		border-color: rgb(0, 0, 0);
+	}
+
+	.vscode-light table > thead > tr > th {
+		border-color: rgba(0, 0, 0, 0.69);
+	}
+
+	.vscode-dark table > thead > tr > th {
+		border-color: rgba(255, 255, 255, 0.69);
+	}
+
+	.vscode-light h1,
+	.vscode-light hr,
+	.vscode-light table > tbody > tr + tr > td {
+		border-color: rgba(0, 0, 0, 0.18);
+	}
+
+	.vscode-dark h1,
+	.vscode-dark hr,
+	.vscode-dark table > tbody > tr + tr > td {
+		border-color: rgba(255, 255, 255, 0.18);
+	}
+
+	.hljs-attr,
+	.hljs-attribute
+	{
+		color: #14c !important;
+	}
+	.hljs-number,
+	.hljs-class,
+	.hljs-type,
+	.hljs-title, /* methods */
+	.hljs-variable
+	{
+		color: #198 !important;
+	}
+	</style>
+
+	<body class="vscode-body vscode-light">
+		<div class="markdown-body">
+]]
+
+pmd3.foot = [[
+		</div>
+	</body>
+]]
+
+---Renders the given Paged Markdown 3 source to HTML
+---@param pmd_str string Input paged markdown source
+---@param filename string Path to the source file on disk for resolving relative auxiliary files such as `design.css`
+---@return string html HTML markup of the rendered Paged Markdown 3 document
+---@return table? meta Table containing key-value pairs of the markdown YAML metadata
+function pmd3.render(pmd_str, filename)
+	local meta
+	local htm = md.to_html((pmd_str:gsub('%-%-%-\r?\n(.*)\n%-%-%-\r?\n', function(_m)
+		meta = yaml.eval(_m)
+		return ''
+	end)), "nopants", "autolink", "fencedcode", "latex", "anyblock")
+
+	xml.htmlopts.allowimplicit = true
+	local html = assert(xml.decode('[' .. sfs.getBaseName(filename) .. ' html]', htm, xml.htmlopts))
+
+	for h in xml.query(html, function(node) return node.tag:find '^h%d+$' ~= nil end) do
+		if not h.attrs.id then
+			local text = {}
+			for _, node in ipairs(h.body --[[@as (string|xmlpeg.Node)[] ]]) do
+				if type(node) == 'string' then table.insert(text, node) end
+			end
+			h.attrs.id = table.concat(text, ' '):lower():gsub('[^a-z0-9]', '-'):gsub('%-+', '-')
+		end
+	end
+
+	for c in xml.query(html, function(node) return node.tag == 'code' and node.attrs.class ~= nil end) do
+		local lang = c.attrs.class
+		c.attrs.class = 'code-line language-' .. lang
+		c.body[1] = hl.highlight_to_html(lang, unescape(c.body[1]), { class_prefix = 'hljs-', bare = true })
+	end
+
+	return xml.encode(html, { preservewhitespace = true }), meta
+end
+
+return pmd3

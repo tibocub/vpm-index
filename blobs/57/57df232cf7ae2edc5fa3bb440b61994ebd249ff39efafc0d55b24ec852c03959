@@ -1,0 +1,49 @@
+local pm      = require 'piecemeal'
+
+local lexer   = require 'cni.lexer'
+local parser  = require 'cni.parser'
+local compile = require 'cni.data'
+
+local cni = {
+	new = function(self, o)
+		local kv = {}
+		if o and o.kv then
+			for k, v in pairs(o.kv) do
+				kv[k] = v
+			end
+		end
+		o = {
+			input = '',
+			lexer = lexer(),
+			prefix = '',
+			kv = kv,
+		}
+		setmetatable(o, self)
+		self.__index = self
+		return o
+	end,
+	reset = function(self)
+		self.prefix = ''
+	end,
+	parse = function(self, text)
+		local out, eind, find = pm.parse(text, self.lexer, parser)
+		for _, v in ipairs(out) do
+			if v.type == 'section' then
+				if v.name == ''
+					then self.prefix = ''
+					else self.prefix = v.name .. '.'
+				end
+			elseif v.type == 'kv' then
+				self.kv[self.prefix .. v.key] = v.value
+			else
+				print 'WARN'
+				-- TODO: error out
+			end
+		end
+		return find
+	end,
+	compile = function(self)
+		return compile(self.kv)
+	end,
+}
+return cni:new()

@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-subdomain-as-header",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/subdomain-as-header/handler.lua": {
+          "sha256": "fcda15f02896ec68bd0c65d67c62ffa5843d676b77516de74e7fc77afcf79a92",
+          "size": 590,
+          "url": "https://raw.githubusercontent.com/theundeadmonk/subdomain-as-header/e40d16d16bd4eab84a586d5779f40a96475a3673/kong/plugins/subdomain-as-header/handler.lua"
+        },
+        "kong/plugins/subdomain-as-header/schema.lua": {
+          "sha256": "7cf8b94999d2880f051144a20ac8931d7c6d64f6abdfcf8ee30f78bc8f6dd2e2",
+          "size": 562,
+          "url": "https://raw.githubusercontent.com/theundeadmonk/subdomain-as-header/e40d16d16bd4eab84a586d5779f40a96475a3673/kong/plugins/subdomain-as-header/schema.lua"
+        }
+      },
+      "homepage": "https://theundeadmonk.github.io/subdomain-as-header",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Wed, 28 Dec 2022 23:57:24 GMT",
+        "rockspec": {
+          "date": "Wed, 28 Dec 2022 23:57:24 GMT",
+          "sha256": "5cd721606649b8ea5167618bcced2ce9ca96967397fdeea338d9346366294ec1",
+          "size": 1109
+        }
+      },
+      "modules": [
+        "kong.plugins.subdomain-as-header.handler",
+        "kong.plugins.subdomain-as-header.schema"
+      ],
+      "origin": {
+        "commit": "e40d16d16bd4eab84a586d5779f40a96475a3673",
+        "ref": "v0.1.0",
+        "type": "git",
+        "url": "https://github.com/theundeadmonk/subdomain-as-header.git"
+      },
+      "size": 1152,
+      "summary": "This is a Kong Plugin that extracts the subdomain from a url and sets it as a header.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

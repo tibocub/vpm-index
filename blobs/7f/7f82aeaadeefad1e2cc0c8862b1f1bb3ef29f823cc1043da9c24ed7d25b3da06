@@ -1,0 +1,311 @@
+-- TOML configuration loading & validation.
+--
+-- `load_file` / `load_string` parse a TOML document (using the built-in
+-- pure-Lua parser in `htb.toml`) and build a `htb.model.TrafficConfig`.
+--
+-- A custom parser may be installed with `config.set_parser(fn)` where
+-- `fn(toml_text) -> table` returns the decoded tree (nested tables for
+-- `[section.sub]`, scalars / inline tables for keys).
+
+local Model = require("htb.model")
+local errors = require("htb.errors")
+local toml = require("htb.toml")
+
+local M = {}
+
+-- Active TOML parser (text -> table). Defaults to the built-in pure-Lua one.
+local parser = function(text)
+    return toml.decode(text)
+end
+
+-- Override the TOML parser (used by tests and embedders).
+function M.set_parser(fn)
+    parser = fn
+end
+
+-- Return the active parser (mainly for tests).
+function M.get_parser()
+    return parser
+end
+
+-- Split a var value like "1000mbit" into its numeric part and unit suffix.
+local function splitNumUnit(s)
+    local num, unit = tostring(s):match("^([%d%.]+)(.*)$")
+    return tonumber(num), (unit or "")
+end
+
+-- Evaluate a simple arithmetic expression (numbers, + - * / ( ) and var
+-- identifiers) against `vars`. Identifiers resolve to the numeric part of a
+-- var; the result is rounded to an integer and the unit of the first var used
+-- is re-appended. Returns nil if the expression can't be evaluated.
+local function evalExpr(expr, vars)
+    local unit
+    local failed = false
+    -- Identifier = starts with a word char (so a standalone "-" operator is
+    -- never consumed) but may contain hyphens internally (e.g. "my-var").
+    local substituted = expr:gsub("[%w_]+[%w_%-]*", function(tok)
+        local v = vars[tok]
+        if v ~= nil then
+            local num, u = splitNumUnit(v)
+            if num == nil then
+                failed = true
+                return ""
+            end
+            if unit == nil then
+                unit = u
+            end
+            return "(" .. num .. ")"
+        elseif tok:match("^[%d%.]+$") then
+            return tok -- numeric literal
+        else
+            failed = true
+            return ""
+        end
+    end)
+    if failed then
+        return nil
+    end
+    -- After substitution only digits/operators/parens/spaces may remain, so
+    -- compiling it below cannot execute arbitrary code.
+    if not substituted:match("^[%d%+*/().%s%-]*$") then
+        return nil
+    end
+    local fn = load("return (" .. substituted .. ")")
+    if not fn then
+        return nil
+    end
+    local ok, result = pcall(fn)
+    -- Reject NaN (result ~= result), +inf (result == math.huge), and negative
+    -- results (which also catches -inf): any of these would produce an invalid
+    -- rate like "infmbit" in the tc script.
+    if not ok or type(result) ~= "number"
+        or result ~= result or result == math.huge or result < 0 then
+        return nil
+    end
+    return tostring(math.floor(result + 0.5)) .. (unit or "")
+end
+
+-- Recursively replace `{...}` tokens in string values using `vars`. A token
+-- that is a bare identifier is looked up directly; any other token is treated
+-- as a simple arithmetic expression over the vars. Unresolvable tokens are
+-- left untouched. Tables are interpolated in place.
+local function interpolate(value, vars)
+    if type(value) == "string" then
+        return (value:gsub("{([^{}]+)}", function(raw)
+            local expr = raw:match("^%s*(.-)%s*$")
+            local v = vars[expr]
+            if v ~= nil then
+                return tostring(v)
+            end
+            local r = evalExpr(expr, vars)
+            return r or ("{" .. raw .. "}")
+        end))
+    elseif type(value) == "table" then
+        for k, v in pairs(value) do
+            value[k] = interpolate(v, vars)
+        end
+        return value
+    end
+    return value
+end
+
+-- Split a raw section table into known fields and leftover params.
+-- `knownKeys` is a list of key names; matched keys go into `fields`,
+-- everything else is preserved in `params`.
+local function splitParams(data, knownKeys)
+    local fields = {}
+    local params = {}
+    local paramOrder = {}
+    for k, v in toml.orderedPairs(data) do
+        local known = false
+        for _, key in ipairs(knownKeys) do
+            if k == key then
+                known = true
+                break
+            end
+        end
+        if known then
+            fields[k] = v
+        else
+            params[k] = v
+            paramOrder[#paramOrder + 1] = k
+        end
+    end
+    toml.setOrder(params, paramOrder)
+    return fields, params
+end
+
+local function liftQdisc(name, data)
+    data = data or {}
+    local f, params = splitParams(data, { "dev", "type", "parent", "handle", "default" })
+    return Model.newQdisc(name, f.type or "htb", f.dev or "", {
+        parent = f.parent or "root",
+        handle = f.handle or "",
+        default = f.default or "",
+        params = params,
+    })
+end
+
+local function liftClass(name, data)
+    data = data or {}
+    local f, params = splitParams(data, { "type", "parent" })
+    return Model.newClass(name, {
+        class_type = f.type or "htb",
+        parent = f.parent or "",
+        params = params,
+    })
+end
+
+-- Build the actions list from a match section's `action` field, which may be
+-- a string (action name) or an inline table ({type=..., ...}).
+local function liftActions(action)
+    local actions = {}
+    if type(action) == "string" then
+        actions[#actions + 1] = Model.newAction(action, {})
+    elseif type(action) == "table" then
+        local aparams = {}
+        for k, v in pairs(action) do
+            if k ~= "type" then
+                aparams[k] = v
+            end
+        end
+        actions[#actions + 1] = Model.newAction(action.type or "", aparams)
+    end
+    return actions
+end
+
+local function liftFilter(name, data)
+    data = data or {}
+    local f, params = splitParams(data, {
+        "type", "dev", "parent", "sendTo", "protocol", "prio", "handle", "ip", "action",
+    })
+    return Model.newFilter(name, {
+        filter_type = f.type or "u32",
+        device = f.dev or "",
+        parent = f.parent or "",
+        send_to = f.sendTo or "",
+        protocol = f.protocol or "",
+        prio = f.prio or "",
+        handle = f.handle or "",
+        ip_matches = f.ip or {},
+        match_params = params,
+        actions = liftActions(f.action),
+    })
+end
+
+-- Lift devices from the merged `interfaces` / `devices` sections, preserving
+-- source order. Virtual IFB devices get their `modprobe` / `ip link` setup
+-- commands (numifbs is the total count of IFB virtual devices).
+local function liftDevices(cfg, tree)
+    local order = {}
+    local raw = {}
+    local function addSection(section)
+        if type(section) == "table" then
+            for name, data in toml.orderedPairs(section) do
+                if raw[name] == nil then
+                    order[#order + 1] = name
+                end
+                raw[name] = data
+            end
+        end
+    end
+    addSection(tree.interfaces)
+    addSection(tree.devices)
+
+    local ifbCount = 0
+    for _, name in ipairs(order) do
+        local data = raw[name]
+        if type(data) == "table" and data.virtual and tostring(data.type or "") == "ifb" then
+            ifbCount = ifbCount + 1
+        end
+    end
+
+    for _, name in ipairs(order) do
+        local data = raw[name]
+        if type(data) == "table" then
+            local devName = data.dev or name
+            local virtual = data.virtual or false
+            local devType = tostring(data.type or "")
+            local setup = {}
+            if virtual and devType == "ifb" then
+                setup = {
+                    "modprobe ifb numifbs=" .. ifbCount,
+                    "ip link set dev " .. devName .. " up",
+                }
+            end
+            cfg.devices[name] = Model.newDevice(name, devName, {
+                virtual = virtual,
+                dev_type = devType,
+                setup_commands = setup,
+            })
+        else
+            cfg.devices[name] = Model.newDevice(name, tostring(data))
+        end
+    end
+end
+
+-- Build a TrafficConfig from a decoded TOML tree.
+local function buildConfig(tree)
+    if type(tree) ~= "table" then
+        errors.newConfigError("TOML document is empty or invalid"):raise()
+    end
+    local cfg = Model.newTrafficConfig()
+    cfg.unit = tree.unit or ""
+    cfg.tc = tree.tc or "tc"
+
+    -- Variables + `{name}` interpolation across the whole tree.
+    local vars = tree.vars or tree.variables or {}
+    cfg.variables = vars
+    interpolate(tree, vars)
+
+    if type(tree.speeds) == "table" then
+        for k, v in pairs(tree.speeds) do
+            cfg.speeds[k] = tostring(v)
+        end
+    end
+
+    if type(tree.hosts) == "table" then
+        for k, v in pairs(tree.hosts) do
+            cfg.hosts[k] = (type(v) == "table") and (v.ip or "") or tostring(v)
+        end
+    end
+
+    liftDevices(cfg, tree)
+
+    if type(tree.shaper) == "table" then
+        for name, data in toml.orderedPairs(tree.shaper) do
+            cfg.qdiscs[#cfg.qdiscs + 1] = liftQdisc(name, data)
+        end
+    end
+
+    if type(tree.class) == "table" then
+        for name, data in toml.orderedPairs(tree.class) do
+            cfg.classes[#cfg.classes + 1] = liftClass(name, data)
+        end
+    end
+
+    if type(tree.match) == "table" then
+        for name, data in toml.orderedPairs(tree.match) do
+            cfg.filters[#cfg.filters + 1] = liftFilter(name, data)
+        end
+    end
+
+    return cfg
+end
+
+function M.load_string(text)
+    local tree = parser(text)
+    return buildConfig(tree)
+end
+
+function M.load_file(path)
+    local f = io.open(path, "r")
+    if not f then
+        errors.newConfigError("file not found: " .. tostring(path)):raise()
+    end
+    local text = f:read("*a")
+    f:close()
+    return M.load_string(text)
+end
+
+return M

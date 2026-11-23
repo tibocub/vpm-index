@@ -1,0 +1,141 @@
+-- ============================================================
+-- Shiva Test — Main Entry Point
+-- require('shiva-test') returns this table.
+-- ============================================================
+
+-- ── Sub-modules ─────────────────────────────────────────────
+
+local Runner     = require('src.runner')
+local Environment = require('src.environment')
+local Events     = require('src.events')
+local Exports    = require('src.exports')
+local Natives    = require('src.natives')
+local StateBags  = require('src.statebags')
+local Database   = require('src.database')
+
+-- ========================
+-- Public Test table
+-- ========================
+
+---@class ShivaTest
+local Test = {}
+
+-- ── Runner API ───────────────────────────────────────────────
+
+Test.describe   = Runner.describe
+Test.it         = Runner.it
+Test.test       = Runner.it   -- alias
+Test.expect     = Runner.expect
+Test.beforeEach = Runner.beforeEach
+Test.afterEach  = Runner.afterEach
+Test.run        = Runner.run
+Test.reset      = Runner.reset
+
+-- ── Environment ──────────────────────────────────────────────
+
+---@param opts? SetupOptions
+function Test.setup(opts)
+    Environment.setup(opts)
+
+    -- Auto-reset environment between suites if using beforeEach
+    -- (user can also call Test.resetEnv() manually)
+end
+
+function Test.resetEnv()
+    Environment.reset()
+end
+
+-- ── Native mocks ─────────────────────────────────────────────
+
+---@param name string
+---@param fn   function
+function Test.mockNative(name, fn)
+    Natives.mock(name, fn)
+end
+
+---@param name  string
+---@param value any
+function Test.setNativeReturn(name, value)
+    Natives.setReturn(name, value)
+end
+
+-- ── Event assertions ─────────────────────────────────────────
+
+Test.assertEventFired      = Events.assertFired
+Test.assertEventNotFired   = Events.assertNotFired
+Test.assertEventFiredWith  = Events.assertFiredWith
+Test.assertEventFiredTimes = Events.assertFiredTimes
+Test.getEventLog           = Events.getLog
+Test.clearEventLog         = Events.clearLog
+
+-- ── Export mocks ─────────────────────────────────────────────
+
+---@param resource string
+---@param fnName   string
+---@param fn       function
+function Test.mockExport(resource, fnName, fn)
+    Exports.mock(resource, fnName, fn)
+end
+
+-- ── Database helpers ─────────────────────────────────────────
+
+Test.db = {
+    --- Execute any SQL (CREATE, INSERT, SELECT, UPDATE, DELETE).
+    ---@param sql    string
+    ---@param params? table
+    execute = function(sql, params)
+        return Database.execute(sql, params)
+    end,
+
+    --- SELECT — returns array of rows.
+    ---@param sql    string
+    ---@param params? table
+    query = function(sql, params)
+        return Database.query(sql, params)
+    end,
+
+    --- SELECT first row only.
+    ---@param sql    string
+    ---@param params? table
+    single = function(sql, params)
+        return Database.single(sql, params)
+    end,
+
+    --- Wipe all tables.
+    reset = function()
+        Database.reset()
+    end,
+
+    --- Get all rows in a table (for assertions).
+    ---@param name string
+    getRows = function(name)
+        return Database.getRows(name)
+    end,
+}
+
+-- ── State bag helpers ────────────────────────────────────────
+
+Test.StateBags = StateBags
+
+-- ── beforeEach / afterEach convenience on Test ───────────────
+-- (already wired above via Runner references)
+
+-- ── Framework-specific helpers ───────────────────────────────
+
+--- Access the QBCore mock helper (only after Test.setup({ framework='qbcore' }))
+Test.QBCore = setmetatable({}, {
+    __index = function(_, k)
+        local ok, m = pcall(require, 'src.mocks.qbcore')
+        if ok then return m[k] end
+    end,
+})
+
+--- Access the ESX mock helper (only after Test.setup({ framework='esx' }))
+Test.ESX = setmetatable({}, {
+    __index = function(_, k)
+        local ok, m = pcall(require, 'src.mocks.esx')
+        if ok then return m[k] end
+    end,
+})
+
+return Test

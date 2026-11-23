@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "lightningmdb",
+  "versions": {
+    "0.9.22.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/shmul/lightningmdb",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 26 May 2018 07:22:03 GMT",
+        "rockspec": {
+          "date": "Sat, 26 May 2018 07:22:03 GMT",
+          "sha256": "6af2644fd5478637eaf2bb81b6a0a1cc306e66eb66bae10a53b8b0107401a5fd",
+          "size": 916
+        },
+        "src": {
+          "date": "Sat, 26 May 2018 07:22:05 GMT",
+          "sha256": "d836709e8a1374eb8913f0e9787bb3f0fc4d49b29e01112691b619f7d1355f8c",
+          "size": 19153,
+          "url": "https://luarocks.org/lightningmdb-0.9.22.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "lightningmdb"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LMDB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LMDB": {
+              "header": "lmdb.h",
+              "library": "lmdb"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "USE_GLOBALS"
+              ],
+              "incdirs": [
+                "$(LMDB_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LMDB_LIBDIR)"
+              ],
+              "libraries": [
+                "lmdb"
+              ],
+              "name": "lightningmdb",
+              "sources": [
+                "lightningmdb.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lightningmdb-0.9.22.1-1"
+      },
+      "origin": {
+        "date": "Sat, 26 May 2018 07:22:05 GMT",
+        "sha256": "d836709e8a1374eb8913f0e9787bb3f0fc4d49b29e01112691b619f7d1355f8c",
+        "size": 19153,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lightningmdb-0.9.22.1-1.src.rock"
+      },
+      "summary": "A thin wrapper around OpenLDAP Lightning Memory-Mapped Database (LMDB).",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

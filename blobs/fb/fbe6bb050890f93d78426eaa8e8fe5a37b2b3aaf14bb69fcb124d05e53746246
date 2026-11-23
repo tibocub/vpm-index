@@ -1,0 +1,38 @@
+local _module_0 = { }
+local string = require('string')
+local path = require('path')
+local info = require('path.info')
+local package = require('package')
+local modules_searcher
+modules_searcher = function(dir, lang)
+	return function(mod)
+		if string.sub(mod, 1, 2) ~= '_.' then
+			return
+		end
+		mod = string.sub(mod, 3)
+		mod = string.gsub(mod, '%.', info.sep)
+		local name = path(dir, mod .. lang.ext)
+		if path.isfile(name) then
+			return (function()
+				return assert(lang.loader(name))
+			end), name
+		end
+		name = path(dir, mod, 'init' .. lang.ext)
+		if path.isfile(name) then
+			return (function()
+				return assert(lang.loader(name))
+			end), name
+		end
+	end
+end
+local build
+build = function(elandir, cfg)
+	local rootdir = path(elandir, 'modules')
+	do
+		local _obj_0 = package.loaders
+		_obj_0[#_obj_0 + 1] = modules_searcher(rootdir, cfg.lang)
+	end
+	return true
+end
+_module_0["build"] = build
+return _module_0

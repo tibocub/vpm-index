@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-post-auth-hook",
+  "versions": {
+    "1.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/post-auth-hook/access.lua": {
+          "sha256": "b88fe52882ff6d4f1b8182e1688e340a179302b9b9f990b95121613923cd1d37",
+          "size": 4368,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-post-auth-hook/653d1361404a6c5668e7a1808e930faf90b5300c/kong/plugins/post-auth-hook/access.lua"
+        },
+        "kong/plugins/post-auth-hook/handler.lua": {
+          "sha256": "35c4e15d1fc81e31e8a58d7ce64009a864eac2acc55355d6235eec2f4aa0dfba",
+          "size": 1498,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-post-auth-hook/653d1361404a6c5668e7a1808e930faf90b5300c/kong/plugins/post-auth-hook/handler.lua"
+        },
+        "kong/plugins/post-auth-hook/schema.lua": {
+          "sha256": "73eb5783d98b8767556fe2328c226e7bc23970327356715df28ea72d6958a598",
+          "size": 1808,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-post-auth-hook/653d1361404a6c5668e7a1808e930faf90b5300c/kong/plugins/post-auth-hook/schema.lua"
+        },
+        "kong/plugins/post-auth-hook/utilities.lua": {
+          "sha256": "0df16faf186beb91e9c620770e8f07e150774a4d8bc52b09b7b7612d8dae451a",
+          "size": 1361,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-post-auth-hook/653d1361404a6c5668e7a1808e930faf90b5300c/kong/plugins/post-auth-hook/utilities.lua"
+        }
+      },
+      "homepage": "https://github.com/newtonx-inc/kong-post-auth-hook",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 08 Feb 2021 21:09:57 GMT",
+        "rockspec": {
+          "date": "Mon, 08 Feb 2021 21:09:57 GMT",
+          "sha256": "7afb2135eaab183dab4663ff7367b98f6cedabb9eb81a33380eb8687172aa31d",
+          "size": 1256
+        }
+      },
+      "modules": [
+        "kong.plugins.post-auth-hook.access",
+        "kong.plugins.post-auth-hook.handler",
+        "kong.plugins.post-auth-hook.schema",
+        "kong.plugins.post-auth-hook.utilities"
+      ],
+      "origin": {
+        "commit": "653d1361404a6c5668e7a1808e930faf90b5300c",
+        "ref": "v1.0-2",
+        "type": "git",
+        "url": "https://github.com/newtonx-inc/kong-post-auth-hook"
+      },
+      "size": 9035,
+      "summary": "A Kong plugin for performing configurable operations after auth plugins run",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "pl.pretty"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-headers-validation",
+  "versions": {
+    "1.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/headers-validation/handler.lua": {
+          "sha256": "00fb7db27cc2d1a31cdd8f472c874673c293ae123ad8ab8821c1b549c26c6ff8",
+          "size": 3272,
+          "url": "https://raw.githubusercontent.com/alisonjf/kong-headers-validation-plugin/e1a674cdb0acccd88ebac4ce333bc4230f3f3d1d/src/handler.lua"
+        },
+        "kong/plugins/headers-validation/schema.lua": {
+          "sha256": "87c4f2d626a5bda5370e03cee517df0b9f614bf2ccff99f339d26b4ba543b6ad",
+          "size": 1185,
+          "url": "https://raw.githubusercontent.com/alisonjf/kong-headers-validation-plugin/e1a674cdb0acccd88ebac4ce333bc4230f3f3d1d/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/alisonjf/kong-headers-validation-plugin.git",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sat, 31 Jul 2021 16:30:50 GMT",
+        "rockspec": {
+          "date": "Sat, 31 Jul 2021 16:30:50 GMT",
+          "sha256": "22c1499e45e8faa0dddc984900ac119d6066269a32c12b8a2c72db9f28dce362",
+          "size": 620
+        },
+        "src": {
+          "date": "Sat, 31 Jul 2021 16:30:51 GMT",
+          "sha256": "73d17f6e691a4c9ede41b8625b4ffc3dc99dc6e1715ea1548bed97bc05ecd6ef",
+          "size": 4266,
+          "url": "https://luarocks.org/kong-plugin-headers-validation-1.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.headers-validation.handler",
+        "kong.plugins.headers-validation.schema"
+      ],
+      "origin": {
+        "commit": "e1a674cdb0acccd88ebac4ce333bc4230f3f3d1d",
+        "type": "git",
+        "url": "https://github.com/alisonjf/kong-headers-validation-plugin.git"
+      },
+      "size": 4457,
+      "summary": "A plugin for Kong which validate dynamic headers expected types and values",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

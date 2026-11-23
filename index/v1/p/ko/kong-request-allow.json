@@ -1,0 +1,56 @@
+{
+  "kind": "lib",
+  "name": "kong-request-allow",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-request-allow/handler.lua": {
+          "sha256": "7c4bad99ba969a0ba45eaaba1d3081967e5b6be774b3be205351087fb067b5a4",
+          "size": 1994,
+          "url": "https://raw.githubusercontent.com/ammarnajjar/kong-request-allow/67b97cb44cd3b9fd6db96b6cc89da0fd7cbf8957/src/handler.lua"
+        },
+        "kong/plugins/kong-request-allow/schema.lua": {
+          "sha256": "b6177ea310b3b7194a026232178a2f36776b75c666d6151f5757d9b4a55a4322",
+          "size": 1741,
+          "url": "https://raw.githubusercontent.com/ammarnajjar/kong-request-allow/67b97cb44cd3b9fd6db96b6cc89da0fd7cbf8957/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "luarocks": {
+        "date": "Fri, 23 Jun 2023 07:26:06 GMT",
+        "rockspec": {
+          "date": "Fri, 23 Jun 2023 07:26:06 GMT",
+          "sha256": "bcc2f125bd83f475ec1a354cd6b9373742c5c1ab9a73c0b7942cee1e3107a720",
+          "size": 449
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-request-allow.handler",
+        "kong.plugins.kong-request-allow.schema"
+      ],
+      "origin": {
+        "commit": "67b97cb44cd3b9fd6db96b6cc89da0fd7cbf8957",
+        "ref": "v0.1.0",
+        "type": "git",
+        "url": "https://github.com/ammarnajjar/kong-request-allow"
+      },
+      "size": 3735,
+      "summary": "Kong plugin to allow requests based on trigger key and value pair.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.meta"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.meta",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

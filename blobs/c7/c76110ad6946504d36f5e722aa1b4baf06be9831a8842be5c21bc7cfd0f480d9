@@ -1,0 +1,27 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A json.decode() function.
+local JsonDecodeFn = {}
+JsonDecodeFn.__index = JsonDecodeFn
+setmetatable(JsonDecodeFn, {__index = Terminal})
+package.loaded[...] = JsonDecodeFn
+
+--Constructor.
+function JsonDecodeFn.new(ln, col, type, exp)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.JSON_DECODE, {line = ln, col = col}), JsonDecodeFn)
+  self.asType = type
+  self.exp = exp
+
+  --(2) return
+  return self
+end
+
+--@override
+function JsonDecodeFn:__tostring()
+  return string.format("(json.decode %s %s)", self.asType, tostring(self.exp))
+end

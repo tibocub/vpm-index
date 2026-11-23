@@ -1,0 +1,163 @@
+--- sys.lua
+-- @module sys
+
+local sys = {}
+
+local unistd = require("posix.unistd")
+local path = require("pl.path")
+local inspect = require("inspect")
+
+local bennu = require("bennu")
+local base = require("bennu.base")
+local functional = require("bennu.functional")
+
+sys.superuser = "root"
+
+--- creates a temporary filsystem object
+-- @function mktemp
+---@tparam string type of object
+---@tparam string unix permissions to be applied upon creation
+function sys.mktemp(type, permissions)
+   assert(type)
+   bennu.logdebug("mktemp. Type %s. Permissions %s", type, permissions)
+   local tmpname = sys.tmpname()
+   if type ~= "file" then
+      os.remove(tmpname)
+      local make = {
+         dir = path.mkdir,
+         fifo = path.mkfifo,
+      }
+      make[type](tmpname)
+   else
+   end
+   if permissions then
+      path.chmod(tmpname, permissions)
+   else
+   end
+   return tmpname
+end
+
+sys.tmpname = os.tmpname
+sys.mktempfile = functional.bind(sys.mktemp, "file")
+sys.mktempdir = functional.bind(sys.mktemp, "dir")
+
+local function get_lines(file_descriptor)
+   bennu.logdebug("Getting lines of file %s", file_descriptor)
+   local output_lines = {}
+   for line in io.lines(file_descriptor) do
+      table.insert(output_lines, line)
+   end
+   bennu.logdebug(table.concat(output_lines))
+   return output_lines
+end
+
+--- Executes and OS command as an user
+-- @function OS_command
+-- @tparam boolean reditect if true, redirect output and error
+-- @tparam string command
+function sys.execute_OS_command(redirect, oscommand)
+   -- print("IN EXEC OS", redirect, command)
+   assert(redirect ~= nil and oscommand)
+   local command
+   local stdout
+   local stderr
+   local stat
+   local code
+   local res
+   local out
+   local err
+   if redirect then
+      stdout = sys.mktempfile()
+      stderr = sys.mktempfile()
+      command = ("%s 1> %s 2> %s"):format(oscommand, stdout, stderr)
+   else
+      command = oscommand
+   end
+   bennu.logdebug("Executing command: %s", command)
+   res, stat, code = os.execute(command)
+   bennu.logdebug("Result: %s ", tostring(res))
+   if res == nil then
+      res = false
+   end
+   if res then
+      bennu.logdebug("The command terminated normally")
+      if stat == "exit" then
+         bennu.logdebug("The command exited with code %s", code)
+      elseif stat == "signal" then
+         bennu.logdebug("The command received signal %s", code)
+      else
+         base.handle_error("The command returned an invalid code: %s", code)
+      end
+   else
+      base.handle_error("The command returned a result value of %s", tostring(res))
+   end
+   if redirect then
+      out = get_lines(stdout)
+      err = get_lines(stderr)
+      os.remove(stdout)
+      os.remove(stderr)
+      --bennu.logdebug(inspect(output_lines))
+      --bennu.logdebug(inspect(error_lines))
+      --return res, output_lines, error_lines
+      --end
+   else
+      out = {}
+      err = {}
+   end
+   return res, out, err
+end
+
+function sys.execute_OS_command_as_user(redirect, type_of_output, command, user)
+   -- print("IN EXEC OS USER", redirect, type_of_output, command, user)
+   assert(redirect ~= nil and type_of_output and command)
+   local command_to_run
+   if user then
+      command_to_run = ("sudo -u %s %s"):format(user, command)
+   else
+      command_to_run = command
+   end
+   bennu.logdebug("Command is %s. User is: %s", command_to_run, user)
+   local res, out, err = sys.execute_OS_command(redirect, command_to_run)
+   bennu.logdebug("Result is %s", res)
+   bennu.logdebug("Out is %s", inspect(out))
+   bennu.logdebug("Err is %s", inspect(err))
+   if not res then
+      base.handle_error(table.unpack(err))
+   elseif type_of_output == "table" then
+      return out
+   elseif type_of_output == "string" then
+      return table.concat(out)
+   else
+      base.handle_error("Invalid type of output: %s", type_of_output)
+   end
+end
+
+--- get current user's name
+--- @function whoami
+function sys.whoami()
+   local command = "id -nu 2> /dev/null"
+   return sys.execute_OS_command_as_user(false, "string", command)
+end
+
+function sys.run_on_change(dir, ...)
+   if not dir then
+      dir = "."
+   else
+   end
+   local command_to_run = table.concat({ ... }, " ")
+   if command_to_run == "" then
+      command_to_run = "date"
+   else
+   end
+   bennu.logdebug("dir is %s. Command is %s", dir, command_to_run)
+   local waitcommand =
+      --string.format("cd %s ; inotifywait -r -e close_write,moved_to,create,delete . ; %s", dir, commandtorun)
+      ("inotifywait -r -e close_write,moved_to,create,delete %s ; %s"):format(dir, command_to_run)
+   bennu.logdebug("wait command: %s", waitcommand)
+   while true do
+      sys.execute_OS_command_as_user(false, "string", waitcommand)
+      unistd.sleep(1)
+   end
+end
+
+return sys

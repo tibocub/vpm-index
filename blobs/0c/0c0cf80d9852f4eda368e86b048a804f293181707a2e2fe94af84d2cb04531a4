@@ -1,0 +1,22 @@
+--[[--
+Model flags collection.
+
+@module pocket_archive.flags
+]]
+
+return {
+    -- Type flags. These apply to the `flags` key at the top-level schema object.
+    TYPE_SHALLOW_TREE = 1 << 0,   --- This type generates a shallow tree.
+
+    -- Property flags. These apply to the `flags` key in each property definition.
+    PROP_PROTECTED  = 1 << 0,   --- Property cannot be modified by user at any time.
+    PROP_NO_UPDATE  = 1 << 1,   --- Property cannot be modified by user once set.
+    PROP_NO_DELETE  = 1 << 2,   --- Existing values will not be deleted on update.
+    PROP_NO_MDLIST  = 1 << 3,   --- Exclude from metadata listing in presentation.
+    PROP_INDEX      = 1 << 4,   --- Index in search engine: term can be searched by.
+    PROP_MULTILANG  = 1 << 5,   --- Multi-language string.
+    PROP_HTML       = 1 << 6,   --- Property values are formatted in HTML (string only).
+    PROP_MARKDOWN   = 1 << 6 | 1 << 7, --- Property values are in Markdown and
+                                       --  will be converted to HTML for presentation.
+                                       --  Only applicable to "string" type.
+}

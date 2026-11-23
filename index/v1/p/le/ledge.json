@@ -1,0 +1,101 @@
+{
+  "kind": "lib",
+  "name": "ledge",
+  "versions": {
+    "1.28-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-http >= 0.10",
+        "lua-resty-redis-connector >= 0.03",
+        "lua-resty-qless >= 0.08",
+        "lua-resty-cookie >= 0.1",
+        "lua-ffi-zlib >= 0.1"
+      ],
+      "files": {
+        "ledge/esi.lua": {
+          "sha256": "de7a666a26d1d707a8a99b8bd4fce5d790a902f5bbe6d935598696ca904e0c44",
+          "size": 31890,
+          "url": "https://raw.githubusercontent.com/pintsized/ledge/271781d4276ba84f89ad6121409fcd7b1d09056f/lib/ledge/esi.lua"
+        },
+        "ledge/header_util.lua": {
+          "sha256": "ad0ebade77af0d85114d0e9d2f0e2ca3ef099bcc87e8888ab69762b333ecc73b",
+          "size": 1618,
+          "url": "https://raw.githubusercontent.com/pintsized/ledge/271781d4276ba84f89ad6121409fcd7b1d09056f/lib/ledge/header_util.lua"
+        },
+        "ledge/jobs/collect_entity.lua": {
+          "sha256": "bb1addc93748d8ebbd24ae39dd47ba340d19575dd657d3e6745042b07f5377ab",
+          "size": 1454,
+          "url": "https://raw.githubusercontent.com/pintsized/ledge/271781d4276ba84f89ad6121409fcd7b1d09056f/lib/ledge/jobs/collect_entity.lua"
+        },
+        "ledge/jobs/purge.lua": {
+          "sha256": "5ae2ec1f6d5be7e86ccd23a0cd6118ea1062117856bf4f9c0f6308d4af0dd9a0",
+          "size": 3054,
+          "url": "https://raw.githubusercontent.com/pintsized/ledge/271781d4276ba84f89ad6121409fcd7b1d09056f/lib/ledge/jobs/purge.lua"
+        },
+        "ledge/jobs/revalidate.lua": {
+          "sha256": "20db2e6419689fc24daa06ba0888846b38201874a1fb39d7e435d5ccd53d4a46",
+          "size": 3174,
+          "url": "https://raw.githubusercontent.com/pintsized/ledge/271781d4276ba84f89ad6121409fcd7b1d09056f/lib/ledge/jobs/revalidate.lua"
+        },
+        "ledge/ledge.lua": {
+          "sha256": "fee85b2ab477de4576bec4eb356e1a9ab267cf4057c08fa64971e750a9fa0add",
+          "size": 114459,
+          "url": "https://raw.githubusercontent.com/pintsized/ledge/271781d4276ba84f89ad6121409fcd7b1d09056f/lib/ledge/ledge.lua"
+        },
+        "ledge/response.lua": {
+          "sha256": "0cc2633cfcdfb84556e50918f8392e7ed2f81ac2fcbfd9a15dcac9ff83bb1674",
+          "size": 3309,
+          "url": "https://raw.githubusercontent.com/pintsized/ledge/271781d4276ba84f89ad6121409fcd7b1d09056f/lib/ledge/response.lua"
+        }
+      },
+      "homepage": "https://github.com/pintsized/ledge",
+      "host": "openresty",
+      "license": "2-clause BSD",
+      "lua": "~> 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Tue, 17 Jan 2017 14:40:05 GMT",
+        "rockspec": {
+          "date": "Tue, 17 Jan 2017 14:40:05 GMT",
+          "sha256": "5739263b54786d5f627dc6ef67bdbd3e994cab2ef41fa5266a82ad77640f349d",
+          "size": 971
+        },
+        "src": {
+          "date": "Tue, 17 Jan 2017 14:40:07 GMT",
+          "sha256": "e3768aefd9b7d568d015894ccd6538aa06c9e9ee1a692b0e4249202bb6930dfc",
+          "size": 110608,
+          "url": "https://luarocks.org/ledge-1.28-1.src.rock"
+        }
+      },
+      "modules": [
+        "ledge.esi",
+        "ledge.header_util",
+        "ledge.jobs.collect_entity",
+        "ledge.jobs.purge",
+        "ledge.jobs.revalidate",
+        "ledge.ledge",
+        "ledge.response"
+      ],
+      "origin": {
+        "commit": "271781d4276ba84f89ad6121409fcd7b1d09056f",
+        "ref": "v1.28",
+        "type": "git",
+        "url": "https://github.com/pintsized/ledge"
+      },
+      "size": 158958,
+      "summary": "An ESI capable HTTP cache module for OpenResty",
+      "undeclared_requires": [
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 7
+      }
+    }
+  }
+}

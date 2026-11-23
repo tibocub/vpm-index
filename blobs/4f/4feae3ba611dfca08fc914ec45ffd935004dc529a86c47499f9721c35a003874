@@ -1,0 +1,89 @@
+--- log
+-- @module log
+
+-- One of the conclusions that we reached was that the "object" need not be a primitive notion in a
+-- programming language; one can build objects and their behaviour from little more than assignable
+-- value cells and good old lambda expressions.
+-- Guy Steele on the design of Scheme
+
+local fun = require("fun")
+
+local base = require("bennu.base")
+
+local na_msg = "N/A"
+
+local function na_map(...)
+   local t = table.pack(...)
+   return fun.totable(fun.map(function(x)
+      if t[x] == nil then
+         return na_msg
+      else
+         return t[x]
+      end
+   end, fun.range(t.n)))
+end
+
+return function(min_level, log_file_path)
+   local log_levels = {
+      TRACE = 1,
+      DEBUG = 2,
+      INFO = 3,
+      WARN = 4,
+      ERROR = 5,
+      FATAL = 6,
+   }
+   local minimum_level = min_level or log_levels.INFO
+   local log_file = log_file_path or nil
+   return
+   -- get_log_levels
+   function()
+      return log_levels
+   end,
+   -- create
+   function(level)
+      --print("LEVEL IS", type(level), "MIN_LEVEL IS", type(min_level))
+      assert(level and level <= log_levels.FATAL)
+      -- TODO: Create the log file
+      -- log.file = io.open(log_file_path, "a")
+      -- -- Log to file if configured
+      -- if self.file then
+      -- sellogfile:write(formatted)
+      -- self.file:flush()
+      -- end
+      minimum_level = level
+   end,
+   -- destroy
+   function()
+      -- TODO: Destroy the log
+      -- function log:close()
+      --    if self.file then
+      --       self.file:close()
+      --    end
+      -- end
+      print("TODO: DESTROY LOG")
+   end,
+   -- set_level
+   function(level)
+      minimum_level = level
+   end,
+   -- log
+   function(level, message, ...)
+      assert(level and message)
+      if level >= minimum_level then
+         local info = debug.getinfo(2, "nlS")
+         local file_name = info.short_src or "noname"
+         local _, module_name, _ = base.split(info.source)
+         local function_name = info.name or "Anonymous"
+         local line = info.currentline or 0
+         local timestamp = os.date("%Y-%m-%d %H:%M:%S")
+         local preamble = ("[%s] |%s:%s| <%s.%s>"):format(timestamp, file_name, line, module_name, function_name)
+         message = ("%s. %s"):format(preamble, message)
+         if not log_file then
+            print(message:format(table.unpack(na_map(...))))
+         else
+            -- TODO: log file
+            print("Write to file ", log_file)
+         end
+      end
+   end
+end

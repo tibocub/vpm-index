@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "wib-kong",
+  "versions": {
+    "1.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/wib-kong/handler.lua": {
+          "sha256": "4707e718645839056d324af945a1f3a890459c3915c0c35110b418325dc9d920",
+          "size": 3956,
+          "url": "blob:4707e718645839056d324af945a1f3a890459c3915c0c35110b418325dc9d920"
+        },
+        "kong/plugins/wib-kong/schema.lua": {
+          "sha256": "cf3b2e0e8c05cc0ee9fe891b877561564619dd11c42711d94c549e91662320df",
+          "size": 538,
+          "url": "blob:cf3b2e0e8c05cc0ee9fe891b877561564619dd11c42711d94c549e91662320df"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 08 Jun 2023 20:59:55 GMT",
+        "rockspec": {
+          "date": "Thu, 08 Jun 2023 20:59:55 GMT",
+          "sha256": "124cc76862e1ab5f4e85c388121c712a1ae676cc41dbe803f726d2abd7090587",
+          "size": 596
+        },
+        "src": {
+          "date": "Thu, 08 Jun 2023 20:59:56 GMT",
+          "sha256": "444941225c491e0d8823a9e4ee78ff5c9860291ed47af576c2d5e88371e231be",
+          "size": 2294,
+          "url": "https://luarocks.org/wib-kong-1.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.wib-kong.handler",
+        "kong.plugins.wib-kong.schema"
+      ],
+      "origin": {
+        "date": "Thu, 08 Jun 2023 20:59:56 GMT",
+        "sha256": "444941225c491e0d8823a9e4ee78ff5c9860291ed47af576c2d5e88371e231be",
+        "size": 2294,
+        "type": "luarocks",
+        "url": "https://luarocks.org/wib-kong-1.0-3.src.rock"
+      },
+      "size": 4494,
+      "summary": "Wib security traffic collection plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

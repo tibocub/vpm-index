@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "artemis",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://codeberg.org/dbluhm/artemis-lua",
+      "license": "MIT",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Mon, 24 Aug 2026 21:20:54 GMT",
+        "rockspec": {
+          "date": "Mon, 24 Aug 2026 21:20:54 GMT",
+          "sha256": "b6ee7b998fbb048a15801d35d233dd373f201cfc635537b447b4676876b6f347",
+          "size": 1002
+        },
+        "src": {
+          "date": "Mon, 24 Aug 2026 21:20:55 GMT",
+          "sha256": "34a5e218d107cd3e624d42ec09dc49f501b5078cc3f73f9fe7608462960aa8b2",
+          "size": 96797,
+          "url": "https://luarocks.org/artemis-0.2.0-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "cmake",
+        "external": [
+          "CURL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "cmake": {
+            "variables": {
+              "CMAKE_BUILD_TYPE": "Release",
+              "CMAKE_INSTALL_PREFIX": "$(PREFIX)",
+              "LUADIR": "$(LUADIR)"
+            }
+          },
+          "external": {
+            "CURL": {
+              "header": "curl/curl.h",
+              "library": "curl"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Mon, 24 Aug 2026 21:20:55 GMT",
+        "sha256": "34a5e218d107cd3e624d42ec09dc49f501b5078cc3f73f9fe7608462960aa8b2",
+        "size": 96797,
+        "type": "luarocks",
+        "url": "https://luarocks.org/artemis-0.2.0-1.src.rock"
+      },
+      "summary": "Python requests-like HTTP client for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

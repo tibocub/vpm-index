@@ -1,0 +1,269 @@
+
+local colors = require "term.colors"
+local sfs = require "sfs"
+
+---@class lrocket.log
+---@overload fun(text: string, level: lrocket.LogLevel)
+local log = {}
+setmetatable(log --[[@as table]], log --[[@as table]])
+
+local function enum()
+	local n = -1
+	return function (cmd)
+		if cmd == '#' then
+			return n+1
+		else
+			n = n + 1
+			return n
+		end
+	end
+end
+
+---@alias lrocket.LogLevel 'debug' | 'info' | 'warn' | 'error' | 'none'
+
+local nextlevel = enum()
+
+local HIERARCHY = {
+	none = nextlevel(),
+	error = nextlevel(),
+	warn = nextlevel(),
+	info = nextlevel(),
+	detail = nextlevel(),
+	debug = nextlevel()
+}
+log.MAX_LEVEL = nextlevel '#'
+
+log.levels = HIERARCHY
+log.colors = setmetatable({
+	error = colors.bright..colors.red,
+	warn = colors.bright..colors.yellow,
+	info = colors.bright..colors.blue,
+	detail = colors.bright..colors.magenta,
+	debug = colors.bright..colors.magenta,
+	gray = colors.white..colors.dim
+}, { __index = colors })
+
+local streams = {
+	warn = io.stderr,
+	error = io.stderr,
+	info = io.stdout,
+	debug = io.stdout,
+	detail = io.stdout,
+}
+
+log.level = 1
+
+local running_program = sfs.getName(arg[0] or "lrc")
+
+local start = os.clock()
+
+local levelredirection = setmetatable({
+	warn = 'warn',
+}, { __index = function (t, k)
+	return k
+end })
+
+local logcount = {}
+
+for level in pairs(HIERARCHY) do
+	logcount[level] = 0
+end
+
+local nextlevel
+function log.nextlevel(level)
+	nextlevel = level
+end
+
+function log:__call(text, level)
+	level = levelredirection[nextlevel or level]
+	nextlevel = nil
+	logcount[level] = logcount[level] + 1
+	if HIERARCHY[level] <= log.level then
+		local prefix = ''
+		if level == 'debug' then
+			prefix = string.format(log.colors.gray.."[%7.03f] "..log.colors.reset, os.clock() - start)
+		end
+
+		if level == 'warn' or level == 'error' then
+			prefix = prefix..log.colors.bright..running_program..": "..log.colors[level]..level..': '..colors.reset
+		end
+		streams[level]:write(prefix..text)
+	end
+end
+
+local function collect(...)
+	local t = { ... }
+	local j = select('#', ...)
+	for i = 1, j do
+		t[i] = tostring(t[i])
+	end
+	return table.concat(t, '\t', 1, j)
+end
+
+local function tofmt(item)
+	if type(item) == 'table' then
+		return tostring(item)
+	else
+		return item
+	end
+end
+
+local function tofmts(...)
+	local cur = ...
+	local n = select('#', ...)
+	if n == 0 then
+		return
+	else
+		return tofmt(cur), tofmts(select(2, ...))
+	end
+end
+
+local function wraplevel(level)
+	return function(...)
+		log(collect(...)..'\n', level)
+	end
+end
+
+local function wrapformat(level)
+	return function(fmt, ...)
+		log(fmt:format(tofmts(...)), level)
+	end
+end
+
+log.warn = wraplevel 'warn'
+log.error = wraplevel 'error'
+log.info = wraplevel 'info'
+log.debug = wraplevel 'debug'
+log.detail = wraplevel 'detail'
+
+log.warnf = wrapformat 'warn'
+log.errorf = wrapformat 'error'
+log.infof = wrapformat 'info'
+log.debugf = wrapformat 'debug'
+log.detailf = wrapformat 'detail'
+
+log.streams = streams
+
+function log.flush(level)
+	if level then
+		streams[level]:flush()
+	else
+		for _, stream in pairs(streams) do
+			stream:flush()
+		end
+	end
+end
+
+---@diagnostic disable: deprecated
+local function fwd(thread, ok, ...)
+	if not ok then
+		local msg = debug.traceback(thread, (...))
+		if coroutine.close then
+			coroutine.close(thread)
+		end
+		error(msg, 2)
+	end
+
+	return ...
+end
+---@diagnostic enable: deprecated
+
+local function wrap(f)
+	local thread = coroutine.create(f)
+	return function (...)
+		return fwd(thread, coroutine.resume(thread, ...))
+	end
+end
+
+local normalwrap = coroutine.wrap
+--- Sets the logging level
+---@param level lrocket.LogLevel | integer
+function log.setlevel(level)
+	log.level = type(level) == 'number' and level or HIERARCHY[level]
+	assert(log.level, "Invalid log level")
+
+	if log.level >= log.levels.debug then
+---@diagnostic disable-next-line: duplicate-set-field
+		coroutine.wrap = wrap
+	else
+		coroutine.wrap = normalwrap
+	end
+end
+
+--- Dyes the first word of a message in a given color
+---@param color any The target color
+---@param str string The input message
+---@param sep string? Separating character between words ('%s' by default)
+function log.dyefirst(color, str, sep)
+    sep = sep or "%s"
+    local prefix, usedsep, suffix = str:match("^([^"..sep.."]+)(["..sep.."]?)(.-)$")
+    return string.format(color.."%s"..colors.reset.."%s%s", tofmts(prefix, usedsep, suffix))
+end
+
+function log.experimental(feature)
+	log.warnf("%s is an experimental feature, interface may or may not change\n", feature)
+end
+
+local function reason(desc, exitcode, level)
+	local level = level or 1
+	return {
+		reason = desc,
+		exitcode = exitcode,
+		level = level + 1, -- (so that we don't blame the logging module)
+	}
+end
+
+---@generic T
+---@param value T?
+---@param err string?
+---@return T
+function log.assert(value, err)
+	if not value then
+		error(reason(err, log.EXITCODE.GENERAL_ERROR, 2), 2)
+	end
+	return value
+end
+
+log.EXITCODE = {
+	OK = 0,
+	GENERAL_ERROR = 1,
+	LROCKET_INTERNAL_ERROR = -1,
+}
+
+function log.failure(exitcode, fmt, ...)
+	error(reason(fmt:format(...), exitcode, 2), 2)
+end
+
+function log.exit(exitcode, fmt, ...)
+	error(reason(fmt and fmt:format(...), exitcode, 2), 2)
+end
+
+function log.checkpoint(exitcode)
+	if logcount.error > 0 then
+		log.exit(exitcode or log.EXITCODE.GENERAL_ERROR)
+	end
+end
+
+function log.setwarnmode(warnmode)
+	levelredirection.warn = warnmode
+	log.warnmode = warnmode
+end
+
+sfs.onfs = function(op, ...)
+	local args = { ... }
+	for i = 1, #args do args[i] = "'"..tostring(args[i]).."'" end
+	log.debugf(log.dyefirst(colors.blue, "fs %s(%s)\n"), op, table.concat(args, ", "))
+end
+
+sfs.onexec = function(cmd, _)
+	--[[
+	if next(env) then
+		for _, k in ipairs(env) do
+			log.debugf("  %s=\"%s\"\n", k, env[k])
+		end
+	end
+	--]]
+	log.debugf(log.dyefirst(colors.bright, cmd.."\n"))
+end
+
+return log

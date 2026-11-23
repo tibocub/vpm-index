@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-oauth2-token-introspection-request",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [
+        "base64 >= 1.5"
+      ],
+      "files": {
+        "kong/plugins/oauth2-token-introspection-request/access.lua": {
+          "sha256": "f256be5481eb17f86a690c11fe7fbc85505d32c66e8e278df50b9c5fcc0c4733",
+          "size": 3988,
+          "url": "https://raw.githubusercontent.com/yoophi/kong-plugin-oauth2-token-introspection-request/836abbfd0423a5d7b33c6bf0d95d8b653b2b02c1/src/access.lua"
+        },
+        "kong/plugins/oauth2-token-introspection-request/handler.lua": {
+          "sha256": "abc932a9abd2352055da05474095ec3c59bbc61b7d4d1f85fa12becf4898822d",
+          "size": 552,
+          "url": "https://raw.githubusercontent.com/yoophi/kong-plugin-oauth2-token-introspection-request/836abbfd0423a5d7b33c6bf0d95d8b653b2b02c1/src/handler.lua"
+        },
+        "kong/plugins/oauth2-token-introspection-request/schema.lua": {
+          "sha256": "68d9ecb478a5275331b021c47dc5b8d30336452bb2f1da17bb56eef9b9319cd4",
+          "size": 536,
+          "url": "https://raw.githubusercontent.com/yoophi/kong-plugin-oauth2-token-introspection-request/836abbfd0423a5d7b33c6bf0d95d8b653b2b02c1/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 22 Jan 2021 08:59:05 GMT",
+        "rockspec": {
+          "date": "Fri, 22 Jan 2021 08:59:05 GMT",
+          "sha256": "f7738bf517ef9d427acbadb0193f17ce217a7a083a97f687ccc18ab6ee233ecc",
+          "size": 730
+        },
+        "src": {
+          "date": "Fri, 22 Jan 2021 08:59:06 GMT",
+          "sha256": "b451b22c6ba78694cf12a023e4afd6bc0b89fc877d7c56502d7fdc0c16d09d79",
+          "size": 6296,
+          "url": "https://luarocks.org/kong-plugin-oauth2-token-introspection-request-0.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oauth2-token-introspection-request.access",
+        "kong.plugins.oauth2-token-introspection-request.handler",
+        "kong.plugins.oauth2-token-introspection-request.schema"
+      ],
+      "origin": {
+        "commit": "836abbfd0423a5d7b33c6bf0d95d8b653b2b02c1",
+        "ref": "0.1.0-0",
+        "type": "git",
+        "url": "https://github.com/yoophi/kong-plugin-oauth2-token-introspection-request"
+      },
+      "size": 5076,
+      "summary": "A Kong plugin that make POST oauth2 token introspection request before proxying the original request.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

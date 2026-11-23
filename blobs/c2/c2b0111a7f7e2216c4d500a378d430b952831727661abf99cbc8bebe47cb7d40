@@ -1,0 +1,201 @@
+-- ============================================================
+-- Shiva Test — ESX Mock
+-- Provides a minimal ESX table for testing esx_* resources.
+-- ============================================================
+
+local ESXMock = {}
+
+-- ========================
+-- Player store
+-- ========================
+
+local _players = {}
+
+---@class ESXPlayer
+---@field source     integer
+---@field identifier string
+---@field job        table
+---@field accounts   table[]
+---@field inventory  table[]
+
+---@param source integer
+---@param data?  table  Override fields
+---@return ESXPlayer
+function ESXMock.addPlayer(source, data)
+    local identifier = 'steam:' .. string.format('%015x', source)
+
+    local player = {
+        source     = source,
+        identifier = identifier,
+        name       = 'Test Player',
+        group      = 'user',
+        job        = { name = 'unemployed', label = 'Unemployed', grade = 0, grade_label = 'Recruit', grade_name = 'recruit', grade_salary = 200, onduty = true },
+        accounts   = {
+            { name = 'money',  label = 'Cash',  money = 500  },
+            { name = 'bank',   label = 'Bank',  money = 5000 },
+            { name = 'black_money', label = 'Dirty Money', money = 0 },
+        },
+        inventory  = {},
+    }
+
+    if data then
+        for k, v in pairs(data) do player[k] = v end
+    end
+
+    -- Helper to find account by name
+    local function getAccount(name)
+        for _, acc in ipairs(player.accounts) do
+            if acc.name == name then return acc end
+        end
+        return nil
+    end
+
+    function player.getAccount(name)
+        return getAccount(name)
+    end
+
+    function player.getMoney()
+        local acc = getAccount('money')
+        return acc and acc.money or 0
+    end
+
+    function player.addMoney(amount)
+        local acc = getAccount('money')
+        if acc then acc.money = acc.money + amount end
+    end
+
+    function player.removeMoney(amount)
+        local acc = getAccount('money')
+        if acc and acc.money >= amount then
+            acc.money = acc.money - amount
+            return true
+        end
+        return false
+    end
+
+    function player.addAccountMoney(name, amount)
+        local acc = getAccount(name)
+        if acc then acc.money = acc.money + amount end
+    end
+
+    function player.removeAccountMoney(name, amount)
+        local acc = getAccount(name)
+        if acc and acc.money >= amount then
+            acc.money = acc.money - amount
+            return true
+        end
+        return false
+    end
+
+    function player.getInventoryItem(itemName)
+        for _, item in ipairs(player.inventory) do
+            if item.name == itemName then return item end
+        end
+        return nil
+    end
+
+    function player.canCarryItem(_itemName, _amount)
+        return true
+    end
+
+    function player.addInventoryItem(itemName, amount)
+        local item = player.getInventoryItem(itemName)
+        if item then
+            item.count = item.count + (amount or 1)
+        else
+            table.insert(player.inventory, { name = itemName, count = amount or 1 })
+        end
+    end
+
+    function player.removeInventoryItem(itemName, amount)
+        for i, item in ipairs(player.inventory) do
+            if item.name == itemName then
+                item.count = item.count - (amount or 1)
+                if item.count <= 0 then table.remove(player.inventory, i) end
+                return true
+            end
+        end
+        return false
+    end
+
+    function player.setJob(name, grade)
+        player.job.name  = name
+        player.job.grade = grade or 0
+    end
+
+    _players[source] = player
+    return player
+end
+
+--- Remove all mock players.
+function ESXMock.resetPlayers()
+    _players = {}
+end
+
+-- ========================
+-- ESX table
+-- ========================
+
+local _usableItems   = {}
+local _serverCallbacks = {}
+
+---@type table
+local ESX = {
+    Players = _players,
+}
+
+function ESX.GetPlayerFromId(source)
+    return _players[source]
+end
+
+-- Alias used in older ESX versions
+function ESX.GetExtendedPlayer(source)
+    return _players[source]
+end
+
+function ESX.GetPlayers()
+    local list = {}
+    for src in pairs(_players) do list[#list + 1] = src end
+    return list
+end
+
+function ESX.RegisterUsableItem(itemName, fn)
+    _usableItems[itemName] = fn
+end
+
+function ESX.UseItem(source, itemName)
+    local fn = _usableItems[itemName]
+    if fn then fn(source) end
+end
+
+function ESX.RegisterServerCallback(name, fn)
+    _serverCallbacks[name] = fn
+end
+
+function ESX.TriggerServerCallback(name, cb, ...)
+    local fn = _serverCallbacks[name]
+    if not fn then
+        error('ESX: server callback "' .. name .. '" not registered')
+    end
+    fn(0, cb, ...)
+end
+
+function ESX.ShowNotification(_msg, _type, _duration) end
+function ESX.ShowHelpNotification(_msg, _bleep, _loop, _sound) end
+
+-- ========================
+-- Install into _G
+-- ========================
+
+---@param G table
+function ESXMock.install(G)
+    G.ESX = ESX
+    -- Some resources reference ESX via exports
+    if G.exports then
+        -- Handled by exports mock
+    end
+end
+
+ESXMock.ESX = ESX
+
+return ESXMock

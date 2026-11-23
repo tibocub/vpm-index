@@ -1,0 +1,75 @@
+{
+  "kind": "app",
+  "name": "luahue",
+  "versions": {
+    "1.0-1": {
+      "bin": {
+        "huebwmon": "bin/huebwmon",
+        "huectl": "bin/huectl"
+      },
+      "deps": [
+        "penlight",
+        "luasocket",
+        "luajson"
+      ],
+      "files": {
+        "bin/huebwmon": {
+          "sha256": "cbf8d216272017ae8d5d15e3ed1290e5c97b4130d3416bc69f736ebe9b61e8eb",
+          "size": 2298,
+          "url": "https://raw.githubusercontent.com/pkazmier/luahue/1eb11012914a167a3b50349143a4151457d74e82/bin/huebwmon"
+        },
+        "bin/huectl": {
+          "sha256": "051418414409b4d97bea04bf621b0f3eff34556272fa17d7267763a530d6fd9c",
+          "size": 3283,
+          "url": "https://raw.githubusercontent.com/pkazmier/luahue/1eb11012914a167a3b50349143a4151457d74e82/bin/huectl"
+        },
+        "hue.lua": {
+          "sha256": "ee47a914656ef862e935d90cbe4579d6aaef563924c9a31b14aefe992c34db4b",
+          "size": 5596,
+          "url": "https://raw.githubusercontent.com/pkazmier/luahue/1eb11012914a167a3b50349143a4151457d74e82/src/hue.lua"
+        }
+      },
+      "homepage": "http://github.com/pkazmier/luahue",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 03:07:13 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 03:07:13 GMT",
+          "sha256": "d556b5639236e72eb9d635326374811ac0ecc8048bec072a3d88b70a453606ed",
+          "size": 918
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 03:07:14 GMT",
+          "sha256": "6e6ed15ccf49aa8c245e7e6ca756555537e400ca1093de061c7f7d836e25cd6c",
+          "size": 12264,
+          "url": "https://luarocks.org/luahue-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "hue"
+      ],
+      "origin": {
+        "commit": "1eb11012914a167a3b50349143a4151457d74e82",
+        "ref": "v1.0",
+        "type": "git",
+        "url": "https://github.com/pkazmier/luahue.git"
+      },
+      "size": 11177,
+      "summary": "A Lua library and tools to control Philips Hue light bulbs.",
+      "undeclared_requires": [
+        "ltn12",
+        "socket",
+        "socket.http"
+      ],
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

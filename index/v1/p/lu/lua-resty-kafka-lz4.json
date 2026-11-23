@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-kafka-lz4",
+  "versions": {
+    "0.23-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/zhaoops/lua-resty-kafka",
+      "host": "openresty",
+      "license": "BSD",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 24 Mar 2026 09:07:30 GMT",
+        "rockspec": {
+          "date": "Tue, 24 Mar 2026 09:07:30 GMT",
+          "sha256": "8163533d24e69e4fe8078060ac12b0d7f8d800650e7c64c093dc1a155c2f9264",
+          "size": 1798
+        }
+      },
+      "modules": [
+        "resty.kafka.basic-consumer",
+        "resty.kafka.broker",
+        "resty.kafka.client",
+        "resty.kafka.errors",
+        "resty.kafka.lz4",
+        "resty.kafka.producer",
+        "resty.kafka.protocol.common",
+        "resty.kafka.protocol.consumer",
+        "resty.kafka.protocol.record",
+        "resty.kafka.request",
+        "resty.kafka.response",
+        "resty.kafka.ringbuffer",
+        "resty.kafka.sasl",
+        "resty.kafka.scramsha",
+        "resty.kafka.sendbuffer",
+        "resty.kafka.utils"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LZ4"
+        ],
+        "langs": [],
+        "native": "other",
+        "unknown_language": true
+      },
+      "origin": {
+        "commit": "230c41499e7f27ea13d042e1e6b716327596ab80",
+        "ref": "v0.23.1",
+        "type": "git",
+        "url": "https://github.com/zhaoops/lua-resty-kafka"
+      },
+      "summary": "Lua Kafka client driver for the ngx_lua based on the cosocket API (with LZ4 compression)"
+    }
+  }
+}

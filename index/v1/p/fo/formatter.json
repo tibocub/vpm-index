@@ -1,0 +1,70 @@
+{
+  "kind": "app",
+  "name": "formatter",
+  "versions": {
+    "0.1.1-1": {
+      "bin": {
+        "luaformatter": "bin/luaformatter"
+      },
+      "blocked_by": {
+        "name": "luafilesystem",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "metalua-compiler ~> 0.7",
+        "penlight ~> 0.9"
+      ],
+      "files": {
+        "bin/luaformatter": {
+          "sha256": "335f483bdbfffb86bd45d61900fc0561f560536cffde85267b7e6b6b1e58c12b",
+          "size": 2281,
+          "url": "https://raw.githubusercontent.com/LuaDevelopmentTools/luaformatter/9a610be12982e18e4577494e8fb69387949b5cd2/commandline.lua"
+        },
+        "formatter.lua": {
+          "sha256": "f2d03f3655cfb339bdf275936f12278859522c2362c2248d65b8961870f6408a",
+          "size": 17107,
+          "url": "https://raw.githubusercontent.com/LuaDevelopmentTools/luaformatter/9a610be12982e18e4577494e8fb69387949b5cd2/formatter.lua"
+        }
+      },
+      "license": "EPL",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 21 Mar 2014 00:57:05 GMT",
+        "rockspec": {
+          "date": "Fri, 21 Mar 2014 00:57:05 GMT",
+          "sha256": "7c3d3dc7920b6b6c23cd46250becf55ecbffe5b997be72458e028d8c7ac363df",
+          "size": 614
+        },
+        "src": {
+          "date": "Fri, 21 Mar 2014 00:57:05 GMT",
+          "sha256": "1db31a2d840cc75e3ecbb6ba21d76085c2efaa639b98667c717da2e2d9317a5f",
+          "size": 14523,
+          "url": "https://luarocks.org/formatter-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "formatter"
+      ],
+      "origin": {
+        "commit": "9a610be12982e18e4577494e8fb69387949b5cd2",
+        "ref": "v0.1.1-1",
+        "type": "git",
+        "url": "https://github.com/LuaDevelopmentTools/luaformatter.git"
+      },
+      "size": 19388,
+      "summary": "Beautifies Lua code.",
+      "undeclared_requires": [
+        "metalua.treequery"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

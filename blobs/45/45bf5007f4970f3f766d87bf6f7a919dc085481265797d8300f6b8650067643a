@@ -1,0 +1,32 @@
+--imports
+local RoutineStmt = require("dogma.syn._.RoutineStmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--A fn statement.
+local FnStmt = {}
+FnStmt.__index = FnStmt
+setmetatable(FnStmt, {__index = RoutineStmt})
+package.loaded[...] = FnStmt
+
+--Constructor.
+function FnStmt.new(
+  ln, col,
+  annots, visib, static, async, itype, name, params, subparams, rtype, rvar, body, catch, fin
+)
+  local self
+
+  --(1) create
+  self = setmetatable(
+    RoutineStmt.new(
+      StmtType.FN, ln, col, annots, visib, static, async, itype, name, params, body, catch, fin
+    ),
+    FnStmt
+  )
+  
+  self.subparams = subparams
+  self.rtype = rtype
+  self.rvar = rvar
+
+  --(2) return
+  return self
+end

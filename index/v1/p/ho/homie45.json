@@ -1,0 +1,78 @@
+{
+  "kind": "app",
+  "name": "homie45",
+  "versions": {
+    "0.5.0-1": {
+      "bin": {
+        "homie45bridge": "bin/homie45bridge"
+      },
+      "deps": [
+        "copas >= 4.3, < 5",
+        "luamqttt",
+        "lualogging >= 1.6",
+        "penlight ~> 1",
+        "lua-cjson",
+        "luasystem >= 0.3"
+      ],
+      "files": {
+        "bin/homie45bridge": {
+          "sha256": "06afa7e2a2e37bb0294d2464f063c7db52e52c76d64b4f5e77838945ed784594",
+          "size": 2934,
+          "url": "https://raw.githubusercontent.com/Tieske/homie45/e8c92832c6f22f920ca5ec541603835b77d06286/bin/homie45bridge.lua"
+        },
+        "homie45/device.lua": {
+          "sha256": "969a276c8745cc237c6f981bdd0830d7bae533bf06baf53218c02b355b22869a",
+          "size": 15317,
+          "url": "https://raw.githubusercontent.com/Tieske/homie45/e8c92832c6f22f920ca5ec541603835b77d06286/src/homie45/device.lua"
+        },
+        "homie45/init.lua": {
+          "sha256": "7f91659a3c013e106b7ad3de1f26390469be67307cc091e5415d8c10b9cfae31",
+          "size": 9862,
+          "url": "https://raw.githubusercontent.com/Tieske/homie45/e8c92832c6f22f920ca5ec541603835b77d06286/src/homie45/init.lua"
+        }
+      },
+      "homepage": "https://github.com/Tieske/homie45",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.6",
+      "luarocks": {
+        "date": "Wed, 11 Mar 2026 22:33:02 GMT",
+        "rockspec": {
+          "date": "Wed, 11 Mar 2026 22:33:02 GMT",
+          "sha256": "4ebc4492ad708d1d37d24533e39811038ae2ed11ba12e9edb13059aa3763faf1",
+          "size": 1269
+        },
+        "src": {
+          "date": "Wed, 11 Mar 2026 22:33:03 GMT",
+          "sha256": "a1960e83006565375abb75746b89df642008db9800a1c1ce0d7d3cbfa332920d",
+          "size": 39441,
+          "url": "https://luarocks.org/homie45-0.5.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "homie45",
+        "homie45.device"
+      ],
+      "origin": {
+        "commit": "e8c92832c6f22f920ca5ec541603835b77d06286",
+        "ref": "v0.5.0",
+        "type": "git",
+        "url": "https://github.com/Tieske/homie45.git"
+      },
+      "size": 28113,
+      "summary": "Homie bridge for Homie 4 devices to Homie 5",
+      "undeclared_requires": [
+        "socket",
+        "system"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

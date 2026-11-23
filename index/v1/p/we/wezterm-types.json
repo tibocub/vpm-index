@@ -1,0 +1,548 @@
+{
+  "kind": "lib",
+  "name": "wezterm-types",
+  "versions": {
+    "5.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wezterm/types/colorschemes.lua": {
+          "sha256": "e16ab0317876c430e9105c657f259830e15a10b9f09ef5a7e3ca94bf1327060d",
+          "size": 24223,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/colorschemes.lua"
+        },
+        "wezterm/types/config.lua": {
+          "sha256": "6a26e632eb94bcd3d801e8ab6ef67833f45a99122443a4d65a617bb77129fbf4",
+          "size": 114757,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/config.lua"
+        },
+        "wezterm/types/enum/copy-mode-assignment.lua": {
+          "sha256": "6e0c52f4240d807f684217b7255fd13da83239f97b6ebd93010c12f9a7f0d868",
+          "size": 4559,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/enum/copy-mode-assignment.lua"
+        },
+        "wezterm/types/enum/key-assignment.lua": {
+          "sha256": "456fc39a3c025fa720be4f0782bc445714577b814f2c7b2c51c642e77be73a5d",
+          "size": 36700,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/enum/key-assignment.lua"
+        },
+        "wezterm/types/enum/window_decorations.lua": {
+          "sha256": "7a62b026a083840c6507616debc5ead2786dc84f427109dd83b69cf2cb44bf79",
+          "size": 174862,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/enum/window_decorations.lua"
+        },
+        "wezterm/types/events.lua": {
+          "sha256": "7ca27db298f9fb59871d61c358a9bff8bb04d54dd0c4a3e4b37d3550ceb061c4",
+          "size": 722,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/events.lua"
+        },
+        "wezterm/types/harfbuzz.lua": {
+          "sha256": "a6a729ab9fe44b8389950e2c4801d10ec8fca3086af2d9dd6a392240153a9f2c",
+          "size": 3241,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/harfbuzz.lua"
+        },
+        "wezterm/types/objects/color.lua": {
+          "sha256": "685f064f3e076ac9442426ebca0d22e9c1a498607e2f395a0556e3e2a5950097",
+          "size": 5222,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/color.lua"
+        },
+        "wezterm/types/objects/exec-domain.lua": {
+          "sha256": "d1047f545efe8f3be9c30a6b1c993295b1f20d3b8a43738d0055cda2c598784b",
+          "size": 2413,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/exec-domain.lua"
+        },
+        "wezterm/types/objects/local-process-info.lua": {
+          "sha256": "91efbcc1c20dbedc6da8a951eda2854af5e200e91dada02adbc7f694813e46e2",
+          "size": 1467,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/local-process-info.lua"
+        },
+        "wezterm/types/objects/mux-domain.lua": {
+          "sha256": "c2dcc256b79ac9a6b8fcc542b35948fd2ac4991cdde7b732f368e42b4ce53fa2",
+          "size": 2555,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/mux-domain.lua"
+        },
+        "wezterm/types/objects/mux-tab.lua": {
+          "sha256": "d5cc4ed9a120c74bf37941ac1cdd56553c10688fb7321c380a99819796579d97",
+          "size": 3643,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/mux-tab.lua"
+        },
+        "wezterm/types/objects/mux-window.lua": {
+          "sha256": "109846238920bcbf477f78a61879f9b886ffe139e2352d5dcca806a51264d668",
+          "size": 3992,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/mux-window.lua"
+        },
+        "wezterm/types/objects/pane-information.lua": {
+          "sha256": "83643d98ec51a949517d7eaf78a6a130d25227e8008b741d6b7d96af917401fc",
+          "size": 3263,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/pane-information.lua"
+        },
+        "wezterm/types/objects/pane.lua": {
+          "sha256": "0b46504cb901e44fccd7214a01cbc2d18718b1a099d1906db3c24f6369e0c8b2",
+          "size": 22673,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/pane.lua"
+        },
+        "wezterm/types/objects/spawn-command.lua": {
+          "sha256": "4508d6cf1c570c0f6baae6aed5c40092ed22608608e779a029a497aa1f7049da",
+          "size": 2003,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/spawn-command.lua"
+        },
+        "wezterm/types/objects/ssh-domain.lua": {
+          "sha256": "f2d96132eb414fdb64e6e96b230e7ba15d9dc3c180335d24e7f4479f0090fc7d",
+          "size": 1226,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/ssh-domain.lua"
+        },
+        "wezterm/types/objects/tab-information.lua": {
+          "sha256": "f46280ace25f8a7d2ae546bcf21d26e4dff39927f356c1cb3e1ff1b586e6bb44",
+          "size": 1250,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/tab-information.lua"
+        },
+        "wezterm/types/objects/time.lua": {
+          "sha256": "b06bdc2262a2d2aaafc089a492fbe2a177bea4498b4b95ad7fba272bfbffb7ee",
+          "size": 1943,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/time.lua"
+        },
+        "wezterm/types/objects/tls-domain-client.lua": {
+          "sha256": "1ac3dc5bb214ecd3ca48c3af9d0fb65a2157f4f6af07f49cdc603b81329c53be",
+          "size": 2778,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/tls-domain-client.lua"
+        },
+        "wezterm/types/objects/tls-domain-server.lua": {
+          "sha256": "f776fd3e7da6a94ed7309af5c42783b52cecd1c5d8080aa83b992440e5a84108",
+          "size": 1203,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/tls-domain-server.lua"
+        },
+        "wezterm/types/objects/window.lua": {
+          "sha256": "2d0c71af239fa50d61c3fb0ba77046ffda5f314f72ba26b9e2cb37e38ed9c0b8",
+          "size": 9422,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/window.lua"
+        },
+        "wezterm/types/objects/wsl-domain.lua": {
+          "sha256": "828d0261cdc60597867cffb3fb5c9cb63fa77e7730669bf0130d9cb3a8f60e38",
+          "size": 1760,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/objects/wsl-domain.lua"
+        },
+        "wezterm/types/plugins/agent-deck.lua": {
+          "sha256": "d4e3d6d044bd4b5365f669b86fd2b7c03048417fadc145abd99c2779fea5cc71",
+          "size": 4090,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/agent-deck.lua"
+        },
+        "wezterm/types/plugins/ai-commander.lua": {
+          "sha256": "f051e422b056cefa2d1949faf8a4e9dd457d51a2f412eb2a325225081a9782f0",
+          "size": 1359,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/ai-commander.lua"
+        },
+        "wezterm/types/plugins/ai-helper.lua": {
+          "sha256": "21a97171c472e8cde9c1c9b4ea2de499d1d4d829bbf08cceb0c265378acad9a9",
+          "size": 1086,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/ai-helper.lua"
+        },
+        "wezterm/types/plugins/attention.lua": {
+          "sha256": "ccff2c7d127545cbafaa0738062614780903b5f476c315a5d8b8c28e6f40d446",
+          "size": 3742,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/attention.lua"
+        },
+        "wezterm/types/plugins/bar.lua": {
+          "sha256": "58897b353ef2dc408044baa4ccd6b915c505a3fe7cdf513d66446894fbec8301",
+          "size": 1867,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/bar.lua"
+        },
+        "wezterm/types/plugins/battery.lua": {
+          "sha256": "c01c682a963e1b630189e3fd2992acb45b20de795e619a00155767aae388bed4",
+          "size": 1753,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/battery.lua"
+        },
+        "wezterm/types/plugins/chord.lua": {
+          "sha256": "51ef887430bc998be560122f2e241f0722edc9bf42319a03e8d03e7ed1141007",
+          "size": 10944,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/chord.lua"
+        },
+        "wezterm/types/plugins/cmd-sender.lua": {
+          "sha256": "c26c3af184b1d19c9afc8126de7ed09c64a2c926c47eaf6f45f1e9d71c7b2b9b",
+          "size": 655,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/cmd-sender.lua"
+        },
+        "wezterm/types/plugins/cmdpicker.lua": {
+          "sha256": "63845ef61d6813850e4077e25232d5a5e1274455cd06f1a6738eeef1b7079f6f",
+          "size": 1846,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/cmdpicker.lua"
+        },
+        "wezterm/types/plugins/dev.lua": {
+          "sha256": "4ea4926b5603b89caa1285882a7690803157f93d09cd1f81e2c40227695db84f",
+          "size": 1420,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/dev.lua"
+        },
+        "wezterm/types/plugins/kanagawa.lua": {
+          "sha256": "d1d7eb02f83c27f98d18c3fe5a766726dd949f4c6ea9e1746bf8a18ca9b83306",
+          "size": 3494,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/kanagawa.lua"
+        },
+        "wezterm/types/plugins/lantern.lua": {
+          "sha256": "c18d3eaddcae7ff55f7b1c03c9602991e7e6a1c3fd1d46b5ad7bd7fa5dd01977",
+          "size": 9600,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/lantern.lua"
+        },
+        "wezterm/types/plugins/lib.lua": {
+          "sha256": "58d7036799e82349e29f6f225b2a27d00957d3a1f8d7bb158dc2c74e898fe319",
+          "size": 6696,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/lib.lua"
+        },
+        "wezterm/types/plugins/listeners.lua": {
+          "sha256": "159e653b5d87bea74d803b5d590f12b84995c7685b58d3c13b4c108b0c59d202",
+          "size": 3888,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/listeners.lua"
+        },
+        "wezterm/types/plugins/log.lua": {
+          "sha256": "3271431b15265fe1d7aaa380db712dfb62205729d8e0d2605bd558569ccacd71",
+          "size": 8052,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/log.lua"
+        },
+        "wezterm/types/plugins/memo.lua": {
+          "sha256": "92e7e044e4c134630d71f25cc9840f5053d1444a046ae63b7aa2215470cbc25c",
+          "size": 8241,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/memo.lua"
+        },
+        "wezterm/types/plugins/modal.lua": {
+          "sha256": "6d16f984d1a16b0abf422271330984e13e77b4e8637bf4e41206461a97f01fc8",
+          "size": 2055,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/modal.lua"
+        },
+        "wezterm/types/plugins/nu-utf8-hack.lua": {
+          "sha256": "0fa87fe717e94d8649357c4f18e7a5919fccbe9c068a53b5b9f62c4174b90502",
+          "size": 312,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/nu-utf8-hack.lua"
+        },
+        "wezterm/types/plugins/passrelay.lua": {
+          "sha256": "e5b8c95fdc39008e6a91e172d91a2b256dde6df11dd8a02ff573f2bb85ad318f",
+          "size": 1135,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/passrelay.lua"
+        },
+        "wezterm/types/plugins/pinned-tabs.lua": {
+          "sha256": "e02edd35ea76018086e4d87a80d6418921c76abc2e86e16f849b55b20a35be89",
+          "size": 894,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/pinned-tabs.lua"
+        },
+        "wezterm/types/plugins/pivot-panes.lua": {
+          "sha256": "2bd7ff59b8bf96347e11fa26c207ba64d3663cac14b64f44a19693ce15877733",
+          "size": 2721,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/pivot-panes.lua"
+        },
+        "wezterm/types/plugins/presentation.lua": {
+          "sha256": "da42db1dcc6e45bd985e242af2b584757ab4d517da76f9fa77c3423d966240a3",
+          "size": 596,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/presentation.lua"
+        },
+        "wezterm/types/plugins/quick-domains.lua": {
+          "sha256": "6ef41f0a26d34784c0b36ccfe82d9fbd607c0b99714587bb7592d668fceb44ea",
+          "size": 1584,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/quick-domains.lua"
+        },
+        "wezterm/types/plugins/quickselect.lua": {
+          "sha256": "296ab4e153fad394bac45a4888d46dfc82ca70d30497200357b10a6a01815165",
+          "size": 1204,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/quickselect.lua"
+        },
+        "wezterm/types/plugins/quota-limit.lua": {
+          "sha256": "d04e4a09ed52ce9df635c5db035b3c42aae1bae79e131e026ef2be64fff692a0",
+          "size": 781,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/quota-limit.lua"
+        },
+        "wezterm/types/plugins/replay.lua": {
+          "sha256": "de552cfaed1af164e0aa6f4f682c41a2ebd0a4bf8e123f6b54532b710dae4624",
+          "size": 721,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/replay.lua"
+        },
+        "wezterm/types/plugins/resurrect.lua": {
+          "sha256": "7738cd5cfb0fabca2bfe2b2e6817799c05d98f702b1914f464f47411df7f3df4",
+          "size": 4788,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/resurrect.lua"
+        },
+        "wezterm/types/plugins/ribbon.lua": {
+          "sha256": "011fe1371290581a78bf0215f02af39632b2184b62c3066d42731e708974a688",
+          "size": 4398,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/ribbon.lua"
+        },
+        "wezterm/types/plugins/rosepine.lua": {
+          "sha256": "0a7c4f346b740deeed9a8b37e9aca32720144387e41643fbe194c7992b0fc336",
+          "size": 821,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/rosepine.lua"
+        },
+        "wezterm/types/plugins/sessionizer.lua": {
+          "sha256": "b3cb2db2ca80d33d21ba927ebcd10e574d947be6e61ab271aefae6dd7555a64b",
+          "size": 1819,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/sessionizer.lua"
+        },
+        "wezterm/types/plugins/sigil.lua": {
+          "sha256": "107a0e4bef183610189f169149d654da066017b9a6a34cc9f1019e9502523165",
+          "size": 3065,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/sigil.lua"
+        },
+        "wezterm/types/plugins/smart-workspace-switcher.lua": {
+          "sha256": "92f991f7f2cea4d18e2af2a0e492ceaa83fe82399d953acebc733f04d758a0f7",
+          "size": 1303,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/smart-workspace-switcher.lua"
+        },
+        "wezterm/types/plugins/stack.lua": {
+          "sha256": "38cd3c8fb24cdb145e30ed6a6300f6e14f5bb8981b690f55d8cdf5e2764cb051",
+          "size": 918,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/stack.lua"
+        },
+        "wezterm/types/plugins/sync-panes.lua": {
+          "sha256": "0245bbe7a33b4db224ef59f6d06b410861dc0100ba2e6e48a8c41a3caf12c8bf",
+          "size": 665,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/sync-panes.lua"
+        },
+        "wezterm/types/plugins/sync.lua": {
+          "sha256": "9029359be23853c5f3180284b24eb1f65d354fd5d4fa7d95195a87856bc39ea0",
+          "size": 258,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/sync.lua"
+        },
+        "wezterm/types/plugins/tabline.lua": {
+          "sha256": "0115223ef7fc03e65e9030a074a51377fa20acc648736cefb5af401b15a34a5c",
+          "size": 6896,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/tabline.lua"
+        },
+        "wezterm/types/plugins/tabsets.lua": {
+          "sha256": "282096546820072dfe24b040510d65978b433d0ae85914cb3cef8b78045d3dbe",
+          "size": 2076,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/tabsets.lua"
+        },
+        "wezterm/types/plugins/toggle-terminal.lua": {
+          "sha256": "be2503ce6e9ff3939bbb2028739508282276eddc83fa9fc71d1fdda1fa22ac1d",
+          "size": 1132,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/toggle-terminal.lua"
+        },
+        "wezterm/types/plugins/warp.lua": {
+          "sha256": "a0bd89a910eee98bc6861a533f5a68d89ff57295a4ed1265e65f02501202ffdd",
+          "size": 29105,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/warp.lua"
+        },
+        "wezterm/types/plugins/wez-pain-control.lua": {
+          "sha256": "c5ce8f692e90f5dd00e7c77cd5184a50afedeec7fd83462b0cf7d50ff51cfddf",
+          "size": 293,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wez-pain-control.lua"
+        },
+        "wezterm/types/plugins/wez-tmux.lua": {
+          "sha256": "9ef33a8e60b3ac0d20a7d0bb4fca501402d1f48a4a835c342a94a57f295eb226",
+          "size": 1232,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wez-tmux.lua"
+        },
+        "wezterm/types/plugins/wezterm-config.lua": {
+          "sha256": "b8c9c767cd93308e23cfb06d97d92abcabae9fa7873ab831ecae64f202889366",
+          "size": 500,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wezterm-config.lua"
+        },
+        "wezterm/types/plugins/wezterm-sessions.lua": {
+          "sha256": "ff533889d6959c51b3a8d87b8747d3c482f98532e75e26172dd641bd46cf5e05",
+          "size": 1606,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wezterm-sessions.lua"
+        },
+        "wezterm/types/plugins/wezterm-status.lua": {
+          "sha256": "7af3f498733263b2e5f0d80f239af9501c41d2a9b87c5c5be8835d6875053cb4",
+          "size": 3405,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wezterm-status.lua"
+        },
+        "wezterm/types/plugins/wezterm-tabs.lua": {
+          "sha256": "dd3d2fd6f3bc3816b712481102da54c819a46effb7a48691a7cec3a39942f773",
+          "size": 1983,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wezterm-tabs.lua"
+        },
+        "wezterm/types/plugins/wezterm-theme-rotator.lua": {
+          "sha256": "1a337564c5fe3b3259946c396782e87780c585a1889a2781e381b06ee0ee4f3d",
+          "size": 753,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wezterm-theme-rotator.lua"
+        },
+        "wezterm/types/plugins/widgets.lua": {
+          "sha256": "b75656d248adb9c66e62c9e57ee9168fa1293320b3dc75a11138ee5dccf78961",
+          "size": 2403,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/widgets.lua"
+        },
+        "wezterm/types/plugins/workspace-picker.lua": {
+          "sha256": "62a878f24c637eda1c62361c304c8618e26fbc4bfb384546d4bb6a482ddbc273",
+          "size": 1613,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/workspace-picker.lua"
+        },
+        "wezterm/types/plugins/workspacesionizer.lua": {
+          "sha256": "0b109e8578b8e1991754a7ec59508fb59de60c024929fd70a07d244c38fc8ab0",
+          "size": 906,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/workspacesionizer.lua"
+        },
+        "wezterm/types/plugins/wsinit.lua": {
+          "sha256": "f6213b02e9bd8986d1659c87fcde468285cbcbc4524dad941271a90257ccf30e",
+          "size": 414,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/plugins/wsinit.lua"
+        },
+        "wezterm/types/wezterm.lua": {
+          "sha256": "d50ba9b967a2112a5a2aa057aced5821e099cd06f10afa77affd4dfb350e89a5",
+          "size": 74040,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm.lua"
+        },
+        "wezterm/types/wezterm/color.lua": {
+          "sha256": "0bbd0bbfb974f98896adb40222b58b630fc59ccd46290239366d914d2a391051",
+          "size": 7666,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/color.lua"
+        },
+        "wezterm/types/wezterm/gui.lua": {
+          "sha256": "6ac127ec75cf3ed976553474606a327428131cca600ec286d1edeee599b89ff9",
+          "size": 3573,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/gui.lua"
+        },
+        "wezterm/types/wezterm/mux.lua": {
+          "sha256": "1eacc46f8287fba20008dae720fcdd0ec6c404d8f9a9ec5369a75d80fb938d1e",
+          "size": 6212,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/mux.lua"
+        },
+        "wezterm/types/wezterm/nerdfonts.lua": {
+          "sha256": "750d3efe88471857fc31effecc1c131be604a62bc0abe8669db81b31a14210ce",
+          "size": 366033,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/nerdfonts.lua"
+        },
+        "wezterm/types/wezterm/plugin.lua": {
+          "sha256": "4e9ae22a048512570fd4c8e62b5a30533369d4e7ea6bfb0cfd382efbc63d5cfa",
+          "size": 1996,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/plugin.lua"
+        },
+        "wezterm/types/wezterm/procinfo.lua": {
+          "sha256": "cf85401ae4f8772597a46bcaec82b6af5fece221087c5796749bab488015a0f1",
+          "size": 1190,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/procinfo.lua"
+        },
+        "wezterm/types/wezterm/serde.lua": {
+          "sha256": "a460a2b8cc23ede7ed26eefd8ee44de8a20f3d765aa17b8a0c58fd093714aa1a",
+          "size": 1480,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/serde.lua"
+        },
+        "wezterm/types/wezterm/time.lua": {
+          "sha256": "ee68c451736d2444c855b2e6006b1b9c3e734476e6418e3bde169382b55d2bd2",
+          "size": 1442,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/time.lua"
+        },
+        "wezterm/types/wezterm/url.lua": {
+          "sha256": "cd4afc349aad3269704f10abd561700c56dd59934d7dd88a53f78473505f01cd",
+          "size": 1922,
+          "url": "https://raw.githubusercontent.com/DrKJeff16/wezterm-types/39511289aa040a7746a9e2d551b35ef330f15c77/lua/wezterm/types/wezterm/url.lua"
+        }
+      },
+      "homepage": "https://luarocks.org/modules/drkjeff16/wezterm-types",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 14 Oct 2026 23:52:25 GMT",
+        "rockspec": {
+          "date": "Wed, 14 Oct 2026 23:52:25 GMT",
+          "sha256": "926c32e96a130300ff8baf35740beedab50e51cb91830e2de0ffc3c62425500b",
+          "size": 966
+        },
+        "src": {
+          "date": "Wed, 14 Oct 2026 23:52:26 GMT",
+          "sha256": "08557fa9c1714f142e7c880aaaef242f0efb0e536c4a784cfd8cd8e574126410",
+          "size": 628929,
+          "url": "https://luarocks.org/wezterm-types-5.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "wezterm.types.colorschemes",
+        "wezterm.types.config",
+        "wezterm.types.enum.copy-mode-assignment",
+        "wezterm.types.enum.key-assignment",
+        "wezterm.types.enum.window_decorations",
+        "wezterm.types.events",
+        "wezterm.types.harfbuzz",
+        "wezterm.types.objects.color",
+        "wezterm.types.objects.exec-domain",
+        "wezterm.types.objects.local-process-info",
+        "wezterm.types.objects.mux-domain",
+        "wezterm.types.objects.mux-tab",
+        "wezterm.types.objects.mux-window",
+        "wezterm.types.objects.pane",
+        "wezterm.types.objects.pane-information",
+        "wezterm.types.objects.spawn-command",
+        "wezterm.types.objects.ssh-domain",
+        "wezterm.types.objects.tab-information",
+        "wezterm.types.objects.time",
+        "wezterm.types.objects.tls-domain-client",
+        "wezterm.types.objects.tls-domain-server",
+        "wezterm.types.objects.window",
+        "wezterm.types.objects.wsl-domain",
+        "wezterm.types.plugins.agent-deck",
+        "wezterm.types.plugins.ai-commander",
+        "wezterm.types.plugins.ai-helper",
+        "wezterm.types.plugins.attention",
+        "wezterm.types.plugins.bar",
+        "wezterm.types.plugins.battery",
+        "wezterm.types.plugins.chord",
+        "wezterm.types.plugins.cmd-sender",
+        "wezterm.types.plugins.cmdpicker",
+        "wezterm.types.plugins.dev",
+        "wezterm.types.plugins.kanagawa",
+        "wezterm.types.plugins.lantern",
+        "wezterm.types.plugins.lib",
+        "wezterm.types.plugins.listeners",
+        "wezterm.types.plugins.log",
+        "wezterm.types.plugins.memo",
+        "wezterm.types.plugins.modal",
+        "wezterm.types.plugins.nu-utf8-hack",
+        "wezterm.types.plugins.passrelay",
+        "wezterm.types.plugins.pinned-tabs",
+        "wezterm.types.plugins.pivot-panes",
+        "wezterm.types.plugins.presentation",
+        "wezterm.types.plugins.quick-domains",
+        "wezterm.types.plugins.quickselect",
+        "wezterm.types.plugins.quota-limit",
+        "wezterm.types.plugins.replay",
+        "wezterm.types.plugins.resurrect",
+        "wezterm.types.plugins.ribbon",
+        "wezterm.types.plugins.rosepine",
+        "wezterm.types.plugins.sessionizer",
+        "wezterm.types.plugins.sigil",
+        "wezterm.types.plugins.smart-workspace-switcher",
+        "wezterm.types.plugins.stack",
+        "wezterm.types.plugins.sync",
+        "wezterm.types.plugins.sync-panes",
+        "wezterm.types.plugins.tabline",
+        "wezterm.types.plugins.tabsets",
+        "wezterm.types.plugins.toggle-terminal",
+        "wezterm.types.plugins.warp",
+        "wezterm.types.plugins.wez-pain-control",
+        "wezterm.types.plugins.wez-tmux",
+        "wezterm.types.plugins.wezterm-config",
+        "wezterm.types.plugins.wezterm-sessions",
+        "wezterm.types.plugins.wezterm-status",
+        "wezterm.types.plugins.wezterm-tabs",
+        "wezterm.types.plugins.wezterm-theme-rotator",
+        "wezterm.types.plugins.widgets",
+        "wezterm.types.plugins.workspace-picker",
+        "wezterm.types.plugins.workspacesionizer",
+        "wezterm.types.plugins.wsinit",
+        "wezterm.types.wezterm",
+        "wezterm.types.wezterm.color",
+        "wezterm.types.wezterm.gui",
+        "wezterm.types.wezterm.mux",
+        "wezterm.types.wezterm.nerdfonts",
+        "wezterm.types.wezterm.plugin",
+        "wezterm.types.wezterm.procinfo",
+        "wezterm.types.wezterm.serde",
+        "wezterm.types.wezterm.time",
+        "wezterm.types.wezterm.url"
+      ],
+      "origin": {
+        "sha256": "0db490b06574abb4df1008eee251109d13d68a8bfb2a58200cf2721c5f590446",
+        "type": "archive",
+        "url": "https://github.com/DrKJeff16/wezterm-types/archive/39511289aa040a7746a9e2d551b35ef330f15c77.zip"
+      },
+      "size": 1044519,
+      "summary": "WezTerm Lua config types for LuaLS, with Neovim and VSCode support. Also supperts various WezTerm plugins.",
+      "undeclared_requires": [
+        "wezterm"
+      ],
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-23",
+        "loaded": 83,
+        "status": "ok",
+        "total": 83
+      }
+    }
+  }
+}

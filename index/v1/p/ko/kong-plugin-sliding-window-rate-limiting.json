@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-sliding-window-rate-limiting",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/sliding-window-rate-limiting/handler.lua": {
+          "sha256": "42d4868682f0b7dc304c27d1628dd2c6707019863dc7e7354b245eafc85de8de",
+          "size": 3086,
+          "url": "https://raw.githubusercontent.com/giovanibrioni/kong-plugin-sliding-window-rate-limiting/450074158543a59fb2e3b1e28c25844582660e86/kong/plugins/sliding-window-rate-limiting/handler.lua"
+        },
+        "kong/plugins/sliding-window-rate-limiting/policies/init.lua": {
+          "sha256": "64c11c7842c78cdad340f66c1dbfb54098a34da402bab4600f40e5d0d574184d",
+          "size": 4124,
+          "url": "https://raw.githubusercontent.com/giovanibrioni/kong-plugin-sliding-window-rate-limiting/450074158543a59fb2e3b1e28c25844582660e86/kong/plugins/sliding-window-rate-limiting/policies/init.lua"
+        },
+        "kong/plugins/sliding-window-rate-limiting/schema.lua": {
+          "sha256": "6d83ed67555e29bc628741022b820987ad1b1997ab16cc5661bf2d882edbefc3",
+          "size": 3700,
+          "url": "https://raw.githubusercontent.com/giovanibrioni/kong-plugin-sliding-window-rate-limiting/450074158543a59fb2e3b1e28c25844582660e86/kong/plugins/sliding-window-rate-limiting/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Sun, 07 Apr 2024 02:11:44 GMT",
+        "rockspec": {
+          "date": "Sun, 07 Apr 2024 02:11:44 GMT",
+          "sha256": "9dfdcb39e247dd661bffb954a3a03c99599677efa837fbc27fb47aed3ff19321",
+          "size": 845
+        },
+        "src": {
+          "date": "Sun, 07 Apr 2024 02:11:45 GMT",
+          "sha256": "80170cee7ce1d326421d8dde958afcf02625563aa59e2fb2691fd9d966d238f8",
+          "size": 25026,
+          "url": "https://luarocks.org/kong-plugin-sliding-window-rate-limiting-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.sliding-window-rate-limiting.handler",
+        "kong.plugins.sliding-window-rate-limiting.policies",
+        "kong.plugins.sliding-window-rate-limiting.schema"
+      ],
+      "origin": {
+        "commit": "450074158543a59fb2e3b1e28c25844582660e86",
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/giovanibrioni/kong-plugin-sliding-window-rate-limiting"
+      },
+      "size": 10910,
+      "summary": "This plugin has the same purpose as the [rate-limiting plugin](https://github.com/Kong/kong/tree/master/kong/plugins/), although but this implementation has better accuracy.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.",
+        "kong.reports",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.reports",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

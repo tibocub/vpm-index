@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "luasql-postgres",
+  "versions": {
+    "2.8.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://lunarmodules.github.io/luasql/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 14 Feb 2026 19:31:36 GMT",
+        "rockspec": {
+          "date": "Sat, 14 Feb 2026 19:31:36 GMT",
+          "sha256": "faa7429f4e786395cd812f18797d5d892b2fcf5e6131c4ade789d1f8c9806cb5",
+          "size": 987
+        },
+        "src": {
+          "date": "Sat, 14 Feb 2026 19:31:38 GMT",
+          "sha256": "f8e37adde3d732781ea9587efdb60566dee722bbb8aa4755b855161d33ce2113",
+          "size": 212955,
+          "url": "https://luarocks.org/luasql-postgres-2.8.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.postgres"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "PGSQL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "PGSQL": {
+              "header": "libpq-fe.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "LUASQL_VERSION_NUMBER=\"2.8.0\""
+              ],
+              "incdirs": [
+                "$(PGSQL_INCDIR)"
+              ],
+              "libdirs": [
+                "$(PGSQL_LIBDIR)"
+              ],
+              "libraries": [
+                "pq"
+              ],
+              "name": "luasql.postgres",
+              "sources": [
+                "src/luasql.c",
+                "src/ls_postgres.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 14 Feb 2026 19:31:38 GMT",
+        "sha256": "f8e37adde3d732781ea9587efdb60566dee722bbb8aa4755b855161d33ce2113",
+        "size": 212955,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasql-postgres-2.8.0-1.src.rock"
+      },
+      "summary": "Database connectivity for Lua (Postgres driver)",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

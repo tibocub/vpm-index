@@ -1,0 +1,40 @@
+--- Centralized messages for the Rockydocs plugin.
+local M = {}
+
+--- Table containing all messages in English (default language)
+M.messages = {
+	server = {
+		already_running = "Rockydocs server is already running on port 8000.",
+		started = "Rockydocs server started successfully!",
+		stopped = "Rockydocs server stopped successfully!",
+		not_running = "No Rockydocs server is running on port 8000.",
+		start_error = "Rockydocs server exited with code: %d",
+		stop_error = "Failed to stop Rockydocs server: %s",
+	},
+	build = {
+		success = "Rockydocs built successfully!",
+		error = "Error building Rockydocs. Exit code: %d",
+	},
+	project = {
+		created = "Rockydocs project created successfully!",
+		exists = "Error: mkdocs.yml already exists in the current directory.",
+		create_error = "Error creating new Rockydocs project. Exit code: %d",
+	},
+	config = {
+		missing_yml = "Error: mkdocs.yml not found in the current directory.",
+		uvx_not_found = "Error: 'uvx' is not installed or not found in configured paths.",
+	},
+	info = {
+		starting = "Starting Rockydocs...",
+		stopping = "MkDocs PID: %d, attempting to stop...",
+		building = "Building Rockydocs...",
+		creating = "Creating new Rockydocs project...",
+	},
+	browser = {
+		server_not_running = "Rockydocs server is not running. Start the server first.",
+		open_error = "Failed to open the browser. Ensure 'xdg-open' is available on Linux.",
+		opened = "Rockydocs opened in the default browser!",
+	},
+}
+
+return M

@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "lgdbm",
+  "versions": {
+    "20211118.52-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lgdbm",
+      "license": "Public domain",
+      "lua": ">=5.2, <5.5",
+      "luarocks": {
+        "date": "Thu, 18 Nov 2021 07:09:03 GMT",
+        "rockspec": {
+          "date": "Thu, 18 Nov 2021 07:09:03 GMT",
+          "sha256": "0e158819781f6b7da1e7ad6aa2f1208441c9c4e3656b912b05d304e65e778490",
+          "size": 1209
+        },
+        "src": {
+          "date": "Thu, 18 Nov 2021 07:09:04 GMT",
+          "sha256": "8cb7e25254b1c9889894654f6cf26d09f2c2ee10fe966f45152eb5deb0a24f9b",
+          "size": 4835,
+          "url": "https://luarocks.org/lgdbm-20211118.52-0.src.rock"
+        }
+      },
+      "modules": [
+        "gdbm"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "GDBM"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "GDBM": {
+              "header": "gdbm.h",
+              "library": "gdbm"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(GDBM_INCDIR)"
+              ],
+              "libdirs": [
+                "$(GDBM_LIBDIR)"
+              ],
+              "libraries": [
+                "gdbm"
+              ],
+              "name": "gdbm",
+              "sources": [
+                "lgdbm.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "gdbm"
+      },
+      "origin": {
+        "date": "Thu, 18 Nov 2021 07:09:04 GMT",
+        "sha256": "8cb7e25254b1c9889894654f6cf26d09f2c2ee10fe966f45152eb5deb0a24f9b",
+        "size": 4835,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lgdbm-20211118.52-0.src.rock"
+      },
+      "summary": "A database library for Lua using GDBM",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

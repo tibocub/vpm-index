@@ -1,0 +1,63 @@
+local ffi = require "ffi"
+local ffi_new = ffi.new
+local ffi_str = ffi.string
+local C = ffi.C
+
+local loaded, libcrypto
+
+if jit.os == "OSX" then
+	loaded, libcrypto = pcall(ffi.load, "/usr/lib/libcrypto.44.dylib")
+
+	if not loaded then
+		loaded, libcrypto = pcall(ffi.load, "libcrypto.so")
+
+		if not loaded then
+			loaded, libcrypto = pcall(ffi.load, "libcrypto.dylib")
+
+			if not loaded then
+				error("can't load libcrypto!")
+			end
+		end
+	end
+else
+	loaded, libcrypto = pcall(ffi.load, "crypto")
+
+	if not loaded then
+		error("can't load libcrypto!")
+	end
+end
+
+
+
+ffi.cdef[[
+int RAND_bytes(unsigned char *buf, int num);
+int RAND_pseudo_bytes(unsigned char *buf, int num);
+]]
+
+local _M = {}
+
+_M.random = {
+	bytes = function(len, strong)
+		local buf = ffi_new("char[?]", len)
+
+		if strong then
+			if libcrypto.RAND_bytes(buf, len) == 0 then
+				return nil
+			end
+		else
+			libcrypto.RAND_pseudo_bytes(buf,len)
+		end
+
+		return ffi_str(buf, len)
+	end
+}
+
+_M.string = {
+	to_hex = function(str)
+		return (str:gsub('.', function (c)
+			return string.format('%x', string.byte(c))
+		end))
+	end
+}
+
+return _M

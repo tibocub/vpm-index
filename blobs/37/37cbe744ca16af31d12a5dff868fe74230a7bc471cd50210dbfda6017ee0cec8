@@ -1,0 +1,21 @@
+--imports
+local Directive = require("dogma.syn._.Directive")
+local DirectiveType = require("dogma.syn.DirectiveType")
+
+--A coverage directive.
+local CoverageDirective = {}
+CoverageDirective.__index = CoverageDirective
+setmetatable(CoverageDirective, {__index = Directive})
+package.loaded[...] = CoverageDirective
+
+--Constructor.
+function CoverageDirective.new(ln, col, ignore)
+  local self
+
+  --(1) create
+  self = setmetatable(Directive.new(DirectiveType.COVERAGE, ln, col), CoverageDirective)
+  self.ignore = ignore
+
+  --(2) return
+  return self
+end

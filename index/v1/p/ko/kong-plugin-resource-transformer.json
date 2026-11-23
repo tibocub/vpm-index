@@ -1,0 +1,104 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-resource-transformer",
+  "versions": {
+    "0.0.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/resource-transformer/access.lua": {
+          "sha256": "64e9d09bf2747f9f09f46c9d6e4a8b94c1c41e5e543dda722a906c8d43d769d1",
+          "size": 1595,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/access.lua"
+        },
+        "kong/plugins/resource-transformer/api.lua": {
+          "sha256": "d619c7d60292db150599fab3f9515a06f9c12b8aaaed9cfc41448d89d6a82f1b",
+          "size": 2136,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/api.lua"
+        },
+        "kong/plugins/resource-transformer/daos.lua": {
+          "sha256": "160fd23a4501178d99825d472be94944211994ac51b3f6d0fb56d9af3685cf9c",
+          "size": 835,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/daos.lua"
+        },
+        "kong/plugins/resource-transformer/handler.lua": {
+          "sha256": "1aea1afe05899a1b5b11b35b9c2163c62a2631b354475176d87ba3210e7ff365",
+          "size": 2425,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/handler.lua"
+        },
+        "kong/plugins/resource-transformer/hooks.lua": {
+          "sha256": "24302d8b9ddb231e1ad7796ecb475127d19cec97c5d90ae18c8ef2571af98611",
+          "size": 1921,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/hooks.lua"
+        },
+        "kong/plugins/resource-transformer/migrations/cassandra.lua": {
+          "sha256": "1e07a4ec7c8d6afd5e493b0809429cf511b071c0e5869fce9226a85384bc2f20",
+          "size": 464,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/migrations/cassandra.lua"
+        },
+        "kong/plugins/resource-transformer/migrations/postgres.lua": {
+          "sha256": "ae7841c96407b59cc0169e86d2b8f19591b7029c7c35c61790fa199a9df799cb",
+          "size": 673,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/migrations/postgres.lua"
+        },
+        "kong/plugins/resource-transformer/schema.lua": {
+          "sha256": "c40aa24f62e84c3d9e1c24d31515521582995479f0e9dd4064ee6ec7f63b9684",
+          "size": 668,
+          "url": "https://raw.githubusercontent.com/MyMusicTaste/kong-plugin-resource-transformer/44f95218bb13c307170a4f65c4daf01ff82dff7d/kong/plugins/resource-transformer/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/MyMusicTaste/kong-plugin-resource-transformer",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 07 Jun 2018 08:25:41 GMT",
+        "rockspec": {
+          "date": "Thu, 07 Jun 2018 08:25:41 GMT",
+          "sha256": "8ad0d4006794709b53fb05cff6eaebc1e909d4d9f5e9bac903ccc8c693d6cc56",
+          "size": 2052
+        },
+        "src": {
+          "date": "Thu, 07 Jun 2018 08:25:42 GMT",
+          "sha256": "7e73cba8f9ab95cdb363bfff1791c7db215ae054645297d776ff71b23a6b87eb",
+          "size": 34807,
+          "url": "https://luarocks.org/kong-plugin-resource-transformer-0.0.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.resource-transformer.access",
+        "kong.plugins.resource-transformer.api",
+        "kong.plugins.resource-transformer.daos",
+        "kong.plugins.resource-transformer.handler",
+        "kong.plugins.resource-transformer.hooks",
+        "kong.plugins.resource-transformer.migrations.cassandra",
+        "kong.plugins.resource-transformer.migrations.postgres",
+        "kong.plugins.resource-transformer.schema"
+      ],
+      "origin": {
+        "commit": "44f95218bb13c307170a4f65c4daf01ff82dff7d",
+        "ref": "v0.0.6",
+        "type": "git",
+        "url": "https://github.com/MyMusicTaste/kong-plugin-resource-transformer"
+      },
+      "size": 10717,
+      "summary": "Kong plugin to transform the resource ids to uuids.",
+      "undeclared_requires": [
+        "kong.api.crud_helpers",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "resty.jit-uuid"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.responses",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 4,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "sphericaldefence",
+  "versions": {
+    "0.0.3-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/sphericaldefence/access.lua": {
+          "sha256": "7e6c232385416b65e5457e60bbb28a7965272bb3a50a057d91e915b8c292cf3e",
+          "size": 4927,
+          "url": "blob:7e6c232385416b65e5457e60bbb28a7965272bb3a50a057d91e915b8c292cf3e"
+        },
+        "kong/plugins/sphericaldefence/handler.lua": {
+          "sha256": "e849535283a90394d5e9e2eac52c083aee8e2634fa1206579662c17a1306285d",
+          "size": 465,
+          "url": "blob:e849535283a90394d5e9e2eac52c083aee8e2634fa1206579662c17a1306285d"
+        },
+        "kong/plugins/sphericaldefence/json.lua": {
+          "sha256": "c154eeaae5ddab3503162f5fd259e15a43d0a73ff3fa66b461d81d62dcc8121a",
+          "size": 55067,
+          "url": "blob:c154eeaae5ddab3503162f5fd259e15a43d0a73ff3fa66b461d81d62dcc8121a"
+        },
+        "kong/plugins/sphericaldefence/schema.lua": {
+          "sha256": "31eaed8d5314b080c541793ad1dd47f469190bb53875732daddfbecf2a8a48b3",
+          "size": 252,
+          "url": "blob:31eaed8d5314b080c541793ad1dd47f469190bb53875732daddfbecf2a8a48b3"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Wed, 29 Jan 2020 18:54:04 GMT",
+        "rockspec": {
+          "date": "Wed, 29 Jan 2020 18:54:04 GMT",
+          "sha256": "13c89bb7fabfb4d4775e35e7604bc0fa8adbd92551429f87da0c6bfbc5f51a74",
+          "size": 997
+        }
+      },
+      "modules": [
+        "kong.plugins.sphericaldefence.access",
+        "kong.plugins.sphericaldefence.handler",
+        "kong.plugins.sphericaldefence.json",
+        "kong.plugins.sphericaldefence.schema"
+      ],
+      "origin": {
+        "sha256": "5ca47d5dd65fb9cc488e20688e665bda7fa1cdfe99d3f188c9969780a74e829f",
+        "type": "archive",
+        "url": "https://kong-sphericaldefence.s3-us-west-2.amazonaws.com/kong-sphericaldefence-plugin.tar.gz"
+      },
+      "size": 60711,
+      "summary": "A Kong plugin that validates requests agains a running Spherical instance before proxying the original.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

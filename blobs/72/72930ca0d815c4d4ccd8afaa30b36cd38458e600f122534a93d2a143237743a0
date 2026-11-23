@@ -1,0 +1,17 @@
+#!/usr/bin/env lua
+local argparser
+argparser = require("lapis.cmd.actions.eswidget").argparser
+local parser = assert(argparser(), "Failed to get parser")
+local args = parser:parse((function()
+  local _accum_0 = { }
+  local _len_0 = 1
+  for _, v in ipairs(_G.arg) do
+    _accum_0[_len_0] = v
+    _len_0 = _len_0 + 1
+  end
+  return _accum_0
+end)())
+local run
+run = require("lapis.eswidget.cmd").run
+return run(args)
+-- vim: set filetype=lua:

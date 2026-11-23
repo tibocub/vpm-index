@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "cipher-log",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "stringy ~> 0.4-1",
+        "lua-cjson ~> 2.1.0-1",
+        "lua-resty-nettle"
+      ],
+      "files": {
+        "kong/plugins/cipher-log/handler.lua": {
+          "sha256": "d9079b98eeedde653b419d84c6f8b0aecbc9788b02f67abddbe64e4dfbad93d0",
+          "size": 12959,
+          "url": "https://raw.githubusercontent.com/devikamehra/cipher-log/4ba49b64efd32c009a724ea9b3a3643040c363f3/scr/handler.lua"
+        },
+        "kong/plugins/cipher-log/schema.lua": {
+          "sha256": "5003a68e5ffbf470bbb0918a898b1c98432b6764f053daad6b81f0a134e25f3f",
+          "size": 5099,
+          "url": "https://raw.githubusercontent.com/devikamehra/cipher-log/4ba49b64efd32c009a724ea9b3a3643040c363f3/scr/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "lua": "~> 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Sat, 30 Jul 2016 19:30:56 GMT",
+        "rockspec": {
+          "date": "Sat, 30 Jul 2016 19:30:56 GMT",
+          "sha256": "020b8b59d5aaa1798e35b8a262c1bb551aa40a70ea36e479cb219488da3e79aa",
+          "size": 466
+        },
+        "src": {
+          "date": "Sat, 30 Jul 2016 19:30:57 GMT",
+          "sha256": "cbd17abd11c491abc959aff9f1575cff7e4f95e470a06071139f38f16b6c53c8",
+          "size": 8857,
+          "url": "https://luarocks.org/cipher-log-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.cipher-log.handler",
+        "kong.plugins.cipher-log.schema"
+      ],
+      "origin": {
+        "commit": "4ba49b64efd32c009a724ea9b3a3643040c363f3",
+        "ref": "v1.0.1",
+        "type": "git",
+        "url": "https://github.com/devikamehra/cipher-log"
+      },
+      "size": 18058,
+      "summary": "A Kong plugin to encrypt file logs",
+      "undeclared_requires": [
+        "kong.dao.errors",
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "kong.tools.io",
+        "kong.tools.utils",
+        "lua_system_constants"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

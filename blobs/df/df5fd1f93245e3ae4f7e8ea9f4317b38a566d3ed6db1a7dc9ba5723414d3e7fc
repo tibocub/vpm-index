@@ -1,0 +1,50 @@
+--imports
+local SentType = require("dogma.syn.SentType")
+
+--A sentence.
+local Sent = {}
+Sent.__index = Sent
+package.loaded[...] = Sent
+
+--Constructor.
+function Sent.new(t, ln, col)
+  return setmetatable({
+    type = t,
+    line = ln,
+    col = col,
+    _ = {}
+  }, Sent)
+end
+
+--Check whether the sentence is a statement.
+function Sent:isStmt(stmt)
+  if stmt == nil then
+    return self.type == SentType.STMT
+  else
+    return self.type == SentType.STMT and self.subtype == stmt
+  end
+end
+
+--Check whether the sentence is a directive.
+function Sent:isDirective(dir)
+  if dir == nil then
+    return self.type == SentType.DIRECTIVE
+  else
+    return self.type == SentType.DIRECTIVE and self.subtype == dir
+  end
+end
+
+--Check whether the sentence is an expression.
+function Sent:isExp()
+  return self.type == SentType.EXP
+end
+
+--Check whether the sentence is a XML expression.
+function Sent:isXmlExp()
+  return self.type == SentType.XML_EXP
+end
+
+--Check whether the sentence is an unpack
+function Sent:isUnpack()
+  return self.type == SentType.UNPACK
+end

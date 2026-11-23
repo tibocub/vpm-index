@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "lua-casclib",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/nvs/lua-casclib",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Fri, 07 Aug 2020 01:05:30 GMT",
+        "rockspec": {
+          "date": "Fri, 07 Aug 2020 01:05:30 GMT",
+          "sha256": "3f2c20a2e9dd367c4dca96f5c966cdddfec4911b2c06af009d1f15dfb10b2aa6",
+          "size": 774
+        },
+        "src": {
+          "date": "Fri, 07 Aug 2020 01:05:30 GMT",
+          "sha256": "aebd17b0b653e4a8088b9cd4cab09a3ec7214142e76356c4b32d93b0c732af6f",
+          "size": 79687,
+          "url": "https://luarocks.org/lua-casclib-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "casclib"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "lib/compat-5.3/c-api"
+              ],
+              "libraries": [
+                "casc"
+              ],
+              "name": "casclib",
+              "sources": [
+                "src/common.c",
+                "src/init.c",
+                "src/file.c",
+                "src/finder.c",
+                "src/registry.c",
+                "src/storage.c",
+                "lib/compat-5.3/c-api/compat-5.3.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 07 Aug 2020 01:05:30 GMT",
+        "sha256": "aebd17b0b653e4a8088b9cd4cab09a3ec7214142e76356c4b32d93b0c732af6f",
+        "size": 79687,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-casclib-0.1.1-1.src.rock"
+      },
+      "summary": "A Lua binding to CascLib",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

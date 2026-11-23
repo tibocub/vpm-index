@@ -1,0 +1,41 @@
+local M = {}
+
+M.DEFAULT_WPM = 250
+M.DEFAULT_STEP = 25
+M.DEFAULT_MIN_WPM = 50
+
+local function positive_finite(value)
+    return type(value) == "number"
+        and value == value
+        and value ~= math.huge
+        and value ~= -math.huge
+        and value > 0
+end
+
+function M.read(raw)
+    if raw == nil then raw = {} end
+    if type(raw) ~= "table" then
+        return nil, "rsvp settings must be a table"
+    end
+
+    for key in pairs(raw) do
+        if key ~= "wpm" and key ~= "wpm_step" and key ~= "min_wpm" then
+            return nil, string.format("unknown rsvp setting %s", tostring(key))
+        end
+    end
+
+    local settings = {
+        wpm = raw.wpm == nil and M.DEFAULT_WPM or raw.wpm,
+        wpm_step = raw.wpm_step == nil and M.DEFAULT_STEP or raw.wpm_step,
+        min_wpm = raw.min_wpm == nil and M.DEFAULT_MIN_WPM or raw.min_wpm,
+    }
+    for key, value in pairs(settings) do
+        if not positive_finite(value) then
+            return nil, string.format("rsvp.%s must be a finite positive number", key)
+        end
+    end
+    settings.wpm = math.max(settings.wpm, settings.min_wpm)
+    return settings
+end
+
+return M

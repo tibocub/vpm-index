@@ -1,0 +1,129 @@
+local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local function base64(text)
+   local out = {}
+   for i = 1, #text, 3 do
+      local a, b, c = text:byte(i, i + 2)
+      local n = a * 65536 + (b or 0) * 256 + (c or 0)
+      local function digit(shift)
+         local index = math.floor(n / 2 ^ shift) % 64 + 1
+         return alphabet:sub(index, index)
+      end
+      out[#out + 1] = digit(18) .. digit(12) .. (b and digit(6) or "=") .. (c and digit(0) or "=")
+   end
+   return table.concat(out)
+end
+
+local function tool_status(name)
+   name = name or "?"
+   return "tool:" .. name:sub(1, 27)
+end
+
+local function command_status(name)
+   name = name or "?"
+   if name == "compact" then return "compacting" end
+   if name == "!" or name == "!!" then return "shell" end
+   return "cmd:" .. name:sub(1, 28)
+end
+
+return {
+   name = "report-status",
+   activate = function()
+      local uv = require("luv")
+      local function terminal_key()
+         if uv.guess_handle(1) ~= "tty" then return end
+         local stat = uv.fs_fstat(1)
+         if stat then return table.concat({ stat.dev, stat.ino, stat.rdev }, ":") end
+      end
+      local terminal = terminal_key()
+      if not terminal then return end
+      -- Preserve ownership across /new, but don't let a nested panto overwrite
+      -- or clear its parent's status. A different terminal may report normally.
+      local owner = terminal .. "@" .. string.format("%.0f", uv.os_getpid())
+      local inherited = os.getenv("PANTO_REPORT_STATUS_OWNER")
+      if inherited ~= owner and (inherited or ""):match("^(.*)@") == terminal then return end
+      uv.os_setenv("PANTO_REPORT_STATUS_OWNER", owner)
+
+      local panto = require("panto")
+      local last_state, last_status
+      local foreground_working, foreground_status = false, nil
+      local background_work = 0
+      local settled_state = "idle"
+      local ended = false
+
+      local function report(state, status)
+         if state == last_state and status == last_status then return end
+         -- Print mode can restore a redirected stdout after activation. Never
+         -- put control sequences in a pipe, file, or a different terminal.
+         if terminal_key() ~= terminal then return end
+         local sequence = "\27]7501;state=" .. state .. ":app=panto"
+         if status then
+            -- Preserve Herdr's label selection/truncation; sanitize only at
+            -- the OSC boundary, whose free-text fields forbid controls.
+            sequence = sequence .. ":msg=" .. base64((status:gsub("[^ -~]", "?")))
+         end
+         sequence = sequence .. "\27\\"
+         local offset = 0
+         while offset < #sequence do
+            local written, err = uv.fs_write(1, sequence:sub(offset + 1), -1)
+            if not written or written == 0 then
+               error("panto-report-status: terminal write failed: " .. tostring(err or "short write"))
+            end
+            offset = offset + written
+         end
+         last_state, last_status = state, status
+      end
+
+      local function update()
+         if ended then return end
+         if foreground_working or background_work > 0 then
+            report("working", foreground_working and foreground_status or "background")
+         else
+            report(settled_state)
+         end
+      end
+
+      local function foreground(status)
+         foreground_working, foreground_status, settled_state = true, status, "done"
+         update()
+      end
+
+      local function finish(event)
+         if foreground_working then
+            local reason = event and event.reason
+            settled_state = reason == "failed" and "error"
+               or ((reason == "interrupted" or reason == "exit_requested") and "idle" or "done")
+         end
+         foreground_working, foreground_status = false, nil
+         update()
+      end
+
+      panto.ext.on("session_ready", function()
+         foreground_working, foreground_status, background_work, settled_state = false, nil, 0, "idle"
+         update()
+      end)
+      panto.ext.on("turn_start", function() foreground("thinking") end)
+      panto.ext.on("agent_submission", function() foreground("thinking") end)
+      panto.ext.on("render_thinking", function() foreground("thinking") end)
+      panto.ext.on("command_start", function(event) foreground(command_status(event.command_name)) end)
+      panto.ext.on("command_end", finish)
+      panto.ext.on("render_compaction", function()
+         if foreground_working then foreground("compacting") end
+      end)
+      panto.ext.on("render_tool_details", function(event) foreground(tool_status(event.tool_name)) end)
+      panto.ext.on("render_assistant_text", function() foreground("responding") end)
+      panto.ext.on("turn_end", finish)
+      panto.ext.on("background_work_start", function()
+         if not foreground_working and background_work == 0 then settled_state = "done" end
+         background_work = background_work + 1
+         update()
+      end)
+      panto.ext.on("background_work_end", function()
+         background_work = math.max(0, background_work - 1)
+         update()
+      end)
+      panto.ext.on("session_end", function()
+         ended = true
+         report("clear")
+      end)
+   end,
+}

@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-mm-rate-limiting",
+  "versions": {
+    "0.0.5-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/mm-rate-limiting/datadog.lua": {
+          "sha256": "c107c3cda3bfd661084975c008f5903e2616eb45037c1d100d612eff90871680",
+          "size": 924,
+          "url": "https://raw.githubusercontent.com/ManoManoTech/kong-plugin-mm-rate-limiting/93c5d5936712e2559bab57032f4e9db60c3b4b34/kong/plugins/mm-rate-limiting/datadog.lua"
+        },
+        "kong/plugins/mm-rate-limiting/expiration.lua": {
+          "sha256": "b85e2d37e5fdf6b03c0346228abb69db3c7221b0f66573a05f27106b95537d49",
+          "size": 116,
+          "url": "https://raw.githubusercontent.com/ManoManoTech/kong-plugin-mm-rate-limiting/93c5d5936712e2559bab57032f4e9db60c3b4b34/kong/plugins/mm-rate-limiting/expiration.lua"
+        },
+        "kong/plugins/mm-rate-limiting/handler.lua": {
+          "sha256": "4820598df8e4a107afa66186ec2e6ed3f407355c1c57c9974ffb759945eb559d",
+          "size": 6638,
+          "url": "https://raw.githubusercontent.com/ManoManoTech/kong-plugin-mm-rate-limiting/93c5d5936712e2559bab57032f4e9db60c3b4b34/kong/plugins/mm-rate-limiting/handler.lua"
+        },
+        "kong/plugins/mm-rate-limiting/schema.lua": {
+          "sha256": "f4c95f5d09ee9db1721a8d08d289a10e1cdb809b54655dd791f54ab884ce2811",
+          "size": 4879,
+          "url": "https://raw.githubusercontent.com/ManoManoTech/kong-plugin-mm-rate-limiting/93c5d5936712e2559bab57032f4e9db60c3b4b34/kong/plugins/mm-rate-limiting/schema.lua"
+        }
+      },
+      "homepage": "https://www.manomano.fr",
+      "host": "openresty",
+      "license": "Private",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 03 Jun 2021 16:12:54 GMT",
+        "rockspec": {
+          "date": "Thu, 03 Jun 2021 16:12:54 GMT",
+          "sha256": "f5a9f177223060483934d8959af6394ae0ba3774806580a93f8f45beb3888bb7",
+          "size": 881
+        },
+        "src": {
+          "date": "Thu, 03 Jun 2021 16:12:55 GMT",
+          "sha256": "c1a244c352bc2684b2c7f098d2ccced0b1457f8c75cadd477b342848a9b7fbd1",
+          "size": 20710,
+          "url": "https://luarocks.org/kong-plugin-mm-rate-limiting-0.0.5-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.mm-rate-limiting.datadog",
+        "kong.plugins.mm-rate-limiting.expiration",
+        "kong.plugins.mm-rate-limiting.handler",
+        "kong.plugins.mm-rate-limiting.schema"
+      ],
+      "origin": {
+        "commit": "93c5d5936712e2559bab57032f4e9db60c3b4b34",
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/ManoManoTech/kong-plugin-mm-rate-limiting"
+      },
+      "size": 12557,
+      "summary": "Manomano plugin to handle rate limiting",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.plugins.datadog.statsd_logger",
+        "kong.tools.timestamp",
+        "resty.ipmatcher",
+        "resty.lrucache"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+-- The layered `[warming]` settings from config.toml.
+--
+-- Warming is off unless configured, like opencode's. Both spellings work:
+--
+--     warming = true                  -- on with every default
+--     warming = false                 -- explicitly off
+--
+--     [warming]                       -- on, with overrides
+--     prompt = "..."                  -- transient user message
+--     interval = "4 minutes"          -- idle time between model requests
+--     duration = "30 minutes"         -- window from the latest real request
+--     enabled = false                 -- opt out here instead of `warming = false`
+--
+-- Settings merge across the host's config layers (base, user, project,
+-- local -- lowest precedence first): later layers win per key, and a layer
+-- that omits a key keeps whatever earlier layers set. Anything unrecognized
+-- is an activation error: a typo in a feature that silently does nothing is
+-- worse than a loud failure.
+
+local M = {}
+
+M.DEFAULT_PROMPT = "Cache keep-alive. Do not perform any work and do not call any tools. Reply with exactly: OK"
+M.DEFAULT_INTERVAL_MS = 4 * 60 * 1000
+M.DEFAULT_DURATION_MS = 30 * 60 * 1000
+
+local UNITS = {
+    s = 1000, sec = 1000, secs = 1000, second = 1000, seconds = 1000,
+    m = 60000, min = 60000, mins = 60000, minute = 60000, minutes = 60000,
+    h = 3600000, hr = 3600000, hrs = 3600000, hour = 3600000, hours = 3600000,
+}
+
+function M.defaults()
+    return {
+        enabled = false,
+        prompt = M.DEFAULT_PROMPT,
+        interval_ms = M.DEFAULT_INTERVAL_MS,
+        duration_ms = M.DEFAULT_DURATION_MS,
+    }
+end
+
+-- parse_duration("4 minutes") -> 240000 | nil, err
+function M.parse_duration(text)
+    if type(text) ~= "string" then
+        return nil, "must be a duration string like \"4 minutes\""
+    end
+    local amount, unit = text:match("^%s*(%d+)%s*(%a+)%s*$")
+    local ms = amount and UNITS[unit:lower()] or nil
+    if not ms then
+        return nil, string.format(
+            "cannot read %q as a duration (want e.g. \"30 seconds\", \"4 minutes\", \"1 hour\")", text)
+    end
+    if tonumber(amount) < 1 then
+        return nil, "must be greater than zero"
+    end
+    return tonumber(amount) * ms
+end
+
+-- apply_layer(settings, value, path) -> true | nil, err
+--
+-- `value` is one config.toml layer's `warming` entry: a boolean or a table
+-- of overrides. Mutates and returns `settings`.
+function M.apply_layer(settings, value, path)
+    if type(value) == "boolean" then
+        settings.enabled = value
+        return true
+    end
+    if type(value) ~= "table" then
+        return nil, string.format("[warming] must be true, false, or a table in %s", path)
+    end
+    -- The table form is opencode's object form: its presence enables warming.
+    settings.enabled = true
+    for key, raw in pairs(value) do
+        if key == "enabled" then
+            if type(raw) ~= "boolean" then
+                return nil, string.format("warming.enabled must be a boolean in %s", path)
+            end
+            settings.enabled = raw
+        elseif key == "prompt" then
+            if type(raw) ~= "string" or raw == "" then
+                return nil, string.format("warming.prompt must be a non-empty string in %s", path)
+            end
+            settings.prompt = raw
+        elseif key == "interval" or key == "duration" then
+            local ms, err = M.parse_duration(raw)
+            if not ms then
+                return nil, string.format("warming.%s %s in %s", key, err, path)
+            end
+            settings[key .. "_ms"] = ms
+        else
+            return nil, string.format("unknown setting [warming] %s in %s", tostring(key), path)
+        end
+    end
+    return true
+end
+
+-- read(ext, io) -> settings | nil, err
+--
+-- Walks `ext.dirs.layers` and merges each layer's `warming` entry.
+-- `io = { read_file(path) -> text|nil, parse(text) -> table }` is injected
+-- so the layer walk runs under the selfcheck without the toml rock or a
+-- filesystem.
+function M.read(ext, io)
+    local settings = M.defaults()
+    local layers = ext.dirs and ext.dirs.layers
+    if type(layers) ~= "table" then
+        return settings
+    end
+    for _, layer in ipairs(layers) do
+        if type(layer) == "table" and type(layer.dir) == "string" then
+            local path = layer.dir .. "/config.toml"
+            local text = io.read_file(path)
+            if text then
+                local ok, parsed = pcall(io.parse, text)
+                if not ok then
+                    return nil, string.format("could not parse %s: %s", path, tostring(parsed))
+                end
+                if type(parsed) ~= "table" then
+                    return nil, string.format("could not parse %s", path)
+                end
+                if parsed.warming ~= nil then
+                    local applied, err = M.apply_layer(settings, parsed.warming, path)
+                    if not applied then
+                        return nil, err
+                    end
+                end
+            end
+        end
+    end
+    return settings
+end
+
+-- The production io: whole-file reads plus the toml2lua parser (`toml`
+-- module). `toml.parse` is strict, so a malformed config.toml fails
+-- activation instead of half-configuring warming.
+function M.default_io()
+    return {
+        read_file = function(path)
+            local file = io.open(path, "r")
+            if not file then
+                return nil
+            end
+            local text = file:read("*a")
+            file:close()
+            return text
+        end,
+        parse = function(text)
+            local ok, toml = pcall(require, "toml")
+            if not ok or type(toml) ~= "table" or type(toml.parse) ~= "function" then
+                error("the 'toml2lua' rock is required to read configuration")
+            end
+            return toml.parse(text, { strict = true })
+        end,
+    }
+end
+
+return M

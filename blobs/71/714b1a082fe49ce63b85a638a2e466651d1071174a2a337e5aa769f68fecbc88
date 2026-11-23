@@ -1,0 +1,31 @@
+--A function call argument.
+local Arg = {}
+Arg.__index = Arg
+package.loaded[...] = Arg
+
+--Constructor.
+function Arg.new(kind, arg1, arg2)
+  --(1) create
+  local self
+
+  if kind == "named" then
+    self = setmetatable({
+      kind = "named",
+      name = arg1,
+      value = arg2
+    }, Arg)
+  else
+    self = setmetatable({
+      kind = "positional",
+      value = arg1
+    }, Arg)
+  end
+
+  --(2) return
+  return self
+end
+
+--Check whether the argument is positional.
+function Arg:isPositional()
+  return self.kind == "positional"
+end

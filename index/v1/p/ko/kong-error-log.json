@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-error-log",
+  "versions": {
+    "2.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-error-log/handler.lua": {
+          "sha256": "501b95a37170102a75b5ba3c8e6861c07fa0d5fd6a1520159bf3f342ef40f977",
+          "size": 1320,
+          "url": "https://raw.githubusercontent.com/Optum/kong-error-log/6f0328966dd3f1532fa16830181285c27519dcd9/src/handler.lua"
+        },
+        "kong/plugins/kong-error-log/schema.lua": {
+          "sha256": "c826e00ee92df19d483590665632883c44ff5162703e4d6fb527bb60f71fddf9",
+          "size": 536,
+          "url": "https://raw.githubusercontent.com/Optum/kong-error-log/6f0328966dd3f1532fa16830181285c27519dcd9/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-error-log",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 23 May 2024 18:20:14 GMT",
+        "rockspec": {
+          "date": "Thu, 23 May 2024 18:20:14 GMT",
+          "sha256": "73a0420f823551be5f7f9199cd0502b005b60767d21fda4a6a66ac5d2d481acb",
+          "size": 1001
+        },
+        "src": {
+          "date": "Thu, 23 May 2024 18:20:16 GMT",
+          "sha256": "00a505ee26f82aefe74579e967c2c225d7d53833cd7a4f7562eb22c13655e8b1",
+          "size": 69265,
+          "url": "https://luarocks.org/kong-error-log-2.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-error-log.handler",
+        "kong.plugins.kong-error-log.schema"
+      ],
+      "origin": {
+        "commit": "6f0328966dd3f1532fa16830181285c27519dcd9",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-error-log.git"
+      },
+      "size": 1856,
+      "summary": "Plugin to expose NGINX error logs for Kong lua plugin consumption",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "ngx.errlog"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (ngx.errlog)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-acl-keycloak",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-cookie ~> 0.1.0"
+      ],
+      "files": {
+        "kong/plugins/acl-keycloak/handler.lua": {
+          "sha256": "8af86d5af459180992d07a99051f904e3defba4c71d302b9659e759357ecf516",
+          "size": 1340,
+          "url": "blob:8af86d5af459180992d07a99051f904e3defba4c71d302b9659e759357ecf516"
+        },
+        "kong/plugins/acl-keycloak/schema.lua": {
+          "sha256": "9080b80314c1f9f4a3417443e9fe6af3af1aa39e82719e3f5bb8fe3fd211d5cf",
+          "size": 587,
+          "url": "blob:9080b80314c1f9f4a3417443e9fe6af3af1aa39e82719e3f5bb8fe3fd211d5cf"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 23 Jun 2020 09:27:17 GMT",
+        "rockspec": {
+          "date": "Tue, 23 Jun 2020 09:27:17 GMT",
+          "sha256": "b7af972de6498ca3da1592e67f52c2a7bcb572962274f5a64bee96d30ff2c4be",
+          "size": 535
+        },
+        "src": {
+          "date": "Tue, 23 Jun 2020 09:27:18 GMT",
+          "sha256": "ad54a07786d069b9a87485a0754f7a9165b6f4d6b8544fa008dac9a0c617f669",
+          "size": 3293,
+          "url": "https://luarocks.org/kong-plugin-acl-keycloak-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.acl-keycloak.handler",
+        "kong.plugins.acl-keycloak.schema"
+      ],
+      "origin": {
+        "date": "Tue, 23 Jun 2020 09:27:18 GMT",
+        "sha256": "ad54a07786d069b9a87485a0754f7a9165b6f4d6b8544fa008dac9a0c617f669",
+        "size": 3293,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-acl-keycloak-1.0-1.src.rock"
+      },
+      "size": 1927,
+      "summary": "A Kong ACL plugin for keycloak from old pravin-raha/kong-plugin-oidc-acl and fixed",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

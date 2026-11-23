@@ -1,0 +1,60 @@
+{
+  "kind": "lib",
+  "name": "auth0-nginx",
+  "versions": {
+    "1.5.0-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-jwt = 0.1.5",
+        "lua-resty-http = 0.08"
+      ],
+      "files": {
+        "auth0-nginx.lua": {
+          "sha256": "410c198718aa05d57d3bb3d57feed0344d9d77b8fd71a766d35728710494d4a9",
+          "size": 10720,
+          "url": "https://raw.githubusercontent.com/maxamante/auth0-nginx/43f889ad12a667ea55b1d108b4e9b77ab999ffb1/src/auth0-nginx.lua"
+        }
+      },
+      "homepage": "https://auth0.com/",
+      "host": "openresty",
+      "license": "Apache2",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 24 Jan 2018 22:59:29 GMT",
+        "rockspec": {
+          "date": "Wed, 24 Jan 2018 22:59:29 GMT",
+          "sha256": "7b3d7b8c3019a93495dfe6fbb2748a109fb996f32949e020e3aa8420c1769639",
+          "size": 508
+        }
+      },
+      "modules": [
+        "auth0-nginx"
+      ],
+      "origin": {
+        "commit": "43f889ad12a667ea55b1d108b4e9b77ab999ffb1",
+        "ref": "1.5.0",
+        "type": "git",
+        "url": "https://github.com/maxamante/auth0-nginx"
+      },
+      "size": 10720,
+      "summary": "An Auth0 + nginx integration",
+      "undeclared_requires": [
+        "resty.jwt",
+        "resty.jwt-validators"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

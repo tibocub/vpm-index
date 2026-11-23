@@ -1,0 +1,23 @@
+-- panto-agent: the agent.* extension suite for pantograph.
+--
+-- Returns the list of extension entries this rock provides. When loaded as a
+-- rock, `require` passes this chunk its module name and submodules are
+-- namespaced. The directory scanner supplies no arguments and puts this
+-- directory on `package.path`, so it must load siblings instead. Do not probe
+-- both: an installed rock may coexist with a newer local checkout.
+
+local module_name = ...
+local prefix = module_name == "panto-agent" and "panto-agent." or ""
+
+local function sub(name)
+    -- Truncate to one value: require returns (module, loaderdata) and a
+    -- trailing multi-value would expand inside the entries list below.
+    local mod = require(prefix .. name)
+    return mod
+end
+
+return {
+    sub("commands"),
+    sub("rules"),
+    sub("skills"),
+}

@@ -1,0 +1,19 @@
+--A var declaration.
+local VarDecl = {}
+VarDecl.__index = VarDecl
+package.loaded[...] = VarDecl
+
+--Constructor.
+--
+--@param type:string      Declaration type: var or const.
+--@param sub:string       Subtype: std (standard), map, list.
+--@param names:string[]   Variable names.
+--@param val:Exp          Value to assign.
+function VarDecl.new(type, sub, names, val)
+  return setmetatable({
+    type = type,
+    subtype = sub,
+    names = names,
+    value = val
+  }, VarDecl)
+end

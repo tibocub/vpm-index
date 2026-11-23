@@ -1,0 +1,109 @@
+{
+  "kind": "lib",
+  "name": "opengl",
+  "versions": {
+    "1.11-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://luagl.sourceforge.net/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 12 Sep 2017 12:10:24 GMT",
+        "rockspec": {
+          "date": "Tue, 12 Sep 2017 12:10:24 GMT",
+          "sha256": "5e5dbbd58dfcfcad3c5437a7856665b7c643b2e0dd9b5e1cdcf032413a8de027",
+          "size": 1134
+        },
+        "src": {
+          "date": "Tue, 12 Sep 2017 12:10:26 GMT",
+          "sha256": "f3947e7c6eda254b63ba6c0e6a7f544bc6e84598b18c847db532d0f4f65da066",
+          "size": 56794,
+          "url": "https://luarocks.org/opengl-1.11-1.src.rock"
+        }
+      },
+      "modules": [
+        "luagl",
+        "luaglu"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "GL",
+          "GLU"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "GL": {
+              "header": "GL/gl.h"
+            },
+            "GLU": {
+              "header": "GL/glu.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "include",
+                "$(GL_INCDIR)"
+              ],
+              "libdirs": [
+                "$(GL_LIBDIR)"
+              ],
+              "libraries": [
+                "GL"
+              ],
+              "name": "luagl",
+              "sources": [
+                "src/luagl.c",
+                "src/luagl_util.c",
+                "src/luagl_const.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "include",
+                "$(GLU_INCDIR)",
+                "$(GL_INCDIR)"
+              ],
+              "libdirs": [
+                "$(GLU_LIBDIR)"
+              ],
+              "libraries": [
+                "GLU"
+              ],
+              "name": "luaglu",
+              "sources": [
+                "src/luaglu.c",
+                "src/luagl_util.c",
+                "src/luagl_const.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "luagl"
+      },
+      "origin": {
+        "date": "Tue, 12 Sep 2017 12:10:26 GMT",
+        "sha256": "f3947e7c6eda254b63ba6c0e6a7f544bc6e84598b18c847db532d0f4f65da066",
+        "size": 56794,
+        "type": "luarocks",
+        "url": "https://luarocks.org/opengl-1.11-1.src.rock"
+      },
+      "summary": "Lua bindings for OpenGL",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

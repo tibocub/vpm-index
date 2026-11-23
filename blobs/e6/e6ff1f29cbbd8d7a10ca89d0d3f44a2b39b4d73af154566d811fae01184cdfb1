@@ -1,0 +1,81 @@
+local ingest = require 'ingest'
+local util = require 'netacea_util'
+local session_mod = require 'netacea_session'
+local ingest_record = require 'netacea_ingest_record'
+local netacea_txn = require 'netacea_txn'
+
+local netacea_mitigation = {}
+
+local MITIGATION_BODY = "Forbidden\n"
+
+-- Replies immediately with a 403, short-circuiting the transaction before a
+-- backend is ever selected. That means the http-res-scoped
+-- netacea_response_handler (registered against the backend in haproxy.cfg)
+-- never runs for this request, so its ingest data has to be enqueued here
+-- instead - otherwise mitigated requests would never reach Kinesis.
+function netacea_mitigation.mitigate(txn, config, session)
+    local reply = txn:reply()
+    reply:set_status(403, "Forbidden")
+    reply:add_header("content-type", "text/plain")
+    reply:set_body(MITIGATION_BODY)
+
+    local set_cookie = session_mod.build_set_cookie(session, config)
+    if set_cookie then
+        reply:add_header("set-cookie", set_cookie)
+    end
+
+    if ingest.enabled then
+        ingest.enqueue(ingest_record.build(session, {
+            status = "403",
+            bytes_sent = #MITIGATION_BODY,
+            request_id = session.request_id or netacea_txn.request_id(txn),
+            bytes_received = util.safe_call(function() return txn.f:req_len() end) or 0,
+            request_time = string.format("%.3f", util.now() - (session.start_time or util.now())),
+        }))
+    end
+
+    txn:done(reply)
+end
+
+-- Same short-circuit as mitigate(), but for monetised traffic: redirects to
+-- the Protector API's supplied redirect host when present, otherwise falls
+-- back to a 402 Payment Required.
+function netacea_mitigation.monetise(txn, config, session)
+    local reply = txn:reply()
+    local status, body
+
+    if session.redirect_host and session.redirect_host ~= "" then
+        local path = util.safe_call(function() return txn.f:path() end) or ""
+        local query = util.safe_call(function() return txn.f:query() end) or ""
+        local location = "https://" .. session.redirect_host .. path .. (query ~= "" and ("?" .. query) or "")
+
+        status, body = 303, "303 See Other\n"
+        reply:set_status(status, "See Other")
+        reply:add_header("location", location)
+    else
+        status, body = 402, "402 Payment Required\n"
+        reply:set_status(status, "Payment Required")
+    end
+
+    reply:add_header("content-type", "text/plain")
+    reply:set_body(body)
+
+    local set_cookie = session_mod.build_set_cookie(session, config)
+    if set_cookie then
+        reply:add_header("set-cookie", set_cookie)
+    end
+
+    if ingest.enabled then
+        ingest.enqueue(ingest_record.build(session, {
+            status = tostring(status),
+            bytes_sent = #body,
+            request_id = session.request_id or netacea_txn.request_id(txn),
+            bytes_received = util.safe_call(function() return txn.f:req_len() end) or 0,
+            request_time = string.format("%.3f", util.now() - (session.start_time or util.now())),
+        }))
+    end
+
+    txn:done(reply)
+end
+
+return netacea_mitigation

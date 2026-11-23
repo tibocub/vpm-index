@@ -1,0 +1,112 @@
+{
+  "kind": "lib",
+  "name": "sheets",
+  "versions": {
+    "2.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "sheets/dialect.lua": {
+          "sha256": "f415935d56da320be440a122493dbeb75e4a70495e0812668d869fdf409e9cfb",
+          "size": 6217,
+          "url": "blob:f415935d56da320be440a122493dbeb75e4a70495e0812668d869fdf409e9cfb"
+        },
+        "sheets/dictreader.lua": {
+          "sha256": "fbfc84d4448fb93b61e67a4ae135200fef04e50f6bf0f4853e430930a66f3b9b",
+          "size": 3280,
+          "url": "blob:fbfc84d4448fb93b61e67a4ae135200fef04e50f6bf0f4853e430930a66f3b9b"
+        },
+        "sheets/dictwriter.lua": {
+          "sha256": "be83c82fe9a07391ab24c3de9700d48801276f1a69f0207a25d9124a532eca88",
+          "size": 4955,
+          "url": "blob:be83c82fe9a07391ab24c3de9700d48801276f1a69f0207a25d9124a532eca88"
+        },
+        "sheets/init.lua": {
+          "sha256": "c975fa3095c6652cc47e516daf59c592025c4472f8f462ddd665926fbcc874c0",
+          "size": 8846,
+          "url": "blob:c975fa3095c6652cc47e516daf59c592025c4472f8f462ddd665926fbcc874c0"
+        },
+        "sheets/reader.lua": {
+          "sha256": "c039c32384046f473d97578335d7adc72f4957083c890fe6b46261b10fb985c3",
+          "size": 9676,
+          "url": "blob:c039c32384046f473d97578335d7adc72f4957083c890fe6b46261b10fb985c3"
+        },
+        "sheets/sniffer.lua": {
+          "sha256": "03ce312ba111d828781166baa7fe95045b54b7b92ded6695a57c644992ad2d49",
+          "size": 6362,
+          "url": "blob:03ce312ba111d828781166baa7fe95045b54b7b92ded6695a57c644992ad2d49"
+        },
+        "sheets/writer.lua": {
+          "sha256": "eba53e5ad83528573d35c229e622a3d4aac46c17b6ce0e6942fef68b2d205d1b",
+          "size": 3269,
+          "url": "blob:eba53e5ad83528573d35c229e622a3d4aac46c17b6ce0e6942fef68b2d205d1b"
+        }
+      },
+      "homepage": "https://github.com/NNEngine",
+      "license": "MIT",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Sat, 04 Jul 2026 12:03:21 GMT",
+        "rockspec": {
+          "date": "Sat, 04 Jul 2026 12:03:21 GMT",
+          "sha256": "92310b80458332b4ad0dda562a4638153cd1f03157127faf75321d63154ec013",
+          "size": 1940
+        },
+        "src": {
+          "date": "Sat, 04 Jul 2026 12:03:26 GMT",
+          "sha256": "5e1c82847dbe5f940c05860b59290560fff8f8a39d0211f6e576072af1dfaad2",
+          "size": 1309622,
+          "url": "https://luarocks.org/sheets-2.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "sheets",
+        "sheets.core",
+        "sheets.dialect",
+        "sheets.dictreader",
+        "sheets.dictwriter",
+        "sheets.reader",
+        "sheets.sniffer",
+        "sheets.writer"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "lib/libcsv"
+              ],
+              "name": "sheets.core",
+              "sources": [
+                "sheets/core.c",
+                "lib/libcsv/libcsv.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 04 Jul 2026 12:03:26 GMT",
+        "sha256": "5e1c82847dbe5f940c05860b59290560fff8f8a39d0211f6e576072af1dfaad2",
+        "size": 1309622,
+        "type": "luarocks",
+        "url": "https://luarocks.org/sheets-2.0.0-1.src.rock"
+      },
+      "size": 42605,
+      "summary": "Fast, memory-efficient CSV and tabular data toolkit for Lua",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 8,
+        "status": "ok",
+        "total": 8
+      }
+    }
+  }
+}

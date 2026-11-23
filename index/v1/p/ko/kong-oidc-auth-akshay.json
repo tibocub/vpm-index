@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-auth-akshay",
+  "versions": {
+    "0.1-3": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-jwt ~> 0.2.0-0"
+      ],
+      "files": {
+        "kong/plugins/kong-oidc-auth-akshay/access.lua": {
+          "sha256": "bd34e7c5a35f4dd8c1a5f599d79009b62c84465f27f82bb91fd22a44ab0ea378",
+          "size": 11599,
+          "url": "https://raw.githubusercontent.com/akshay-harale/kong-oidc-auth/53f2f59c55e846c30a194a09c64bb1be6effb2a1/src/access.lua"
+        },
+        "kong/plugins/kong-oidc-auth-akshay/handler.lua": {
+          "sha256": "a75afc8055b5153aba5de36f5bc99e8834ea4b0fb076e5dfdbf56f3904a72b55",
+          "size": 393,
+          "url": "https://raw.githubusercontent.com/akshay-harale/kong-oidc-auth/53f2f59c55e846c30a194a09c64bb1be6effb2a1/src/handler.lua"
+        },
+        "kong/plugins/kong-oidc-auth-akshay/schema.lua": {
+          "sha256": "bdfc05c473d71ceb9352d64908ab8c2bc9d27e4344b396bfd42292efa01359cf",
+          "size": 1681,
+          "url": "https://raw.githubusercontent.com/akshay-harale/kong-oidc-auth/53f2f59c55e846c30a194a09c64bb1be6effb2a1/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/akshay-harale/kong-oidc-auth",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 15 Jun 2018 09:50:19 GMT",
+        "rockspec": {
+          "date": "Fri, 15 Jun 2018 09:50:19 GMT",
+          "sha256": "62c4c439a7aa0ce075fdf70527cce56ca83280254a965b4d84146adbdefaa6c2",
+          "size": 740
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-oidc-auth-akshay.access",
+        "kong.plugins.kong-oidc-auth-akshay.handler",
+        "kong.plugins.kong-oidc-auth-akshay.schema"
+      ],
+      "origin": {
+        "commit": "53f2f59c55e846c30a194a09c64bb1be6effb2a1",
+        "type": "git",
+        "url": "https://github.com/akshay-harale/kong-oidc-auth"
+      },
+      "size": 13673,
+      "summary": "OpenID Connect authentication with Kong gateway",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "openssl.cipher",
+        "openssl.digest",
+        "pl.stringx",
+        "resty.http",
+        "resty.jwt",
+        "resty.string",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

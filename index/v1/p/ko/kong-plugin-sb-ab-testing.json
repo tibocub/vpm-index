@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-sb-ab-testing",
+  "versions": {
+    "0.4.3-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/sb-ab-testing/access.lua": {
+          "sha256": "acaa4aadfc220f45f5b0f6e111f49a662ad35d00a2bfa6219d3b8c12cbedf2ad",
+          "size": 8412,
+          "url": "blob:acaa4aadfc220f45f5b0f6e111f49a662ad35d00a2bfa6219d3b8c12cbedf2ad"
+        },
+        "kong/plugins/sb-ab-testing/handler.lua": {
+          "sha256": "dc807ee7c1d01bf6533b7f67da916dc5933712b6405346e6823c78dce7f85c34",
+          "size": 191,
+          "url": "blob:dc807ee7c1d01bf6533b7f67da916dc5933712b6405346e6823c78dce7f85c34"
+        },
+        "kong/plugins/sb-ab-testing/schema.lua": {
+          "sha256": "93724d5a96835b85fbb9824e3c29bd2ee5e12e22ca886a270a040afa1669a877",
+          "size": 1714,
+          "url": "blob:93724d5a96835b85fbb9824e3c29bd2ee5e12e22ca886a270a040afa1669a877"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 15 Jul 2026 08:45:23 GMT",
+        "rockspec": {
+          "date": "Wed, 15 Jul 2026 08:45:23 GMT",
+          "sha256": "3555aa861ae6fa4976a9bd951ffef531b0543d52e13286220acb791a8f7802a7",
+          "size": 919
+        },
+        "src": {
+          "date": "Wed, 15 Jul 2026 08:45:24 GMT",
+          "sha256": "cf73257377bfe1c8a2e0f4d487d4cee8215a8b5d894f7f2fc0d48dacc55d32df",
+          "size": 3841,
+          "url": "https://luarocks.org/kong-plugin-sb-ab-testing-0.4.3-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.sb-ab-testing.access",
+        "kong.plugins.sb-ab-testing.handler",
+        "kong.plugins.sb-ab-testing.schema"
+      ],
+      "origin": {
+        "sha256": "6cb2ddd0d81f56fa467819bd8b069f9e46b1783fbc4a3ce5629b32b3ed941864",
+        "type": "archive",
+        "url": "https://storage.googleapis.com/cloud-site-builder-bucket-prod/kong-plugin-sb-ab-testing-0.4.3-0.tar.gz"
+      },
+      "size": 10317,
+      "summary": "A plugin that implements AB tests by Xsolla Splitter API",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser",
+        "resty.http",
+        "resty.jit-uuid"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

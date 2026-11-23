@@ -1,0 +1,680 @@
+--
+-- lua-TestAssertion : <https://fperrad.frama.io/lua-TestAssertion/>
+--
+
+local loadstring = loadstring or load
+local pairs = pairs
+local pcall = pcall
+local require = require
+local tonumber = tonumber
+local tostring = tostring
+local type = type
+local ceil = math.ceil
+local math_type = math.type or function (n)
+    if type(n) == 'number' then
+        if n <= 9007199254740992 and n >= -9007199254740992 and n % 1 == 0 then
+            return 'integer'
+        else
+            return 'float'
+        end
+    else
+        return nil
+    end
+end
+local byte = string.byte
+local find = string.find
+local format = string.format
+local gsub = string.gsub
+local len = string.len
+local match = string.match
+local sub = string.sub
+local unpack = table.unpack or unpack
+local _G = _G
+local tb = require'Test.Builder'.new()
+
+local _ENV = nil
+local m = {}
+
+-- Maximum string length displayed in diagnostics
+m.max = 50
+
+-- Amount of context provided when starting displaying a string in the middle
+m.context = 10
+
+-- should we show LCSS context ?
+m.LCSS = true
+
+-- what a end of line is
+m.EOL = '\n'
+
+local function display (str, offset)
+    local fmt = '"%s"'
+    if len(str) > m.max then
+        offset = offset or 1
+        if m.context then
+            offset = offset - m.context
+            if offset < 1 then
+                offset = 1
+            end
+        else
+            offset = 1
+        end
+        if offset == 1 then
+            fmt = '"%s"...'
+        else
+            fmt = '..."%s"...'
+        end
+        str = sub(str, offset, offset + m.max - 1)
+    end
+    str = gsub(str, '.', function (ch)
+        local val = byte(ch)
+        if val < 32 or val > 127 then
+            return '\\' .. format('%03d', val)
+        else
+            return ch
+        end
+    end)
+    return format(fmt, str)
+end
+
+local function common_prefix_length (str1, str2)
+    local i = 1
+    while true do
+        local c1 = sub(str1, i, i)
+        local c2 = sub(str2, i, i)
+        if not c1 or not c2 or c1 ~= c2 then
+            return i
+        end
+        i = i + 1
+    end
+end
+
+local function lcss (S, T)
+    local L = {}
+    local offset = 1
+    local length = 0
+    for i = 1, len(S) do
+        for j = 1, len(T) do
+            if byte(S, i) == byte(T, j) then
+                if i == 1 or j == 1 then
+                    L[i] = L[i] or {}
+                    L[i][j] = 1
+                else
+                    L[i-1] = L[i-1] or {}
+                    L[i] = L[i] or {}
+                    L[i][j] = (L[i-1][j-1] or 0) + 1
+                end
+                if L[i][j] > length then
+                    length = L[i][j]
+                    offset = i - length + 1
+                end
+            end
+        end
+    end
+    return offset, length
+end
+
+local function line_column (str, max)
+    local init = 1
+    local line = 1
+    while true do
+        local pos, posn = find(str, m.EOL, init)
+        if not pos or pos >= max then
+            break
+        end
+        init = posn + 1
+        line = line + 1
+    end
+    return line, max - init + 1
+end
+
+local function dump (val, indent, key)
+    local prefix = key == nil and ''
+                               or type(key) == 'string' and key .. ' = '
+                                                         or '[' .. tostring(key) .. '] = '
+    indent = not indent and ''
+                         or indent .. '  '
+    if type(val) == 'table' then
+        tb:diag(indent, prefix, '{')
+        for k, v in pairs(val) do
+            dump(v, indent, k)
+        end
+        tb:diag(indent, '}', indent ~= '' and ',' or '')
+    elseif type(val) == 'string' then
+        tb:diag(indent, prefix, format('%q', val), indent ~= '' and ',' or '')
+    else
+        tb:diag(indent, prefix, tostring(val), indent ~= '' and ',' or '')
+    end
+end
+
+function m.plan (arg)
+    tb:plan(arg)
+end
+
+function m.done_testing (num_tests)
+    tb:done_testing(num_tests)
+end
+
+function m.skip_all (reason)
+    tb:skip_all(reason)
+end
+
+function m.BAIL_OUT (reason)
+    tb:BAIL_OUT(reason)
+end
+
+function m.subtest (name, func)
+    tb:subtest(name, func)
+end
+
+function m.diag (msg)
+    tb:diag(msg)
+end
+
+function m.note (msg)
+    tb:note(msg)
+end
+
+function m.dump (val)
+    dump(val)
+end
+
+function m.skip (reason, count)
+    count = count or 1
+    for _ = 1, count do
+        tb:skip(reason)
+    end
+end
+
+function m.todo_skip (reason, count)
+    count = count or 1
+    for _ = 1, count do
+        tb:todo_skip(reason)
+    end
+end
+
+function m.skip_rest (reason)
+    tb:skip_rest(reason)
+end
+
+function m.todo (reason, count)
+    tb:todo(reason, count)
+end
+
+function m.pass (name)
+    tb:ok(true, name)
+end
+m.passes = m.pass
+
+function m.fail (name)
+    tb:ok(false, name)
+end
+m.fails = m.fail
+
+function m.truthy (test, name)
+    tb:ok(test, name)
+end
+
+function m.falsy (test, name)
+    tb:ok(not test, name)
+end
+
+function m.equal (got, expected, name)
+    local pass = got == expected
+    tb:ok(pass, name)
+    if not pass then
+        if type(got) == 'string' and type(expected) == 'string' then
+            local common_prefix = common_prefix_length(got, expected)
+            local line, column = line_column(got, common_prefix)
+            tb:diag("         got: ", display(got, common_prefix),
+                  "\n    expected: ", display(expected, common_prefix),
+                  "\n    strings begin to differ at char ", tostring(common_prefix), " (line ",
+                                                            tostring(line), " column ",
+                                                            tostring(column), ")")
+        else
+            tb:diag("         got: ", tostring(got),
+                  "\n    expected: ", tostring(expected))
+        end
+    end
+end
+m.equals = m.equal
+
+function m.not_equal (got, expected, name)
+    local pass = got ~= expected
+    tb:ok(pass, name)
+    if not pass then
+        tb:diag("         got: ", tostring(got),
+              "\n    expected: anything else")
+    end
+end
+m.not_equals = m.not_equal
+
+local function is_type (t)
+    return function (val, name)
+        if type(val) == t then
+            tb:ok(true, name)
+        else
+            tb:ok(false, name)
+            tb:diag("    ", tostring(val), " isn't a ", t, ", it's a ", type(val))
+        end
+    end
+end
+local function is_not_type (t)
+    return function (val, name)
+        if type(val) ~= t then
+            tb:ok(true, name)
+        else
+            tb:ok(false, name)
+            tb:diag("    got type: ", name,
+                  "\n    expected: anything else")
+        end
+    end
+end
+local types = { 'boolean', 'cdata', 'function', 'number', 'string', 'table', 'thread', 'userdata' }
+for i = 1, #types do
+    local t = types[i]
+    m['is_' .. t] = is_type(t)
+    m['is_not_' .. t] = is_not_type(t)
+end
+
+local function is_math_type (t)
+    return function (val, name)
+        if math_type(val) == t then
+            tb:ok(true, name)
+        else
+            tb:ok(false, name)
+            tb:diag("    ", tostring(val), " isn't a ", t, ", it's a ", math_type(val) or type(val))
+        end
+    end
+end
+m.is_integer = is_math_type('integer')
+m.is_float = is_math_type('float')
+
+local function is_value (expected)
+    return function (got, name)
+        local pass = got == expected
+        tb:ok(pass, name)
+        if not pass then
+            tb:diag("         got: ", tostring(got),
+                  "\n    expected: ", tostring(expected))
+        end
+    end
+end
+m.is_nil = is_value(nil)
+m.is_true = is_value(true)
+m.is_false = is_value(false)
+
+local function is_not_value (expected)
+    return function (got, name)
+        local pass = got ~= expected
+        tb:ok(pass, name)
+        if not pass then
+            tb:diag("         got: ", tostring(got),
+                  "\n    expected: anything else")
+        end
+    end
+end
+m.is_not_nil = is_not_value(nil)
+m.is_not_true = is_not_value(true)
+m.is_not_false = is_not_value(false)
+
+local function is_cmp (op, f)
+    return function (this, that, name)
+        local pass = f(this, that)
+        tb:ok(pass, name)
+        if not pass then
+            tb:diag("    ", tostring(this),
+                  "\n        ", op,
+                  "\n    ", tostring(that))
+        end
+    end
+end
+m.is_eq = is_cmp('==', function (a, b) return a >= b end)
+m.is_ge = is_cmp('>=', function (a, b) return a >= b end)
+m.is_gt = is_cmp('>',  function (a, b) return a >  b end)
+m.is_le = is_cmp('<=', function (a, b) return a <= b end)
+m.is_lt = is_cmp('<',  function (a, b) return a <  b end)
+m.is_ne = is_cmp('~=', function (a, b) return a ~= b end)
+
+function m.near (got, expected, tolerance, name)
+    local _got = tonumber(got)
+    local _expected = tonumber(expected)
+    local _tolerance = tonumber(tolerance)
+    if not _got then
+        tb:ok(false, name)
+        tb:diag("got isn't a number : ", tostring(got))
+        return
+    end
+    if not _expected then
+        tb:ok(false, name)
+        tb:diag("expected isn't a number : ", tostring(expected))
+        return
+    end
+    if not _tolerance then
+        tb:ok(false, name)
+        tb:diag("tolerance isn't a number : ", tostring(tolerance))
+        return
+    end
+    local pass = _got >= (_expected - _tolerance) and _got <= (_expected + _tolerance)
+    tb:ok(pass, name)
+    if not pass then
+        tb:diag("         got: ", tostring(_got),
+              "\n    expected: ", tostring(_expected), " +/- ", tostring(_tolerance))
+    end
+end
+
+function m.same (got, expected, name)
+    if type(got) ~= 'table' then
+        tb:ok(false, name)
+        tb:diag("got value isn't a table : ", tostring(got))
+        return
+    end
+    if type(expected) ~= 'table' then
+        tb:ok(false, name)
+        tb:diag("expected value isn't a table : ", tostring(expected))
+        return
+    end
+    local msg1
+    local msg2
+    local seen = {}
+
+    local function deep_eq (t1, t2, key_path)
+        if t1 == t2 or seen[t1] then
+            return true
+        end
+        seen[t1] = true
+        for k, v2 in pairs(t2) do
+            local v1 = t1[k]
+            if type(v1) == 'table' and type(v2) == 'table' then
+                local r = deep_eq(v1, v2, key_path .. "." .. tostring(k))
+                if not r then
+                    return false
+                end
+            else
+                if v1 ~= v2 then
+                    key_path = key_path .. "." .. tostring(k)
+                    msg1 = "     got" .. key_path .. ": " .. tostring(v1)
+                    msg2 = "expected" .. key_path .. ": " .. tostring(v2)
+                    return false
+                end
+            end
+        end
+        for k in pairs(t1) do
+            local v2 = t2[k]
+            if v2 == nil then
+                key_path = key_path .. "." .. tostring(k)
+                msg1 = "     got" .. key_path .. ": " .. tostring(t1[k])
+                msg2 = "expected" .. key_path .. ": " .. tostring(v2)
+                return false
+            end
+        end
+        return true
+    end -- deep_eq
+
+    local pass = deep_eq(got, expected, '')
+    tb:ok(pass, name)
+    if not pass then
+        tb:diag("    Tables begin differing at:",
+              "\n    ", msg1,
+              "\n    ", msg2)
+    end
+end
+
+function m.array_equal (got, expected, name)
+    if type(got) ~= 'table' then
+        tb:ok(false, name)
+        tb:diag("got value isn't a table : ", tostring(got))
+        return
+    end
+    if type(expected) ~= 'table' then
+        tb:ok(false, name)
+        tb:diag("expected value isn't a table : ", tostring(expected))
+        return
+    end
+    for i = 1, #expected do
+        local v = expected[i]
+        local val = got[i]
+        if val ~= v then
+            tb:ok(false, name)
+            tb:diag("    at index: ", tostring(i),
+                  "\n         got: ", tostring(val),
+                  "\n    expected: ", tostring(v))
+            return
+        end
+    end
+    local extra = #got - #expected
+    if extra ~= 0 then
+        tb:ok(false, name)
+        tb:diag("    ", tostring(extra), " unexpected item(s)")
+    else
+        tb:ok(true, name)
+    end
+end
+m.array_equals = m.array_equal
+
+function m.match (got, pattern, name)
+    if type(pattern) ~= 'string' then
+        tb:ok(false, name)
+        tb:diag("pattern isn't a string : ", tostring(pattern))
+        return
+    end
+    got = tostring(got)
+    local pass = match(got, pattern)
+    tb:ok(pass, name)
+    if not pass then
+        tb:diag("         got: ", display(got),
+              "\n    doesn't match '", pattern, "'")
+    end
+end
+m.matches = m.match
+
+function m.not_match (got, pattern, name)
+    if type(pattern) ~= 'string' then
+        tb:ok(false, name)
+        tb:diag("pattern isn't a string : ", tostring(pattern))
+        return
+    end
+    got = tostring(got)
+    local pass = not match(got, pattern)
+    tb:ok(pass, name)
+    if not pass then
+        tb:diag("         got: ", display(got),
+              "\n          matches '", pattern , "'")
+    end
+end
+m.not_matches = m.not_match
+
+function m.contain (got, pattern, name)
+    if type(got) ~= 'string' then
+        tb:ok(false, name)
+        tb:diag("got isn't a string : ", tostring(got))
+        return
+    end
+    if type(pattern) ~= 'string' then
+        tb:ok(false, name)
+        tb:diag("pattern isn't a string : ", tostring(pattern))
+        return
+    end
+    local pass = find(got, pattern, 1, true)
+    tb:ok(pass, name)
+    if not pass then
+        tb:diag("    searched: ", display(got),
+              "\n  can't find: ", display(pattern))
+        if m.LCSS then
+            local off, length = lcss(got, pattern)
+            local l = sub(got, off, off + length - 1)
+            tb:diag("        LCSS: ", display(l))
+            if length < m.max then
+                local available = ceil((m.max - length) / 2)
+                local begin = off - 2 * available
+                if begin < 1 then
+                    begin = off - available
+                    if begin < 1 then
+                        begin = 1
+                    end
+                end
+                local ctx = sub(got, begin, begin + m.max)
+                tb:diag("LCSS context: ", display(ctx))
+            end
+        end
+    end
+end
+m.contains = m.contain
+
+function m.not_contain (got, pattern, name)
+    if type(got) ~= 'string' then
+        tb:ok(false, name)
+        tb:diag("got isn't a string : ", tostring(got))
+        return
+    end
+    if type(pattern) ~= 'string' then
+        tb:ok(false, name)
+        tb:diag("pattern isn't a string : ", tostring(pattern))
+        return
+    end
+    local idx = find(got, pattern, 1, true)
+    local pass = not idx
+    tb:ok(pass, name)
+    if not pass then
+        local line, column = line_column(got, idx)
+        tb:diag("    searched: ", display(got),
+              "\n   and found: ", display(pattern),
+              "\n at position: ", tostring(idx), " (line ",
+                                  tostring(line), " column ",
+                                  tostring(column), ")")
+    end
+end
+m.not_contains = m.not_contain
+
+local function compile(code, name)
+    local fn, msg = loadstring(code)
+    if not fn then
+        tb:ok(false, name, 1)
+        tb:diag("    can't compile code :",
+              "\n    ", msg)
+    end
+    return fn
+end
+
+function m.error_equal (code, arg2, arg3, arg4)
+    local params, expected, name
+    if type(arg2) == 'table' then
+        params = arg2
+        expected = arg3
+        name = arg4
+    else
+        params = {}
+        expected = arg2
+        name = arg3
+    end
+    if type(code) == 'string' then
+        code = compile(code, name)
+        if not code then
+            return
+        end
+    end
+    local r, msg = pcall(code, unpack(params))
+    if r then
+        tb:ok(false, name)
+        tb:diag("    unexpected success",
+              "\n    expected: ", tostring(expected))
+    else
+        msg = tostring(msg)
+        expected = tostring(expected)
+        local pass = msg == expected
+        tb:ok(pass, name)
+        if not pass then
+            tb:diag("         got: ", msg,
+                  "\n    expected: ", expected)
+        end
+    end
+end
+m.error_equals = m.error_equal
+
+function m.not_error (code, arg2, arg3)
+    local params, name
+    if type(arg2) == 'table' then
+        params = arg2
+        name = arg3
+    else
+        params = {}
+        name = arg2
+    end
+    if type(code) == 'string' then
+        code = compile(code, name)
+        if not code then
+            return
+        end
+    end
+    local r, msg = pcall(code, unpack(params))
+    tb:ok(r, name)
+    if not r then
+        tb:diag("    ", msg)
+    end
+end
+m.not_errors = m.not_error
+
+function m.error_match (code, arg2, arg3, arg4)
+    local params, pattern, name
+    if type(arg2) == 'table' then
+        params = arg2
+        pattern = arg3
+        name = arg4
+    else
+        params = {}
+        pattern = arg2
+        name = arg3
+    end
+    if type(code) == 'string' then
+        code = compile(code, name)
+        if not code then
+            return
+        end
+    end
+    local r, msg = pcall(code, unpack(params))
+    if r then
+        tb:ok(false, name)
+        tb:diag("    unexpected success",
+              "\n    expected: ", tostring(pattern))
+    else
+        if type(pattern) ~= 'string' then
+            tb:ok(false, name)
+            tb:diag("pattern isn't a string : ", tostring(pattern))
+            return
+        end
+        msg = tostring(msg)
+        local pass = match(msg, pattern)
+        tb:ok(pass, name)
+        if not pass then
+            tb:diag("                  '", msg, "'",
+                  "\n    doesn't match '", pattern, "'")
+        end
+    end
+end
+m.error_matches = m.error_match
+m.match_error = m.error_match
+m.matches_error = m.error_match
+
+function m.require_ok (mod)
+    local r, msg = pcall(require, mod)
+    tb:ok(r, "require '" .. tostring(mod) .. "'")
+    if not r then
+        tb:diag("    ", msg)
+    end
+    return r
+end
+
+for k, v in pairs(m) do  -- injection
+    if type(v) == 'function' then
+        _G[k] = v
+    end
+end
+
+m._VERSION = "0.2.1"
+m._DESCRIPTION = "lua-TestAssertion : TestMore with Lua friendly assertions"
+m._COPYRIGHT = "Copyright (c) 2021-2023 Francois Perrad"
+return m
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

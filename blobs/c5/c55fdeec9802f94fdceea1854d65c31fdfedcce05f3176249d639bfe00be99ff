@@ -1,0 +1,107 @@
+
+local ENVIRON = require 'lrocket.environ'
+local toolchain = require 'lrocket.toolchain'
+local log = require 'lrocket.log'
+
+local datafile = require 'datafile'
+local sfs = require 'sfs'
+local lua = require 'lrocket.lua'
+
+local loader = {}
+
+--lr:embed @:loader/start.lua
+--lr:embed @:loader/base.c
+--lr:embed @:loader/base.h
+--lr:embed @:loader/base.lua
+--lr:embed @:loader/lra.c
+--lr:embed @:loader/lra.h
+
+-- For running lrc from within the project
+local projectdir = sfs.getDir(sfs.getDir(arg[0] or "lrc"))
+table.insert(datafile.openers, { opener = function (path)
+	local dst = sfs.combine(projectdir, path)
+	local f, err = io.open(dst)
+	if f then
+		return f, dst
+	else
+		return nil, err
+	end
+end })
+
+ENVIRON.fetch('XDG_CACHE_HOME', 'HOME', 'TEMP', 'TMP')
+
+local BASE_O, references
+function loader.configure()
+	-- C base generation
+	loader.BASE_C = log.assert(datafile.path "loader/base.c")
+	loader.BASE_H = log.assert(datafile.path "loader/base.h")
+	loader.LRA_C = log.assert(datafile.path "loader/lra.c")
+	loader.LRA_H = log.assert(datafile.path "loader/lra.h")
+	-- Lua base generation
+	loader.BASE_LUA = log.assert(datafile.path "loader/base.lua")
+
+	-- start.lua chunk executed before main
+	loader.START_LUA = log.assert(datafile.path "loader/start.lua")
+
+	local tmp = ENVIRON.XDG_CACHE_HOME or (ENVIRON.HOME and ENVIRON.HOME.."/.cache") or ENVIRON.LOCALAPPDATA or ENVIRON.TEMP or ENVIRON.TMP or "/tmp"
+
+	tmp = sfs.combine(tmp, "lrc")
+	sfs.mkdir(tmp)
+
+	local unpackdst = tmp.."/base-src/"
+	for _, name in ipairs { "START_LUA", "BASE_C", "BASE_H", "LRA_C", "LRA_H" } do -- BASE_LUA needs no unpacking
+		if loader[name]:match "^lr://" then
+			local from = loader[name]
+			loader[name] = unpackdst..sfs.getName(from)
+			sfs.mkdir(sfs.getDir(loader[name]))
+			log.assert(sfs.write(loader[name], log.assert(sfs.read(from, true)), true))
+		end
+	end
+
+	loader.BASE_FOLDER = sfs.getDir(loader.BASE_C)
+
+	BASE_O = sfs.combine(tmp, "/base-%s-%s%s")
+
+	references = {}
+	for _, name in ipairs { "BASE_C", "BASE_H", "LRA_C", "LRA_H" } do
+		local ref = loader[name]
+		local ref = ref:find "^lr://" and arg[0] or loader[name] or ref
+		references[ref] = true
+	end
+end
+
+function loader.preparebase(recompile, baseconf)
+	local base_o = BASE_O:format(lua.LUA_VERSION, tostring(toolchain.TARGET), toolchain.EXT_OBJECT)
+
+	local modt_base = sfs.attributes(base_o, 'modification')
+	local updated = not modt_base
+	for f in pairs(references) do
+		if updated then break end
+		local modt_reference = sfs.attributes(f, 'modification')
+		updated = modt_reference and modt_reference > modt_base
+	end
+
+	if not recompile and sfs.isFile(base_o) and not updated then
+		loader.BASE_O = base_o
+		return
+	end
+
+	log.infof(log.dyefirst(log.colors.bright, updated and "recompiling updated %s\n" or "compiling %s (first time targeting %s)\n"), sfs.getBaseName(base_o), toolchain.TARGET)
+
+	local conf = toolchain.compilerconf(baseconf)
+
+	-- conf.optimize = 'speed'
+	conf.output = base_o
+	conf.type = 'object'
+
+	conf:addarg('c', loader.BASE_C)
+
+	lua.addcflags(conf, "i")
+
+	log.assert(toolchain.compile(conf))
+
+	loader.BASE_O = base_o
+end
+
+return loader
+

@@ -1,0 +1,130 @@
+-- Split a Markdown profile into its YAML frontmatter and its body.
+--
+-- The format is the common one other agent harnesses use: if the very first
+-- line of the file is exactly `---`, everything up to the next line that is
+-- exactly `---` is a YAML mapping, and everything after that closing fence is
+-- the body. Trailing carriage returns are tolerated so CRLF files parse.
+--
+-- Anything unusual degrades to "no metadata, body only" with a warning rather
+-- than an error, because the body is the part the user cannot afford to lose:
+--
+--   * no opening fence          -> the whole file is the body, no warning
+--   * unterminated opening fence-> the whole file is the body, no warning
+--     (a lone `---` at the top of a prose file is a horizontal rule, not a
+--      broken header, so this case is deliberately silent)
+--   * empty fenced block        -> empty mapping, no warning
+--   * parser missing or erroring-> body after the fence, warning returned
+--   * YAML document not a map   -> body after the fence, warning returned
+--   * unresolved anchor/alias   -> that key dropped, warning returned
+--
+-- In the warning cases the fenced block is dropped rather than folded back
+-- into the body: an unparseable header is noise the child agent should not be
+-- asked to read. The body itself is never rewritten — no trimming, no
+-- normalisation — so a prompt round-trips verbatim.
+
+local M = {}
+
+local function trim(s)
+    return (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+-- tinyyaml parses a subset of YAML: it does not resolve anchors (`&a`) or
+-- aliases (`*a`). Rather than failing on them it hands back the raw token as
+-- a plain string, so `name: *base` arrives here as the literal "*base" and
+-- would sail through any `type(v) == "string"` check to become a profile's
+-- actual name. Detect that shape and drop those keys so the caller falls back
+-- to its defaults instead of adopting a bogus value.
+--
+-- The match is deliberately narrow -- a whole value that is exactly `*word`,
+-- or one opening with `&word ` -- so ordinary prose containing `*` or `&`
+-- (`'fetch & parse'`, `'a *b* c'`) is left alone.
+local function strip_unresolved_aliases(data)
+    local hits = {}
+    for k, v in pairs(data) do
+        if type(v) == "string"
+            and (v:match("^%*[%w_%-]+$") or v:match("^&[%w_%-]+%s")) then
+            hits[#hits + 1] = tostring(k)
+        end
+    end
+    if #hits == 0 then
+        return nil
+    end
+    table.sort(hits)
+    for _, k in ipairs(hits) do
+        data[k] = nil
+    end
+    return table.concat(hits, ", ")
+end
+
+-- Iterate lines, yielding the line plus its start offset and the offset just
+-- past its newline, so the caller can slice the original text exactly.
+local function lines(text)
+    local pos = 1
+    return function()
+        if pos > #text then
+            return nil
+        end
+        local start = pos
+        local nl = text:find("\n", pos, true)
+        local line
+        if nl then
+            line = text:sub(start, nl - 1)
+            pos = nl + 1
+        else
+            line = text:sub(start)
+            pos = #text + 1
+        end
+        return line, start, pos
+    end
+end
+
+-- parse(text) -> data|nil, body, warning|nil
+function M.parse(text)
+    if type(text) ~= "string" or text == "" then
+        return nil, "", nil
+    end
+
+    local next_line = lines(text)
+    local first, _, after_first = next_line()
+    if first == nil or trim(first) ~= "---" then
+        return nil, text, nil
+    end
+
+    local block_stop, body_start
+    for line, start, after in next_line do
+        if trim(line) == "---" then
+            block_stop = start - 1
+            body_start = after
+            break
+        end
+    end
+    if body_start == nil then
+        return nil, text, nil
+    end
+
+    local block = text:sub(after_first, block_stop)
+    local body = text:sub(body_start)
+    if trim(block) == "" then
+        return {}, body, nil
+    end
+
+    local ok_yaml, yaml = pcall(require, "tinyyaml")
+    if not ok_yaml then
+        return nil, body, "tinyyaml is not installed; ignoring the YAML frontmatter"
+    end
+    local ok, data = pcall(yaml.parse, block)
+    if not ok then
+        return nil, body, "YAML frontmatter did not parse: " .. tostring(data)
+    end
+    if type(data) ~= "table" then
+        return nil, body, "YAML frontmatter is not a mapping; ignoring it"
+    end
+    local aliased = strip_unresolved_aliases(data)
+    if aliased then
+        return data, body,
+            "YAML anchors/aliases are not supported; ignoring: " .. aliased
+    end
+    return data, body, nil
+end
+
+return M

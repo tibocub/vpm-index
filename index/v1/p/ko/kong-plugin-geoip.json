@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-geoip",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-geoip >= 0.2-1"
+      ],
+      "files": {
+        "kong/plugins/geoip/handler.lua": {
+          "sha256": "08ebc85348e6e870c429069828e601557c221e24244bb8e69d98600295d71484",
+          "size": 1210,
+          "url": "https://raw.githubusercontent.com/newageio/kong-plugin-geoip/f181a60bf40273cd5fa602342bef717fba31881f/kong/plugins/geoip/handler.lua"
+        },
+        "kong/plugins/geoip/schema.lua": {
+          "sha256": "a957e7829cf9aad96e2c82d3a58ef5cdf686b9beb2f86cda062e9ac7e966b7a1",
+          "size": 969,
+          "url": "https://raw.githubusercontent.com/newageio/kong-plugin-geoip/f181a60bf40273cd5fa602342bef717fba31881f/kong/plugins/geoip/schema.lua"
+        }
+      },
+      "homepage": "http://newage.io",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Wed, 30 May 2018 22:24:06 GMT",
+        "rockspec": {
+          "date": "Wed, 30 May 2018 22:24:06 GMT",
+          "sha256": "7f6e51b31985a3e3d77442300770952ecf1833379338edc517b2d989be79fead",
+          "size": 631
+        },
+        "src": {
+          "date": "Wed, 30 May 2018 22:24:07 GMT",
+          "sha256": "19a5b6ea38d4512a6ad66eb469c843e377d9dc93cb6e6c93a11c4fc8e1c35d27",
+          "size": 10701,
+          "url": "https://luarocks.org/kong-plugin-geoip-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.geoip.handler",
+        "kong.plugins.geoip.schema"
+      ],
+      "origin": {
+        "commit": "f181a60bf40273cd5fa602342bef717fba31881f",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/newageio/kong-plugin-geoip"
+      },
+      "size": 2179,
+      "summary": "Working with MaxMind's GeoIP Lib",
+      "undeclared_requires": [
+        "inspect",
+        "kong.dao.errors",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "resty.iputils"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

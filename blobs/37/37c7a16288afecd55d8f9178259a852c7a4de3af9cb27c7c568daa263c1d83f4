@@ -1,0 +1,760 @@
+-- Copyright (C) 2026 JoenTNT
+-- Licensed under the GNU GPL v3.0 or later.
+-- See the LICENSE file in the project root for full license information.
+
+local bit32 = require("bit32")
+local M = {}
+
+local GRAD_3 = {
+    {1, 1, 0},  -- gradient 0
+    {-1, 1, 0}, -- gradient 1
+    {1, -1, 0}, -- gradient 2
+    {-1, -1, 0},-- gradient 3
+    {1, 0, 1},  -- gradient 4
+    {-1, 0, 1}, -- gradient 5
+    {1, 0, -1}, -- gradient 6
+    {-1, 0, -1},-- gradient 7
+    {0, 1, 1},  -- gradient 8
+    {0, -1, 1}, -- gradient 9
+    {0, 1, -1}, -- gradient 10
+    {0, -1, -1},-- gradient 11
+}
+
+local INT_MIN = -2147483648  -- -2^31
+local INT_MAX = 2147483647   -- 2^31 - 1
+local SKEW_FACTOR_F2 = 0.5 * (math.sqrt(3.0) - 1.0)
+local UNSKEW_FACTOR_G2 = -(3.0 - math.sqrt(3.0)) / 6.0
+local PERMUTABLE_DEFAULT = 256
+local current_os_time = -1;
+
+local function try_renew_ostime()
+    if current_os_time ~= os.time() then
+        current_os_time = os.time()
+        math.randomseed(current_os_time)
+        math.random()
+        return true
+    end
+    return false
+end
+
+local function generate_prng(seed)
+    local s = seed or os.time()
+    return function()
+        s = bit32.bxor(s, bit32.lshift(s, 13))
+        s = bit32.bxor(s, bit32.rshift(s, 17))
+        s = bit32.bxor(s, bit32.lshift(s, 5))
+        return (s % 0x7fffffff) / 0x7fffffff
+    end
+end
+
+local function generate_32bit_seed()
+    try_renew_ostime()
+    local high = math.random(0, 0xFFFF)
+    local low  = math.random(0, 0xFFFF) 
+    local value = bit32.bor(bit32.lshift(high, 16), low)
+    if value > INT_MAX then value = value - 2^32 end
+    return value
+end
+
+local function lerp(a, b, t)
+    return a + t * (b - a)
+end
+
+--- Dot Product for 2 by 2 matrix.
+--- @param g table Gradient value for 2D.
+--- @param p table Grid position vector.
+--- @return number result
+local function dot2(g, p)
+    return g[1] * p[1] + g[2] * p[2]
+end
+
+-----------------------------------------------------------------------
+---
+--- Returns a uniformly distributed 2D position on or inside a circle.
+---
+--- A quick use Lua's global `math.random()` generator.
+--- If `include_inner` is false, the point lies on the circumference.
+--- If `include_inner` is true, the point is uniformly distributed
+--- across the filled circle area.
+---
+--- @param max_radius number  Circle radius (default = 1.0).
+--- @param include_inner boolean?  Whether to include the inner area (default = false).
+--- @return {x: number, y: number} vector2  Random position relative to origin.
+---
+--- @usage
+--- local p = M.qrand_circle(5.0, true)   -- Random point inside radius 5
+--- local e = M.qrand_circle(3.0, false)  -- Random point on edge radius 3
+---
+-----------------------------------------------------------------------
+function M.qrand_circle(max_radius, include_inner)
+    max_radius = max_radius or 1.0
+    include_inner = include_inner or false
+    local angle = math.random() * 2.0 * math.pi
+    local radius = 0.0
+    if include_inner then
+        radius = math.sqrt(math.random()) * max_radius
+    else
+        radius = max_radius
+    end
+    return {
+        x = math.cos(angle) * radius,
+        y = math.sin(angle) * radius
+    }
+end
+
+-----------------------------------------------------------------------
+---
+--- Returns a uniformly distributed 2D position on or inside a rectangle.
+---
+--- This uses non-deterministic randomizer.
+--- If `include_inner` is false, the point lies on the rectangle perimeter.
+--- If `include_inner` is true, the point is uniformly distributed
+--- across the filled rectangle area.
+---
+--- @param max_extend {x: number, y: number}|number  Half-size of rectangle along x and y (default = 1.0). If a single number is provided, both x and y are set to that value.
+--- @param include_inner boolean?  Whether to include the inner area (default = false).
+--- @return {x: number, y: number} vector2  Random position relative to origin.
+---
+--- @usage
+--- local p = M.qrand_rect({x=5.0, y=3.0}, true)   -- Random point inside rectangle
+--- 
+--- @usage
+--- local e = M.qrand_rect(2.0, false)             -- Random point on square perimeter of half-size 2
+---
+-----------------------------------------------------------------------
+function M.qrand_rect(max_extend, include_inner)
+    include_inner = include_inner or false
+    if type(max_extend) == "number" then
+        max_extend = { x = max_extend, y = max_extend }
+    end
+    max_extend = max_extend or { x = 1.0, y = 1.0 }
+    local ex = max_extend.x
+    local ey = max_extend.y
+    if include_inner then
+        return {
+            x = (math.random() * 2 - 1) * ex,
+            y = (math.random() * 2 - 1) * ey
+        }
+    else
+        local perimeter = 4 * (ex + ey)
+        local t = math.random() * perimeter
+        if t < ex * 2 then
+            return { x = -ex + t, y = -ey }
+        elseif t < ex * 2 + ey * 2 then
+            return { x = ex, y = -ey + (t - ex * 2) }
+        elseif t < ex * 4 + ey * 2 then
+            return { x = ex - (t - (ex * 2 + ey * 2)), y = ey }
+        else
+            return { x = -ex, y = ey - (t - (ex * 4 + ey * 2)) }
+        end
+    end
+end
+
+---@class Random
+---@field private seed number
+---@field private perm table
+---@field private prng function
+M.Random = {}
+M.Random.__index = M.Random
+M.Random.defaults = {
+    perm = nil,
+    seed = 0,
+    prng = nil,
+}
+
+-----------------------------------------------------------------------
+---
+--- Setting new seed manually.
+--- 
+--- @param seed any
+--- 
+-----------------------------------------------------------------------
+function M.Random:set_seed(seed)
+    self.seed = seed
+    self.prng = generate_prng(self.seed)
+end
+
+-----------------------------------------------------------------------
+---
+--- Randomize a new seed, processed internally.
+--- 
+-----------------------------------------------------------------------
+function M.Random:randomize_seed()
+    self.seed = generate_32bit_seed()
+    self.prng = generate_prng(self.seed)
+end
+
+-----------------------------------------------------------------------
+---
+--- Get current seed applied for prng.
+--- 
+--- @return number seed
+--- 
+-----------------------------------------------------------------------
+function M.Random:get_seed()
+    return self.seed;
+end
+
+-----------------------------------------------------------------------
+---
+--- Returns a uniformly distributed floating-point number in [min, max).
+--- 
+--- @param min number  Lower bound (inclusive).
+--- @param max number  Upper bound (exclusive).
+--- @return number result  Random float in the range [min, max).
+---
+--- @usage
+--- local x = rng:randv(0.0, 10.0) -- 0.0 <= x < 10.0
+--- 
+-----------------------------------------------------------------------
+function M.Random:randv(min, max)
+    if min > max then
+        print(string.format(
+            "[WARN] randv: min (%s) > max (%s), swapping values automatically.",
+            tostring(min), tostring(max)
+        ))
+        min, max = max, min
+    end
+    return min + self.prng() * (max - min + 0.0)
+end
+
+-----------------------------------------------------------------------
+---
+--- Returns a uniformly distributed integer in [min, max].
+--- 
+--- @param min integer  Lower bound (inclusive).
+--- @param max integer  Upper bound (inclusive).
+--- @return integer result  Random integer in the range [min, max].
+---
+--- @usage
+--- local n = rng:randint(1, 6) -- Simulates a dice roll (1 to 6)
+--- 
+-----------------------------------------------------------------------
+function M.Random:randint(min, max)
+    if min > max then
+        print(string.format(
+            "[WARN] randint: min (%s) > max (%s), swapping values automatically.",
+            tostring(min), tostring(max)
+        ))
+        min, max = max, min
+    end
+    return math.floor(self.prng() * (max - min + 1)) + min 
+end
+
+-----------------------------------------------------------------------
+---
+--- Returns a uniformly distributed 2D position on or inside a circle.
+---
+--- This use deterministic randomizer.
+--- If `include_inner` is false, the point lies on the circumference.
+--- If `include_inner` is true, the point is uniformly distributed
+--- across the filled circle area.
+---
+--- @param max_radius number  Circle radius (default = 1.0).
+--- @param include_inner boolean?  Whether to include the inner area (default = false).
+--- @return {x: number, y: number} vector2  Random position relative to origin.
+---
+--- @usage
+--- local p = rng:rand_circle(5.0, true)   -- Random point inside radius 5
+--- local e = rng:rand_circle(3.0, false)  -- Random point on edge radius 3
+---
+-----------------------------------------------------------------------
+function M.Random:rand_circle(max_radius, include_inner)
+    max_radius = max_radius or 1.0
+    include_inner = include_inner or false
+    local angle = self:randv(0.0, 1.0) * 2.0 * math.pi
+    local radius = 0.0
+    if include_inner then
+        radius = math.sqrt(self:randv(0.0, 1.0)) * max_radius
+    else
+        radius = max_radius
+    end
+    return {
+        x = math.cos(angle) * radius,
+        y = math.sin(angle) * radius
+    }
+end
+
+-----------------------------------------------------------------------
+---
+--- Returns a uniformly distributed 2D position on or inside a rectangle.
+---
+--- This uses the deterministic randomizer.
+--- If `include_inner` is false, the point lies on the rectangle perimeter.
+--- If `include_inner` is true, the point is uniformly distributed
+--- across the filled rectangle area.
+---
+--- @param max_extend {x: number, y: number}|number  Half-size of rectangle along x and y (default = 1.0). If a single number is provided, both x and y are set to that value.
+--- @param include_inner boolean?  Whether to include the inner area (default = false).
+--- @return {x: number, y: number} vector2  Random position relative to origin.
+---
+--- @usage
+--- local p = rng:rand_rect({x=5.0, y=3.0}, true)   -- Random point inside rectangle
+--- 
+--- @usage
+--- local e = rng:rand_rect(2.0, false)             -- Random point on square perimeter of half-size 2
+---
+-----------------------------------------------------------------------
+function M.Random:rand_rect(max_extend, include_inner)
+    include_inner = include_inner or false
+    if type(max_extend) == "number" then
+        max_extend = { x = max_extend, y = max_extend }
+    end
+    max_extend = max_extend or { x = 1.0, y = 1.0 }
+    local ex = max_extend.x
+    local ey = max_extend.y
+    if include_inner then
+        return {
+            x = self:randv(-ex, ex),
+            y = self:randv(-ey, ey)
+        }
+    else
+        local perimeter = 4 * (ex + ey)
+        local t = self:randv(0.0, perimeter)
+        if t < ex * 2 then
+            return { x = -ex + t, y = -ey }
+        elseif t < ex * 2 + ey * 2 then
+            return { x = ex, y = -ey + (t - ex * 2) }
+        elseif t < ex * 4 + ey * 2 then
+            return { x = ex - (t - (ex * 2 + ey * 2)), y = ey }
+        else
+            return { x = -ex, y = ey - (t - (ex * 4 + ey * 2)) }
+        end
+    end
+end
+
+function M.Random.perlin_fade(t)
+    return t * t * t * (t * (t * 6 - 15) + 10)
+end
+
+-----------------------------------------------------------------------
+---
+--- Applies the 2D simplex skew transformation.
+---
+--- Transforms 2D Cartesian coordinates into simplex space using the
+--- skew factor. This operation maps square grid coordinates into a
+--- simplex (triangular) lattice, which is required during the first
+--- step of the Simplex noise algorithm.
+---
+--- @param x number  X coordinate in Cartesian space.
+--- @param y number  Y coordinate in Cartesian space.
+--- @param F2 number|nil  Optional skew factor (defaults to SKEW_FACTOR_F2).
+--- @return integer, integer  Skewed simplex cell coordinates.
+---
+--- @usage
+--- local u, v = rng:simplex_skew2(x, y)
+---
+-----------------------------------------------------------------------
+function M.Random.simplex_skew2(x, y, F2)
+    F2 = F2 or SKEW_FACTOR_F2
+    local s = (x + y) * F2
+    return math.floor(x + s), math.floor(y + s)
+end
+
+-----------------------------------------------------------------------
+---
+--- Applies the 2D simplex unskew transformation.
+---
+--- Converts simplex grid coordinates back into Cartesian space using
+--- the unskew factor. This reverses the skewing step used in the
+--- Simplex noise algorithm and is typically used to determine the
+--- position of simplex cell origins in the original coordinate space.
+---
+--- @param u number  Skewed simplex coordinate (u).
+--- @param v number  Skewed simplex coordinate (v).
+--- @param G2 number|nil  Optional unskew factor (defaults to UNSKEW_FACTOR_G2).
+--- @return number, number  Unskewed Cartesian coordinates.
+---
+--- @usage
+--- local x, y = rng:simplex_unskew2(u, v)
+---
+-----------------------------------------------------------------------
+function M.Random.simplex_unskew2(u, v, G2)
+    G2 = G2 or UNSKEW_FACTOR_G2
+    local t = (u + v) * G2
+    return u + t, v + t
+end
+
+-----------------------------------------------------------------------
+---
+--- Computes the gradient index for a 2D simplex lattice cell.
+---
+--- Uses a permutation table to generate a deterministic pseudo-random
+--- gradient index based on integer simplex cell coordinates. The
+--- coordinates are wrapped using a bitmask to ensure they remain
+--- within the permutation table bounds.
+---
+--- @param i integer  X coordinate of the simplex cell.
+--- @param j integer  Y coordinate of the simplex cell.
+--- @param perm table  Permutation table used for hashing.
+--- @return integer Gradient index in the range [1, 12].
+---
+--- @usage
+--- local g = rng:simplex_hashing2(i, j, perm)
+---
+-----------------------------------------------------------------------
+function M.Random.simplex_hashing2(i, j, perm)
+    local size = #perm / 2
+    local ii = bit32.band(i, size - 1)
+    local jj = bit32.band(j, size - 1)
+    return perm[ii + perm[jj]] % 12 + 1
+end
+
+-----------------------------------------------------------------------
+---
+--- Computes the contribution of a simplex corner in 2D noise.
+---
+--- Calculates the influence of a simplex corner on the final noise
+--- value. The contribution is based on the squared attenuation factor
+--- derived from the distance to the corner, multiplied by the dot
+--- product between the gradient vector and the displacement vector.
+---
+--- @param g table  Gradient vector used for the corner.
+--- @param x number  X offset from the simplex corner.
+--- @param y number  Y offset from the simplex corner.
+--- @param bubble_radius number  Radius controlling the corner influence.
+--- @return number  Weighted contribution of the simplex corner.
+---
+--- @usage
+--- local contribution = rng:simplex_corner_contribution2(g, x, y, radius)
+---
+-----------------------------------------------------------------------
+function M.Random.simplex_corner_contribution2(g, x, y, bubble_radius)
+    local t = bubble_radius - x * x - y * y
+    if t < 0.0 then return 0.0 end
+    t = t * t
+    return t * t * dot2(g, {x, y})
+end
+
+-----------------------------------------------------------------------
+---
+--- Computes the Perlin gradient contribution for 2D noise.
+---
+--- Selects a gradient direction based on a hash value and returns the
+--- corresponding dot product between the gradient direction and the
+--- input coordinate offsets. This function is used in classic Perlin
+--- noise implementations to produce directional variation.
+---
+--- @param hash integer  Hash value used to determine the gradient.
+--- @param x number  X offset from the lattice point.
+--- @param y number  Y offset from the lattice point.
+--- @return number  Gradient contribution value.
+---
+--- @usage
+--- local value = rng:perlin_hashing2(hash, x, y)
+---
+-----------------------------------------------------------------------
+function M.Random.perlin_hashing2(hash, x, y)
+    local h = hash % 8
+    if h == 0 then return x + y end
+    if h == 1 then return x end
+    if h == 2 then return x - y end
+    if h == 3 then return -y end
+    if h == 4 then return -x - y end
+    if h == 5 then return -x end
+    if h == 6 then return -x + y end
+    return y
+end
+
+-----------------------------------------------------------------------
+---
+--- Generates a shuffled permutation table for noise algorithms.
+---
+--- Creates a deterministic permutation array of the given size using
+--- the Fisher–Yates shuffle. The resulting table is duplicated to
+--- avoid overflow when indexing (commonly required in Perlin/Simplex
+--- noise implementations).
+---
+--- @param size integer  Size or length of the permutation table.
+--- @return nil
+---
+--- @usage
+--- rng:generate_permutable(256)
+---
+-----------------------------------------------------------------------
+function M.Random:generate_permutable(size)
+    self.perm = {}
+    local last_index = size - 1
+    for i = 0, last_index do self.perm[i] = i end
+    for i = last_index, 0, -1 do
+        local j = self:randint(0, i)
+        self.perm[i], self.perm[j] = self.perm[j], self.perm[i]
+    end
+    for i = 0, last_index do self.perm[size + i] = self.perm[i] end
+end
+
+-----------------------------------------------------------------------
+---
+--- Configuration table for Simplex noise functions.
+---
+--- Provides optional parameters to control behavior of simplex_noise2
+--- and fractal_simplex2. All fields are optional and fall back to
+--- sensible defaults when omitted.
+---
+--- @class SimplexArguments
+--- @field bubble_radius number?   Radius of corner influence in the Simplex contribution function. Smaller values produce sharper noise.
+--- @field amplifier number?       Output multiplier applied to the final Simplex value.
+--- @field scale number?           Input coordinate scaling factor. Lower values zoom out (larger features), higher values zoom in (finer details).
+--- @field lacunarity number?      Frequency multiplier per octave when used in fractal noise. Controls how quickly detail increases.
+--- @field persistence number?     Amplitude multiplier per octave when used in fractal noise. Controls how quickly detail diminishes.
+---
+-----------------------------------------------------------------------
+
+-----------------------------------------------------------------------
+---
+--- Computes 2D Simplex noise at the given coordinates.
+---
+--- Generates a smooth, continuous noise value using the Simplex noise
+--- algorithm. The function supports optional configuration parameters
+--- such as scaling, amplitude (amplifier), and corner influence radius
+--- (bubble radius). A permutation table is used for gradient hashing,
+--- which can be provided manually or automatically generated.
+---
+--- @param x number                 X coordinate input.
+--- @param y number                 Y coordinate input.
+--- @param permutable table?        Optional permutation table used for hashing. If nil, the instance's internal table is used or generated automatically.
+--- @param args SimplexArguments?   Optional configuration table.
+--- @return number value            The resulting noise value.
+---
+--- @usage
+--- local value = rng:simplex_noise2(10.5, 20.25)
+--- 
+--- @usage
+--- local value_scaled = rng:simplex_noise2(10, 20, nil, { scale = 0.1 })
+---
+-----------------------------------------------------------------------
+function M.Random:simplex_noise2(x, y, permutable, args)
+    local bubble_radius = 0.5
+    local contribute_value = 70.0
+    local scale = 1.0
+    if args then
+        bubble_radius = args["bubble_radius"] or bubble_radius
+        contribute_value = args["amplifier"] or contribute_value
+        scale = args["scale"] or scale
+    end
+    permutable = permutable or self.perm
+    if not permutable then self:generate_permutable(PERMUTABLE_DEFAULT) end
+    x = x * scale
+    y = y * scale
+    local i, j = M.Random.simplex_skew2(x, y)
+    local xs, ys = M.Random.simplex_unskew2(i, j)
+    local x0 = x - xs
+    local y0 = y - ys
+    local i1, j1 = 0, 0
+    if x0 > y0 then i1, j1 = 1, 0 else i1, j1 = 0, 1 end
+    local x1 = x0 - i1 + UNSKEW_FACTOR_G2
+    local y1 = y0 - j1 + UNSKEW_FACTOR_G2
+    local x2 = x0 - 1.0 + 2.0 * UNSKEW_FACTOR_G2
+    local y2 = y0 - 1.0 + 2.0 * UNSKEW_FACTOR_G2
+    local g0 = M.Random.simplex_hashing2(i, j, permutable)
+    local g1 = M.Random.simplex_hashing2(i + i1, j + j1, permutable)
+    local g2 = M.Random.simplex_hashing2(i + 1, j + 1, permutable)
+    local n0 = M.Random.simplex_corner_contribution2(GRAD_3[g0], x0, y0, bubble_radius)
+    local n1 = M.Random.simplex_corner_contribution2(GRAD_3[g1], x1, y1, bubble_radius)
+    local n2 = M.Random.simplex_corner_contribution2(GRAD_3[g2], x2, y2, bubble_radius)
+    return contribute_value * (n0 + n1 + n2)
+end
+
+-----------------------------------------------------------------------
+---
+--- Generates 2D fractal Simplex noise using multiple octaves.
+---
+--- Combines several layers (octaves) of 2D Simplex noise to produce
+--- more complex and detailed patterns. Each octave increases the
+--- frequency (controlled by lacunarity) and reduces the amplitude
+--- (controlled by persistence). The final value is normalized by the
+--- total accumulated amplitude.
+---
+--- @param x number                 X coordinate input.
+--- @param y number                 Y coordinate input.
+--- @param permutable table?        Optional permutation table used for hashing. If nil, the instance's internal table is used or generated automatically.
+--- @param octaves integer          Number of noise layers to combine.
+--- @param args SimplexArguments?   Optional configuration table.
+--- @return number value            The normalized fractal noise value.
+---
+--- @usage
+--- local value = rng:fractal_simplex2(10, 20, nil, 4)
+--- 
+--- @usage
+--- local detailed = rng:fractal_simplex2(10, 20, nil, 6, {
+---     persistence = 0.5,
+---     lacunarity = 2.0,
+---     scale = 0.1
+--- })
+---
+-----------------------------------------------------------------------
+function M.Random:fractal_simplex2(x, y, permutable, octaves, args)
+    permutable = permutable or self.perm
+    if not permutable then self:generate_permutable(PERMUTABLE_DEFAULT) end
+    local persistence = 0.5
+    local lacunarity = 2.0
+    if args then
+        persistence = args["persistence"] or persistence
+        lacunarity = args["lacunarity"] or lacunarity
+    end
+    local total = 0.0
+    local freq = 1.0
+    local amplitude = 1.0
+    local max_amp = 0.0
+    for i = 1, octaves do
+        total = total + self:simplex_noise2(x, y, permutable, args)
+        max_amp = max_amp + amplitude
+        amplitude = amplitude * persistence
+        freq = freq * lacunarity
+    end
+    return total / max_amp
+end
+
+-----------------------------------------------------------------------
+---
+--- Configuration table for Perlin noise functions.
+---
+--- Provides optional parameters to control behavior of perlin_noise2
+--- and fractal_perlin2. All fields are optional and default values
+--- are used when omitted.
+---
+--- @class PerlinArguments
+--- @field scale number?           Input coordinate scaling factor. Lower values zoom out (larger features), higher values zoom in (finer details).
+--- @field lacunarity number?      Frequency multiplier per octave when used in fractal noise.
+--- @field persistence number?     Amplitude multiplier per octave when used in fractal noise.
+---
+-----------------------------------------------------------------------
+
+-----------------------------------------------------------------------
+---
+--- Computes 2D Perlin noise at the given coordinates.
+---
+--- Generates smooth gradient noise using the classic Perlin noise
+--- algorithm. The function determines surrounding grid corners,
+--- computes gradient dot products, and interpolates them using
+--- the Perlin fade curve for smooth transitions.
+---
+--- A permutation table is used for gradient hashing and may be
+--- supplied manually or generated automatically if absent.
+---
+--- @param x number                 X coordinate input.
+--- @param y number                 Y coordinate input.
+--- @param permutable table?        Optional permutation table used for hashing. If nil, the instance's internal table is used or generated automatically.
+--- @param args PerlinArguments?    Optional configuration table.
+--- @return number value            The resulting Perlin noise value
+---
+--- @usage
+--- local value = rng:perlin_noise2(10.5, 20.25)
+--- 
+--- @usage
+--- local scaled = rng:perlin_noise2(10, 20, nil, { scale = 0.1 })
+---
+-----------------------------------------------------------------------
+function M.Random:perlin_noise2(x, y, permutable, args)
+    local scale = 1.0
+    if args then scale = args["scale"] or scale end
+    permutable = permutable or self.perm
+    if not permutable then self:generate_permutable(PERMUTABLE_DEFAULT) end
+    x = (x + .0) * scale
+    y = (y + .0) * scale
+    local perm_size = #permutable / 2
+    local floored_x = math.floor(x) + .0
+    local floored_y = math.floor(y) + .0
+    local xf0 = x - floored_x
+    local yf0 = y - floored_y
+    local xf1 = xf0 - 1.0
+    local yf1 = yf0 - 1.0
+    local xi = floored_x % perm_size + 1
+    local yi = floored_y % perm_size + 1
+    local u = M.Random.perlin_fade(xf0)
+    local v = M.Random.perlin_fade(yf0)
+    local bottom_left = permutable[permutable[xi + 0] + yi + 0]
+    local bottom_right = permutable[permutable[xi + 1] + yi + 0]
+    local top_left = permutable[permutable[xi + 0] + yi + 1]
+    local top_right = permutable[permutable[xi + 1] + yi + 1]
+    local dot_bottom_left = M.Random.perlin_hashing2(bottom_left, xf0, yf0)
+    local dot_bottom_right = M.Random.perlin_hashing2(bottom_right, xf1, yf0)
+    local dot_top_left = M.Random.perlin_hashing2(top_left, xf0, yf1)
+    local dot_top_right = M.Random.perlin_hashing2(top_right, xf1, yf1)
+    local m = lerp(dot_bottom_left, dot_bottom_right, u)
+    local n = lerp(dot_top_left, dot_top_right, u)
+    return lerp(m, n, v)
+end
+
+-----------------------------------------------------------------------
+---
+--- Generates 2D fractal Perlin noise using multiple octaves.
+---
+--- Combines several layers (octaves) of 2D Perlin noise to produce
+--- richer and more detailed patterns. Each octave modifies the
+--- amplitude and frequency according to persistence and lacunarity.
+--- The final result is normalized by the total accumulated amplitude
+--- to keep output values within a predictable range.
+---
+--- @param x number                 X coordinate input.
+--- @param y number                 Y coordinate input.
+--- @param permutable table?        Optional permutation table used for hashing. If nil, the instance's internal table is used or generated automatically.
+--- @param octaves integer          Number of noise layers to combine.
+--- @param args table?              Optional configuration table.
+--- @return number value            The normalized fractal noise value.
+---
+--- @usage
+--- local value = rng:fractal_perlin2(10, 20, nil, 4)
+--- 
+--- @usage
+--- local detailed = rng:fractal_perlin2(10, 20, nil, 6, {
+---     persistence = 0.5,
+---     lacunarity = 2.0,
+---     scale = 0.1
+--- })
+---
+-----------------------------------------------------------------------
+function M.Random:fractal_perlin2(x, y, permutable, octaves, args)
+    permutable = permutable or self.perm
+    if not permutable then self:generate_permutable(PERMUTABLE_DEFAULT) end
+    local persistence = 0.5
+    local lacunarity = 2.0
+    if args then
+        persistence = args["persistence"] or persistence
+        lacunarity = args["lacunarity"] or lacunarity
+    end
+    local total = 0.0
+    local freq = 1.0
+    local amplitude = 1.0
+    local max_amp = 0.0
+    for i = 1, octaves do
+        total = total + self:perlin_noise2(x, y, permutable, args)
+        max_amp = max_amp + amplitude
+        amplitude = amplitude * persistence
+        freq = freq * lacunarity
+    end
+    return total / max_amp
+end
+
+-----------------------------------------------------------------------
+---
+--- Creates a new object-based Random instance.
+---
+--- Initializes a deterministic pseudo-random number generator (PRNG)
+--- using the provided seed. If the seed is nil or zero, a new 32-bit
+--- seed is generated automatically.
+---
+--- @param initial_seed number?  Optional seed for deterministic behavior.
+--- @return Random instance  Newly created Random object.
+---
+--- @usage
+--- local rng = Random.new(12345)
+--- 
+--- @usage
+--- local rng = Random.new() -- to Auto-generated seed
+---
+-----------------------------------------------------------------------
+function M.Random.new(initial_seed)
+    local self = setmetatable({
+        perm = nil,
+        seed = initial_seed or M.Random.defaults.seed,
+        prng = nil,
+    }, M.Random)
+    if self.seed == 0 or self.seed == nil then
+        self.seed = generate_32bit_seed()
+    end
+    self.prng = generate_prng(self.seed)
+    return self
+end
+
+return M

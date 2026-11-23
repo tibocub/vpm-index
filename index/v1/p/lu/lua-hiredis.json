@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "lua-hiredis",
+  "versions": {
+    "0.2.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/agladysh/lua-hiredis",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 16 Dec 2016 18:40:37 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Dec 2016 18:40:37 GMT",
+          "sha256": "269359004f6885faa1c6002ec9f92999274956033af3a5a08536e7991df8a025",
+          "size": 855
+        },
+        "src": {
+          "date": "Fri, 16 Dec 2016 18:40:38 GMT",
+          "sha256": "723dbb4d2326300c5693320faf91116062059856e23ca531c0de7ffea0be7018",
+          "size": 74485,
+          "url": "https://luarocks.org/lua-hiredis-0.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "hiredis"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src/",
+                "lib/hiredis/"
+              ],
+              "name": "hiredis",
+              "sources": [
+                "src/lua-hiredis.c",
+                "lib/hiredis/net.c",
+                "lib/hiredis/async.c",
+                "lib/hiredis/dict.c",
+                "lib/hiredis/hiredis.c",
+                "lib/hiredis/sds.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 16 Dec 2016 18:40:38 GMT",
+        "sha256": "723dbb4d2326300c5693320faf91116062059856e23ca531c0de7ffea0be7018",
+        "size": 74485,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-hiredis-0.2.1-1.src.rock"
+      },
+      "summary": "Bindings for hiredis Redis-client library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

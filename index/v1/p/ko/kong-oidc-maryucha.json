@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-maryucha",
+  "versions": {
+    "1.4.0-2": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.7.5-1"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "1181ac654537c25126c34ed1393ae22be741f7a382899e3c429ecdf674588c99",
+          "size": 2193,
+          "url": "blob:1181ac654537c25126c34ed1393ae22be741f7a382899e3c429ecdf674588c99"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "e00597f681a94bcb19385f6c66ec961eae4ee5a4e6adca4b8646c2c891f55e1a",
+          "size": 8742,
+          "url": "blob:e00597f681a94bcb19385f6c66ec961eae4ee5a4e6adca4b8646c2c891f55e1a"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "225cdfdbfd383887ae5128810e821beed97b4c57eba52adb318571eac8364e39",
+          "size": 8629,
+          "url": "blob:225cdfdbfd383887ae5128810e821beed97b4c57eba52adb318571eac8364e39"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "45a717fc4427816533613d4febb350f002a34d4d52cb83d9adee4b4fe8e1e8fd",
+          "size": 2124,
+          "url": "blob:45a717fc4427816533613d4febb350f002a34d4d52cb83d9adee4b4fe8e1e8fd"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "909a0ad854199b4e6ad72c07c794f70865a522488ccbce48d160377ee232f392",
+          "size": 10476,
+          "url": "blob:909a0ad854199b4e6ad72c07c794f70865a522488ccbce48d160377ee232f392"
+        }
+      },
+      "homepage": "https://github.com/maryucha/kong-oidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 16 Sep 2024 17:27:10 GMT",
+        "rockspec": {
+          "date": "Mon, 16 Sep 2024 17:27:10 GMT",
+          "sha256": "b798ec7cb584249c2e3a1d456765d6f53ce75852a48aa0e0459aea49c7b4a3c7",
+          "size": 2000
+        },
+        "src": {
+          "date": "Mon, 16 Sep 2024 17:27:12 GMT",
+          "sha256": "1f63ca4d69e8e722ea3b557e72a9dd94b95f284561dc1005ad0685a2f6a81f2e",
+          "size": 95123,
+          "url": "https://luarocks.org/kong-oidc-maryucha-1.4.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "date": "Mon, 16 Sep 2024 17:27:12 GMT",
+        "sha256": "1f63ca4d69e8e722ea3b557e72a9dd94b95f284561dc1005ad0685a2f6a81f2e",
+        "size": 95123,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-oidc-maryucha-1.4.0-2.src.rock"
+      },
+      "size": 32164,
+      "summary": "Plugin Kong para autenticação OpenID Connect como Relying Party (RP)",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "resty.jwt-validators"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

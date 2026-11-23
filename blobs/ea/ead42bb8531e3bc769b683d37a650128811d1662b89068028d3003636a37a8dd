@@ -1,0 +1,31 @@
+local _module_0 = { }
+local os = require('os')
+local ngx = require('ngx')
+local flash = require('elan.http.flash')
+local recover
+recover = function(req, res, nxt)
+	local ok, err = pcall(nxt)
+	if not ok then
+		ngx.log(ngx.ERR, err)
+		if res:headers_sent() then
+			return
+		end
+		res.status = 500
+		if os.getenv('ELAN_ENV') == 'dev' then
+			return res:write_text(err)
+		else
+			ok = res:render('500.tpl', req.ctx.locals)
+			if not ok then
+				return res:write_text('Internal server error')
+			end
+		end
+	end
+end
+_module_0["recover"] = recover
+local load_flash
+load_flash = function(req, res, nxt)
+	flash.consume_flash(req, res)
+	return nxt()
+end
+_module_0["load_flash"] = load_flash
+return _module_0

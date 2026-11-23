@@ -1,0 +1,312 @@
+local insert,concat,format = table.insert,table.concat,string.format
+
+local db = {}
+
+db.view = {
+  {"name",     "Name",   sz = 25},
+  {"filename", "File",   sz = 40, ht = 'FILE'},
+  {"note",     "Note",   ht = 'PAGE'},
+  {"type",     "Type",  readonly = true},
+  {"fsize",    "Size" , readonly = true},
+  {"ref",      "Link",  ht = 'SHOW'},
+  {"user",     "User",  ht = 'SELECT', rt="users",rf={{"login"}}},
+  {'folder',   'Folder',ht = 'SELECT',rt = "folders"},
+
+  {"view",     "File",  ht = 'SHOW'},
+
+--
+  {"locked",ht = 'CHECKBOX'},
+  {"cid"},
+  {"data",ht = 'BLOB'},
+
+  file = true, -- for no js upload
+
+  --list = {
+  --  {'docs',{
+  --    {"name",'Name',ht="SELF"},
+  --    {"note",'Note'},
+  --    {"user"},
+  --    order = "edited desc",
+  --    name = "Document",
+  --    link={'file'},
+  --  },1,'file'}
+  -- }
+
+}
+
+db.list = {
+  {"files.name",     "Name",ht = 'SELF'},
+  {"files.filename", "File"},
+  {"fsize",    "Size",ht="NUM"},
+  {'folders.name',   'Folder',ht='REF'},
+  {"user"},
+  {"folder"},
+  join = {
+      "folders on files.folder = folders.rowid",
+  },
+  where = {
+    {"files.name",'Name'},
+    {"files.note",'Note'},
+    {"files.data",'Content'},
+  },
+  remove='Remove'
+}
+
+function db:update(row,recno)
+
+  local fname = "noname"
+  local ftype = "application/x-unknown"
+  local fsize = nil
+  local content = nil
+  local filename = params['filename']
+
+  if uploads and uploads.filename then -- php
+    fname = uploads.filename.name or "noname"
+    fsize = uploads.filename.size
+    ftype = uploads.filename.type
+    local file = uploads.filename.tmp_name
+    local fin = io.open(file)
+    if fin then
+      content = fin:read("*a")
+      os.remove(file)
+    end
+  elseif filename then
+    if type(filename) == "table" then -- cgi
+      fname = filename.name or "noname"
+      fsize = filename.size
+      ftype = filename['content-type']
+      content = filename.contents
+    else
+      local pfile = self.conf.cli and concat{self.conf.data,"/out/",params.filename} or
+        params.filename
+      local fin = io.open(pfile)
+      if fin then  -- lwt beta or cli
+        content = fin:read("*a")
+        fsize = string.len(content or "")
+        fname = params.filename
+      else  -- ttcb
+        fsize = params["filename_sz"]
+        ftype = params["filename_ct"]
+        fname = params.filename
+        content = getfile and getfile() or nil
+      end
+    end
+  elseif params.content and params.ftype then -- ajax update
+    local base64 = require("ee5_base64")
+    content = base64.decode(params.content)
+    ftype = params.ftype
+    row.type = ftype
+    fname = params.fname
+    fsize = string.len(content) --params.fsize
+    row.fsize = fsize
+  end
+  --fname = string.sub(fname,string.find(fname,"[^\\]+$"))
+  if fsize then
+    if fname then row.filename = fname end
+    if ftype then row.type = ftype end
+    row.fsize = fsize
+  end
+
+  if row.filename == '' then row.filename = nil end
+
+  if not content or content == '' then
+    return
+  end
+
+  if content and type(content)=="string" then
+    row.data = content
+  end
+
+end
+
+db.field = {
+  ref = function(self,row)
+    if not row then return end
+    for doc in self.conn:nrows(concat{'select rowid,refid,refbase from file.docs where file = ',row.rowid}) do
+        local name = doc.refbase == "mail.mails" and "email" or "name"
+        for name in self.conn:urows(concat{'select ',name,' from ',doc.refbase,' where rowid = ',doc.refid}) do
+          if self.user.admin then -- self:access(row.link_base,row.link_recno,self.user.id,"view") then -- todo
+              return self.util.link(self,doc.refbase,name,{act='show',recno=doc.refid})
+          else
+              return name
+          end
+        end
+    end
+    if self.conf.apps.mail then
+      for mail in self.conn:nrows(concat{'select rowid,email from mail.mails where file = ',row.rowid}) do
+          if self.user.admin then
+              return self.util.link(self,'mail.mails',mail.email,{act='show',recno=mail.rowid})
+          else
+              return mail.email or 'noname'
+          end
+      end
+    end
+
+  end,
+  view = function(self,row)
+    if not row or (params.act == 'edit') or self.conf.cli then return '' end
+    local rec = row.rowid
+    local mod = params.mod
+    if row.data then
+      --for res in self.conn:nrows(qry) do
+        if row.type:match('text/') then
+          local file = row.data
+          if row.type == 'text/plain' or row.type == '' or not row.type then
+            file = file:gsub('\n','<br/>')
+          end
+          return concat{"<div style='padding:0px;font-size:16px;word-break:break-all;'>",file,"</div>"}
+        elseif row.type:match("image/") then
+          local img = row.type:match("image/")
+          if img then
+            if mod == 'images' then
+              local get = concat{'mod=file.files&act=download&img=true&recno=',rec}
+              return concat{'<div style="padding:5px;max-width:800px;text-align:left;" >',
+                      '<img src="',self.conf.idx,'?mod=file.files&act=download&img=true&recno=',rec,
+                                               '" style="max-width:250px;max-height:250px;" ',
+                       'onclick="tglpopup(this)" onload="dragImg(this)"/>',
+                      '</div>',
+                    }
+            else
+              return concat{'<div style="padding:5px;">',
+                    '<img src="',self.conf.idx,'?mod=file.files&act=download&img=true&recno=',rec,
+                    '" style="max-width:800px;"/></div>'}
+            end
+          end
+        else
+          return self.util.link(self,'file.files','Download',{act='download',recno=rec})
+        end
+      --end
+    end
+  end,
+  description = function(self,row)
+      local name = row.name and row.name ~= '' and row.name or 'noname'
+      return concat{row.note,'<br/>','<p align="left"><a href="',self.conf.idx,
+                                '?mod=file.files&act=download&recno=',row.rowid,'">',
+                                  lang.Download or 'Download','</a></p>'}
+  end,
+  help = function(self,row)
+      return lang.UploadHelp or
+[[
+<p>
+<pre>
+  Select file to upload
+</pre>
+</p>
+      ]]
+  end
+
+}
+
+function db:delete(recno)
+  return true
+end
+
+
+function db:menu(row)
+  return row and row.data and
+    {
+      {"file.files","Download",{act="download",recno=row.rowid} },
+    }
+end
+
+local function download(self,recno)
+    local mime = "application/x-unknown"
+    local fn = recno
+    local qry = concat{[[select rowid,type,filename,data,fsize
+      from file.files
+      where rowid = ']],recno,"'"}
+    for row in self.conn:nrows(qry) do
+      if row.type and row.type ~= "" then mime = row.type end
+      if row.filename then fn = row.filename end
+      if self.conf.cli then
+        local ftype = string.match(fn,"%.(.*)",-5) or string.match(mime,"/(.*)",-5)
+        local tmp = concat{self.conf.data,"/.tmp.",row.rowid,".",ftype}
+        local fd = io.open(tmp,"wb")
+        if fd then
+          fd:write(row.data)
+          fd:flush()
+          self.term.menu:view(tmp,ftype,true)
+          os.remove(tmp)
+        end
+      else
+        return fn,mime,row.data
+      end
+    end
+end
+
+function db:main(out)
+  if params.act == "download" then
+    local recno = params.recno
+    local dispos="attachment;filename=\""
+    local mime = "application/x-unknown"
+    local fname = recno
+    local file = nil
+
+    local zip,dir,tmp,ar,name = nil
+    if not params.img and false then --todo base check if files have subfiles for zip
+      local qry = concat{[[select rowid,type,filename,data,fsize,files.user as user
+        from file.files
+        where rowid = ]],recno}
+
+      for row in self.conn:nrows(qry) do
+
+        --if not self:access('files',recno,row.user,"view") then -- todo
+        -- return {'No access'}
+        --end
+
+        if not zip then --todo base
+          zip = require("zip")
+          dir = concat{'tar',recno}
+          fname = concat{dir,"-",tostring(os.time()):sub(-3),'.zip'}
+          tmp = concat{self.conf.data,"/out/",fname}
+          ar = zip.open(tmp,zip.OR(zip.CREATE, zip.EXCL))
+        end
+        _,_,file = download(self,row.rowid)
+        ar:add(concat{dir,"/",row.rowid,"-",row.filename or 'file'},"string",file)
+      end
+    end
+    if not zip then
+      fname,mime,file = download(self,recno)
+    elseif ar then
+      name,_,file = download(self,recno)
+      ar:add(concat{dir,"/",recno,"-",name or 'file'},"string",file)
+      ar:close()
+      local out = io.open(tmp,'rb')
+      file = out:read('*a')
+      mime = "application/zip"
+      os.remove(tmp)
+    end
+
+    if file then
+      dispos = concat{dispos,fname,"\""}
+      header("Content-Disposition",dispos)
+      header("Content-Type",mime)
+      return {file}
+    end
+  end
+end
+
+function db:convert(file,name)
+  if not string.match(string.lower(name or ""),"%.pdf$") then return '' end
+  local from = concat{self.conf.data,"/out/from"}
+  local to = concat{self.conf.data,"/out/to"}
+  local tmp = io.open(from,'w')
+  tmp:write(file)
+  tmp:close()
+  local cmd  = concat{"pdf2txt.py -o ",to," ",from}
+  local exe = io.popen(cmd)
+  local text = ''
+  if exe then
+    exe:close()
+    local fd = io.open(to)
+    if fd then
+      text = fd:read("*a")
+      fd:close()
+    end
+  end
+  os.remove(from)
+  os.remove(to)
+  return text
+end
+
+return db

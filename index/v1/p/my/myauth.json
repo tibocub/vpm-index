@@ -1,0 +1,149 @@
+{
+  "kind": "lib",
+  "name": "myauth",
+  "versions": {
+    "1.3.0-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "base64 >= 1.5",
+        "lua-resty-jwt >= 0.2.2",
+        "luafilesystem >= 1.8.0"
+      ],
+      "files": {
+        "myauth.lua": {
+          "sha256": "99794add5a3b54b987e5bb58877992fcfa02efda9c1d23e1b8f93436ec952d9a",
+          "size": 2752,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth.lua"
+        },
+        "myauth/anon.lua": {
+          "sha256": "8ab08137b64a5cfcf80f5b757984a0c13d262bfb210ef7afb2aa61150062abea",
+          "size": 666,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/anon.lua"
+        },
+        "myauth/basic.lua": {
+          "sha256": "658b3968840a4eed29d07260d293c7a064a9310c516dad39ffb2fe0c0fa268f6",
+          "size": 1293,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/basic.lua"
+        },
+        "myauth/claim-str.lua": {
+          "sha256": "0dee459002c35c7aaf0eb1ab78127dd7d2370be81e7babe7edd3fa1760f301dd",
+          "size": 2133,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/claim-str.lua"
+        },
+        "myauth/config.lua": {
+          "sha256": "c8a0c3cdbdb149fbcbf6fc1241b73df6ec7d6e29eeaa9f3725823c1d50f06b11",
+          "size": 2557,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/config.lua"
+        },
+        "myauth/empty-event-listener.lua": {
+          "sha256": "1425427ddde2b69e4e82a7b0448db34c7e239c49ce89301185fc164ca1602964",
+          "size": 1409,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/empty-event-listener.lua"
+        },
+        "myauth/jwt.lua": {
+          "sha256": "3793bca57418b13bc6eb0890ea04aee4ae19654be0fe4fd954c80d3d300228e6",
+          "size": 2928,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/jwt.lua"
+        },
+        "myauth/nginx.lua": {
+          "sha256": "22c6daeb186477af19046ed8a805d935b38c4839b1c011ae9684c17a9440cdde",
+          "size": 1075,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/nginx.lua"
+        },
+        "myauth/norm-wrapper-event-listener.lua": {
+          "sha256": "fb9581a55458a68902e7634e49824b0464c1f1257aa2ac9e56a75799a643c37b",
+          "size": 2840,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/norm-wrapper-event-listener.lua"
+        },
+        "myauth/prometheus-event-listener.lua": {
+          "sha256": "c3bb4cc5a3f289fde78413831f757ae79ff52f648b224e40df7f23562e07cd29",
+          "size": 2916,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/prometheus-event-listener.lua"
+        },
+        "myauth/rbac.lua": {
+          "sha256": "96ea5a9a5f191aed792dd13d70b9b92dcb8b156a82afe61556fcd7a03973e267",
+          "size": 6277,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/rbac.lua"
+        },
+        "myauth/scheme-v1.lua": {
+          "sha256": "fd6013cfb7388391f68656b099f156781dff5716cf7d95a1e97fa79a00d2d2c9",
+          "size": 384,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/scheme-v1.lua"
+        },
+        "myauth/scheme-v2.lua": {
+          "sha256": "8b5440e3d7e4d45306d62a20ac0d93662badbd9dfcae6a8d9c4f9b3539dd2962",
+          "size": 786,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/scheme-v2.lua"
+        },
+        "myauth/secrets.lua": {
+          "sha256": "1b8be03bf1659ac9e1c872c5da2c8a4769208fcab4e075b9d41523237bf09c94",
+          "size": 279,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/secrets.lua"
+        },
+        "myauth/url-filters.lua": {
+          "sha256": "d732831d2231a795b50a2b4e804aa08e900a0c41ebd1905a7e6e15a1d51614e5",
+          "size": 652,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/url-filters.lua"
+        },
+        "myauth/url-tools.lua": {
+          "sha256": "5745593f94c101b452c6869122f5ee1f3b798776fce786837088cf3519824767",
+          "size": 1113,
+          "url": "https://raw.githubusercontent.com/myauth-framework/myauth-lua/bf72ea8e685a89ef5a6eac38d686df5ce576cb75/src/myauth/url-tools.lua"
+        }
+      },
+      "homepage": "https://github.com/myauth-framework/myauth-lua",
+      "host": "openresty",
+      "license": "The MIT License (MIT)",
+      "luarocks": {
+        "date": "Mon, 12 Oct 2026 15:43:46 GMT",
+        "rockspec": {
+          "date": "Mon, 12 Oct 2026 15:43:46 GMT",
+          "sha256": "7e0c3535251277b94bed3513fd015baf08ba2d3d69085582c004e48e59184370",
+          "size": 1445
+        }
+      },
+      "modules": [
+        "myauth",
+        "myauth.anon",
+        "myauth.basic",
+        "myauth.claim-str",
+        "myauth.config",
+        "myauth.empty-event-listener",
+        "myauth.jwt",
+        "myauth.nginx",
+        "myauth.norm-wrapper-event-listener",
+        "myauth.prometheus-event-listener",
+        "myauth.rbac",
+        "myauth.scheme-v1",
+        "myauth.scheme-v2",
+        "myauth.secrets",
+        "myauth.url-filters",
+        "myauth.url-tools"
+      ],
+      "origin": {
+        "commit": "bf72ea8e685a89ef5a6eac38d686df5ce576cb75",
+        "ref": "1.3.0",
+        "type": "git",
+        "url": "https://github.com/myauth-framework/myauth-lua"
+      },
+      "size": 30060,
+      "summary": "LUA library with myauth verification logic",
+      "undeclared_requires": [
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

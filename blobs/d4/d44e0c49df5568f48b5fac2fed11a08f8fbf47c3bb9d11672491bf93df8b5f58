@@ -1,0 +1,195 @@
+-- ============================================================
+-- Shiva EventBus
+-- Event system with priority ordering and before/after plugin
+-- hooks on service methods. Inspired by Marko's tag lifecycle.
+-- ============================================================
+
+---@class EventBus
+local EventBus = {
+    _handlers = {},
+    _plugins = {
+        before = {},
+        after = {},
+    },
+}
+
+-- ========================
+-- Halt Sentinel
+-- ========================
+
+local HALT_SENTINEL = {}
+
+--- Create a halt signal for before plugins.
+--- Returning EventBus.halt(value) from a before plugin skips the
+--- original method and uses value as the result instead.
+---@param value any The value to return instead of calling the original
+---@return table
+function EventBus.halt(value)
+    return { __halt = HALT_SENTINEL, value = value }
+end
+
+---@param v any
+---@return boolean
+local function isHalt(v)
+    return type(v) == 'table' and v.__halt == HALT_SENTINEL
+end
+
+-- ========================
+-- Event Handlers
+-- ========================
+
+--- Register an event handler
+---@param eventName string
+---@param handler function
+---@param priority? integer Lower = runs first (default: 100)
+function EventBus.on(eventName, handler, priority)
+    if not EventBus._handlers[eventName] then
+        EventBus._handlers[eventName] = {}
+    end
+    table.insert(EventBus._handlers[eventName], {
+        fn = handler,
+        priority = priority or 100,
+    })
+    table.sort(EventBus._handlers[eventName], function(a, b)
+        return a.priority < b.priority
+    end)
+end
+
+--- Remove all handlers for an event
+---@param eventName string
+function EventBus.off(eventName)
+    EventBus._handlers[eventName] = nil
+end
+
+--- Emit an event (fire and forget)
+---@param eventName string
+---@param ... any Arguments passed to handlers
+function EventBus.emit(eventName, ...)
+    local handlers = EventBus._handlers[eventName]
+    if not handlers then return end
+    for _, handler in ipairs(handlers) do
+        handler.fn(...)
+    end
+end
+
+--- Emit and check responses. Returns false if any handler returns false.
+---@param eventName string
+---@param ... any
+---@return boolean allowed
+---@return string|nil reason
+function EventBus.emitWithResponse(eventName, ...)
+    local handlers = EventBus._handlers[eventName]
+    if not handlers then return true end
+
+    for _, handler in ipairs(handlers) do
+        local result, reason = handler.fn(...)
+        if result == false then
+            return false, reason
+        end
+    end
+
+    return true
+end
+
+-- ========================
+-- Service Plugins
+-- ========================
+
+--- Register a before plugin on a service method.
+--- Before plugins run BEFORE the original method.
+---   return nil              → pass through, args unchanged
+---   return EventBus.halt(x) → skip original, x becomes the result
+---@param serviceName string
+---@param methodName string
+---@param fn function
+---@param sortOrder? integer Lower = runs first (default: 100)
+function EventBus.before(serviceName, methodName, fn, sortOrder)
+    local key = serviceName .. '.' .. methodName
+    if not EventBus._plugins.before[key] then
+        EventBus._plugins.before[key] = {}
+    end
+    table.insert(EventBus._plugins.before[key], {
+        fn = fn,
+        sortOrder = sortOrder or 100,
+    })
+    table.sort(EventBus._plugins.before[key], function(a, b)
+        return a.sortOrder < b.sortOrder
+    end)
+end
+
+--- Register an after plugin on a service method.
+--- After plugins receive (result, ...originalArgs) and must return the result.
+---@param serviceName string
+---@param methodName string
+---@param fn fun(result: any, ...): any
+---@param sortOrder? integer Lower = runs first (default: 100)
+function EventBus.after(serviceName, methodName, fn, sortOrder)
+    local key = serviceName .. '.' .. methodName
+    if not EventBus._plugins.after[key] then
+        EventBus._plugins.after[key] = {}
+    end
+    table.insert(EventBus._plugins.after[key], {
+        fn = fn,
+        sortOrder = sortOrder or 100,
+    })
+    table.sort(EventBus._plugins.after[key], function(a, b)
+        return a.sortOrder < b.sortOrder
+    end)
+end
+
+--- Wrap a function with before/after plugin execution
+---@param serviceName string
+---@param methodName string
+---@param originalFn function
+---@return function wrappedFn
+function EventBus.wrapWithPlugins(serviceName, methodName, originalFn)
+    return function(...)
+        local args = table.pack(...)
+        local key = serviceName .. '.' .. methodName
+
+        -- Before plugins
+        local beforePlugins = EventBus._plugins.before[key]
+        if beforePlugins then
+            for _, plugin in ipairs(beforePlugins) do
+                local returned = plugin.fn(table.unpack(args, 1, args.n))
+                if returned ~= nil then
+                    if isHalt(returned) then
+                        local result = returned.value
+                        local afterPlugins = EventBus._plugins.after[key]
+                        if afterPlugins then
+                            for _, ap in ipairs(afterPlugins) do
+                                result = ap.fn(result, table.unpack(args, 1, args.n))
+                            end
+                        end
+                        return result
+                    end
+                end
+            end
+        end
+
+        -- Original
+        local result = originalFn(table.unpack(args, 1, args.n))
+
+        -- After plugins
+        local afterPlugins = EventBus._plugins.after[key]
+        if afterPlugins then
+            for _, plugin in ipairs(afterPlugins) do
+                result = plugin.fn(result, table.unpack(args, 1, args.n))
+            end
+        end
+
+        return result
+    end
+end
+
+-- ========================
+-- Lifecycle
+-- ========================
+
+--- Reset all state (for testing)
+function EventBus.reset()
+    EventBus._handlers = {}
+    EventBus._plugins = { before = {}, after = {} }
+end
+
+return EventBus

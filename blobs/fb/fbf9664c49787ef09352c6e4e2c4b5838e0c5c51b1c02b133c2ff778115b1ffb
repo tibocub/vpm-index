@@ -1,0 +1,98 @@
+local Channel = {}
+Channel.__index = Channel
+
+---Create a Channel structure from Discord payload data.
+---@param data table
+---@param client table
+---@return table
+function Channel.new(data, client)
+  assert(type(data) == "table", "Channel.new expects a table payload")
+  local self = setmetatable({}, Channel)
+  self._client = client
+  self:_patch(data)
+  return self
+end
+
+---Patch this channel with fresh payload data.
+---@param data table
+function Channel:_patch(data)
+  self.id = data.id or self.id
+  self.type = data.type or self.type
+  self.guild_id = data.guild_id or self.guild_id
+  self.position = data.position or self.position
+  self.name = data.name or self.name
+  self.topic = data.topic or self.topic
+  self.nsfw = data.nsfw or false
+  self.parent_id = data.parent_id or self.parent_id
+  self.last_message_id = data.last_message_id or self.last_message_id
+  self.rate_limit_per_user = data.rate_limit_per_user or self.rate_limit_per_user
+  self.thread_metadata = data.thread_metadata or self.thread_metadata
+end
+
+---Send a message in this channel.
+---@param content string|table
+---@param options? table
+---@return table|nil, table|nil
+function Channel:send(content, options)
+  local payload
+  if type(content) == "table" then
+    payload = content
+  else
+    payload = options or {}
+    payload.content = tostring(content)
+  end
+  local data, err = self._client.rest:createMessage(self.id, payload)
+  if not data then
+    return nil, err
+  end
+  return self._client:_makeMessage(data)
+end
+
+---Edit this channel.
+---@param payload table
+---@param reason? string
+---@return table|nil, table|nil
+function Channel:edit(payload, reason)
+  local data, err = self._client.rest:patch("/channels/" .. tostring(self.id), payload, nil, reason)
+  if not data then
+    return nil, err
+  end
+  self:_patch(data)
+  return self
+end
+
+---Delete this channel.
+---@param reason? string
+---@return boolean, table|nil
+function Channel:delete(reason)
+  local data, err = self._client.rest:delete("/channels/" .. tostring(self.id), nil, reason)
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+---Trigger typing indicator for this channel.
+---@return boolean, table|nil
+function Channel:startTyping()
+  local data, err = self._client.rest:post("/channels/" .. tostring(self.id) .. "/typing")
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+---Create a thread from this channel.
+---@param payload table
+---@param reason? string
+---@return table|nil, table|nil
+function Channel:createThread(payload, reason)
+  local data, err = self._client.rest:post("/channels/" .. tostring(self.id) .. "/threads", payload, nil, reason)
+  if not data then
+    return nil, err
+  end
+  return self._client:_makeChannel(data)
+end
+
+return Channel
+

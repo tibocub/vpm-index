@@ -1,0 +1,53 @@
+-- nvim_vale_tools/lua/utils.lua
+
+local M = {}
+
+--- Ensure a directory exists.
+---@param dir_path string Directory path
+function M.ensure_dir(dir_path)
+	if vim.fn.isdirectory(dir_path) == 0 then
+		vim.fn.mkdir(dir_path, "p")
+	end
+end
+
+--- Write content to a file.
+---@param file_path string File path
+---@param content string Content to write
+function M.write_file(file_path, content)
+	local ok, err = pcall(function()
+		local file = io.open(file_path, "w")
+		if file then
+			file:write(content)
+			file:close()
+		else
+			error("Failed to open file: " .. file_path)
+		end
+	end)
+
+	if not ok then
+		vim.notify("Error writing file " .. file_path .. ": " .. err, vim.log.levels.ERROR)
+	end
+end
+
+--- Read content from a file.
+---@param file_path string File path
+---@param callback function Callback to handle the content
+function M.read_file(file_path, callback)
+	local ok, err = pcall(function()
+		local file = io.open(file_path, "r")
+		if file then
+			local content = file:read("*a")
+			file:close()
+			callback(content)
+		else
+			error("Failed to open file: " .. file_path)
+		end
+	end)
+
+	if not ok then
+		vim.notify("Error reading file " .. file_path .. ": " .. err, vim.log.levels.ERROR)
+		callback("")
+	end
+end
+
+return M

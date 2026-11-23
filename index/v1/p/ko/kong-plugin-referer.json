@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-referer",
+  "versions": {
+    "2.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/referer/handler.lua": {
+          "sha256": "2b6f1fcc2a54158e5d76f3977709870d98663da4a58f97dd8c77aad434ab27be",
+          "size": 3007,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-referer/1955c272fd30c84d71a3a1551f9420b96435f96b/kong/plugins/referer/handler.lua"
+        },
+        "kong/plugins/referer/schema.lua": {
+          "sha256": "f58f9ec4807d0d79fc71f8c4b72e3a555d9032b9590619cd455ebd18fcbac3ca",
+          "size": 118,
+          "url": "https://raw.githubusercontent.com/eyolas/kong-plugin-referer/1955c272fd30c84d71a3a1551f9420b96435f96b/kong/plugins/referer/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 10 Mar 2020 22:46:46 GMT",
+        "rockspec": {
+          "date": "Tue, 10 Mar 2020 22:46:46 GMT",
+          "sha256": "00f6b7287b002901d9f8396e9ef50f180fef35a0a6e032f34faf16bd09f8d784",
+          "size": 584
+        },
+        "src": {
+          "date": "Tue, 10 Mar 2020 22:46:47 GMT",
+          "sha256": "6d038a09e339dd5894c8f2912d07e6e64472e77307d0df5d684cc124a9508d72",
+          "size": 8086,
+          "url": "https://luarocks.org/kong-plugin-referer-2.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.referer.handler",
+        "kong.plugins.referer.schema"
+      ],
+      "origin": {
+        "commit": "1955c272fd30c84d71a3a1551f9420b96435f96b",
+        "ref": "v2.0.0",
+        "type": "git",
+        "url": "https://github.com/eyolas/kong-plugin-referer"
+      },
+      "size": 3125,
+      "summary": "Easily add referer access to your API by enabling this plugin",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.lrucache"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

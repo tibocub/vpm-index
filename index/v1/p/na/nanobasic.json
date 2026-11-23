@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "nanobasic",
+  "versions": {
+    "1.0-4": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/joe7575/nanobasic",
+      "license": "MIT",
+      "lua": "== 5.1",
+      "luarocks": {
+        "date": "Fri, 26 Sep 2025 14:18:23 GMT",
+        "rockspec": {
+          "date": "Fri, 26 Sep 2025 14:18:23 GMT",
+          "sha256": "fc54ecddd796f10d19587cdf4480c81c3ff3208616ef5921522a0396022a2e80",
+          "size": 710
+        },
+        "src": {
+          "date": "Fri, 26 Sep 2025 14:18:24 GMT",
+          "sha256": "0e43f49da438d147436a1dbd1acc4b7e0d1c57a361c6ec0bf6f768d1adb1f519",
+          "size": 43185,
+          "url": "https://luarocks.org/nanobasic-1.0-4.src.rock"
+        }
+      },
+      "modules": [
+        "nanobasiclib"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "cfg_LINE_NUMBERS"
+              ],
+              "name": "nanobasiclib",
+              "sources": [
+                "./src/nb_lua.c",
+                "./src/nb_scanner.c",
+                "./src/nb_compiler.c",
+                "./src/nb_runtime.c",
+                "./src/nb_memory.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 26 Sep 2025 14:18:24 GMT",
+        "sha256": "0e43f49da438d147436a1dbd1acc4b7e0d1c57a361c6ec0bf6f768d1adb1f519",
+        "size": 43185,
+        "type": "luarocks",
+        "url": "https://luarocks.org/nanobasic-1.0-4.src.rock"
+      },
+      "summary": "A small BASIC compiler with virtual machine for Luanti",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

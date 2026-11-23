@@ -1,0 +1,131 @@
+{
+  "kind": "lib",
+  "name": "metalua-compiler",
+  "versions": {
+    "0.7.3-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "luafilesystem",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "luafilesystem ~> 1.6",
+        "metalua-parser >= 0.7.3"
+      ],
+      "files": {
+        "metalua/compiler/ast_to_src.mlua": {
+          "sha256": "de857a9f342520173654281139eb8ebaa76aa664c32b9473e76b2d5ba571c434",
+          "size": 20462,
+          "url": "blob:de857a9f342520173654281139eb8ebaa76aa664c32b9473e76b2d5ba571c434"
+        },
+        "metalua/compiler/bytecode.lua": {
+          "sha256": "f60d51001a9c75bf56b7b3689e1d0cc4e9cb627e071394d8c290d1f5697e7a88",
+          "size": 1017,
+          "url": "blob:f60d51001a9c75bf56b7b3689e1d0cc4e9cb627e071394d8c290d1f5697e7a88"
+        },
+        "metalua/compiler/bytecode/compile.lua": {
+          "sha256": "9f7a1d240baa75f8cb82409b351274d79b4798c9f7318dd5c76f740635327f46",
+          "size": 43685,
+          "url": "blob:9f7a1d240baa75f8cb82409b351274d79b4798c9f7318dd5c76f740635327f46"
+        },
+        "metalua/compiler/bytecode/lcode.lua": {
+          "sha256": "0e7a4b0d88b5c1543c0c3c9abc1627bf51f7a830e6acfc60a9aec9f178b52807",
+          "size": 34285,
+          "url": "blob:0e7a4b0d88b5c1543c0c3c9abc1627bf51f7a830e6acfc60a9aec9f178b52807"
+        },
+        "metalua/compiler/bytecode/ldump.lua": {
+          "sha256": "3b88631b78ccbc0449b20c62fa7d978440c9c6669da5188271335f1eb57bce5a",
+          "size": 15952,
+          "url": "blob:3b88631b78ccbc0449b20c62fa7d978440c9c6669da5188271335f1eb57bce5a"
+        },
+        "metalua/compiler/bytecode/lopcodes.lua": {
+          "sha256": "7a58660415ee0f63ca73969cd97c6d1735f9a05ef1a378936a29248aad228b83",
+          "size": 15741,
+          "url": "blob:7a58660415ee0f63ca73969cd97c6d1735f9a05ef1a378936a29248aad228b83"
+        },
+        "metalua/compiler/globals.lua": {
+          "sha256": "e74d02c2d615dbea22b468090083566f8384c3c0cc9827f78a0791d61022e342",
+          "size": 2586,
+          "url": "blob:e74d02c2d615dbea22b468090083566f8384c3c0cc9827f78a0791d61022e342"
+        },
+        "metalua/extension/comprehension.mlua": {
+          "sha256": "86c40518ad6542380524266654dd2c31c1b833099a684b32e296c65d4fa71978",
+          "size": 10940,
+          "url": "blob:86c40518ad6542380524266654dd2c31c1b833099a684b32e296c65d4fa71978"
+        },
+        "metalua/extension/match.mlua": {
+          "sha256": "c7e3901e0bb0ac78c827863cfd7a0ee76e4a7ba04a202ec8be57154b580c1caa",
+          "size": 14536,
+          "url": "blob:c7e3901e0bb0ac78c827863cfd7a0ee76e4a7ba04a202ec8be57154b580c1caa"
+        },
+        "metalua/loader.lua": {
+          "sha256": "5e4f1b0e90eb810533c00f077b1098f1035c28e4f8d69a869ac9e7b62a09474d",
+          "size": 5467,
+          "url": "blob:5e4f1b0e90eb810533c00f077b1098f1035c28e4f8d69a869ac9e7b62a09474d"
+        },
+        "metalua/repl.mlua": {
+          "sha256": "5581238603eb9cc67d345e603e31a9568be4ee4d8a337a844d2241a92ff493e3",
+          "size": 3358,
+          "url": "blob:5581238603eb9cc67d345e603e31a9568be4ee4d8a337a844d2241a92ff493e3"
+        },
+        "metalua/treequery.mlua": {
+          "sha256": "6f6658487981c17e51407222cf9741d17820b549bfadc8555b2db869b21b2972",
+          "size": 17461,
+          "url": "blob:6f6658487981c17e51407222cf9741d17820b549bfadc8555b2db869b21b2972"
+        },
+        "metalua/treequery/walk.mlua": {
+          "sha256": "bdf22bd0f71801a04ab20602668fb7c8f0a03736f0587fc542332cb2fc337973",
+          "size": 11052,
+          "url": "blob:bdf22bd0f71801a04ab20602668fb7c8f0a03736f0587fc542332cb2fc337973"
+        }
+      },
+      "homepage": "http://git.eclipse.org/c/koneki/org.eclipse.koneki.metalua.git",
+      "license": "EPL + MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 21 Mar 2014 00:57:10 GMT",
+        "rockspec": {
+          "date": "Fri, 21 Mar 2014 00:57:10 GMT",
+          "sha256": "4f30a86e58dac31f13947ae9567a8d8d5ec32ef027e33ee1c2dc694c0bf8ba43",
+          "size": 1948
+        },
+        "src": {
+          "date": "Fri, 21 Mar 2014 00:57:11 GMT",
+          "sha256": "8fa73a111c44012292e66a769f6779a4adc18a02388479f703ea86e787510579",
+          "size": 91456,
+          "url": "https://luarocks.org/metalua-compiler-0.7.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "metalua.compiler.bytecode",
+        "metalua.compiler.bytecode.compile",
+        "metalua.compiler.bytecode.lcode",
+        "metalua.compiler.bytecode.ldump",
+        "metalua.compiler.bytecode.lopcodes",
+        "metalua.compiler.globals",
+        "metalua.loader"
+      ],
+      "origin": {
+        "date": "Fri, 21 Mar 2014 00:57:11 GMT",
+        "sha256": "8fa73a111c44012292e66a769f6779a4adc18a02388479f703ea86e787510579",
+        "size": 91456,
+        "type": "luarocks",
+        "url": "https://luarocks.org/metalua-compiler-0.7.3-1.src.rock"
+      },
+      "size": 196542,
+      "summary": "Metalua's compiler: converting (Meta)lua source strings and files into executable Lua 5.1 bytecode",
+      "undeclared_requires": [
+        "checks"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

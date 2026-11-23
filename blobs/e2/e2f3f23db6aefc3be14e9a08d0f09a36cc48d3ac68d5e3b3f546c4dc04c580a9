@@ -1,0 +1,45 @@
+--imports
+local ObjectStmt = require("dogma.syn._.ObjectStmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--A struct statement.
+local StructStmt = {}
+StructStmt.__index = StructStmt
+setmetatable(StructStmt, {__index = ObjectStmt})
+package.loaded[...] = StructStmt
+
+--Constructor.
+function StructStmt.new(ln, col, annots, visib, name, btype, mtypes, fields, fns, events)
+  local self
+
+  --(1) create
+  self = setmetatable(ObjectStmt.new(StmtType.STRUCT, ln, col, name, visib), StructStmt)
+  self.base = btype
+  self.mixins = mtypes
+  self.margs = {"_"}
+  self.fields = fields
+  self.methods = fns
+  self.events = events
+  self.annots = annots
+
+  --(2) return
+  return self
+end
+
+--Returns the injectable fields, that is, all the fields with the @inject annotation.
+--
+--@returns object[]
+function StructStmt:getInjectableFields()
+
+  --(1) get fields
+  local fields = {}
+
+  for _, fld in ipairs(self.fields) do
+    if fld.annots:has("inject") then
+      table.insert(fields, fld)
+    end
+  end
+
+  --(2) return
+  return fields;
+end

@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "s6ftrig",
+  "versions": {
+    "0.0.4-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/chris2511/lua-s6ftrig",
+      "license": "MIT",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Tue, 28 Sep 2021 19:29:57 GMT",
+        "rockspec": {
+          "date": "Tue, 28 Sep 2021 19:29:57 GMT",
+          "sha256": "d41e12218b8b86e49402009815f9429fe0299e8947583144db115db26d9ad506",
+          "size": 924
+        },
+        "src": {
+          "date": "Tue, 28 Sep 2021 19:29:58 GMT",
+          "sha256": "b96602572551cbdd6536dbbed81c8df8423268c4dbc51e2164a70a92cda24f97",
+          "size": 8660,
+          "url": "https://luarocks.org/s6ftrig-0.0.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "s6ftrig"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBS6",
+          "LIBSKARNET"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBS6": {
+              "header": "s6/ftrigr.h"
+            },
+            "LIBSKARNET": {
+              "header": "skalibs/skalibs.h"
+            }
+          },
+          "modules": [
+            {
+              "libraries": [
+                "s6",
+                "skarnet"
+              ],
+              "name": "s6ftrig",
+              "sources": [
+                "s6ftrig.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 28 Sep 2021 19:29:58 GMT",
+        "sha256": "b96602572551cbdd6536dbbed81c8df8423268c4dbc51e2164a70a92cda24f97",
+        "size": 8660,
+        "type": "luarocks",
+        "url": "https://luarocks.org/s6ftrig-0.0.4-1.src.rock"
+      },
+      "summary": "S6 fifodir library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+-- mcptk: build an MCP server in lua, with no dependencies.
+--
+--   local mcptk = require("mcptk")
+--   local srv = mcptk.server{ name = "hello", version = "1.0" }
+--
+--   srv:tool{
+--       name = "greet",
+--       description = "greet someone by name",
+--       args = { who = mcptk.str{ desc = "name to greet" } },
+--       run = function(a) return "hello, " .. a.who end,
+--   }
+--
+--   srv:run()
+
+local json = require("mcptk.json")
+local schema = require("mcptk.schema")
+local server = require("mcptk.server")
+local content = require("mcptk.content")
+local stdio = require("mcptk.stdio")
+
+local M = {}
+
+M.json = json
+M.schema = schema
+M.content = content
+M.stdio = stdio
+M.null = json.null
+M.EMPTY_ARRAY = json.EMPTY_ARRAY
+M.PROTOCOL_VERSIONS = server.PROTOCOL_VERSIONS
+
+-- argument types
+M.str = schema.str
+M.int = schema.int
+M.num = schema.num
+M.bool = schema.bool
+M.arr = schema.arr
+M.obj = schema.obj
+M.any = schema.any
+
+-- result helpers
+M.text = content.text
+M.image = content.image
+M.audio = content.audio
+M.link = content.link
+M.error = content.error
+
+---Builds a server. The returned object also has a run method, which
+---serves over stdio.
+---@param opts table|nil name, version and instructions
+---@return mcptk.Server
+function M.server(opts)
+	local srv = server.new(opts)
+
+	function srv:run(runopts)
+		return stdio.run(self, runopts)
+	end
+	return srv
+end
+
+---One-call form: builds a server from opts, registers opts.tools, and
+---serves. Returns once the client goes away.
+---@param opts table name, version, instructions and a tools list
+---@return mcptk.Server
+function M.serve(opts)
+	local srv = M.server(opts)
+
+	for _, t in ipairs(opts.tools or {}) do
+		srv:tool(t)
+	end
+	srv:run(opts)
+	return srv
+end
+
+return M

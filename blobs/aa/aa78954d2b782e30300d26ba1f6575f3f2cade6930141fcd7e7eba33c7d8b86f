@@ -1,0 +1,174 @@
+-- Minimal AWS Kinesis PutRecords client, built on HAProxy's native
+-- core.httpclient()
+
+local openssl = require 'openssl'
+local json = require 'dkjson'
+local aws_sigv4 = require 'aws_sigv4'
+local util = require 'netacea_util'
+
+local Kinesis = {}
+Kinesis.__index = Kinesis
+
+local SERVICE = "kinesis"
+local TARGET = "Kinesis_20131202.PutRecords"
+
+-- `params`:
+--   stream_name - the Kinesis stream to write to
+--   region      - e.g. "eu-west-1"
+--   access_key  - AWS access key id
+--   secret_key  - AWS secret access key
+--   endpoint    - (optional) override the "https://host/" base URL requests
+--                  are sent to, e.g. a VPC endpoint or a Kinesis-compatible
+--                  mock. The Host header used for SigV4 signing is derived
+--                  from this endpoint's own host when given, so requests
+--                  stay correctly signed for wherever they're actually sent.
+--   debug       - (optional) enable verbose per-request logging; the caller
+--                  owns reading this from config (e.g. NETACEA_KINESIS_DEBUG)
+--                  so it isn't parsed independently in multiple modules.
+function Kinesis.new(params)
+    assert(params.stream_name, "stream_name is required")
+    assert(params.region, "region is required")
+    assert(params.access_key, "access_key is required")
+    assert(params.secret_key, "secret_key is required")
+
+    local default_host = "kinesis." .. params.region .. ".amazonaws.com"
+    local endpoint = params.endpoint or ("https://" .. default_host .. "/")
+    local host = default_host
+    if params.endpoint then
+        local scheme, path, err
+        scheme, host, path, err = util.parse_url_authority(endpoint)
+        assert(scheme and host, err or "endpoint must be an HTTP(S) URL with a host")
+        -- aws_sigv4.sign_request always signs the canonical URI "/" with no
+        -- query string, so the endpoint must not carry a path, query, or
+        -- fragment beyond the root or the signature won't match the request
+        -- actually sent.
+        assert(path == "" or path == "/",
+            "endpoint must not include a path, query string, or fragment " ..
+            "(the request is always signed for the root path '/')")
+    end
+
+    return setmetatable({
+        stream_name = params.stream_name,
+        region = params.region,
+        access_key = params.access_key,
+        secret_key = params.secret_key,
+        host = host,
+        endpoint = endpoint,
+        debug_enabled = params.debug or false,
+    }, Kinesis)
+end
+
+local function to_httpclient_headers(headers)
+    local out = {}
+    for name, value in pairs(headers) do
+        out[name] = { value }
+    end
+    return out
+end
+
+function Kinesis:debug(message)
+    if self.debug_enabled then
+        core.Info("netacea kinesis (debug): " .. message)
+    end
+end
+
+-- Sends a single PutRecords request. `records` is an array of
+-- { partition_key = string, data = string } (data is the raw payload bytes,
+-- base64-encoded here as required by the Kinesis API).
+--
+-- Returns:
+--   ok            - true if the whole batch was accepted with no per-record
+--                    failures, false otherwise
+--   err           - an error message describing why `ok` is false (transport
+--                    error, bad HTTP status, unparseable response, or a
+--                    summary of the per-record failures Kinesis reported);
+--                    nil when `ok` is true.
+--   failed_records - the subset of `records` that Kinesis reported as failed
+--                    (via a non-zero FailedRecordCount), or *all* of
+--                    `records` if the request failed outright. Callers
+--                    should re-queue these for retry.
+--   accepted        - when `ok` is true, the raw per-record results Kinesis
+--                      returned (each with SequenceNumber/ShardId), so
+--                      callers can log proof of acceptance; nil otherwise.
+function Kinesis:put_records(records)
+    local kinesis_records = {}
+    for i, record in ipairs(records) do
+        kinesis_records[i] = {
+            PartitionKey = record.partition_key,
+            Data = openssl.base64(record.data, true),
+        }
+    end
+
+    local body = json.encode({
+        StreamName = self.stream_name,
+        Records = kinesis_records,
+    })
+
+    local headers = aws_sigv4.sign_request({
+        host = self.host,
+        region = self.region,
+        service = SERVICE,
+        target = TARGET,
+        body = body,
+        access_key = self.access_key,
+        secret_key = self.secret_key,
+    })
+
+    self:debug("sending " .. #records .. " record(s) to stream '" .. self.stream_name
+        .. "' (" .. self.region .. ") at " .. self.endpoint)
+    self:debug("request body: " .. body)
+
+    local httpclient = core.httpclient()
+    local res, err = httpclient:post({
+        url = self.endpoint,
+        headers = to_httpclient_headers(headers),
+        body = body,
+    })
+
+    if not res then
+        return false, err or "request failed", records
+    end
+
+    self:debug("received status " .. tostring(res.status) .. ", body: " .. tostring(res.body))
+
+    if tostring(res.status) ~= "200" then
+        return false, "unexpected status " .. tostring(res.status) .. ": " .. tostring(res.body), records
+    end
+
+    local decoded, _, decode_err = json.decode(res.body or "")
+    if not decoded then
+        local parse_err = "could not parse response: " .. tostring(decode_err)
+            .. " (body: " .. tostring(res.body) .. ")"
+        return false, parse_err, records
+    end
+
+    if not decoded.FailedRecordCount or decoded.FailedRecordCount == 0 then
+        return true, nil, {}, decoded.Records
+    end
+
+    -- A 200 response with a non-zero FailedRecordCount means the HTTP
+    -- request itself succeeded but Kinesis rejected some/all individual
+    -- records (e.g. throughput exceeded, bad stream/shard state, IAM
+    -- permission issues surfaced per-record rather than at the request
+    -- level). Collect a sample of the error codes/messages so this doesn't
+    -- fail silently.
+    local failed_records = {}
+    local error_samples = {}
+    for i, result in ipairs(decoded.Records or {}) do
+        if result.ErrorCode then
+            failed_records[#failed_records + 1] = records[i]
+            if #error_samples < 3 then
+                error_samples[#error_samples + 1] = result.ErrorCode .. ": " .. tostring(result.ErrorMessage)
+            end
+        end
+    end
+
+    local err_summary = decoded.FailedRecordCount .. " of " .. #records .. " record(s) failed"
+    if #error_samples > 0 then
+        err_summary = err_summary .. " (" .. table.concat(error_samples, "; ") .. ")"
+    end
+
+    return false, err_summary, failed_records
+end
+
+return Kinesis

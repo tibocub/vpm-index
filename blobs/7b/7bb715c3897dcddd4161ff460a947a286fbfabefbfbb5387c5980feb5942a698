@@ -1,0 +1,468 @@
+local re = require 'relabel'
+local L = require 'lpeglabel'
+
+local defs = {
+	tonumber = tonumber,
+	ws = L.S "\t\n\0",
+	-- to ignore fucking utf8 bom
+	bom = string.gsub("EFBBBF", "%w%w", function(item) return string.char(tonumber(item, 16)) end)
+}
+
+---@class xmlpeg.Options
+---@field encodeopts xmlpeg.EncodeOptions
+---@field decodeopts xmlpeg.DecodeOptions
+
+---@class xmlpeg.DecodeOptions
+local DecodeOptions = {
+	---@type boolean?
+	allowimplicit = false,
+	---@type boolean?
+	allowunopen = false,
+	---@type table<string, 'unopen' | 'implicit' | true>? # Adds exceptions to overrule allowImplicit / allowunopen
+	unmatchedtags = {},
+	---@type table<string, true>? # Adds exceptions to automatically close any given tag
+	voidtags = {},
+	---@type boolean?
+	trimwhitespace = false,
+}
+---@type table?
+DecodeOptions.__index = DecodeOptions
+
+---@type xmlpeg.DecodeOptions
+local opts
+
+function defs.pairs(kvs)
+	local res = {}
+
+	for _, item in ipairs(kvs) do
+		res[item.key] = item.value or true
+	end
+
+	return res
+end
+
+local function trim(item)
+	return item:match("^%s*(.-)%s*$")
+end
+
+function defs.tocomment(commented)
+	assert(type(commented) == 'table')
+	return {
+		tag = "!--",
+		attrs = {},
+		body = assert(commented),
+		closes = 'comment',
+	}
+end
+
+local UNMATCHED_CLOSES = {
+	unopen = true,
+	implicit = true
+}
+
+function defs.node(subject, pos, node)
+	local body = node.body or {}
+	local result = {
+		tag = node.tag,
+		body = body,
+		attrs = node.attrs,
+		closes = node.closes == '>' and 'implicit' or
+			node.closes == '/>' and 'self' or
+			node.closes == '</' and 'unopen' or
+			node.closes == '?>' and 'xmlversion' or
+			node.closes and 'body' or
+			#body > 0 and 'body' or
+			'implicit'
+	}
+	
+	local eccentric_close = opts["allow"..result.closes] or opts.unmatchedtags[result.tag] == true or opts.unmatchedtags[result.tag] == node.closes or opts.voidtags[node.tag]
+
+	if UNMATCHED_CLOSES[result.closes] and not eccentric_close then
+		return false
+	else
+		return true, result
+	end
+end
+
+function defs.autoclose(subject, pos, node)
+	if not opts.voidtags[node.tag] then return false end
+	node.closes = node[2] == '/' and '</' or node[3] == '/' and '/>' or '>'
+	local ok, res = defs.node(subject, pos, node)
+	return ok, res
+end
+
+function defs.trim(str)
+	if opts.trimwhitespace then
+		return trim(str)
+	else
+		return str
+	end
+end
+
+---@param s string
+---@param i integer
+---@return ...
+function defs.skipws(s, i)
+	return opts.trimwhitespace and s:match("%s*()", i) or i
+end
+
+local g = re.compile([=[
+
+xml <- {| (node / text)* |}
+
+node <- _ (
+	comment
+	/ {| -- XML Version tag
+		OPEN {:tag: {~ QUESTION identifier ~} :} {:attrs: attributes :} {:closes: {~ QUESTION CLOSE ~} :}
+	|} => node
+	/  {| -- User-specified autoclose tags
+		OPEN {: SLASH? :} {:tag: identifier :} {:attrs: attributes :} {: SLASH? :} CLOSE
+	|} => autoclose
+	/ {| -- Any normal xml node
+		OPEN !SLASH {:tag: identifier :} {:attrs: attributes :}
+		(
+			{:closes: {~ SLASH CLOSE ~} :} -- self close
+			/ CLOSE {:body: {| (node / text)* |} :} {:closes: {~ OPEN SLASH =tag CLOSE ~} :} -- node with body
+			/ {:closes: CLOSE :} -- implicit closing tag
+		)?
+		/ !(OPEN SLASH =tag CLOSE) {:closes: {~ OPEN SLASH ~} :} {:tag: identifier :} {:attrs: attributes :} CLOSE -- closing tag with no open tag
+	|} => node
+)
+
+attributes <- {| kvpair* |} -> pairs _
+
+kvpair <- {| {:key: identifier :} (EQUALS {:value: string / integer / identifier :}?)? |} _
+
+identifier <- {: _ {: (!(TOKEN / %s) .)+ :} _ :}
+
+texttoken <- {: (!(OPEN) .)+ -> trim :}
+text <- {~ texttoken+ ~}
+
+string <- {:quote: '"' / "'" :} {~ ('&quot;' -> '"' / "&#39;" -> "'" / !=quote .)* ~} =quote _
+integer <- {: (%d* '.'? %d+) / %d+ :} _
+
+OPEN <- ('<' _) -> '<'
+CLOSE <- {: '>' => skipws :} -> '>'
+SLASH <- ('/' _) -> '/'
+QUESTION <- ('?' _) -> '?'
+EQUALS <- '=' _
+comment <- '<!--' {| { (!('-->') .)* } -> trim |} -> tocomment '-->' => skipws
+
+TOKEN <- OPEN / (QUESTION / SLASH)? CLOSE / EQUALS
+
+_ <- %s*
+
+]=], defs)
+
+--- Decodes XML. Reports error as nil, "<error>:<chunkname>:<line>:<collumn>\n<>"
+---@param chunkname string
+---@param xmlcode string
+---@param options xmlpeg.Options | xmlpeg.DecodeOptions?
+---@return xmlpeg.Node[]?
+---@return string?
+local function decode(chunkname, xmlcode, options)
+	options = options and options.decodeopts or options or {}
+	opts = setmetatable(options, DecodeOptions) --[[@as xmlpeg.DecodeOptions]]
+	xmlcode = xmlcode:find(defs.bom) and xmlcode:sub(#defs.bom + 1) or xmlcode
+	---@type xmlpeg.Node[], string, integer
+	local xml, data, pos = re.match(xmlcode, g)
+
+	if not xml then
+		xmlcode = xmlcode
+		local err = {}
+		err[#err+1] = string.format("%s:%s:%d:%d", data, chunkname, re.calcline(xmlcode, pos))
+		local endline = xmlcode:find("%f[\n%z]", pos) or pos
+		local startline = xmlcode:sub(1, pos):find("[^\n]*$") or 1
+		local _, col = re.calcline(xmlcode, pos)
+		local line = xmlcode:sub(startline, endline - 1)
+		local _, tabs = line:sub(1, col):gsub("\t", "    ")
+		if line:match "%S" then
+			err[#err+1] = line:gsub("\t", "    ")
+			err[#err+1] = (" "):rep((col - tabs + tabs * 4) - 1)..("^")
+		end
+
+		return nil, table.concat(err, '\n')
+	end
+
+	return xml
+end
+
+---@param filename string
+---@param options xmlpeg.DecodeOptions?
+---@return xmlpeg.Node[]?
+---@return string?
+local function decodeFile(filename, options)
+	local f = assert(io.open(filename, 'r'))
+	local xmlcode = f:read '*a'
+	f:close()
+	return decode(filename, xmlcode, options)
+end
+
+---@class xmlpeg.EncodeOptions
+---@field __index xmlpeg.EncodeOptions?
+local EncodeOptions = {
+	---@type boolean | table<string, boolean> | fun(token: string | xmlpeg.Node)
+	preservewhitespace = false
+}
+EncodeOptions.__index = EncodeOptions
+
+---@class xmlpeg.Node
+---@field attrs table<string, true|string>
+---@field tag string
+---@field body? string | (xmlpeg.Node|string)[]
+---@field closes 'body'|'self'|'implicit'|'comment'
+
+local function checkpreserve(preserve, token)
+	if type(preserve) == 'boolean' then
+		return preserve
+	elseif type(preserve) == 'table' then
+		return preserve[token.tag]
+	elseif type(preserve) == 'function' then
+		return preserve(token)
+	else
+		return false
+	end
+end
+
+---@param token xmlpeg.Node | string
+---@param prefix string
+---@param opts xmlpeg.EncodeOptions
+---@return string
+local function toxml(token, prefix, opts, preserve)
+	local preservewhitespace = preserve or checkpreserve(opts.preservewhitespace, token)
+	prefix = preservewhitespace and '' or prefix
+	local nl = preservewhitespace and '' or '\n'
+
+	if type(token) == 'string' then
+		return preservewhitespace and token or trim(token)
+	end
+
+	if token.tag == '!--' then
+		local result = {}
+		result[#result+1] = "<!--"
+		result[#result+1] = nl
+		for _, item in ipairs(token.body --[[@as xmlpeg.Node[] ]]) do
+			result[#result+1] = preservewhitespace and "" or prefix.."\t"
+			result[#result+1] = toxml(item, prefix.."\t", opts, preservewhitespace)
+			result[#result+1] = nl
+		end
+		result[#result+1] = prefix
+		result[#result+1] = "-->"
+		return table.concat(result)
+	elseif not token.tag then
+		return ""
+	end
+
+	local result = {}
+
+	result[#result+1] = "<"
+	if token.closes == 'unopen' then
+		result[#result+1] = "/"
+	end
+
+	result[#result+1] = token.tag
+
+	if next(token.attrs) then
+		result[#result+1] = " "
+	end
+
+	for k, v in pairs(token.attrs) do
+		result[#result+1] = k
+		if v ~= true then
+			result[#result+1] = '='
+			result[#result+1] = string.format('"%s"', tostring(v):gsub('"', "&quot;"))
+		end
+
+		if next(token.attrs, k) then
+			result[#result+1] = ' '
+		end
+	end
+
+	if #token.body == 0 then
+		result[#result+1] =
+			token.closes == 'self' and '/>'
+			or (token.closes == 'unopen' or token.closes == 'implicit') and '>'
+			or token.closes == 'xmlversion' and '?>'
+			or token.closes == 'body' and string.format("></%s>", token.tag)
+		assert(type(result[#result]) == 'string', token.closes)
+	else
+		result[#result+1] = ">"
+
+		if #token.body > 0 then result[#result+1] = nl end
+
+		local n = 0
+		for _, v in ipairs(token.body --[[@as (xmlpeg.Node|string)[] ]]) do
+			local element = toxml(v, prefix.."\t", opts, preservewhitespace)
+
+			if #element > 0 then
+				result[#result+1] = preservewhitespace and "" or prefix.."\t"
+				result[#result+1] = element
+				result[#result+1] = nl
+				n = n + 1
+			end
+		end
+
+		if n == 0 then
+			result[#result] = nil
+		end
+
+		if n > 0 then result[#result+1] = prefix end
+		result[#result+1] = "</"
+		result[#result+1] = token.tag
+		result[#result+1] = ">"
+	end
+
+	return table.concat(result)
+end
+
+local function searchtags(node, test)
+	if type(node) == 'string' then return end
+
+	if test(node) then
+		coroutine.yield(node)
+	end
+
+	if type(node.body) ~= 'table' then return end
+
+	for _, item in ipairs(node.body) do
+		searchtags(item, test)
+	end
+end
+
+---@param root xmlpeg.Node[]
+---@param adjective fun(node: xmlpeg.Node): boolean
+---@return fun(): xmlpeg.Node
+local function queryall(root, adjective)
+	return coroutine.wrap(function (...)
+		for _, node in ipairs(root) do
+			searchtags(node, adjective)
+		end
+	end)
+end
+
+---@param root xmlpeg.Node[]
+---@param ... string
+---@return fun(): xmlpeg.Node
+local function querytagged(root, ...)
+	local tags = {}
+	for _, tag in ipairs { ... } do tags[tag] = true end
+	return queryall(root, function(node)
+		return tags[node.tag]
+	end)
+end
+
+return {
+	--- Encodes an ast into XML
+	---@param item xmlpeg.Node | xmlpeg.Node[]
+	---@param opts xmlpeg.Options | xmlpeg.EncodeOptions?
+	---@return string
+	encode = function(item, opts)
+		opts = opts and opts.encodeopts or opts
+		opts = setmetatable(opts or {}, EncodeOptions)
+		---@cast opts -xmlpeg.Options
+		local preserve = checkpreserve(opts.preservewhitespace, item)
+		if item.tag then
+			return toxml(item, '', opts, preserve)
+		else
+			local res = {}
+			for i, v in ipairs(item) do
+				res[#res+1] = toxml(v, '', opts, preserve)
+			end
+			return table.concat(res, preserve and '' or '\n')
+		end
+	end,
+	decode = decode,
+	decodefile = decodeFile,
+	querytagged = querytagged,
+	query = queryall,
+	--- Collects results of xmlpeg.query(ast, adjective)
+	---@param root xmlpeg.Node[]
+	---@param predicate fun(node: xmlpeg.Node): boolean
+	---@return xmlpeg.Node[]
+	findall = function (root, predicate)
+		local results = {}
+		for item in queryall(root, predicate) do
+			results[#results+1] = item
+		end
+		return results
+	end,
+	--- Collects results of xmlpeg.querytagged(ast, ...)
+	---@param ast xmlpeg.Node[]
+	---@param ... string
+	---@return xmlpeg.Node[]
+	findtagged = function (ast, ...)
+		local results = {}
+		for item in querytagged(ast, ...) do
+			results[#results+1] = item
+		end
+		return results
+	end,
+	--- indexchain(t, 1, 2, 3, ...) is same as t and t[1] and t[1][2] and t[1][2][3] and ... or nil
+	---@param t any
+	---@param ... unknown
+	---@return any
+	indexchain = function (t, ...)
+		local chain = { ... }
+		for i = 1, #chain do
+			if not t then return nil end
+			t = t[chain[i]]
+		end
+		return t
+	end,
+	---@type xmlpeg.Options
+	htmlopts = {
+		encodeopts = {
+			preservewhitespace = {
+				a = true,
+				abbr = true,
+				b = true,
+				bdi = true,
+				bdo = true,
+				br = true,
+				cite = true,
+				code = true,
+				data = true,
+				dfn = true,
+				em = true,
+				i = true,
+				kbd = true,
+				mark = true,
+				q = true,
+				rp = true,
+				rt = true,
+				ruby = true,
+				s = true,
+				samp = true,
+				small = true,
+				span = true,
+				strong = true,
+				sub = true,
+				sup = true,
+				time = true,
+				u = true,
+				var = true,
+				wbr = true,
+				pre = true,
+			}
+		},
+		decodeopts = {
+			voidtags = {
+				['!DOCTYPE'] = true,
+				area = true,
+				base = true,
+				br = true,
+				col = true,
+				embed = true,
+				hr = true,
+				img = true,
+				input = true,
+				link = true,
+				meta = true,
+				param = true,
+				source = true,
+				track = true,
+				wbr = true,
+			}
+		}
+	}
+}

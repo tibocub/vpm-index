@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-test",
+  "versions": {
+    "0.2-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.6.1-1"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "1e714dd19e0802539afb534c2b83bcf1640b9a6d66ea29aa62b38e4c74ef67b6",
+          "size": 374,
+          "url": "https://raw.githubusercontent.com/grizzlyblitz/kong-oidc-test/5d73f68be20d3990fee763bd366fbe4d32352a25/kong/plugins/oidc/filter.lua"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "a1bc4efd5ab8a53d633e203b978393af4200975bb5791cee13117b77d74a6686",
+          "size": 2382,
+          "url": "https://raw.githubusercontent.com/grizzlyblitz/kong-oidc-test/5d73f68be20d3990fee763bd366fbe4d32352a25/kong/plugins/oidc/handler.lua"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "ee3627d42c3f18131b8066529441e67245ae0b96327d34a6f4941b4cf3bb500a",
+          "size": 1280,
+          "url": "https://raw.githubusercontent.com/grizzlyblitz/kong-oidc-test/5d73f68be20d3990fee763bd366fbe4d32352a25/kong/plugins/oidc/schema.lua"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "95dd1f6afd1d28eb8d04a84309b8d243a69acc01579bdb7d2bcd18a9faede5c4",
+          "size": 458,
+          "url": "https://raw.githubusercontent.com/grizzlyblitz/kong-oidc-test/5d73f68be20d3990fee763bd366fbe4d32352a25/kong/plugins/oidc/session.lua"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "7b5fb8c92dde1baa0a3f8cdc970b0ff63d4ff3a99ddecfb31315c2a7539b88df",
+          "size": 2625,
+          "url": "https://raw.githubusercontent.com/grizzlyblitz/kong-oidc-test/5d73f68be20d3990fee763bd366fbe4d32352a25/kong/plugins/oidc/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/nokia/kong-oidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 07 Jan 2021 09:28:30 GMT",
+        "rockspec": {
+          "date": "Thu, 07 Jan 2021 09:28:30 GMT",
+          "sha256": "3d6974cb56a5835190ae8989f3faa4915dd3e2b3d7cf17ad2972e186fd0091c2",
+          "size": 1712
+        },
+        "src": {
+          "date": "Thu, 07 Jan 2021 09:28:33 GMT",
+          "sha256": "7c81ac63253ce9007dcfe74123029e203295680cd452c461b5411a6b36b09be2",
+          "size": 154610,
+          "url": "https://luarocks.org/kong-oidc-test-0.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "commit": "5d73f68be20d3990fee763bd366fbe4d32352a25",
+        "ref": "v0.2",
+        "type": "git",
+        "url": "https://github.com/grizzlyblitz/kong-oidc-test"
+      },
+      "size": 7119,
+      "summary": "A test Kong OIDC plugin",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

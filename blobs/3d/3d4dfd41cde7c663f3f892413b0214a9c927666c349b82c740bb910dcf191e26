@@ -1,0 +1,831 @@
+--[[
+This moudle allows you to minify gLua code
+	Use:
+		local x = require("glum")
+		local str ="
+		--Here is some code to be minified!\n
+		for a=1,10,2 do\n
+			print(a)\n
+		end
+		"
+		print(x.minify(str[,name]))
+	Dependencies:
+		lua-parser
+		lpeg
+]]
+
+--Abandon all hope, ye who enter here
+--Refer to the comments at the top of parser.lua for what each function should do.
+--If anyone ever decides to add new language features, they need to be added to BOTH parser.lua and here.
+--Someone should rewrite this much cleaner.
+
+local parser
+local msg
+local optimi
+parser = require("lua-parser.parser")
+msg = io.write
+optimi = require("glum.ast_opts")
+local lpeg = require("lpeg")
+lpeg.locale(lpeg)
+
+local glum = {}
+
+--Checks if two tables are the same
+local function deepcompare(tbl1, tbl2)
+	for k,v in pairs(tbl1) do
+		if type(v) == "table" then
+			if not deepcompare(v,tbl2[k]) then
+				return false
+			end
+		else
+			if v ~= tbl2[k] then
+				return false
+			end
+		end
+	end
+end
+
+--Creates a deep copy of a table
+local function deepcopy(orig)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == "table" then
+		copy = {}
+		for orig_key, orig_value in next, orig, nil do
+			copy[deepcopy(orig_key)] = deepcopy(orig_value)
+		end
+		setmetatable(copy, deepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
+end
+
+--Is the last character in the built-so-far string a character?
+--Used to know if we should insert a space after it
+local last = true --we can start with no space
+
+--A list of reserved words that cannot be used as variable names
+local nonames = {"if","for","end","do","local","then","else","elseif","return","goto","function","nil","false","true","repeat","return","break","and","or","not","in","repeat","until","while","continue"}
+local reservednames = {}
+for k,v in ipairs(nonames) do
+	reservednames[v] = true
+end
+
+--A function that generates the next valid variable name from the last valid variable name.
+local varchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY"
+local function getnextvarname(lname)
+	local place = string.find(lname,"[" .. varchars .. "]")
+	local length = string.len(lname)
+	if place == nil then
+		return string.rep("a", length + 1)
+	else
+		local lbyte = string.byte(lname,place)
+		local newchar = string.char(lbyte + (lbyte < 122 and 1 or -57))
+		local after = string.sub(lname, place + 1, length)
+		local before = string.rep("a", place-1)
+		local output = before .. newchar .. after
+		while reservednames[output] or _G[output] do
+			output = getnextvarname(output)
+		end
+		return output
+	end
+end
+
+--A debugging function, a replacement for glua PrintTable
+local function printtable(tbl, tabset)
+	tabset = tabset or 0
+	for k,v in pairs(tbl) do
+		for i = 0,tabset do msg("\t") end
+		msg(k .. ":")
+		if type(v) == "table" then
+			msg("\n")
+			printtable(v, tabset + 1)
+		else
+			msg(tostring(v) .. "\n")
+		end
+	end
+end
+
+local stringreps
+local function findstrings(ast)
+	if type(ast) ~= "table" then return end
+	if ast and ast.tag == "String" then
+		local lnum = stringreps[ast[1]]
+		stringreps[ast[1]] = lnum and lnum + 1 or 1
+		return
+	end
+	for k = 1, #ast do
+		findstrings(ast[k])
+	end
+end
+
+local getstringreps = function(ast)
+	stringreps = {}
+	findstrings(ast)
+
+	local function bytessaved(str,instances,bytereplacement)
+		local spacetaken = (string.len(str) + 2) * instances
+		local minspacetaken = (instances * bytereplacement) + string.len(str) + 2
+		return spacetaken - minspacetaken
+	end
+
+	local sstbl = {}
+	for k,v in pairs(stringreps) do
+		table.insert(sstbl,{k,bytessaved(k,v,2)})
+	end
+	table.sort(sstbl,function(a,b) return a[2] > b[2] end)
+	return sstbl
+end
+
+local function astwalker(ast)
+	--print("ast walker looking at")
+	--printtable(ast)
+	local changed
+	repeat
+		changed = false
+		for i,j in pairs(optimi) do
+			local new = j(ast)
+			changed = changed or new
+		end
+		for k,v in pairs(ast) do
+			if type(v) == "table" then
+				astwalker(v)
+			end
+		end
+		for i,j in pairs(optimi) do
+			local new = j(ast)
+			changed = changed or new
+		end
+	until changed == false
+end
+
+local syntax = {}
+
+local function stringfor(ast,tbl)
+	if syntax[ast.tag] ~= nil then
+		local r = syntax[ast.tag](ast,tbl)
+		assert(type(r) == "string", "Stringfor did not return a string! returned a " .. type(r) .. " for tag:" .. ast.tag)
+		return r
+	elseif ast.tag == nil and ast[1] and ast[1].tag ~= nil then
+		--TODO: Is this a bug in the parser?
+		--sometimes parts of the ast will be 1 extra level deep
+		--for seemingly no reason
+		return stringfor(ast[1],tbl)
+	else
+		print("Valid tags are:")
+		for k,v in pairs(syntax) do
+			print(k)
+		end
+		print("Tried to get stringfor on:\n----------------")
+		printtable(ast)
+		print("----------------")
+		error("Attempted to use unknown tag type:" .. tostring(ast.tag))
+	end
+end
+
+syntax = {
+	["Call"] = function(ast,tbl)
+		local exprname = stringfor(ast[1],tbl)
+		last = false
+		local argnames = {}
+		local cursor = 2
+		while ast[cursor] ~= nil do
+			argnames[cursor-1] = stringfor(ast[cursor],tbl)
+			cursor = cursor + 1
+			last = false
+		end
+		local argstring = table.concat(argnames,",")
+		local ostring = table.concat({exprname,"(",argstring,")"})
+		last = false
+		return ostring
+	end,
+	["Invoke"] = function(ast,tbl)
+		local ret = {}
+		ret[1] = stringfor(ast[1],tbl) -- The table
+		last = false
+		--If it's a . then use oo notation
+		if ast[2].tag == "String" and ast[2][1]:find(" ") == nil and tbl.strings[ast[2][1]] == nil then
+			ret[2] = ":"
+			ret[3] = ast[2][1]
+			ret[4] = "("
+		elseif tbl.strings[ast[2][1]] ~= nil then
+			ret[2] = "["
+			ret[3] = tbl.strings[ast[2][1]]
+			ret[4] = "]("
+		else
+			last = false
+			ret[2] = "["
+			ret[3] = stringfor(ast[2],tbl)
+			ret[4] = "]("
+			ret[5] = stringfor(ast[1],tbl)
+			ret[6] = ","
+		end
+		last = false
+		local args = {}
+		for k = 3,#ast do
+			local nar = stringfor(ast[k],tbl)
+			args[#args + 1] = nar
+			last = false
+		end
+		ret[#ret + 1] = table.concat(args,",")
+		ret[#ret + 1] = ")"
+		last = false
+		return table.concat(ret)
+	end,
+	["String"] = function(ast,tbl)
+		local sop,eop = "\"","\""
+		--print("looking for",ast[1],"in")
+		--printtable(tbl.strings)
+		if tbl.strings[ast[1]] then
+			last = true
+			return tbl.strings[ast[1]]
+		end
+		if tbl.strings[ast[1]] == nil then
+			if string.find(ast[1],"\"") or string.find(ast[1],"\n") then
+				sop = "[["
+				eop = "]]"
+			end
+			return table.concat({sop,ast[1],eop})
+		end
+		--print("Returning non-catated string")
+		last = false
+		return tbl.strings[ast[1]]
+	end,
+	["Id"] = function(ast,tbl)
+		local ret
+		if last then ret = " " else ret = "" end
+		if tbl.ids[ast[1]] == nil then
+			ret = ret .. ast[1]
+			last = true
+			return ret
+		end
+		ret = ret .. tbl.ids[ast[1]]
+		last = true
+		return ret
+	end,
+	["Index"] = function(ast,tbl)
+		local globalvar = stringfor(ast[1],tbl)
+		if ast[2].tag == "String" and tbl.strings[ast[2][1]] == nil and ast[2][1]:find(" ") == nil then
+			last = true
+			return table.concat({globalvar, ".", ast[2][1]})
+		end
+		last = false
+		local ret = table.concat({globalvar, "[", stringfor(ast[2],tbl), "]"})
+		last = false
+		return ret
+	end,
+	["Paren"] = function(ast,tbl)
+		last = false
+		return table.concat({"(",stringfor(ast[1],tbl),")"})
+	end,
+	["Dots"] = function(ast,tbl)
+		last = false
+		return "..."
+	end,
+	["Repeat"] = function(ast,tbl)
+		local codetbl = {}
+		if last then codetbl[1] = " repeat" else codetbl[1] = "repeat" end
+		last = true
+		local scoped = deepcopy(tbl)
+		local block = stringfor(ast[1],scoped)
+		codetbl[2] = block
+		if last then codetbl[3] = " until" else codetbl[3] = "until" end
+		local condition = stringfor(ast[2],scoped)
+		codetbl[4] = condition
+		local output = table.concat(codetbl)
+		tbl.numlocals = scoped.numlocals
+		return output
+	end,
+	["Forin"] = function(ast,tbl)
+		local codetbl = {}
+		if last then codetbl[1] = " for" else codetbl[1] = "for" end
+		last = true
+		local nadd = deepcopy(tbl)
+		local nl = stringfor(ast[1],nadd)
+		codetbl[2] = nl
+		if last then codetbl[3] = " in" else codetbl[3] = "in" end
+		last = true
+		nadd.numlocals = nadd.numlocals + #ast[1]
+		local el = stringfor(ast[2],nadd)
+		codetbl[4] = el
+		if last then codetbl[5] = " do" else codetbl[5] = "do" end
+		last = true
+		local code = stringfor(ast[3],nadd)
+		codetbl[6] = code
+		if last then codetbl[7] = " end" else codetbl[7] = "end" end
+		last = true
+		local output = table.concat(codetbl)
+		tbl.numlocals = nadd.numlocals
+		return output
+	end,
+	["NameList"] = function(ast,tbl)
+		--print("namelist:")
+		--printtable(ast)
+		local outputtbl = {}
+		local bef = last and " " or ""
+		for k = 1,#ast do
+			if ast[k].tag ~= "Id" then
+				outputtbl[#outputtbl + 1] = stringfor(ast[k])
+			else
+				if tbl.ids[ast[k][1]] ~= nil then
+					--print("Found id in id table")
+					outputtbl[#outputtbl + 1] = tbl.ids[ast[k][1]]
+				else
+					local newvar = getnextvarname(tbl.lname)
+					tbl.lname = newvar
+					tbl.ids[ast[k][1]] = newvar
+					outputtbl[#outputtbl + 1] = newvar
+				end
+				last = false
+			end
+		end
+		local output = bef .. table.concat(outputtbl, ",")
+		last = true
+		return output
+	end,
+	["ExpList"] = function(ast,tbl)
+		local exprs = {}
+		-- local bef
+		-- if last then bef = " " else bef = "" end
+		for k = 1,#ast do
+			exprs[k] = stringfor(ast[k],tbl)
+			last = false
+		end
+		last = true
+		return table.concat(exprs,",")
+	end,
+	["Nil"] = function(ast,tbl)
+		local ret
+		if last then ret = " nil" else ret = "nil" end
+		last = true
+		return ret
+	end,
+	["True"] = function(ast,tbl)
+		local ret = "true"
+		last = true
+		return ret
+	end,
+	["False"] = function(ast,tbl)
+		local ret = "false"
+		last = true
+		return ret
+	end,
+	["Return"] = function(ast,tbl)
+		local retargs = {}
+		local ccat
+		if last then
+			ccat = " return"
+		else
+			ccat = "return"
+		end
+		last = true
+		for k,v in ipairs(ast) do
+			retargs[k] = stringfor(v,tbl)
+			last = false
+		end
+		last = true
+		return ccat .. table.concat(retargs,",")
+	end,
+	["Do"] = function(ast,tbl)
+		local ntbl = deepcopy(tbl)
+		local argparts = {}
+		if last then argparts[1] = " do" else argparts[1] = "do" end
+		last = true
+		local allst = {}
+		for k = 1,#ast do
+			allst[k] = stringfor(ast[k],ntbl)
+		end
+		local code = table.concat(allst,";")
+		argparts[2] = code
+		tbl.numlocals = ntbl.numlocals
+		if last then argparts[3] = " end" else argparts[3] = "end" end
+		last = true
+		return table.concat(argparts)
+	end,
+	["If"] = function(ast,tbl)
+		local exparts = {}
+		if last then exparts[1] = " if" else exparts[1] = "if" end
+		last = true
+		local expr1 = stringfor(ast[1],tbl)
+		--print("expression for if:" .. expr1 .. " and last was:",last)
+		exparts[2] = expr1
+		if last then exparts[3] = " then" else exparts[3] = "then" end
+		last = true
+		local block1 = stringfor(ast[2],tbl)
+		exparts[4] = block1
+		local codeblocks = {}
+		codeblocks[#codeblocks + 1] = table.concat(exparts)
+
+		for k = 3,#ast-1,2 do
+			local efargs = {}
+			if last then efargs[1] = " elseif" else efargs[1] = "elseif" end
+			last = true
+			local expr = stringfor(ast[k],tbl)
+			efargs[2] = expr
+			if last then efargs[3] = " then" else efargs[3] = "then" end
+			last = true
+			-- local block = stringfor(ast[k + 1],tbl)
+			codeblocks[#codeblocks + 1] = table.concat(efargs)
+		end
+
+		if #ast % 2 == 1 then
+			last = true
+			local block = stringfor(ast[#ast],tbl)
+			if block ~= "" then --If for some reason there's an empty else block, forget about it.
+				if last then
+					codeblocks[#codeblocks + 1] = " else" .. block
+				else
+					codeblocks[#codeblocks + 1] = "else" .. block
+				end
+				last = true
+			end
+		end
+		local estr
+		if last then estr = " end" else estr = "end" end
+		codeblocks[#codeblocks + 1] = estr
+		last = true
+		return table.concat(codeblocks)
+	end,
+	["Fornum"] = function(ast,tbl)
+		local spargs = {}
+		if last then spargs[1] = " for" else spargs[1] = "for" end
+		last = true
+		local var
+		assert(ast[1].tag == "Id","Oh no, I was expecting an ID!")
+		if ast[1].tag == "Id" then
+			if tbl.ids[ast[1][1]] ~= nil then
+				var = tbl.ids[ast[1][1]]
+			else
+				local newvar = getnextvarname(tbl.lname)
+				tbl.lname = newvar
+				tbl.ids[ast[1][1]] = newvar
+				var = newvar
+			end
+			--[[
+		else
+			var = stringfor(ast[1],tbl)
+			]]
+		end
+		spargs[2] = var
+		spargs[3] = "="
+		last = false
+		local start = stringfor(ast[2],tbl)
+		spargs[4] = start
+		spargs[5] = ","
+		last = false
+		local endnum = stringfor(ast[3],tbl)
+		spargs[6] = endnum
+		local incrementer = 1
+		local code = ""
+		spargs[7] = ""
+		if ast[4].tag ~= "Block" then -- incrementer
+			last = false
+			incrementer = stringfor(ast[4],tbl)
+			if incrementer ~= 1 then
+				spargs[7] = "," .. incrementer
+			else
+				last = true
+			end
+			if last then spargs[8] = " do" else spargs[8] = "do" end
+			last = true
+			code = stringfor(ast[5],tbl)
+			spargs[9] = code
+			if last then spargs[10] = " end" else spargs[10] = "end" end
+			last = true
+		else
+			if last then spargs[8] = " do" else spargs[8] = "do" end
+			last = true
+			code = stringfor(ast[4],tbl)
+			spargs[9] = code
+			if last then spargs[10] = " end" else spargs[10] = "end" end
+			last = true
+		end
+		-- local incstr = incrementer ~= 1 and ("," .. incrementer) or ""
+		tbl[var] = nil
+		tbl.numlocals = tbl.numlocals + 1
+		--print("Found 1 locals as Fornum")
+		return table.concat(spargs)
+	end,
+	["Op"] = function(ast,tbl)
+		--NOTE: Bitwise operators << and >> are not supported in LuaJIT (lua 5.1) and were introduced in lua 5.3, if the operators are ever supported, stuff should just work.
+		local binop = {
+			["or"] = "or",      ["and"] = "and",
+			["ne"] = "~=",      ["eq"] = "==",
+			["le"] = "<=",      ["ge"] = ">=",
+			["lt"] = "<",       ["gt"] = ">",
+			["bor"] = "|",      ["bxor"] = "~",
+			["band"] = "&",     ["shl"] = "<<",
+			["shr"] = ">>",     ["concat"] = "..",
+			["add"] = "+",      ["sub"] = "-",
+			["mul"] = "*",      ["div"] = "/",
+			["mod"] = "%",      ["pow"] = "^",
+		}
+		local uniop = {
+			["len"] = "#",      ["not"] = "not",
+			["unm"] = "-",      ["bnot"] = "~",
+		}
+		local opname = ast[1]
+		if uniop[opname] ~= nil then
+			--Some special case where the parser messes up, fix it here.
+			--It translates ~= into not ==, but the order of operations makes it so == is evaluated first, and not second.
+			local bef
+			if opname == "not" and ast[2]["tag"] == "Op" and ast[2][1] == "eq" then
+				ast[2][1] = "ne"
+				local ret = stringfor(ast[2],tbl)
+				return ret
+			end
+			if last then bef = " " else bef = "" end
+			local rhs = stringfor(ast[2],tbl)
+			return bef .. uniop[opname] .. rhs
+		end
+		local sargs = {}
+		local lhs = stringfor(ast[2],tbl)
+		sargs[1] = lhs
+		if opname == "or" or opname == "and" then
+			if last then
+				sargs[2] = " "
+			else
+				sargs[2] = ""
+			end
+			last = true
+		else
+			sargs[2] = ""
+			last = false
+		end
+		sargs[3] = binop[opname]
+		local rhs = stringfor(ast[3],tbl)
+		--if opname == "eq" then
+			--print("Rhs was:" .. rhs .. " and last was:",last)
+		--end
+		sargs[4] = rhs
+		local output = table.concat(sargs)
+		return output
+	end,
+	["Pair"] = function(ast,tbl)
+		if ast[1].tag == "String" and tbl.strings[ast[1][1]] == nil and ast[1][1]:find(" ") == nil then
+			local lhs = ast[1][1]
+			last=false
+			local rhs = stringfor(ast[2],tbl)
+			return table.concat({lhs,"=",rhs})
+		else
+			local lhs = stringfor(ast[1],tbl)
+			last=false
+			local rhs = stringfor(ast[2],tbl)
+			return table.concat({"[",lhs,"]=",rhs})
+		end
+	end,
+	["Table"] = function(ast,tbl)
+		local fields = {}
+		for k = 1, #ast do
+			last = false
+			fields[#fields + 1] = stringfor(ast[k],tbl)
+		end
+		local fieldstr = table.concat(fields,",")
+		last = false
+		return table.concat({"{",fieldstr,"}"})
+	end,
+	["Number"] = function(ast,tbl)
+		local ret
+		if last then ret =  " " .. ast[1] else ret = "" .. ast[1] end
+		last = true
+		return ret
+	end,
+	["Local"] = function(ast,tbl)
+		local bef
+		if last then bef = " " else bef = "" end
+		last = true
+		local lhs,rhs = stringfor(ast[1],tbl),nil
+		tbl.numlocals = tbl.numlocals + #ast[1]
+		local output = bef .. "local" .. lhs
+		if ast[2].tag ~= nil then
+			last = false
+			rhs = stringfor(ast[2],tbl)
+			output = output .. "=" .. rhs
+		end
+		return output
+	end,
+	["VarList"] = function(ast,tbl)
+		local vars = {}
+		for k = 1,#ast do
+			vars[#vars + 1] = stringfor(ast[k],tbl)
+			last = false
+		end
+		last = true
+		return table.concat(vars,",")
+	end,
+	["Set"] = function(ast,tbl)
+		local lhs = {}
+		local a1 = ast[1].tag ~= nil and ast[1] or ast[1][1]
+		for k = 1,#ast[1] do
+			lhs[#lhs + 1] = stringfor(a1,tbl)
+			last = false
+		end
+		local rhs = {}
+		local a2 = ast[2].tag ~= nil and ast[2] or ast[2][1]
+		for k = 1,#ast[2] do
+			last = false
+			rhs[#rhs + 1] = stringfor(a2,tbl)
+		end
+		local ostring = table.concat(lhs,",")
+		ostring = ostring .. "=" .. table.concat(rhs,",")
+		return ostring
+	end,
+	["Label"] = function(ast,tbl)
+		if tbl.nids[ast[1]] == nil then
+			local nextvar = getnextvarname(tbl.lname)
+			tbl.lname = nextvar
+			tbl.nids[ast[1]] = nextvar
+		end
+		last = false
+		return "::" .. tbl.nids[ast[1]] .. "::"
+	end,
+	["Goto"] = function(ast,tbl)
+		if tbl.nids[ast[1]] == nil then
+			local nextvar = getnextvarname(tbl.lname)
+			tbl.lname = nextvar
+			tbl.nids[ast[1]] = nextvar
+		end
+		last = true
+		return (last and " " or "") .. "goto " .. tbl.nids[ast[1]]
+	end,
+	["Function"] = function(ast,tbl)
+		--Sometimes the parser fucks up, correct it here
+		if ast[1][1] ~= nil and ast[1][1].tag == nil then
+			ast[1] = ast[1][1]
+			error("Detected parser fuckup")
+		end
+		--end of parser-fuckup-fix code
+		local funcstr
+		if last then funcstr = " function(" else funcstr = "function(" end
+		last = false
+		local funcargs = ast[1].tag ~= nil and stringfor(ast[1],tbl) or ""
+		last = false
+		local code = stringfor(ast[2],tbl)
+		local endstr
+		if last then endstr = " end" else endstr = "end" end
+		last = true
+		return table.concat({funcstr,funcargs,")",code,endstr})
+	end,
+	["Localrec"] = function(ast,tbl)
+		local ident = ast[1][1]
+		local args = ast[2][1][1]
+		local func = ast[2][1][2]
+		local bf = {}
+		if last then bf[1] = " local function" else bf[1] = "local function" end
+		last = true
+		bf[2] = stringfor(ident,tbl) --ident
+		bf[3] = "("
+		last = false
+		if #args ~= 0 then
+			bf[4] = stringfor(args,tbl) --args
+		else
+			bf[4] = ""
+		end
+		bf[5] = ")"
+		last = false
+		bf[6] = stringfor(func,tbl) -- function
+		if last then bf[7] = " end" else bf[7] = "end" end
+		last = true
+		return table.concat(bf)
+
+		--[==[
+		--Sometimes the parser fucks up, correct it here
+		print("in localrec, ast is")
+		printtable(ast)
+		if ast[1][1] ~= nil and ast[1].tag == nil then
+			ast[1] = ast[1][1]
+			--error("Detected parser fuckup")
+			print("after fixing fuckup, ast was")
+			printtable(ast)
+		else
+			print("ast[1][1] is",ast[1][1])
+			printtable(ast[1][1])
+		end
+		--end of parser-fuckup-fix code
+		local ident = stringfor(ast[1],tbl)
+		--[=[
+		if tbl.ids[ast[1][1]] ~= nil then
+			ident = tbl.ids[ast[1][1]]
+		else
+			local newvar = getnextvarname(tbl.lname)
+			tbl.lname = newvar
+			tbl.ids[ast[1][1][1]] = newvar
+			ident = newvar
+		end
+		]=]
+		local locfuncstr
+		if last then locfuncstr = " local function " else locfuncstr = "local function " end
+		last = false
+		local argstr = ast[2][1][1].tag ~= nil and stringfor(ast[2][1][1],tbl) or ""
+		last = false
+		local expr = stringfor(ast[2][1][2],tbl)
+		local endstr
+		if last then endstr = " end" else endstr = "end" end
+		last = true
+		tbl.numlocals = tbl.numlocals + 1
+		print(string.format("At localrec, locfuncstr:%q ident:%q argstr:%q expr:%q endstr:%q last:%q",locfuncstr,ident,argstr,expr,endstr,tostring(last)))
+		--print("Found 1 local as Localrec")
+		return table.concat({locfuncstr,ident,"(",argstr,")",expr,endstr})
+		]==]
+	end,
+	["Continue"] = function(ast,tbl)
+		local ret
+		if last then ret = " continue" else ret = "continue" end
+		last = true
+		return ret
+	end,
+	["While"] = function(ast,tbl)
+		local whilestr
+		if last then whilestr = " while" else whilestr = "while" end
+		last = true
+		local expr = stringfor(ast[1],tbl)
+		local dostr
+		if last then dostr = " do" else dostr = "do" end
+		last = true
+		local block = stringfor(ast[2],tbl)
+		local endstr
+		if last then endstr = " end" else endstr = "end" end
+		last = true
+		local output = table.concat({whilestr, expr , dostr, block , endstr})
+		return output
+	end,
+	["Break"] = function(ast,tbl)
+		local ret
+		if last then ret = " break" else ret = "break" end
+		last = true
+		return ret
+	end,
+	["Block"] = function(ast,oldtbl)
+		local tbl = deepcopy(oldtbl)
+		oldtbl.block = true
+		local codeblocks = {}
+		for k = 1,#ast do
+			codeblocks[#codeblocks + 1] = stringfor(ast[k],tbl)
+		end
+		local code = table.concat(codeblocks)
+		oldtbl.numlocals = tbl.numlocals
+		return code
+	end,
+}
+
+glum.minify = function(str, name)
+	name = name or "anonymous"
+	local ast, error_msg = parser.parse(str, name)
+	if not ast then
+		error(error_msg)
+		return nil
+	end
+	astwalker(ast)
+	--print("After astwalker, ast is")
+	--printtable(ast)
+	--print("Finding string reps")
+	local strreps = getstringreps(ast)
+	--printtable(strreps)
+
+	local olocalvar = {
+		["numlocals"] = 0,
+		["strings"] = {},
+		["ids"] = {},
+		["lname"] = "",
+		["nids"] = {},
+	}
+
+	--printtable(ast)
+	local lvt = deepcopy(olocalvar)
+	local numstrreplaced = 0
+	local maxlocals = lvt.numlocals
+	local function shouldreplace(strrep)
+		return strreps[strrep + 1][2] >= 7
+	end
+	while
+		(numstrreplaced + maxlocals < 200) and --We have some locals left
+		(numstrreplaced < #strreps) and --We have more strings to replace
+		shouldreplace(numstrreplaced) do --Replaceing this string will at least cover the cost of "local " and []
+		numstrreplaced = numstrreplaced + 1
+		local nvar = getnextvarname(olocalvar.lname)
+		olocalvar.strings[strreps[numstrreplaced][1]] = nvar
+		olocalvar.lname = nvar
+	end
+
+	local lhss,rhss = {},{}
+	for k,v in pairs(olocalvar.strings) do
+			lhss[#lhss + 1] = v
+			rhss[#rhss + 1] = string.format("%q",k)
+	end
+	local inits = ""
+	--print("lhss is")
+	--printtable(lhss)
+	local lhs = " local " .. table.concat(lhss,",")
+	local rhs = table.concat(rhss,",")
+	if string.len(rhs) > 0 then
+		inits = table.concat({lhs, "=", rhs, ";"})
+	end
+
+	--print("Before doing stringfor for the second time, olocalvar is")
+	--printtable(olocalvar)
+
+	return inits .. stringfor(ast,olocalvar)
+end
+
+return glum

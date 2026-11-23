@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-auth",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-auth/handler.lua": {
+          "sha256": "92f6623868f112b4edbc4449a5d97852860f30e8dcb14a5ef77e96ee2b89ede0",
+          "size": 4092,
+          "url": "https://raw.githubusercontent.com/bjwschaap/kong-plugin-jwt-auth/6e5382c89a9081deba0bbacda7127c38903abe34/handler.lua"
+        },
+        "kong/plugins/jwt-auth/schema.lua": {
+          "sha256": "266561d931121c28882f2bb775f4f4333995792eb56a5832bf7ce6d4ecd744bb",
+          "size": 227,
+          "url": "https://raw.githubusercontent.com/bjwschaap/kong-plugin-jwt-auth/6e5382c89a9081deba0bbacda7127c38903abe34/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/bjwschaap/kong-plugin-jwt-auth",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 17 Oct 2018 12:36:54 GMT",
+        "rockspec": {
+          "date": "Wed, 17 Oct 2018 12:36:54 GMT",
+          "sha256": "b2228a203ee340e702623bfb1538b2d170a76182b3b90d8a28e9c53bbf2d0067",
+          "size": 629
+        },
+        "src": {
+          "date": "Wed, 17 Oct 2018 12:36:56 GMT",
+          "sha256": "bdae90eac7a35fd2d28cc3181cae4e6f55a6cf405073a769d9d5e9a846541a61",
+          "size": 10270,
+          "url": "https://luarocks.org/kong-plugin-jwt-auth-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-auth.handler",
+        "kong.plugins.jwt-auth.schema"
+      ],
+      "origin": {
+        "commit": "6e5382c89a9081deba0bbacda7127c38903abe34",
+        "ref": "v0.1.0",
+        "type": "git",
+        "url": "https://github.com/bjwschaap/kong-plugin-jwt-auth"
+      },
+      "size": 4319,
+      "summary": "A Kong plugin to authorize access based on a roles claim",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

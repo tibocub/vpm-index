@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-aws-kinesis",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [
+        "jsonpath"
+      ],
+      "files": {
+        "kong/plugins/aws-kinesis/handler.lua": {
+          "sha256": "3d0954a3471bdbcfc5abacc9186431f3d71ecf4fc9080575a663ea9e323425b1",
+          "size": 3879,
+          "url": "https://raw.githubusercontent.com/rbang1/kong-plugin-aws-kinesis/313619f76d3a53f3c0e53002473bdd9df267ce18/src/handler.lua"
+        },
+        "kong/plugins/aws-kinesis/jsontransform.lua": {
+          "sha256": "c3362cdf2e344430ff2f1d18bb4cffafdb837aceb6f219cde07977eeca488228",
+          "size": 2308,
+          "url": "https://raw.githubusercontent.com/rbang1/kong-plugin-aws-kinesis/313619f76d3a53f3c0e53002473bdd9df267ce18/src/jsontransform.lua"
+        },
+        "kong/plugins/aws-kinesis/schema.lua": {
+          "sha256": "79247846e872ec7702244723be474393725fab7c8951b51f1904303090762040",
+          "size": 545,
+          "url": "https://raw.githubusercontent.com/rbang1/kong-plugin-aws-kinesis/313619f76d3a53f3c0e53002473bdd9df267ce18/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/rbang1/kong-plugin-aws-kinesis",
+      "host": "openresty",
+      "license": "Apache",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 29 Mar 2017 20:04:53 GMT",
+        "rockspec": {
+          "date": "Wed, 29 Mar 2017 20:04:53 GMT",
+          "sha256": "e882d62cafba2143ab09fe2f20d7d31ff5a060487f66081908f4efb4f4ac5592",
+          "size": 696
+        },
+        "src": {
+          "date": "Wed, 29 Mar 2017 20:04:55 GMT",
+          "sha256": "5569d7c319d8d7715d59987598bf1e1b44b9c52743ba4a50ea306df82eb5cda0",
+          "size": 21499,
+          "url": "https://luarocks.org/kong-plugin-aws-kinesis-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.aws-kinesis.handler",
+        "kong.plugins.aws-kinesis.jsontransform",
+        "kong.plugins.aws-kinesis.schema"
+      ],
+      "origin": {
+        "commit": "313619f76d3a53f3c0e53002473bdd9df267ce18",
+        "ref": "0.1.1",
+        "type": "git",
+        "url": "https://github.com/rbang1/kong-plugin-aws-kinesis"
+      },
+      "size": 6732,
+      "summary": "Kong plugin to write to a AWS Kinesis Stream",
+      "undeclared_requires": [
+        "kong.plugins.aws-lambda.v4",
+        "kong.plugins.base_plugin",
+        "kong.tools.responses",
+        "kong.tools.utils",
+        "multipart",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

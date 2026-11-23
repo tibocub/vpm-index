@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "inotify",
+  "versions": {
+    "0.5-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://hoelz.ro/projects/linotify",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 17 May 2020 21:35:18 GMT",
+        "rockspec": {
+          "date": "Sun, 17 May 2020 21:35:18 GMT",
+          "sha256": "a2021a583391ee01ab50cf2682e8f847786510b17488bd977e675e4e21fc9f57",
+          "size": 715
+        },
+        "src": {
+          "date": "Sun, 17 May 2020 21:35:19 GMT",
+          "sha256": "9164b5777b132d7e1e073478d8837a526262991c57e32d75d517100f533eb436",
+          "size": 6165,
+          "url": "https://luarocks.org/inotify-0.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "inotify"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "INOTIFY"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "INOTIFY": {
+              "header": "sys/inotify.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(INOTIFY_INCDIR)"
+              ],
+              "libdirs": [
+                "$(INOTIFY_LIBDIR)"
+              ],
+              "name": "inotify",
+              "sources": [
+                "linotify.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "linotify-0.5"
+      },
+      "origin": {
+        "date": "Sun, 17 May 2020 21:35:19 GMT",
+        "sha256": "9164b5777b132d7e1e073478d8837a526262991c57e32d75d517100f533eb436",
+        "size": 6165,
+        "type": "luarocks",
+        "url": "https://luarocks.org/inotify-0.5-1.src.rock"
+      },
+      "summary": "Inotify bindings for Lua",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

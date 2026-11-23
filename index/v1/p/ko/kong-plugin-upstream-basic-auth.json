@@ -1,0 +1,108 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-upstream-basic-auth",
+  "versions": {
+    "0.2.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/upstream-basic-auth/access.lua": {
+          "sha256": "7102a2a48c138c169965267d450ad93e84a96a710f1028beb424004584bb79c8",
+          "size": 1438,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/access.lua"
+        },
+        "kong/plugins/upstream-basic-auth/api.lua": {
+          "sha256": "59e3be2884b4ee60651263b762b5463c7aa5eba68580e00298ae0401cd19471a",
+          "size": 1915,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/api.lua"
+        },
+        "kong/plugins/upstream-basic-auth/daos.lua": {
+          "sha256": "20a6a99e17d078f36cb1840f8755357e369f3e103c5fef98418a6553c85ba43d",
+          "size": 1012,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/daos.lua"
+        },
+        "kong/plugins/upstream-basic-auth/handler.lua": {
+          "sha256": "ce7f96444e4d3aee38884ffa8e5e593cf28b03a0bad4c97320bebf9bac30332d",
+          "size": 506,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/handler.lua"
+        },
+        "kong/plugins/upstream-basic-auth/migrations/000_base_upstream_basic_auth.lua": {
+          "sha256": "6c33b256213c2ad8b82be5bb0405b321f148a9f812107956f893a11715e33931",
+          "size": 1052,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/migrations/000_base_upstream_basic_auth.lua"
+        },
+        "kong/plugins/upstream-basic-auth/migrations/001_14_to_15.lua": {
+          "sha256": "77fb925f635ff6a18436467e3ddeceb6e4489cb2ed1b13605d37d577c657baf0",
+          "size": 334,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/migrations/001_14_to_15.lua"
+        },
+        "kong/plugins/upstream-basic-auth/migrations/init.lua": {
+          "sha256": "95e84478fced5272be9e3f311ad76130a93b960859e72f0231f301e35becb03e",
+          "size": 63,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/migrations/init.lua"
+        },
+        "kong/plugins/upstream-basic-auth/schema.lua": {
+          "sha256": "d9be046b93dd4467d7c9fae31bbe9286628cc035cafee0f1bda6d94f1decb1e9",
+          "size": 223,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/schema.lua"
+        },
+        "kong/plugins/upstream-basic-auth/upstreambasicauth_credentials.lua": {
+          "sha256": "cb27b858507aaeb1b52f6f2c4d2d448f3dc04353b984f05b3ac1ef3591386164",
+          "size": 713,
+          "url": "https://raw.githubusercontent.com/mvanholsteijn/kong-plugin-upstream-basic-auth/6b917788293425f603230a22c7366794dd7d059a/kong/plugins/upstream-basic-auth/upstreambasicauth_credentials.lua"
+        }
+      },
+      "homepage": "https://github.com/mvanholsteijn/kong-plugin-upstream-basic-auth",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "luarocks": {
+        "date": "Sun, 10 Mar 2019 19:38:21 GMT",
+        "rockspec": {
+          "date": "Sun, 10 Mar 2019 19:38:21 GMT",
+          "sha256": "7b959656db5b6d98932644bd628a0fc5201acd2f9eae52fc92ef52bc3309c60f",
+          "size": 1543
+        },
+        "src": {
+          "date": "Sun, 10 Mar 2019 19:38:22 GMT",
+          "sha256": "5c29030dfecaa491c55000723899a8e3456c5d3a977a8b962214f73c10424332",
+          "size": 22676,
+          "url": "https://luarocks.org/kong-plugin-upstream-basic-auth-0.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.upstream-basic-auth.access",
+        "kong.plugins.upstream-basic-auth.api",
+        "kong.plugins.upstream-basic-auth.daos",
+        "kong.plugins.upstream-basic-auth.handler",
+        "kong.plugins.upstream-basic-auth.migrations",
+        "kong.plugins.upstream-basic-auth.migrations.000_base_upstream_basic_auth",
+        "kong.plugins.upstream-basic-auth.migrations.001_14_to_15",
+        "kong.plugins.upstream-basic-auth.schema",
+        "kong.plugins.upstream-basic-auth.upstreambasicauth_credentials"
+      ],
+      "origin": {
+        "commit": "6b917788293425f603230a22c7366794dd7d059a",
+        "ref": "v0.2.1-1",
+        "type": "git",
+        "url": "https://github.com/mvanholsteijn/kong-plugin-upstream-basic-auth"
+      },
+      "size": 7256,
+      "summary": "A plugin to insert basic authentication headers to the upstream.",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 4,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

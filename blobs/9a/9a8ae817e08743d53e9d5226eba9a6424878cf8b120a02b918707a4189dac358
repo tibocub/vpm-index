@@ -1,0 +1,52 @@
+--
+-- lua-schema : <https://fperrad.frama.io/lua-schema>
+--
+
+if _VERSION < 'Lua 5.3' then
+    require'compat53'
+end
+
+local type = type
+local tointeger = math.tointeger
+local core = require'schema.core'
+
+local _ENV = nil
+
+local format = core.custom_format
+
+format.int32 = function (data)
+    if type(data) == 'number' then
+        if not tointeger(data) or data > 2147483647 or data < -2147483646 then
+            return false, 'invalid int32'
+        end
+    end
+    return true
+end
+
+format.int64 = function (data)
+    if type(data) == 'number' then
+        if not tointeger(data) then
+            return false, 'invalid int64'
+        end
+    end
+    return true
+end
+
+format.float = function ()
+    return true
+end
+
+format.double = function ()
+    return true
+end
+
+format.password = function ()
+    return true
+end
+
+--
+-- Copyright (c) 2025-2026 Francois Perrad
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

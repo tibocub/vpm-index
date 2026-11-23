@@ -1,0 +1,89 @@
+-- ============================================================
+-- Shiva Test — Export System Mock
+-- Simulates FiveM's `exports` global.
+-- Supports both dot and colon call syntax:
+--   exports['resource']:method(...)
+--   exports.resource:method(...)
+-- ============================================================
+
+local Exports = {}
+
+local _mocks = {}  -- { [resource] = { [fn_name] = fn } }
+
+-- ========================
+-- Internal: resource proxy
+-- ========================
+
+local function makeResourceProxy(resource)
+    return setmetatable({}, {
+        __index = function(_, fn_name)
+            local res = _mocks[resource]
+            if res and res[fn_name] then
+                local fn = res[fn_name]
+                -- Wrap to drop implicit 'self' from colon-call syntax:
+                -- exports['res']:method(a, b) → fn(a, b)  (not fn(proxy, a, b))
+                return function(_, ...) return fn(...) end
+            end
+            -- No-op for unmocked exports
+            return function(...) return nil end
+        end,
+    })
+end
+
+-- ========================
+-- Install globals
+-- ========================
+
+---@param G table  The global environment (_G)
+function Exports.install(G)
+    local _proxies = {}
+
+    G.exports = setmetatable({}, {
+        -- exports['resource']:method(...)  or  exports.resource:method(...)
+        __index = function(_, resource)
+            if not _proxies[resource] then
+                _proxies[resource] = makeResourceProxy(resource)
+            end
+            return _proxies[resource]
+        end,
+        -- exports(name, fn) — register an export from this resource
+        __call = function(_, name, fn)
+            local resourceName = G.GetCurrentResourceName and G.GetCurrentResourceName() or 'test'
+            if not _mocks[resourceName] then _mocks[resourceName] = {} end
+            _mocks[resourceName][name] = fn
+        end,
+        -- Invalidate cached proxy when a new mock is registered
+        __newindex = function(_, resource, proxy)
+            _proxies[resource] = proxy
+        end,
+    })
+end
+
+-- ========================
+-- Mock API
+-- ========================
+
+---@param resource string  Resource name (e.g. 'oxmysql')
+---@param fn_name  string  Export function name
+---@param fn       function
+function Exports.mock(resource, fn_name, fn)
+    if not _mocks[resource] then _mocks[resource] = {} end
+    _mocks[resource][fn_name] = fn
+end
+
+---@param resource string
+---@param fn_name  string
+---@return function|nil
+function Exports.get(resource, fn_name)
+    return _mocks[resource] and _mocks[resource][fn_name] or nil
+end
+
+-- ========================
+-- Lifecycle
+-- ========================
+
+function Exports.reset()
+    _mocks = {}
+end
+
+return Exports

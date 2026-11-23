@@ -1,0 +1,16 @@
+local sdk_client = require "impart.sdk.client"
+local sdk_conn = require "impart.sdk.conn"
+local sdk_msg = require "impart.sdk.rpcmsgs"
+local sdk_profiles = require "impart.sdk.profiles"
+local sdk_server_info = require "impart.sdk.server_info"
+
+return {
+  newClient = sdk_client.newClient,
+  newConnFactory = sdk_conn.newConnFactory,
+  newProfileCache = sdk_profiles.new,
+  extendHTTPRequestInterface = sdk_msg.extendHTTPRequestInterface,
+  extendHTTPResponseInterface = sdk_msg.extendHTTPResponseInterface,
+  getModuleInfo = sdk_server_info.getModuleInfo,
+  getOSInfo = sdk_server_info.getOSInfo,
+  getDistroInfo = sdk_server_info.getDistroInfo,
+}

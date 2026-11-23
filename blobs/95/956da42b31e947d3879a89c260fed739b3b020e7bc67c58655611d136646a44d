@@ -1,0 +1,516 @@
+--- experimental lrocket API, it is subject to change
+
+local sfs = require 'sfs'
+
+local log = require 'lrocket.log'
+local utils = require 'lrocket.utils'
+local toolchain = require 'lrocket.toolchain'
+local lua = require 'lrocket.lua'
+local build = require 'lrocket.build'
+local colors = log.colors
+local pkg = require 'lrocket.package'
+local loader = require 'lrocket.loader'
+local rules = require 'lrocket.rules'
+
+local lfsampler_ok, lfsampler = pcall(require, "lfsampler")
+local formatters_ok, formatters = pcall(require, "lfsampler.formatters")
+
+---@class lrocket.api
+local api = {}
+
+api.VERSION = require 'lrocket.version'.VERSION
+
+---@alias lrocket.TargetRule table
+
+---@alias lrocket.boolean 'yes'|'no'|boolean
+
+---@class lrocket.BuildConf
+---@field entrypoint string? :required: Main lua file
+---@field output string? Output filename
+---@field otype string? Output file format
+---@field modpath searchpath[]? List of module search paths in the format `<lang>:<searchpath>` (where `<lang>` is one of: `lua,shared,static,c,teal,<custom>`)
+---@field modules string[]? Explicitly include the specified modules
+---@field exclude string[]? Exclude given modules from search
+---@field optional string[]? Include these optional modules.<br/><br/>This argument enables optional module parsing for specified statements (using `[x]pcall`)
+---@field liblua 'shared'|'static'? default: 'static' - Variant of the Lua library to link against
+---@field debug 'all'|'project'|'module'? Add debugging information to the output file
+---@field optimize 'space'|'speed'? Enable optimizations
+---@field fuzzy lrocket.boolean? default: true - Examine complex require statements when resolving modules
+---@field runtime_path string? Runtime `LUA_PATH` used for lua modules (supports `??` and `!`)
+---@field runtime_cpath string? Runtime `LUA_CPATH` used for lua modules (supports `??` and `!`)
+---@field keep lrocket.boolean? Do not remove intermediate C code after compilation
+---@field link_sibling_deps lrocket.boolean? default: true - Resolve dynamic dependencies of statically linked lua modules by scanning equally named dynamic modules
+---@field copy_native_libs lrocket.boolean? default: true - Copies required shared C libraries to the output directory
+---@field windows_gui lrocket.boolean? Link with `/SUBSYSTEM:WINDOWS` (or `-mwindows` for MinGW)
+---@field modname string? (for otype `shared`) - Module name of the shared library, used for `luaopen_<modname>`
+---@field export string[]? (for otype `shared`) - Export additional `luaopen_<modname>` (supports globs)
+---@field cconf lrocket.CompilerConf? :internal:
+---@field trees string[]? :internal:
+
+---@class lrocket.DebugConf
+---@field log_level string|integer? lrocket compiler: level of verbosity
+---@field warnmode 'error'|'warn'? Decides whether warnings should warn or throw an error
+---@field perf lrocket.boolean? Show instrumentalized timings
+---@field perf_log string? Log profiling stacktraces to this file (flamegraph format)
+
+---@class lrocket.TargetSpec : lrocket.BuildConf
+---@field lua_version lrocket.LuaSelect?
+---@field default_lua_version lrocket.LuaSelect?
+---@field lua_dirs string[]?
+---@field target string | lrocket.TargetTripple?
+---@field sysroot string?
+---@field env table<string,string>?
+---@field no_runtime_cache lrocket.boolean?
+---@field envdedup boolean?
+---@field toolchain 'auto'|'gnu'|'msvc'|string?
+---@field host lrocket.TargetTripple? # exported only
+---@field luaconf lrocket.LuaConf? # exported only
+
+---@class lrocket.Spec : lrocket.TargetSpec, lrocket.DebugConf, lrocket.BuildConf
+
+--- Internal (ABI versioned, but not under semver)
+---@class lrocket.FinalConf : lrocket.TargetSpec, lrocket.BuildConf, lrocket.DebugConf
+---@field target lrocket.TargetTripple
+---@field generator lrocket.Generator
+---@field modconf lrocket.ModConf
+---@field src lrocket.Package
+---@field usercconf lrocket.CompilerConf
+---@field basecconf lrocket.CompilerConf
+
+---@alias searchpath { lang: string, path: string }
+
+---@type lrocket.FinalConf
+---@diagnostic disable-next-line: missing-fields
+local cfg = {}
+
+log.setlevel('debug')
+
+---@param logspec lrocket.DebugConf
+function api.setlogging(logspec)
+	local LOG_LEVELS = log.levels
+
+	---@type string | number?
+	local level
+
+	local function checkloglevel()
+		if level then return end
+		level = 2
+		log.setlevel(level)
+		log.warn("invalid log level "..cfg.log_level)
+	end
+
+	cfg.log_level = logspec.log_level or 'warn'
+	cfg.perf_log = logspec.perf_log
+	cfg.perf = utils.boolean(logspec.perf)
+
+	log.setwarnmode(logspec.warnmode or 'warn')
+
+	level = tonumber(cfg.log_level) or LOG_LEVELS[cfg.log_level]
+	checkloglevel()
+	level = math.min(math.max(level, 0), log.MAX_LEVEL)
+	checkloglevel()
+	---@cast level -nil
+
+	log.setlevel(level)
+
+	if logspec.perf_log and lfsampler_ok then
+		lfsampler.start()
+	end if cfg.perf then
+		utils.setupmeasurements()
+	end
+end
+
+local TYPE_DEFAULT_EXT
+
+local EXT_TO_TYPE = utils.lookuptable {
+	executable = { "exe", "out" },
+	lua = { "lua", "luac" },
+	shared = { "dll", "so", "dylib" },
+	['executable-c'] = { 'c' },
+	lra = { "lra" }
+}
+
+api.compilerconf = toolchain.compilerconf
+
+function api.addargparser(parser)
+	for _, type in ipairs(build.types) do
+		if build[type].addargparser then
+			build[type].addargparser(parser)
+		end
+	end
+
+	for _, rule in ipairs(rules.get()) do
+		if rule.addargparser then
+			rule.addargparser(parser)
+		end
+	end
+end
+
+---@param targetargs lrocket.TargetSpec
+function api.configuretoolchain(targetargs)
+	cfg.sysroot = targetargs.sysroot
+	cfg.lua_version = targetargs.lua_version or 'auto'
+	cfg.default_lua_version = targetargs.default_lua_version
+	cfg.liblua = targetargs.liblua or 'static'
+	cfg.debug = targetargs.debug == true and 'project' or targetargs.debug
+	cfg.otype = targetargs.otype
+	cfg.env = targetargs.env or toolchain.newenv(targetargs.envdedup)
+	cfg.cconf = toolchain.compilerconf()
+
+	-- if `targetargs.toolchain == 'auto'` => unset cfg.toolchain
+	-- if `targetargs.toolchain ==  <any>  => set cfg.toolchain = targetargs.toolchain
+	-- otherwise keep cfg.toolchain = cfg.toolchain
+	cfg.toolchain = targetargs.toolchain and targetargs.toolchain ~= 'auto'
+		and targetargs.toolchain or targetargs.toolchain ~= 'auto'
+		and cfg.toolchain or nil
+
+	local crosstarget =
+		targetargs.target or
+		cfg.env.CROSS and cfg.env.CROSS:match "^(.*)%-$";
+	cfg.target = crosstarget and toolchain.targettripplet(crosstarget) or nil
+	cfg.no_runtime_cache = utils.boolean(targetargs.no_runtime_cache)
+	cfg.lua_dirs = targetargs.lua_dirs or {}
+
+	if targetargs.output and not cfg.otype and sfs.getExtension(targetargs.output) then
+		cfg.otype = EXT_TO_TYPE[sfs.getExtension(targetargs.output)]
+	end
+
+	if cfg.otype then
+		log.assert(build[cfg.otype], string.format("build type '%s' not found", cfg.otype))
+	end
+
+	-- Check of otype supports current target
+	local targetsupport = { 'any' }
+	local defaulttarget
+	if cfg.otype and build[cfg.otype].supportedtargets then
+		targetsupport, defaulttarget = build[cfg.otype].supportedtargets()
+	end
+	defaulttarget = defaulttarget or targetsupport[1]
+	---@cast targetsupport lrocket.TargetTripple[]
+	for i, target in ipairs(targetsupport) do targetsupport[i] = toolchain.targettripplet(target) end
+	defaulttarget = toolchain.targettripplet(defaulttarget)
+
+	cfg.target = cfg.target or defaulttarget
+
+	local found = false
+	for _, supportedtarget in ipairs(targetsupport) do
+		if cfg.target:matches(supportedtarget) then
+			found = true
+			break
+		end
+	end
+
+	if not found then
+		log.failure(log.EXITCODE.GENERAL_ERROR, "target %s is not supported by otype %s", tostring(cfg.target), cfg.otype)
+	end
+
+	-- Run targetrules
+
+	for _, rule in ipairs(rules.get()) do
+		rule.apply(cfg, targetargs)
+	end
+
+	toolchain.configure(cfg, targetargs)
+
+	TYPE_DEFAULT_EXT = {
+		executable = toolchain.EXT_BIN,
+		shared = toolchain.EXT_SHARED,
+		lua = ".lua",
+		["executable-c"] = ".c",
+		["shared-c"] = ".c",
+		lra = ".lra"
+	}
+
+	lua.configure(cfg)
+	loader.configure()
+	loader.preparebase(cfg.no_runtime_cache, cfg.cconf)
+
+	cfg.env = toolchain.ENV
+	cfg.sysroot = toolchain.SYSROOT
+
+	log.detailf("toolchain '%s' configured targeting %s\n", toolchain.TOOLCHAIN, tostring(toolchain.TARGET))
+
+	log.checkpoint()
+
+	cfg.basecconf = cfg.cconf
+	cfg.cconf = nil
+end
+
+function api.validatetoolchain()
+	return toolchain.testtools()
+end
+
+local function clonecompleteconf(cfg)
+	local CompilerConf = getmetatable(toolchain.compilerconf())
+	local copy = utils.clone(cfg, { [CompilerConf] = CompilerConf })
+	return copy
+end
+
+---@return lrocket.TargetSpec
+function api.toolchainconf()
+	return clonecompleteconf(cfg)
+end
+
+---@param buildargs lrocket.BuildConf
+function api.preparebuild(buildargs)
+	cfg.modpath = buildargs.modpath or { api.defaultsearchpath() }
+	cfg.output = buildargs.output
+	cfg.optional = buildargs.optional or {}
+	cfg.modules = buildargs.modules or {}
+	cfg.exclude = buildargs.exclude or {}
+	cfg.fuzzy = utils.boolean(buildargs.fuzzy, true)
+	cfg.keep = utils.boolean(buildargs.keep)
+	cfg.entrypoint = buildargs.entrypoint
+	cfg.runtime_cpath = buildargs.runtime_cpath
+	cfg.runtime_path = buildargs.runtime_path
+	cfg.trees = buildargs.trees or {}
+	cfg.otype = buildargs.otype or cfg.otype or 'executable'
+	cfg.generator = build[cfg.otype]
+	cfg.export = buildargs.export or {}
+
+	cfg.cconf = cfg.basecconf:copy()
+	cfg.usercconf = buildargs.cconf or toolchain.compilerconf()
+	cfg.cconf:extend(cfg.usercconf)
+
+	cfg.copy_native_libs = utils.boolean(buildargs.copy_native_libs)
+	cfg.windows_gui = utils.boolean(buildargs.windows_gui)
+	cfg.link_sibling_deps = utils.boolean(buildargs.link_sibling_deps, true)
+
+	cfg.modname = buildargs.modname
+	cfg.export = buildargs.export or {}
+
+	if cfg.otype then
+		log.assert(cfg.generator, string.format("build type '%s' not found", cfg.otype))
+	end
+
+	if cfg.output and not sfs.getExtension(cfg.output) then
+		cfg.output = cfg.output..(TYPE_DEFAULT_EXT[cfg.otype] or "")
+		if cfg.optimize and cfg.otype == 'lua' then cfg.output = cfg.output.."c" end
+		if cfg.output == cfg.entrypoint then
+			cfg.output = sfs.formatPath("%D%b.bundle%E", cfg.output)
+		end
+	elseif not cfg.output then
+		cfg.output = sfs.getBaseName(cfg.entrypoint)..(TYPE_DEFAULT_EXT[cfg.otype] or "")
+		if cfg.output == cfg.entrypoint then -- sanity check do not overwrite source files
+			local ext = sfs.getExtension(cfg.output)
+			cfg.output = sfs.getBaseName(cfg.output)..".out"..(ext and "."..ext or "")
+		end
+	end
+
+	log.infof("%s => %s\n", cfg.entrypoint, cfg.output)
+
+	if type(cfg.modpath) == "string" then
+		log.warnf("modpath should be a list of strings, falling back to { '%s' }\n",
+			sfs.getName(cfg.output), cfg.modpath)
+
+		-- graceful direct string support (will implicitly be limited to only one lang)
+		cfg.modpath = { cfg.modpath }
+	end
+	for i, ent in ipairs(cfg.modpath) do
+		if type(ent) == "string" then
+			local lang, path = ent:match "^([^:]+):(.*)$"
+
+			if lang then
+				cfg.modpath[i] = { lang = lang, path = path }
+			else
+				-- invalid pathspec: print warning, fall back to Lua
+				log.warnf("no language specified in modpath, falling back to 'lua:%s'\n",
+					sfs.getName(cfg.output), ent)
+
+				cfg.modpath[i] = { lang = "lua", path = ent }
+			end
+		end
+	end
+
+	local interpreterfolder = lua.LUA_BIN and sfs.getDir(lua.LUA_BIN) or "."
+	for i, searchpath in ipairs(cfg.modpath) do
+
+		searchpath.path = searchpath.path:gsub("!", interpreterfolder)
+	end
+
+	cfg.modconf = pkg.newmodconf(cfg.entrypoint)
+	cfg.modconf.fuzzy = cfg.fuzzy --[[@as boolean]]
+
+	if cfg.generator.configure then
+		cfg.generator.configure(cfg, buildargs)
+	end
+
+	for _, x in ipairs(cfg.exclude)  do cfg.modconf:ignore(x)       end
+	for _, modname in ipairs(lua.STDLIB) do cfg.modconf:ignore(modname) end
+	for _, inc in ipairs(cfg.modules) do cfg.modconf:addmod(inc)     end
+	for _, opt in ipairs(cfg.optional) do cfg.modconf:addopt(opt)     end
+
+	pkg.clearsearchpath()
+	for _, tree in ipairs(cfg.trees) do
+		pkg.addtree(tree)
+	end
+	for _, tuple in ipairs(cfg.modpath) do
+		pkg.addsearchpath(tuple.lang, tuple.path)
+	end
+
+	log.debugf(log.dyefirst(colors.white, "paths:\n"))
+	log.detail("Search paths:")
+	for _, searchpath in ipairs(pkg.searchpaths()) do
+		log.detailf(
+			"%s  %s  %s%s%s\n",
+			colors.blue,
+			searchpath.lang:gsub("^%a", string.upper),
+			colors.gray,
+			searchpath.path:match "^;*(.-);*$",
+			colors.reset
+		)
+	end
+
+	cfg.src = pkg.trace(cfg.modconf)
+	pkg.setpath(cfg.src, cfg.runtime_path, cfg.runtime_cpath)
+
+	local opt = pkg.getoptionalmods(cfg.src)
+
+	local mods = pkg.modsbylang(cfg.src)
+
+	utils.printmods('Lua', mods.lua, opt)
+	utils.printmods('Shared', mods.shared, opt)
+	utils.printmods('Static', mods.static, opt)
+	local optluamods = {}
+	if log.level >= log.levels.detail then
+		utils.printmods('Optional', opt, opt)
+	end
+	for k, v in pairs(mods) do
+		if not ({ shared=true, static=true, lua=true })[k] then
+			utils.printmods(k:gsub("^%a", string.upper), v, opt)
+		end
+	end
+	local lrpath = {}
+	for _, embed in pairs(cfg.src.embeds) do
+		lrpath[embed.lrpath] = embed.realpath
+	end
+
+	utils.printmods(':Found Resource files', lrpath, {})
+
+	-- Report unresolved
+
+	if log.warnmode == 'warn' and log.level <= log.levels.info then
+		local unres = {}
+		for unresmodname, sources in pairs(cfg.src.unresolved) do
+			for _, src in ipairs(sources) do
+				if src.constraint == 'required' then
+					unres[#unres+1] = unresmodname
+					break
+				end
+			end
+		end
+		if #unres > 0 then log.warnf("some modules could not be resolved: %s\n", table.concat(unres, ', ')) end
+	else
+		-- do not judge this nesting, it's late
+		local res = {}
+		for unresmodname, info in pairs(cfg.src.unresolved) do
+			if #info == 1 and info[1].constraint == 'required' then
+				res[#res+1] = string.format("%s: module %s not found", info[1].source, unresmodname)
+			else
+				local addedheader = false
+				for _, info in ipairs(info) do
+					if info.constraint == 'required' then
+						if not addedheader then
+							res[#res+1] = string.format("module %s not found, required by:", unresmodname)
+							addedheader = true
+						end
+						res[#res+1] = string.format("\t%s", info.source)
+					end
+				end
+			end
+		end
+
+		if #res > 0 then
+			log.warnf("%s\n", table.concat(res, '\n'))
+		end
+	end
+
+	log.checkpoint()
+end
+
+---@return lrocket.BuildConf
+function api.buildconf()
+	local buildconf = clonecompleteconf(cfg)
+	buildconf.cconf = buildconf.usercconf
+	return buildconf
+end
+
+function api.build()
+	sfs.mkdir(sfs.getDir(cfg.output))
+	log.checkpoint()
+
+	cfg.generator.build(cfg.src, cfg.output, cfg)
+
+	if cfg.perf_log and lfsampler_ok and formatters_ok then
+		log.debugf(colors.bright..colors.cyan.."Writing profile to %s\n"..colors.reset, cfg.perf_log)
+		lfsampler.stop()
+		sfs.write(
+			cfg.perf_log,
+			formatters.flamegraph(
+				lfsampler.popResults(),
+				"graph",
+				formatters.granularityLine
+			):gsub('\r', '')
+		)
+	end
+
+	if cfg.perf then
+		utils.showzones()
+	end
+
+	log.checkpoint()
+end
+
+function api.searchpath(lang, path)
+	return {
+		lang = lang,
+		path = path,
+	}
+end
+
+function api.defaultsearchpath(libpreference)
+	libpreference = libpreference or 'shared'
+	return api.searchpath('lua', ";;"), api.searchpath(libpreference, ";;"), api.searchpath(libpreference == 'static' and 'shared' or 'static', ";;")
+end
+
+local LRC_ISSUE = [[
+Internal error in the lrocket API:
+%s
+
+Please submit a bug report under https://codeberg.org/lrocket/lrc/issues/new/choose
+]]
+
+function api.execscript(f)
+	local tmpscope = sfs.tmpscope()
+	local ok, err = xpcall(f, function (msg)
+		if type(msg) == 'table' then
+			msg.traceback = debug.traceback(tostring(msg.reason), (msg.level or 1) + 1)
+			msg.haserror = not not msg.reason
+		else
+			return {
+				exitcode = log.EXITCODE.LROCKET_INTERNAL_ERROR,
+				haserror = not not msg,
+				reason = tostring(msg),
+				traceback = debug.traceback(msg, 2)
+			}
+		end
+
+		return msg
+	end)
+	sfs.deltmpscope(tmpscope)
+
+	if ok then
+		return true
+	else
+		if err.exitcode == log.EXITCODE.LROCKET_INTERNAL_ERROR then
+			log.errorf(LRC_ISSUE, err.traceback)
+		elseif err.haserror then
+			log.errorf('%s', err.reason)
+		end
+		log.flush()
+		return false, err.exitcode, err.reason, err.traceback
+	end
+end
+
+return api
+

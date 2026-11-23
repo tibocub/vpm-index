@@ -1,0 +1,42 @@
+--Imports
+local Stmt = require("dogma.syn._.Stmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--A for each statement.
+local ForEachStmt = {}
+ForEachStmt.__index = ForEachStmt
+setmetatable(ForEachStmt, {__index = Stmt})
+package.loaded[...] = ForEachStmt
+
+--Constructor.
+--
+--@param ln:number
+--@param col:number
+--@param decl:string    var or const.
+--@param key?:string    The key name.
+--@param value:string   The value name.
+--@param iter:Exp       The object to iterate.
+--@param body:Sent[]
+--@param el:Sent[]
+--@param catch?:CatchCl
+--@param fin?:FinallyCl
+function ForEachStmt.new(ln, col, await, decl, key, keyType, val, valType, iter, body, el, catch, fin)
+  local self
+
+  --(1) create
+  self = setmetatable(Stmt.new(StmtType.FOR_EACH, ln, col), ForEachStmt)
+  self.await = await
+  self.decl = decl
+  self.key = key
+  self.keyType = keyType
+  self.value = val
+  self.valueType = valType
+  self.iter = iter
+  self.body = body
+  self.el = el
+  self.catch = catch
+  self.finally = fin
+
+  --(2) return
+  return self
+end

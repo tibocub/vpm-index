@@ -1,0 +1,133 @@
+{
+  "kind": "lib",
+  "name": "nika",
+  "versions": {
+    "0.0.4.pre.alpha.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "adapter_cgi.lua": {
+          "sha256": "cb4ae09e9181bdbe40e921d118684b579b3e64d461cc094a4d5ddccf636e1ded",
+          "size": 5533,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/adapter_cgi.lua"
+        },
+        "db.lua": {
+          "sha256": "53c656d459fa4c20173e62aaeecc49adc114d5a2e9814316b20ca8510c1da2d8",
+          "size": 6696,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/db.lua"
+        },
+        "hooks.lua": {
+          "sha256": "e8d0d0a04e5371a4f068ecd7170e9fb86710c2497a078fabf434870b0e4471cc",
+          "size": 4627,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/hooks.lua"
+        },
+        "hooks/security_headers.lua": {
+          "sha256": "12bb359ce16c0e053609692d90b36c909f082fb3ea5038216686d4f810588e24",
+          "size": 729,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/hooks/security_headers.lua"
+        },
+        "json_util.lua": {
+          "sha256": "479c90652c94443f6fd39c526732397f125ee4e4f261be1a83cc90f0f337de37",
+          "size": 1487,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/json_util.lua"
+        },
+        "nika.lua": {
+          "sha256": "4967903b0ba4852a079d8f679b2e10696997317eb32b3b4fe3c15eab6c4fa6ca",
+          "size": 12512,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/nika.lua"
+        },
+        "nika_audit.lua": {
+          "sha256": "47d1eda82788bf916728e271fff9c8579951fc18bd0abce6bb5dde355602c3af",
+          "size": 3797,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/nika_audit.lua"
+        },
+        "nika_io.lua": {
+          "sha256": "dc987074e8ee9f7bf6949e7628a3a351b25d7751ed1bd535c71740bb49caba7f",
+          "size": 2364,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/nika_io.lua"
+        },
+        "parser.lua": {
+          "sha256": "10b6598ca0a3fbc0e58328ac4c2abd9f7e0b1ff94b42ae718e9959bd31e8455b",
+          "size": 4358,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/parser.lua"
+        },
+        "router.lua": {
+          "sha256": "115140a822b9508770372981d9473238bd127eed245faa973abc864c1a99c523",
+          "size": 3363,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/router.lua"
+        },
+        "sandbox.lua": {
+          "sha256": "5e0fd8a41d35e209ce0e542df95590d2cf01a7c0a2510eee2a0177cfd193dbfa",
+          "size": 8116,
+          "url": "https://raw.githubusercontent.com/Serigy/nika/b42574721805922730cd13abfe3dd6abaa71cd22/src/sandbox.lua"
+        }
+      },
+      "homepage": "https://github.com/Serigy/nika",
+      "license": "BSD-3-Clause",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 29 Mar 2026 22:59:44 GMT",
+        "rockspec": {
+          "date": "Sun, 29 Mar 2026 22:59:44 GMT",
+          "sha256": "1e7db92933426653667e78e618147e31c02af474231f2127eecc49975f8d4b6b",
+          "size": 753
+        },
+        "src": {
+          "date": "Sun, 29 Mar 2026 22:59:45 GMT",
+          "sha256": "05b3b82a00542bd76bc7265743f974f2b87c23bc9fd96aaa907ea1222ed26bd0",
+          "size": 154924,
+          "url": "https://luarocks.org/nika-0.0.4.pre.alpha.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "adapter_cgi",
+        "db",
+        "hooks",
+        "hooks.security_headers",
+        "json_util",
+        "nika",
+        "nika_audit",
+        "nika_io",
+        "parser",
+        "router",
+        "sandbox"
+      ],
+      "origin": {
+        "commit": "b42574721805922730cd13abfe3dd6abaa71cd22",
+        "ref": "v0.0.4-alpha.1",
+        "type": "git",
+        "url": "https://github.com/Serigy/nika.git"
+      },
+      "size": 53582,
+      "summary": "Nika: framework web minimalista em Lua",
+      "undeclared_requires": [
+        "binder",
+        "context_store",
+        "dataware",
+        "error_handler",
+        "escape_context",
+        "file_manager",
+        "middleware_chain",
+        "middleware_cors",
+        "middleware_csrf",
+        "middleware_ratelimit",
+        "multipart",
+        "route_group",
+        "router_v2",
+        "sqlite_driver",
+        "template_functions",
+        "template_partials",
+        "validator"
+      ],
+      "vlr": {
+        "cause": "missing module: escape_context",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 8,
+        "status": "partial",
+        "total": 11
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+
+local sfs = require 'sfs'
+local log = require 'lrocket.log'
+local abi = require 'lrocket.abi'
+
+---@class lrocket.build : { [string]: lrocket.Generator }
+local build = setmetatable({
+	['lua'] = require "lrocket.build.lua",
+	['executable-c'] = require "lrocket.build.executable-c",
+	['executable'] = require "lrocket.build.executable",
+	['shared-c'] = require "lrocket.build.shared-c",
+	['shared'] = require "lrocket.build.shared",
+}, {
+	__index = function (t, otype)
+		local modname = "lrocket.build."..otype
+		abi.report(abi.validatemodule(modname, string.format("otype '%s'", otype)))
+
+		local co = coroutine.create(function() return require(modname) end)
+		local ok, build = coroutine.resume(co)
+		if coroutine.status(co) ~= 'dead' then
+			ok = false
+			build = 'cannot yield in coroutine'
+		end
+
+		if ok then
+			log.infof("using build plugin %s%s\n",
+				log.colors.bright..otype..log.colors.reset,
+				log.level == log.levels.debug and log.colors.gray.." ("..(sfs.searchpath(modname, package.path))..")"..log.colors.reset or ""
+			)
+			t[otype] = build
+			return build
+		else
+			log.errorf('failed to load otype %s: %s', otype, debug.traceback(co, build))
+			log.checkpoint()
+			return nil
+		end
+	end
+})
+
+---@class lrocket.Generator
+---@field supportedtargets? fun(): string|string[], string?
+---@field configure? fun(acc: lrocket.FinalConf, spec: lrocket.BuildConf)
+---@field addargparser? fun(parser: argparse.Parser)
+---@field build? fun(map: lrocket.Package, output: string, spec: lrocket.FinalConf)
+
+local types = {}
+for k in pairs(build) do
+	types[#types+1] = k
+	types[k] = true
+end
+table.sort(types)
+build.types = types
+
+return build

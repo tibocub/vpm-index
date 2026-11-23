@@ -1,0 +1,175 @@
+local dirent = require 'posix.dirent'
+local errno = require 'posix.errno'
+local libgen = require 'posix.libgen'
+local posix = require 'posix'
+local sh = require 'shell'
+local stdlib = require 'posix.stdlib'
+local unistd = require 'posix.unistd'
+local utils = require 'src.utils'
+
+local function create_luarocks(root_dir, luaver)
+  local dir = root_dir .. '/.luarocks'
+  assert(posix.mkdir(dir))
+  utils.write_file(dir .. string.format('/config-%s.lua', luaver), '')
+  utils.write_file(dir .. '/default-lua-version.lua', string.format('return "%s"', luaver))
+  assert(posix.mkdir(root_dir .. '/lua_modules'))
+end
+
+local function create_postgres(root_dir, port)
+  assert(posix.mkdir(root_dir .. '/db'))
+  assert(posix.mkdir(root_dir .. '/db/postgres'))
+  assert(posix.mkdir(root_dir .. '/db/postgres/config'))
+  assert(posix.mkdir(root_dir .. '/db/postgres/data'))
+  assert(posix.mkdir(root_dir .. '/db/postgres/image'))
+
+  utils.write_file(root_dir .. '/db/postgres/.gitignore', [[
+# ignore the data directory
+/data/
+]])
+  utils.write_file(root_dir .. '/db/postgres/config/postgres.conf', require 'src.cmds.files.postgres_conf')
+  utils.write_file(root_dir .. '/db/postgres/image/Dockerfile', require 'src.cmds.files.dockerfile')
+  utils.write_file(root_dir .. '/db/postgres/image/install_pg_cron.sql', [[
+CREATE EXTENSION pg_cron;
+]])
+  utils.write_file(root_dir .. '/db/postgres/image/install_pllua.sql', [[
+CREATE EXTENSION pllua;
+]])
+  utils.write_file(root_dir .. '/docker-compose.yml', string.format((require 'src.cmds.files.docker_compose'), port))
+
+  if sh.cmd('command', '-v', 'chcon'):output() then
+    -- change the SELinux label for the volume to be mounted on the container
+    assert(sh('chcon', '-Rt', 'svirt_sandbox_file_t', root_dir .. '/db/postgres/data'))
+    assert(sh('chcon', '-Rt', 'svirt_sandbox_file_t', root_dir .. '/db/postgres/config'))
+  end
+end
+
+local function create_secrets(root_dir, port)
+  local dir = root_dir .. '/run/secrets'
+  assert(posix.mkdir(root_dir .. '/run'))
+  assert(posix.mkdir(dir))
+
+  -- postgresql root password
+  local pgpwd = utils.random_string(32)
+  utils.write_file(dir .. '/pgroot_pwd', pgpwd)
+  assert(sh('chmod', '0600', dir .. '/pgroot_pwd'))
+  if sh.cmd('command', '-v', 'chcon'):output() then
+    assert(sh('chcon', '-Rt', 'svirt_sandbox_file_t', dir .. '/pgroot_pwd'))
+  end
+
+  -- csrf secret key
+  local csrf = utils.random_string(32)
+  utils.write_file(dir .. '/csrf_key', csrf)
+  assert(sh('chmod', '0600', dir .. '/csrf_key'))
+
+  -- account secret key
+  local acct = utils.random_string(32)
+  utils.write_file(dir .. '/account_key', acct)
+  assert(sh('chmod', '0600', dir .. '/account_key'))
+
+  -- pgpass file
+  utils.write_file(dir .. '/pgpass', string.format([[
+localhost:%d:*:postgres:%s
+]], port, pgpwd))
+  assert(sh('chmod', '0600', dir .. '/pgpass'))
+end
+
+local function create_certs(root_dir)
+  local dir = root_dir .. '/run/certs'
+  assert(posix.mkdir(dir))
+
+  assert(sh('mkcert', '-install'))
+  assert(sh('mkcert',
+    '-cert-file', dir .. '/fullchain.pem',
+    '-key-file',  dir .. '/privkey.pem',
+    'localhost', '127.0.0.1', '::1'))
+end
+
+local function create_envrc(root_dir, port)
+  utils.write_file(root_dir .. '/.envrc', string.format((require 'src.cmds.files.envrc'), port))
+end
+
+local function create_gitignore(root_dir)
+  utils.write_file(root_dir .. '/.gitignore', require 'src.cmds.files.gitignore')
+end
+
+local function install_tulip(root_dir)
+  assert(unistd.chdir(root_dir))
+  assert(sh('luarocks', 'install', '--deps-mode', 'one', 'tulip'))
+end
+
+return function(args, opts, errf)
+  if #args == 0 then
+    errf('missing directory argument')
+    return
+  elseif #args > 1 then
+    errf('unexpected argument starting at %q', args[2])
+    return
+  end
+
+  local dir = args[1]
+  local ok, err, code = posix.mkdir(dir)
+  if not ok then
+    if code == errno.EEXIST then
+      local entries = dirent.dir(dir)
+      if #entries > 2 then
+        errf('directory exists and is not empty')
+        return
+      end
+    else
+      errf('%d: %s', code, err)
+      return
+    end
+  end
+  local base = libgen.basename(assert(stdlib.realpath(dir)))
+  local luaver = string.match(_VERSION, '(%d%.%d)')
+
+  utils.log([[
+> initializing a tulip setup for project %s and Lua %s
+
+Press ENTER to start.
+]], base, luaver)
+  if not opts.yes then
+    io.read('l')
+  end
+
+  utils.log('> creating LuaRocks project configuration...')
+  create_luarocks(dir, luaver)
+  utils.log(' ok\n')
+
+  utils.log('> creating postgresql database and docker files...')
+  create_postgres(dir, opts.port)
+  utils.log(' ok\n')
+
+  utils.log('> creating passwords and secrets...')
+  create_secrets(dir, opts.port)
+  utils.log(' ok\n')
+
+  if sh.cmd('command', '-v', 'mkcert'):output() then
+    utils.log('> creating localhost certificates...\n')
+    create_certs(dir)
+  else
+    utils.log('> skipping localhost certificates, mkcert not installed\n')
+  end
+
+  utils.log('> creating direnv envrc file...')
+  create_envrc(dir, opts.port)
+  utils.log(' ok\n')
+
+  utils.log('> creating gitignore file...')
+  create_gitignore(dir)
+  utils.log(' ok\n')
+
+  utils.log('> installing the Tulip LuaRock package and its dependencies...\n')
+  install_tulip(dir)
+
+  utils.log([[
+> initialization of the tulip setup for project %s and Lua %s completed:
+
+Execute the following
+  cd %s
+  direnv allow .
+to enable the environment configuration, and
+  docker-compose up --build
+to build and start the postgresql database.
+]], base, luaver, dir)
+end

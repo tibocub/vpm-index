@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "ipdb",
+  "versions": {
+    "beta-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 25 Dec 2019 15:46:16 GMT",
+        "rockspec": {
+          "date": "Wed, 25 Dec 2019 15:46:16 GMT",
+          "sha256": "009a65f5e3f7ca32c749eb423fd4cf2ed262f3cafa2d0d7b19d2b43544c5b265",
+          "size": 341
+        },
+        "src": {
+          "date": "Wed, 25 Dec 2019 15:46:18 GMT",
+          "sha256": "13c5d9c2bcf3d9e9a8a31dc39f8dba549b35647a03c0741c2ea9a104e80eb661",
+          "size": 11338,
+          "url": "https://luarocks.org/ipdb-beta-2.src.rock"
+        }
+      },
+      "modules": [
+        "ipdb"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "JSON_C"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "JSON_C": {
+              "header": "json-c/json.h"
+            }
+          },
+          "modules": [
+            {
+              "libraries": [
+                "json-c"
+              ],
+              "name": "ipdb",
+              "sources": [
+                "ipdb.c",
+                "ipdb-lua.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 25 Dec 2019 15:46:18 GMT",
+        "sha256": "13c5d9c2bcf3d9e9a8a31dc39f8dba549b35647a03c0741c2ea9a104e80eb661",
+        "size": 11338,
+        "type": "luarocks",
+        "url": "https://luarocks.org/ipdb-beta-2.src.rock"
+      },
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

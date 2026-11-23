@@ -1,0 +1,167 @@
+#!/usr/bin/env -S lua
+
+pcall(require, 'luarocks.loader')
+
+local argparse = require 'argparse'
+local lra = require 'lrocket.lra'
+local utils = require 'lrocket.utils'
+local sfs = require 'sfs'
+local log = require 'lrocket.log'
+
+local parser = argparse "lra"
+
+parser:description "Interacts with embedded lrocket archives inside lrc-compiled binaries"
+
+parser:argument "archive"
+	:args "1"
+	:description "archive to open"
+
+parser:argument "files"
+	:args "*"
+	:description "files to be extracted or packed (default: **)"
+
+local extract = parser:flag "-x" "--extract"
+		:description "Extract exact or globbed files to destination dir"
+local create = parser:flag "-c" "--create"
+		:description "Create archive from exact or globbed files to destination dir"
+
+parser:mutex(extract, create)
+
+parser:group("Extract Options",
+	extract,
+	parser:option "-O" "--dest"
+		:default "./"
+		:description "destination folder for extracted files"
+)
+parser:group("Create Options",
+	create
+)
+parser:group("Info Options",
+	parser:flag "-l" "--list"
+		:description "List files in archive",
+	parser:flag "-i" "--info"
+		:description "Show info about archive"
+)
+
+parser:option "--log-level"
+	:description "ascending: none (0), error, warn, info, debug"
+	:argname "<log-level>"
+	:default "info"
+	:convert(function(val)
+		local LOG_LEVELS = {
+			none = 0,
+			error = 1,
+			warn = 2,
+			info = 3,
+			debug = 4
+		}
+
+		---@type string | number?
+		local level
+
+		local function checkloglevel()
+			if level then return end
+			level = 3
+			log.setlevel(level)
+			log.warn("invalid log level "..val)
+		end
+
+		level = tonumber(val) or LOG_LEVELS[val]
+		checkloglevel()
+		level = 0 <= level and level <= 4 and level % 1 == 0 and level or nil
+		checkloglevel()
+		---@cast level -nil
+		log.setlevel(level)
+		return true
+	end)
+
+parser:help_description_margin(40)
+
+local ok, args = parser:pparse { ... }
+
+if not ok then
+	log.error(args)
+	sfs.exit(log.EXITCODE.GENERAL_ERROR)
+end
+---@cast args -string
+
+if #args.files == 0 then args.files[1] = '**' end
+
+if args.extract then
+	local l = log.assert(lra.open(args.archive, 'r'))
+	---@cast l lrocket.LRAR
+
+	for _, path in ipairs(l:list()) do
+		local ok = false
+		for _, glob in ipairs(args.files) do
+			local check = sfs.globtester(glob)
+			if check(path) then
+				ok = true
+				break
+			end
+		end
+
+		if ok then
+			local dstpath = sfs.combine(args.dest, path)
+			sfs.mkdir(sfs.getDir(dstpath))
+			local f = log.assert(l:open(path))
+			log.assert(sfs.write(dstpath, assert(f:read(f:size()))))
+			f:close()
+		end
+	end
+elseif args.create then
+	local l = log.assert(lra.open(args.archive, 'w'))
+
+	local function add(path)
+		l:write(path:gsub("[/\\]+", "/"), log.assert(sfs.read(path, true)), (path == "main.lua" or path == "start.lua") and "="..path or "@"..path)
+	end
+
+	for path in sfs.glob(utils.unpack(args.files)) do
+		if sfs.isDir(path) then
+			for file in sfs.recurse(path, 'file') do
+				add(file)
+			end
+		else
+			add(path)
+		end
+	end
+
+	l:close()
+end
+
+if args.list then
+	local tbl = utils.newtable('offset', 'path', 'size', 'type', 'chunkname', 'modification') --, 'change')
+	tbl:format {
+		path = '-%s',
+		size = '%b',
+		chunkname = '-%s',
+		offset = '%08X',
+		modification = '%d{%a %Y-%m-%d %H:%M}',
+		type = '%s',
+		--[[
+		change = '%d{%a %Y-%m-%d %H:%M}',
+		access = '%d{%c}',
+		--]]
+	}
+
+	local l = log.assert(lra.open(args.archive)) --[[@as lrocket.LRAR]]
+	for _, path in ipairs(l:list()) do
+		local attributes = l:attributes(path)
+		---@cast attributes -nil
+
+		attributes.path = path
+		tbl:entry(attributes)
+	end
+	print(tbl)
+end
+
+if args.info then
+	local info = log.assert(lra.stat(args.archive))
+	local n = 0
+	for k in pairs(info) do n = math.max(n, #k) end
+	log.infof("stats of %s\n", args.archive)
+	for k, v in utils.spairs(info) do
+		log.infof("\t%-"..n.."s: %s\n", k, tostring(v))
+	end
+end
+

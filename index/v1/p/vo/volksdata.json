@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "volksdata",
+  "versions": {
+    "1.0.0rc-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://git.knowledgetx.com/scossu/volksdata_lua",
+      "license": "https://git.knowledgetx.com/scossu/volksdata_lua/src/master/LICENSE",
+      "lua": ">= 5.4, < 6",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 20:24:53 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 20:24:53 GMT",
+          "sha256": "4733d14e70412a9706316298e883bc3fdfbba89050084c1672edeafd1e73c16f",
+          "size": 1228
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 20:24:54 GMT",
+          "sha256": "688aa826a89e721d7fb3d0630a29be66bf246c345ce0c41e918ed3258014e6b9",
+          "size": 1004702,
+          "url": "https://luarocks.org/volksdata-1.0.0rc-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "LMDB",
+          "XXHASH"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LMDB": {
+              "header": "lmdb.h"
+            },
+            "XXHASH": {
+              "header": "xxhash.h"
+            }
+          },
+          "make": {
+            "build_variables": {
+              "LUA_CFLAGS": "$(CFLAGS)",
+              "LUA_INCDIR": "$(LUA_INCDIR)",
+              "LUA_LDFLAGS": "$(LIBFLAG)"
+            },
+            "install_variables": {
+              "INST_LIBDIR": "$(LIBDIR)",
+              "PREFIX": "$(PREFIX)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 20:24:54 GMT",
+        "sha256": "688aa826a89e721d7fb3d0630a29be66bf246c345ce0c41e918ed3258014e6b9",
+        "size": 1004702,
+        "type": "luarocks",
+        "url": "https://luarocks.org/volksdata-1.0.0rc-1.src.rock"
+      },
+      "summary": "Compact, minimalistic RDF library and persistent store.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

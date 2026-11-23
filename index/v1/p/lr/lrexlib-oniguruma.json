@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "lrexlib-oniguruma",
+  "versions": {
+    "2.9.4-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/rrthomas/lrexlib",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 17 Aug 2026 16:55:02 GMT",
+        "rockspec": {
+          "date": "Mon, 17 Aug 2026 16:55:02 GMT",
+          "sha256": "099f3adcddee5b54c52a7a82015fd5b99bff885109ceb19f4bff1e0e417816b9",
+          "size": 1072
+        },
+        "src": {
+          "date": "Mon, 17 Aug 2026 16:55:03 GMT",
+          "sha256": "9c66a2c16bab67b8b81b20a20ce8bf814915789806e770054aeafdd6a68c0813",
+          "size": 94988,
+          "url": "https://luarocks.org/lrexlib-oniguruma-2.9.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "rex_onig"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "ONIG"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "ONIG": {
+              "header": "oniguruma.h",
+              "library": "onig"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "VERSION=\"2.9.4\"",
+                "LUA_LIB=",
+                "PCRE2_CODE_UNIT_WIDTH=8"
+              ],
+              "incdirs": [
+                "$(ONIG_INCDIR)"
+              ],
+              "libdirs": [
+                "$(ONIG_LIBDIR)"
+              ],
+              "libraries": [
+                "onig"
+              ],
+              "name": "rex_onig",
+              "sources": [
+                "src/common.c",
+                "src/oniguruma/lonig.c",
+                "src/oniguruma/lonig_f.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 17 Aug 2026 16:55:03 GMT",
+        "sha256": "9c66a2c16bab67b8b81b20a20ce8bf814915789806e770054aeafdd6a68c0813",
+        "size": 94988,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lrexlib-oniguruma-2.9.4-1.src.rock"
+      },
+      "summary": "Regular expression library binding (oniguruma flavour).",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

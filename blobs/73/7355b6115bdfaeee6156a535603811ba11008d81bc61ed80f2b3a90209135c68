@@ -1,0 +1,86 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 08-11-2023 @author Swarg
+local M = {}
+--------------------------------------------------------------------------------
+--                                Utils
+--------------------------------------------------------------------------------
+
+M.pairs_group = {
+  ["'"] = '\'',
+  ['"'] = '"',
+  ["("] = ')',
+  ["{"] = '}',
+  ["["] = ']',
+  [")"] = '(',
+  ["}"] = '{',
+  ["]"] = '[',
+}
+
+---@param c string
+---@return string|nil
+function M.get_pair(c)
+  if c then return M.pairs_group[c] end
+end
+
+function M.is_paired(c)
+  return c == '\'' or c == '"' or
+      c == '(' or c == ')' or
+      c == '{' or c == ']' or
+      c == '[' or c == ']'
+end
+
+---@param c string
+---@return boolean
+function M.is_opening_pair(c)
+  return c == '\'' or c == '"' or c == '(' or c == '{' or c == '['
+end
+
+function M.trim(s)
+  -- if M.devmode then assert(type(s) == 'string', 'no string to trim!') end
+  if s then
+    return s:gsub("^%s*(.-)%s*$", "%1")
+  end
+end
+
+-- string util limited back char search
+---@param line string
+---@param fc string
+---@param limit number|nil
+function M.back_indexof(line, ps, pe, fc, limit)
+  assert(type(fc) == 'string', 'fc')
+
+  if line and fc and ps and pe and ps > 0 and pe > ps then
+    for i = pe, ps, -1 do
+      local c = line:sub(i, i)
+      if c == fc then
+        return i
+      end
+      if limit and pe - i >= limit then
+        return i
+      end
+    end
+  end
+  return ps
+end
+
+--------------------------------------------------------------------------------
+
+--
+return M

@@ -1,0 +1,59 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-agentcert-tag",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/agentcert-tag/handler.lua": {
+          "sha256": "35e0538c57db7a910fcbad61fa4eae4963aadb310359f6876b34ce33e4aa5c6e",
+          "size": 4391,
+          "url": "https://raw.githubusercontent.com/pdxlab/agentcert-tag/26dfdcf09d8cdf4c1459f8d0aeb52b6688c23cd5/kong/agentcert-tag/handler.lua"
+        },
+        "kong/plugins/agentcert-tag/schema.lua": {
+          "sha256": "6a405a9230cdd34c85400743b2f6c06fa76cae4d16e38d327e7da9a57cbb1812",
+          "size": 1934,
+          "url": "https://raw.githubusercontent.com/pdxlab/agentcert-tag/26dfdcf09d8cdf4c1459f8d0aeb52b6688c23cd5/kong/agentcert-tag/schema.lua"
+        }
+      },
+      "homepage": "https://trustmodel.ai/verify",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 19 Sep 2026 23:39:21 GMT",
+        "rockspec": {
+          "date": "Sat, 19 Sep 2026 23:39:21 GMT",
+          "sha256": "9afa05bea3ca364f8da1de8a1af6da54dce8ab0d6404d6c9024ddadb78eca655",
+          "size": 870
+        }
+      },
+      "modules": [
+        "kong.plugins.agentcert-tag.handler",
+        "kong.plugins.agentcert-tag.schema"
+      ],
+      "origin": {
+        "commit": "26dfdcf09d8cdf4c1459f8d0aeb52b6688c23cd5",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/pdxlab/agentcert-tag.git"
+      },
+      "size": 6325,
+      "summary": "TAG — verify TrustModel AgentCert + TrustScore in Kong",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

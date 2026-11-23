@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-tag-executor",
+  "versions": {
+    "1.1.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/tag-executor/handler.lua": {
+          "sha256": "d1034084d921f07af2cb9b2d9a6311afa21c355a0b5a3fb18b2832998b63be48",
+          "size": 3264,
+          "url": "https://raw.githubusercontent.com/Apxdono/kong-plugin-tag-executor/185bca3958c5783e5c0a19112f0e5b2a9d53b735/kong/plugins/tag-executor/handler.lua"
+        },
+        "kong/plugins/tag-executor/schema.lua": {
+          "sha256": "b4ca23623d086ad96aae7655d303a08646b0899d4c4fa41315e13d5099c84a20",
+          "size": 2543,
+          "url": "https://raw.githubusercontent.com/Apxdono/kong-plugin-tag-executor/185bca3958c5783e5c0a19112f0e5b2a9d53b735/kong/plugins/tag-executor/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Apxdono/kong-plugin-tag-executor",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 17 Aug 2023 13:00:50 GMT",
+        "rockspec": {
+          "date": "Thu, 17 Aug 2023 13:00:50 GMT",
+          "sha256": "ed3f538c59c8eec887063d261474dcde574675c52722c227b0871e02ed69f262",
+          "size": 716
+        },
+        "src": {
+          "date": "Thu, 17 Aug 2023 13:00:51 GMT",
+          "sha256": "1eadd484f71b4f7f2bfe769bd59c6f468bdd7aab0a738faf1e260158d3f9aba9",
+          "size": 19879,
+          "url": "https://luarocks.org/kong-plugin-tag-executor-1.1.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.tag-executor.handler",
+        "kong.plugins.tag-executor.schema"
+      ],
+      "origin": {
+        "commit": "185bca3958c5783e5c0a19112f0e5b2a9d53b735",
+        "type": "git",
+        "url": "https://github.com/Apxdono/kong-plugin-tag-executor.git"
+      },
+      "size": 5807,
+      "summary": "Goal of this plugin is to reduce duplication of huge plugin configurations for cases when plugins must be configured on specific routes.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.utils",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

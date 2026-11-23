@@ -1,0 +1,95 @@
+{
+  "kind": "lib",
+  "name": "taggedcoro",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "taggedcoro/exception.lua": {
+          "sha256": "c815a66f25424de58122262cc94dd1471549b63a376998c776e95f9485d313ba",
+          "size": 661,
+          "url": "blob:c815a66f25424de58122262cc94dd1471549b63a376998c776e95f9485d313ba"
+        },
+        "taggedcoro/iterator.lua": {
+          "sha256": "7feec32bcebb983ecfdd2206f0de9c175d91aa5d9b7bb6bac6aaf7a5c3cd14a6",
+          "size": 221,
+          "url": "blob:7feec32bcebb983ecfdd2206f0de9c175d91aa5d9b7bb6bac6aaf7a5c3cd14a6"
+        },
+        "taggedcoro/nlr.lua": {
+          "sha256": "90128f327da1732591eafb740085bde1336a268c419f3029adae6eb7f6b2466b",
+          "size": 206,
+          "url": "blob:90128f327da1732591eafb740085bde1336a268c419f3029adae6eb7f6b2466b"
+        },
+        "taggedcoro/stm.lua": {
+          "sha256": "7e6f08413a35e1f7cde359d28897ef9469d70d88741cd4893af080165915a9e1",
+          "size": 2319,
+          "url": "blob:7e6f08413a35e1f7cde359d28897ef9469d70d88741cd4893af080165915a9e1"
+        }
+      },
+      "homepage": "https://github.com/mascarenhas/taggedcoro",
+      "license": "MIT/X11",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Sat, 09 Jul 2016 01:43:40 GMT",
+        "rockspec": {
+          "date": "Sat, 09 Jul 2016 01:43:40 GMT",
+          "sha256": "903a157282b6b378034bf11b5bb1074e69a4d3d4145d38e3a21f39c8f2597241",
+          "size": 1113
+        },
+        "src": {
+          "date": "Sat, 09 Jul 2016 01:43:42 GMT",
+          "sha256": "81bf54c064245fd5bc39264924f397ae9e4dc772ac6dfde94404be5687704adb",
+          "size": 55218,
+          "url": "https://luarocks.org/taggedcoro-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "taggedcoro",
+        "taggedcoro.exception",
+        "taggedcoro.iterator",
+        "taggedcoro.nlr",
+        "taggedcoro.stm"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "taggedcoro",
+              "sources": [
+                "src/taggedcoro.c",
+                "src/isyieldable.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 09 Jul 2016 01:43:42 GMT",
+        "sha256": "81bf54c064245fd5bc39264924f397ae9e4dc772ac6dfde94404be5687704adb",
+        "size": 55218,
+        "type": "luarocks",
+        "url": "https://luarocks.org/taggedcoro-1.0.0-1.src.rock"
+      },
+      "size": 3407,
+      "summary": "Tagged Coroutines",
+      "undeclared_requires": [
+        "thread"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

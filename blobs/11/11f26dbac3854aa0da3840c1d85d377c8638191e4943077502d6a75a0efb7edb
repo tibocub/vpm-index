@@ -1,0 +1,139 @@
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local table = _tl_compat and _tl_compat.table or table
+local parser = require("cerulean.parser")
+local source = require("cerulean.source")
+
+local ast_traversal = {}
+
+
+local BLOCK_NODE_KINDS = {
+   ["function"] = true,
+   ["local_function"] = true,
+   ["local_macro"] = true,
+   ["global_function"] = true,
+   ["record_function"] = true,
+   ["if"] = true,
+   ["while"] = true,
+   ["fornum"] = true,
+   ["forin"] = true,
+   ["repeat"] = true,
+   ["do"] = true,
+   ["newtype"] = true,
+}
+
+local FUNCTION_DEF_KINDS = {
+   ["local_function"] = true,
+   ["local_macro"] = true,
+   ["global_function"] = true,
+   ["record_function"] = true,
+   ["function"] = true,
+}
+
+
+function ast_traversal.is_block_node(node)
+   return BLOCK_NODE_KINDS[node.kind] ~= nil
+end
+
+function ast_traversal.is_function_def(node)
+   return FUNCTION_DEF_KINDS[node.kind] ~= nil
+end
+
+local function get_sub_nodes(node)
+   local sub_nodes = {}
+
+   for _, child in ipairs(node) do
+      table.insert(sub_nodes, child)
+   end
+
+   if node.body then
+      table.insert(sub_nodes, node.body)
+   end
+   if node.e1 then
+      table.insert(sub_nodes, node.e1)
+   end
+   if node.e2 then
+      table.insert(sub_nodes, node.e2)
+   end
+   if node.key then
+      table.insert(sub_nodes, node.key)
+   end
+   if node.value then
+      table.insert(sub_nodes, node.value)
+   end
+   if node.args then
+      table.insert(sub_nodes, node.args)
+   end
+   if node.name then
+      table.insert(sub_nodes, node.name)
+   end
+   if node.exp then
+      table.insert(sub_nodes, node.exp)
+   end
+   if node.var then
+      table.insert(sub_nodes, node.var)
+   end
+   if node.from then
+      table.insert(sub_nodes, node.from)
+   end
+   if node.to then
+      table.insert(sub_nodes, node.to)
+   end
+   if node.step then
+      table.insert(sub_nodes, node.step)
+   end
+   if node.vars then
+      table.insert(sub_nodes, node.vars)
+   end
+   if node.exps then
+      table.insert(sub_nodes, node.exps)
+   end
+   if node.if_blocks then
+      for _, block in ipairs(node.if_blocks) do
+         table.insert(sub_nodes, block)
+      end
+   end
+
+   return sub_nodes
+end
+
+function ast_traversal.walk_descendants(node, visit)
+   visit(node)
+
+   for _, sub_node in ipairs(get_sub_nodes(node)) do
+      ast_traversal.walk_descendants(sub_node, visit)
+   end
+end
+
+local function collect_block_ranges(nodes, result)
+   for _, node in ipairs(nodes) do
+      if ast_traversal.is_block_node(node) then
+         table.insert(result, source.Range.new(node.y, node.yend))
+      end
+
+      collect_block_ranges(node.body and { node.body } or {}, result)
+      collect_block_ranges(node.if_blocks or {}, result)
+      collect_block_ranges(node, result)
+   end
+end
+
+function ast_traversal.collect_block_ranges(ast)
+   local result = {}
+   collect_block_ranges(ast, result)
+   return result
+end
+
+function ast_traversal.has_multiline_descendant(node)
+   local found = false
+
+   ast_traversal.walk_descendants(
+   node,
+   function(child)
+      if not found and child.yend and child.yend > child.y then
+         found = true
+      end
+   end)
+
+
+   return found
+end
+
+return ast_traversal

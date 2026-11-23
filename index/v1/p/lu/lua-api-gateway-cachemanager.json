@@ -1,0 +1,94 @@
+{
+  "kind": "lib",
+  "name": "lua-api-gateway-cachemanager",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "api-gateway/cache/cache.lua": {
+          "sha256": "52cfc5aad5f5ab6ecb285d64668035d7f7b52079eb6b2644443aa3ddfeff448d",
+          "size": 3733,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/cache.lua"
+        },
+        "api-gateway/cache/request/rcache.lua": {
+          "sha256": "2f11928a642b538413faaae2824dd5dff3ab4d7e6a1a9b96f1a0e0d6f9687000",
+          "size": 3509,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/request/rcache.lua"
+        },
+        "api-gateway/cache/status/remoteCacheStatus.lua": {
+          "sha256": "b3dd766a9b6b9a6b6a18be954a14b5a2eb0ebc119186608bc445c2b4bea77a8b",
+          "size": 6203,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/status/remoteCacheStatus.lua"
+        },
+        "api-gateway/cache/store.lua": {
+          "sha256": "b75c0a7c8119615dbfec758250cd93efe8987790f9eec0daf075e518eaa04737",
+          "size": 2355,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/store.lua"
+        },
+        "api-gateway/cache/store/localCache.lua": {
+          "sha256": "f562dea6c2a264739e50d3159987bc7a7e2b130871f66309135fd3e6369f6496",
+          "size": 2824,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/store/localCache.lua"
+        },
+        "api-gateway/cache/store/redisCache.lua": {
+          "sha256": "0d40f6adf65b77bfcab73e74330673ed715ee4083a04c638f152e0d5d7659bd5",
+          "size": 6538,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/store/redisCache.lua"
+        },
+        "api-gateway/cache/store/redisHashCache.lua": {
+          "sha256": "c803ab2ae8b768ccf164bb061d81f4060a5373eb919ecf56ddd53e36028db79f",
+          "size": 2251,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/store/redisHashCache.lua"
+        },
+        "api-gateway/cache/store/redisSetCache.lua": {
+          "sha256": "59acdb0e7e77517ae2eda53e4f9dd7dfc16c109c60baf064ad75ff90872ad728",
+          "size": 1624,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-cachemanager/b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32/src/lua/api-gateway/cache/store/redisSetCache.lua"
+        }
+      },
+      "homepage": "https://github.com/adobe-apiplatform/api-gateway-cachemanager",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 01 Jun 2017 08:32:32 GMT",
+        "rockspec": {
+          "date": "Thu, 01 Jun 2017 08:32:32 GMT",
+          "sha256": "17961417a7a2635575b2883c34102bb1b71f55d529566edab8bb211941f9d438",
+          "size": 1543
+        }
+      },
+      "modules": [
+        "api-gateway.cache.cache",
+        "api-gateway.cache.request.rcache",
+        "api-gateway.cache.status.remoteCacheStatus",
+        "api-gateway.cache.store",
+        "api-gateway.cache.store.localCache",
+        "api-gateway.cache.store.redisCache",
+        "api-gateway.cache.store.redisHashCache",
+        "api-gateway.cache.store.redisSetCache"
+      ],
+      "origin": {
+        "commit": "b4e0c8b4985614248f38d50eb12f2c1ac6c3eb32",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/adobe-apiplatform/api-gateway-cachemanager"
+      },
+      "size": 29037,
+      "summary": "Lua library for managing multiple cache stores",
+      "undeclared_requires": [
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.redis)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 5,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

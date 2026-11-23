@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-bearer",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-messagepack ~> 0.5"
+      ],
+      "files": {
+        "kong/plugins/bearer/handler.lua": {
+          "sha256": "25c7b3b9a043fae6cb4719655f4f09e7822d0c23e0ced231da9c4f869230d939",
+          "size": 2243,
+          "url": "https://raw.githubusercontent.com/bearer/kong-plugin/77cee6369d6f7beb225449371e6cb9a3162e2d24/handler.lua"
+        },
+        "kong/plugins/bearer/logger.lua": {
+          "sha256": "cacbc08670ef6259adb1f157d93e09c870a8b1f3fe3240da2340adcf7683749d",
+          "size": 2179,
+          "url": "https://raw.githubusercontent.com/bearer/kong-plugin/77cee6369d6f7beb225449371e6cb9a3162e2d24/logger.lua"
+        },
+        "kong/plugins/bearer/schema.lua": {
+          "sha256": "4611460db6d2addea5d52f43bf8d9dc500a86d03e3ddd41a63cd4265848f98bb",
+          "size": 135,
+          "url": "https://raw.githubusercontent.com/bearer/kong-plugin/77cee6369d6f7beb225449371e6cb9a3162e2d24/schema.lua"
+        },
+        "kong/plugins/bearer/serializer.lua": {
+          "sha256": "c3bcfe072f3c1f4c0ea15f8cd5078001fb775efaa3f6be639c8c18af4aebffd3",
+          "size": 1151,
+          "url": "https://raw.githubusercontent.com/bearer/kong-plugin/77cee6369d6f7beb225449371e6cb9a3162e2d24/serializer.lua"
+        }
+      },
+      "homepage": "https://github.com/bearer/kong-plugin",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Fri, 05 Feb 2021 11:59:05 GMT",
+        "rockspec": {
+          "date": "Fri, 05 Feb 2021 11:59:05 GMT",
+          "sha256": "788523e1d78b5e30cfe6c4dea40a00a2ae2cf7087c80dd55d1fedaee64d60b70",
+          "size": 848
+        },
+        "src": {
+          "date": "Fri, 05 Feb 2021 11:59:06 GMT",
+          "sha256": "bee61f085ecb4022a8e5e652d60289b7243b27c4a244d64f354ca7ddda45a4ed",
+          "size": 6018,
+          "url": "https://luarocks.org/kong-plugin-bearer-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.bearer.handler",
+        "kong.plugins.bearer.logger",
+        "kong.plugins.bearer.schema",
+        "kong.plugins.bearer.serializer"
+      ],
+      "origin": {
+        "commit": "77cee6369d6f7beb225449371e6cb9a3162e2d24",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/bearer/kong-plugin.git"
+      },
+      "size": 5708,
+      "summary": "A plugin for Kong to remediate security & compliance risks by automatically mapping your data flows",
+      "undeclared_requires": [
+        "inspect",
+        "kong.plugins.base_plugin",
+        "socket",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

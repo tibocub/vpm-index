@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-force-ssl",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/force-ssl/handler.lua": {
+          "sha256": "7743abd817e3fabc41ad3bc981b74c355276994263242fb0839ecca0e380e317",
+          "size": 597,
+          "url": "https://raw.githubusercontent.com/imanel/kong-force-ssl/f8eaa9972d8e21ef484a1bb9b4c81995a6e554ee/src/handler.lua"
+        },
+        "kong/plugins/force-ssl/schema.lua": {
+          "sha256": "267ae1fd72d396cf279f104d911a3cf02ef6704dc24d069a82e39ce99b23e689",
+          "size": 48,
+          "url": "https://raw.githubusercontent.com/imanel/kong-force-ssl/f8eaa9972d8e21ef484a1bb9b4c81995a6e554ee/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/imanel/kong-force-ssl",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 11 Apr 2019 12:11:00 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Apr 2019 12:11:00 GMT",
+          "sha256": "1cae58f7921e407626ff1095ce0158c8ae9233093b3da12a2331c351ccf67462",
+          "size": 543
+        },
+        "src": {
+          "date": "Thu, 11 Apr 2019 12:11:01 GMT",
+          "sha256": "2d6fff9f25937a81fb3ce9dea1f66e42c22f200b9a585f951f794c5dcc7a5635",
+          "size": 2927,
+          "url": "https://luarocks.org/kong-force-ssl-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.force-ssl.handler",
+        "kong.plugins.force-ssl.schema"
+      ],
+      "origin": {
+        "commit": "f8eaa9972d8e21ef484a1bb9b4c81995a6e554ee",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/imanel/kong-force-ssl"
+      },
+      "size": 645,
+      "summary": "Redirect http requests to https",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

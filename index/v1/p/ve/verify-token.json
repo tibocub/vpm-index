@@ -1,0 +1,97 @@
+{
+  "kind": "lib",
+  "name": "verify-token",
+  "versions": {
+    "1.0.1-2": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-jwt ~> 0.1.11-0"
+      ],
+      "files": {
+        "kong/plugins/verify-token/api.lua": {
+          "sha256": "298a95718e1f32dbe82dd40217afc129e1b655adec78dee0f870c97c9f08ccba",
+          "size": 2098,
+          "url": "blob:298a95718e1f32dbe82dd40217afc129e1b655adec78dee0f870c97c9f08ccba"
+        },
+        "kong/plugins/verify-token/daos.lua": {
+          "sha256": "873d4a30026ee08f9819b510e910255d4f7126ff846740a8608e1ecffa998b17",
+          "size": 611,
+          "url": "blob:873d4a30026ee08f9819b510e910255d4f7126ff846740a8608e1ecffa998b17"
+        },
+        "kong/plugins/verify-token/handler.lua": {
+          "sha256": "2a59beb8f827bf7c60d01a2a46b86f2dec4933ae9cc767a87384676e3b731a31",
+          "size": 2226,
+          "url": "blob:2a59beb8f827bf7c60d01a2a46b86f2dec4933ae9cc767a87384676e3b731a31"
+        },
+        "kong/plugins/verify-token/migrations/000_invalidated_tokens.lua": {
+          "sha256": "5e44390b0a50f6cb60057794631f19ee9000184e8d929aa1cf6c1f3a9b7d667e",
+          "size": 552,
+          "url": "blob:5e44390b0a50f6cb60057794631f19ee9000184e8d929aa1cf6c1f3a9b7d667e"
+        },
+        "kong/plugins/verify-token/migrations/init.lua": {
+          "sha256": "c70f3d5f234ef2422d8265a3ea37e8801507b8292acc2bc6adfd365f66b48953",
+          "size": 38,
+          "url": "blob:c70f3d5f234ef2422d8265a3ea37e8801507b8292acc2bc6adfd365f66b48953"
+        },
+        "kong/plugins/verify-token/schema.lua": {
+          "sha256": "066bd6c1b9a6da7154f263f70f4b8ba68d710e6ca21505c611c0618a54de02e1",
+          "size": 221,
+          "url": "blob:066bd6c1b9a6da7154f263f70f4b8ba68d710e6ca21505c611c0618a54de02e1"
+        }
+      },
+      "homepage": "",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 26 Sep 2019 04:15:25 GMT",
+        "rockspec": {
+          "date": "Thu, 26 Sep 2019 04:15:25 GMT",
+          "sha256": "9f3d2b41678a3ceffe8f2b81e8786b34d067d9fbac975f40175bc53300971dd7",
+          "size": 1149
+        },
+        "src": {
+          "date": "Thu, 26 Sep 2019 04:15:29 GMT",
+          "sha256": "c9d36bc846e54cd68fa2bf2543ad4ab31699059f4ef4d4d6ea706844d37f477b",
+          "size": 15331,
+          "url": "https://luarocks.org/verify-token-1.0.1-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.verify-token.api",
+        "kong.plugins.verify-token.daos",
+        "kong.plugins.verify-token.handler",
+        "kong.plugins.verify-token.migrations",
+        "kong.plugins.verify-token.migrations.000_invalidated_tokens",
+        "kong.plugins.verify-token.schema"
+      ],
+      "origin": {
+        "date": "Thu, 26 Sep 2019 04:15:29 GMT",
+        "sha256": "c9d36bc846e54cd68fa2bf2543ad4ab31699059f4ef4d4d6ea706844d37f477b",
+        "size": 15331,
+        "type": "luarocks",
+        "url": "https://luarocks.org/verify-token-1.0.1-2.src.rock"
+      },
+      "size": 5746,
+      "summary": "",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+
+--- Return a comma separated hex string suitable for a C array definition.
+local sfs                     = require "sfs"
+local cfmt                    = require "lrocket.cfmt"
+local genc                    = require "lrocket.genc"
+local log                     = require "lrocket.log"
+
+local lra = require 'lrocket.build.lra'
+
+---@type lrocket.Generator
+---@diagnostic disable-next-line: missing-fields
+local executable_c = {}
+
+function executable_c.build(src, output, cfg)
+	local lrafile = cfg.keep and sfs.getBaseName(output) .. ".lra" or sfs.tmppath()
+
+	lra.build(src, lrafile, cfg)
+
+	local file = log.assert(sfs.open(output, "wb"))
+	local fmt = cfmt.newformatter(file)
+
+	local moddecls = {}
+	local mods = {}
+	for _, mod in ipairs(src.mods) do
+		if mod.entrypoint then
+			table.insert(moddecls, function()
+				genc.clra_shared_ref(fmt, mod.modname)
+			end)
+			mods[#mods+1] = mod.modname
+		end
+	end
+
+
+	genc.cppsentrybegin(fmt)
+	genc.clra_preamble(fmt)
+	for _, mod in ipairs(moddecls) do
+		mod()
+	end
+	genc.clra_init_definition(fmt, sfs.read(lrafile, true), mods, src.rpath, src.rcpath)
+	genc.clra_main(fmt);
+	genc.cppsentryend(fmt);
+
+	file:close()
+
+	if not cfg.keep then
+		sfs.deltmppath(lrafile)
+	end
+end
+
+return executable_c

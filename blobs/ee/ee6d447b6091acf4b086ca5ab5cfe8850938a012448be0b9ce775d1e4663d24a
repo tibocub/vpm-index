@@ -1,0 +1,79 @@
+-- Data model for htb traffic control configuration.
+--
+-- Each factory returns a plain table with sensible defaults. These are the
+-- structures produced by `config` (from TOML) and consumed by `resolver` and
+-- `script`.
+
+local M = {}
+
+function M.newDevice(name, dev, opts)
+    opts = opts or {}
+    return {
+        name = name,
+        dev = dev,
+        virtual = opts.virtual or false,
+        dev_type = opts.dev_type or "",
+        setup_commands = opts.setup_commands or {},
+    }
+end
+
+function M.newAction(type_, params)
+    return { type = type_, params = params or {} }
+end
+
+function M.newQdisc(name, qdisc_type, device, opts)
+    opts = opts or {}
+    return {
+        name = name,
+        qdisc_type = qdisc_type, -- "htb", "tbf", "sfq", "netem", "cake", ...
+        device = device,          -- reference to a device name
+        parent = opts.parent or "root",
+        handle = opts.handle or "",
+        default = opts.default or "",
+        params = opts.params or {},
+    }
+end
+
+function M.newClass(name, opts)
+    opts = opts or {}
+    return {
+        name = name,
+        class_type = opts.class_type or "htb", -- "htb", "hfsc", "prio"
+        parent = opts.parent or "",
+        params = opts.params or {},
+    }
+end
+
+function M.newFilter(name, opts)
+    opts = opts or {}
+    return {
+        name = name,
+        filter_type = opts.filter_type or "u32", -- "u32", "fw", "matchall", "flower"
+        device = opts.device or "",
+        parent = opts.parent or "",
+        send_to = opts.send_to or "",
+        protocol = opts.protocol or "",
+        prio = opts.prio or "",
+        handle = opts.handle or "",
+        ip_matches = opts.ip_matches or {},
+        match_params = opts.match_params or {},
+        actions = opts.actions or {},
+    }
+end
+
+-- Complete parsed configuration.
+function M.newTrafficConfig()
+    return {
+        tc = "tc",
+        unit = "",
+        variables = {},
+        speeds = {},
+        hosts = {},
+        devices = {},   -- name -> Device
+        qdiscs = {},    -- list of Qdisc
+        classes = {},   -- list of Class
+        filters = {},   -- list of Filter
+    }
+end
+
+return M

@@ -1,0 +1,181 @@
+local function testValueToString(value)
+    if value == nil then
+        return "nil"
+    end
+
+    if value == false then
+        return "false"
+    end
+
+    if value == true then
+        return "true"
+    end
+
+    return value
+end
+
+local function assertionFailed(expected, actual)
+    expected = testValueToString(expected)
+    actual = testValueToString(actual)
+
+    error("Assertion failed, expected: '" .. expected .. "'. Actual: '" .. actual .. "'")
+end
+
+function assertEquals(expected, actual)
+    if expected == actual then return end
+
+    assertionFailed(expected, actual)
+end
+
+function assertTrue(value)
+    if value == true then return end
+
+    assertionFailed(true, value)
+end
+
+function assertFalse(value)
+    if value == false then return end
+
+    assertionFailed(false, value)
+end
+
+function assertNil(value)
+    if value == nil then return end
+
+    assertionFailed(nil, value)
+end
+
+function assertThrows(expected, func)
+    local success, message = pcall(func)
+    
+    if success then
+        assertionFailed(expected, "No error thrown")
+        return
+    end
+    
+    --we want to ignore the part that says what line the error occured on
+    local outputWithLocationCut = message:sub(-#expected)
+    if outputWithLocationCut ~= expected then
+        assertionFailed(expected, message)
+    end
+end
+
+
+local testRunsFailed = 0
+local testRunsSuccessful = 0
+local testDefinitions
+
+local function runTest(className, functionName, func)
+    local testName = className .. "." .. functionName
+    local red = "\27[31m"
+    local green = "\27[32m"
+    local white = "\27[37m"
+    
+    local success, message = xpcall(func, debug.traceback)
+
+    if success then
+        print(green .. testName .. " ok" .. white)
+        testRunsSuccessful = testRunsSuccessful + 1
+        return
+    end
+    print(red .. testName .. " FAILED: " .. message .. white)
+    testRunsFailed = testRunsFailed + 1
+end
+
+local function runAll(functions)
+    if not functions then return end
+    for k, func in pairs(functions) do
+        func()
+    end
+end
+
+local function runFunction(className, functionName)
+    local testFunction = test[functionName]
+
+    runAll(beforeEach)
+    runTest(className, functionName, testFunction)
+    runAll(afterEach)
+end
+
+local function runClass(className)
+    runAll(beforeAll)
+    for functionName, _ in pairs(test) do
+        runFunction(className, functionName)
+    end
+    runAll(afterAll)
+end
+
+local oldG = {}
+local function backupG()
+    for k, v in pairs(_G) do
+        oldG[k] = v
+    end
+end
+
+local function cleanEnvironment()
+    for k, v in pairs(_G) do
+        if not oldG[k] then
+            _G[k] = nil
+        else
+            _G[k] = oldG[k]
+        end
+    end
+
+    for fileName, loaded in pairs(package.loaded) do
+        package.loaded[fileName] = nil
+    end
+
+    test = {}
+    beforeEach = {}
+    afterEach = {}
+    beforeAll = {}
+    afterAll = {}
+end
+
+--[[
+    Run the show
+]]
+
+return function(definitionsPath, testedClassName, testedMethodName)
+    if not definitionsPath then
+        error("Definitions file path not provided, please provide it as a first argument")
+    end
+
+    testDefinitions = require(definitionsPath)
+
+    backupG()
+
+    if not testedClassName and not testedMethodName then
+        print("Running all tests")
+        for className, path in pairs(testDefinitions) do
+            --set a nev environment so we don't pass globals between the tests
+            cleanEnvironment()
+            require(path)
+            runClass(className)
+        end
+    end
+
+    if testedClassName and not testedMethodName then
+        print("Running tests on class: " .. testedClassName)
+        cleanEnvironment()
+        require(testDefinitions[testedClassName])
+        runClass(testedClassName)
+    end
+
+    if testedClassName and testedMethodName then
+        print("Running test method: " .. testedClassName .. "." .. testedMethodName)
+        cleanEnvironment()
+        require(testDefinitions[testedClassName])
+
+        runAll(beforeAll)
+        runFunction(testedClassName, testedMethodName)
+        runAll(afterAll)
+    end
+
+    local totalTestRuns = testRunsSuccessful + testRunsFailed
+    print("Testing completed. Failed " .. testRunsFailed .. " out of " .. totalTestRuns )
+
+    if testRunsFailed > 0 then
+        os.exit(4)
+    end
+end

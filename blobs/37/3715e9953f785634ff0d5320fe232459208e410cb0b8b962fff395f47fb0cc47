@@ -1,0 +1,11 @@
+-- voice/init.lua
+-- Public surface of the luacord voice module.
+-- Require this as: local voice = require("voice")
+
+return {
+  VoiceGateway    = require("voice.VoiceGateway"),
+  VoiceUDP        = require("voice.VoiceUDP"),
+  VoiceConnection = require("voice.VoiceConnection"),
+  VoiceManager    = require("voice.VoiceManager"),
+  Opus            = require("voice.OpusEncoder"),
+}

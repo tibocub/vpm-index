@@ -1,0 +1,222 @@
+-- © yokerp.com --
+
+local mime = require'mime'
+local iconv = require'iconv'
+local concat = table.concat
+
+local data = require'class'('data')
+
+function data:initialize()
+  self.bounds = {}
+end
+
+function data:hdr(hdr,hdrs)
+  hdrs = hdrs or {}
+  for line in string.gmatch(hdr or '',"[^\r\n]+") do
+    local key,val = line:match("^([^: ]+):%s?(.*)") --^%s?...
+    if key and val then
+      key = key:lower()
+      hdrs[key] = concat{hdrs[key] or '',val}
+      hdrs.key = key
+    elseif hdrs.key then
+      hdrs[hdrs.key] = concat{hdrs[hdrs.key],'\n',line}
+    end
+  end
+  hdrs.key = nil
+  if hdrs.subject and not self.subject then
+    self.subject = hdrs.subject
+    if self.subject:match("=%?") then
+      self.subject = self:uncode(self.subject)
+    end
+  end
+  if hdrs.from and not self.from then
+    self:parsefrom(hdrs.from,hdrs['reply-to'])
+  end
+
+  if hdrs.date and not self.date then
+    self.date = hdrs.date
+    if self.date:match('%?=') then
+      self.date = self:uncode(self.date)
+    else
+      self.date = self:parsedate(self.date)
+    end
+  end
+  if not self.hdrs then
+    self.hdrs = hdrs -- main hdrs
+  end
+  return hdrs
+end
+
+function data:parsedate(date)
+  local mon =  {Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
+  local time = {isdst=os.date('*t').isdst}
+  time.day,time.month,time.year,time.hour,time.min,time.sec,time.tz =
+                      date:match("%a+, (%d+) (%a+) (%d+) (%d+):(%d+):(%d+)%s+([^%s]+)")
+  if not time.year then return date end
+  time.month = mon[time.month]
+  if time.tz:match('^[%-+]') then --sender timezone
+    local sign,hour,min = time.tz:match("([+%-])(%d%d)(%d%d)")
+    if sign == '-' then sign = '+' else sign = '-' end
+    time.hour = tonumber(time.hour) + tonumber(concat{sign,hour})
+    time.min = tonumber(time.min) + tonumber(concat{sign,min})
+  end
+  local sign,hour,min = os.date('%z'):match("([+%-])(%d%d)(%d%d)") --receiver timezone
+  time.hour = tonumber(time.hour) + tonumber(concat{sign,hour})
+  time.min = tonumber(time.min) + tonumber(concat{sign,min})
+  return os.date('%Y-%m-%d %H:%M',os.time(time))
+end
+
+function data:unb64(data)
+  return mime.unb64(data)
+end
+
+function data:unqp(data)
+  data = data:gsub('=\n','\n') --todo
+  return (mime.unqp(data) or ''):gsub('_',' ')
+end
+
+function data:conv(data,charset,to)
+  local conv = iconv.open(to or 'utf-8',charset or 'utf-8')
+  return conv:iconv(data)
+end
+
+function data:uncode(subject)
+  if not subject then return end
+  local subjects = ""
+  local chars = nil
+  for charset,enc,subj in subject:gmatch("%?([^%?]+)%?([BQ])%?([^%?]+)%?") do
+    chars = charset
+    if enc == "B" then
+      subj = self:unb64(subj)
+    elseif enc == "Q" then
+      subj = self:unqp(subj)
+    else
+      subj = subject
+    end
+    subjects = concat{subjects,subj}
+  end
+  if chars and not chars:lower():match("utf.?8") then
+    subjects,err = self:conv(subjects,chars,'utf-8')
+  end
+  return subjects
+end
+
+function data:parsefrom(from,replyto)
+  from = from or ''
+  self.from = {}
+  local email = [[%s*([^%s<"]+@[^%s>"]+)%s*]]
+  local addr = from:match(email)
+  if replyto then
+    replyto = replyto:match(email)
+  end
+  local name = from
+  if addr then
+    local tmp = addr:gsub('-','.') --for gsub
+    name = from:gsub(tmp,'')
+    name = name:gsub('[<>()"\']','')
+  end
+  if name:match("=%?") then
+    name = self:uncode(name)
+  end
+  self.from.addr = addr
+  self.from.replyto = replyto
+  self.from.name = name
+  return self.from.addr
+end
+
+function data:line(data)
+  local _,pos,line = (data or ""):find('([^\r\n]*\r?\n)',self.pos and self.pos + 1 or nil)
+  self.pos = pos
+  return line
+end
+
+function data:parse(body)
+  repeat
+    local lines = {}
+    local line = self:line(body)
+    if self.bounds.root and line and line:find(concat{"--",self.bounds.root},nil,true) then
+      line = self:line(body)
+    end
+    while line and line ~= '\n' and line ~= '' and line ~= '\r\n' do
+      lines[#lines + 1] = line
+      line = self:line(body)
+    end
+    local hdr = concat(lines)
+    local hdrs = self:hdr(hdr)
+    local ct = (hdrs["content-type"] or '')
+
+    local bound = ct:match('boundary%s*=%s*"?([^%s"]+)"?')
+    if not self.bounds then self.bounds = {} end
+    if not bound then
+      bound = self.bounds.prev
+    end
+    if bound and not self.bounds.root then
+      self.bounds.root = bound
+    end
+
+    local charset = (ct:match('charset%s*=%s*(.*)') or ''):gsub('["\']','')
+
+    if ct:match("multipart/") then
+      line = self:line(body)
+      while line and not line:find(concat{"--",bound},nil,true) and not line:find(concat{"--",self.bounds.root},nil,true) do
+        line = self:line(body)
+      end
+      if bound ~= self.bounds.prev then self.bounds.prev = bound end
+      if self.pos then
+        self:parse(body)
+      end
+    else
+      local lines = {}
+      while line and (not self.bounds.root or (not line:find(concat{"--",bound or ''},nil,true)
+                                 and not line:find(concat{"--",self.bounds.root or ''},nil,true))) do
+        lines[#lines + 1] = line
+        line = self:line(body)
+      end
+
+      if #lines > 0 then
+        self.body = concat(lines)
+      end
+
+      if (hdrs["content-transfer-encoding"] or ''):lower():match('base64') then
+        self.body = self:unb64(self.body)
+      elseif (hdrs["content-transfer-encoding"] or ''):lower():match('quoted') then
+        self.body = self:unqp(self.body)
+      end
+
+      if charset and charset ~= '' and charset:lower() ~= 'us-ascii' and not charset:lower():match('utf') then
+        self.body = self:conv(self.body,charset,"utf-8")
+      end
+      if not self.plain and (ct:match('text/plain') or (ct == '' and #lines  > 0)) then
+        self.plain = self.body
+      elseif not self.html and ct:match('text/html') then
+        self.html = self.body
+      elseif self.body and hdrs['content-disposition'] then --c-disposition:attachment,filename,inline;c-type:message/rfc822;etc
+        local cid = hdrs["content-id"]
+        local name = (ct:match('name%s?=%s?(.*)') or ''):gsub('"','')
+        if name:match("=%?") then name = self:uncode(name) end
+
+        local filename = ((hdrs['content-disposition'] or ''):match('filename%s?=%s?(.*)') or ''):gsub('"','')
+        if filename:match("=%?") then filename = self:uncode(filename) end
+        if ct:find(';') then ct = ct:match("^[^;]+") end
+        if filename == '' then
+          if name == '' then
+            filename = "msg.eml"
+          else
+            filename = name
+          end
+        end
+        if not self.attachs then self.attachs = {} end
+        self.attachs[#self.attachs + 1] = {
+          body = self.body,
+          name = name,
+          filename = filename,
+          filetype = ct,
+          cid = cid,
+        }
+      end
+    end
+  until not self.pos
+end
+
+return data
+

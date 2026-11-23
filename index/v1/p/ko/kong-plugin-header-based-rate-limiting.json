@@ -1,0 +1,180 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-header-based-rate-limiting",
+  "versions": {
+    "2.0.1-1": {
+      "bin": [],
+      "deps": [
+        "classic 0.1.0-1",
+        "kong-lib-logger >= 0.3.0-1"
+      ],
+      "files": {
+        "kong/plugins/header-based-rate-limiting/access.lua": {
+          "sha256": "df617f5c920e61e931300823e4d7e6efca2a7ae2202a90c1f6a311d40e9e163d",
+          "size": 3905,
+          "url": "blob:df617f5c920e61e931300823e4d7e6efca2a7ae2202a90c1f6a311d40e9e163d"
+        },
+        "kong/plugins/header-based-rate-limiting/api.lua": {
+          "sha256": "c72546522ebd9db519e4e470dd5d63f3cb2b8c5ebcafeea05b5023134f23b51e",
+          "size": 7505,
+          "url": "blob:c72546522ebd9db519e4e470dd5d63f3cb2b8c5ebcafeea05b5023134f23b51e"
+        },
+        "kong/plugins/header-based-rate-limiting/daos.lua": {
+          "sha256": "3ecd9e6a774d78efcde1b075e8e25202fad7444f35f8a34ec6e6f787a40ad5c4",
+          "size": 4184,
+          "url": "blob:3ecd9e6a774d78efcde1b075e8e25202fad7444f35f8a34ec6e6f787a40ad5c4"
+        },
+        "kong/plugins/header-based-rate-limiting/get_null_uuid.lua": {
+          "sha256": "cba99039b215fe49ba5c239906cd25b1a767de8b33bb0022b09cf7783168bacc",
+          "size": 216,
+          "url": "blob:cba99039b215fe49ba5c239906cd25b1a767de8b33bb0022b09cf7783168bacc"
+        },
+        "kong/plugins/header-based-rate-limiting/handler.lua": {
+          "sha256": "9fad9857306f4b91f121a2c4b00fc8766901bd730fb1a97c892a5547a2c75437",
+          "size": 685,
+          "url": "blob:9fad9857306f4b91f121a2c4b00fc8766901bd730fb1a97c892a5547a2c75437"
+        },
+        "kong/plugins/header-based-rate-limiting/key_rank.lua": {
+          "sha256": "7898cebd22485650e68a1bc22940a2586cbe9638d8ab4259be59e1ebe05de2b3",
+          "size": 1103,
+          "url": "blob:7898cebd22485650e68a1bc22940a2586cbe9638d8ab4259be59e1ebe05de2b3"
+        },
+        "kong/plugins/header-based-rate-limiting/lookup_key_generator.lua": {
+          "sha256": "362195411a6dc710d72d226926e1f4b34b3337c88cb9875ffd898d38f9fb7720",
+          "size": 714,
+          "url": "blob:362195411a6dc710d72d226926e1f4b34b3337c88cb9875ffd898d38f9fb7720"
+        },
+        "kong/plugins/header-based-rate-limiting/migrations/000_base_header_based_rate_limiting.lua": {
+          "sha256": "c7976e51d67ac6dfad17fdb28a5e4e362c385f381a871eac2d3eb21dc5f22184",
+          "size": 301,
+          "url": "blob:c7976e51d67ac6dfad17fdb28a5e4e362c385f381a871eac2d3eb21dc5f22184"
+        },
+        "kong/plugins/header-based-rate-limiting/migrations/001_120_to_200.lua": {
+          "sha256": "6dba82123e4e1aaa8785b8a0d89db165c8702740834766abc150b71187583352",
+          "size": 523,
+          "url": "blob:6dba82123e4e1aaa8785b8a0d89db165c8702740834766abc150b71187583352"
+        },
+        "kong/plugins/header-based-rate-limiting/migrations/002_200_to_201.lua": {
+          "sha256": "007369c17026ed785d59d810073fa8cb909057217fec4cbf58f6af9d69582af3",
+          "size": 555,
+          "url": "blob:007369c17026ed785d59d810073fa8cb909057217fec4cbf58f6af9d69582af3"
+        },
+        "kong/plugins/header-based-rate-limiting/migrations/cassandra.lua": {
+          "sha256": "910f5f127fd270246f580f6d27a618df00946d9f0d6c0ff7afbb588e3cf37696",
+          "size": 585,
+          "url": "blob:910f5f127fd270246f580f6d27a618df00946d9f0d6c0ff7afbb588e3cf37696"
+        },
+        "kong/plugins/header-based-rate-limiting/migrations/init.lua": {
+          "sha256": "424d0a5cfc18da8fff03bf91c36493e89ea0826dc1605f1483f950b8a73f48cf",
+          "size": 96,
+          "url": "blob:424d0a5cfc18da8fff03bf91c36493e89ea0826dc1605f1483f950b8a73f48cf"
+        },
+        "kong/plugins/header-based-rate-limiting/migrations/postgres.lua": {
+          "sha256": "d04dda307a2da9da3015175e72985a935f4cca808f4d4da4251d23ab3f4e4305",
+          "size": 1017,
+          "url": "blob:d04dda307a2da9da3015175e72985a935f4cca808f4d4da4251d23ab3f4e4305"
+        },
+        "kong/plugins/header-based-rate-limiting/rate_limit_key.lua": {
+          "sha256": "382f96fbcdcb4f953919fa141cdac2e36dcbaa5679c4d4967d07160084c6d68c",
+          "size": 315,
+          "url": "blob:382f96fbcdcb4f953919fa141cdac2e36dcbaa5679c4d4967d07160084c6d68c"
+        },
+        "kong/plugins/header-based-rate-limiting/rate_limit_model.lua": {
+          "sha256": "939ea4bfed598b25b47d20a09fe6b259ae3e5cdd4892cffa1a5f0caa5e4d3af4",
+          "size": 2606,
+          "url": "blob:939ea4bfed598b25b47d20a09fe6b259ae3e5cdd4892cffa1a5f0caa5e4d3af4"
+        },
+        "kong/plugins/header-based-rate-limiting/rate_limit_pool.lua": {
+          "sha256": "26a29c2dec9bb21d5f2098f6ac462538b3ef36abe3902d90907b55ce4554e1ca",
+          "size": 701,
+          "url": "blob:26a29c2dec9bb21d5f2098f6ac462538b3ef36abe3902d90907b55ce4554e1ca"
+        },
+        "kong/plugins/header-based-rate-limiting/rate_limit_rule.lua": {
+          "sha256": "e188bb34a61ec644684dac85a8ba0ae8cf1e231658797e6feaccd84ffa9f9f89",
+          "size": 1475,
+          "url": "blob:e188bb34a61ec644684dac85a8ba0ae8cf1e231658797e6feaccd84ffa9f9f89"
+        },
+        "kong/plugins/header-based-rate-limiting/rate_limit_subject.lua": {
+          "sha256": "619cdab179a4272d9f7c1c68442c69b336aae3fb3fc2ddd840ff6c614b819019",
+          "size": 1389,
+          "url": "blob:619cdab179a4272d9f7c1c68442c69b336aae3fb3fc2ddd840ff6c614b819019"
+        },
+        "kong/plugins/header-based-rate-limiting/redis_factory.lua": {
+          "sha256": "b9a373c96c3ca184952a7558bd2a142dc76da608cada1d8be562303f99203519",
+          "size": 1009,
+          "url": "blob:b9a373c96c3ca184952a7558bd2a142dc76da608cada1d8be562303f99203519"
+        },
+        "kong/plugins/header-based-rate-limiting/schema.lua": {
+          "sha256": "bc29c0678f02743569c9abbc94cc7a911a6c410ef725cf7721d4c0cf38e641a0",
+          "size": 1598,
+          "url": "blob:bc29c0678f02743569c9abbc94cc7a911a6c410ef725cf7721d4c0cf38e641a0"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-header-based-rate-limiting",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Wed, 29 Apr 2020 09:18:37 GMT",
+        "rockspec": {
+          "date": "Wed, 29 Apr 2020 09:18:37 GMT",
+          "sha256": "8a27ec0717c0504c12d1a1879317f53f5fed20a5ea942ef5c10d8bf13e55f68a",
+          "size": 3146
+        },
+        "src": {
+          "date": "Wed, 29 Apr 2020 09:18:39 GMT",
+          "sha256": "fd3aae3447d0455933d36d3622a2e8110182ed681dbc29bf500ccb550f213724",
+          "size": 38676,
+          "url": "https://luarocks.org/kong-plugin-header-based-rate-limiting-2.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.header-based-rate-limiting.access",
+        "kong.plugins.header-based-rate-limiting.api",
+        "kong.plugins.header-based-rate-limiting.daos",
+        "kong.plugins.header-based-rate-limiting.get_null_uuid",
+        "kong.plugins.header-based-rate-limiting.handler",
+        "kong.plugins.header-based-rate-limiting.key_rank",
+        "kong.plugins.header-based-rate-limiting.lookup_key_generator",
+        "kong.plugins.header-based-rate-limiting.migrations",
+        "kong.plugins.header-based-rate-limiting.migrations.000_base_header_based_rate_limiting",
+        "kong.plugins.header-based-rate-limiting.migrations.001_120_to_200",
+        "kong.plugins.header-based-rate-limiting.migrations.002_200_to_201",
+        "kong.plugins.header-based-rate-limiting.migrations.cassandra",
+        "kong.plugins.header-based-rate-limiting.migrations.postgres",
+        "kong.plugins.header-based-rate-limiting.rate_limit_key",
+        "kong.plugins.header-based-rate-limiting.rate_limit_model",
+        "kong.plugins.header-based-rate-limiting.rate_limit_pool",
+        "kong.plugins.header-based-rate-limiting.rate_limit_rule",
+        "kong.plugins.header-based-rate-limiting.rate_limit_subject",
+        "kong.plugins.header-based-rate-limiting.redis_factory",
+        "kong.plugins.header-based-rate-limiting.schema"
+      ],
+      "origin": {
+        "date": "Wed, 29 Apr 2020 09:18:39 GMT",
+        "sha256": "fd3aae3447d0455933d36d3622a2e8110182ed681dbc29bf500ccb550f213724",
+        "size": 38676,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-header-based-rate-limiting-2.0.1-1.src.rock"
+      },
+      "size": 30482,
+      "summary": "Rate limit incoming requests based on its headers.",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.tools.utils",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 13,
+        "status": "partial",
+        "total": 20
+      }
+    }
+  }
+}

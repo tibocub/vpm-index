@@ -1,0 +1,103 @@
+{
+  "kind": "lib",
+  "name": "canary-oss",
+  "versions": {
+    "1.0.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/canary-oss/handler.lua": {
+          "sha256": "27b8ce4b35dcd699879f316bc8784c02bf8f16ed0746560c8e99ada19e775ec0",
+          "size": 1044,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/handler.lua"
+        },
+        "kong/plugins/canary-oss/init.lua": {
+          "sha256": "a143da72999a2bc8ca3f694faf2f375d6b7ddb442e0bf5c78235b2a2f16b210e",
+          "size": 515,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/init.lua"
+        },
+        "kong/plugins/canary-oss/policies/BaseCanary.lua": {
+          "sha256": "29998bd56e83227e3fd358ce5df21a6171a5c56f5de471d5aee188fdba082bc6",
+          "size": 972,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/policies/BaseCanary.lua"
+        },
+        "kong/plugins/canary-oss/policies/CustomizeCanary.lua": {
+          "sha256": "c44422a59267bbf9f82fd2c28ffac8cb52cd5c6e1c5a0ad2268afad07117e9eb",
+          "size": 1237,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/policies/CustomizeCanary.lua"
+        },
+        "kong/plugins/canary-oss/policies/DefaultCanary.lua": {
+          "sha256": "9b333af6170343970d153c476347a618ef684f13d6809dceecbe526b98ecfb0c",
+          "size": 1041,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/policies/DefaultCanary.lua"
+        },
+        "kong/plugins/canary-oss/policies/IPCanary.lua": {
+          "sha256": "c395e92ac981363b34492dda60a7cdea742a55331c7a2a3b2593fffdc6d516cf",
+          "size": 1737,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/policies/IPCanary.lua"
+        },
+        "kong/plugins/canary-oss/policies/UidCanary.lua": {
+          "sha256": "52db304fb0625107e68c452d666dee430bc9237c1b9fe4af3a4b0780a295bc2d",
+          "size": 1271,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/policies/UidCanary.lua"
+        },
+        "kong/plugins/canary-oss/policies/cmatch.lua": {
+          "sha256": "a8fc68426a43328150f9c713df5eeede57d04b8748ab6eb52ca6556140a7a219",
+          "size": 466,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/policies/cmatch.lua"
+        },
+        "kong/plugins/canary-oss/policies/init.lua": {
+          "sha256": "ebe67833c49efea107789ef0262cf8534bb0c3baf5e5e8880df6e45e64879711",
+          "size": 1101,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/policies/init.lua"
+        },
+        "kong/plugins/canary-oss/schema.lua": {
+          "sha256": "fe0bcbf0a8861ffd653cf6afd8971d535605db48ace91d4bf616133036068c59",
+          "size": 2375,
+          "url": "https://gitee.com/raoxy/kong-plugins-canary/raw/5e8e1ba1ce61bf59db2687d9025acdf448d2cde1/kong/plugins/canary-oss/schema.lua"
+        }
+      },
+      "homepage": "*** please enter a project homepage ***",
+      "host": "openresty",
+      "license": "*** please specify a license ***",
+      "luarocks": {
+        "date": "Wed, 10 Jan 2024 02:19:58 GMT",
+        "rockspec": {
+          "date": "Wed, 10 Jan 2024 02:19:58 GMT",
+          "sha256": "949ebfe812ed742138c0285503be2420a13b2c3cc290f45bc163d66eb933b900",
+          "size": 1473
+        }
+      },
+      "modules": [
+        "kong.plugins.canary-oss",
+        "kong.plugins.canary-oss.handler",
+        "kong.plugins.canary-oss.policies",
+        "kong.plugins.canary-oss.policies.BaseCanary",
+        "kong.plugins.canary-oss.policies.CustomizeCanary",
+        "kong.plugins.canary-oss.policies.DefaultCanary",
+        "kong.plugins.canary-oss.policies.IPCanary",
+        "kong.plugins.canary-oss.policies.UidCanary",
+        "kong.plugins.canary-oss.policies.cmatch",
+        "kong.plugins.canary-oss.schema"
+      ],
+      "origin": {
+        "commit": "5e8e1ba1ce61bf59db2687d9025acdf448d2cde1",
+        "type": "git",
+        "url": "https://gitee.com/raoxy/kong-plugins-canary.git"
+      },
+      "size": 11759,
+      "undeclared_requires": [
+        "resty.iputils"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.iputils)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 6,
+        "status": "partial",
+        "total": 10
+      }
+    }
+  }
+}

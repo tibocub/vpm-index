@@ -1,0 +1,100 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-request-firewall",
+  "versions": {
+    "0.2.13-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/request-firewall/access.lua": {
+          "sha256": "239ea9b45fd9ca51392d3084e57e9c18de56ef10face023aa05e66dd4a0ac1ea",
+          "size": 17795,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/access.lua"
+        },
+        "kong/plugins/request-firewall/base64.lua": {
+          "sha256": "f58a94c85e6fc75606864d4721ec2f84f9e898b9cd799ce76c34b97d38c4e60a",
+          "size": 3245,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/base64.lua"
+        },
+        "kong/plugins/request-firewall/file-reader.lua": {
+          "sha256": "2a96e2d70d807503a69a5fa93b106352064df85f0bfabe02e1cc1484e3916560",
+          "size": 3311,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/file-reader.lua"
+        },
+        "kong/plugins/request-firewall/handler.lua": {
+          "sha256": "5d8ed9058dd15cc6023c69fca9739f416f1458d1f1025cf09893bea3c86e9584",
+          "size": 5995,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/handler.lua"
+        },
+        "kong/plugins/request-firewall/multipart.lua": {
+          "sha256": "0f2f2cfb089eef363f91e250fbe0d7b484dc69448d0ac3fb8776f602dfbf4d3d",
+          "size": 9562,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/multipart.lua"
+        },
+        "kong/plugins/request-firewall/quoted-printable.lua": {
+          "sha256": "6a2e85d564b469e68f89790f1dd3a54d8fd5c4eab31580ec6282b5a18ce372c4",
+          "size": 277,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/quoted-printable.lua"
+        },
+        "kong/plugins/request-firewall/schema.lua": {
+          "sha256": "9e22e6cee895615a740045334c5e08624ee2d7ed117516633410e1b94da9bf13",
+          "size": 12718,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/schema.lua"
+        },
+        "kong/plugins/request-firewall/utils.lua": {
+          "sha256": "306199b4df23843b7fbd42388748e1d3d0b54a839e1a65de32ec853a6963d795",
+          "size": 1902,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-request-firewall/d629b9424b251298705ddcf40ecc11de4531b4d4/kong/plugins/request-firewall/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/samngms/kong-plugin-request-firewall",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 15 Mar 2021 13:14:15 GMT",
+        "rockspec": {
+          "date": "Mon, 15 Mar 2021 13:14:15 GMT",
+          "sha256": "39c62f17f01efbf318d8218bfaa8fbf4767f399e2755176e8f5cc13f5d760052",
+          "size": 1695
+        },
+        "src": {
+          "date": "Mon, 15 Mar 2021 13:14:17 GMT",
+          "sha256": "afe5c8db2ebd1c45bde8d7d8ac92a7f5ea01e128efb540d1361f2e7e86c1a173",
+          "size": 46393,
+          "url": "https://luarocks.org/kong-plugin-request-firewall-0.2.13-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.request-firewall.access",
+        "kong.plugins.request-firewall.base64",
+        "kong.plugins.request-firewall.file-reader",
+        "kong.plugins.request-firewall.handler",
+        "kong.plugins.request-firewall.multipart",
+        "kong.plugins.request-firewall.quoted-printable",
+        "kong.plugins.request-firewall.schema",
+        "kong.plugins.request-firewall.utils"
+      ],
+      "origin": {
+        "commit": "d629b9424b251298705ddcf40ecc11de4531b4d4",
+        "ref": "0.2.13",
+        "type": "git",
+        "url": "https://github.com/samngms/kong-plugin-request-firewall"
+      },
+      "size": 54805,
+      "summary": "Kong Request Firewall Plugin, it can validate various types of input.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 6,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

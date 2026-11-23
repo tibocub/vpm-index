@@ -1,0 +1,133 @@
+-- traceable-ai-extension: response-side AI-firewall /eval, plus publisher of
+-- request_config for the main `traceable` plugin. Split from `traceable`
+-- because Kong forbids one plugin from declaring both `response` and
+-- `body_filter`.
+--
+-- Reads shared endpoint/service/env from ngx.ctx.shared.traceable_config
+-- (published by `traceable` access). Timeouts come from this plugin's config.
+
+local resty_http = require "resty.http"
+local cjson = require "cjson"
+local utility = require "kong.plugins.traceable.utility"
+local ai_firewall = require "kong.plugins.traceable.ai_firewall"
+
+local TraceableAIExtensionHandler = {
+  VERSION = "2.3.0",
+  MODULE_VERSION = "2.3.0",
+  -- Higher than main `traceable` (99998) so access publishes AI config
+  -- before main access, and response /eval runs before main body_filter/log.
+  PRIORITY = 99999,
+}
+
+local function onFailure(response_config)
+  if response_config and response_config.allow_on_failure then
+    return
+  end
+  return kong.response.error(403)
+end
+
+local function buildEvalHeaders(shared_config)
+  return {
+    ["content-type"] = "application/json",
+    ["traceableai-service-name"] = utility.getServiceName(shared_config),
+    ["traceableai-environment-name"] = shared_config.environment_name,
+    ["traceableai-ai-evaluate-response"] = "true",
+  }
+end
+
+-- Publish AI configs then buffer the upstream body.
+-- NOTE: do NOT publish from rewrite — Kong only runs rewrite for *global*
+-- plugins; this plugin is typically service/route-scoped, so access is the
+-- earliest phase that runs. PRIORITY 99999 ensures we run before main
+-- `traceable` access (99998), which gates request /eval on this config.
+function TraceableAIExtensionHandler:access(config)
+  ngx.ctx.shared = ngx.ctx.shared or {}
+  ngx.ctx.shared.traceable_ai_config = {
+    request_config = config.request_config,
+    response_config = config.response_config,
+  }
+
+  local ok, err = pcall(function()
+    kong.service.request.enable_buffering()
+  end)
+  if not ok then
+    ngx.log(ngx.WARN, "traceable-ai-extension: failed to enable response buffering: ", err)
+  end
+end
+
+function TraceableAIExtensionHandler:response(config)
+  local response_config = config.response_config or {}
+  local shared_config = ngx.ctx.shared and ngx.ctx.shared.traceable_config
+  if not shared_config then
+    ngx.log(ngx.ERR, "traceable-ai-extension: missing ngx.ctx.shared.traceable_config; attach the `traceable` plugin")
+    return onFailure(response_config)
+  end
+
+  -- Request-phase /eval already denied; skip response /eval (attrs already stashed).
+  if ngx.ctx.traceableai_request_blocked then
+    return
+  end
+
+  local timeout_ms = response_config.timeout or 500
+
+  local reqHeaders = utility.processHeaders(kong.request.get_headers())
+  -- Request body is omitted here; drop content-length so EDS doesn't flag it.
+  reqHeaders["content-length"] = nil
+  local resHeaders = utility.processHeaders(kong.response.get_headers())
+  local raw_body = kong.service.response.get_raw_body() or ""
+
+  local timeout_attrs = ai_firewall.apply_eval_timeout(timeout_ms, "response")
+  local payload = ai_firewall.build_eval_response_payload(
+    reqHeaders, resHeaders, raw_body, timeout_attrs)
+
+  local client = resty_http.new()
+  client:set_timeout(timeout_ms)
+
+  local body = cjson.encode(payload)
+  local res, err = client:request_uri(
+    shared_config.ext_cap_endpoint .. "/ext_cap/v1/eval",
+    {
+      method = "POST",
+      headers = buildEvalHeaders(shared_config),
+      body = body,
+    }
+  )
+  if not res then
+    ngx.log(ngx.ERR, "traceable-ai-extension: /eval failed: ", err)
+    return onFailure(response_config)
+  end
+  if res.status ~= 200 then
+    ngx.log(ngx.ERR, "traceable-ai-extension: /eval failed: ", res.status)
+    return onFailure(response_config)
+  end
+
+  local ok, authorization = pcall(cjson.decode, res.body)
+  if not ok or type(authorization) ~= "table" then
+    ngx.log(ngx.ERR, "traceable-ai-extension: /eval failed: could not decode response body")
+    return onFailure(response_config)
+  end
+
+  -- Stash on every decision (allow and deny) so DENY attrs still reach
+  -- the log-phase span export via the main plugin's merge.
+  ai_firewall.stash_eval_attributes(authorization.attributes, "response")
+
+  if authorization.allowRequest == false then
+    ai_firewall.apply_response_header_injections(authorization.decorations)
+    -- EDS sends statusOnDeny=0 (unset); 0 is truthy in Lua so check it explicitly.
+    local status = authorization.statusOnDeny
+    return kong.response.error(status ~= 0 and status or 403, authorization.messageOnDeny)
+  elseif authorization.allowRequest ~= true then
+    ngx.log(ngx.ERR, "traceable-ai-extension: /eval failed: missing or invalid allowRequest")
+    return onFailure(response_config)
+  end
+
+  ai_firewall.apply_response_header_injections(authorization.decorations)
+  local redacted = ai_firewall.decode_redacted_response_body(authorization.decorations)
+  if redacted then
+    -- set_raw_body() is body_filter-only; stash for main `traceable` body_filter to apply.
+    ngx.ctx.traceableai_redacted_response_body = redacted
+    kong.response.set_header("content-length", tostring(#redacted))
+  end
+end
+
+return TraceableAIExtensionHandler

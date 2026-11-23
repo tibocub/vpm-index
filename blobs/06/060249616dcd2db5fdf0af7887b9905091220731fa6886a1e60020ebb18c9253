@@ -1,0 +1,144 @@
+--- Helper to safely run a command and get output (handles sandboxed environments)
+---@param cmd string
+---@return string|nil
+local function safeExec(cmd)
+  if not io or not io.popen then
+    return nil
+  end
+
+  local success, handle = pcall(io.popen, cmd)
+  if not success or not handle then
+    return nil
+  end
+
+  local output = handle:read("*l")
+  handle:close()
+  return output
+end
+
+--- Helper to safely read a file
+---@param path string
+---@return string|nil
+local function safeReadFile(path)
+  if not io or not io.open then
+    return nil
+  end
+
+  local success, file = pcall(io.open, path, "r")
+  if not success or not file then
+    return nil
+  end
+
+  local content = file:read("*a")
+  file:close()
+  return content
+end
+
+--- Parse /etc/os-release file content
+---@param content string
+---@return table<string, string>
+local function parseOsRelease(content)
+  local result = {}
+  for line in content:gmatch("[^\r\n]+") do
+    local key, value = line:match("^([%w_]+)=(.*)$")
+    if key and value then
+      -- Remove surrounding quotes if present
+      value = value:gsub("^[\"']", ""):gsub("[\"']$", "")
+      result[key] = value
+    end
+  end
+  return result
+end
+
+--- Get Linux distribution information
+--- @return string|nil distro_name (e.g., "Ubuntu", "Alpine", "Debian")
+--- @return string|nil distro_version (e.g., "22.04", "3.18")
+local function getDistroInfo()
+  local content = safeReadFile("/etc/os-release")
+  if not content then
+    return nil, nil
+  end
+
+  local osRelease = parseOsRelease(content)
+
+  -- ID contains the distro identifier (e.g., "ubuntu", "alpine", "debian")
+  -- Capitalize first letter for display consistency with C++ SDK
+  local name = osRelease["ID"]
+  if name and #name > 0 then
+    name = name:sub(1, 1):upper() .. name:sub(2)
+  end
+
+  -- VERSION_ID contains the version (e.g., "22.04", "3.18")
+  local version = osRelease["VERSION_ID"]
+
+  return name, version
+end
+
+--- Get OS information
+--- @return string os_info in format "{os} {kernel} {arch}"
+local function getOSInfo()
+  local os_name = safeExec("uname -s 2>/dev/null") or "Unknown"
+  local kernel = safeExec("uname -r 2>/dev/null") or ""
+  local arch = safeExec("uname -m 2>/dev/null") or ""
+
+  if kernel ~= "" and arch ~= "" then
+    return os_name .. " " .. kernel .. " " .. arch
+  elseif kernel ~= "" then
+    return os_name .. " " .. kernel
+  else
+    return os_name
+  end
+end
+
+--- Get module info string in structured key-value format
+--- Format: "server=HAProxy;server_ver=2.8.0;os=Linux/Ubuntu;os_ver=22.04;
+---          kernel=6.12.65;arch=aarch64;module=impart-haproxy;module_ver=0.14.2"
+--- @param server_name string Server software name (e.g., "HAProxy", "Kong")
+--- @param server_version string Server software version (e.g., "2.8.0")
+--- @param plugin_version string Impart plugin version (e.g., "0.1.4")
+--- @return string module_info Key-value formatted string
+local function getModuleInfo(server_name, server_version, plugin_version)
+  local os_name = safeExec("uname -s 2>/dev/null") or "Unknown"
+  local kernel = safeExec("uname -r 2>/dev/null") or ""
+  local arch = safeExec("uname -m 2>/dev/null") or ""
+
+  -- Try to get distro info (Linux only)
+  local distro_name, distro_version = getDistroInfo()
+
+  -- Build os field: "Linux/Ubuntu" or just "Linux" if no distro info
+  local os_field = os_name
+  if distro_name and distro_name ~= "" then
+    os_field = os_name .. "/" .. distro_name
+  end
+
+  -- Build os_ver field: distro version or kernel version
+  local os_ver = distro_version or ""
+
+  -- Build module name: "impart-<server>" in lowercase (e.g., "impart-haproxy", "impart-kong")
+  local module_name = "impart-" .. string.lower(server_name)
+
+  -- Build the key-value string
+  local parts = {
+    "server=" .. server_name,
+    "server_ver=" .. server_version,
+    "os=" .. os_field,
+    "os_ver=" .. os_ver,
+  }
+
+  -- Only include kernel on Linux
+  if os_name == "Linux" and kernel ~= "" then
+    table.insert(parts, "kernel=" .. kernel)
+  end
+
+  table.insert(parts, "arch=" .. arch)
+  table.insert(parts, "module=" .. module_name)
+  table.insert(parts, "module_ver=" .. plugin_version)
+
+  return table.concat(parts, ";")
+end
+
+return {
+  getModuleInfo = getModuleInfo,
+  getOSInfo = getOSInfo,
+  getDistroInfo = getDistroInfo,
+}

@@ -1,0 +1,108 @@
+--- Configuration parser and default settings.
+--
+--  Requiring this module returns two values: the computed configuration path
+--  (from the PKAR_CONFIG_PATH environment variable or a fallback default), and
+--  the configuration table, obtained by merging user-defined values in the
+--  configuration file and default values.
+--
+--  This module is normally required by the `pkar` module, which exposes the
+--  computed configuration as `pkar.config`.
+
+local datafile =  require "datafile"
+local dir =       require "pl.dir"
+local path =      require "pl.path"
+local nsm =       require "volksdata.namespace"
+
+
+local SYSTEM_NSM = {
+    b2          = "blake2:",
+    dc          = "http://purl.org/dc/terms/",
+    premis      = "http://id.loc.gov/vocabulary/preservation/",
+
+    gr          = "http://id.pkar.cc/graph/",
+    par         = "http://id.pkar.cc/resource/",
+    pas         = "http://id.pkar.cc/schema#",
+    pav         = "http://id.pkar.cc/vocab#",
+    struct      = "http://id.pkar.cc/structmd/",
+    sub         = "http://id.pkar.cc/submission/",
+    sysmd       = "http://id.pkar.cc/sysmd/",
+}
+
+local DEFAULT_DTYPES = {
+    integer     = "xsd:long",
+    decimal     = "xsd:decimal",
+    float       = "xsd:double",
+    boolean     = "xsd:boolean",
+    date        = "xsd:date",
+    datetime    = "xsd:dateTime",
+    timestamp   = "xsd:long",
+    url         = "xsd:anyURI",
+}
+
+local config_path = os.getenv("PKAR_CONFIG_DIR")
+if not config_path or #config_path == 0 then
+    config_path = path.dirname(datafile.path("examples/config/app.lua"))
+    io.stderr:write(
+        "PKAR_CONFIG_DIR environment variable is not set. Using stock \z
+        configuration at " .. config_path .. "\n\n\z
+        NOTE: this is an EXAMPLE configuration that may be updated and \z
+        overwritten with software upgrades. Copy this directory to a location \z
+        you own and point the `PKAR_CONFIG_DIR` environment variable to it \z
+        to ensure stable operation.\n\n"
+    )
+end
+
+
+return {parse = function ()
+    local config = dofile(path.join(config_path, "app.lua"))
+
+    -- Core.
+    if not (config.core or {}).root then
+        error("No data root defined in configuration.")
+    end
+
+    -- Namespaces.
+    if config.namespace then
+        -- System namespaces override user-defined ones.
+        for pfx, ns in pairs(SYSTEM_NSM) do config.namespace[pfx] = ns end
+    else config.namespace = SYSTEM_NSM end
+    for pfx, ns in pairs(config.namespace) do nsm.add(pfx, ns) end
+
+    -- Model.
+    config.model = config.model or {}
+    config.model.datatypes = config.model.datatypes or DEFAULT_DTYPES
+    config.model.vocab_ns = nsm.get_ns(config.model.vocab_prefix or "pav")
+
+    -- Filesystem.
+    config.fs = config.fs or {}
+    config.fs.dres_path = config.fs.dres_path or
+          path.join(config.core.root, "data", "dres")
+    config.fs.ores_path = config.fs.ores_path or
+          path.join(config.core.root, "data", "ores")
+    config.fs.stream_chunk_size = config.fs.stream_chunk_size or 1024 ^ 2
+
+    -- Presentation generation.
+    if not (config.pres_gen or {}).out_dir then
+        error("No presentation output destination specified in configuration.")
+    end
+    config.pres_gen.title  = config.pres_gen.title or "Pocket Archive"
+    if config.pres_gen.tpl_root then
+        config.pres_gen.tpl_root = path.abspath(
+                config.pres_gen.tpl_root, config_path)
+    end
+    if config.pres_gen.tpl_root and not (path.isdir(config.pres_gen.tpl_root)) then
+        error(
+                "User template directory does not exist: " ..
+                config.pres_gen.tpl_root)
+    end
+    config.pres_gen.untitled_label =
+            config.pres_gen.untitled_label or "<em>[Untitled]</em>"
+    config.pres_gen.max_homepage_items = config.pres_gen.homepage_items or 12
+    config.pres_gen.recent_item_types = config.pres_gen.recent_item_types or {}
+
+    -- HTTP.
+    config.http = config.http or {}
+    config.http.port = config.http.port or 5000
+
+    return config_path, config
+end}

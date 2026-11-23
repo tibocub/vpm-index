@@ -1,0 +1,156 @@
+--- Module for interacting with Azure Blob Storage API.
+-- @module resty.azure.api.blobstorage
+
+local fmt = string.format
+local ngx_escape_uri = ngx.escape_uri
+
+local blobs = {}
+blobs.__index = blobs
+
+local API_VERSION = "2025-11-05"
+local METHODS = {
+  GET = "GET",
+  PUT = "PUT",
+  DELETE = "DELETE",
+}
+
+--- Constructor for creating a new blobs object.
+-- @function new
+-- @param parent_client The parent client object.
+-- @param storage_account The name of the Azure Storage account.
+-- @param container_name The name of the blob container.
+-- @return A new blobs object.
+function blobs:new(parent_client, storage_account, container_name)
+  local self = {}
+  setmetatable(self, blobs)
+
+  self.parent_client = parent_client
+  self.storage_account = storage_account
+  self.container_name = container_name
+
+  return self
+end
+
+--- Builds a URL for a given Azure Blob Storage resource.
+-- @param blob_name string: The name of the blob (optional for list operations).
+-- @param query_params table: Additional query parameters (optional).
+-- @return string: The URL for the given resource.
+function blobs:build_url(blob_name, query_params)
+  local url = fmt("https://%s.blob.core.windows.net/%s", self.storage_account, self.container_name)
+
+  if blob_name then
+    url = url .. "/" .. ngx_escape_uri(blob_name, 0)
+  end
+
+  if query_params then
+    local query = {}
+    for k, v in pairs(query_params) do
+      table.insert(query, fmt("%s=%s", ngx_escape_uri(k), ngx_escape_uri(v)))
+    end
+    url = url .. "?" .. table.concat(query, "&")
+  end
+
+  return url
+end
+
+--- Makes a request to Azure Blob Storage API.
+-- @param url The URL to send the request to.
+-- @param method The HTTP method to use for the request.
+-- @param body The request body (for PUT operations).
+-- @param extra_headers Additional headers to include in the request.
+-- @return The response from the Azure Blob Storage API, or nil and an error message if the request failed.
+function blobs:query_resource(url, method, body, extra_headers)
+  extra_headers = extra_headers or {}
+  extra_headers["x-ms-version"] = API_VERSION
+  local status, response, response_error = self.parent_client:make_request({
+    url = url,
+    method = method,
+    body = body,
+    extra_headers = extra_headers,
+  }, "blobstorage")
+
+  if status and status >= 500 then
+    return nil, "internal server error"
+  end
+
+  if response_error then
+    return nil, fmt("failed to make azure request: %s", response_error)
+  end
+
+  return response, status
+end
+
+--- Retrieves a blob from Azure Blob Storage.
+-- @function get
+-- @param blob_name The name of the blob to retrieve.
+-- @return The blob content.
+function blobs:get(blob_name)
+  ngx.log(ngx.DEBUG, "getting blob from azure storage: ", blob_name)
+
+  assert(blob_name, "blob_name is required")
+
+  local url = self:build_url(blob_name)
+  return self:query_resource(url, METHODS.GET)
+end
+
+--- Uploads a blob to Azure Blob Storage.
+-- @function put
+-- @param blob_name The name of the blob.
+-- @param content The content to upload.
+-- @param content_type The MIME type of the blob content (optional).
+-- @param blob_type The type of blob (BlockBlob, PageBlob, AppendBlob). Defaults to BlockBlob.
+-- @return The response from Azure Blob Storage.
+function blobs:put(blob_name, content, content_type, blob_type)
+  ngx.log(ngx.DEBUG, "putting blob to azure storage: ", blob_name)
+
+  assert(blob_name, "blob_name is required")
+  assert(content, "content is required")
+
+  local url = self:build_url(blob_name)
+  local extra_headers = {
+    ["x-ms-blob-type"] = blob_type or "BlockBlob",
+  }
+  extra_headers["Content-Type"] = content_type or "application/octet-stream"
+
+  return self:query_resource(url, METHODS.PUT, content, extra_headers)
+end
+
+--- Lists blobs in an Azure Blob Storage container.
+-- @function list
+-- @param prefix Optional prefix to filter blobs.
+-- @param max_results Maximum number of results to return.
+-- @return The list of blobs.
+function blobs:list(prefix, max_results)
+  ngx.log(ngx.DEBUG, "listing blobs from azure storage container: ", self.container_name)
+
+  local query_params = {
+    restype = "container",
+    comp = "list",
+  }
+
+  if prefix then
+    query_params.prefix = prefix
+  end
+
+  if max_results then
+    query_params.maxresults = tostring(max_results)
+  end
+
+  local url = self:build_url(nil, query_params)
+  return self:query_resource(url, METHODS.GET)
+end
+
+--- Deletes a blob from Azure Blob Storage.
+-- @function delete
+-- @param blob_name The name of the blob to delete.
+-- @return The response from Azure Blob Storage.
+function blobs:delete(blob_name)
+  ngx.log(ngx.DEBUG, "deleting blob from azure storage: ", blob_name)
+
+  assert(blob_name, "blob_name is required")
+
+  local url = self:build_url(blob_name)
+  return self:query_resource(url, METHODS.DELETE)
+end
+
+return blobs

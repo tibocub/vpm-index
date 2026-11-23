@@ -1,0 +1,80 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-token-agent",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/token-agent/access.lua": {
+          "sha256": "7264b85dbbc877071cb1e7c698e355a4dfcdcba53036e3f8e5f655052e41b8ce",
+          "size": 2057,
+          "url": "https://raw.githubusercontent.com/Kong-Study-Group/kong-plugin-token-agent/582e6cbfc48e12a10d37e4e271c14ed75d51092b/kong/plugins/token-agent/access.lua"
+        },
+        "kong/plugins/token-agent/handler.lua": {
+          "sha256": "bd058ae853b3fdee5cc70b318d94ed8352f63bbfab9fd819f960ddd16fcba6c2",
+          "size": 552,
+          "url": "https://raw.githubusercontent.com/Kong-Study-Group/kong-plugin-token-agent/582e6cbfc48e12a10d37e4e271c14ed75d51092b/kong/plugins/token-agent/handler.lua"
+        },
+        "kong/plugins/token-agent/schema.lua": {
+          "sha256": "f294b3c7fe4e120c51f43ae1c9856bc06d0d3ecdc2f5a49fa8fbd6a81ae9cacd",
+          "size": 1054,
+          "url": "https://raw.githubusercontent.com/Kong-Study-Group/kong-plugin-token-agent/582e6cbfc48e12a10d37e4e271c14ed75d51092b/kong/plugins/token-agent/schema.lua"
+        },
+        "spec/token-agent/01-access_spec.lua": {
+          "sha256": "6409a9b01f5131aaf1e543e7e69fded7b9394fbac85cf2300cbe3d47472b8a02",
+          "size": 3760,
+          "url": "https://raw.githubusercontent.com/Kong-Study-Group/kong-plugin-token-agent/582e6cbfc48e12a10d37e4e271c14ed75d51092b/spec/token-agent/01-access_spec.lua"
+        }
+      },
+      "homepage": "https://github.com/Kong-Study-Group/kong-plugin-token-agent",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 04 Dec 2017 07:15:17 GMT",
+        "rockspec": {
+          "date": "Mon, 04 Dec 2017 07:15:17 GMT",
+          "sha256": "c97fc130a37f456adfbca479875e17a1846e7705de69585c906548a7011daad2",
+          "size": 743
+        },
+        "src": {
+          "date": "Mon, 04 Dec 2017 07:15:19 GMT",
+          "sha256": "982fb1bc0886adb16ba2f4d23e994cfe5baf44ece60cc6b0275ca0ca496c8f83",
+          "size": 6421,
+          "url": "https://luarocks.org/kong-plugin-token-agent-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.token-agent.access",
+        "kong.plugins.token-agent.handler",
+        "kong.plugins.token-agent.schema",
+        "spec.token-agent.01-access_spec"
+      ],
+      "origin": {
+        "commit": "582e6cbfc48e12a10d37e4e271c14ed75d51092b",
+        "ref": "0.1.0",
+        "type": "git",
+        "url": "https://github.com/Kong-Study-Group/kong-plugin-token-agent"
+      },
+      "size": 7423,
+      "summary": "Kong custom plugin for checking token by restful api",
+      "undeclared_requires": [
+        "kong.cmd.utils.log",
+        "kong.plugins.base_plugin",
+        "kong.tools.responses",
+        "resty.http",
+        "socket.url",
+        "spec.helpers"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

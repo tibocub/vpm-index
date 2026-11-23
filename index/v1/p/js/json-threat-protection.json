@@ -1,0 +1,59 @@
+{
+  "kind": "lib",
+  "name": "json-threat-protection",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson >= 2.1"
+      ],
+      "files": {
+        "kong/plugins/json-threat-protection/handler.lua": {
+          "sha256": "9df447370acffd6762e33194c5ae931c1cde6f227d5af7052200f691b83f3b70",
+          "size": 6373,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-json-threat-protection/4724c7a2dd29ded8a610417cebdbeccc1e026882/kong/plugins/json-threat-protection/handler.lua"
+        },
+        "kong/plugins/json-threat-protection/schema.lua": {
+          "sha256": "4f94f2686a82449750ced19383cbe3213686fba62628c9fda7ad23ea5c89676f",
+          "size": 1319,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-json-threat-protection/4724c7a2dd29ded8a610417cebdbeccc1e026882/kong/plugins/json-threat-protection/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/msangameshwar/kong-plugin-json-threat-protection",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Wed, 18 Oct 2023 07:35:57 GMT",
+        "rockspec": {
+          "date": "Wed, 18 Oct 2023 07:35:57 GMT",
+          "sha256": "6b95662231d3e6970d3009bd541c7f2e5e81f9a3cac717e08d39570aa24ea34d",
+          "size": 1090
+        }
+      },
+      "modules": [
+        "kong.plugins.json-threat-protection.handler",
+        "kong.plugins.json-threat-protection.schema"
+      ],
+      "origin": {
+        "commit": "4724c7a2dd29ded8a610417cebdbeccc1e026882",
+        "ref": "dev",
+        "type": "git",
+        "url": "https://github.com/msangameshwar/kong-plugin-json-threat-protection.git"
+      },
+      "size": 7692,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

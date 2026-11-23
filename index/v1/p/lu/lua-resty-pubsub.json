@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-pubsub",
+  "versions": {
+    "1.5-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-cjson >= 2.1.0.6",
+        "lua-resty-rsa >= 0.04",
+        "lua-resty-http >= 0.15"
+      ],
+      "files": {
+        "resty/pubsub/constants.lua": {
+          "sha256": "342a651f0e47291339940080c50c45491b33cb4ec0122363ac8c4e2d0640eae8",
+          "size": 1762,
+          "url": "https://raw.githubusercontent.com/wingify/lua-resty-pubsub/919fe0e5f035ddb748972cb548e773a0e16b110b/lib/resty/pubsub/constants.lua"
+        },
+        "resty/pubsub/oauth_client.lua": {
+          "sha256": "d9d868081fafa1cfca55d21091ea97cab0ae2d80531f54a30315b84576302d57",
+          "size": 6667,
+          "url": "https://raw.githubusercontent.com/wingify/lua-resty-pubsub/919fe0e5f035ddb748972cb548e773a0e16b110b/lib/resty/pubsub/oauth_client.lua"
+        },
+        "resty/pubsub/producer.lua": {
+          "sha256": "fd58f2b0f6f49a93b9d22d82094de28fd34bb19afac2e6e4c848dfeb2031440b",
+          "size": 11693,
+          "url": "https://raw.githubusercontent.com/wingify/lua-resty-pubsub/919fe0e5f035ddb748972cb548e773a0e16b110b/lib/resty/pubsub/producer.lua"
+        },
+        "resty/pubsub/request.lua": {
+          "sha256": "f2285f4ce8da60dbb3920e575f4bece0a39b024b466cc09fe1347934838fc5e9",
+          "size": 4582,
+          "url": "https://raw.githubusercontent.com/wingify/lua-resty-pubsub/919fe0e5f035ddb748972cb548e773a0e16b110b/lib/resty/pubsub/request.lua"
+        },
+        "resty/pubsub/ringbuffer.lua": {
+          "sha256": "903b3fd4902147ddcb51df1e3a2223254ecaa7da7c0fa0bd878f607100b9f2cc",
+          "size": 3005,
+          "url": "https://raw.githubusercontent.com/wingify/lua-resty-pubsub/919fe0e5f035ddb748972cb548e773a0e16b110b/lib/resty/pubsub/ringbuffer.lua"
+        }
+      },
+      "homepage": "https://github.com/wingify/lua-resty-pubsub",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 13 Nov 2024 09:43:40 GMT",
+        "rockspec": {
+          "date": "Wed, 13 Nov 2024 09:43:40 GMT",
+          "sha256": "0666cef0974fadd52f861202b502eb4089dbcc9cc7ecb157450cfc59a63c75d7",
+          "size": 1462
+        },
+        "src": {
+          "date": "Wed, 13 Nov 2024 09:43:42 GMT",
+          "sha256": "fd842c84b0d2fa11768fa6754a09705e19750c9ce180a0c5ea8faded6587d7ef",
+          "size": 27299,
+          "url": "https://luarocks.org/lua-resty-pubsub-1.5-0.src.rock"
+        }
+      },
+      "modules": [
+        "resty.pubsub.constants",
+        "resty.pubsub.oauth_client",
+        "resty.pubsub.producer",
+        "resty.pubsub.request",
+        "resty.pubsub.ringbuffer"
+      ],
+      "origin": {
+        "commit": "919fe0e5f035ddb748972cb548e773a0e16b110b",
+        "ref": "v1.5",
+        "type": "git",
+        "url": "https://github.com/wingify/lua-resty-pubsub"
+      },
+      "size": 27709,
+      "summary": "Lua Pubsub client driver for the ngx_lua based on the cosocket API",
+      "undeclared_requires": [
+        "ngx"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-auth-request-trans",
+  "versions": {
+    "0.0.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-auth-request/access.lua": {
+          "sha256": "e155a49ac73e45bc135455010bf92a8b2cc9d6d98afb37eac5261e4a988a2e3b",
+          "size": 2490,
+          "url": "https://raw.githubusercontent.com/jogiwithjosh/kong-auth-request-trans/3632b375ba2fb6fa773945e8a93c826dae994fd3/src/access.lua"
+        },
+        "kong/plugins/kong-auth-request/handler.lua": {
+          "sha256": "4a9ca05414d9ab6fae77a4107b9f6453a7704852d4ff3e323f958f3bf8abf9c5",
+          "size": 680,
+          "url": "https://raw.githubusercontent.com/jogiwithjosh/kong-auth-request-trans/3632b375ba2fb6fa773945e8a93c826dae994fd3/src/handler.lua"
+        },
+        "kong/plugins/kong-auth-request/schema.lua": {
+          "sha256": "2a332bfefe65b3a6666423847f155f268def6cd0a16de271af044f990f08d12f",
+          "size": 960,
+          "url": "https://raw.githubusercontent.com/jogiwithjosh/kong-auth-request-trans/3632b375ba2fb6fa773945e8a93c826dae994fd3/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 20 Aug 2023 13:32:23 GMT",
+        "rockspec": {
+          "date": "Sun, 20 Aug 2023 13:32:23 GMT",
+          "sha256": "3f7b9d0017ceb0af8f97a95d519bc20c538dbdc1a768b54529be40e410925147",
+          "size": 588
+        },
+        "src": {
+          "date": "Sun, 20 Aug 2023 13:32:25 GMT",
+          "sha256": "016bbf157bf4c0d34ef6a4435cd706a5066e54a20e646623ec2e1a8cdcdbfb58",
+          "size": 6765,
+          "url": "https://luarocks.org/kong-auth-request-trans-0.0.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-auth-request.access",
+        "kong.plugins.kong-auth-request.handler",
+        "kong.plugins.kong-auth-request.schema"
+      ],
+      "origin": {
+        "commit": "3632b375ba2fb6fa773945e8a93c826dae994fd3",
+        "ref": "0.0.3",
+        "type": "git",
+        "url": "https://github.com/jogiwithjosh/kong-auth-request-trans"
+      },
+      "size": 4130,
+      "summary": "A Kong plugin that make GET auth request before proxying the original.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.plugins.kong-auth-request-trans.access",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

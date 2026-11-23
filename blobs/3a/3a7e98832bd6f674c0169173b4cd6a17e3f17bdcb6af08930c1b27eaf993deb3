@@ -1,0 +1,364 @@
+-- Resolver: turns a TrafficConfig into an ordered list of concrete tc rules.
+--
+-- Ported from the Python resolver. Responsibilities:
+--   * resolve device inheritance (dev inherited from parents)
+--   * auto-assign major/minor numbers (handles & classids)
+--   * order rules so parents come before children
+--
+-- Algorithm (single pass, no retry loop):
+--   1. Build a dependency graph (each entry depends on its parent / send_to).
+--   2. Topologically sort (Kahn's algorithm, stable w.r.t. config order).
+--   3. Assign qdisc major handles (1:, 2:, ...) and class minor ids
+--      (parent-major : global-sequence-minor) in topo order.
+--   4. Sort the final entries by (major, minor) so the emitted script is
+--      deterministic; filters without a handle sort last.
+
+local errors = require("htb.errors")
+
+local M = {}
+
+local function newResult()
+    return {
+        qdisc_handles = {},    -- name -> "N:"
+        class_ids = {},        -- name -> "major:minor"
+        device_map = {},       -- name -> real device
+        all_devices = {},      -- set: real device -> true
+        entries = {},          -- ordered list of ResolvedEntry
+        ingress_devices = {},  -- set: real device -> true
+        virtual_devices = {},  -- ordered list of virtual device names
+    }
+end
+
+-- Resolve a device alias to its real device name.
+local function resolveDevAlias(dev, config)
+    local d = config.devices[dev]
+    if d then
+        return d.dev
+    end
+    return dev
+end
+
+-- Find the resolved handle/classid for a named entry.
+local function findHandle(name, result)
+    if result.qdisc_handles[name] then
+        return result.qdisc_handles[name]
+    end
+    if result.class_ids[name] then
+        return result.class_ids[name]
+    end
+    errors.newResolveError("Cannot find handle for '" .. name .. "'"):raise()
+end
+
+-- Kahn's algorithm. `deps` maps name -> set of dependencies (name -> true).
+-- `order` is the deterministic iteration order (config order) used both for the
+-- initial ready set and for scanning dependents, so the result is stable.
+local function topologicalSort(deps, order)
+    local inDegree = {}
+    for _, name in ipairs(order) do
+        inDegree[name] = 0
+    end
+    for _, name in ipairs(order) do
+        for dep in pairs(deps[name]) do
+            if deps[dep] ~= nil then
+                inDegree[name] = inDegree[name] + 1
+            end
+        end
+    end
+
+    local queue = {}
+    for _, name in ipairs(order) do
+        if inDegree[name] == 0 then
+            queue[#queue + 1] = name
+        end
+    end
+
+    local result = {}
+    while #queue > 0 do
+        local node = table.remove(queue, 1)
+        result[#result + 1] = node
+        for _, name in ipairs(order) do
+            if deps[name][node] then
+                inDegree[name] = inDegree[name] - 1
+                if inDegree[name] == 0 then
+                    queue[#queue + 1] = name
+                end
+            end
+        end
+    end
+
+    if #result ~= #order then
+        local done = {}
+        for _, r in ipairs(result) do
+            done[r] = true
+        end
+        local remaining = {}
+        for _, name in ipairs(order) do
+            if not done[name] then
+                remaining[#remaining + 1] = name
+            end
+        end
+        table.sort(remaining)
+        errors.newResolveError(
+            "cyclic dependency among: " .. table.concat(remaining, ", ")
+        ):raise()
+    end
+
+    return result
+end
+
+-- Resolve all references, assign handles, and determine ordering.
+function M.resolve(config)
+    local result = newResult()
+
+    -- Build lookup maps.
+    local qdiscMap, classMap, filterMap = {}, {}, {}
+    for _, q in ipairs(config.qdiscs) do
+        qdiscMap[q.name] = q
+    end
+    for _, c in ipairs(config.classes) do
+        classMap[c.name] = c
+    end
+    for _, f in ipairs(config.filters) do
+        filterMap[f.name] = f
+    end
+
+    -- All names in config order (qdiscs, then classes, then filters).
+    local allNames = {}
+    local nameSet = {}
+    for _, q in ipairs(config.qdiscs) do
+        allNames[#allNames + 1] = q.name
+        nameSet[q.name] = true
+    end
+    for _, c in ipairs(config.classes) do
+        allNames[#allNames + 1] = c.name
+        nameSet[c.name] = true
+    end
+    for _, f in ipairs(config.filters) do
+        allNames[#allNames + 1] = f.name
+        nameSet[f.name] = true
+    end
+
+    -- Build the dependency graph.
+    local deps = {}
+    for _, q in ipairs(config.qdiscs) do
+        local parent = q.parent
+        if parent == "root" then
+            deps[q.name] = {}
+        elseif nameSet[parent] then
+            deps[q.name] = { [parent] = true }
+        else
+            deps[q.name] = {}
+        end
+    end
+    for _, c in ipairs(config.classes) do
+        local parent = c.parent
+        if parent ~= "" and parent ~= nil and nameSet[parent] then
+            deps[c.name] = { [parent] = true }
+        else
+            deps[c.name] = {}
+        end
+    end
+    for _, f in ipairs(config.filters) do
+        local depSet = {}
+        if f.parent ~= "" and f.parent ~= nil and nameSet[f.parent] then
+            depSet[f.parent] = true
+        end
+        if f.send_to ~= "" and f.send_to ~= nil and nameSet[f.send_to] then
+            depSet[f.send_to] = true
+        end
+        deps[f.name] = depSet
+    end
+
+    -- Topological sort (parents before children, stable in config order).
+    local order = topologicalSort(deps, allNames)
+
+    -- Walk the parent chain to inherit a device name.
+    local function resolveDevice(name)
+        local visited = {}
+        local function walk(n)
+            if visited[n] then
+                return ""
+            end
+            visited[n] = true
+            if qdiscMap[n] then
+                local q = qdiscMap[n]
+                if q.device and q.device ~= "" then
+                    return resolveDevAlias(q.device, config)
+                end
+                if q.parent and q.parent ~= "root" then
+                    return walk(q.parent)
+                end
+            elseif classMap[n] then
+                local c = classMap[n]
+                if c.parent and c.parent ~= "" then
+                    return walk(c.parent)
+                end
+            elseif filterMap[n] then
+                local f = filterMap[n]
+                if f.device and f.device ~= "" then
+                    return resolveDevAlias(f.device, config)
+                end
+                if f.parent and f.parent ~= "" then
+                    return walk(f.parent)
+                end
+            end
+            return ""
+        end
+        return walk(name)
+    end
+
+    -- Assign handles and resolve devices in topological order.
+    local nextQdiscMajor = 1
+    local nextClassMinor = 1
+
+    for _, name in ipairs(order) do
+        local q = qdiscMap[name]
+        local c = classMap[name]
+        local f = filterMap[name]
+
+        if q then
+            local handle
+            if q.handle and q.handle ~= "" then
+                handle = q.handle
+            else
+                handle = nextQdiscMajor .. ":"
+                nextQdiscMajor = nextQdiscMajor + 1
+            end
+            result.qdisc_handles[name] = handle
+
+            if q.qdisc_type == "ingress" or q.qdisc_type == "clsact" then
+                local dev = resolveDevice(name)
+                if dev ~= "" then
+                    result.ingress_devices[dev] = true
+                end
+            end
+
+            local dev = resolveDevice(name)
+            if dev ~= "" then
+                result.device_map[name] = dev
+                result.all_devices[dev] = true
+            end
+
+            local parentHandle
+            if q.parent == "root" then
+                parentHandle = "root"
+            else
+                parentHandle = findHandle(q.parent, result)
+            end
+
+            result.entries[#result.entries + 1] = {
+                name = name,
+                entry_type = "qdisc",
+                device = dev,
+                handle = handle,
+                parent_handle = parentHandle,
+                order = 0,
+            }
+        elseif c then
+            local parentHandle = findHandle(c.parent, result)
+            local major = parentHandle:match("^(%d+):") or "1"
+            local classId = major .. ":" .. nextClassMinor
+            nextClassMinor = nextClassMinor + 1
+            result.class_ids[name] = classId
+
+            local dev = resolveDevice(name)
+            if dev ~= "" then
+                result.device_map[name] = dev
+                result.all_devices[dev] = true
+            end
+
+            result.entries[#result.entries + 1] = {
+                name = name,
+                entry_type = "class",
+                device = dev,
+                handle = classId,
+                parent_handle = parentHandle,
+                order = 0,
+            }
+        elseif f then
+            local dev
+            if f.device and f.device ~= "" then
+                dev = resolveDevAlias(f.device, config)
+            else
+                dev = resolveDevice(name)
+            end
+            if dev ~= "" then
+                result.device_map[name] = dev
+                result.all_devices[dev] = true
+            end
+
+            local parentHandle = ""
+            if f.parent and f.parent ~= "" then
+                parentHandle = findHandle(f.parent, result)
+            end
+
+            result.entries[#result.entries + 1] = {
+                name = name,
+                entry_type = "filter",
+                device = dev,
+                handle = "",
+                parent_handle = parentHandle,
+                order = 0,
+            }
+        end
+    end
+
+    -- Sort entries by (major, minor) to match the original tool's output.
+    local function sortKey(entry)
+        if entry.entry_type == "filter" then
+            local filt = filterMap[entry.name]
+            if filt and filt.handle and filt.handle ~= "" then
+                local h = tonumber(filt.handle)
+                if h then
+                    return { h, 0 }
+                end
+            end
+            return { 999, 999 }
+        end
+        local parts = {}
+        for p in entry.handle:gmatch("[^:]+") do
+            parts[#parts + 1] = p
+        end
+        local major = tonumber(parts[1]) or 999
+        -- A handle with no minor (e.g. a qdisc "1:") sorts before its classes
+        -- ("1:1", "1:2", ...), so a missing minor maps to 0.
+        local minor = tonumber(parts[2]) or 0
+        return { major, minor }
+    end
+
+    -- Attach sort keys, sort, then assign final order.
+    for i, entry in ipairs(result.entries) do
+        entry._key = sortKey(entry)
+        entry._idx = i
+    end
+    table.sort(result.entries, function(a, b)
+        if a._key[1] ~= b._key[1] then
+            return a._key[1] < b._key[1]
+        end
+        if a._key[2] ~= b._key[2] then
+            return a._key[2] < b._key[2]
+        end
+        return a._idx < b._idx
+    end)
+    for i, entry in ipairs(result.entries) do
+        entry.order = i
+        entry._key = nil
+        entry._idx = nil
+    end
+
+    -- Collect virtual devices (ordered by first appearance in the entries).
+    local seenVirtual = {}
+    for _, entry in ipairs(result.entries) do
+        local devName = entry.device
+        for dname, dobj in pairs(config.devices) do
+            if dobj.dev == devName and dobj.virtual and not seenVirtual[devName] then
+                result.virtual_devices[#result.virtual_devices + 1] = dname
+                seenVirtual[devName] = true
+            end
+        end
+    end
+
+    return result
+end
+
+return M

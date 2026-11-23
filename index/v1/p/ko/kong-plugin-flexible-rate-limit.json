@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-flexible-rate-limit",
+  "versions": {
+    "0.0.15-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/flexible-rate-limit/handler.lua": {
+          "sha256": "547b44b9397750d9516733da2c5a2632d4b45412b176ead03aaaded9554fe9e5",
+          "size": 8660,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-flexible-rate-limit/09641f4e7eddd849fe6ab308ee105323c88ef2da/kong/plugins/flexible-rate-limit/handler.lua"
+        },
+        "kong/plugins/flexible-rate-limit/schema.lua": {
+          "sha256": "225d1b076e81131c99d6fc8757268917519e5e3eb3e1c942b049c88b50494823",
+          "size": 2742,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-flexible-rate-limit/09641f4e7eddd849fe6ab308ee105323c88ef2da/kong/plugins/flexible-rate-limit/schema.lua"
+        },
+        "kong/plugins/flexible-rate-limit/string_util.lua": {
+          "sha256": "a6e96541b3a69460e911406627416088751bedb3dd347154355795885b0fac7d",
+          "size": 3571,
+          "url": "https://raw.githubusercontent.com/samngms/kong-plugin-flexible-rate-limit/09641f4e7eddd849fe6ab308ee105323c88ef2da/kong/plugins/flexible-rate-limit/string_util.lua"
+        }
+      },
+      "homepage": "https://github.com/samngms/kong-plugin-flexible-rate-limit",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 19 May 2020 12:25:41 GMT",
+        "rockspec": {
+          "date": "Tue, 19 May 2020 12:25:41 GMT",
+          "sha256": "c2894b6045f98f93b0ffba95653fd707021e73ecda1cc037fcb18c4a86b59fdc",
+          "size": 1173
+        },
+        "src": {
+          "date": "Tue, 19 May 2020 12:25:43 GMT",
+          "sha256": "ff88f4cf9556c0148837b1a71d542b6e89946037951b21f5f1e33b82f1115911",
+          "size": 24978,
+          "url": "https://luarocks.org/kong-plugin-flexible-rate-limit-0.0.15-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.flexible-rate-limit.handler",
+        "kong.plugins.flexible-rate-limit.schema",
+        "kong.plugins.flexible-rate-limit.string_util"
+      ],
+      "origin": {
+        "commit": "09641f4e7eddd849fe6ab308ee105323c88ef2da",
+        "ref": "0.0.15",
+        "type": "git",
+        "url": "https://github.com/samngms/kong-plugin-flexible-rate-limit"
+      },
+      "size": 14973,
+      "summary": "Kong Flexible Rate Limiting Plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "resty.redis",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,351 @@
+local cqueues = require("cqueues")
+
+local EventEmitter = require("luacord.utils.EventEmitter")
+local Collection = require("luacord.utils.Collection")
+local enums = require("luacord.enums")
+
+local RESTClient = require("luacord.client.RESTClient")
+local GatewayClient = require("luacord.client.GatewayClient")
+
+local Guild = require("luacord.structures.Guild")
+local Channel = require("luacord.structures.Channel")
+local Message = require("luacord.structures.Message")
+local User = require("luacord.structures.User")
+local Member = require("luacord.structures.Member")
+local Role = require("luacord.structures.Role")
+local Interaction = require("luacord.structures.Interaction")
+local VoiceManager = require("luacord.voice.VoiceManager")
+
+local Client = {}
+Client.__index = Client
+
+local function memberKey(guildId, userId)
+  return tostring(guildId) .. ":" .. tostring(userId)
+end
+
+---Create a new Discord client.
+---@param options? table
+---@return table
+function Client.new(options)
+  options = options or {}
+  local self = setmetatable({}, Client)
+  self.options = options
+  self.loop = cqueues.new()
+  self.emitter = EventEmitter.new()
+  self.ready = false
+  self.user = nil
+  self.application = nil
+  self.token = nil
+
+  self.cache = {
+    guilds = Collection.new(),
+    channels = Collection.new(),
+    users = Collection.new(),
+    members = Collection.new(),
+    roles = Collection.new(),
+    messages = Collection.new(),
+  }
+
+  self.rest = RESTClient.new(nil, options.rest)
+  self.gateway = GatewayClient.new(self.rest, {
+    intents = options.intents or enums.GatewayIntentBits.GUILDS,
+    shard = options.shard,
+    presence = options.presence,
+    logger = options.logger,
+    dispatch = function(eventName, data, payload)
+      self:_onDispatch(eventName, data, payload)
+    end,
+  })
+  return self
+end
+
+---Register an event listener.
+---@param event string
+---@param fn function
+---@return table
+function Client:on(event, fn)
+  self.emitter:on(event, fn)
+  return self
+end
+
+---Register a one-time event listener.
+---@param event string
+---@param fn function
+---@return table
+function Client:once(event, fn)
+  self.emitter:once(event, fn)
+  return self
+end
+
+---Remove an event listener.
+---@param event string
+---@param fn? function
+---@return table
+function Client:off(event, fn)
+  self.emitter:off(event, fn)
+  return self
+end
+
+---Emit an internal event.
+---@param event string
+function Client:emit(event, ...)
+  self.emitter:emit(event, ...)
+end
+
+---Login with a bot token and start gateway connection.
+---@param token string
+---@return table
+function Client:login(token)
+  assert(type(token) == "string" and token ~= "", "token must be a non-empty string")
+  self.token = token:gsub("^%s+", ""):gsub("%s+$", "")
+  self.rest:setToken(self.token)
+  self.gateway:setToken(self.token)
+  self.gateway:start(self.loop)
+  return self
+end
+
+---Run the client's event loop.
+function Client:run()
+  return self.loop:loop()
+end
+
+---Stop the client.
+function Client:stop()
+  self.gateway:stop()
+end
+
+---Fetch a guild and cache it.
+---@param guildId string
+---@param withCounts? boolean
+---@return table|nil, table|nil
+function Client:fetchGuild(guildId, withCounts)
+  local data, err = self.rest:getGuild(guildId, withCounts)
+  if not data then
+    return nil, err
+  end
+  local guild = self:_makeGuild(data)
+  return guild
+end
+
+---Create an application command.
+---@param payload table
+---@param guildId? string
+---@return table|nil, table|nil
+function Client:createCommand(payload, guildId)
+  if not self.application or not self.application.id then
+    return nil, { message = "application ID unavailable; wait for READY event" }
+  end
+  if guildId then
+    return self.rest:upsertGuildCommand(self.application.id, guildId, payload)
+  end
+  return self.rest:upsertGlobalCommand(self.application.id, payload)
+end
+
+---Bulk overwrite application commands.
+---@param payload table
+---@param guildId? string
+---@return table|nil, table|nil
+function Client:syncCommands(payload, guildId)
+  if not self.application or not self.application.id then
+    return nil, { message = "application ID unavailable; wait for READY event" }
+  end
+  if guildId then
+    return self.rest:bulkOverwriteGuildCommands(self.application.id, guildId, payload)
+  end
+  return self.rest:bulkOverwriteGlobalCommands(self.application.id, payload)
+end
+
+function Client:_makeUser(data)
+  local existing = self.cache.users:get(data.id)
+  if existing then
+    existing:_patch(data)
+    return existing
+  end
+  local user = User.new(data, self)
+  self.cache.users:set(user.id, user)
+  return user
+end
+
+function Client:_makeRole(data)
+  local existing = self.cache.roles:get(data.id)
+  if existing then
+    existing:_patch(data)
+    return existing
+  end
+  local role = Role.new(data, self)
+  self.cache.roles:set(role.id, role)
+  return role
+end
+
+function Client:_makeMember(data, guildId)
+  local uid = data.user and data.user.id
+  if not uid then
+    return Member.new(data, self, guildId)
+  end
+  local key = memberKey(guildId, uid)
+  local existing = self.cache.members:get(key)
+  if existing then
+    existing:_patch(data)
+    return existing
+  end
+  local member = Member.new(data, self, guildId)
+  self.cache.members:set(key, member)
+  return member
+end
+
+function Client:_makeGuild(data)
+  local existing = self.cache.guilds:get(data.id)
+  if existing then
+    existing:_patch(data)
+    return existing
+  end
+  local guild = Guild.new(data, self)
+  self.cache.guilds:set(guild.id, guild)
+  if data.channels then
+    for i = 1, #data.channels do
+      self:_makeChannel(data.channels[i])
+    end
+  end
+  if data.roles then
+    for i = 1, #data.roles do
+      data.roles[i].guild_id = guild.id
+      self:_makeRole(data.roles[i])
+    end
+  end
+  if data.members then
+    for i = 1, #data.members do
+      self:_makeMember(data.members[i], guild.id)
+    end
+  end
+  return guild
+end
+
+function Client:_makeChannel(data)
+  local existing = self.cache.channels:get(data.id)
+  if existing then
+    existing:_patch(data)
+    return existing
+  end
+  local channel = Channel.new(data, self)
+  self.cache.channels:set(channel.id, channel)
+  return channel
+end
+
+function Client:_makeMessage(data)
+  local existing = self.cache.messages:get(data.id)
+  if existing then
+    existing:_patch(data)
+    return existing
+  end
+  local message = Message.new(data, self)
+  self.cache.messages:set(message.id, message)
+  if data.author then
+    self:_makeUser(data.author)
+  end
+  if data.member and data.guild_id then
+    self:_makeMember(data.member, data.guild_id)
+  end
+  return message
+end
+
+function Client:_makeInteraction(data)
+  return Interaction.new(data, self)
+end
+
+function Client:_onDispatch(eventName, data, payload)
+  self:emit("raw", eventName, data, payload)
+  self:emit(eventName, data, payload)
+
+  if eventName == "READY" then
+    self.ready = true
+    self.user = self:_makeUser(data.user)
+    self.application = data.application or self.application
+    self.voice = VoiceManager.new(self)
+    self:emit("ready", self)
+    return
+  end
+
+  if eventName == "GUILD_CREATE" or eventName == "GUILD_UPDATE" then
+    local guild = self:_makeGuild(data)
+    self:emit("guildCreate", guild)
+    return
+  end
+
+  if eventName == "GUILD_DELETE" then
+    self.cache.guilds:delete(data.id)
+    self:emit("guildDelete", data.id, data)
+    return
+  end
+
+  if eventName == "CHANNEL_CREATE" or eventName == "CHANNEL_UPDATE" or eventName == "THREAD_CREATE" then
+    local channel = self:_makeChannel(data)
+    self:emit("channelCreate", channel)
+    return
+  end
+
+  if eventName == "CHANNEL_DELETE" or eventName == "THREAD_DELETE" then
+    self.cache.channels:delete(data.id)
+    self:emit("channelDelete", data.id, data)
+    return
+  end
+
+  if eventName == "MESSAGE_CREATE" or eventName == "MESSAGE_UPDATE" then
+    local message = self:_makeMessage(data)
+    self:emit("messageCreate", message)
+    return
+  end
+
+  if eventName == "MESSAGE_DELETE" then
+    self.cache.messages:delete(data.id)
+    self:emit("messageDelete", data.id, data)
+    return
+  end
+
+  if eventName == "INTERACTION_CREATE" then
+    local interaction = self:_makeInteraction(data)
+    self:emit("interactionCreate", interaction)
+    return
+  end
+
+  if eventName == "GUILD_MEMBER_ADD" or eventName == "GUILD_MEMBER_UPDATE" then
+    local member = self:_makeMember(data, data.guild_id)
+    self:emit("guildMemberAdd", member)
+    return
+  end
+
+  if eventName == "GUILD_MEMBER_REMOVE" then
+    local uid = data.user and data.user.id
+    if uid then
+      self.cache.members:delete(memberKey(data.guild_id, uid))
+    end
+    self:emit("guildMemberRemove", data)
+    return
+  end
+
+  if eventName == "GUILD_ROLE_CREATE" or eventName == "GUILD_ROLE_UPDATE" then
+    local roleData = data.role or data
+    roleData.guild_id = data.guild_id or roleData.guild_id
+    local role = self:_makeRole(roleData)
+    self:emit("guildRoleCreate", role)
+    return
+  end
+
+  if eventName == "GUILD_ROLE_DELETE" then
+    self.cache.roles:delete(data.role_id)
+    self:emit("guildRoleDelete", data.role_id, data)
+  end
+  
+  if eventName == "VOICE_STATE_UPDATE" then
+    if self.voice then self.voice:_handle_state(data) end
+    self:emit("voiceStateUpdate", data)
+    return
+  end
+
+  if eventName == "VOICE_SERVER_UPDATE" then
+   if self.voice then self.voice:_handle_server(data) end
+    return
+  end
+end
+
+return Client
+

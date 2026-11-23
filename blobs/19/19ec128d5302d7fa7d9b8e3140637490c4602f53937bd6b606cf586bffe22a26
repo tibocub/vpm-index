@@ -1,0 +1,57 @@
+
+local db = {}
+
+local prots = {
+  {"imap","imap"},
+  {"pop3","pop3"},
+  {"smtp","smtp"},
+}
+local ssl = {
+  {"ssl","SSL"},
+  {"tls","TLS"},
+}
+
+db.view = {
+  {"login", "Login", sz=25},
+  {"password", "Password", sz = 25, ht="PW"},
+  {"protocol", "Protocol", ht="SELECT", rf=prots},
+  {"host", "Host", sz = 25},
+  {"port", "Port", sz = 10, ht='INT'},
+  {"ssl", "SSL", ht="SELECT",rf=ssl},
+  {"active", "Active", ht="CHECKBOX"},
+  {"common", "Common", ht="CHECKBOX"},
+  {"person", "Name", sz=25},
+  {"email", "Email", sz=25},
+  {"reply","ReplyTo", sz=25},
+--
+  {"user","User", ht="SELECT",rt="users",rf={{"login"}}},
+}
+
+db.list = {
+  {"login", "Login",ht="SELF"},
+  {"host","Host"},
+  {"active","Active",ht="CHECKBOX"},
+  {"users.login","User"},
+  where = {
+    {"login","Login",fd="logins.login"},
+    {"user","User",fd="user",ht="SELECT",rt="users",rf={{"login"}}}
+  },
+  join = {"users on logins.user = users.rowid"},
+}
+
+function db:menu(row)
+  if not row or not self.user.admin then return end
+  if self.conf.cli and row.protocol ~= "smtp" then
+    return {
+      {"mails",'List',{act="boxes",login=row.rowid}},
+      {"mails",'Shell',{act="imap",login=row.rowid}},
+    }
+  end
+end
+
+function db:main()
+  if not self.user.id then return true end
+  if not self.user.admin then params.user = self.user.id end
+end
+
+return db

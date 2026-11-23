@@ -1,0 +1,283 @@
+{
+  "kind": "lib",
+  "name": "opentelemetry",
+  "versions": {
+    "0.2-3": {
+      "bin": [],
+      "deps": [
+        "lua-protobuf = 0.3.3",
+        "lua-resty-http = 0.16.1-0"
+      ],
+      "files": {
+        "opentelemetry/api/trace/span_status.lua": {
+          "sha256": "d946c11be438c5821b4133a98eca4965d70ede882ed70edb0f14dc409af04ac3",
+          "size": 960,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/api/trace/span_status.lua"
+        },
+        "opentelemetry/attribute.lua": {
+          "sha256": "9065a73ccb591df5fcec85b11f7a4bee0966b2537020a20d3efca3f0b2f6e7b0",
+          "size": 558,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/attribute.lua"
+        },
+        "opentelemetry/baggage.lua": {
+          "sha256": "3d03db00ca6db74c38c7f618fd73d93cccf03fdc712334d389726ae85643ab24",
+          "size": 2455,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/baggage.lua"
+        },
+        "opentelemetry/baggage/propagation/text_map/baggage_propagator.lua": {
+          "sha256": "c0972820c29143253a692fd208bb756a22f0350256df3597d91a64be1e1525fe",
+          "size": 4051,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/baggage/propagation/text_map/baggage_propagator.lua"
+        },
+        "opentelemetry/context.lua": {
+          "sha256": "adad61c20d2bf92356e4ed731e02b2c0eb2e8ef4761bb69da495d0adbc571086",
+          "size": 4821,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/context.lua"
+        },
+        "opentelemetry/global.lua": {
+          "sha256": "25905d881335c08525fe098d56f37207beed38ecfb050b4552eca1898bae0fdb",
+          "size": 650,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/global.lua"
+        },
+        "opentelemetry/instrumentation_library.lua": {
+          "sha256": "2c6f58565d392259537ac375bcb0fcc4048c20ee3b4e348e4a9e7ec00d38e623",
+          "size": 136,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/instrumentation_library.lua"
+        },
+        "opentelemetry/metrics_reporter.lua": {
+          "sha256": "b890bc30a8604c2fbea4a90372bd75541201d1df96378d4aa5343b36bba43d49",
+          "size": 1880,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/metrics_reporter.lua"
+        },
+        "opentelemetry/resource.lua": {
+          "sha256": "a32a43173bd48574c741263254f59cd95eb2bb6accc32f7b1a740d196faa0b1a",
+          "size": 902,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/resource.lua"
+        },
+        "opentelemetry/trace/batch_span_processor.lua": {
+          "sha256": "8d6f58e7df5e8bf2812c1bbd30f1faad60e1f8d4f4a356014154a774a9482b33",
+          "size": 6709,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/batch_span_processor.lua"
+        },
+        "opentelemetry/trace/event.lua": {
+          "sha256": "bef0088a08af3eda38027d731c97a8e0b24200db365c1418e5d6ad81ee81ad81",
+          "size": 622,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/event.lua"
+        },
+        "opentelemetry/trace/exporter/circuit.lua": {
+          "sha256": "607f6b11eba4439a57bcac3ebdf98fcf6472f6c61e1518bebef2d47e2c279a77",
+          "size": 3933,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/exporter/circuit.lua"
+        },
+        "opentelemetry/trace/exporter/console.lua": {
+          "sha256": "753b6ce5da89ce795a8265ae74f5c196468c29ce6324feaafd7b7d41e6e9b206",
+          "size": 1261,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/exporter/console.lua"
+        },
+        "opentelemetry/trace/exporter/encoder.lua": {
+          "sha256": "28fc3243fef4267cfe129da122ff774b077a0bfcfe293c04ad28956547df7538",
+          "size": 3024,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/exporter/encoder.lua"
+        },
+        "opentelemetry/trace/exporter/http_client.lua": {
+          "sha256": "1b195ed7234e1c07fd932728e9dea25290d958acb8f4e85f2bf5f77fbb3eaff7",
+          "size": 1426,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/exporter/http_client.lua"
+        },
+        "opentelemetry/trace/exporter/otlp.lua": {
+          "sha256": "51cb55d88e950e6d77a94c4b32c6230a387fcb3d04f19ebfce3933d46e584de9",
+          "size": 3701,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/exporter/otlp.lua"
+        },
+        "opentelemetry/trace/exporter/pb.lua": {
+          "sha256": "de95a8648aa4eeb93c1fe4e5f461ed8345b5ebb635006540b873c784cc664150",
+          "size": 17191,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/exporter/pb.lua"
+        },
+        "opentelemetry/trace/id_generator.lua": {
+          "sha256": "bdbbe07bf6d660fe84d648226303829de23af9170881603702efec16be5fa4fe",
+          "size": 1278,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/id_generator.lua"
+        },
+        "opentelemetry/trace/non_recording_span.lua": {
+          "sha256": "602d1470d88837c13b6483cb502bf7d0c5ac18a5d2bc14e68cb0d79726ba69c2",
+          "size": 638,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/non_recording_span.lua"
+        },
+        "opentelemetry/trace/noop_span.lua": {
+          "sha256": "55fcca90247ebace7654729a298f6afa8f77431706a19a9c2895d08fdc64ef2b",
+          "size": 449,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/noop_span.lua"
+        },
+        "opentelemetry/trace/propagation/text_map/composite_propagator.lua": {
+          "sha256": "0a54c2378e79135d6018895ccfa40ac5e6069263864aeab48750047c67286356",
+          "size": 1972,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/propagation/text_map/composite_propagator.lua"
+        },
+        "opentelemetry/trace/propagation/text_map/getter.lua": {
+          "sha256": "d08ac1ddc7c0730cf321e4735b4d6a8e20abf46b0bb2fab7a56fafbc5040253a",
+          "size": 472,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/propagation/text_map/getter.lua"
+        },
+        "opentelemetry/trace/propagation/text_map/noop_propagator.lua": {
+          "sha256": "ea4ab2df97f089046f14dd50ffc38c9f112c498e7fb6ba44155bf5d7d96df9b0",
+          "size": 1168,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/propagation/text_map/noop_propagator.lua"
+        },
+        "opentelemetry/trace/propagation/text_map/setter.lua": {
+          "sha256": "a8eabf9e4043f09c010e43272077a5423d0b46fe791b475334ff710a0006e731",
+          "size": 496,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/propagation/text_map/setter.lua"
+        },
+        "opentelemetry/trace/propagation/text_map/trace_context_propagator.lua": {
+          "sha256": "eddc915b33280b6f5381ea0d8a2c6598db49848816d63f59c29e224fec60d89f",
+          "size": 3934,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/propagation/text_map/trace_context_propagator.lua"
+        },
+        "opentelemetry/trace/recording_span.lua": {
+          "sha256": "ef06428691361d762d6ef588a54f787d034a99362d89dc71805546d4d956ecee",
+          "size": 4402,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/recording_span.lua"
+        },
+        "opentelemetry/trace/sampling/always_off_sampler.lua": {
+          "sha256": "c79963ca285ab68e24098f15903e1372ac11fce033608b0823aa0b943bc64bbb",
+          "size": 374,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/sampling/always_off_sampler.lua"
+        },
+        "opentelemetry/trace/sampling/always_on_sampler.lua": {
+          "sha256": "8358c3dd83948ebdbb848e9b49f5d36abad4b5abb27d2940fa44324a0355f1eb",
+          "size": 373,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/sampling/always_on_sampler.lua"
+        },
+        "opentelemetry/trace/sampling/parent_base_sampler.lua": {
+          "sha256": "baa0438bb653ccd5bf1458c6b9dafb6e0c1a419a1cd93a1385d0b0ab9437e07e",
+          "size": 1376,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/sampling/parent_base_sampler.lua"
+        },
+        "opentelemetry/trace/sampling/result.lua": {
+          "sha256": "488b29dbdf557acdbc4ccef49954af203914c102d9d72d9df899e569ade46df5",
+          "size": 746,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/sampling/result.lua"
+        },
+        "opentelemetry/trace/sampling/trace_id_ratio_sampler.lua": {
+          "sha256": "a1cdc6b3a5417f0008d6c326f68065028f0cbd796512f706d25ac75c4292fb95",
+          "size": 1465,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/sampling/trace_id_ratio_sampler.lua"
+        },
+        "opentelemetry/trace/simple_span_processor.lua": {
+          "sha256": "27b680d941ff0a3348381b212e2a5d4e092326b36dbbc941dfc3eb59eb127379",
+          "size": 1149,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/simple_span_processor.lua"
+        },
+        "opentelemetry/trace/span_context.lua": {
+          "sha256": "25f87fc8e725d3fbc94b83ee634a583d734f024af8503cfafc9953dd854313bb",
+          "size": 1143,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/span_context.lua"
+        },
+        "opentelemetry/trace/span_kind.lua": {
+          "sha256": "efb9017e1c6f4319dfc8a39c954791fa9403b67a34a6e6e60c029221cd94b64f",
+          "size": 315,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/span_kind.lua"
+        },
+        "opentelemetry/trace/span_status.lua": {
+          "sha256": "0b3b0f2becc42c8aed1f625c9678dc6697983d3e1d5e727fb97783834bc55a14",
+          "size": 295,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/span_status.lua"
+        },
+        "opentelemetry/trace/tracer.lua": {
+          "sha256": "2d17ec7ba8700a2a01ae078218f70867ddaad2a430b7019487d2d8f399b26f48",
+          "size": 2489,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/tracer.lua"
+        },
+        "opentelemetry/trace/tracer_provider.lua": {
+          "sha256": "4bc1bc9038ebaab3748971e6bf719379ed458f0166c5aab527a2fe1a0fc286ba",
+          "size": 3333,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/tracer_provider.lua"
+        },
+        "opentelemetry/trace/tracestate.lua": {
+          "sha256": "f497dbe8f0fbd04686194be8331ea0544116c571dc17fb8a82e5cfdf3ccd028a",
+          "size": 4963,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/trace/tracestate.lua"
+        },
+        "opentelemetry/util.lua": {
+          "sha256": "3666b9ed685def20409446c1d7d040194e628e0e9955dfd82fbfe9bf5b03ce04",
+          "size": 5234,
+          "url": "https://raw.githubusercontent.com/yangxikun/opentelemetry-lua/a992cb2828d87f06a82b35a2857a285f505ccf71/lib/opentelemetry/util.lua"
+        }
+      },
+      "homepage": "https://github.com/yangxikun/opentelemetry-lua",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luajit": true,
+      "luarocks": {
+        "date": "Sun, 19 Feb 2023 13:48:58 GMT",
+        "rockspec": {
+          "date": "Sun, 19 Feb 2023 13:48:58 GMT",
+          "sha256": "08d925ba770dea99ddad7e617692838f5017120b8cf7fa65d2f81e0d3e597001",
+          "size": 4533
+        }
+      },
+      "modules": [
+        "opentelemetry.api.trace.span_status",
+        "opentelemetry.attribute",
+        "opentelemetry.baggage",
+        "opentelemetry.baggage.propagation.text_map.baggage_propagator",
+        "opentelemetry.context",
+        "opentelemetry.global",
+        "opentelemetry.instrumentation_library",
+        "opentelemetry.metrics_reporter",
+        "opentelemetry.resource",
+        "opentelemetry.trace.batch_span_processor",
+        "opentelemetry.trace.event",
+        "opentelemetry.trace.exporter.circuit",
+        "opentelemetry.trace.exporter.console",
+        "opentelemetry.trace.exporter.encoder",
+        "opentelemetry.trace.exporter.http_client",
+        "opentelemetry.trace.exporter.otlp",
+        "opentelemetry.trace.exporter.pb",
+        "opentelemetry.trace.id_generator",
+        "opentelemetry.trace.non_recording_span",
+        "opentelemetry.trace.noop_span",
+        "opentelemetry.trace.propagation.text_map.composite_propagator",
+        "opentelemetry.trace.propagation.text_map.getter",
+        "opentelemetry.trace.propagation.text_map.noop_propagator",
+        "opentelemetry.trace.propagation.text_map.setter",
+        "opentelemetry.trace.propagation.text_map.trace_context_propagator",
+        "opentelemetry.trace.recording_span",
+        "opentelemetry.trace.sampling.always_off_sampler",
+        "opentelemetry.trace.sampling.always_on_sampler",
+        "opentelemetry.trace.sampling.parent_base_sampler",
+        "opentelemetry.trace.sampling.result",
+        "opentelemetry.trace.sampling.trace_id_ratio_sampler",
+        "opentelemetry.trace.simple_span_processor",
+        "opentelemetry.trace.span_context",
+        "opentelemetry.trace.span_kind",
+        "opentelemetry.trace.span_status",
+        "opentelemetry.trace.tracer",
+        "opentelemetry.trace.tracer_provider",
+        "opentelemetry.trace.tracestate",
+        "opentelemetry.util"
+      ],
+      "origin": {
+        "commit": "a992cb2828d87f06a82b35a2857a285f505ccf71",
+        "ref": "v0.2.3",
+        "type": "git",
+        "url": "https://github.com/yangxikun/opentelemetry-lua"
+      },
+      "size": 92344,
+      "summary": "The OpenTelemetry Lua SDK. This is repo's default rockspec, which is used to test the HEAD commit.",
+      "undeclared_requires": [
+        "bit"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "lua-tree-sitter",
+  "versions": {
+    "0.1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/xcb-xwii/lua-tree-sitter",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 26 May 2025 14:11:21 GMT",
+        "rockspec": {
+          "date": "Mon, 26 May 2025 14:11:21 GMT",
+          "sha256": "420942856baa24fa908d0d78815302dbea3d45c903e13b351004935e4a939017",
+          "size": 1014
+        },
+        "src": {
+          "date": "Mon, 26 May 2025 14:11:26 GMT",
+          "sha256": "cd47ed1aa870d8e6d6a4dd77897b1d88e01842ee36c51671216e789817e4a517",
+          "size": 1111779,
+          "url": "https://luarocks.org/lua-tree-sitter-0.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "lua_tree_sitter"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "tree-sitter/lib/include",
+                "include"
+              ],
+              "name": "lua_tree_sitter",
+              "sources": [
+                "src/init.c",
+                "src/language.c",
+                "src/node.c",
+                "src/parser.c",
+                "src/point.c",
+                "src/query/init.c",
+                "src/query/capture.c",
+                "src/query/cursor.c",
+                "src/query/match.c",
+                "src/query/quantified_capture.c",
+                "src/query/runner.c",
+                "src/range/init.c",
+                "src/range/array.c",
+                "src/tree.c",
+                "src/util.c",
+                "tree-sitter/lib/src/lib.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 26 May 2025 14:11:26 GMT",
+        "sha256": "cd47ed1aa870d8e6d6a4dd77897b1d88e01842ee36c51671216e789817e4a517",
+        "size": 1111779,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-tree-sitter-0.1.2-1.src.rock"
+      },
+      "summary": "Lua bindings for Tree-sitter",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

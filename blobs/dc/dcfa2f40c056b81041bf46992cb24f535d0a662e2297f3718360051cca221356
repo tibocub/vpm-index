@@ -1,0 +1,20 @@
+
+--
+-- lua-Silva : <https://fperrad.frama.io/lua-Silva/>
+--
+
+local matcher = require('Silva').matcher
+
+local function match (s, patt)
+    if s == patt then
+        return s
+    end
+end
+
+return matcher(match)
+--
+-- Copyright (c) 2017-2025 Francois Perrad
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

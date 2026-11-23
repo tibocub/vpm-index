@@ -1,0 +1,209 @@
+--[[-- Filesystem operations module.
+
+@module pocket_archive.fs
+]]
+
+local libmagic = require "libmagic"
+local mc = require "monocypher"
+local dir = require "pl.dir"
+local path = require "pl.path"
+local nsm = require "volksdata.namespace"
+local term = require "volksdata.term"
+local triple = require "volksdata.triple"
+
+local pkar = require "pocket_archive"
+local logger = pkar.logger
+local NT = pkar.NT
+
+-- Initialize libmagic database.
+local magic = libmagic.open(libmagic.MIME_TYPE, libmagic.NO_CHECK_COMPRESS )
+assert(magic:load())
+
+local ORES_PATH = pkar.config.fs.ores_path
+
+local M = {}
+
+
+--[[-- Copy a file, calculate checksum and size, and extract format.
+
+Only BLAKE2 checksum available at the moment.
+
+@tparam string src Source file.
+@tparam string dest Destination file or directory.
+@tparam[opt=true] force Overwrite existing file.
+
+@treturn string File format (MIME) extracted from the magic number.
+@treturn int File size in bytes.
+@treturn string Hex-encoded checksum prefixed by `blake2:`
+]]
+function M.copy_w_metadata(src_path, dest_path, force, verify)
+    if force == nil then force = true end
+    if path.isfile(dest_path) and not force then return nil, "File exists." end
+    if path.isdir(dest_path) then
+        dest_path = path.join(dest_path, path.basename(src_path))
+    end
+    local dest_dir = path.dirname(dest_path)
+    if not path.exists(dest_dir) then assert(
+        dir.makepath(dest_dir),
+        "Destination directory creation failed."
+    ) end
+
+    local ifh = assert(
+        io.open(src_path, "r"),
+        "No readable file found at path: " .. src_path
+    )
+
+    format = magic:filehandle(ifh)
+    local hash_it = mc.new_blake2b()
+    local fsize = 0
+    logger:debug("Hashing ", src_path)
+    local ofh = assert(io.open(dest_path, "w"))
+    while true do
+        chunk = ifh:read(pkar.config.fs.stream_chunk_size)
+        if not chunk then break end
+        hash_it:update(chunk)
+        ofh:write(chunk)
+        fsize = fsize + #chunk
+    end
+    local checksum = hash_it:final(true)
+
+    ofh:close()
+    ifh:close()
+
+    if verify then
+        -- Verify destination checksum.
+        local hash_it = mc.new_blake2b()
+        local fh = assert(io.open(dest_path, "r"))
+        while true do
+            chunk = fh:read(pkar.config.fs.stream_chunk_size)
+            if not chunk then break end
+            hash_it:update(chunk)
+        end
+        local dest_checksum = hash_it:final(true)
+        fh:close()
+        if checksum ~= dest_checksum then
+            error((
+                [[Checksum verification failed for %s!
+                Source checksum: %s
+                Destination checksum: %s]]
+            ):format(dest_path, checksum, dest_checksum))
+        end
+    end
+
+    return format, fsize, "blake2:" .. checksum
+end
+
+
+--- clone a directory tree. Will always try to create a new directory structure
+-- if necessary.
+--
+-- This is a temporary replacement of pl.dir.clonetree. It will be used until
+-- https://github.com/lunarmodules/Penlight/pull/496 gets merged and released.
+-- --sc
+--
+-- @string path1 the base path of the source tree
+-- @string path2 the new parent for the destination. Note that the contents of
+--  the source folder will be copied directly under the destination. If the
+--  source folder name is to be retained, this path must end with the same
+--  folder name as the source.
+-- @func file_fun an optional function to apply on all files
+-- @return true, or nil
+-- @return error message, or list of failed directory creations
+-- @return list of failed file operations
+-- @raise path1 and path2 must be strings
+-- @usage clonetree('.','../backup',copyfile)
+function M.clonetree (path1, path2, file_fun)
+    local utils = require "pl.utils"
+    utils.assert_string(1,path1)
+    utils.assert_string(2,path2)
+
+    local faildirs,failfiles = {},{}
+    if not path.isdir(path1) then
+        return utils.raise 'source is not a valid directory'
+    end
+    path1 = path.abspath(path.normcase(path1))
+    path2 = path.abspath(path.normcase(path2))
+    logger:debug(('normalized paths: %s %s'):format(path1,path2))
+
+    -- particularly NB that the new path isn't fully contained in the old path
+    if path1 == path2 then return utils.raise "paths are the same" end
+    local _,i2 = path2:find(path1,1,true)
+    if i2 == #path1 and path2:sub(i2+1,i2+1) == path.sep then
+        return utils.raise 'destination is a subdirectory of the source'
+    end
+    local idx = #path1
+    if idx == 0 then -- no common path, but watch out for Windows paths!
+        if path1:sub(2,2) == ':' then idx = 3 end
+    end
+    for root,dirs,files in dir.walk(path1) do
+        local rel_dest_root = root:sub(idx + 1):gsub("^"..path.sep, "")
+        local dest_root = path.join(path2, rel_dest_root)
+        if not dir.makepath(dest_root) then
+            return nil, "Error creating destination folder."
+        end
+        logger:debug('Destination root:', dest_root)
+        for _, d in ipairs(dirs) do
+            local dest_dir = path.join(dest_root, d)
+            logger:debug("Destination dir: " .. dest_dir)
+            if not path.isdir(dest_dir) then
+                local ret = dir.makepath(dest_dir)
+                if not ret then table.insert(faildirs,dest_dir) end
+                logger:debug(('creating: %s %s'):format(dest_dir,ret))
+            end
+        end
+        if file_fun then
+            for _,f in ipairs(files) do
+                local src_file = path.join(root,f)
+                local dest_file = path.join(dest_root, f)
+                local ret = file_fun(src_file, dest_file)
+                if not ret then table.insert(failfiles,dest_file) end
+                logger:debug(
+                        ('files: %s %s %s'):format(src_file, dest_file,ret))
+            end
+        end
+    end
+    return true,faildirs,failfiles
+end
+
+
+--[[
+  Generate pairtree directory and file path from an ID string and prefix.
+
+  The directory is created if not existing.
+
+  The ID string must not include the resource namespace.
+
+  ext is optional, and is appended to the raw path.
+
+  if no_create is not nil or false, the directory will not be checked for
+  existence or created. This is normally set for web paths.
+
+  return: full file path, with the optional extension if provided.
+--]]
+function M.gen_pairtree (pfx, id, ext, no_create)
+    local res_dir = path.join(pfx, id:sub(1,2), id:sub(3,4))
+
+    local created, err
+    if (path.isdir(res_dir)) or no_create then created = false
+    else
+        created, err = dir.makepath(res_dir)
+        if not created then error(err) end
+    end
+
+    local fpath
+    if (res_dir) then fpath = path.join(res_dir, id .. (ext or "")) end
+
+    return fpath, created
+end
+
+
+function M.reset_ores()
+    if path.isdir(ORES_PATH) then
+        logger:warn("Removing existing opaque resource store.")
+        dir.rmtree(ORES_PATH)
+    end
+    dir.makepath(ORES_PATH)
+end
+
+
+return M

@@ -1,0 +1,109 @@
+local http = require "resty.http"
+local utils = require "kong.tools.utils"
+local json = require "cjson"
+local lyaml = require "lyaml"
+local bit = require("bit")
+
+local find = string.find
+local sub = string.sub
+local unpack = table.unpack
+local ngx = ngx
+
+local body_response
+
+local ApiGatewayJurnal = {
+  PRIORITY = 1000,
+  VERSION = "1.0.2",
+}
+
+local function get_consumer_by_access_token(access_token)
+  local httpc = http.new()
+  local res, err = httpc:request_uri(conf.kong_endpoint .. "/oauth2_tokens/" ..access_token, {
+      method = "GET"
+  })
+
+  if res.status == 200 then
+    local data = cjson.decode(res.body)
+    return data.authenticated_userid
+  else
+    ngx.log(ngx.ERR, "request failed with status: ", res.status)
+    return nil
+  end
+end
+
+local function check_prefix(path, method)
+  local yaml_file_path = "config/scm_migration_path.yaml"
+
+  -- Read the YAML file
+  local file, err = io.open(yaml_file_path, "r")
+  if not file then
+    ngx.log(ngx.ERR, "Failed to open YAML file: ", err)
+    return
+  end
+
+  local yaml_content = file:read("*a")
+  file:close()
+
+  -- Parse the YAML content
+  local yaml_data, parse_err = lyaml.load(yaml_content)
+  if not yaml_data then
+    ngx.log(ngx.ERR, "Failed to parse YAML: ", parse_err)
+    return
+  end
+
+  local json_data = cjson.encode(yaml_data)
+  for _, obj in ipairs(json_data["prefix"]) do
+    if (obj["name"] == path) and (obj["method"] == method) then
+      return obj
+    end
+  end
+
+  return nil
+end
+
+function ApiGatewayJurnal:access(conf)
+  local auth = kong.request.get_header(conf.authorization)
+  local access_token = auth:gsub("Bearer ", "")
+  local x_consumer_id = get_consumer_by_access_token(access_token)
+  -- local request_url = ngx.var.scheme .. "://" .. ngx.var.host .. ngx.var.request_uri
+  local request_uri = ngx.var.request_uri
+  local request_method = ngx.var.request_method
+
+
+  if check_prefix(request_uri, request_method) then
+    local httpc = http.new()
+    local res, err = httpc:request_uri(conf.jurnal_endpoint .. "/api/v1/gateway_access/get_access", {
+      method = "GET",
+      ssl_verify = false,
+      headers = {
+        ["Content-Type"] = "application/json",
+        ["X-Consumer-ID"] = x_consumer_id
+      }
+    })
+
+    if not res then
+        kong.log.err("failed to call jurnal endpoint: ", err)
+        return kong.response.exit(500, err)
+    end
+
+    if res.status ~= 200 then
+      kong.log.err("failed to call jurnal endpoint")
+      return kong.response.exit(res.status, res.body)
+    end
+    
+    body_response = json.decode(res.body)
+    local jwt_token = body_response["jwt_token"]
+    local scm_migration = body_response["features"]["scm_migration"]
+
+    if scm_migration then
+      kong.service.request.set_header("Authorization", "Bearer "+jwt_token)
+      ngx.var.upstream_url = conf.scm_endpoint
+    else
+      kong.service.request.set_header("X-Consumer-ID", x_consumer_id)
+    end
+  else
+    kong.service.request.set_header("X-Consumer-ID", x_consumer_id)
+  end
+end
+
+return ApiGatewayJurnal

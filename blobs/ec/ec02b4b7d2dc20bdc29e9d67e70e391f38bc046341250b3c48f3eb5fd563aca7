@@ -1,0 +1,21 @@
+--imports
+local Directive = require("dogma.syn._.Directive")
+local DirectiveType = require("dogma.syn.DirectiveType")
+
+--An insert directive.
+local InsertDirective = {}
+InsertDirective.__index = InsertDirective
+setmetatable(InsertDirective, {__index = Directive})
+package.loaded[...] = InsertDirective
+
+--Constructor.
+function InsertDirective.new(ln, col, code)
+  local self
+
+  --(1) create
+  self = setmetatable(Directive.new(DirectiveType.INSERT, ln, col), InsertDirective)
+  self.code = code
+
+  --(2) return
+  return self
+end

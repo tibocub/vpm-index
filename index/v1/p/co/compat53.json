@@ -1,0 +1,108 @@
+{
+  "kind": "lib",
+  "name": "compat53",
+  "versions": {
+    "0.15.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "compat53/file_mt.lua": {
+          "sha256": "a3a89241f7d8f8a1d7f864f8a2e9ff098738bea252155ca828af884a30b4f9ca",
+          "size": 1945,
+          "url": "blob:a3a89241f7d8f8a1d7f864f8a2e9ff098738bea252155ca828af884a30b4f9ca"
+        },
+        "compat53/init.lua": {
+          "sha256": "d337e5c68371ba46a8d7a7045d7f76c7930683cd0a64803aeae6a55e722f5e3b",
+          "size": 11961,
+          "url": "blob:d337e5c68371ba46a8d7a7045d7f76c7930683cd0a64803aeae6a55e722f5e3b"
+        },
+        "compat53/module.lua": {
+          "sha256": "1d8d3ba56d82344712cc5d32a5359ede86a08ee5378b1ebdf8ca735a93e85c52",
+          "size": 28071,
+          "url": "blob:1d8d3ba56d82344712cc5d32a5359ede86a08ee5378b1ebdf8ca735a93e85c52"
+        }
+      },
+      "homepage": "https://github.com/lunarmodules/lua-compat-5.3",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.6",
+      "luarocks": {
+        "date": "Mon, 13 Jul 2026 22:32:06 GMT",
+        "rockspec": {
+          "date": "Mon, 13 Jul 2026 22:32:06 GMT",
+          "sha256": "74ba4410693dd2034e7829fde49ba5907ebb6b505c2941faf2189ba5b7bb5b74",
+          "size": 1039
+        },
+        "src": {
+          "date": "Mon, 13 Jul 2026 22:32:07 GMT",
+          "sha256": "c9e34ea62ac89a6b7ab62333a990b47b1dd37e02f00b0309e6a31511fd5b8806",
+          "size": 77527,
+          "url": "https://luarocks.org/compat53-0.15.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "compat53",
+        "compat53.file_mt",
+        "compat53.init",
+        "compat53.io",
+        "compat53.module",
+        "compat53.string",
+        "compat53.table",
+        "compat53.utf8"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "compat53.io",
+              "sources": [
+                "liolib.c"
+              ]
+            },
+            {
+              "name": "compat53.string",
+              "sources": [
+                "lstrlib.c"
+              ]
+            },
+            {
+              "name": "compat53.table",
+              "sources": [
+                "ltablib.c"
+              ]
+            },
+            {
+              "name": "compat53.utf8",
+              "sources": [
+                "lutf8lib.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-compat-5.3-0.15.1"
+      },
+      "origin": {
+        "date": "Mon, 13 Jul 2026 22:32:07 GMT",
+        "sha256": "c9e34ea62ac89a6b7ab62333a990b47b1dd37e02f00b0309e6a31511fd5b8806",
+        "size": 77527,
+        "type": "luarocks",
+        "url": "https://luarocks.org/compat53-0.15.1-1.src.rock"
+      },
+      "size": 41977,
+      "summary": "Compatibility module providing Lua-5.3-style APIs for Lua 5.2 and 5.1",
+      "vlr": {
+        "cause": "missing module: compat53",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 8
+      }
+    }
+  }
+}

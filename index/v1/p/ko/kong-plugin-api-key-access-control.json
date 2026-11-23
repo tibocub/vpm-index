@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-api-key-access-control",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "classic 0.1.0-1",
+        "kong-lib-logger >= 0.3.0-1"
+      ],
+      "files": {
+        "kong/plugins/api-key-access-control/handler.lua": {
+          "sha256": "dda47e235568272efe0bca00841803bed6b90b8436dc5bdcd5ac101001314cd7",
+          "size": 1714,
+          "url": "blob:dda47e235568272efe0bca00841803bed6b90b8436dc5bdcd5ac101001314cd7"
+        },
+        "kong/plugins/api-key-access-control/schema.lua": {
+          "sha256": "4b967e60fb41f626fdaa9f9fd15bb0c4062021f5e450768295e217c41d632c29",
+          "size": 931,
+          "url": "blob:4b967e60fb41f626fdaa9f9fd15bb0c4062021f5e450768295e217c41d632c29"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-api-key-access-control",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 20 Mar 2020 10:19:27 GMT",
+        "rockspec": {
+          "date": "Fri, 20 Mar 2020 10:19:27 GMT",
+          "sha256": "4be570d44e7776905b88acdbfff9d6d57cc48cced2bbb234e98fef1b11989882",
+          "size": 735
+        },
+        "src": {
+          "date": "Fri, 20 Mar 2020 10:19:28 GMT",
+          "sha256": "d2dacfddf313b01b7ade291220066d957113ce6616222da0295e350be65378a3",
+          "size": 10748,
+          "url": "https://luarocks.org/kong-plugin-api-key-access-control-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.api-key-access-control.handler",
+        "kong.plugins.api-key-access-control.schema"
+      ],
+      "origin": {
+        "date": "Fri, 20 Mar 2020 10:19:28 GMT",
+        "sha256": "d2dacfddf313b01b7ade291220066d957113ce6616222da0295e350be65378a3",
+        "size": 10748,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-api-key-access-control-1.0.0-1.src.rock"
+      },
+      "size": 2645,
+      "summary": "Api key access control plugin for Kong.",
+      "undeclared_requires": [
+        "kong.db.errors",
+        "kong.db.schema",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "kind": "lib",
+  "name": "luaharfbuzz",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "harfbuzz.lua": {
+          "sha256": "6afe2357e6d96c656a903965010ebb5e8b11a40ca73cdc9c481cd7d44e56b47d",
+          "size": 3023,
+          "url": "blob:6afe2357e6d96c656a903965010ebb5e8b11a40ca73cdc9c481cd7d44e56b47d"
+        }
+      },
+      "homepage": "https://github.com/ufytex/luaharfbuzz",
+      "license": "MIT",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Wed, 31 Jul 2019 20:12:41 GMT",
+        "rockspec": {
+          "date": "Wed, 31 Jul 2019 20:12:41 GMT",
+          "sha256": "7cb3a3416469f90256dfcbbbe9d522050a6b13c21cb7b2d904d5f499f8e1e5ba",
+          "size": 1146
+        },
+        "src": {
+          "date": "Wed, 31 Jul 2019 20:12:43 GMT",
+          "sha256": "5514065eb2015f0833302f3286aac2913176e3a3efd104be1e5d6195227c4fac",
+          "size": 707140,
+          "url": "https://luarocks.org/luaharfbuzz-1.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "harfbuzz",
+        "luaharfbuzz"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "HARFBUZZ"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "HARFBUZZ": {
+              "header": "harfbuzz/hb.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(HARFBUZZ_INCDIR)/harfbuzz"
+              ],
+              "libdirs": [
+                "$(HARFBUZZ_LIBDIR)"
+              ],
+              "libraries": [
+                "harfbuzz"
+              ],
+              "name": "luaharfbuzz",
+              "sources": [
+                "src/luaharfbuzz/luaharfbuzz.c",
+                "src/luaharfbuzz/blob.c",
+                "src/luaharfbuzz/face.c",
+                "src/luaharfbuzz/font.c",
+                "src/luaharfbuzz/buffer.c",
+                "src/luaharfbuzz/feature.c",
+                "src/luaharfbuzz/tag.c",
+                "src/luaharfbuzz/ot.c",
+                "src/luaharfbuzz/unicode.c",
+                "src/luaharfbuzz/script.c",
+                "src/luaharfbuzz/direction.c",
+                "src/luaharfbuzz/language.c",
+                "src/luaharfbuzz/class_utils.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 31 Jul 2019 20:12:43 GMT",
+        "sha256": "5514065eb2015f0833302f3286aac2913176e3a3efd104be1e5d6195227c4fac",
+        "size": 707140,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaharfbuzz-1.1.0-1.src.rock"
+      },
+      "size": 3023,
+      "summary": "Lua bindings for the Harfbuzz text shaping library",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

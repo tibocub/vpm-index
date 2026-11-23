@@ -1,0 +1,320 @@
+local concat,format = table.concat,string.format
+
+local db = {}
+
+db.view = {
+  {'name',"Name"},
+  {'folder',"Folder",ht="SELECT",rt="folders"},
+  {'note',"Note",ht="TEXTAREA"},
+  {'images',"Images",ht="CHECKBOX"},
+  {"user",     "User", ht='SELECT',rt="users",rf={{"login"}}},
+  columns=2,
+  view = {'folders',' where images = 1'},
+}
+
+db.list = {
+  {'name',ht="SELF"},
+  {"view","Image",ht = 'SHOW',opt="align='center'"},
+  --{'note'},
+  {'user'},
+  rows=1000,
+  card = {thead=false,cols=4},
+  title = "<p><strong>GALLERY</strong></p>",
+}
+
+local view = {
+  {'back',"",ht="SHOW",opt="style='background-color:#ffffff;'"},
+  {'name',opt="width='100%'"},
+  --{'zip',"",ht="SHOW"},
+  {"user",ht='SELECT',rt="users",rf={{"login"}}},
+  view = {'folders',' where images = 1'},
+  js = [[
+    //function tglmax(img){
+    //  var max = '800px';
+    //  var width =$(img).css('max-width');
+    //  var height=$(img).css('max-height');
+    //  $(img).css('max-width',width==max?'200px':max);
+    //  $(img).css('max-height',height==max?'200px':max);
+    //}
+
+    function tglpopup(img){
+      var max = '800px';
+
+      var div = $(img).parent();
+      var pp = $("#imgpopup");
+      var ppp = $("#imgpopupcontent");
+
+      if($(img).css('max-width') == max){
+        div.html();
+        div.parent().css('display','none');
+        return;
+      }
+
+      var pos = $(img).position();
+      pp.css('top',pos.top - 70);
+
+      if(pp.css('display') == 'none'){
+
+        ppp.html(div.html());
+        var ppimg = ppp.children();
+
+        ppimg.css('max-width',max);
+        ppimg.css('max-height',max);
+        ppimg.css('min-width',20);
+
+        pp.css('display','block');
+      }else{
+        pp.html();
+        pp.css('display','none');
+      }
+
+    }
+
+    function dragImg(img) {
+      var imgdiv = img.parentElement.parentElement;
+      var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      if (document.getElementById(imgdiv.id + "header")) {
+        document.getElementById(imgdiv.id + "header").onmousedown = dragMouseDown;
+      } else {
+        imgdiv.onmousedown = dragMouseDown;
+      }
+
+      function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        imgdiv.style.top = (imgdiv.offsetTop - pos2) + "px";
+        imgdiv.style.left = (imgdiv.offsetLeft - pos1) + "px";
+      }
+
+      function closeDragElement(e) {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+
+      //resize
+      $('#imgpopupresize').mousedown(function(e) {
+        e.preventDefault();
+        $(document).mousemove(function(e) {
+            $("#imgpopupcontent img").css("width", e.pageX - imgdiv.offsetLeft + 2);
+        })
+      });
+
+      $(document).mouseup(function(e) {
+        $(document).unbind('mousemove');
+      });
+
+    };
+
+
+  ]],
+  columns=3,
+}
+
+
+db.field = {
+  view = function(self,row)
+    if not row or self.conf.cli then return end
+    if true then
+      local qry = concat{[[select files.rowid,images.name from files
+                  left join images on files.folder = images.rowid
+                  where files.type like ('image/%') 
+                  and images.rowid = ]],row.rowid," limit 1"}
+
+      for recno,folder in self.conn:urows(qry) do
+        return concat{'<div><a href="',self.conf.idx,'?mod=images&act=show&recno=',row.rowid,
+                       [[&lynx=true" onclick='javascript:acall("images",{act:"show",recno:"]],
+                             row.rowid,
+                       [["});return false'>]],
+                       [[<div style="padding:5px;width:280px;max-width:280px;height:280px;text-align:center;">]],
+                       [[<img class="gallery-folder" src="]],self.conf.idx,[[?mod=files&act=download&img=true&recno=]],recno,
+                       [["></div></a><div">]],folder,[[</div></div>]]}
+      end
+    end
+  end,
+  back = function(self,row)
+    if not row or self.conf.cli then return end
+    if true then
+      local img = [[<img height="30px" src="face/newo/img/backleft.png"/>]]
+      local link = concat{[[<a href="]],self.conf.idx,'?mod=images',
+                       [[&lynx=true" onclick='javascript:acall("images");return false;'>]]}
+      if self.conf.onepage then
+        link = concat{[[
+            <script>
+                window.scrollTo(100,0);
+
+                function acallHome(target){
+                  var items = $("ul.navbar-nav li a");
+                  var menu = [];
+                  items.each(function(){
+                    menu.push($(this).attr("href").slice(1));
+                  });
+                  var pages = function(data){
+                    aresp(data);
+                    $(".full-height").height($(window).height());
+                    var offset = $(target).offset().top;
+                    $('html, body').animate({
+                      scrollTop: offset
+                    }, 400, null,'swing');
+                  }
+                  $.post("","mod=home&onepage="+menu.join(","),null,"html").done(pages);
+                }
+
+            </script>
+            <a href="]],self.conf.idx,'?mod=home',[[&lynx=true" onclick='acallHome("#images");return false;'>
+        ]]}
+
+        link_ = concat{
+            [[
+              <script>
+                window.scrollTo(100,0);
+              </script>
+              <a href="/]],string.match(self.conf.url,"([^/]+)$") or '',self.conf.idx ~= '' and '/' or '',
+                                                                      '','#images','">'
+        }
+      end
+
+      return concat{"<div>",link,
+                       [[<div style=" height:30px;float:right;text-align:left;">]],img,
+                       [[</div></a></div><span>]],
+                       [[<div style="font-size:20px;background-color:white;text-align:left;
+                                border-style:hidden;height:-25px; margin-left:-150px;} ">]] ,
+                                row.name,
+                       [[</span>
+                         <style>
+                          form#edfrm > div {display:none}
+                          fieldset.inner,table.inner
+                              {background-color:#ffffff;}
+                         </style>
+                         <div id='imgpopup' style="display:none;z-index:1;overflow:hidden;
+                                    position:absolute;left:20%;">
+                            <div id='imgpopupheader'
+                                style="cursor:move;z-index:2;;background-color:#eAe9e6;height:20px;"></div>
+                            <div id="imgpopupresize" style="cursor: col-resize;z-index:3;margin-top:-20px;
+                                                    float:right;display:inline;width:20px;height:20px;
+                                                    background-color:black;"></div>
+
+                            <div id='imgpopupcontent'></div>
+
+                         </div>]]
+
+                   }
+    end
+  end,
+  zip = function(self,row)
+    if not row or self.conf.cli then return end
+    if true then
+        return concat{'<a href="',self.conf.idx,'?mod=images&act=zip&recno=',row.rowid,'">',lang.Zip or 'Zip','</a>'}
+    end
+  end,
+}
+
+function db:menu(row)
+    if not row then
+      local sort = params.sort
+      local sel = "selected='selected'"
+      local sels = {
+        last = sort == 'last' and sel or '',
+        name = sort == 'name' and sel or '',
+        desc = sort == 'desc' and sel or '',
+      }
+      local menu = {
+          {'',concat{format([[<select name="opt" 
+                    onchange="acall('images',{'sort':this.value})" style="width:100px;">
+                  <option value="last" %s>Last</option>
+                  <option value="name" %s>A-Z</option>
+                  <option value="desc" %s>Z-A</option>
+              </select>]],sels.last,sels.name,sels.desc),js},
+                              {act='nav'}}
+      }
+      local order = 'images.rowid desc'
+      if sort == 'name' then
+        order = 'images.name asc'
+      elseif sort == 'last' then
+        order = 'images.rowid desc'
+      elseif sort == 'desc' then
+        order = 'images.name desc'
+      end
+      local qry = concat{[[select images.name,images.rowid,files.count from images 
+                           left join (select count(*) as count,folder from files 
+                           group by folder) as files on images.rowid = files.folder order by ]], order}
+      for name,recno,count in self.conn:urows(qry) do
+          menu[#menu+1] = {"images",concat{name," (",count or 0,")"},{act="show",recno=recno}}
+      end
+      return menu
+    end
+end
+
+local images = {
+  {'name',ht="SELF"},
+  {"view","",ht = 'SHOW',opt="width='100'"},
+  {'note',"",ht="HTML"},
+  {'user'},
+  rows=100,
+  --card = {thead=false,cols=4},
+  title = "<p style='font-size:22px;text-align:center;'><strong>GALLERY</strong></p>",
+
+}
+
+
+function db:main(out)
+  --self.conn:exec(concat{"attach database '",self.conf.db,".files' as files"})
+  local act = params.act
+  local sort = params.sort
+  if act == 'show' and self.user.guest then
+    db.view = view
+  elseif self.conf.onepage_off and (not act or act == "") and self.user.guest then
+    db.list = images
+  elseif sort then
+    if sort == 'name' then
+        db.list.order = 'name asc'
+    elseif sort == 'last' then
+        db.list.order = 'rowid desc'
+    elseif sort == 'desc' then
+        db.list.order = 'name desc'
+    end
+  elseif act == 'zip' then
+    local recno = params.recno
+    local zip = require("zip")
+    local dir = 'gallery'
+    local file = concat{dir,recno,"-",tostring(os.time()):sub(-3),'.zip'}
+    local name = concat{self.conf.data,"/out/",file}
+
+    local ar = zip.open(name,zip.OR(zip.CREATE, zip.EXCL))
+
+    local qry = concat{[[select rowid,type,filename,fsize
+      from file.files
+      where files.folder = ']],recno,"'"}
+    for row in self.conn:nrows(qry) do
+      if true then
+         ar:add(concat{dir,"/",row.rowid,"-",row.filename or 'file'},"string",row.rowid)
+      end
+    end
+
+    ar:close()
+
+    local out = io.open(name,'rb')
+    local content = out:read('*a')
+    os.remove(name)
+
+    local fname = concat{"attachment;filename=\"",file,"\""}
+    header("Content-Disposition",fname)
+    header("Content-Type","application/zip")
+    return {content}
+  end
+end
+
+return db
+

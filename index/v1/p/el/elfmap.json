@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "elfmap",
+  "versions": {
+    "2.1-6": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/liaozhaoyan/elfmap",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 11 Jun 2025 03:20:55 GMT",
+        "rockspec": {
+          "date": "Wed, 11 Jun 2025 03:20:55 GMT",
+          "sha256": "59532456435fe6e627b1265b70cf850fcb8062263fa7a3276f28b157a9448969",
+          "size": 690
+        },
+        "src": {
+          "date": "Wed, 11 Jun 2025 03:20:57 GMT",
+          "sha256": "9b4b8702dfdf715cf3937c520aa89255238ef7fd33349c6e4b6a0997f2afb35b",
+          "size": 7073,
+          "url": "https://luarocks.org/elfmap-2.1-6.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "ELF",
+          "GELF",
+          "LIBELF",
+          "SYS_STAT"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "ELF": {
+              "header": "elf.h"
+            },
+            "GELF": {
+              "header": "gelf.h"
+            },
+            "LIBELF": {
+              "header": "libelf.h",
+              "library": "elf"
+            },
+            "SYS_STAT": {
+              "header": "sys/stat.h"
+            }
+          },
+          "make": []
+        }
+      },
+      "origin": {
+        "date": "Wed, 11 Jun 2025 03:20:57 GMT",
+        "sha256": "9b4b8702dfdf715cf3937c520aa89255238ef7fd33349c6e4b6a0997f2afb35b",
+        "size": 7073,
+        "type": "luarocks",
+        "url": "https://luarocks.org/elfmap-2.1-6.src.rock"
+      },
+      "summary": "get all elf file symbols.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

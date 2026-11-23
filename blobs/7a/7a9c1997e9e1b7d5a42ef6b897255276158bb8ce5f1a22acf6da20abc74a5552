@@ -1,0 +1,46 @@
+--imports
+local NaryOp = require("dogma.syn._.NaryOp")
+
+--A call operator.
+local CallOp = {}
+CallOp.__index = CallOp
+setmetatable(CallOp, {__index = NaryOp})
+package.loaded[...] = CallOp
+
+--Constructor.
+--
+--@param tok:Token
+function CallOp.new(tok)
+  local self
+
+  --(1) create
+  self = setmetatable(NaryOp.new(tok), CallOp)
+  self.children = {}
+  self.finished = false
+
+  --(2) return
+  return self
+end
+
+--@override
+function CallOp:__tostring()
+  local args
+
+  --(1) get expressions
+  args = ""
+
+  for _, arg in ipairs(self.children) do
+    args = args .. (args == "" and "" or " ")
+
+    if arg.kind == "positional" then
+      args = args .. arg.value:__tostring()
+    elseif arg.kind == "named" then
+      args = args .. string.format("%s=%s", arg.name, (arg.value and arg.value:__tostring() or arg.name))
+    else
+      args = args .. arg:__tostring()
+    end
+  end
+
+  --(2) return
+  return string.format("(call %s)", args)
+end

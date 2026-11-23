@@ -1,0 +1,114 @@
+{
+  "kind": "lib",
+  "name": "kong-o2b-ticketing",
+  "versions": {
+    "0.0.1-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-cjson",
+        "dkjson",
+        "lua-resty-openidc"
+      ],
+      "files": {
+        "kong/plugins/ticketing/daos.lua": {
+          "sha256": "79528a14b0f2acef83f775233603410373b96010097d688452e68fa872247d4f",
+          "size": 1492,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/daos.lua"
+        },
+        "kong/plugins/ticketing/entities/filter.lua": {
+          "sha256": "1bc0c66a3e2b84ac5a764fc4c8b877429f91b2f1bf017f05f97e848357099a2b",
+          "size": 682,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/entities/filter.lua"
+        },
+        "kong/plugins/ticketing/entities/ticket.lua": {
+          "sha256": "4c22bcc7bd6ed0ffe1d59acf0f5c70d96f9bcd75695876b89a03666c01b0647f",
+          "size": 1941,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/entities/ticket.lua"
+        },
+        "kong/plugins/ticketing/factory/ticketFactory.lua": {
+          "sha256": "c760a5e1be466d6592243c0268f16922252496dda8479942c77fa2210b479f97",
+          "size": 867,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/factory/ticketFactory.lua"
+        },
+        "kong/plugins/ticketing/handler.lua": {
+          "sha256": "3dcebdeea850242d7b0bad7c3b3499bbf74879bd7dd1a1f5079d6706fe608553",
+          "size": 3129,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/handler.lua"
+        },
+        "kong/plugins/ticketing/helpers/async.lua": {
+          "sha256": "a474264579889d476613abc5013777910f4a8b97d8fd51a5b76055e8a05341d8",
+          "size": 668,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/helpers/async.lua"
+        },
+        "kong/plugins/ticketing/migrations/000_base_ticketing.lua": {
+          "sha256": "00e05979e378527a8ad6f3fa66a1e2b89b58243d85003dd2d9dcfbbfe644782f",
+          "size": 499,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/migrations/000_base_ticketing.lua"
+        },
+        "kong/plugins/ticketing/migrations/init.lua": {
+          "sha256": "aa8a472128d817492ddef5e6032c74059f576f47399630d285d803c83190e697",
+          "size": 38,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/migrations/init.lua"
+        },
+        "kong/plugins/ticketing/schema.lua": {
+          "sha256": "97343ac8c9f4801b7ecdd3e275fa7d4f1754dbf7a72aa6a081f1503d203e0a6c",
+          "size": 323,
+          "url": "https://raw.githubusercontent.com/chalkan3/kong-ticket-plugin/b0f43da13d748afeb0aa357fb1c3a730feafe755/kong/plugins/kong-O2B-ticketing/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/chalkan3/kong-ticket-plugin",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 10 Nov 2020 14:23:51 GMT",
+        "rockspec": {
+          "date": "Tue, 10 Nov 2020 14:23:51 GMT",
+          "sha256": "c59acbb32f860021082ffffff7922bddfb43264a94e2c61c5a5889c6507b1720",
+          "size": 1386
+        },
+        "src": {
+          "date": "Tue, 10 Nov 2020 14:23:53 GMT",
+          "sha256": "6d8ee27f2ca7d3fc229aedc95ce9034783a1bf3827ae7114b3da30b5c0f2cd53",
+          "size": 32265,
+          "url": "https://luarocks.org/kong-o2b-ticketing-0.0.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.ticketing.daos",
+        "kong.plugins.ticketing.entities.filter",
+        "kong.plugins.ticketing.entities.ticket",
+        "kong.plugins.ticketing.factory.ticketFactory",
+        "kong.plugins.ticketing.handler",
+        "kong.plugins.ticketing.helpers.async",
+        "kong.plugins.ticketing.migrations",
+        "kong.plugins.ticketing.migrations.000_base_ticketing",
+        "kong.plugins.ticketing.schema"
+      ],
+      "origin": {
+        "commit": "b0f43da13d748afeb0aa357fb1c3a730feafe755",
+        "ref": "v0.0.1",
+        "type": "git",
+        "url": "https://github.com/chalkan3/kong-ticket-plugin"
+      },
+      "size": 9639,
+      "summary": "ticketing is a plugin for save user data between request.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

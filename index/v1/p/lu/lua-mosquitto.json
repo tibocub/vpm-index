@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "lua-mosquitto",
+  "versions": {
+    "0.4.1-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/flukso/lua-mosquitto",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 08 Feb 2021 17:46:30 GMT",
+        "rockspec": {
+          "date": "Mon, 08 Feb 2021 17:46:30 GMT",
+          "sha256": "3ae76678d222f5c2d4cb5bf514cd74075f4b09e6cdef1590b8e3982c4cb67e70",
+          "size": 866
+        },
+        "src": {
+          "date": "Mon, 08 Feb 2021 17:46:31 GMT",
+          "sha256": "e779d0545fef4152071647883f1b7a95ff731319cdc1ea60ee3259f42b649af4",
+          "size": 23382,
+          "url": "https://luarocks.org/lua-mosquitto-0.4.1-2.src.rock"
+        }
+      },
+      "modules": [
+        "mosquitto"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBMOSQUITTO"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBMOSQUITTO": {
+              "header": "mosquitto.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "LUA_COMPAT_APIINTCASTS"
+              ],
+              "incdirs": [
+                "$LIBMOSQUITTO_INCDIR"
+              ],
+              "libdirs": [
+                "$LIBMOSQUITTO_LIBDIR"
+              ],
+              "libraries": [
+                "mosquitto"
+              ],
+              "name": "mosquitto",
+              "sources": [
+                "lua-mosquitto.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 08 Feb 2021 17:46:31 GMT",
+        "sha256": "e779d0545fef4152071647883f1b7a95ff731319cdc1ea60ee3259f42b649af4",
+        "size": 23382,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-mosquitto-0.4.1-2.src.rock"
+      },
+      "summary": "Lua bindings to libmosquitto",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

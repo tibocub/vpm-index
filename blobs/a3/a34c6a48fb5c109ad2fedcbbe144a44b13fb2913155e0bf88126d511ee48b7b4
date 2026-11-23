@@ -1,0 +1,95 @@
+local uv = require('luv')
+local json = require('panto').ext.json
+local M = {}
+function M.directory(getenv)
+    getenv = getenv or os.getenv
+    local xdg = getenv('XDG_DATA_HOME')
+    return ((xdg and xdg~='') and xdg or ((getenv('HOME') or '.') .. '/.local/share')) .. '/panto-mcp'
+end
+local function mkdir(path)
+    if uv.fs_stat(path) then return true end
+    local parent = path:match('^(.*)/[^/]+$')
+    if parent and parent~='' then
+        local ok,err=mkdir(parent); if not ok then return nil,err end
+    end
+    local ok,err=uv.fs_mkdir(path, 448)
+    if ok then return true end
+    local stat=uv.fs_stat(path)
+    if stat and stat.type=='directory' then return true end
+    return nil,err
+end
+function M.path(cfg, dir) return (dir or M.directory()) .. '/' .. cfg.name .. '-' .. cfg.fingerprint .. '.json' end
+function M.normalize_catalog(catalog)
+    if type(catalog)~='table' then return nil end
+    local out={}
+    for _,kind in ipairs({'tools','prompts','resources','templates'}) do
+        local items=catalog[kind]
+        if type(items)~='table' then return nil end
+        local clean=json.array({})
+        for _,item in ipairs(items) do
+            if type(item)=='table' then
+                local valid=true
+                for field,value in pairs(item) do if value==json.null then item[field]=nil end end
+                for _,field in ipairs({'name','title','description','uri','uriTemplate','mimeType'}) do
+                    if item[field]~=nil and type(item[field])~='string' then valid=false end
+                end
+                if (kind=='tools' or kind=='prompts') and (not item.name or item.name=='') then valid=false end
+                if kind=='tools' and type(item.inputSchema)~='table' then valid=false end
+                if kind=='resources' and not item.uri then valid=false end
+                if kind=='templates' and not item.uriTemplate then valid=false end
+                if valid then clean[#clean+1]=item end
+            end
+        end
+        out[kind]=clean
+    end
+    return out
+end
+function M.load(cfg, dir)
+    local f = io.open(M.path(cfg,dir), 'rb'); if not f then return nil end
+    local text = f:read(16*1024*1024 + 1); f:close()
+    if not text or #text>16*1024*1024 then return nil end
+    local ok, data = pcall(json.decode,text)
+    if not ok or type(data)~='table' or data.fingerprint~=cfg.fingerprint or type(data.catalog)~='table' then return nil end
+    local catalog=M.normalize_catalog(data.catalog)
+    if not catalog then return nil end
+    data.catalog=catalog
+    if data.era~='modern' and data.era~='legacy' then return nil end
+    return data
+end
+local serial = 0
+function M.save(cfg, data, dir)
+    dir = dir or M.directory()
+    local ok,err = mkdir(dir); if not ok then return nil,err end
+    local catalog=M.normalize_catalog(data.catalog)
+    if not catalog then return nil,'invalid cache catalog' end
+    serial=serial+1
+    local path = M.path(cfg,dir)
+    local temp = path .. '.' .. uv.os_getpid() .. '-' .. serial .. '.tmp'
+    local fd; fd,err=uv.fs_open(temp,'wx',384); if not fd then return nil,err end
+    local encoded_ok,text=pcall(json.encode,{fingerprint=cfg.fingerprint, era=data.era,
+        version=data.version, info=data.info, instructions=data.instructions,
+        capabilities=data.capabilities, catalog=catalog})
+    if not encoded_ok then uv.fs_close(fd); uv.fs_unlink(temp); return nil,text end
+    local offset=0
+    while offset<#text do
+        local written; written,err=uv.fs_write(fd,text:sub(offset+1),offset)
+        if not written or written==0 then uv.fs_close(fd); uv.fs_unlink(temp); return nil,err or 'short cache write' end
+        offset=offset+written
+    end
+    uv.fs_close(fd)
+    ok,err=uv.fs_rename(temp,path)
+    if not ok then uv.fs_unlink(temp); return nil,err end
+    local scan=uv.fs_scandir(dir)
+    if scan then
+        while true do
+            local name=uv.fs_scandir_next(scan)
+            if not name then break end
+            local server,fingerprint=name:match('^(.*)%-([0-9a-f]+)%.json$')
+            if server==cfg.name and fingerprint and #fingerprint==8 and name~=path:match('([^/]+)$') then
+                uv.fs_unlink(dir .. '/' .. name)
+            end
+        end
+    end
+    return true
+end
+return M

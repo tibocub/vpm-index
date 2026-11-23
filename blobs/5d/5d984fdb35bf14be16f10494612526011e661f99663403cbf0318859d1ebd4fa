@@ -1,0 +1,155 @@
+local timestamp = require "kong.tools.timestamp"
+local redis = require "resty.redis"
+local reports = require "kong.reports"
+local ngx_log = ngx.log
+
+local pairs = pairs
+local fmt = string.format
+
+local redis_host = os.getenv("REDIS_HOST")
+local redis_database = os.getenv("REDIS_DATABASE")
+local redis_password = os.getenv("REDIS_PASSWORD")
+local redis_port = os.getenv("REDIS_PORT")
+local redis_timeout = os.getenv("REDIS_TIMEOUT") or 2000
+local redis_pool_size = os.getenv("REDIS_POOL_SIZE") or 100
+local redis_connection_max_idle_time = os.getenv("REDIS_CONNECTION_MAX_IDLE_TIME") or 10000
+local use_redis_connection_pool = (os.getenv("USE_REDIS_CONNECTION_POOL") or "true") == "true"
+local redis_connection_debug = os.getenv("REDIS_CONNECTION_DEBUG") == "true"
+
+local EXPIRATIONS = {
+  second = 1,
+  minute = 60,
+  hour = 3600,
+  day = 86400,
+  month = 2592000,
+  year = 31536000
+}
+
+local function get_local_key(route_id, identifier, period_date, name)
+  return fmt("ratelimit:%s:%s:%s:%s", route_id, identifier, period_date, name)
+end
+
+local function redis_connect(conf)
+  local red = redis:new()
+  red:set_timeout(redis_timeout)
+  local ok, err = red:connect(redis_host, redis_port)
+
+  if redis_connection_debug then
+    local times, err = red:get_reused_times()
+
+    if err then
+      ngx_log(ngx.ERR, "failed to debug Redis connection usage: ", err)
+    else
+      ngx_log(ngx.NOTICE, ("Redis connection was reused "..times).." times") 
+    end
+  end
+
+  if not ok then
+    ngx_log(ngx.ERR, "failed to connect to Redis: ", err)
+    return nil, err
+  end
+
+  if redis_password and redis_password ~= "" then
+    local ok, err = red:auth(redis_password)
+    if not ok then
+      ngx_log(ngx.ERR, "failed to connect to Redis: ", err)
+      return nil, err
+    end
+  end
+
+  local ok, err = red:select(redis_database)
+  if not ok then
+    ngx_log(ngx.ERR, "failed to change Redis database: ", err)
+    return nil, err
+  end
+
+  return red
+end
+
+local function redis_disconnect(red)
+  if use_redis_connection_pool then
+    local ok, err = red:set_keepalive(redis_connection_max_idle_time, redis_pool_size)
+
+    if not ok then
+      ngx_log(ngx.ERR, "failed to set Redis keepalive: ", err)
+    end
+  else
+    local ok, err = red:close()
+
+    if not ok then
+      ngx_log(ngx.ERR, "failed to close Redis connection: ", err)
+    end
+  end
+end
+
+return {
+  redis_connect = function(conf)
+    local red = redis_connect(conf)
+    return red
+  end,
+  redis_disconnect = function(red)
+    redis_disconnect(red)
+  end,
+  increment = function(conf, limits, route_id, identifier, current_timestamp, value)
+    local red = redis_connect(conf)
+    local keys = {}
+    local expirations = {}
+    local idx = 0
+    local periods = timestamp.get_timestamps(current_timestamp)
+    for period, period_date in pairs(periods) do
+      if limits[period] then
+        local cache_key = get_local_key(route_id, identifier, period_date, period)
+        local exists, err = red:exists(cache_key)
+        if err then
+          ngx_log(ngx.ERR, "failed to query Redis: ", err)
+          redis_disconnect(red)
+          return nil, err
+        end
+
+        idx = idx + 1
+        keys[idx] = cache_key
+        if not exists or exists == 0 then
+          expirations[idx] = EXPIRATIONS[period]
+        end
+      end
+    end
+
+    red:init_pipeline()
+    for i = 1, idx do
+      red:incrby(keys[i], value)
+      if expirations[i] then
+        red:expire(keys[i], expirations[i])
+      end
+    end
+
+    local _, err = red:commit_pipeline()
+    redis_disconnect(red)
+
+    if err then
+      ngx_log(ngx.ERR, "failed to commit pipeline in Redis: ", err)
+      return nil, err
+    end
+
+    return true
+  end,
+  usage = function(conf, route_id, identifier, current_timestamp, name)
+    local red = redis_connect(conf)
+
+    reports.retrieve_redis_version(red)
+
+    local periods = timestamp.get_timestamps(current_timestamp)
+    local cache_key = get_local_key(route_id, identifier, periods[name], name)
+    local current_metric, err = red:get(cache_key)
+    redis_disconnect(red)
+    
+    if err then
+      return nil, err
+    end
+
+    if current_metric == ngx.null then
+      current_metric = nil
+    end
+
+    return current_metric or 0
+  end
+}

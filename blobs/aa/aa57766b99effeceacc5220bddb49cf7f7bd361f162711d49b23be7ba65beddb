@@ -1,0 +1,39 @@
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local io = _tl_compat and _tl_compat.io or io; local string = _tl_compat and _tl_compat.string or string
+
+
+
+local fmt_logger = { Stringable = Stringable }
+
+local LEVEL_NUMBERS = { nothing = 0, info = 1, debug = 2 }
+
+local current_level = "nothing"
+
+function fmt_logger.set_level(level_name)
+   if not LEVEL_NUMBERS[level_name] then
+      return false
+   end
+   current_level = level_name
+   return true
+end
+
+local function should_log_for(level_name)
+   return LEVEL_NUMBERS[current_level] >= LEVEL_NUMBERS[level_name]
+end
+
+local function log_internal(
+   msg, level, ...)
+
+   if should_log_for(level) then
+      io.stderr:write(string.format("[fmt:%s] %s\n", level, string.format(msg, ...)))
+   end
+end
+
+function fmt_logger.info(msg, ...)
+   log_internal(msg, "info", ...)
+end
+
+function fmt_logger.debug(msg, ...)
+   log_internal(msg, "debug", ...)
+end
+
+return fmt_logger

@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "kong-response-size-limiting",
+  "versions": {
+    "0.3-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-response-size-limiting/handler.lua": {
+          "sha256": "971579ecae5259137c537c7f87149fbcbd860e5633277d8c266c4f1cd8aaa76e",
+          "size": 1054,
+          "url": "https://raw.githubusercontent.com/Optum/kong-response-size-limiting/3b077b184cf4ba4f9c7e70dec8c3f33b2a68cd29/src/handler.lua"
+        },
+        "kong/plugins/kong-response-size-limiting/schema.lua": {
+          "sha256": "f32825047f45e39fa8ee5700f1bed8a713f93094e4290b1a8987ead34677201a",
+          "size": 323,
+          "url": "https://raw.githubusercontent.com/Optum/kong-response-size-limiting/3b077b184cf4ba4f9c7e70dec8c3f33b2a68cd29/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-response-size-limiting",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 11 Jun 2020 15:17:56 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Jun 2020 15:17:56 GMT",
+          "sha256": "9a9694776c2dcbbce17b828cc51fdf900f2b869e929f85b47a232f9e607b5a08",
+          "size": 1025
+        },
+        "src": {
+          "date": "Thu, 11 Jun 2020 15:17:58 GMT",
+          "sha256": "dbd25f232fd79ff876e3c1ef28ab55ed4e8dad1d908b8c3f99e648acf2798df3",
+          "size": 426063,
+          "url": "https://luarocks.org/kong-response-size-limiting-0.3-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-response-size-limiting.handler",
+        "kong.plugins.kong-response-size-limiting.schema"
+      ],
+      "origin": {
+        "commit": "3b077b184cf4ba4f9c7e70dec8c3f33b2a68cd29",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-response-size-limiting.git"
+      },
+      "size": 1377,
+      "summary": "This plugin will protect the client from consuming API responses that are deemed too large within the Kong API Gateway.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

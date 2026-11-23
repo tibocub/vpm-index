@@ -1,0 +1,130 @@
+--- ClientCredentials class.
+-- @classmod ClientCredentials
+
+
+-- Create class
+local Super = require "resty.azure.credentials.Credentials"
+local ClientCredentials = setmetatable({}, Super)
+local json = require "cjson.safe"
+local fmt = string.format
+local utils = require "resty.azure.utils"
+ClientCredentials.__index = ClientCredentials
+
+--- Constructor, inherits from `Credentials`.
+--
+-- @tparam table global_config global configuration table
+-- @tparam table opts options table, additional fields to the `Credentials` class:
+-- @tparam[opt="AZURE"] string opts.envPrefix prefix to use when looking for environment variables.
+-- @return new ClientCredentials object, or nil+error
+function ClientCredentials:new(global_config, opts, source)
+  local self = Super:new(opts)  -- override 'self' to be the new object/class
+  setmetatable(self, ClientCredentials)
+
+  opts = opts or {}
+  self.envPrefix = opts.envPrefix or "AZURE"
+  self.global_config = global_config
+  self.opts = opts
+  self.source = source
+
+  local _, _, _, err = self:get() -- force immediate refresh
+
+  return self, err
+end
+
+
+-- updates credentials.
+-- @return success, or nil+err
+function ClientCredentials:refresh()
+  local clientId = self.opts.client_id or os.getenv(self.envPrefix .. "_CLIENT_ID") or self.global_config.AZURE_CLIENT_ID or os.getenv("AZURE_CLIENT_ID")
+  if not clientId or clientId == "" then
+    return false, "Couldn't find " .. self.envPrefix .. "_CLIENT_ID env variable"
+  end
+
+  local clientSecret = self.opts.client_secret or os.getenv(self.envPrefix .. "_CLIENT_SECRET") or self.global_config.AZURE_CLIENT_SECRET or os.getenv("AZURE_CLIENT_SECRET")
+  if not clientSecret or clientSecret == "" then
+    return false, "Couldn't find " .. self.envPrefix .. "_CLIENT_SECRET env variable"
+  end
+
+  local tenantId = self.opts.tenant_id or os.getenv(self.envPrefix .. "_TENANT_ID") or self.global_config.AZURE_TENANT_ID or os.getenv("AZURE_TENANT_ID")
+  if not tenantId or tenantId == "" then
+    return false, "Couldn't find " .. self.envPrefix .. "_TENANT_ID env variable"
+  end
+
+  local token_resource = self:resolve_token_parameter("resource", "token_resource")
+
+  local token_scope = self:resolve_token_parameter("scope", "token_scope")
+
+  local token_version = self:resolve_token_parameter("version", "token_version")
+
+  -- v2.0 token requests send 'scope', other versions send 'resource'; log
+  -- when an override cannot take effect because of the selected version
+  if token_version == "v2.0" and token_resource then
+    ngx.log(ngx.DEBUG, "token_resource is ignored by v2.0 token requests, set token_scope instead")
+  elseif token_version ~= "v2.0" and token_scope then
+    ngx.log(ngx.DEBUG, "token_scope is ignored by non-v2.0 token requests, set token_resource instead")
+  end
+
+  -- ngx.log(ngx.DEBUG, "token_resource: ", token_resource)
+  -- ngx.log(ngx.DEBUG, "token_scope: ", token_scope)
+  -- ngx.log(ngx.DEBUG, "token_version: ", token_version)
+
+  -- get the token
+  -- Single-shot requests use the `request_uri` interface.
+  local httpc = require "resty.luasocket.http".new()
+  ngx.update_time()
+  local time_now = ngx.now()
+
+  local url = fmt("%s/%s/oauth2%s/token%s",
+    (self.opts.auth_base_url or self.global_config.AZURE_AUTH_BASE_URL or "https://login.microsoftonline.com"),
+    tenantId,
+    token_version and ("/" .. token_version) or "",
+    (self.opts.extra_auth_parameters or "")
+  )
+
+  ngx.log(ngx.DEBUG, "making client-credentials auth POST to ", url)
+
+  -- Build proxy options from configuration
+  local proxy_opts = utils.build_proxy_opts(self.global_config, self.opts)
+
+  -- TODO remove hard-coded token audience - support many audiences, depending on the target Azure service
+  local res, err = httpc:request_uri(
+    url,
+    {
+      method = "POST",
+      body = fmt("grant_type=client_credentials&client_id=%s&client_secret=%s%s%s",
+        clientId,
+        clientSecret,
+        (token_version == "v2.0") and token_scope and ("&scope=" .. token_scope) or "",         -- v2.0 uses 'scope'
+        (token_version ~= "v2.0") and token_resource and ("&resource=" .. token_resource) or "" -- not v2.0 uses 'resource'
+      ),
+      headers = {
+          ["Content-Type"] = "application/x-www-form-urlencoded",
+      },
+      ssl_verify = self.opts.ssl_verify or self.global_config.AZURE_SSL_VERIFY,
+      proxy_opts = proxy_opts,
+      keepalive = false,
+    }
+  )
+
+  if not res then
+    return false, fmt("oauth client_credentials grant request failed: %s", err)
+  end
+
+  if res.status ~= 200 then
+    return false, fmt("oauth client_credentials grant request failed, status: %s, body: %s", res.status, res.body)
+  end
+
+  local auth_response, err = json.decode(res.body)
+  if err then
+    return false, "cannot parse auth response body"
+  end
+
+  if not auth_response.access_token then
+    return false, "access token not in response body"
+  end
+
+  self:set(auth_response.access_token, auth_response.expires_in + time_now)
+  return true, nil
+end
+
+return ClientCredentials

@@ -1,0 +1,325 @@
+--[[--
+RDF repository services.
+
+@module pocket_archive.repo
+--]]
+
+local path = require "pl.path"
+local volk = require "volksdata"
+local dset = require "volksdata.data_set"
+local nsm = require "volksdata.namespace"
+local term = require "volksdata.term"
+local triple = require "volksdata.triple"
+local graph = require "volksdata.graph"
+local store = require "volksdata.store"
+
+local pkar = require "pocket_archive"
+local model = require "pocket_archive.model"
+
+local logger = pkar.logger
+local NT = pkar.NT
+--- Default ID from configuration.
+local DEFAULT_ID = "file://" .. pkar.config.fs.dres_path
+
+
+--- Repo module.
+local M = {
+    DRES_PATH = pkar.config.fs.dres_path,
+    DEFAULT_CTX = term.new_iriref_ns("gr:main"),
+    store_id = DEFAULT_ID,
+}
+
+
+--[[-- Initialize the Pocket Archive MDB store.
+
+This normally needs to be done only once, but in tests and other edge cases
+it may be called multiple times. In that case, the file descriptor of the store
+is invalidated and other processes or threads using it must exit.
+
+This function should not be called directly by an API consumer or external
+module, as it does not repopulate the baseline data. Use @{admin.init_store}
+for that purpose.
+]]
+function M.init_store()
+    rawset(M, "_store", store.new (store.T_MDB, M.store_id, true))
+    rawset(M, "_gr", nil)
+    logger:info("Initialized RDF database at " .. M.store_id)
+end
+
+
+--[[-- Reset the MDB store to defaults.
+
+This function sets the store location to the default one (in case it was
+changed by @{tmp_store} and, optionally, calls @{init_store} to reset it.
+
+This function should not be called directly by an API consumer or external
+module, as it does not repopulate the baseline data. Use @{admin.reset_store}
+for that purpose.
+
+@tparam bool init Whether to initialize the default store.
+
+@seeAlso init_store
+]]
+function M.reset_store(init)
+    logger:warn("Removing existing Linked Data store.")
+    rawset(M, "store_id", DEFAULT_ID)  -- in case tmp_store() changed it.
+    if init then M.init_store() end
+end
+
+
+--[[-- Switch to a temporary store at a random path.
+
+The path is created if it does not exist and the store is initialized, and
+added to the module.
+
+This function should not be called directly by an API consumer or external
+module, as it does not repopulate the baseline data. Use @{admin.tmp_store}
+for that purpose.
+
+@tparam string pfx Path prefix (not including the `file://` protocol prefix).
+--]]
+function M.tmp_store(pfx)
+    rawset(M, "store_id", "file://" .. pfx .. model.idgen(6))
+    M.init_store()
+end
+
+
+--[[--
+List all resources in the repository.
+
+@tparam string res_type If specified, only show resources of this type
+  (codename). By default, all resources are shown.
+
+@treturn volksdata.TermSet Set of resource subjects.
+@return nil, error message in case of error.
+--]]
+function M.list_resources(res_type)
+    local ctype = model.uri_map[res_type or "resource"]
+    if not ctype then
+        return nil, ("No content type under this name: %s.\n"):format(res_type)
+    end
+
+    return M.gr:term_set(
+        pkar.RDF_TYPE, triple.POS_P,
+        ctype, triple.POS_O
+    )
+end
+
+
+--[[--
+Check if a resource exists with the `pas:Resource` RDF type.
+
+@tparam volksdata.Term s Resource ID as a subject.
+
+@treturn bool
+]]
+function M.is_rsrc(s)
+    return M.gr:contains(triple.new(s, pkar.RDF_TYPE, model.uri_map.resource))
+end
+
+
+--[[--
+Get a resource graph.
+
+@tparam volksdata.Term s Resource ID as a subject.
+
+@treturn volksdata.Graph Resource RDF representation.
+@return nil if no resource was found.
+]]
+function M.get_rsrc(s)
+    out_gr = graph.new(nil, s.data .. "#ctx")
+    M.gr:copy(out_gr, s)
+
+    -- TODO verify based on RDF type == pas:Resource
+    if #out_gr > 0 then return out_gr
+    else return end
+end
+
+
+--[[-- Return a term set of all members of a container.
+
+@tparam volksdata.Term s Resource ID.
+
+@treturn volksdata.TermSet
+]]
+function M.get_members(s)
+    return M.gr:term_set(
+        model.uri_map.member_of, triple.POS_P,
+        s, triple.POS_O
+    )
+end
+
+
+--[[-- Return the RDF serialization of a resource.
+
+@tparam volksdata.Term s Resource ID.
+
+@treturn string
+@return nil if no resource was found.
+]]
+function M.serialize_rsrc(s, format)
+    local res_gr = M.get_rsrc(s)
+    if not res_gr then return end
+
+    logger:debug("Serializing graph: ", s.data)
+
+    return res_gr:encode(format or volk.CODEC_FMT_TTL)
+end
+
+
+--[[--
+Return the first value of a property.
+
+Mostly useful as a shortcut for known single-valued properties.
+
+@param s Subject term.
+@tparam string pname Property codename
+@tparam bool ml Whether the property is multi-language. If true, the function
+returns a value only if one with a lang tag matching the `md.default_lang`
+value in the configuration (if nil, only a value with no lang tag) is found.
+]]
+function M.get_single_v(s, pname, ml)
+    local values = M.gr:attr(s, model.uri_map[pname])
+    if ml then
+        for o in values:iter() do
+            if o.lang == model.DEFAULT_LANG then return o end
+        end
+        logger:warn(
+                ("No lang tag found matching default language for %s on %s. "
+                .. "Using default language.")
+                :format(pname, model.uri_to_id(s.data)))
+        return
+    end
+
+    return values:iter()()
+end
+
+
+--[[--
+Store updates to a graph.
+
+This operation is atomic.
+
+Note: an update is always a full overwrite of all resources. All outbound
+triples will be wiped clean. If some triples are to be preserved (as for
+properties marked with the PROP_NO_DELETE flag), the caller is responsible for
+maintaining those triples.
+
+@tparam volksdata.Graph src_gr Graph to insert.
+@tparam[opt] volksdata.Term ctx Context to write triples to. If not specified,
+    @{DEFAULT_CTX} is used.
+@tparam[opt] txn Open transaction to use. If not provided, the function opens
+    and closes a new transaction. If provided, the caller is responsible for
+    opening it before the call and closing (committing or aborting) it after
+    the call.
+
+@treturn integer Number of triples copied.
+]]
+function M.store_updates(src_gr, ctx, txn)
+    local _txn = txn or M.store:begin()
+    local rm_ct = 0
+    local dest_gr
+    if ctx and ctx ~= M.gr.uri then
+        -- Delete a whole named graph.
+        dest_gr = graph.new(M.store, ctx.data)
+        -- Remove the whole named graph.
+        rm_ct = dest_gr:remove(nil, nil, nil, _txn)
+        logger:debug(("Removed %d triples in context %s"):format(
+                rm_ct, dest_gr.uri.data))
+    else
+        -- Delete only selected subjects from the main graph.
+        dest_gr = M.gr
+        -- Gather resource subjects only for removal.
+        local rsrc_ts = src_gr:term_set(
+            pkar.RDF_TYPE, triple.POS_P,
+            model.uri_map.resource, triple.POS_O
+        )
+        for s in rsrc_ts:iter() do
+            rm_ct = rm_ct + dest_gr:remove(s, nil, nil, _txn)
+            logger:debug(("Removed %d triples for subject %s."):format(
+                    rm_ct, nsm.denormalize_uri(s.data)))
+        end
+    end
+
+    src_gr:copy(dest_gr, nil, nil, nil, _txn)
+    logger:debug(("Stored %d triples in %s."):format(#src_gr, dest_gr.uri.data))
+    if not txn then _txn:commit() end
+
+    return rm_ct, #src_gr
+end
+
+
+--[[--
+Export the whole archive to a RDF file.
+
+The archive is encoded in the TriG format.
+
+@todo A function to decode TriG has been implemented in Volksdata and can
+    be used here to restore from a TriG file.
+
+@tparam[opt] str fpath File to dump the RDF to. If not provided, it is directed
+    to stdout.
+]]
+function M.export(fpath)
+    local fh = fpath and assert(io.open(fpath, "wb")) or io.stdout
+    local ds = dset.new(M.store, true)
+    for chunk in ds:encode(volk.CODEC_FMT_TRIG) do fh:write(chunk) end
+    if fpath then fh:close() end
+end
+
+
+--[[--
+Remove a single resource, and optionally its members.
+If a resource is not found, no triples are removed.
+
+@tparam id Resource ID in the shortened URI form, `RSRC_PFX<ID>`
+@tparam boolean members Whether to delete all members of this resource (with
+the `member_of` relationship) and, recursively, their members.
+
+@return table Set of IDs of resources removed.
+]]
+function M.remove(id, members)
+    local s = term.new_iriref_ns(id)
+    local del_ids = {}
+
+    local function _remove(s)
+        local id = nsm.denormalize_uri(s.data)
+        if del_ids[id] then return end
+        del_ids[id] = true
+
+        if members then
+            for m_uri in M.get_members(s):iter() do _remove(m_uri) end
+        end
+
+        M.gr:remove(s)  -- Remove outbound
+        M.gr:remove(nil, nil, s)  -- Remove inbound
+    end
+
+    _remove(s)
+
+    return del_ids
+end
+
+
+local mt = {
+    __index = function(t, k)
+        if (k == "store") then
+            if not rawget(t, "_store") then
+                rawset(t, "_store", store.new(store.T_MDB, t.store_id))
+            end
+            return rawget(t, "_store")
+        elseif (k == "gr") then
+            if not rawget(t, "_gr") then
+                rawset(t, "_gr", graph.new(t.store, t.DEFAULT_CTX.data))
+            end
+            return rawget(t, "_gr")
+        end
+    end,
+
+    __newindex = function () return nil, "Module is read only." end
+}
+
+setmetatable (M, mt)
+
+
+return M

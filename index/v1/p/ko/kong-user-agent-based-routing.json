@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "kong-user-agent-based-routing",
+  "versions": {
+    "0.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-user-agent-based-routing/access.lua": {
+          "sha256": "330fe00c958af3ef48943b50af4ba6c5ee8a14c685581b4f37fa96c46d513ec9",
+          "size": 334,
+          "url": "https://raw.githubusercontent.com/bogas04/kong-user-agent-based-routing/39f873c1897c1395b39dcc11c68f946177c831e7/src/access.lua"
+        },
+        "kong/plugins/kong-user-agent-based-routing/handler.lua": {
+          "sha256": "8656f503e246af1064dc9f6d5c69a2b6536a3726566123720dce8c60f1d502fd",
+          "size": 551,
+          "url": "https://raw.githubusercontent.com/bogas04/kong-user-agent-based-routing/39f873c1897c1395b39dcc11c68f946177c831e7/src/handler.lua"
+        },
+        "kong/plugins/kong-user-agent-based-routing/schema.lua": {
+          "sha256": "81f45fcf7678ed84533ee2bd9d771915a2175c12148ee9ba9bb4c960b7e6374a",
+          "size": 157,
+          "url": "https://raw.githubusercontent.com/bogas04/kong-user-agent-based-routing/39f873c1897c1395b39dcc11c68f946177c831e7/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/bogas04/kong-user-agent-based-routing",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Tue, 08 Jan 2019 12:47:21 GMT",
+        "rockspec": {
+          "date": "Tue, 08 Jan 2019 12:47:21 GMT",
+          "sha256": "83e3e048e1b1d7eb29e6e843b3783887b80e560cc74f53782b6ce4c50a9d527e",
+          "size": 643
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-user-agent-based-routing.access",
+        "kong.plugins.kong-user-agent-based-routing.handler",
+        "kong.plugins.kong-user-agent-based-routing.schema"
+      ],
+      "origin": {
+        "commit": "39f873c1897c1395b39dcc11c68f946177c831e7",
+        "type": "git",
+        "url": "https://github.com/bogas04/kong-user-agent-based-routing.git"
+      },
+      "size": 1042,
+      "summary": "Kong plugin to route based on user_agent_header",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-oidc-acl-fix",
+  "versions": {
+    "1.1-3": {
+      "bin": [],
+      "deps": [
+        "lua-resty-cookie ~> 0.1.0"
+      ],
+      "files": {
+        "kong/plugins/oidc-acl-fix/handler.lua": {
+          "sha256": "8af86d5af459180992d07a99051f904e3defba4c71d302b9659e759357ecf516",
+          "size": 1340,
+          "url": "https://raw.githubusercontent.com/xfroelicher/kong-plugin-oidc-acl-v2/c045bc6dc34262b55aa3c4d7eb7d9a6433674671/handler.lua"
+        },
+        "kong/plugins/oidc-acl-fix/schema.lua": {
+          "sha256": "9080b80314c1f9f4a3417443e9fe6af3af1aa39e82719e3f5bb8fe3fd211d5cf",
+          "size": 587,
+          "url": "https://raw.githubusercontent.com/xfroelicher/kong-plugin-oidc-acl-v2/c045bc6dc34262b55aa3c4d7eb7d9a6433674671/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 19 May 2020 07:24:54 GMT",
+        "rockspec": {
+          "date": "Tue, 19 May 2020 07:24:54 GMT",
+          "sha256": "e384383a9d9417ff495a1e49e1a1cfa7318ad8aff9ed981f6882bf4169b48237",
+          "size": 536
+        },
+        "src": {
+          "date": "Tue, 19 May 2020 07:24:55 GMT",
+          "sha256": "9b85367e42d69cc636327377387e456c4e9aab898d65dafa26ce4fc15940ee52",
+          "size": 4010,
+          "url": "https://luarocks.org/kong-plugin-oidc-acl-fix-1.1-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc-acl-fix.handler",
+        "kong.plugins.oidc-acl-fix.schema"
+      ],
+      "origin": {
+        "commit": "c045bc6dc34262b55aa3c4d7eb7d9a6433674671",
+        "type": "git",
+        "url": "https://github.com/xfroelicher/kong-plugin-oidc-acl-v2"
+      },
+      "size": 1927,
+      "summary": "A Kong ACL plugin for oidc plugin from pravin-raha/kong-plugin-oidc-acl and fixed",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

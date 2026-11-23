@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "kong-request-intercept",
+  "versions": {
+    "0.1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-request-intercept/handler.lua": {
+          "sha256": "d6ef31812ffcf81ab8f33e64b615188d9d8de5a118f81d4dbeda8fc4d5c992d1",
+          "size": 870,
+          "url": "https://raw.githubusercontent.com/GreatWriter/kong-request-intercept/710d075f0ff100d83c9c68f095ca3426943b1a51/src/handler.lua"
+        },
+        "kong/plugins/kong-request-intercept/schema.lua": {
+          "sha256": "97524e07769a1faac36f14163bf3c43593bcb2f77e108e709fa8132376758c37",
+          "size": 289,
+          "url": "https://raw.githubusercontent.com/GreatWriter/kong-request-intercept/710d075f0ff100d83c9c68f095ca3426943b1a51/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/GreatWriter/kong-request-intercept",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 17 Feb 2020 13:01:02 GMT",
+        "rockspec": {
+          "date": "Mon, 17 Feb 2020 13:01:02 GMT",
+          "sha256": "51dbae9590cb2bd854effb8adcb057c2835a34517726d846ee2fcef517515fdf",
+          "size": 652
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-request-intercept.handler",
+        "kong.plugins.kong-request-intercept.schema"
+      ],
+      "origin": {
+        "commit": "710d075f0ff100d83c9c68f095ca3426943b1a51",
+        "type": "git",
+        "url": "https://github.com/GreatWriter/kong-request-intercept"
+      },
+      "size": 1159,
+      "summary": "Kong plugin to authenticate requests using http services.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

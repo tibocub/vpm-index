@@ -1,0 +1,225 @@
+-- ============================================================
+-- Shiva Str
+-- String utility library.
+-- ============================================================
+
+local Str = {}
+
+--- Trim whitespace from both ends
+---@param s string
+---@return string
+function Str.trim(s)
+    return s:match('^%s*(.-)%s*$')
+end
+
+--- Trim whitespace from the left
+---@param s string
+---@return string
+function Str.ltrim(s)
+    return s:match('^%s*(.*)')
+end
+
+--- Trim whitespace from the right
+---@param s string
+---@return string
+function Str.rtrim(s)
+    return s:match('(.-)%s*$')
+end
+
+--- Uppercase the first letter
+---@param s string
+---@return string
+function Str.ucfirst(s)
+    return s:sub(1, 1):upper() .. s:sub(2)
+end
+
+--- Lowercase the first letter
+---@param s string
+---@return string
+function Str.lcfirst(s)
+    return s:sub(1, 1):lower() .. s:sub(2)
+end
+
+--- Title case: uppercase first letter of each word
+---@param s string
+---@return string
+function Str.title(s)
+    ---@diagnostic disable-next-line: redundant-return-value
+    return s:gsub('(%a)([%w_\']*)', function(first, rest)
+        return first:upper() .. rest:lower()
+    end)
+end
+
+--- Convert to snake_case
+---@param s string
+---@return string
+function Str.snake(s)
+    s = s:gsub('%s+', '_')
+    s = s:gsub('([a-z])([A-Z])', '%1_%2')
+    return s:lower()
+end
+
+--- Convert to camelCase
+---@param s string
+---@return string
+function Str.camel(s)
+    s = s:gsub('[_-](%a)', function(c) return c:upper() end)
+    return Str.lcfirst(s)
+end
+
+--- Convert to PascalCase
+---@param s string
+---@return string
+function Str.pascal(s)
+    s = s:gsub('[_-](%a)', function(c) return c:upper() end)
+    return Str.ucfirst(s)
+end
+
+--- Convert to kebab-case
+---@param s string
+---@return string
+function Str.kebab(s)
+    s = s:gsub('%s+', '-')
+    s = s:gsub('([a-z])([A-Z])', '%1-%2')
+    return s:lower()
+end
+
+--- Check if string starts with prefix
+---@param s string
+---@param prefix string
+---@return boolean
+function Str.startsWith(s, prefix)
+    return s:sub(1, #prefix) == prefix
+end
+
+--- Check if string ends with suffix
+---@param s string
+---@param suffix string
+---@return boolean
+function Str.endsWith(s, suffix)
+    return s:sub(-#suffix) == suffix
+end
+
+--- Check if string contains substring
+---@param s string
+---@param sub string
+---@return boolean
+function Str.contains(s, sub)
+    return s:find(sub, 1, true) ~= nil
+end
+
+--- Split string by delimiter
+---@param s string
+---@param delimiter string
+---@return string[]
+function Str.split(s, delimiter)
+    local result = {}
+    local pattern = '([^' .. delimiter .. ']+)'
+    for match in s:gmatch(pattern) do
+        result[#result + 1] = match
+    end
+    return result
+end
+
+--- Truncate to max length with optional suffix
+---@param s string
+---@param maxLen integer
+---@param suffix? string Default: '...'
+---@return string
+function Str.truncate(s, maxLen, suffix)
+    suffix = suffix or '...'
+    if #s <= maxLen then return s end
+    return s:sub(1, maxLen - #suffix) .. suffix
+end
+
+--- Pad left to desired length
+---@param s string
+---@param len integer
+---@param char? string Default: ' '
+---@return string
+function Str.padLeft(s, len, char)
+    char = char or ' '
+    while #s < len do s = char .. s end
+    return s
+end
+
+--- Pad right to desired length
+---@param s string
+---@param len integer
+---@param char? string Default: ' '
+---@return string
+function Str.padRight(s, len, char)
+    char = char or ' '
+    while #s < len do s = s .. char end
+    return s
+end
+
+--- Replace first occurrence
+---@param s string
+---@param find string
+---@param replace string
+---@return string
+function Str.replaceFirst(s, find, replace)
+    local i, j = s:find(find, 1, true)
+    if not i then return s end
+    return s:sub(1, i - 1) .. replace .. s:sub(j + 1)
+end
+
+--- Replace all occurrences (literal, not pattern)
+---@param s string
+---@param find string
+---@param replace string
+---@return string
+function Str.replace(s, find, replace)
+    local result = s
+    local searchFrom = 1
+    while true do
+        local i, j = result:find(find, searchFrom, true)
+        if not i then break end
+        result = result:sub(1, i - 1) .. replace .. result:sub(j + 1)
+        searchFrom = i + #replace
+    end
+    return result
+end
+
+--- Check if string is empty or nil
+---@param s? string
+---@return boolean
+function Str.isEmpty(s)
+    return s == nil or s == ''
+end
+
+--- Check if string is not empty
+---@param s? string
+---@return boolean
+function Str.isNotEmpty(s)
+    return s ~= nil and s ~= ''
+end
+
+--- Generate a random string of given length
+---@param length integer
+---@param charset? string Default: alphanumeric
+---@return string
+function Str.random(length, charset)
+    charset = charset or 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    local result = {}
+    for _ = 1, length do
+        local idx = math.random(1, #charset)
+        result[#result + 1] = charset:sub(idx, idx)
+    end
+    return table.concat(result)
+end
+
+--- Slugify a string (URL-safe)
+---@param s string
+---@return string
+function Str.slug(s)
+    s = s:lower()
+    s = s:gsub('[^%w%s-]', '')
+    s = s:gsub('%s+', '-')
+    s = s:gsub('%-+', '-')
+    s = Str.trim(s)
+    return s
+end
+
+return Str

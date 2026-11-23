@@ -1,0 +1,577 @@
+{
+  "kind": "app",
+  "name": "dwarfspec",
+  "versions": {
+    "0.2.0-1": {
+      "bin": {
+        "dwarfspec": "bin/dwarfspec"
+      },
+      "deps": [
+        "argparse == 0.7.2-1",
+        "luasystem == 0.3.0-2",
+        "busted == 2.3.0-1"
+      ],
+      "files": {
+        "bin/dwarfspec": {
+          "sha256": "898359cbc75bbc2f2143deea87fda8591992bbe9d5afb309b6b5369ec745e167",
+          "size": 2818,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/bin/dwarfspec"
+        },
+        "ds/d.lua": {
+          "sha256": "52c33d95905b1497874e4eaafd0752bc7aae2b571de10b8ac63418b0f6bc5cfc",
+          "size": 18343,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/ds.d.lua"
+        },
+        "dwarfspec/automation/abort.lua": {
+          "sha256": "e3f433b9676e07774145154553b93903ce0e1039da74d6243f53ec7cc7eab786",
+          "size": 2278,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/abort.lua"
+        },
+        "dwarfspec/automation/acknowledge.lua": {
+          "sha256": "0c2de2422559298a14a8722a84a4b1ab7a800ba628485109ce8cd88c0c59550b",
+          "size": 2524,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/acknowledge.lua"
+        },
+        "dwarfspec/automation/base_screen_focus_comparisons.lua": {
+          "sha256": "1986521ab4f403bf5c331c167feefaee5e28981e2c00305b433d4ee4cfca634b",
+          "size": 263,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/base_screen_focus_comparisons.lua"
+        },
+        "dwarfspec/automation/base_screen_focus_guard.lua": {
+          "sha256": "6bc97ed0b316eac2b8fd0e10742eb485d612fe5ffef4c9f14fad614ab3f0bd69",
+          "size": 14231,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/base_screen_focus_guard.lua"
+        },
+        "dwarfspec/automation/bootstrap.lua": {
+          "sha256": "5ac4cbc945244923ab6a166bce95ed210065ea73ed4f204a9985e41013073f04",
+          "size": 7806,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/bootstrap.lua"
+        },
+        "dwarfspec/automation/busted_lifecycle_adapter.lua": {
+          "sha256": "5919c440dafd51f12d7b2fee79e106496d526c14ac845c440b74f31f3da52ad7",
+          "size": 8416,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/busted_lifecycle_adapter.lua"
+        },
+        "dwarfspec/automation/cancel.lua": {
+          "sha256": "8bf46516692bef35e253b29d02ef8d976bcdfc040abbf668a1330f0bd1f8c4b6",
+          "size": 2196,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/cancel.lua"
+        },
+        "dwarfspec/automation/cleanup.lua": {
+          "sha256": "f23ded635929d31e80dc55e2dfbcfbe5ab44859f258ebe971c02590b1d89ba8a",
+          "size": 4537,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/cleanup.lua"
+        },
+        "dwarfspec/automation/coroutine_scheduler.lua": {
+          "sha256": "f835ee2735b148fb6a08253a6f55cd79e90a412304a9e0fff49861d92e0bbeea",
+          "size": 14429,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/coroutine_scheduler.lua"
+        },
+        "dwarfspec/automation/diagnostics.lua": {
+          "sha256": "7691ef2e2d7019f2e362968eb29d34a239ed64c8dab54ac841d371d4d0c1e46c",
+          "size": 10505,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/diagnostics.lua"
+        },
+        "dwarfspec/automation/discard.lua": {
+          "sha256": "5ffd8cd584d6f5b9af695566451fa80ef155e09637cb5739543afd7abc56e86e",
+          "size": 1982,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/discard.lua"
+        },
+        "dwarfspec/automation/event_read.lua": {
+          "sha256": "05a8228021a3507309620ba2d320d3ae816fbeae275784fcb32e13703c6e7aac",
+          "size": 1760,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/event_read.lua"
+        },
+        "dwarfspec/automation/event_types.lua": {
+          "sha256": "ec91659401adf571fb8192cb9418cd43139b5c134f0422ed1b0e5fd8cff47480",
+          "size": 859,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/event_types.lua"
+        },
+        "dwarfspec/automation/events.lua": {
+          "sha256": "dfc30d195769e85948f4e48804c8a598b1ca6b5d0d99527e418ef4be5b66cc06",
+          "size": 17681,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/events.lua"
+        },
+        "dwarfspec/automation/extensions.lua": {
+          "sha256": "74ce5540002e131bcd8d9a75b7b7ebb208ea66a7c9a0f4e4e58fe17d59387e26",
+          "size": 3268,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/extensions.lua"
+        },
+        "dwarfspec/automation/file_suite_identity.lua": {
+          "sha256": "68ce66214d1200a9824d1d9397c6c87117333573249d40e0c4a67ca6a4bbde52",
+          "size": 1955,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/file_suite_identity.lua"
+        },
+        "dwarfspec/automation/focus_diagnostics.lua": {
+          "sha256": "65009361e4855411b76e1632deadc6ada57b6c76fe52e340f4dd871bf75ea261",
+          "size": 9698,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/focus_diagnostics.lua"
+        },
+        "dwarfspec/automation/host.lua": {
+          "sha256": "2e7981ef3f90696631ad477b327abab64266ae5eb74d84145917527b0fddbfe6",
+          "size": 52888,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/host.lua"
+        },
+        "dwarfspec/automation/lfs_adapter.lua": {
+          "sha256": "58510dab32056dc2fdc3368f49ea6bdf394e48b0670804f65aa3ec8b00c0542c",
+          "size": 2205,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/lfs_adapter.lua"
+        },
+        "dwarfspec/automation/output_handler.lua": {
+          "sha256": "7bf634df1acc2759883bf88204a6a6f1a5d1b3fca69b6c8926caea9c59c3f5d5",
+          "size": 8790,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/output_handler.lua"
+        },
+        "dwarfspec/automation/overlay_registration.lua": {
+          "sha256": "2f7a09830fa092af190e8ddd04126bf775b661c825e448f5e8aa9a6785031759",
+          "size": 10231,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/overlay_registration.lua"
+        },
+        "dwarfspec/automation/owner_kinds.lua": {
+          "sha256": "05ab3787aa3d9ff17bb4a04bfec8ba36678fef39e1c276452b0089e9a0c22e22",
+          "size": 242,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/owner_kinds.lua"
+        },
+        "dwarfspec/automation/pointer_adapter.lua": {
+          "sha256": "d7e81dfc578d41682cf89c6627bc6e81efc7443f6a756f989017fda07e7299a8",
+          "size": 16117,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/pointer_adapter.lua"
+        },
+        "dwarfspec/automation/probe.lua": {
+          "sha256": "0e6556d328aaee0565f254145436dfcd62e78bea97d6c89b2ff518b78b804609",
+          "size": 199,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/probe.lua"
+        },
+        "dwarfspec/automation/problem_source.lua": {
+          "sha256": "461b2292df43b35c12945f764719410ffc5f2aa84e4e563b15c2a3b373b17fc0",
+          "size": 8591,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/problem_source.lua"
+        },
+        "dwarfspec/automation/project.lua": {
+          "sha256": "2361420e531a83b229032751c789586f3a0544ee20ae51fba4504d9d801892c5",
+          "size": 4503,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/project.lua"
+        },
+        "dwarfspec/automation/projects.lua": {
+          "sha256": "d72c7872888958c68ac433f37c320402c5485cf68acf17aa6b1471457f0c415c",
+          "size": 15531,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/projects.lua"
+        },
+        "dwarfspec/automation/recover.lua": {
+          "sha256": "c1ad3f369ee03ec7c803b2d8d22344c1941540c0aa9da4b9339a238401838404",
+          "size": 2190,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/recover.lua"
+        },
+        "dwarfspec/automation/recover_executor.lua": {
+          "sha256": "564c1f701fa32e430584f4ac0b4346b437bfe2d1dcdd2a122d80a5824eb6101f",
+          "size": 2321,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/recover_executor.lua"
+        },
+        "dwarfspec/automation/result_policies.lua": {
+          "sha256": "e73f8a2a015ff128f03886818baa5e20ca274e80961f79b9dff0f13566a49e3f",
+          "size": 226,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/result_policies.lua"
+        },
+        "dwarfspec/automation/result_states.lua": {
+          "sha256": "938de39220b0effbec90063329dc5bc2601fa915d48ba1875fb76660213b5a81",
+          "size": 744,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/result_states.lua"
+        },
+        "dwarfspec/automation/result_store.lua": {
+          "sha256": "2d878282b9551276be5f1f4bf94b227a2c3a7cf6e591303873f4227ea1d4b4a9",
+          "size": 5612,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/result_store.lua"
+        },
+        "dwarfspec/automation/run_query.lua": {
+          "sha256": "4b3cccfb2c9adc3fc4b1f217348f3b50adeff8be3a6968cf491b451032abbfc8",
+          "size": 3102,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/run_query.lua"
+        },
+        "dwarfspec/automation/run_states.lua": {
+          "sha256": "cec61005367d8b051f32594a15dacea7ed20d0232963f894adf34a12679f42de",
+          "size": 373,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/run_states.lua"
+        },
+        "dwarfspec/automation/scheduler.lua": {
+          "sha256": "bbd39eab4ba70bf10b14e893ae7a4f8118e8df468bfa311b5668f4919793b652",
+          "size": 43209,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/scheduler.lua"
+        },
+        "dwarfspec/automation/scheduler_failure_kinds.lua": {
+          "sha256": "fc589e13d17ed632fd1b40c8760e3abeabedde818ba13a05f6f91b71caf452eb",
+          "size": 446,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/scheduler_failure_kinds.lua"
+        },
+        "dwarfspec/automation/scheduler_status.lua": {
+          "sha256": "2e95fe2344a9f28fd001efc4913a9674f05af40bbb6f24e657442b0a80867d45",
+          "size": 2146,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/scheduler_status.lua"
+        },
+        "dwarfspec/automation/schemas.lua": {
+          "sha256": "3b1a80cdd3ddbf740be0e23a908382b32ad9510ca558ce97db320e3fcf30082a",
+          "size": 24678,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/schemas.lua"
+        },
+        "dwarfspec/automation/service.lua": {
+          "sha256": "8df5297511e9b95ba3785c19a10a720fe2e57369ebcaf5c31c77bccd1523ea17",
+          "size": 29563,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/service.lua"
+        },
+        "dwarfspec/automation/snapshots.lua": {
+          "sha256": "471497301413128ee942a65f72a43b00682a06b547b09318b5189895bb4fb67d",
+          "size": 7040,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/snapshots.lua"
+        },
+        "dwarfspec/automation/status.lua": {
+          "sha256": "2cd386487cc1f95991082259c50c91d97d19ad5a236ed7354f45c2ec8f3558cb",
+          "size": 2365,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/status.lua"
+        },
+        "dwarfspec/automation/system_adapter.lua": {
+          "sha256": "aa10c35d63680a5422c2b2d9a086e65c3a6eb9e45cf16a347a04bb281ed131f8",
+          "size": 1694,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/system_adapter.lua"
+        },
+        "dwarfspec/automation/test_statuses.lua": {
+          "sha256": "9549d1c088a7a51c21cf33d2b708318234811f5aa331a17bd8208778af8e212a",
+          "size": 274,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/automation/test_statuses.lua"
+        },
+        "dwarfspec/cli.lua": {
+          "sha256": "fd9d5e87f35ef162c367ccc5aac03d7dee7dbc9223db13ce100e8a5c135fa7f5",
+          "size": 28130,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/cli.lua"
+        },
+        "dwarfspec/component.lua": {
+          "sha256": "a22bd843990ea106a3c6e0cfb9d42480ae510a34053ac1cacf3bf65f6c5a2ddd",
+          "size": 9302,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/component.lua"
+        },
+        "dwarfspec/config.lua": {
+          "sha256": "ae595c626a7fe1aa1b103be0267316149a3c90632437ef50c837964cd458d500",
+          "size": 1945,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/config.lua"
+        },
+        "dwarfspec/config_schema.lua": {
+          "sha256": "6ee66f12d5354d3b6bfdced78704fdb2a8feaeb8dbb3aa989813ba1cc3e05836",
+          "size": 2168,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/config_schema.lua"
+        },
+        "dwarfspec/diagnostic_formatter.lua": {
+          "sha256": "cfadef09a1c2ccf1446f31bb4f88dafe3057abea867e61d823d3bdc57de6b6a9",
+          "size": 7678,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/diagnostic_formatter.lua"
+        },
+        "dwarfspec/dotenv.lua": {
+          "sha256": "7c50cb878341006e034e635e7b33435e1192653867a0a37aa798bbda02d0b46c",
+          "size": 3056,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/dotenv.lua"
+        },
+        "dwarfspec/ds.lua": {
+          "sha256": "c139bee738980f8625142a0fa7314e293e8653bf41773bc7839772691dc401e5",
+          "size": 81369,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/ds.lua"
+        },
+        "dwarfspec/error_formats.lua": {
+          "sha256": "aaf456b608ad4fdf4d4f7c36319dcc72af23a0291cc54f8dda4dff66700b7e50",
+          "size": 237,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/error_formats.lua"
+        },
+        "dwarfspec/glob.lua": {
+          "sha256": "e07975e2e21de75bf0d2d40bbf894650548ff8cca3844f241b96db7d8c08053f",
+          "size": 2961,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/glob.lua"
+        },
+        "dwarfspec/identity_labels.lua": {
+          "sha256": "3d3b219f619e113b5f73b8e1f80289b360c6426727e4bd07a9b8d71f189714cf",
+          "size": 855,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/identity_labels.lua"
+        },
+        "dwarfspec/immutable_enum.lua": {
+          "sha256": "28562864e47f76890307b978ba65d1aa1dac83a77f5502647f49294640493c63",
+          "size": 1971,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/immutable_enum.lua"
+        },
+        "dwarfspec/input_states.lua": {
+          "sha256": "4283bf24465825babd84f84798d8ded6f5972474786bbf66e926102482fce0da",
+          "size": 217,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/input_states.lua"
+        },
+        "dwarfspec/interaction_target.lua": {
+          "sha256": "d8b18a565a74ce73c75ea56babc3bdfcdebc098dfc718aeca74418107f5a7c3e",
+          "size": 7042,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/interaction_target.lua"
+        },
+        "dwarfspec/layout.lua": {
+          "sha256": "6946adf9d002653fa82be5ba93e9d57fe331984c5007139cd12742e961a46f48",
+          "size": 3515,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/layout.lua"
+        },
+        "dwarfspec/lua_view_adapter.lua": {
+          "sha256": "07520e0970735bb45ada0295a17b42cdb1f34ad6d1f4c1716b9abbb0935e0680",
+          "size": 9759,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/lua_view_adapter.lua"
+        },
+        "dwarfspec/mount_adapters.lua": {
+          "sha256": "6c1c4d2ad9b6aa2981259315a11cbf619a560893d55fb7994c679153978d1787",
+          "size": 11961,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/mount_adapters.lua"
+        },
+        "dwarfspec/mount_context.lua": {
+          "sha256": "10461475afc18830605e8819cfdc437c478fe281ae99f21099f2bb4a7d0a081d",
+          "size": 48095,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/mount_context.lua"
+        },
+        "dwarfspec/mouse_buttons.lua": {
+          "sha256": "55538d0d619b72a27a5e87887fa294e28788a6a01bd40f32cfce6d3da9af11f6",
+          "size": 316,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/mouse_buttons.lua"
+        },
+        "dwarfspec/native_attachment.lua": {
+          "sha256": "5ea6fee6df34f940e833e18c2c35238158804217c57bb2b32359ed44950a3cda",
+          "size": 3487,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/native_attachment.lua"
+        },
+        "dwarfspec/native_game_ui_path.lua": {
+          "sha256": "dba2a58fec6bdd7cab38aa97dda648906e9b5ab1ade58b368642cd857dbbc94c",
+          "size": 23819,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/native_game_ui_path.lua"
+        },
+        "dwarfspec/native_render_observer.lua": {
+          "sha256": "dfd3462959bd2e6a09ea881c866adb548aa72ed4a0bb8a4b47673d7f76e22d8c",
+          "size": 3185,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/native_render_observer.lua"
+        },
+        "dwarfspec/native_resolution_failure_kinds.lua": {
+          "sha256": "ac4b3d2d1af9575da1f00a2142dd1c27a3a111d10a9bd6d229399fef6bb09272",
+          "size": 865,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/native_resolution_failure_kinds.lua"
+        },
+        "dwarfspec/native_resolution_stages.lua": {
+          "sha256": "f775267990104f6b813029d30675c155ae2bba426ca6bb2dba6c450dca9d7fcc",
+          "size": 395,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/native_resolution_stages.lua"
+        },
+        "dwarfspec/native_widget_adapter.lua": {
+          "sha256": "3aced2d56ba58aa837cdaaa08673e1380c175fc827ce17d234b20cefa495b53d",
+          "size": 33038,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/native_widget_adapter.lua"
+        },
+        "dwarfspec/overlay_mount.lua": {
+          "sha256": "b60b4e0d5bd685c288e754b3bb81ce34e83bfe48a6f490a65eeca2a58c442973",
+          "size": 7695,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/overlay_mount.lua"
+        },
+        "dwarfspec/overlay_registry_adapter.lua": {
+          "sha256": "e0b707d4c14d6cf16a6decd63c0642c743f4fff95a627af451becc7d57b4a675",
+          "size": 8044,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/overlay_registry_adapter.lua"
+        },
+        "dwarfspec/pointer_anchors.lua": {
+          "sha256": "1d4c1435c6e70e77eb2ec9463a25ef9d1a8422e4588b2909951f56dd9b766245",
+          "size": 331,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/pointer_anchors.lua"
+        },
+        "dwarfspec/pointer_spaces.lua": {
+          "sha256": "10b8454968a3c0794dce304755fb26f3b875d026a5ab7b15e35231b7fc30618d",
+          "size": 245,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/pointer_spaces.lua"
+        },
+        "dwarfspec/process.lua": {
+          "sha256": "f6b297dc7030a1b8aa3d9f1ba2ffbc46a3f7bce1a81d4bc1511c1fecc104f274",
+          "size": 4534,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/process.lua"
+        },
+        "dwarfspec/project.lua": {
+          "sha256": "e459a119fd698aa65adb923c0810b19bfe782972f9435b4b966d5f60e98d1f6f",
+          "size": 5016,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/project.lua"
+        },
+        "dwarfspec/render_instrumentation.lua": {
+          "sha256": "a152a39840d424ab166b1252f7c68cf24334faf8deb35c45eb593762c9f344f3",
+          "size": 3087,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/render_instrumentation.lua"
+        },
+        "dwarfspec/render_tracker.lua": {
+          "sha256": "70c765718b47e9f32d0d463e8f57d615c2d2969d8ea26cd17e021b687a69da62",
+          "size": 2315,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/render_tracker.lua"
+        },
+        "dwarfspec/report.lua": {
+          "sha256": "c6c6572fdc15b867e41ff2d8359a8d7df6ff5dc2fa4fcc12c8fc0d40b61e9ec1",
+          "size": 15592,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/report.lua"
+        },
+        "dwarfspec/runner.lua": {
+          "sha256": "7937f65e9fea3f029f3669c7d232e5134964e76c0768c3f955f42b4390a0e353",
+          "size": 38433,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/runner.lua"
+        },
+        "dwarfspec/runner_failure_kinds.lua": {
+          "sha256": "abcbc60a50d58c32b630d102bd0cc1345fd05eb321fe787a4b366d5e153e5e71",
+          "size": 521,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/runner_failure_kinds.lua"
+        },
+        "dwarfspec/screen_origins.lua": {
+          "sha256": "5e5876b8e32daca190eeaf20afb061c5a4955e338321f30468e901b4294e2dc9",
+          "size": 415,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/screen_origins.lua"
+        },
+        "dwarfspec/settings.lua": {
+          "sha256": "63e698c46d4aaf7a0abe7d21def4066950cf7e02ad8f2aab79693d5ee057fd4e",
+          "size": 3008,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/settings.lua"
+        },
+        "dwarfspec/subject.lua": {
+          "sha256": "7e204e8f24e75f380b36e3d4e968b0afc39b658b8c93510629ed30ee84dad4f4",
+          "size": 6474,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/subject.lua"
+        },
+        "dwarfspec/subject_paths.lua": {
+          "sha256": "016e96134ae2ec3225d6ca087882fd6abc7f0e6f4d977f2481e9cae216415c3f",
+          "size": 3975,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/subject_paths.lua"
+        },
+        "dwarfspec/subject_requests.lua": {
+          "sha256": "51aad1ff58ca9c70a338df4866f3f10c00551ff33b0b63930e1a87a91b06b23f",
+          "size": 2958,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/subject_requests.lua"
+        },
+        "dwarfspec/subject_sources.lua": {
+          "sha256": "a2e3f94a499765cfab904f713a1575ce3816cd28961f5e61bff3e1fb97aa8f8c",
+          "size": 235,
+          "url": "https://raw.githubusercontent.com/dsisco11/DwarfSpec/4c09006ed1b133d25b67c752ff804c7652a51a43/src/dwarfspec/subject_sources.lua"
+        }
+      },
+      "homepage": "https://github.com/dsisco11/DwarfSpec",
+      "license": "MIT",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Thu, 30 Jul 2026 02:03:06 GMT",
+        "rockspec": {
+          "date": "Thu, 30 Jul 2026 02:03:06 GMT",
+          "sha256": "d7f519599eb8065ad6a46eb5210787dd272ad955ddb0819790ae8800cf680b16",
+          "size": 997
+        },
+        "src": {
+          "date": "Thu, 30 Jul 2026 02:03:07 GMT",
+          "sha256": "b3dd4d552de6997fe4d6712fe5151441dff0e28413c81ce53bdfe69452373036",
+          "size": 566897,
+          "url": "https://luarocks.org/dwarfspec-0.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "ds.d",
+        "dwarfspec.automation.abort",
+        "dwarfspec.automation.acknowledge",
+        "dwarfspec.automation.base_screen_focus_comparisons",
+        "dwarfspec.automation.base_screen_focus_guard",
+        "dwarfspec.automation.bootstrap",
+        "dwarfspec.automation.busted_lifecycle_adapter",
+        "dwarfspec.automation.cancel",
+        "dwarfspec.automation.cleanup",
+        "dwarfspec.automation.coroutine_scheduler",
+        "dwarfspec.automation.diagnostics",
+        "dwarfspec.automation.discard",
+        "dwarfspec.automation.event_read",
+        "dwarfspec.automation.event_types",
+        "dwarfspec.automation.events",
+        "dwarfspec.automation.extensions",
+        "dwarfspec.automation.file_suite_identity",
+        "dwarfspec.automation.focus_diagnostics",
+        "dwarfspec.automation.host",
+        "dwarfspec.automation.lfs_adapter",
+        "dwarfspec.automation.output_handler",
+        "dwarfspec.automation.overlay_registration",
+        "dwarfspec.automation.owner_kinds",
+        "dwarfspec.automation.pointer_adapter",
+        "dwarfspec.automation.probe",
+        "dwarfspec.automation.problem_source",
+        "dwarfspec.automation.project",
+        "dwarfspec.automation.projects",
+        "dwarfspec.automation.recover",
+        "dwarfspec.automation.recover_executor",
+        "dwarfspec.automation.result_policies",
+        "dwarfspec.automation.result_states",
+        "dwarfspec.automation.result_store",
+        "dwarfspec.automation.run_query",
+        "dwarfspec.automation.run_states",
+        "dwarfspec.automation.scheduler",
+        "dwarfspec.automation.scheduler_failure_kinds",
+        "dwarfspec.automation.scheduler_status",
+        "dwarfspec.automation.schemas",
+        "dwarfspec.automation.service",
+        "dwarfspec.automation.snapshots",
+        "dwarfspec.automation.status",
+        "dwarfspec.automation.system_adapter",
+        "dwarfspec.automation.test_statuses",
+        "dwarfspec.cli",
+        "dwarfspec.component",
+        "dwarfspec.config",
+        "dwarfspec.config_schema",
+        "dwarfspec.diagnostic_formatter",
+        "dwarfspec.dotenv",
+        "dwarfspec.ds",
+        "dwarfspec.error_formats",
+        "dwarfspec.glob",
+        "dwarfspec.identity_labels",
+        "dwarfspec.immutable_enum",
+        "dwarfspec.input_states",
+        "dwarfspec.interaction_target",
+        "dwarfspec.layout",
+        "dwarfspec.lua_view_adapter",
+        "dwarfspec.mount_adapters",
+        "dwarfspec.mount_context",
+        "dwarfspec.mouse_buttons",
+        "dwarfspec.native_attachment",
+        "dwarfspec.native_game_ui_path",
+        "dwarfspec.native_render_observer",
+        "dwarfspec.native_resolution_failure_kinds",
+        "dwarfspec.native_resolution_stages",
+        "dwarfspec.native_widget_adapter",
+        "dwarfspec.overlay_mount",
+        "dwarfspec.overlay_registry_adapter",
+        "dwarfspec.pointer_anchors",
+        "dwarfspec.pointer_spaces",
+        "dwarfspec.process",
+        "dwarfspec.project",
+        "dwarfspec.render_instrumentation",
+        "dwarfspec.render_tracker",
+        "dwarfspec.report",
+        "dwarfspec.runner",
+        "dwarfspec.runner_failure_kinds",
+        "dwarfspec.screen_origins",
+        "dwarfspec.settings",
+        "dwarfspec.subject",
+        "dwarfspec.subject_paths",
+        "dwarfspec.subject_requests",
+        "dwarfspec.subject_sources"
+      ],
+      "origin": {
+        "commit": "4c09006ed1b133d25b67c752ff804c7652a51a43",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/dsisco11/DwarfSpec.git"
+      },
+      "size": 759073,
+      "summary": "In-process Busted automation for live DFHack interfaces.",
+      "undeclared_requires": [
+        "gui",
+        "gui.widgets",
+        "json",
+        "plugins.overlay",
+        "system",
+        "utils"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "kong-jwt-claim-headers",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "kong",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "kong >= 0.10"
+      ],
+      "files": {
+        "kong/plugins/jwt-claim-headers/claim_headers.lua": {
+          "sha256": "02ef3fb619e70fc7203825d575db60d3ceb67fcc322b1bdc0c51a3b04d853634",
+          "size": 200,
+          "url": "https://raw.githubusercontent.com/uohzxela/kong-jwt-claim-headers/e5ce68032521cf0479b690239aaa780f9d4b8c9c/claim_headers.lua"
+        },
+        "kong/plugins/jwt-claim-headers/handler.lua": {
+          "sha256": "8b10a30187a641898ea8ea0d64e226bba0b6197b2fcbaa5096199f7cc25c57fd",
+          "size": 1782,
+          "url": "https://raw.githubusercontent.com/uohzxela/kong-jwt-claim-headers/e5ce68032521cf0479b690239aaa780f9d4b8c9c/handler.lua"
+        },
+        "kong/plugins/jwt-claim-headers/schema.lua": {
+          "sha256": "5c1e41f74aa0b42a2ffd00b339cede8245adba2bb7171beea636894b372077a3",
+          "size": 107,
+          "url": "https://raw.githubusercontent.com/uohzxela/kong-jwt-claim-headers/e5ce68032521cf0479b690239aaa780f9d4b8c9c/schema.lua"
+        }
+      },
+      "homepage": "https://geeks.wego.com",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 08 Dec 2017 07:49:18 GMT",
+        "rockspec": {
+          "date": "Fri, 08 Dec 2017 07:49:18 GMT",
+          "sha256": "f6900f42f6349d591b4937cfeded1ab0634069f253d666afa113d854d7bc69db",
+          "size": 590
+        },
+        "src": {
+          "date": "Fri, 08 Dec 2017 07:49:19 GMT",
+          "sha256": "1d1aa55c3d57dcd2391dc81f51a72b897c162bd31cfd24e10d34e6781c719770",
+          "size": 3659,
+          "url": "https://luarocks.org/kong-jwt-claim-headers-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-claim-headers.claim_headers",
+        "kong.plugins.jwt-claim-headers.handler",
+        "kong.plugins.jwt-claim-headers.schema"
+      ],
+      "origin": {
+        "commit": "e5ce68032521cf0479b690239aaa780f9d4b8c9c",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/uohzxela/kong-jwt-claim-headers"
+      },
+      "size": 2089,
+      "summary": "A Kong plugin to map JWT claims to request headers ",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.handler",
+        "kong.plugins.jwt.jwt_parser",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

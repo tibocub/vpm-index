@@ -1,0 +1,126 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-google-groups",
+  "versions": {
+    "1.0-5": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.6.1-1",
+        "lua-resty-http >= 0.15",
+        "lua-resty-jwt ~> 0.2.2",
+        "base64 >= 1.5",
+        "penlight >= 1.7.0",
+        "json-lua >= 0.1"
+      ],
+      "files": {
+        "kong/plugins/oidc-google-groups/access.lua": {
+          "sha256": "c34b98f59ebead255e7153e7d66335bf5313fdd708b191260473313709cade96",
+          "size": 4984,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/access.lua"
+        },
+        "kong/plugins/oidc-google-groups/daos.lua": {
+          "sha256": "9b0ff80b5af9e73e9bb123b388ec8e239220267267fe14d906a1b2168f007cc9",
+          "size": 1811,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/daos.lua"
+        },
+        "kong/plugins/oidc-google-groups/directoryapi.lua": {
+          "sha256": "9349463a18a5cfe6f6dd1bd37024ab15655fa588aef31789f7ddcde3f98f5c50",
+          "size": 3030,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/directoryapi.lua"
+        },
+        "kong/plugins/oidc-google-groups/filters.lua": {
+          "sha256": "4c97a73df65e2e0b1c6dbfb5f3954747e97693d31d8e682d7c452da71d4c2ee0",
+          "size": 1112,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/filters.lua"
+        },
+        "kong/plugins/oidc-google-groups/googleoauth.lua": {
+          "sha256": "6c4a75f1bccec9b8e8c8f63035ff742a8dbab5f5879c349c0a524e30ae0d9680",
+          "size": 7628,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/googleoauth.lua"
+        },
+        "kong/plugins/oidc-google-groups/handler.lua": {
+          "sha256": "437265633ee548b8cccc48c74c1ebba823838abe2dfb5c151c3918c5e1a25296",
+          "size": 1512,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/handler.lua"
+        },
+        "kong/plugins/oidc-google-groups/memberships.lua": {
+          "sha256": "d64ec4b0df1d561226e52a72cc34fe4915c3aea6951a9909fb1f9e9d401f0906",
+          "size": 5455,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/memberships.lua"
+        },
+        "kong/plugins/oidc-google-groups/migrations/000_base_kong_google_auth.lua": {
+          "sha256": "94896d531da187e446ba3957e27a4fc6359ff43ac73d455b39569165ba392ca4",
+          "size": 1840,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/migrations/000_base_kong_google_auth.lua"
+        },
+        "kong/plugins/oidc-google-groups/migrations/init.lua": {
+          "sha256": "63b43e890876a3eecce32d637f104d217fbfac9bfa769c0e28c5666742417c20",
+          "size": 41,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/migrations/init.lua"
+        },
+        "kong/plugins/oidc-google-groups/schema.lua": {
+          "sha256": "50f413bf7005f1a6c54c11a17ef62ed83d9f663c09d0c36987fcb8c739a719e4",
+          "size": 3803,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/schema.lua"
+        },
+        "kong/plugins/oidc-google-groups/utilities.lua": {
+          "sha256": "58659485273343cedee06cdf9c8c8a6413129101aa0399bf4cc616a37cd70093",
+          "size": 5343,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc-google-groups/5d33d345c537b2a7e5c7164493cacf45cf40cbfd/kong/plugins/oidc-google-groups/utilities.lua"
+        }
+      },
+      "homepage": "https://github.com/newtonx-inc/kong-oidc-google-groups",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 24 Mar 2021 02:30:24 GMT",
+        "rockspec": {
+          "date": "Wed, 24 Mar 2021 02:30:24 GMT",
+          "sha256": "550e86bd963d197d9efac8a2db4da0ccca129f8f5ec5cf4b07310991c0b9135d",
+          "size": 2158
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc-google-groups.access",
+        "kong.plugins.oidc-google-groups.daos",
+        "kong.plugins.oidc-google-groups.directoryapi",
+        "kong.plugins.oidc-google-groups.filters",
+        "kong.plugins.oidc-google-groups.googleoauth",
+        "kong.plugins.oidc-google-groups.handler",
+        "kong.plugins.oidc-google-groups.memberships",
+        "kong.plugins.oidc-google-groups.migrations",
+        "kong.plugins.oidc-google-groups.migrations.000_base_kong_google_auth",
+        "kong.plugins.oidc-google-groups.schema",
+        "kong.plugins.oidc-google-groups.utilities"
+      ],
+      "origin": {
+        "commit": "5d33d345c537b2a7e5c7164493cacf45cf40cbfd",
+        "ref": "v1.0-5",
+        "type": "git",
+        "url": "https://github.com/newtonx-inc/kong-oidc-google-groups"
+      },
+      "size": 36559,
+      "summary": "A Kong plugin for implementing Google OIDC, with additional Google Groups-based authorization",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

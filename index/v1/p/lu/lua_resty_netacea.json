@@ -1,0 +1,115 @@
+{
+  "kind": "lib",
+  "name": "lua_resty_netacea",
+  "versions": {
+    "1.6.3-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "luaossl",
+        "lua-resty-http",
+        "lbase64",
+        "lua-cjson",
+        "lua-resty-jwt"
+      ],
+      "files": {
+        "kinesis_resty.lua": {
+          "sha256": "e6c25677b0337524e20511f7e11221d00192b2626e5ebfebc0ebfa7bef0ef3ab",
+          "size": 4805,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/kinesis_resty.lua"
+        },
+        "lua_resty_netacea.lua": {
+          "sha256": "d600abe0fa7e88975bb4a6cc7f0868d074087ac674a94bd1b5c15126c964f42f",
+          "size": 17512,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/lua_resty_netacea.lua"
+        },
+        "lua_resty_netacea_constants.lua": {
+          "sha256": "713338a5e9b6323cc317e2d8c6bfcb0fcab2dd0a07e38645bc51b0ee1e426012",
+          "size": 2096,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/lua_resty_netacea_constants.lua"
+        },
+        "lua_resty_netacea_cookies_v3.lua": {
+          "sha256": "15b0c49b856cc3e8467e8e8a71dbde57032ed481d448f9b75fe48946ea7aa5bf",
+          "size": 4307,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/lua_resty_netacea_cookies_v3.lua"
+        },
+        "lua_resty_netacea_ingest.lua": {
+          "sha256": "7e8ecec09a0b43fc305f89f3d2c81a845b8d8ff8297893c3bce12e7a879436b9",
+          "size": 8348,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/lua_resty_netacea_ingest.lua"
+        },
+        "lua_resty_netacea_mitigation.lua": {
+          "sha256": "d0435c7e232a22f6173a17e89a3aa97cb06c1642d463f8446a70b60ee01cf874",
+          "size": 5384,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/lua_resty_netacea_mitigation.lua"
+        },
+        "lua_resty_netacea_protector_client.lua": {
+          "sha256": "3f07affb4e52c695c9262f5ffb2e047d022b65a299a23deb2a29e459385bd6b2",
+          "size": 5141,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/lua_resty_netacea_protector_client.lua"
+        },
+        "netacea_utils.lua": {
+          "sha256": "b2e8e6da3f822abf44a804750366ea05b8ab9c2b2fdac3efd733a46c81680c3b",
+          "size": 2727,
+          "url": "https://raw.githubusercontent.com/Netacea/lua_resty_netacea/f52e04ca5a5e3b582c9cc4f92811ed47212522e3/src/netacea_utils.lua"
+        }
+      },
+      "homepage": "https://github.com/Netacea/lua_resty_netacea",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.4",
+      "luajit": true,
+      "luarocks": {
+        "date": "Fri, 31 Jul 2026 09:21:55 GMT",
+        "rockspec": {
+          "date": "Fri, 31 Jul 2026 09:21:55 GMT",
+          "sha256": "af6179fbff61058c4fe38c2afc940d3fa72f3825942459efe0ad7911485ee64e",
+          "size": 1055
+        },
+        "src": {
+          "date": "Fri, 31 Jul 2026 09:21:56 GMT",
+          "sha256": "236c7c4904e28a35ade9c354df9cd1a3a38480632d9557f6733fb54ec6aa2961",
+          "size": 71614,
+          "url": "https://luarocks.org/lua_resty_netacea-1.6.3-0.src.rock"
+        }
+      },
+      "modules": [
+        "kinesis_resty",
+        "lua_resty_netacea",
+        "lua_resty_netacea_constants",
+        "lua_resty_netacea_cookies_v3",
+        "lua_resty_netacea_ingest",
+        "lua_resty_netacea_mitigation",
+        "lua_resty_netacea_protector_client",
+        "netacea_utils"
+      ],
+      "origin": {
+        "commit": "f52e04ca5a5e3b582c9cc4f92811ed47212522e3",
+        "ref": "v1.6.3",
+        "type": "git",
+        "url": "https://github.com/Netacea/lua_resty_netacea"
+      },
+      "size": 50320,
+      "summary": "An Openresty module for easy integration of Netacea services",
+      "undeclared_requires": [
+        "ngx",
+        "ngx.base64",
+        "resty.jwt",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

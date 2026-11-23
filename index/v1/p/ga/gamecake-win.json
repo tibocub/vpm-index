@@ -1,0 +1,107 @@
+{
+  "kind": "lib",
+  "name": "gamecake-win",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/win.lua": {
+          "sha256": "07aeb4148ca12d32792c7f423b56e21d8563ab7f4ca076f07e356b101b0738cd",
+          "size": 14402,
+          "url": "blob:07aeb4148ca12d32792c7f423b56e21d8563ab7f4ca076f07e356b101b0738cd"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:26:50 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:26:50 GMT",
+          "sha256": "160282c88ce5fe7d4303620d24fcee19eb730badeaf86891cd2351f5ece92b86",
+          "size": 1186
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:26:51 GMT",
+          "sha256": "5ce1e1f93106ccb522167ba90be526346c4a65c4e61705fca5d5a7d17426328e",
+          "size": 14724,
+          "url": "https://luarocks.org/gamecake-win-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.win",
+        "wetgenes.win.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SDL_LIB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SDL_LIB": {
+              "header": "SDL2/SDL_scancode.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "lua_win",
+                "lib_hacks/code",
+                "$(SDL_LIB_INCDIR)/SDL2"
+              ],
+              "libraries": [
+                "SDL2"
+              ],
+              "name": "wetgenes.win.core",
+              "sources": [
+                "lua_win/code/lua_win.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:26:51 GMT",
+        "sha256": "5ce1e1f93106ccb522167ba90be526346c4a65c4e61705fca5d5a7d17426328e",
+        "size": 14724,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-win-0.9-261005.src.rock"
+      },
+      "size": 14402,
+      "summary": "win hacks",
+      "undeclared_requires": [
+        "SDL",
+        "bit",
+        "global",
+        "lanes",
+        "socket",
+        "wetgenes.logs",
+        "wetgenes.pack",
+        "wetgenes.path",
+        "wetgenes.sandbox",
+        "wetgenes.string",
+        "wetgenes.win.",
+        "wetgenes.win.posix",
+        "wetgenes.win.sdl",
+        "wetgenes.win.steam",
+        "wetgenes.zips"
+      ],
+      "vlr": {
+        "cause": "missing module: wetgenes.path",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

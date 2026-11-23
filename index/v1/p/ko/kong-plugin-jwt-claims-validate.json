@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-claims-validate",
+  "versions": {
+    "1.1-4": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-claims-validate/handler.lua": {
+          "sha256": "0d0501719a71a554a1ad37d73bd5fb17a964d2873e942d92ddcfb986f1e34621",
+          "size": 5286,
+          "url": "https://raw.githubusercontent.com/zsh1313/kong-plugin-jwt-claims-validate/d8579ec45d5f8af8171e1b300e9f8dda5bfad650/handler.lua"
+        },
+        "kong/plugins/jwt-claims-validate/schema.lua": {
+          "sha256": "7c34fdee7b0f1deaf75cbc36b17166c94ceb19fe1c4e813be03c2c41f3476ed8",
+          "size": 755,
+          "url": "https://raw.githubusercontent.com/zsh1313/kong-plugin-jwt-claims-validate/d8579ec45d5f8af8171e1b300e9f8dda5bfad650/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/zsh1313/kong-plugin-jwt-claims-validate.git",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 18 Apr 2018 01:33:25 GMT",
+        "rockspec": {
+          "date": "Wed, 18 Apr 2018 01:33:25 GMT",
+          "sha256": "30e9288d512e81f35d82b7ec28ad26809e5574c64613234daacd4489151b964f",
+          "size": 564
+        },
+        "src": {
+          "date": "Wed, 18 Apr 2018 01:33:27 GMT",
+          "sha256": "d19c4639ba4beb3802709bf6cf4a27107be67488ff4bd96cacb33bd8980d7ba4",
+          "size": 6183,
+          "url": "https://luarocks.org/kong-plugin-jwt-claims-validate-1.1-4.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-claims-validate.handler",
+        "kong.plugins.jwt-claims-validate.schema"
+      ],
+      "origin": {
+        "commit": "d8579ec45d5f8af8171e1b300e9f8dda5bfad650",
+        "ref": "v1.1",
+        "type": "git",
+        "url": "https://github.com/zsh1313/kong-plugin-jwt-claims-validate.git"
+      },
+      "size": 6041,
+      "summary": "A Kong plugin to check JWT claim values",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

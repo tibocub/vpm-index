@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "luasql-duckdb",
+  "versions": {
+    "2.8.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://lunarmodules.github.io/luasql/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 14 Feb 2026 19:33:00 GMT",
+        "rockspec": {
+          "date": "Sat, 14 Feb 2026 19:33:00 GMT",
+          "sha256": "2b5394357396c3943bf3cf90f3b4849e27c3dc125fa8b4390ea75eeaaf564891",
+          "size": 984
+        },
+        "src": {
+          "date": "Sat, 14 Feb 2026 19:33:01 GMT",
+          "sha256": "c4a97cad44b77213561e32caf3ef62ad32b8764373d26f6f13ae1bd4b17f11a7",
+          "size": 212951,
+          "url": "https://luarocks.org/luasql-duckdb-2.8.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.duckdb"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "DUCKDB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "DUCKDB": {
+              "header": "duckdb.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "LUASQL_VERSION_NUMBER=\"2.8.0\""
+              ],
+              "incdirs": [
+                "$(DUCKDB_INCDIR)"
+              ],
+              "libdirs": [
+                "$(DUCKDB_LIBDIR)"
+              ],
+              "libraries": [
+                "duckdb"
+              ],
+              "name": "luasql.duckdb",
+              "sources": [
+                "src/luasql.c",
+                "src/ls_duckdb.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 14 Feb 2026 19:33:01 GMT",
+        "sha256": "c4a97cad44b77213561e32caf3ef62ad32b8764373d26f6f13ae1bd4b17f11a7",
+        "size": 212951,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasql-duckdb-2.8.0-1.src.rock"
+      },
+      "summary": "Database connectivity for Lua (DuckDB driver)",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

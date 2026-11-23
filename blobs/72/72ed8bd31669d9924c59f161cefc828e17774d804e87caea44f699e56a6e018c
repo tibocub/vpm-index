@@ -1,0 +1,1363 @@
+
+local lfs = require "lfs"
+
+---@alias sfs.FileType 'file' | 'directory' | 'link' | 'socket' | 'char device' | "block device" | "named pipe"
+
+local mt = {}
+
+--- A simple filesystem access interface through luafilesystem
+---@class sfs
+---@field onexec fun(cmd: string, env: table) # called when a command is executed
+---@field onfs fun(op: string, ...) # called when an fs instruction is invoked
+local sfs = {}
+
+local IS_WIN = package.config:sub(1, 1) == '\\'
+
+---@diagnostic disable-next-line: deprecated
+local unpack = unpack or table.unpack
+
+local coroutine_wrap = coroutine.wrap
+
+--#region Path formatting
+
+---@type string OS dependant directory seperator.
+sfs.DIR_SEP = package.config:sub(1, 1)
+
+--- Normalizes a file path according to OS specific filepath rules.
+---@param path string
+---@return string
+---@nodiscard
+function sfs.normalize(path)
+	local root = path:match "^(%a:)[/\\]" or path:match "^%a:$" or path:match "^[/\\]" and sfs.DIR_SEP or ""
+
+	if #root == 2 then
+		root = root..sfs.DIR_SEP
+	elseif root:find "[\\/]" then
+		root = sfs.DIR_SEP
+	end
+
+	path = path:sub(#root+1):gsub("\\", "/")
+	if root == "" then
+		root = "."..sfs.DIR_SEP
+	end
+
+	local result = {}
+	local i = 0
+	local toReduce = 0
+
+	for subitem in path:gmatch "[^/]+" do
+		if subitem == '.' then
+			i = i
+		elseif subitem == '..' then
+			if toReduce > 0 then
+				result[i] = nil
+				i = i - 1
+				toReduce = toReduce - 1
+			else
+				i = i + 1
+				result[i] = '..'
+			end
+		else
+			i = i + 1
+			toReduce = toReduce + 1
+			result[i] = subitem
+		end
+	end
+
+	if result[1] == '..' then
+		root = result[1]..sfs.DIR_SEP
+		table.remove(result, 1)
+	end
+
+	return root..table.concat(result, sfs.DIR_SEP)
+end
+
+function sfs.getroot(path)
+	local root = path:match "^%a:[/\\]?" or path:match "^[\\/]"
+
+	return root or '.'
+end
+
+do -- sfs.torelative
+	local function splitpath(p)
+		local res = {}
+		for seg in p:gmatch "[^/\\]+" do
+			res[#res+1] = seg
+		end
+		return res
+	end
+
+	--- Converts an absolute path relative to a given directory.
+	---@param abspath string
+	---@param relativeTo string
+	---@return string
+	---@nodiscard
+	function sfs.relpath(abspath, relativeTo)
+		abspath = sfs.normalize(abspath)
+		relativeTo = sfs.normalize(relativeTo) or lfs.currentdir()
+
+		local absparts, cwdparts = splitpath(abspath), splitpath(relativeTo)
+
+		local rel = {}
+
+		local max = math.max(#absparts, #cwdparts)
+		local joined = max+1
+
+		for i = 1, max do
+			local abspart, cwdpart = absparts[i], cwdparts[i]
+			--TODO: check if path is on NTFS rather than checking if plat is Windows.
+			if abspart ~= cwdpart and not (IS_WIN and abspart and cwdpart and abspart:lower() == cwdpart:lower()) then
+				joined = i
+				break
+			end
+		end
+
+		for i = joined, #cwdparts do
+			rel[#rel+1] = ".."
+		end
+
+		for i = joined, #absparts do
+			rel[#rel+1] = absparts[i]
+		end
+
+		return sfs.normalize(table.concat(rel, '/'))
+	end
+
+	function sfs.abspath(relpath)
+		local path = sfs.normalize(relpath)
+		if sfs.getroot(path) == '.' then
+			return sfs.combine(sfs.cwd(), relpath)
+		else
+			return path
+		end
+	end
+
+	function sfs.pathEquals(a, b)
+		a, b = sfs.abspath(a):lower(), sfs.abspath(b):lower()
+
+		return a == b
+	end
+
+	function sfs.isAncestor(parent, child)
+		parent, child = sfs.abspath(parent):lower(), sfs.abspath(child):lower()
+		local parentparts, childparts = splitpath(parent), splitpath(child)
+
+		for i = 1, #parentparts do
+			if parentparts[i] ~= childparts[i] then return false end
+		end
+
+		return true
+	end
+end
+
+--- Combines any number of bread crumb strings according to a single path and normalizes the result
+---@param ... string
+---@return string
+---@nodiscard
+function sfs.combine(...)
+	local path = { ... }
+	for i = 1, #path do
+		path[i] = tostring(path[i])
+	end
+	return sfs.normalize(table.concat(path, sfs.DIR_SEP))
+end
+
+--- Returns the directory part of a path `(/dir)/file.ext`
+--- Shorthand for sfs.matchPath(path, "d")
+---@param path string
+---@return string dirname
+---@nodiscard
+function sfs.getDir(path)
+	return sfs.matchPath(path, "d")
+end
+
+--- Returns the name part of a path `/dir/(file.ext)`
+--- Shorthand for sfs.matchPath(path, "B")
+---@param path string
+---@return string filename
+---@nodiscard
+function sfs.getName(path)
+	return sfs.matchPath(path, "B")
+end
+
+--- Returns the basename of a path `/dir/(file).ext`
+--- Shorthand for sfs.matchPath(path, "b") instead
+---@param path string
+---@return string basename
+---@nodiscard
+function sfs.getBaseName(path)
+	return sfs.matchPath(path, "b")
+end
+
+--- Returns the extension of a path `/dir/file.(ext)`
+--- Shorthand for sfs.matchPath(path, "e") instead
+---@param path string
+---@return string? extension
+---@nodiscard
+function sfs.getExtension(path)
+	return sfs.matchPath(path, "e")
+end
+
+do
+	local function matcher(pat)
+		return function(str)
+			return str:match(pat)
+		end
+	end
+
+	local function either(...)
+		local choose = { ... }
+		return function(str)
+			for _, item in ipairs(choose) do
+				local res = item(str)
+				if res then return res end
+			end
+		end
+	end
+
+	local function const(v)
+		return function() return v end
+	end
+
+	---@type table<string, fun(path: string): string>
+	local PATH_SEGMENTS = {
+		e = either(matcher "%.([^.\\/]*)$", const(nil)),
+		E = either(matcher "(%.[^.\\/]*)$", const(nil)),
+		b = either(matcher "([^/\\]*)%.[^./\\]-$", matcher "[^/\\]*$"),
+		B = matcher "[^/\\]*$",
+		d = either(matcher "^([/\\])[^/\\]*$", matcher "^(%a:[/\\]?)[^\\/]-$", matcher "^(.-)[/\\][^/\\]+$", const "."),
+		D = either(matcher "^([/\\])[^/\\]*$", matcher "^(%a:[/\\]?)[^\\/]-$", matcher "^(.-[/\\])[^/\\]+$", function() return "."..sfs.DIR_SEP end),
+		p = either(matcher "^.-([^/\\]+)[/\\][^/\\]+$", const "."),
+		P = either(matcher "^.-([^/\\]+[/\\])[^/\\]+$", function() return "."..sfs.DIR_SEP end),
+	}
+
+	--- Splits a path using a description of what information is needed and returns them in given:
+	--- - `e`: extension (nil on failure)
+	--- - `E`: extension with leading dot (nil on failure)
+	--- - `d`: dirname
+	--- - `D`: dirname with trailing slash
+	--- - `b`: basename (filename without extension)
+	--- - `B`: filename (including extension)
+	--- - `p`: name of parent directory
+	--- - `P`: name of parent directory with trailing slash
+	---@param path string
+	---@param crumbs string
+	---@return string ...
+	---@nodiscard
+	function sfs.matchPath(path, crumbs)
+		if type(crumbs) ~= 'string' then
+			error(string.format("#2 expected 'string', got '%s'", type(crumbs), 2))
+		elseif not crumbs:find("^[eEbBdDpP]*$") then
+			error(string.format("invalid crumb '%s' in '%s'", crumbs:match "[^eEbBdDpP]+", crumbs), 2)
+		end
+
+		path = sfs.normalize(path)
+
+		local results = {}
+		for i = 1, #crumbs do
+			results[i] = PATH_SEGMENTS[crumbs:sub(i, i)](path)
+		end
+		return unpack(results)
+	end
+
+	--- Returns a table with a detailed breakdown of the path components.
+	---@param path string
+	---@return sfs.pathinfo
+	---@nodiscard
+	function sfs.parsePath(path)
+		---@class sfs.pathinfo
+		local result = {
+			path = path
+		}
+		result.dirname, result.basename, result.ext
+			= sfs.matchPath(path, "dbe")
+		return result
+	end
+
+	local splitmt = {}
+
+	function splitmt:__index(f)
+		self[f] = PATH_SEGMENTS[f](self.path)
+		return rawget(self, f) or ""
+	end
+
+	--- Creates a new path from a given format, using a path as a source
+	--- `%[class]` will be substituted by the result of `sfs.matchPath(path, class)`.
+	---@param fmt string i.e. `"%P%b.o"`
+	---@param path string i.e. `"/tmp/cfile.c"`
+	---@return string formattedPath i.e. `"/tmp/cfile.o"`
+	---@see sfs.matchPath
+	---@nodiscard
+	function sfs.formatPath(fmt, path)
+		path = sfs.normalize(path)
+		local splits = setmetatable({ path = sfs.normalize(path) }, splitmt)
+		return (fmt:gsub("[\\/]", sfs.DIR_SEP):gsub("%%([eEbBdDpP])", splits))
+	end
+end
+
+--#endregion
+
+--#region FS operations
+
+sfs.chdir = lfs.chdir
+sfs.cwd = lfs.currentdir
+
+local function mkdir(dir)
+	local parent = sfs.getDir(dir)
+	if parent ~= dir and not sfs.attributes(parent) then
+		local ok, err = mkdir(parent)
+		if not ok then
+			return false, err
+		end
+	end
+	return lfs.mkdir(dir)
+end
+
+---@alias sfs.openmode
+---|>"r"   # Read mode.
+---| "w"   # Write mode.
+---| "a"   # Append mode.
+---| "r+"  # Update mode, all previous data is preserved.
+---| "w+"  # Update mode, all previous data is erased.
+---| "a+"  # Append update mode, previous data is preserved, writing is only allowed at the end of file.
+---| "rb"  # Read mode. (in binary mode.)
+---| "wb"  # Write mode. (in binary mode.)
+---| "ab"  # Append mode. (in binary mode.)
+---| "r+b" # Update mode, all previous data is preserved. (in binary mode.)
+---| "w+b" # Update mode, all previous data is erased. (in binary mode.)
+---| "a+b" # Append update mode, previous data is preserved, writing is only allowed at the end of file. (in binary mode.)
+
+--- Like io.open, but creates parent folder if nescessary (for writing and appending).
+---@param filename string
+---@param mode?    sfs.openmode
+---@return file*?
+---@return string? errmsg
+---@nodiscard
+function sfs.open(filename, mode)
+	if mode and mode:find "[wa]" then
+		mkdir(sfs.getDir(filename))
+	end
+
+	return io.open(filename, mode)
+end
+
+sfs.lines = io.lines
+
+sfs.chdir = lfs.chdir
+sfs.currentdir = lfs.currentdir
+
+local globaltmpfilehandles = setmetatable({}, { __mode = 'v' })
+local globaltmppaths = {}
+do -- temporary files
+	local currenttmpscope = globaltmppaths
+
+	--- Generates a random file path name, ready to be written to read from.
+	--- Fixes wrong file path generation on some Windows versions.
+	--- You have to always try to delete it, once no longer needed and before the program ends,
+	--- because (on POSIX systems, the file will already be created for security reasons).
+	--- Call sfs.deltmppath for that
+	---@return string
+	---@nodiscard
+	---@see sfs.exit
+	function sfs.tmppath()
+		local tmpname = os.tmpname()
+		if tmpname:find '^\\' then
+			tmpname = sfs.combine(os.getenv("TEMP") or ".", tmpname:sub(2))
+			if tmpname:find "%.$" then
+				tmpname = tmpname:sub(1, -2)
+			end
+		end
+		globaltmppaths[tmpname] = true
+		currenttmpscope[tmpname] = true
+		sfs.onfs("tmppath", tmpname)
+		return tmpname
+	end
+
+	---@class sfs.TmpFile : file*
+	local TmpFile = {}
+
+	function TmpFile:close()
+		local ok, err = pcall(self.handle.close, self.handle)
+		sfs.deltmppath(self.path)
+		if not ok then
+	---@diagnostic disable-next-line: cast-type-mismatch
+			---@cast err string
+			error(err:match("[^:]+:%d+:(.-)$"), 2)
+		end
+
+		return err
+	end
+
+	function TmpFile:__index(k)
+		if TmpFile[k] then return TmpFile[k] end
+
+		if self.handle[k] then
+			self[k] = function(_, ...)
+				return self.handle[k](self.handle, ...)
+			end
+		end
+
+		return rawget(self, k)
+	end
+
+	function TmpFile:__gc()
+		pcall(self.handle.close, self.handle)
+		sfs.deltmppath(self.path)
+	end
+
+	--- Like io.tmpfile, but fixes wrong paths on Windows
+	--- It is advised to always close this file manually,
+	--- as os.exit() could interfere with the deletion
+	--- process as by not invoking `__gc`.
+	--- to ensure deletion of unclosed tmpfiles, call `sfs.exit`
+	---@return file*?, string?
+	---@nodiscard
+	---@see sfs.exit
+	function sfs.tmpfile()
+		local nativehandle = io.tmpfile()
+
+		-- use native if possible
+		if nativehandle then return nativehandle end
+
+		---@class sfs.TmpFile
+		local tmpfile = setmetatable({}, TmpFile)
+		local err;
+		tmpfile.path = sfs.tmppath()
+		tmpfile.handle, err = io.open(tmpfile.path, "w+")
+
+		if not tmpfile.handle then
+			sfs.deltmppath(tmpfile.path)
+			return nil, err
+		end
+
+		if newproxy then -- fix luajit/PUC Lua 5.1 not calling the damned __gc method
+			tmpfile._proxy = newproxy(true)
+			getmetatable(tmpfile._proxy).__gc = function ()
+				tmpfile:__gc()
+			end
+		end
+
+		globaltmpfilehandles[tmpfile.path] = tmpfile
+		currenttmpscope[tmpfile.path] = true
+
+		return tmpfile
+	end
+
+	--- Deletes a file if and only if that file has been previously created via sfs.tmppath().
+	---@param path string
+	---@return boolean success, string? errmsg
+	---@see sfs.tmppath
+	function sfs.deltmppath(path)
+		if globaltmppaths[path] then
+			globaltmppaths[path] = nil
+			globaltmpfilehandles[path] = nil
+			sfs.onfs("deltmppath", path)
+			return os.remove(path)
+		end
+
+		return false, "tmppath was not created first"
+	end
+
+	function mt.__gc()
+		for _, h in pairs(globaltmpfilehandles) do
+			pcall(h.close, h)
+		end
+
+		for path in pairs(globaltmppaths) do
+			sfs.deltmppath(path)
+		end
+	end
+
+	---@class sfs.tmpscope
+
+	---@return sfs.tmpscope
+	function sfs.tmpscope()
+		return {}
+	end
+
+	---@param tmpscope sfs.tmpscope
+	function sfs.switchtmpscope(tmpscope)
+		local oldtmpscope = sfs.currenttmpscope()
+		currenttmpscope = tmpscope
+		return oldtmpscope
+	end
+
+	---@return sfs.tmpscope
+	function sfs.currenttmpscope()
+		return currenttmpscope
+	end
+
+	---@return sfs.tmpscope
+	function sfs.globaltmpscope()
+		return globaltmppaths
+	end
+
+	---@param scope sfs.tmpscope
+	function sfs.deltmpscope(scope)
+		scope = scope or currenttmpscope
+		for tmpname in pairs(scope) do
+			local tmpfile = globaltmpfilehandles[tmpname]
+			if tmpfile then
+				tmpfile:__gc()
+			else
+				sfs.deltmppath(tmpname)
+			end
+		end
+	end
+end
+
+--- Reads in the whole content of a file.
+---@param path string
+---@param binary boolean? default: `true`
+---@return string?, string? content?, errmessage?
+---@nodiscard
+function sfs.read(path, binary)
+	sfs.onfs("read", path, binary)
+	binary = binary == nil and true or binary
+	local file, err = io.open(path, binary and 'rb' or 'r')
+	if not file then return nil, err end
+	local data = file:read "*a"
+	file:close()
+	return data
+end
+
+--- Writes whole data to file.
+---@param path string
+---@param data string
+---@param binary boolean? default: `true`
+---@return boolean success, string? errmessage
+function sfs.write(path, data, binary)
+	sfs.onfs("write", path, binary)
+	binary = binary == nil and true or binary
+	local file, ok, err
+	file, err = io.open(path, 'wb')
+	if not file then return false, err end
+	ok, err = file:write(data)
+	if ok then
+		ok, err = file:close()
+	end
+	return not not ok, err
+end
+
+do -- copy
+	---@type integer Chunk size to be used for copying.
+	sfs.CHUNK_SIZE = 4 * 2^10
+
+	local function copyFile(src, dst)
+		local output, oerr = io.open(dst, 'wb')
+		if not output then return false, oerr end
+		local input, ierr = io.open(src, 'rb')
+		if not input then
+			output:close()
+			return false, ierr
+		end
+
+		while true do
+			local chunk = input:read(sfs.CHUNK_SIZE)
+			if not chunk then
+				input:close()
+				break
+			end
+
+			local ok, err = output:write(chunk)
+			if not ok then
+				input:close()
+				return false, err
+			end
+		end
+
+		output:close()
+
+		return true
+	end
+
+	local function recursiveCopy(src, dst)
+		for path in sfs.recurse(src) do
+			local relpart = sfs.relpath(path, src)
+			local pathdst = sfs.combine(dst, relpart)
+			local ftype = sfs.attributes(path, 'mode')
+
+			local ok, err = true, nil
+			if ftype == 'file' then
+				mkdir(sfs.matchPath(pathdst, "d"))
+				ok, err = copyFile(path, pathdst)
+			elseif ftype == 'directory' then
+				ok, err = mkdir(pathdst)
+			end
+			if not ok then return ok, err end
+		end
+
+		return true
+	end
+
+	--- Creates a directory and if nescessary all parents
+	---@param dir string
+	---@return boolean success, string error
+	function sfs.mkdir(dir)
+		return mkdir(dir)
+	end
+
+	--- Copies a file from src to dst. `sfs.CHUNK_SIZE` is used to.
+	---@param src string
+	---@param dst string
+	---@param mode? 'recursive' if given, recursivly copies files
+	---@return boolean success, string? errmsg
+	function sfs.copy(src, dst, mode)
+		local t = sfs.getType(dst)
+		if t then return false, dst.." already exists as a "..t end
+		local parent = sfs.getDir(dst)
+		if not sfs.isDir(parent) then
+			mkdir(parent)
+		end
+		if mode == 'recursive' then
+			return recursiveCopy(src, dst)
+		else
+			return copyFile(src, dst)
+		end
+	end
+end
+
+--- Moves a file or directory to the given destination.
+--- Creates parents first.
+---@param src string
+---@param dst string
+---@return boolean success, string? errmsg
+function sfs.move(src, dst)
+	local dir = sfs.getDir(dst)
+	if not sfs.isDir(dir) then
+		sfs.mkdir(dir)
+	end
+	return os.rename(src, dst)
+end
+
+--- Deletes a file, a directory or both recursivly
+---@param path string
+---@param mode? 'recursive' | 'dir' | 'file' default: `f`
+---@return boolean success, string? errmsg
+function sfs.rm(path, mode)
+	mode = mode or 'file'
+
+	local ftype = sfs.attributes(path, "mode")
+
+	if mode == 'dir' then
+		return lfs.rmdir(path)
+	elseif mode == 'recursive' then
+		if ftype ~= 'directory' then
+			return os.remove(path)
+		else
+			for filepath in sfs.recurse(path) do
+				if sfs.getType(filepath) == 'directory' then
+					local ok, err = lfs.rmdir(filepath)
+					if not ok then
+						return false, err
+					end
+				else
+					local ok, err = os.remove(filepath)
+					if not ok then
+						return false, err
+					end
+				end
+			end
+
+			return lfs.rmdir(path)
+		end
+	elseif mode == 'file' then
+		return os.remove(path)
+	else
+		error("invalid mode: "..mode, 2)
+	end
+end
+
+--#endregion
+
+--#region fs queries
+
+--- Checks whether a file exist using io.open
+---@param path string
+---@return boolean success, string? err
+---@see io.open
+---@nodiscard
+function sfs.canOpen(path)
+	local f, err = io.open(path)
+	if f then
+		f:close()
+		return true
+	else
+		return false, err
+	end
+end
+
+--- Checks whether the given path is a directory
+---@param path string
+---@return boolean
+---@nodiscard
+function sfs.isDir(path)
+	return sfs.getType(path) == 'directory'
+end
+
+--- Checks whether the given path is a file
+---@param path string
+---@return boolean
+---@nodiscard
+function sfs.isFile(path)
+	return sfs.getType(path) == 'file'
+end
+
+--- Returns the type of the file
+---@param path string
+---@nodiscard
+function sfs.getType(path)
+	return sfs.attributes(path, 'mode') --[[@as sfs.FileType | nil ]]
+end
+
+sfs.attributes = lfs.attributes
+
+--- Lists all files or directories in a given directory
+---@param dir string
+---@param filter? sfs.FileType only show given type or `nil` for any item
+---@return string[] entries
+---@nodiscard
+function sfs.list(dir, filter)
+	local files = {}
+	for item in sfs.entries(dir, filter) do
+		files[#files+1] = item
+	end
+	return files
+end
+
+--- Iterator for all items in a given directory
+--- Never shows `".."` or `"."`
+---@param dir string
+---@param filter sfs.FileType?
+---@return fun(): string
+---@nodiscard
+function sfs.entries(dir, filter)
+	local it, mt = lfs.dir(dir)
+	local next
+	return function()
+		repeat
+---@diagnostic disable-next-line: redundant-parameter
+			next = it(mt, next)
+			if not next then break end
+			local type
+			if filter then
+				type = sfs.getType( sfs.combine(dir, next) )
+			end
+		until next ~= '.' and next ~= '..' and type == filter
+		return next
+	end
+end
+
+--#endregion
+
+do -- sfs.recurse
+	---@alias sfs.RecurseFilter (fun(path: string, fileType: sfs.FileType): boolean) | sfs.FileType
+	---@alias sfs.Decent fun(path: string, fileType: sfs.FileType, depth: integer): string?
+
+	local function recurse(dir, filter, decent, depth)
+		local srctype = sfs.getType(dir)
+		if srctype ~= 'directory' and srctype then
+			local path = dir
+			local ftype = sfs.getType(path)
+			---@cast ftype -nil
+			if filter(path, ftype, depth) then
+				coroutine.yield(path)
+			end
+		elseif srctype == 'directory' then
+			for entry in sfs.entries(dir) do
+				local path = sfs.combine(dir, entry)
+				local ftype = sfs.getType(path)
+
+				if ftype == 'directory' and decent(path, ftype, depth) then
+					recurse(path, filter, decent, depth + 1)
+				end
+
+				if filter(path, ftype, depth) then
+					coroutine.yield(path)
+				end
+			end
+		end
+	end
+
+	--- Goes through all files recursively
+	---@param dir string
+	---@param filter sfs.RecurseFilter # Either a string, describing the file type to look for or a function
+	--- If the given filter is a function then  returns true, the iterator will yield the given result, otherwise it will step over
+	---@param depth integer # max depth to recurse into the directory (defaults to math.huge)
+	---@overload fun(dir: string, depth: integer): fun(): string
+	---@overload fun(dir: string, filter: sfs.RecurseFilter): fun(): string
+	---@overload fun(dir: string)
+	---@return fun(): string
+	---@nodiscard
+	function sfs.recurse(dir, filter, depth)
+		if type(filter) == 'number' and not depth then
+---@diagnostic disable-next-line: cast-local-type
+			filter, depth = nil, filter
+		end
+
+		---@type sfs.Decent
+		local decent
+		if not filter then
+			filter = function() return true end
+		elseif type(filter) == 'string' then
+			local filterType = filter
+			filter = function(_, fileType) return fileType == filterType end
+		end
+
+		if not depth then
+			depth = math.huge
+		end
+
+		if type(depth) == 'number' then
+			decent = function(path, _, i)
+				return i <= depth and path or nil
+			end
+		elseif type(depth) == 'function' then
+			decent = depth
+		end
+
+		return coroutine_wrap(function() recurse(dir, filter, decent, 1) end)
+	end
+end
+
+do -- sfs.globpattern
+	local function mkpat(glob)
+		return sfs.normalize(glob)
+			:gsub("%p", "%%%1")
+			:gsub("%%[/\\]", "[/\\]")
+			:gsub("%%%*%%%*", ".-")
+			:gsub("%%%*", "[^/\\]-")
+			:gsub("%%%?", "[^/\\]")
+			:gsub("^.*$", "^%1$")
+	end
+
+	local function testglob(glob, test)
+		local pat = mkpat(glob)
+		return not not sfs.normalize(test):find(pat)
+	end
+
+	--- Returns a tester function running `function(path) sfs.testglob(glob, path) end`
+	---@param glob string
+	---@return fun(path: string): boolean
+	function sfs.globtester(glob)
+		local pat = mkpat(glob)
+		return function(test)
+			return not not sfs.normalize(test):find(pat)
+		end
+	end
+
+	--- Checks if the given string fits the glob
+	---@param str string
+	---@param glob string
+	---@return boolean
+	function sfs.testglob(glob, str)
+		return testglob(glob, str)
+	end
+end
+
+do -- sfs.glob
+	local function tokenize(glob)
+		glob = sfs.normalize(glob)
+
+		local root = sfs.getroot(glob)
+
+		local tokens = { root:find "^[/\\]$" and "" or root }
+
+		for breadcrumb in glob:sub(root ~= '.' and #root + 1 or 1):gmatch "[^/\\]+" do
+			tokens[#tokens+1] = breadcrumb
+		end
+
+		return tokens
+	end
+
+	local function expandpattern(pattern, expandable)
+		local prefix, choices, suffix = expandable:match("^(.-)(%b{})(.*)$")
+		if not prefix then
+			coroutine.yield(sfs.normalize(pattern..expandable))
+		else
+			local i = 2
+			local curchoice = {}
+			local j = 0
+			prefix = pattern..prefix
+			-- io.write(string.rep('\t', i), prefix, "---", choices, "---", suffix, '\n')
+			while true do
+				local token = choices:match("^%b{}", i) or choices:match("^[^,{}]+", i) or choices:match("^,", i)
+
+				if token == ',' or not token then
+					expandpattern(prefix, table.concat(curchoice, nil, 1, j)..suffix)
+					j = 0
+
+					if not token then break end
+				else
+					j = j + 1
+					curchoice[j] = token
+				end
+
+				i = i + #token
+			end
+
+			if i ~= #choices then
+				error("inbalanced choices", 2)
+			end
+		end
+	end
+
+	local function glob(...)
+		local patterns = {}
+
+		for _, pat in ipairs { ... } do
+			local isignored = pat:find "^!"
+			local searchpat = isignored and pat:sub(2) or pat
+			for subpattern in coroutine_wrap(function() expandpattern("", searchpat) end) do
+				patterns[#patterns+1] = isignored and "!"..subpattern or subpattern
+			end
+		end
+
+		local exclude = {}
+
+		local function isExcluded(path, maxN)
+			assert(maxN ~= math.huge)
+			for i = 1, maxN do
+				if exclude[i](path) then
+					return true
+				end
+			end
+			return false
+		end
+
+		local function recurse(path, excludeLevel)
+			if not sfs.isDir(path) then return end
+
+			for entry in sfs.entries(path) do
+				local fullpath = sfs.combine(path, entry)
+				if not isExcluded(fullpath, excludeLevel) then
+					coroutine.yield(fullpath)
+
+					if sfs.isDir(fullpath) then
+						recurse(fullpath, excludeLevel)
+					end
+				end
+			end
+		end
+
+		---@type function
+		local recurseNode
+		local function traverse(crumbs, prevI, current, nextNode)
+			local nextI = prevI + 1
+			if not current:find "[%*%?]" then
+				crumbs[nextI] = current
+
+				return recurseNode(crumbs, nextI, nextNode)
+			elseif current:find "%*%*" then
+				local path = table.concat(crumbs, sfs.DIR_SEP, 1, prevI)
+
+				local pat = sfs.globtester( sfs.combine(path, current) )
+
+				if current == '**' then
+					recurseNode(crumbs, prevI, nextNode)
+				end
+
+				for fullentry in coroutine_wrap(function() recurse(path, nextNode.exclude) end) do
+					if pat(fullentry) then
+						local rel = sfs.relpath(fullentry, path)
+						crumbs[nextI] = rel
+						recurseNode(crumbs, nextI, nextNode)
+					end
+				end
+			else
+				local path = table.concat(crumbs, sfs.DIR_SEP, 1, prevI)
+
+				if not sfs.isDir(path) then return end
+
+				local test = sfs.globtester(current)
+
+				for entry in sfs.entries(path) do
+					crumbs[nextI] = entry
+					local fullpath = table.concat(crumbs, sfs.DIR_SEP, 1, nextI)
+					if test(entry) and not isExcluded(fullpath, nextNode.exclude) then
+						recurseNode(crumbs, nextI, nextNode)
+					end
+				end
+			end
+		end
+
+		---@param node sfs.GlobNode
+		function recurseNode(crumbs, prevI, node)
+			local fullPath = table.concat(crumbs, sfs.DIR_SEP, 1, prevI)
+			if node.isLeaf and sfs.attributes(fullPath, 'mode') and not isExcluded(fullPath, node.leafExclude) then
+				coroutine.yield(sfs.normalize(fullPath))
+			end
+
+			if isExcluded(fullPath, node.exclude) then return end
+
+			for _, breadcrumb in ipairs(node.children) do -- a, b, a
+				local nextNodes = node.children[breadcrumb]
+				-- nextNodes = children.a = { {}, {}, i = 1 }
+				-- nextNodes = children.b = { {}, i = 1 }
+				-- nextNodes = children.a = { {}, {}, i = 2 }
+				assert(nextNodes[nextNodes.i])
+				traverse(crumbs, prevI, breadcrumb, nextNodes[nextNodes.i])
+				nextNodes.i = nextNodes.i + 1
+			end
+
+			for _, breadcrumb in ipairs(node.children) do
+				node.children[breadcrumb].i = 1
+			end
+		end
+
+		local function newNode()
+			---@class sfs.GlobNode
+			---@field isLeaf boolean
+			local node = {
+				exclude = math.huge,
+				leafExclude = math.huge,
+				children = {}
+			}
+			return node
+		end
+
+		local root = newNode()
+
+		local function addPrefixTrie(tokens)
+			---@type sfs.GlobNode
+			local node = root
+			node.exclude = math.min(node.exclude, tokens.exclude)
+
+			for _, item in ipairs(tokens) do
+				local usesametree = node.children[#node.children] == item
+				node.children[item] = node.children[item] or { i = 1 }
+				local list = node.children[item]
+				if not usesametree then
+					table.insert(node.children, item)
+					table.insert(list, newNode())
+				end
+
+				node = list[#list]
+				node.exclude = math.min(node.exclude, tokens.exclude)
+			end
+
+			node.isLeaf = true
+			node.leafExclude = math.min(node.leafExclude, tokens.exclude)
+		end
+
+		for _, pattern in ipairs(patterns) do
+			if pattern:find "^!" then
+				exclude[#exclude+1] = sfs.globtester(pattern:sub(2))
+			else
+				local tokens = tokenize(pattern)
+				tokens.exclude = #exclude
+				addPrefixTrie(tokens)
+			end
+		end
+
+		recurseNode({}, 0, root)
+	end
+
+	--- Implements globbing functionality.
+	--- Supported tokens are:
+	--- * `!` - if string starts with an exclamation mark, pattern is excluded
+	--- * `*` - any characters, which are not directory seperators
+	--- * `/` - directory seperator
+	--- * `**` - any characters, including directory seperators
+	--- * `?` - any character, that is not a directory seperator
+	--- * any other character will be a literal string
+	---@param ... string|false|nil # Order of given globs matter (concerning negation globs)
+	---@return fun(): string iterator
+	function sfs.glob(...)
+		local args = {}
+		for i = 1, select('#', ...) do
+			local arg = select(i, ...)
+			if arg then
+				args[#args+1] = arg
+			end
+		end
+
+		return coroutine_wrap(function()
+			glob(unpack(args))
+		end)
+	end
+end
+
+do -- package.searchpath
+	local DIR_SEP, PATH_SEP, REP_MARK = package.config:match("(.)\n(.)\n(.)\n(.)")
+
+	sfs.SYS_PATH_SEP = DIR_SEP == '\\' and ';' or ':'
+
+	function sfs.getPATH()
+		local res = {}
+
+		local duplicates = {}
+		for dir in os.getenv "PATH":gmatch("[^"..sfs.SYS_PATH_SEP.."]+") do
+			local dir = sfs.normalize(dir)
+			if not duplicates[dir] then
+				duplicates[dir] = true
+				res[#res+1] = dir
+			end
+		end
+
+		return res
+	end
+
+	function sfs.which(...)
+		local absolute = {}
+		local relative = {}
+		local ext = DIR_SEP == "\\" and "{.exe,.bat,.cmd,}" or ""
+
+		for _, path in ipairs { ... } do
+			if sfs.getroot(path) == "." then
+				relative[#relative+1] = path
+			else
+				absolute[#absolute+1] = path
+			end
+		end
+
+		local patrel = #relative > 0 and string.format(
+			"{%s}/{%s}%s",
+			table.concat(sfs.getPATH(), ','),
+			table.concat({ ... }, ','),
+			ext
+		)
+
+		local patabs = #absolute > 0 and string.format(
+			"{%s}%s",
+			table.concat(absolute, ","),
+			ext
+		)
+
+		return sfs.glob(patrel and patabs and string.format("{%s,%s}", patabs, patrel) or patrel or patabs or "")
+	end
+
+	--- A reimplementation of `package.searchpath` if Lua 5.1 or the original function
+	---@param mod string
+	---@param path string
+	---@param sep string?
+	---@param rep string
+	---@return string? path, string? err
+	---@nodiscard
+	---@diagnostic disable-next-line: deprecated
+	sfs.searchpath = package.searchpath or function(mod, path, sep, rep)
+		sep = sep or PATH_SEP
+		rep = rep or REP_MARK
+
+		local reldir = mod:gsub("%.", DIR_SEP)
+		local err = {}
+
+		for pattern in path:gmatch("[^"..sep.."]+") do
+			local filename = pattern:gsub(rep, reldir)
+			local h = io.open(filename, "r")
+			if h then
+				h:close()
+				return filename
+			end
+
+			err[#err+1] = string.format("\nno file '%s'", filename)
+		end
+
+		return nil, table.concat(err, '\n')
+	end
+end
+
+do -- shell io
+	local function flattenStrings(t, acc, env)
+		for i = 1, t.n or #t do
+			local item = t[i]
+			if type(item) == 'table' then
+				flattenStrings(item, acc, env)
+			elseif item and item ~= "" then
+				acc[#acc+1] = tostring(item)
+			end
+		end
+
+		for k, v in pairs(t) do
+			if type(k) == 'string' and k:upper() == k then
+				v = tostring(v)
+				local overwrite = env[k]
+				env[k] = v
+				if not overwrite then
+					env[#env+1] = k
+				end
+			end
+		end
+
+		return acc
+	end
+
+---@diagnostic disable-next-line: deprecated
+	local pack = table.pack or function (...)
+		return {
+			n = select('#', ...),
+			...
+		}
+	end
+
+	local function buildCmd(...)
+		local env = {}
+		local cmd = table.concat(flattenStrings(pack(...), {}, env), " ")
+		table.sort(env)
+
+		local fullcmd = {}
+		if IS_WIN then
+			for _, k in ipairs(env) do
+				fullcmd[#fullcmd+1] = "SET "
+				fullcmd[#fullcmd+1] = sfs.quoteArgs(k.."="..env[k])
+				fullcmd[#fullcmd+1] = " & "
+			end
+		else
+			for _, k in ipairs(env) do
+				fullcmd[#fullcmd+1] = "export "
+				fullcmd[#fullcmd+1] = k
+				fullcmd[#fullcmd+1] = "="
+				fullcmd[#fullcmd+1] = sfs.quoteArgs(env[k])
+				fullcmd[#fullcmd+1] = "\n"
+			end
+		end
+		fullcmd[#fullcmd+1] = IS_WIN and "type NUL && "..cmd or cmd
+		local totalCmd = table.concat(fullcmd)
+
+		sfs.onexec(sfs._DEBUG_MODE and totalCmd or cmd, env)
+		return totalCmd
+	end
+
+	local addQuotes
+
+	if IS_WIN then
+		function addQuotes(arg)
+			return '"'..arg:gsub('"', '\\"'):gsub("%%", '"%%"')..'"'
+		end
+	else
+		function addQuotes(arg)
+			return "'"..arg:gsub("'", "'\\''").."'"
+		end
+	end
+
+	local function quoteArg(arg)
+		arg = tostring(arg)
+		if not arg:find "^[%w/%.%-_:]+$" then
+			return addQuotes(arg)
+		else
+			return arg
+		end
+	end
+
+	function sfs.quoteArgs(...)
+		local n = select('#', ...)
+		if n == 0 then
+			return
+		else
+			return quoteArg(...), sfs.quoteArgs(select(2, ...))
+		end
+	end
+
+	sfs.DEV_NULL = IS_WIN and 'NUL' or '/dev/null'
+
+	---@alias sfs.Cmd string | table
+
+	--- Like io.popen, but supports an environment table and fixes double quotes on Windows
+	---@param cmd sfs.Cmd
+	---@param mode 'r' | 'w'?
+	---@return file*?, string?
+	function sfs.popen(cmd, mode)
+		cmd = buildCmd(cmd)
+		return io.popen(cmd, mode)
+	end
+
+	--- Executes a given program
+	---@param ... sfs.Cmd
+	---@return boolean success, string? errmsg
+	function sfs.exec(...)
+		local cmd = buildCmd(...)
+		---@type boolean|integer?, 'exit'|'signal'|string?, integer?
+		local ok, signal, code = os.execute(cmd)
+		if type(ok) == 'number' then -- Lua 5.1 / LuaJIT fix
+			code = ok
+			signal = 'exit'
+			ok = ok == 0
+		end
+		local ranok = ok and signal == 'exit' and code == 0 or false
+		return ranok, not ranok and signal..": "..code or nil
+	end
+
+	--- Returns the stdoutput of a given program.
+	---@param ... sfs.Cmd
+	---@return string? output, string? err
+	function sfs.shellout(...)
+		local cmd = buildCmd(...)
+		local o, err = io.popen(cmd, 'r')
+		if not o then return nil, err end
+		local stdout = o:read "*a"
+		local ok, signal, code = o:close()
+		if not ok then return stdout, tostring(signal)..": "..tostring(code) end
+		return stdout
+	end
+
+	--- Runs shell with given data as input
+	---@param input string
+	---@param ... sfs.Cmd
+	---@return boolean ok, string? err
+	function sfs.shellin(input, ...)
+		local ok, err, signal, code
+		---@type file*?
+		local o
+		local cmd = buildCmd(...)
+		o, err = io.popen(cmd, 'w')
+		if not o then return false, err end
+		ok, err = o:write(input)
+		if not ok then return false, err end
+		ok, signal, code = o:close()
+		return not not ok, not ok and tostring(signal)..": "..tostring(code) or nil
+	end
+end
+
+do -- Logging
+	sfs.onexec = function() end
+	sfs.onfs = function() end
+
+	for _, method in ipairs {
+		"chdir",
+		"copy",
+		"rm",
+		"mkdir",
+		"open",
+		"lines",
+		"tmpfile",
+		"which",
+	} do
+	local f = sfs[method]
+	sfs[method] = function(...)
+			sfs.onfs(method, ...)
+			return f(...)
+		end
+	end
+
+	sfs._DEBUG_MODE = false
+	function sfs._debugmode()
+		sfs._DEBUG_MODE = true
+
+		function coroutine_wrap(f)
+			local thread = coroutine.create(f)
+			return function ()
+				local res = { coroutine.resume(thread) }
+				if not res[1] then
+					error(debug.traceback(thread, res[2]), 2)
+				end
+				return unpack(res, 2)
+			end
+		end
+	end
+end
+
+local exit = os.exit
+
+--- Same as `os.exit`, but cleans up temporary files and paths first
+--- If desired, override os.exit with `os.exit = sfs.exit`
+---@param code integer?
+---@param close any
+---@see os.exit
+function sfs.exit(code, close)
+	sfs.deltmpscope(sfs.globaltmpscope())
+	pcall(collectgarbage, 'collect')
+
+	return exit(code, close)
+end
+
+return setmetatable(sfs, mt) --[[@as sfs]]

@@ -1,0 +1,26 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A pcwait call.
+local PcwaitFn = {}
+PcwaitFn.__index = PcwaitFn
+setmetatable(PcwaitFn, {__index = Terminal})
+package.loaded[...] = PcwaitFn
+
+--Constructor.
+function PcwaitFn.new(ln, col, exp)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.PCWAIT, {line = ln, col = col}), PcwaitFn)
+  self.exp = exp
+
+  --(2) return
+  return self
+end
+
+--@override
+function PcwaitFn:__tostring()
+  return string.format("(pcwait %s)", tostring(self.exp))
+end

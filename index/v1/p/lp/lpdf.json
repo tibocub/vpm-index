@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "lpdf",
+  "versions": {
+    "20130702.52-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lpdf",
+      "license": "Public Domain",
+      "lua": "~> 5.2",
+      "luarocks": {
+        "date": "Thu, 05 Mar 2015 18:24:43 GMT",
+        "rockspec": {
+          "date": "Thu, 05 Mar 2015 18:24:43 GMT",
+          "sha256": "1f4b713e2ecf2562704b6d6cd82f2deca17fcf66886e7f6cc894dfc4851c1d3f",
+          "size": 788
+        },
+        "src": {
+          "date": "Thu, 05 Mar 2015 18:24:43 GMT",
+          "sha256": "2bfbbfb7f5c99e823a5ef7eba3ad66da7266bd815e24b616664297d8e8decafd",
+          "size": 15244,
+          "url": "https://luarocks.org/lpdf-20130702.52-2.src.rock"
+        }
+      },
+      "modules": [
+        "pdf"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "PDFLIB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "PDFLIB": {
+              "header": "pdflib.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(PDFLIB_INCDIR)"
+              ],
+              "libdirs": [
+                "$(PDFLIB_LIBDIR)"
+              ],
+              "libraries": [
+                "pdf"
+              ],
+              "name": "pdf",
+              "sources": [
+                "lpdf.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "pdf"
+      },
+      "origin": {
+        "date": "Thu, 05 Mar 2015 18:24:43 GMT",
+        "sha256": "2bfbbfb7f5c99e823a5ef7eba3ad66da7266bd815e24b616664297d8e8decafd",
+        "size": 15244,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lpdf-20130702.52-2.src.rock"
+      },
+      "summary": "A library for generating PDF documents based on PDFlib",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

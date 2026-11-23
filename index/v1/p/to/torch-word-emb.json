@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "torch-word-emb",
+  "versions": {
+    "1.1-5": {
+      "bin": [],
+      "blocked_by": {
+        "name": "torch",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "torch >= 7.0"
+      ],
+      "files": [],
+      "homepage": "https://github.com/iamalbert/torch-word-emb",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 24 Jan 2016 14:51:07 GMT",
+        "rockspec": {
+          "date": "Sun, 24 Jan 2016 14:51:07 GMT",
+          "sha256": "ed8f7442a8367a589f19b530c6a8b7bed39d6d893136fd7b64a5d4ce622cb35e",
+          "size": 881
+        },
+        "src": {
+          "date": "Sun, 24 Jan 2016 14:51:08 GMT",
+          "sha256": "fe5d2301a56da60458e103f52df33b38086c418d8eb15f47be6d81d8e9371711",
+          "size": 3780,
+          "url": "https://luarocks.org/torch-word-emb-1.1-5.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "make": {
+            "build_variables": {
+              "CFLAGS": "-std=c99 -Wall -pedantic -O2 -I$(LUA_INCDIR)/TH -I$(LUA_INCDIR)",
+              "LIBFLAG": "$(LIBFLAG)",
+              "LUA": "$(LUA)",
+              "LUA_BINDIR": "$(LUA_BINDIR)",
+              "LUA_INCDIR": "$(LUA_INCDIR)",
+              "LUA_LIBDIR": "$(LUA_LIBDIR)"
+            },
+            "install_variables": {
+              "BINDIR": "$(BINDIR)",
+              "CONFDIR": "$(CONFDIR)",
+              "LIBDIR": "$(LIBDIR)",
+              "LUADIR": "$(LUADIR)",
+              "PREFIX": "$(PREFIX)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sun, 24 Jan 2016 14:51:08 GMT",
+        "sha256": "fe5d2301a56da60458e103f52df33b38086c418d8eb15f47be6d81d8e9371711",
+        "size": 3780,
+        "type": "luarocks",
+        "url": "https://luarocks.org/torch-word-emb-1.1-5.src.rock"
+      },
+      "summary": "load word2vec or glove word vectors to torch.Tensor",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-blacklist",
+  "versions": {
+    "0.1.6-2": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.7.4-1"
+      ],
+      "files": {
+        "kong/plugins/jwt-blacklist/handler.lua": {
+          "sha256": "9d261faeef95eb2a41bedf41a376bc4d77ccff47ace59a5ea65b92b6058ed621",
+          "size": 7727,
+          "url": "https://raw.githubusercontent.com/propzians/kong-plugin-jwt-blacklist/4648ab514cb927bb088e28a0b179c706830b887e/kong/plugins/jwt-blacklist/handler.lua"
+        },
+        "kong/plugins/jwt-blacklist/schema.lua": {
+          "sha256": "6010971984e117ae4f52e9ac9e10b0e286bd23523d088186a40505eb9a0c011d",
+          "size": 2388,
+          "url": "https://raw.githubusercontent.com/propzians/kong-plugin-jwt-blacklist/4648ab514cb927bb088e28a0b179c706830b887e/kong/plugins/jwt-blacklist/schema.lua"
+        }
+      },
+      "homepage": "https://propzians.github.io/kong-plugin-jwt-blacklist",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 18 Mar 2022 03:40:26 GMT",
+        "rockspec": {
+          "date": "Fri, 18 Mar 2022 03:40:26 GMT",
+          "sha256": "d114416553e6aeb24740b078d032a8fb6a7756b54fb2da9411ed3cee998bcf09",
+          "size": 1080
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-blacklist.handler",
+        "kong.plugins.jwt-blacklist.schema"
+      ],
+      "origin": {
+        "commit": "4648ab514cb927bb088e28a0b179c706830b887e",
+        "ref": "0.1.6",
+        "type": "git",
+        "url": "https://github.com/propzians/kong-plugin-jwt-blacklist.git"
+      },
+      "size": 10115,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

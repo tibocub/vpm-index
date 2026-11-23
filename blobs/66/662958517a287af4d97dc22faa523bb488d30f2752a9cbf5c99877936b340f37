@@ -1,0 +1,540 @@
+#!/usr/bin/env lua
+
+--[[--
+Essential HTTP admin interface for Pocket Archive.
+
+@module pocket_archive.http
+]]
+
+local headers =     require "http.headers"
+local server =      require "http.server"
+local util =        require "http.util"
+
+local datafile =    require "datafile"
+local csv =         require "ftcsv"
+local etlua =       require "etlua"
+local json =        require "cjson"
+local mimetypes =   require "mimetypes"
+local file =        require "pl.file"
+local path =        require "pl.path"
+local pp =          require "pl.pretty"
+local signal =      require "posix.signal"
+local unistd =      require "posix.unistd"
+local nsm =         require "volksdata.namespace"
+local term =        require "volksdata.term"
+
+local pkar =        require "pocket_archive"
+local logger =      pkar.logger
+local model =       require "pocket_archive.model"
+local pres =        require "pocket_archive.presentation"
+local repo =        require "pocket_archive.repo"
+local submission =  require "pocket_archive.submission"
+
+
+local ADMIN_PFX = "/"
+--- Static asset root folder.
+local STATIC_ROOT = path.abspath(datafile.path("templates/admin/static/"))
+
+local pidfile  -- PID file handle deleted on shutdown.
+local routes  -- Module-local route data.
+local templates = {
+    index       = {file = "index.html"},
+    rsrc_edit   = {file = "resource.html"},
+    report      = {file = "report.html"},
+    sub_list    = {file = "sub_list.html"},
+    sub_show    = {file = "sub_show.html"},
+    head        = {file = "head_common.html"},
+    header      = {file = "header.html"},
+}
+for _, tpl in pairs(templates) do
+    local fh = datafile.open(path.join("templates", "admin", tpl.file))
+    tpl.data = assert(etlua.compile(fh:read("a")))
+end
+
+
+
+local function shutdown()
+    io.write("Shutting down Pocket Archive HTTP admin interface...\n")
+    file.delete(pidfile)
+    os.exit()
+end
+signal.signal(signal.SIGINT, shutdown)
+signal.signal(signal.SIGTERM, shutdown)
+
+
+--[[-- Initialize the configured routes.
+
+This is run once at server startup.
+]]
+local function init_router(config)
+    local _ptn = ":[%w_][%w%d_]*"
+    local routes = {}
+    local catch_all
+    for i, route in ipairs(config) do
+        if route._before then
+            -- TODO before routing
+        elseif route.after then
+            -- TODO after executing route callback
+        elseif route.path == "*" then
+            -- Store catch-all, it will be added at the very end.
+            catch_all = {
+                pattern = route.path,
+                params = {},
+                methods = route.methods,
+            }
+        else
+            if not route.path then
+                error("No path defined for route #" .. i)
+            end
+            if not route.methods then
+                error("No methods defined for route: " .. route.path)
+            end
+            for method, action in pairs(route.methods) do
+                if ("function" ~= type(action)) then
+                    error(
+                        ("Action for method %s in route %s is not callable.")
+                        :format(method, route.path)
+                    )
+                end
+            end
+            local mod_ptn = route.path:gsub(_ptn, "([^/]+)")
+            routes[i] = {
+                pattern = "^" .. mod_ptn .. "$",
+                params = { route.path:match(mod_ptn) },
+                methods = route.methods,
+            }
+        end
+    end
+    if catch_all then table.insert(routes, catch_all) end
+    --pp(routes)
+
+    return routes
+end
+
+
+local function send_json_response(ctx, data, status)
+    local res_headers = headers.new()
+    res_headers:append(":status", status and tostring(status) or "200")
+    res_headers:append("content-type", "application/json")
+    assert(ctx:write_headers(res_headers, ctx.req_method == "HEAD"))
+    if ctx.req_method == "HEAD" then return end
+
+    -- Send body, ending the stream
+    local res_body = json.encode(data or {})
+    assert(ctx:write_chunk(res_body, true))
+end
+
+
+local function send_html_template(ctx, template, data, status)
+    local res_headers = headers.new()
+    res_headers:append(":status", status and tostring(status) or "200")
+    res_headers:append("content-type", "text/html")
+    assert(ctx:write_headers(res_headers, ctx.req_method == "HEAD"))
+    if ctx.req_method == "HEAD" then return end
+
+    -- Send body, ending the stream
+    local res_body = template.data(data or {})
+    assert(ctx:write_chunk(res_body, true))
+end
+
+
+--- Route and process the incoming request.
+local function process_request(srv, ctx)
+    -- Read in headers
+    ctx.req_headers = assert(ctx:get_headers())
+    ctx.req_method = ctx.req_headers:get(":method")
+    local res_headers = headers.new()
+
+    -- Process route
+    local url = ctx.req_headers:get(":path")
+    local res_body
+    for _, route in ipairs(routes) do
+        -- res_match: whether the route matches;
+        -- params: params extracted from pattern.
+        -- matches: table of matches on the route pattern.
+        local res_match, params, matches
+        if #route.params > 0 then
+            ctx.params = {}
+            matches = { url:match(route.pattern) }
+            for i, v in ipairs (matches) do
+                -- Remove leading colon from param name.
+                ctx.params[route.params[i]:sub(2)] = v
+            end
+            res_match = next(ctx.params) ~= nil
+        else
+            res_match = url == route.pattern or route.pattern == "*"
+        end
+        if res_match then
+            io.write("Applying route: " .. route.pattern .. "\n")
+            -- If GET is defined and HEAD is not, treat HEAD as a GET
+            -- request but omit the body output.
+            local action = route.methods[ctx.req_method:upper()]
+                    or ctx.req_method:upper() == "HEAD" and route.methods.GET
+                    or route.methods["*"]
+            if action then
+                --res_headers:append(":status", "200")
+                io.write(("Running action on path %s with params: %s\n"):format(
+                    route.pattern, pp.write(ctx.params)
+                ))
+                local ret = action(ctx)
+                if ret == true then
+                elseif ret == false then
+                else
+                end
+            else
+                send_json_response(ctx, {
+                    message = "Method not allowed for this resource."
+                }, 405)
+            end
+            goto end_routing
+        end
+    end
+
+    -- No matching route found.
+    send_json_response(ctx, { message = "Resource not found." }, 404)
+
+    ::end_routing::
+
+    -- Log request to stdout
+    assert(io.stdout:write(string.format('[%s] "%s %s HTTP/%g"  "%s" "%s"\n',
+        os.date("%d/%b/%Y:%H:%M:%S %z"),
+        req_method or "",
+        ctx.req_headers:get(":path") or "",
+        ctx.connection.version,
+        ctx.req_headers:get("referer") or "-",
+        ctx.req_headers:get("user-agent") or "-"
+    )))
+end
+
+
+--[[--
+Route definitions.
+
+Routes are evaluated in the order they are entered here.
+
+A route MUST have a `path` section and an `methods` section.
+
+`path` may have variable parameters, defined by a colon followed by a variable
+name, which can be any letter or underscore followed by zero or more letters,
+numbers, or underscores (same rules as for Lua variables). In this case the
+router applies the route if the request URL matches the patterns with the
+given paramters. If no parameters are defined, a plain string equality
+comparison is made.
+
+The methods correspond to the HTTP verbs (all uppercase) and require a
+callback function with the `ctx` parameter that refers to the request
+context (the `http.stream` instance plus request metadata from the route
+processor).
+
+Interesting parameters of `ctx` are:
+
+- `params`: the parameters passed in the URI string.
+- `req_headers`: request headers collected from the stream instance.
+- `req_method`: request method.
+]]
+local route_config = {
+    --[[
+    before = function(ctx)
+    end,
+    --]]
+    {
+        path = "/heartbeat",
+        methods = {
+            GET = function(ctx)
+                return send_json_response(
+                    ctx, { message = "PKAR admin interface is up." }
+                )
+            end,
+        },
+    },
+    {
+        --- Home page.
+        path = "/",
+        methods = {
+            GET = function(ctx)
+                return send_html_template(
+                    ctx, templates.index, {
+                        head_tpl = templates.head.data,
+                        header_tpl = templates.header.data,
+                        site_title = pres.TITLE,
+                    }
+                )
+            end,
+        },
+    },
+        --["/err"] = { GET = function() error("Error trigger.") end },
+    {
+        --- List submissions.
+        path = "/sub/list",
+        methods = {
+            GET = function(ctx)
+                subs = submission.list()
+                return send_html_template(
+                    ctx, templates.sub_list, {
+                        head_tpl = templates.head.data,
+                        header_tpl = templates.header.data,
+                        site_title = pres.TITLE,
+                        subs = subs,
+                    }
+                )
+            end,
+        },
+    },
+    {
+        --- Show submission and resource list.
+        path = "/sub/:id",
+        methods = {
+            GET = function(ctx)
+                local sub = submission.get(ctx.params.id)
+                if not sub then
+                    return send_json_response(
+                        ctx, {
+                            message = ("Submission %s not found.")
+                                    :format(ctx.params.id)
+                        }, 404
+                    )
+                end
+
+                return send_html_template(
+                    ctx, templates.sub_show, {
+                        head_tpl = templates.head.data,
+                        header_tpl = templates.header.data,
+                        site_title = pres.TITLE,
+                        sub = sub,
+                    }
+                )
+            end,
+        },
+    },
+    {
+        --- Download a submission laundry list.
+        path = "/ll/:type/:id",
+        methods = {
+            GET = function(ctx)
+                local id = ctx.params.id
+                local sub_name
+                if ctx.params.type == "sub" then
+                    -- Full submission.
+                    ll, sub_name = submission.generate_sub_ll(
+                        term.new_iriref_ns("sub:" .. id)
+                    )
+                else
+                    -- One resource only.
+                    ll = submission.generate_res_ll(model.id_to_uri(id))
+                end
+                if not ll then
+                    return send_json_response(
+                        ctx, {
+                            message = "No submission or resource found with \z
+                            ID: " .. id,
+                        }, 404
+                    )
+                end
+
+                local fname = "pkar_submission"
+                if sub_name then fname = fname .. "-" .. sub_name end
+
+                local res_headers = headers.new()
+                res_headers:append(":status", "200")
+                res_headers:append("content-type", "text/csv")
+                res_headers:append(
+                    "content-disposition",
+                    'attachment; filename="' .. fname .. '.csv"'
+                )
+                assert(ctx:write_headers(res_headers, ctx.req_method == "HEAD"))
+                if ctx.req_method == "HEAD" then return end
+
+                assert(ctx:write_chunk(ll, true))
+            end,
+        },
+    },
+    {
+        --- Edit a resource.
+        path = "/res/:id",
+        methods = {
+            --- Generate form page for editing a resource.
+            GET = function(ctx)
+                -- Sanitize the ID in case RSRC_PFX prefix was passed.
+                local rsrc_id = model.uri_to_id(ctx.params.id)
+                if not rsrc_id then
+                    return send_json_response(ctx, {
+                        message = "No resource ID provided."
+                    })
+                end
+                local s = model.id_to_uri(rsrc_id)
+                local gr = repo.get_rsrc(s)
+                if not gr then
+                    return send_json_response(ctx, {
+                        message = "No resource found: " .. rsrc_id
+                    })
+                end
+
+                local ctype = repo.get_single_v(s, "content_type")
+
+                local schema = model.schemata[model.cname_map[
+                        nsm.denormalize_uri(ctype.data)]]
+
+                return send_html_template(
+                    ctx, templates.rsrc_edit, {
+                        webroot = ADMIN_PFX,
+                        head_tpl = templates.head.data,
+                        header_tpl = templates.header.data,
+                        site_title = pres.TITLE,
+                        rsrc_id = rsrc_id,
+                        label =
+                            (repo.get_single_v(s, "label", true) or {}).data
+                            or "[No label]",
+                        s = s,
+                        gr = gr,
+                        nsm = nsm,
+                        term = term,
+                        model = model,
+                        ctype = ctype,
+                        schema = schema,
+                        flags = require "pocket_archive.flags",
+                        get_single_v = repo.get_single_v,  -- TODO move logic here.
+                    }
+                )
+            end,
+
+            --- Submit a resource update form.
+            POST = function(ctx)
+                local body_str = assert(ctx:get_body_as_string())
+                local post_data = json.decode(body_str)
+                io.write("Body string: " .. body_str .. "\n")
+                --require "debugger"()
+
+                local tdata = {[1] = {}}
+                for k, v in pairs(post_data) do
+                    if type(v) == "table" then
+                        for i, vv in ipairs(v) do
+                            if not tdata[i] then tdata[i] = {} end
+                            tdata[i][k] = vv
+                        end
+                    else
+                        tdata[1][k] = v
+                    end
+                end
+                local csv_data = csv.encode(tdata, {
+                    encodeNilAs = "", allowMissingKeys = true,
+                    fieldsToKeep = model.properties.order
+                })
+                ll_fpath = path.tmpname()
+                assert(io.open(ll_fpath, "w"):write(csv_data):close())
+                sub = submission.Submission:new(ll_fpath)
+                local report = sub:deposit(true)
+
+                return send_html_template(
+                    ctx, templates.report, {
+                        head_tpl = templates.head.data,
+                        header_tpl = templates.header.data,
+                        site_title = pres.TITLE,
+                        id = tdata[1].id,
+                        report = json.encode(report),
+                        result = report.result,
+                    }
+                )
+            end,
+        },
+    },
+    {
+        --- Regenerate presentation site asynchronously.
+        path = "/pres/generate",
+        methods = {
+            --- Regenerate presentation.
+            POST = function(ctx)
+                local cpid, err = unistd.fork()
+                if cpid == nil then
+                    return send_json_response(ctx, {
+                        msg = "Error forking process for presentation \z
+                        generation.",
+                    })
+                elseif cpid == 0 then
+                    pres.generate_site()
+                    os.exit()
+                else
+                    return send_json_response(ctx, {
+                        msg = "Presentation generation started.",
+                        pid = cpid,
+                    })
+                end
+            end,
+        },
+    },
+    {
+        -- Static route.
+        path = "*",
+        methods = {
+            GET = function(ctx)
+                local req_path = path.abspath(
+                    ctx.req_headers:get(":path"):gsub("^/+", ""), STATIC_ROOT
+                )
+                -- Protect against `..` exploits
+                if
+                    req_path:sub(1, #STATIC_ROOT) == STATIC_ROOT and
+                    path.isfile(req_path)
+                then
+                    io.stderr:write("Sending static file: " .. req_path .. "\n")
+                    local res_headers = headers.new()
+                    res_headers:append(":status", "200")
+                    res_headers:append(
+                        "content-type",
+                        mimetypes.guess(req_path) or "application/octet-stream"
+                    )
+                    assert(ctx:write_headers(
+                            res_headers, ctx.req_method == "HEAD"))
+                    if ctx.req_method == "HEAD" then return end
+
+                    local fh = io.open(req_path, "r")
+                    local ret = ctx:write_body_from_file({file = fh})
+                    fh:close()
+                    ctx:shutdown()
+
+                    return assert(ret)
+                else
+                    return send_json_response(
+                        ctx, { message = "Not found."}, 404
+                    )
+                end
+            end,
+        }
+    },
+}
+
+
+local srv = assert(server.listen {
+    host = "0.0.0.0",
+    port = pkar.config.http.port,
+    onstream = process_request,
+    onerror = function(srv, stream, op, err, errno)
+        local msg = op .. " on " .. tostring(stream) .. " failed"
+        if err then
+            msg = msg .. ": " .. tostring(err)
+        end
+        assert(io.stderr:write(msg, "\n"))
+
+        --[[
+        local res_headers = headers.new()
+        res_headers:append(":status", "500")
+        res_headers:append("content-type", "application/json")
+        local res_body = json.encode({ message = "Internal server error." })
+        send_response(stream, res_headers, res_body)
+        --]]
+    end,
+})
+
+
+do
+    pid = unistd.getpid()
+    pidfile = path.join(pkar.PID_DIR, "pkar_http-" .. pid)
+    local fh = io.open(pidfile, "w")
+    fh:write(("%s %s %s"):format(pid, unistd.getuid(), pkar.config_path))
+    fh:close()
+    io.stderr:write(string.format("PID file: %s\n", pidfile))
+    routes = assert(init_router(route_config))
+
+    io.stderr:write(string.format(
+            "Now listening on port %d\n", pkar.config.http.port))
+end
+-- Start the main server loop
+assert(srv:loop())

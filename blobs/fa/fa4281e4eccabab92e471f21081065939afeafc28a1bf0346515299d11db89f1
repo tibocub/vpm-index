@@ -1,0 +1,97 @@
+-- ============================================================
+-- Shiva Test — StateBag Simulation
+-- Simulates FiveM's StateBag system:
+--   GlobalState.key = value
+--   Entity(id).state.key = value
+--   Player(id).state.key = value
+-- ============================================================
+
+local StateBags = {}
+
+local _bags = {}  -- { [id] = { [key] = value } }
+
+-- ========================
+-- Internal: bag factory
+-- ========================
+
+local function getBag(id)
+    if not _bags[id] then _bags[id] = {} end
+    return _bags[id]
+end
+
+local function makeBag(id)
+    return setmetatable({}, {
+        __index = function(_, k)
+            return getBag(id)[k]
+        end,
+        __newindex = function(_, k, v)
+            getBag(id)[k] = v
+        end,
+        __pairs = function(_)
+            return pairs(getBag(id))
+        end,
+    })
+end
+
+-- ========================
+-- Install globals
+-- ========================
+
+---@param G table  The global environment (_G)
+function StateBags.install(G)
+    G.GlobalState = makeBag('__global__')
+
+    G.LocalPlayer = {
+        state = makeBag('__localplayer__'),
+    }
+
+    G.Entity = function(id)
+        return {
+            state = makeBag('entity_' .. tostring(id)),
+        }
+    end
+
+    G.Player = function(id)
+        return {
+            state = makeBag('player_' .. tostring(id)),
+        }
+    end
+
+    G.AddStateBagChangeHandler = function(_keyFilter, _bagFilter, fn)
+        -- Store but don't wire up in simple mock — advanced usage can trigger manually
+        return fn
+    end
+
+    G.RemoveStateBagChangeHandler = function(_handler) end
+end
+
+-- ========================
+-- Test helpers
+-- ========================
+
+--- Read a key from any bag by its ID string
+---@param bagId string
+---@param key   string
+---@return any
+function StateBags.get(bagId, key)
+    return _bags[bagId] and _bags[bagId][key]
+end
+
+--- Set a key on any bag by its ID string
+---@param bagId string
+---@param key   string
+---@param value any
+function StateBags.set(bagId, key, value)
+    if not _bags[bagId] then _bags[bagId] = {} end
+    _bags[bagId][key] = value
+end
+
+-- ========================
+-- Lifecycle
+-- ========================
+
+function StateBags.reset()
+    _bags = {}
+end
+
+return StateBags

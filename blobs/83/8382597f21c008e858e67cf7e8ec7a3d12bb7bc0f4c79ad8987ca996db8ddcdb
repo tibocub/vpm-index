@@ -1,0 +1,71 @@
+local CDN = {}
+
+CDN.BASE_URL = "https://cdn.discordapp.com"
+
+local function extForHash(hash, preferred)
+  if hash and hash:sub(1, 2) == "a_" then
+    return "gif"
+  end
+  return preferred or "png"
+end
+
+local function query(size)
+  if size then
+    return "?size=" .. tostring(size)
+  end
+  return ""
+end
+
+function CDN.customEmoji(id, animated)
+  local ext = animated and "gif" or "png"
+  return ("%s/emojis/%s.%s"):format(CDN.BASE_URL, tostring(id), ext)
+end
+
+function CDN.guildIcon(guildId, hash, size, extension)
+  if not hash then
+    return nil
+  end
+  local ext = extension or extForHash(hash)
+  return ("%s/icons/%s/%s.%s%s"):format(CDN.BASE_URL, guildId, hash, ext, query(size))
+end
+
+function CDN.userAvatar(userId, hash, size, extension)
+  if not hash then
+    return nil
+  end
+  local ext = extension or extForHash(hash)
+  return ("%s/avatars/%s/%s.%s%s"):format(CDN.BASE_URL, userId, hash, ext, query(size))
+end
+
+function CDN.memberAvatar(guildId, userId, hash, size, extension)
+  if not hash then
+    return nil
+  end
+  local ext = extension or extForHash(hash)
+  return ("%s/guilds/%s/users/%s/avatars/%s.%s%s"):format(CDN.BASE_URL, guildId, userId, hash, ext, query(size))
+end
+
+function CDN.roleIcon(roleId, hash, size, extension)
+  if not hash then
+    return nil
+  end
+  local ext = extension or "png"
+  return ("%s/role-icons/%s/%s.%s%s"):format(CDN.BASE_URL, roleId, hash, ext, query(size))
+end
+
+function CDN.applicationIcon(appId, hash, size, extension)
+  if not hash then
+    return nil
+  end
+  local ext = extension or extForHash(hash)
+  return ("%s/app-icons/%s/%s.%s%s"):format(CDN.BASE_URL, appId, hash, ext, query(size))
+end
+
+function CDN.defaultUserAvatar(discriminator)
+  local index = tonumber(discriminator) or 0
+  index = index % 5
+  return ("%s/embed/avatars/%d.png"):format(CDN.BASE_URL, index)
+end
+
+return CDN
+

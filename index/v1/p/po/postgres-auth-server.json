@@ -1,0 +1,147 @@
+{
+  "kind": "app",
+  "name": "postgres-auth-server",
+  "versions": {
+    "1.0.0-0": {
+      "bin": {
+        "postgres-auth-server": "bin/postgres-auth-server"
+      },
+      "deps": [
+        "lecho",
+        "lapis",
+        "lyaml",
+        "luaposix",
+        "luacrypto",
+        "lua-crypt"
+      ],
+      "files": {
+        "bin/postgres-auth-server": {
+          "sha256": "3dfdfe0a2fc59498e285f253ba3b46413f0e366a95e0f755ad7da043154c7632",
+          "size": 85,
+          "url": "blob:3dfdfe0a2fc59498e285f253ba3b46413f0e366a95e0f755ad7da043154c7632"
+        },
+        "postgres-auth-server/cli.lua": {
+          "sha256": "3b31447f05fb906dc34ddfe42d29c6f435e35c3cfcba1acfea2825ee86cb1e87",
+          "size": 10346,
+          "url": "blob:3b31447f05fb906dc34ddfe42d29c6f435e35c3cfcba1acfea2825ee86cb1e87"
+        },
+        "postgres-auth-server/config.lua": {
+          "sha256": "bd7db452900def1f90af4f24732de4643b2bfa05358880d133af660d463bfb19",
+          "size": 4114,
+          "url": "blob:bd7db452900def1f90af4f24732de4643b2bfa05358880d133af660d463bfb19"
+        },
+        "postgres-auth-server/getopt.lua": {
+          "sha256": "febd14d354b91b17a70be912d348b1ccacdf05970aabf551a74df1ef6a673ab1",
+          "size": 3926,
+          "url": "blob:febd14d354b91b17a70be912d348b1ccacdf05970aabf551a74df1ef6a673ab1"
+        },
+        "postgres-auth-server/migrations.lua": {
+          "sha256": "575db262eef58dd58f5844d67ce27c9f8a4f7e6fd554a2f49940875b5a579afd",
+          "size": 493,
+          "url": "blob:575db262eef58dd58f5844d67ce27c9f8a4f7e6fd554a2f49940875b5a579afd"
+        },
+        "postgres-auth-server/models.lua": {
+          "sha256": "6f9ac81231008c60804cb2f1060fe1e8bc6215d1be3f37ee837fc69bc3fc89dc",
+          "size": 95,
+          "url": "blob:6f9ac81231008c60804cb2f1060fe1e8bc6215d1be3f37ee837fc69bc3fc89dc"
+        },
+        "postgres-auth-server/models/user.lua": {
+          "sha256": "44eaa6d7eb9ca5c667038ee80ce4506f76dbf6d65e33f8ef1aac2402d32892cb",
+          "size": 1317,
+          "url": "blob:44eaa6d7eb9ca5c667038ee80ce4506f76dbf6d65e33f8ef1aac2402d32892cb"
+        },
+        "postgres-auth-server/nginx-conf.lua": {
+          "sha256": "66beef8fa759d27379f05c2aad086d6c515cd15e2702bedc4570690fc3bac077",
+          "size": 1314,
+          "url": "blob:66beef8fa759d27379f05c2aad086d6c515cd15e2702bedc4570690fc3bac077"
+        },
+        "postgres-auth-server/views/deleteuser.etlua": {
+          "sha256": "cddb50c784b3c0c064e7e7c044f66abfb7ccd89087c2ff26379f6b95bd65b9cb",
+          "size": 396,
+          "url": "blob:cddb50c784b3c0c064e7e7c044f66abfb7ccd89087c2ff26379f6b95bd65b9cb"
+        },
+        "postgres-auth-server/views/edituser.etlua": {
+          "sha256": "30c928d174770536b5fbdae091d8f49cd9d8a738b5d0661045b6a2a47dc66ba9",
+          "size": 1634,
+          "url": "blob:30c928d174770536b5fbdae091d8f49cd9d8a738b5d0661045b6a2a47dc66ba9"
+        },
+        "postgres-auth-server/views/index.etlua": {
+          "sha256": "673286453d0b9b5707f242f146e217b38881ccaafdffa2874f57991a1449c0b3",
+          "size": 476,
+          "url": "blob:673286453d0b9b5707f242f146e217b38881ccaafdffa2874f57991a1449c0b3"
+        },
+        "postgres-auth-server/views/login.etlua": {
+          "sha256": "9155a2edf43990ccc945a8818ba91f79f904a5681274f599cbda5095ad47fc26",
+          "size": 499,
+          "url": "blob:9155a2edf43990ccc945a8818ba91f79f904a5681274f599cbda5095ad47fc26"
+        },
+        "postgres-auth-server/views/mainlayout.etlua": {
+          "sha256": "cae5cbc23090093d2a7dbd1169da9ad675c67cca53016dde3c7e8e1bfd7e4be9",
+          "size": 893,
+          "url": "blob:cae5cbc23090093d2a7dbd1169da9ad675c67cca53016dde3c7e8e1bfd7e4be9"
+        },
+        "postgres-auth-server/views/plainlayout.etlua": {
+          "sha256": "7c5a47573e08df507f1a47e6ca7cadc5bc0843ac7f114c42ff8b8cceb0034427",
+          "size": 28,
+          "url": "blob:7c5a47573e08df507f1a47e6ca7cadc5bc0843ac7f114c42ff8b8cceb0034427"
+        },
+        "postgres-auth-server/webapp.lua": {
+          "sha256": "648a8012fc03fee94bbfc01f04cf9e81030dedcd98600c1b1d741885c1f53e59",
+          "size": 5900,
+          "url": "blob:648a8012fc03fee94bbfc01f04cf9e81030dedcd98600c1b1d741885c1f53e59"
+        }
+      },
+      "host": "openresty",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 23 Feb 2019 23:05:55 GMT",
+        "rockspec": {
+          "date": "Sat, 23 Feb 2019 23:05:55 GMT",
+          "sha256": "f0600913fd68ec283e655bc00e2c8ab34f91289946fc95fc278fdebc4174ef62",
+          "size": 1842
+        },
+        "src": {
+          "date": "Sat, 23 Feb 2019 23:05:56 GMT",
+          "sha256": "55f0477d769791e929ae8ec65b73aba9ed54c8b536afc76af3ad46456b84847e",
+          "size": 18199,
+          "url": "https://luarocks.org/postgres-auth-server-1.0.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "postgres-auth-server.cli",
+        "postgres-auth-server.config",
+        "postgres-auth-server.getopt",
+        "postgres-auth-server.migrations",
+        "postgres-auth-server.models",
+        "postgres-auth-server.models.user",
+        "postgres-auth-server.nginx-conf",
+        "postgres-auth-server.webapp"
+      ],
+      "origin": {
+        "date": "Sat, 23 Feb 2019 23:05:56 GMT",
+        "sha256": "55f0477d769791e929ae8ec65b73aba9ed54c8b536afc76af3ad46456b84847e",
+        "size": 18199,
+        "type": "luarocks",
+        "url": "https://luarocks.org/postgres-auth-server-1.0.0-0.src.rock"
+      },
+      "size": 31516,
+      "undeclared_requires": [
+        "luarocks.path",
+        "luarocks.search",
+        "lyaml",
+        "posix",
+        "posix.sys.stat",
+        "postgres-auth-server.views.mainlayout"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

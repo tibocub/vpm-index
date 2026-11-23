@@ -1,0 +1,100 @@
+-- Built-in action plugins: mirred, police, drop, skbedit.
+
+local Registry = require("htb.registry")
+
+local M = {}
+
+local function str(v)
+    return tostring(v)
+end
+
+-- mirred: mirror/redirect to another device.
+Registry.register("action", "mirred", {
+    description = "Mirror or redirect packets",
+    params = {
+        direction = "traffic direction (default egress)",
+        mode = "redirect or mirror (default redirect)",
+        target = "target device (required)",
+    },
+    generate = function(p)
+        local direction = p.direction or "egress"
+        local mode = p.mode or "redirect"
+        local target = p.target or ""
+        local devices = p._devices or {}
+        if devices[target] ~= nil then
+            target = devices[target]
+        end
+        return { "action", "mirred", direction, mode, "dev", target }
+    end,
+    validate = function(p)
+        local errs = {}
+        if p.target == nil then
+            errs[#errs + 1] = "mirred action requires 'target' parameter"
+        end
+        return errs
+    end,
+})
+
+-- police: rate-limit action.
+Registry.register("action", "police", {
+    description = "Rate-limit action",
+    params = {
+        rate = "maximum allowed rate (required)",
+        burst = "burst allowance in bytes",
+        ["conform-exceed"] = "action on conform/exceed",
+    },
+    generate = function(p)
+        local out = { "action", "police" }
+        for _, key in ipairs({ "rate", "burst", "conform-exceed" }) do
+            if p[key] ~= nil then
+                out[#out + 1] = key
+                out[#out + 1] = str(p[key])
+            end
+        end
+        return out
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- drop: discard matching packets.
+Registry.register("action", "drop", {
+    description = "Drop matching packets",
+    params = {},
+    generate = function(_p)
+        return { "action", "drop" }
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- skbedit: set packet metadata.
+Registry.register("action", "skbedit", {
+    description = "Set packet metadata",
+    params = {
+        mark = "skb mark",
+        priority = "skb priority",
+        queue_mapping = "hardware TX queue index",
+    },
+    generate = function(p)
+        local out = { "action", "skbedit" }
+        for _, key in ipairs({ "mark", "priority", "queue_mapping" }) do
+            if p[key] ~= nil then
+                out[#out + 1] = key
+                out[#out + 1] = str(p[key])
+            end
+        end
+        return out
+    end,
+    validate = function(p)
+        local errs = {}
+        if p.mark == nil and p.priority == nil and p.queue_mapping == nil then
+            errs[#errs + 1] = "skbedit requires at least one of: mark, priority, queue_mapping"
+        end
+        return errs
+    end,
+})
+
+return M

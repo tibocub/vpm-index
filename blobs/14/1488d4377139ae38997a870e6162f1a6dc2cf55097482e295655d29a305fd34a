@@ -1,0 +1,167 @@
+local _module_0 = { }
+local inspect = require('inspect')
+local p
+do
+	local _obj_0 = require('yue')
+	p = _obj_0.p
+end
+local to_result
+to_result = function(ok, err, ...)
+	local n = select('#', ...)
+	if ok ~= nil then
+		if err == nil and n == 0 then
+			n = 1
+		else
+			if n > 0 then
+				n = n + 2
+			else
+				n = 2
+			end
+		end
+		return {
+			ok = {
+				ok,
+				err,
+				...
+			},
+			n = n
+		}
+	else
+		return {
+			err = {
+				err,
+				...
+			},
+			n = n + 1
+		}
+	end
+end
+_module_0["to_result"] = to_result
+local is_err
+is_err = function(res)
+	if res.err ~= nil then
+		return true
+	else
+		return false
+	end
+end
+_module_0["is_err"] = is_err
+local is_ok
+is_ok = function(res)
+	if res.ok ~= nil then
+		return true
+	else
+		return false
+	end
+end
+_module_0["is_ok"] = is_ok
+local unwrap_any
+unwrap_any = function(res)
+	if is_ok(res) then
+		return unpack(res.ok, 1, res.n)
+	else
+		return nil, unpack(res.err, 1, res.n)
+	end
+end
+_module_0["unwrap_any"] = unwrap_any
+local map_ok
+map_ok = function(res, handler)
+	if is_ok(res) then
+		return to_result(handler(unwrap_any(res)))
+	else
+		return res
+	end
+end
+_module_0["map_ok"] = map_ok
+local _anon_func_0 = function(handler, to_result, _arg_0, ...)
+	do
+		local _ = _arg_0
+		return to_result(handler(...))
+	end
+end
+local map_err
+map_err = function(res, handler)
+	if is_err(res) then
+		return _anon_func_0(handler, to_result, unwrap_any(res))
+	else
+		return res
+	end
+end
+_module_0["map_err"] = map_err
+local map_ok_if
+map_ok_if = function(res, cond, handler_true, handler_false)
+	if not is_ok(res) then
+		return res
+	end
+	if cond then
+		return map_ok(res, handler_true)
+	else
+		if handler_false then
+			return map_ok(res, handler_false)
+		else
+			return res
+		end
+	end
+end
+_module_0["map_ok_if"] = map_ok_if
+local unwrap_ok
+unwrap_ok = function(res, ...)
+	if is_ok(res) then
+		return unwrap_any(res)
+	else
+		return ...
+	end
+end
+_module_0["unwrap_ok"] = unwrap_ok
+local unwrap_err
+unwrap_err = function(res, ...)
+	if is_err(res) then
+		return unwrap_any(res)
+	else
+		return ...
+	end
+end
+_module_0["unwrap_err"] = unwrap_err
+local _anon_func_1 = function(handler, _arg_0, ...)
+	do
+		local _ = _arg_0
+		return handler(...)
+	end
+end
+local handle_err
+handle_err = function(res, handler)
+	if is_err(res) then
+		_anon_func_1(handler, unwrap_any(res))
+	end
+	return res
+end
+_module_0["handle_err"] = handle_err
+local _anon_func_2 = function(to_result, _arg_0, _arg_1, ...)
+	do
+		local ok, v1 = _arg_0, _arg_1
+		if ok then
+			return to_result(v1, ...)
+		else
+			return to_result(nil, v1, ...)
+		end
+	end
+end
+local pcall_to_result
+pcall_to_result = function(handler, ...)
+	return _anon_func_2(to_result, pcall(handler, ...))
+end
+_module_0["pcall_to_result"] = pcall_to_result
+local defer
+defer = function(cleanup, handler)
+	local res = pcall_to_result(handler)
+	cleanup(unwrap_any(res))
+	return unwrap_any(res)
+end
+_module_0["defer"] = defer
+local passthrough
+passthrough = function(res, handler)
+	handler(unwrap_any(res))
+	return res
+end
+_module_0["passthrough"] = passthrough
+return _module_0

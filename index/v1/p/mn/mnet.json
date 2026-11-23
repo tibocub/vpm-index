@@ -1,0 +1,92 @@
+{
+  "kind": "lib",
+  "name": "mnet",
+  "versions": {
+    "0.6.20230708-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "ffi-mdns.lua": {
+          "sha256": "862ee010a5072604aedb6511561f56a8b763da9fd6d583f2a32e0031501abeae",
+          "size": 5070,
+          "url": "blob:862ee010a5072604aedb6511561f56a8b763da9fd6d583f2a32e0031501abeae"
+        },
+        "ffi-mnet.lua": {
+          "sha256": "0f397bfd1ff604ffcbbae20bb042df3c1478c3b714fd8d055679f1b036fa60ab",
+          "size": 11786,
+          "url": "blob:0f397bfd1ff604ffcbbae20bb042df3c1478c3b714fd8d055679f1b036fa60ab"
+        },
+        "mnet-chann.lua": {
+          "sha256": "8e645a871fb943f1385bdffffc3deaf44ea2ce2731113675a7e803b6726a2cbf",
+          "size": 7589,
+          "url": "blob:8e645a871fb943f1385bdffffc3deaf44ea2ce2731113675a7e803b6726a2cbf"
+        }
+      },
+      "homepage": "https://github.com/lalawue/m_net",
+      "host": "luajit",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Sat, 08 Jul 2023 13:53:17 GMT",
+        "rockspec": {
+          "date": "Sat, 08 Jul 2023 13:53:17 GMT",
+          "sha256": "8e52082ffd87c6e1605eea0c4e7be7bb52f278318c9dde670549d2cb63759e90",
+          "size": 919
+        },
+        "src": {
+          "date": "Sat, 08 Jul 2023 13:53:18 GMT",
+          "sha256": "b61e6a500cbfafaec730d3e6db02ff084317fd9a33688935ef8697ad4def0dcf",
+          "size": 103754,
+          "url": "https://luarocks.org/mnet-0.6.20230708-1.src.rock"
+        }
+      },
+      "modules": [
+        "ffi-mdns",
+        "ffi-mnet",
+        "mnet",
+        "mnet-chann"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src"
+              ],
+              "name": "mnet",
+              "sources": [
+                "src/mnet_core.c",
+                "extension/lua/mnet_lua.c",
+                "extension/mdns/mdns.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 08 Jul 2023 13:53:18 GMT",
+        "sha256": "b61e6a500cbfafaec730d3e6db02ff084317fd9a33688935ef8697ad4def0dcf",
+        "size": 103754,
+        "type": "luarocks",
+        "url": "https://luarocks.org/mnet-0.6.20230708-1.src.rock"
+      },
+      "size": 24445,
+      "summary": "Cross platform network library support pull style API for Lua/LuaJIT",
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

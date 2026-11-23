@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "lbc",
+  "versions": {
+    "20180729-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://webserver2.tecgraf.puc-rio.br/~lhf/ftp/lua/",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 09 Apr 2019 20:45:03 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Apr 2019 20:45:03 GMT",
+          "sha256": "2cad6ab4a1352f7192e5279f7307965b7e2fd0c98f5c25f497941a8f847a1a13",
+          "size": 644
+        },
+        "src": {
+          "date": "Tue, 09 Apr 2019 20:45:04 GMT",
+          "sha256": "12ae570984bd46b697f5d606093e75d5f4877ec87be32880ca09c0c4727d6f9d",
+          "size": 20438,
+          "url": "https://luarocks.org/lbc-20180729-1.src.rock"
+        }
+      },
+      "modules": [
+        "bc"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "./src"
+              ],
+              "name": "bc",
+              "sources": [
+                "lbc.c",
+                "src/number.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 09 Apr 2019 20:45:04 GMT",
+        "sha256": "12ae570984bd46b697f5d606093e75d5f4877ec87be32880ca09c0c4727d6f9d",
+        "size": 20438,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lbc-20180729-1.src.rock"
+      },
+      "summary": "A simple arbitrary precision library",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

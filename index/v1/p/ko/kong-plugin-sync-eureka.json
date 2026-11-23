@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-sync-eureka",
+  "versions": {
+    "1.1.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/sync-eureka/api.lua": {
+          "sha256": "0ab31f744a6a64d7e09831cd8ae90fadcd822a5e6b59e418d5a9393b9514c8e5",
+          "size": 568,
+          "url": "https://raw.githubusercontent.com/anjia0532/kong-plugin-sync-eureka/bf0e8f47139717cbd442baaa7ffba2b479e1b079/kong/plugins/sync-eureka/api.lua"
+        },
+        "kong/plugins/sync-eureka/handler.lua": {
+          "sha256": "791ed9971f3c49f09826cca13aa78f12e9f4622b42a928bbb36390b1fadf4e3c",
+          "size": 14595,
+          "url": "https://raw.githubusercontent.com/anjia0532/kong-plugin-sync-eureka/bf0e8f47139717cbd442baaa7ffba2b479e1b079/kong/plugins/sync-eureka/handler.lua"
+        },
+        "kong/plugins/sync-eureka/schema.lua": {
+          "sha256": "e115485e67e0db16a297064ef43d5e4089348daba25e281e38d5b798ab63b7f8",
+          "size": 399,
+          "url": "https://raw.githubusercontent.com/anjia0532/kong-plugin-sync-eureka/bf0e8f47139717cbd442baaa7ffba2b479e1b079/kong/plugins/sync-eureka/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/anjia0532/kong-plugin-sync-eureka",
+      "host": "openresty",
+      "license": "BSD",
+      "luarocks": {
+        "date": "Thu, 05 Dec 2019 07:43:26 GMT",
+        "rockspec": {
+          "date": "Thu, 05 Dec 2019 07:43:26 GMT",
+          "sha256": "66fc71858445b841116c4b69e9fe03c0907492276f39194a3eeec2eb94ca3ff0",
+          "size": 938
+        },
+        "src": {
+          "date": "Thu, 05 Dec 2019 07:43:27 GMT",
+          "sha256": "3a59073a483d79aa4f141aa900563e59e78952f18ac2971174f8468f660ecded",
+          "size": 9166,
+          "url": "https://luarocks.org/kong-plugin-sync-eureka-1.1.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.sync-eureka.api",
+        "kong.plugins.sync-eureka.handler",
+        "kong.plugins.sync-eureka.schema"
+      ],
+      "origin": {
+        "commit": "bf0e8f47139717cbd442baaa7ffba2b479e1b079",
+        "ref": "1.1.0",
+        "type": "git",
+        "url": "https://github.com/anjia0532/kong-plugin-sync-eureka"
+      },
+      "size": 15562,
+      "summary": "a plugin of kong to sync from eureka application instances register to kong server",
+      "undeclared_requires": [
+        "kong.singletons",
+        "ngx.re",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

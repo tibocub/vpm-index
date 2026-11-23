@@ -1,0 +1,130 @@
+--imports
+local DirectiveType = require("dogma.syn.DirectiveType")
+local SubTrans = require("dogma.trans.js._.SubTrans")
+local tablex = require("pl.tablex")
+
+--A directive transformer.
+local DirectiveTrans = {}
+DirectiveTrans.__index = DirectiveTrans
+setmetatable(DirectiveTrans, {__index = SubTrans})
+package.loaded[...] = DirectiveTrans
+
+--Constructor.
+--
+--@param trans:Trans  Parent transformer.
+function DirectiveTrans.new(trans)
+  local self = setmetatable(SubTrans.new(trans), DirectiveTrans)
+  self.directives = trans.directives
+  return self
+end
+
+--Transform a directive.
+--
+--@param dir:Directive  Directive to transform.
+--@return string
+function DirectiveTrans:transform(dir)
+  if dir.subtype == DirectiveType.COVERAGE then
+    return self:_transCoverage(dir)
+  elseif dir.subtype == DirectiveType.IF then
+    return self:_transIf(dir)
+  elseif dir.subtype == DirectiveType.REACT then
+    return self:_transReact(dir)
+  elseif dir.subtype == DirectiveType.RUNWITH then
+    return self:_transRunWith(dir)
+  elseif dir.subtype == DirectiveType.INSERT then
+    return self:_transInsert(dir)
+  elseif dir.subtype == DirectiveType.ENV then
+    return self:_transEnv(dir)
+  end
+end
+
+--Transform an env directive.
+--
+--@return string
+function DirectiveTrans:_transEnv(dir)
+  return string.format('#!/usr/bin/env node\n')
+end
+
+--Transform a react directive.
+--
+--@return string
+function DirectiveTrans:_transReact(dir)
+  return string.format('import React, {Component} from "react";\n')
+end
+
+--Transform a coverage directive.
+--
+--@return string
+function DirectiveTrans:_transCoverage(dir)
+  return string.format("/*istanbul ignore %s*/", dir.ignore)
+end
+
+--Transform an if directive.
+--
+--@return string
+function DirectiveTrans:_transIf(dir)
+  local function check(cond)
+    local rslt = false
+
+    --(1) check
+    if cond then
+      if type(cond) == "string" then
+        if cond:find("^not") then
+          rslt = tablex.find(self.directives, cond:gsub("^not ", "")) == nil
+        end
+      else
+        for _, val in ipairs(cond) do
+          rslt = tablex.find(self.directives, val) ~= nil
+          if rslt then
+            break
+          end
+        end
+      end
+    end
+
+    --(2) return
+    return rslt
+  end
+
+  local function transform(sents)
+    local trans = self._.trans
+    local code
+
+    code = ""
+    for _, sent in ipairs(sents) do
+      code = code .. trans:_trans(sent, ";")
+    end
+
+    return code
+  end
+
+  --(1) transform if
+  local code
+
+  if check(dir.cond) then
+    code = transform(dir.body)
+  elseif dir.elif and check({dir.elif.cond}) then
+    code = transform(dir.elif.body)
+  elseif dir.el then
+    code = transform(dir.el)
+  else
+    code = ""
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a runWith directive.
+--
+--@return string
+function DirectiveTrans:_transRunWith(dir)
+  return "#!" .. dir.cmd
+end
+
+--Transform an insert directive.
+--
+--@return string
+function DirectiveTrans:_transInsert(dir)
+  return dir.code
+end

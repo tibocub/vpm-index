@@ -1,0 +1,474 @@
+local lfs = require('lfs')
+local dir, rmdir
+dir, rmdir = lfs.dir, lfs.rmdir
+local lfs_mkdir = lfs.mkdir
+local make_link = lfs.link
+local attributes = lfs.attributes
+local exist
+exist = function(self)
+  return nil ~= attributes(self)
+end
+local cd = lfs.chdir
+local pwd = lfs.currentdir
+local link_exist = lfs.symlinkattributes
+local open, popen
+do
+  local _obj_0 = io
+  open, popen = _obj_0.open, _obj_0.popen
+end
+local find, sub
+do
+  local _obj_0 = string
+  find, sub = _obj_0.find, _obj_0.sub
+end
+local concat
+concat = table.concat
+local remove
+remove = os.remove
+local json = require('cjson')
+local json_decode = json.decode
+local json_encode = json.encode
+local moonscript_compile = require('moonscript.compile')
+local moonscript_parse_string = require('moonscript.parse').string
+local moonscript_compile_tree = moonscript_compile.tree
+local moonscript_format_error = moonscript_compile.format_error
+local https = require("ssl.https")
+local pick_installed_rock
+pick_installed_rock = require("luarocks.search").pick_installed_rock
+local match_constraints, parse_version, parse_constraints, parse_dep, fulfill_dependencies
+do
+  local _obj_0 = require('luarocks.deps')
+  match_constraints, parse_version, parse_constraints, parse_dep, fulfill_dependencies = _obj_0.match_constraints, _obj_0.parse_version, _obj_0.parse_constraints, _obj_0.parse_dep, _obj_0.fulfill_dependencies
+end
+local rocks_servers, rocks_trees
+do
+  local _obj_0 = require('luarocks.cfg')
+  rocks_servers, rocks_trees = _obj_0.rocks_servers, _obj_0.rocks_trees
+end
+require('luarocks.path').use_tree(rocks_trees[#rocks_trees])
+local gits_path, project_path, gits_old
+local gits = { }
+local gits_new = { }
+local rocks = { }
+local installed_rocks = { }
+local err
+err = function(msg)
+  return print('\27[1;91mError: \27[0;0m' .. msg)
+end
+local split
+split = function(self, s)
+  local pos, i, res = 1, 1, { }
+  while true do
+    local new = find(self, s, pos)
+    if new == nil then
+      res[i] = sub(self, pos)
+      break
+    else
+      res[i] = sub(self, pos, new - 1)
+      i = i + 1
+      pos = new + 1
+    end
+  end
+  return res
+end
+local slice
+slice = function(arr, f, t)
+  local len = #arr
+  if t == nil then
+    t = len
+  elseif t < 0 then
+    t = len + t
+  end
+  local res = { }
+  local i = 0
+  for n = f, t do
+    i = i + 1
+    res[i] = arr[n]
+  end
+  return res
+end
+local read
+read = function(path)
+  local f = open(path, 'r')
+  if f == nil then
+    return false
+  end
+  local ret = f:read('*a')
+  f:close()
+  return ret
+end
+local write
+write = function(path, content)
+  local f = open(path, 'w')
+  f:write(content)
+  return f:close()
+end
+local moon_to_lua
+moon_to_lua = function(source)
+  local tree
+  tree, err = moonscript_parse_string(source)
+  if not (tree) then
+    error(err)
+  end
+  local code, ltable, pos = moonscript_compile_tree(tree, options)
+  if not (code) then
+    error(moonscript_format_error(ltable, pos, source))
+  end
+  return code
+end
+local mkdir
+mkdir = function(p)
+  if nil == exist(p) then
+    return lfs_mkdir(p)
+  end
+end
+local mkdir_r
+mkdir_r = function(path)
+  local c = 0
+  local create = { }
+  local s = split(path, '/')
+  local l = #s
+  while l > 0 do
+    l = l - 1
+    if nil ~= exist(path) then
+      break
+    end
+    c = c + 1
+    create[c] = path
+    s = slice(s, 1, -1)
+    path = concat(s, '/')
+  end
+  for i = c, 1, -1 do
+    lfs_mkdir(create[i])
+  end
+end
+local isdir
+isdir = function(self)
+  return attributes(self).mode == 'directory'
+end
+local rmrf
+rmrf = function(path)
+  for rel in dir(path) do
+    if rel ~= '.' and rel ~= '..' then
+      local full = path .. '/' .. rel
+      if isdir(full) then
+        rmrf(full)
+      else
+        remove(full)
+      end
+    end
+  end
+  return rmdir(path)
+end
+local get_https
+get_https = function(url)
+  local response_body = { }
+  local res, code, response_headers = https.request({
+    url = url,
+    method = "GET",
+    sink = ltn12.sink.table(response_body)
+  })
+  return concat(response_body, '')
+end
+local get_sha
+get_sha = function(url)
+  return json_decode(get_https("https://api.github.com/repos/" .. url .. "/commits/master")).commit.tree.sha
+end
+local source
+source = function(url)
+  if rocks_servers[2] == nil then
+    rocks_servers[1], rocks_servers[2] = url, rocks_servers[1]
+  else
+    rocks_servers[1] = url
+  end
+end
+local rock
+rock = function(name, version)
+  local ex, current = pick_installed_rock(name)
+  if ex == nil or version ~= nil and false == match_constraints(parse_version(current), parse_constraints(version)) then
+    rocks[name] = version or true
+  end
+end
+local git
+git = function(url)
+  gits[url] = true
+end
+local write_required
+write_required = function(full)
+  local required_by_path = full .. '/.required_by'
+  if exist(required_by_path) then
+    local file = open(required_by_path, 'r')
+    local finded = false
+    while true do
+      local line = file:read()
+      if line == nil then
+        break
+      end
+      if line == project_path then
+        finded = true
+        break
+      end
+    end
+    file:close()
+    if finded == false then
+      file = open(required_by_path, 'a')
+      file:write(project_path .. '\n')
+      return file:close()
+    end
+  else
+    return write(required_by_path, project_path)
+  end
+end
+local readlink
+readlink = function(link_path)
+  cd(link_path)
+  local path = pwd()
+  cd(project_path)
+  return path
+end
+local sha_from_link
+sha_from_link = function(link_path)
+  local s = split(readlink(link_path), '/')
+  return s[#s]
+end
+local usin
+usin = function(name)
+  return print('\27[1;37mUsing \27[0;0m' .. name)
+end
+local updating
+updating = function(name)
+  return print('\27[1;35mUpdating \27[0;0m' .. name)
+end
+local installing
+installing = function(name)
+  return print('\27[1;32mInstalling \27[0;0m' .. name)
+end
+local install_git
+install_git = function(url, name, link_path, sha)
+  link_path = 'lib/' .. name
+  local full
+  if sha == nil and exist(link_path) then
+    usin(name)
+    full = readlink(link_path)
+    local s = split(full, '/')
+    sha = s[#s]
+  else
+    if sha == nil then
+      sha = get_sha(url)
+    end
+    local path = gits_path .. '/' .. name
+    full = path .. '/' .. sha
+    if exist(full) then
+      usin(name)
+    else
+      if exist(path) then
+        updating(name)
+      else
+        installing(name)
+      end
+      mkdir_r(full)
+      popen('git clone --depth=1 -q https://github.com/' .. url .. ' ' .. full):close()
+    end
+    make_link(full, link_path, true)
+  end
+  write_required(full)
+  return sha
+end
+local install
+local maybe_install_git
+maybe_install_git = function(url, update)
+  local name = split(url, '/')[2]
+  local link_path = 'lib/' .. name
+  local sha = gits_old[name]
+  if sha == nil then
+    sha = gits_new[name]
+  end
+  if exist(link_path) then
+    if sha == nil then
+      sha = sha_from_link(link_path)
+    end
+  else
+    sha = nil
+  end
+  if sha == nil then
+    sha = install_git(url, name, link_path)
+  elseif update then
+    local latest = get_sha(url)
+    if latest == sha then
+      usin(name)
+    else
+      remove('lib/' .. name)
+      sha = install_git(url, name, link_path, latest)
+    end
+  else
+    usin(name)
+  end
+  gits_new[name] = sha
+  local rockfile_path = link_path .. '/Rockfile'
+  if exist(rockfile_path) then
+    return install(name, rockfile_path, update)
+  end
+end
+install = function(project_name, rockfile_path, update)
+  local gits_were, rocks_were
+  gits_were, gits, rocks_were, rocks = gits, { }, rocks, { }
+  if rocks_servers[2] ~= nil then
+    rocks_servers[1], rocks_servers[2] = rocks_servers[2], nil
+  end
+  setfenv(loadstring(moon_to_lua(read(rockfile_path))), {
+    source = source,
+    rock = rock,
+    git = git
+  })()
+  for url in pairs(gits) do
+    maybe_install_git(url, update)
+  end
+  local i = 0
+  local rocks_array = { }
+  for name, version in pairs(rocks) do
+    if installed_rocks[name] == nil then
+      i = i + 1
+      rocks_array[i] = parse_dep(version == true and name or name .. ' ' .. version)
+      installed_rocks[name] = true
+    end
+  end
+  assert(fulfill_dependencies({
+    name = project_name,
+    version = '\b',
+    dependencies = rocks_array
+  }, 'one'))
+  gits, rocks = gits_were, rocks_were
+end
+local remove_sha
+remove_sha = function(name, sha)
+  local full = gits_path .. '/' .. name .. '/' .. sha
+  local required_by_path = full .. '/.required_by'
+  if exist(required_by_path) then
+    local file = open(required_by_path, 'r')
+    local lines = ''
+    while true do
+      local line = file:read()
+      if line == nil then
+        break
+      end
+      if line ~= project_path then
+        lines = lines .. (line .. '\n')
+      end
+    end
+    file:close()
+    if #lines > 0 then
+      return write(required_by_path, lines)
+    end
+  end
+  print('\27[1;30mRemoving\27[0;0m ' .. name .. ' with sha ' .. sha)
+  return rmrf(full)
+end
+local remove_git_unless_required
+remove_git_unless_required = function(name)
+  local full = gits_path .. '/' .. name
+  local required = false
+  for sha in dir(full) do
+    if not (sha == '.' or sha == '..') then
+      local content = read(full .. '/' .. sha .. '/.required_by')
+      if content ~= false and 0 ~= #content then
+        required = true
+        break
+      end
+    end
+  end
+  if required == false then
+    print('\27[1;30mRemoving\27[0;0m unrequired ' .. name)
+    return rmrf(full)
+  end
+end
+local check_rockfile
+check_rockfile = function()
+  if nil == exist('Rockfile') then
+    return err('could not find Rockfile')
+  else
+    return true
+  end
+end
+local after_install
+after_install = function()
+  for name, sha in pairs(gits_old) do
+    local new = gits_new[name]
+    if new ~= sha then
+      remove_sha(name, sha)
+      if new == nil then
+        remove_git_unless_required(name)
+        remove('lib/' .. name)
+      end
+    end
+  end
+  local lock = 'gits = {'
+  local name, sha = next(gits_new)
+  if name ~= nil then
+    lock = lock .. ('\n\t["' .. name .. '"] = "' .. sha .. '"')
+    while true do
+      name, sha = next(gits_new, name)
+      if name == nil then
+        break
+      end
+      lock = lock .. (',\n\t["' .. name .. '"] = "' .. sha .. '"')
+    end
+  end
+  return write('Rockfile.lock', lock .. '\n}')
+end
+local get_project_name
+get_project_name = function()
+  local s = split(project_path, '/')
+  return s[#s]
+end
+local actions = {
+  install = function()
+    if check_rockfile() == true then
+      install(get_project_name(), 'Rockfile')
+      return after_install()
+    end
+  end,
+  update = function()
+    if check_rockfile() == true then
+      install(get_project_name(), 'Rockfile', true)
+      return after_install()
+    end
+  end
+}
+return function(args)
+  local command = args[1]
+  if command == nil then
+    command = 'install'
+  end
+  local action = actions[command]
+  if action == nil then
+    return err('could not find command "' .. command .. '"')
+  else
+    local lua_config = os.getenv('LUA_CONFIG')
+    local home_path = os.getenv('HOME')
+    if lua_config == nil then
+      lua_config = home_path .. '/.lua/config'
+    end
+    local config_content = read(lua_config .. '/lundler.lua')
+    local config = { }
+    if config_content ~= false then
+      setfenv(loadstring(config_content), config)()
+    end
+    gits_path = config.gits_path
+    if gits_path == nil then
+      gits_path = 'gits'
+    end
+    gits_path = home_path .. '/.lua/' .. gits_path
+    mkdir_r(gits_path)
+    project_path = pwd()
+    local lock = read('Rockfile.lock')
+    if lock ~= false then
+      local fenv = { }
+      setfenv(loadstring(lock), fenv)()
+      gits_old = fenv.gits
+    end
+    if gits_old == nil then
+      gits_old = { }
+    end
+    return action(args)
+  end
+end

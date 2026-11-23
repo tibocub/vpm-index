@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "api7-lua-resty-openidc",
+  "versions": {
+    "1.9.2-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-http >= 0.08",
+        "lua-resty-session == 4.2.0-1",
+        "lua-resty-jwt >= 0.2.0",
+        "lua-resty-openssl >= 1.8.0"
+      ],
+      "files": {
+        "resty/openidc.lua": {
+          "sha256": "20265efea84c181917d0ecdf6087bb6e81ea7189376813cadc37ca670336955c",
+          "size": 85455,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-openidc/e20510fe7239c8366c8eeac0f68d127808c7bc9f/lib/resty/openidc.lua"
+        }
+      },
+      "homepage": "https://github.com/api7/lua-resty-openidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 10 Sep 2026 03:46:06 GMT",
+        "rockspec": {
+          "date": "Thu, 10 Sep 2026 03:46:06 GMT",
+          "sha256": "bf6cadae237f1c76f0f382c726372e24cad410a5a5fe721d805371bd252e9e8d",
+          "size": 1577
+        },
+        "src": {
+          "date": "Thu, 10 Sep 2026 03:46:06 GMT",
+          "sha256": "42c687a9819a2a7a69519eeaafa11389f949da5891e60bd126dd7387103352e6",
+          "size": 117125,
+          "url": "https://luarocks.org/api7-lua-resty-openidc-1.9.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "resty.openidc"
+      ],
+      "origin": {
+        "commit": "e20510fe7239c8366c8eeac0f68d127808c7bc9f",
+        "ref": "v1.9.2",
+        "type": "git",
+        "url": "https://github.com/api7/lua-resty-openidc"
+      },
+      "size": 85455,
+      "summary": "A library for NGINX implementing OpenID Connect and OAuth 2.0",
+      "undeclared_requires": [
+        "ngx.base64",
+        "resty.jwt",
+        "resty.jwt-validators",
+        "resty.random",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

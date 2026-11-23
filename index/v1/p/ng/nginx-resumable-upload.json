@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "nginx-resumable-upload",
+  "versions": {
+    "0.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "shuaicj/upload.lua": {
+          "sha256": "dfd90b5185bb1ba372d42308b903a4115c2a36a7b1740d6037d09c7523e19627",
+          "size": 6490,
+          "url": "https://raw.githubusercontent.com/shuaicj/nginx-resumable-upload/aac41102a47187299bbf943ec26001472e76f267/lib/shuaicj/upload.lua"
+        },
+        "shuaicj/upload/checksum/crc32.lua": {
+          "sha256": "127223e37d0445c56b37f2da865f77b3658814b32f662ba9306439337cb74c57",
+          "size": 1627,
+          "url": "https://raw.githubusercontent.com/shuaicj/nginx-resumable-upload/aac41102a47187299bbf943ec26001472e76f267/lib/shuaicj/upload/checksum/crc32.lua"
+        },
+        "shuaicj/upload/checksum/md5.lua": {
+          "sha256": "c6b18be3a3293b1eac1d79c4403325a3913d8303b2fd3d79536edf76d7942196",
+          "size": 2350,
+          "url": "https://raw.githubusercontent.com/shuaicj/nginx-resumable-upload/aac41102a47187299bbf943ec26001472e76f267/lib/shuaicj/upload/checksum/md5.lua"
+        },
+        "shuaicj/upload/checksum/sha1.lua": {
+          "sha256": "4e6de8b9cdbd270c206ec9a4e994dc3d4c409e73f7c132da498413759a6cae9c",
+          "size": 2287,
+          "url": "https://raw.githubusercontent.com/shuaicj/nginx-resumable-upload/aac41102a47187299bbf943ec26001472e76f267/lib/shuaicj/upload/checksum/sha1.lua"
+        },
+        "shuaicj/upload/util.lua": {
+          "sha256": "ef6ae835a9dd9112bbf59c3b314d9cc29521fbe9add4e34423e0b7afc969c983",
+          "size": 1210,
+          "url": "https://raw.githubusercontent.com/shuaicj/nginx-resumable-upload/aac41102a47187299bbf943ec26001472e76f267/lib/shuaicj/upload/util.lua"
+        }
+      },
+      "homepage": "https://github.com/shuaicj/nginx-resumable-upload",
+      "host": "luajit",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Wed, 28 Feb 2018 03:11:51 GMT",
+        "rockspec": {
+          "date": "Wed, 28 Feb 2018 03:11:51 GMT",
+          "sha256": "1b08f914b5242b3ea55e4c9c6cfd91c236a7cff75cd71cd97ed87d29c39d3ddc",
+          "size": 1035
+        },
+        "src": {
+          "date": "Wed, 28 Feb 2018 03:11:54 GMT",
+          "sha256": "20a7f90af5da0e83e8545fb7823987c7bc710adeba223e7c0400977c90f3d8d8",
+          "size": 15298,
+          "url": "https://luarocks.org/nginx-resumable-upload-0.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "shuaicj.upload",
+        "shuaicj.upload.checksum.crc32",
+        "shuaicj.upload.checksum.md5",
+        "shuaicj.upload.checksum.sha1",
+        "shuaicj.upload.util"
+      ],
+      "origin": {
+        "commit": "aac41102a47187299bbf943ec26001472e76f267",
+        "ref": "v0.0.1",
+        "type": "git",
+        "url": "https://github.com/shuaicj/nginx-resumable-upload"
+      },
+      "size": 13964,
+      "summary": "A Lua module to support resumable upload in Nginx.",
+      "undeclared_requires": [
+        "shuaicj.upload.checksum."
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

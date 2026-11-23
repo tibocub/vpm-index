@@ -1,0 +1,108 @@
+{
+  "kind": "lib",
+  "name": "gluu-oauth2-client-auth",
+  "versions": {
+    "1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/gluu-oauth2-client-auth/access.lua": {
+          "sha256": "014e8ddf82e63010a8e40fc64b5ddf10aea17c9cf7ff4ea1fc85806867f78047",
+          "size": 14688,
+          "url": "blob:014e8ddf82e63010a8e40fc64b5ddf10aea17c9cf7ff4ea1fc85806867f78047"
+        },
+        "kong/plugins/gluu-oauth2-client-auth/api.lua": {
+          "sha256": "c0bf552a5d037324e9e068c6e73c3268e2712917d219c88be6029b4d6b133419",
+          "size": 10062,
+          "url": "blob:c0bf552a5d037324e9e068c6e73c3268e2712917d219c88be6029b4d6b133419"
+        },
+        "kong/plugins/gluu-oauth2-client-auth/daos.lua": {
+          "sha256": "97a4b96a9a6880e6ef8ea3c592bc139457f123d2af17b541953ca8c6125a122f",
+          "size": 1772,
+          "url": "blob:97a4b96a9a6880e6ef8ea3c592bc139457f123d2af17b541953ca8c6125a122f"
+        },
+        "kong/plugins/gluu-oauth2-client-auth/handler.lua": {
+          "sha256": "7dfe3b5c83bd21dee14691112c8efb7ee3ac3b6d08e64781d2a7351feb8e24fb",
+          "size": 524,
+          "url": "blob:7dfe3b5c83bd21dee14691112c8efb7ee3ac3b6d08e64781d2a7351feb8e24fb"
+        },
+        "kong/plugins/gluu-oauth2-client-auth/helper.lua": {
+          "sha256": "3725e0e77e00b3d9eee4303759909374f51a99750197eb29bee8ddce8b3d65dc",
+          "size": 7500,
+          "url": "blob:3725e0e77e00b3d9eee4303759909374f51a99750197eb29bee8ddce8b3d65dc"
+        },
+        "kong/plugins/gluu-oauth2-client-auth/migrations/cassandra.lua": {
+          "sha256": "7085e9f89925d10c03f38daff8a47e1a90bdf452fd34d1f4c60f95f7122e312e",
+          "size": 1278,
+          "url": "blob:7085e9f89925d10c03f38daff8a47e1a90bdf452fd34d1f4c60f95f7122e312e"
+        },
+        "kong/plugins/gluu-oauth2-client-auth/migrations/postgres.lua": {
+          "sha256": "0a1f1b97890a3f7e2db809e76e85652a564e491ccdc2f41f42b2ac190116d6a2",
+          "size": 1877,
+          "url": "blob:0a1f1b97890a3f7e2db809e76e85652a564e491ccdc2f41f42b2ac190116d6a2"
+        },
+        "kong/plugins/gluu-oauth2-client-auth/schema.lua": {
+          "sha256": "9a465e8796c0cfab6e8e5abbd19bebe19e820848d054bc102c61c75a6b70eb11",
+          "size": 1703,
+          "url": "blob:9a465e8796c0cfab6e8e5abbd19bebe19e820848d054bc102c61c75a6b70eb11"
+        }
+      },
+      "homepage": "https://github.com/GluuFederation/gluu-gateway/tree/master/gluu-oauth2-client-auth",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 11 Jul 2018 11:16:54 GMT",
+        "rockspec": {
+          "date": "Wed, 11 Jul 2018 11:16:54 GMT",
+          "sha256": "5f2156f26958748186198fb717d5351f89a0897457b0e9f56eff0a3a12ed5457",
+          "size": 1161
+        },
+        "src": {
+          "date": "Wed, 11 Jul 2018 11:16:55 GMT",
+          "sha256": "6bde4e545fd6d589d4cdc55af5ea605704d2b1504c8a352f2f93838292f74941",
+          "size": 12504,
+          "url": "https://luarocks.org/gluu-oauth2-client-auth-1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.gluu-oauth2-client-auth.access",
+        "kong.plugins.gluu-oauth2-client-auth.api",
+        "kong.plugins.gluu-oauth2-client-auth.daos",
+        "kong.plugins.gluu-oauth2-client-auth.handler",
+        "kong.plugins.gluu-oauth2-client-auth.helper",
+        "kong.plugins.gluu-oauth2-client-auth.migrations.cassandra",
+        "kong.plugins.gluu-oauth2-client-auth.migrations.postgres",
+        "kong.plugins.gluu-oauth2-client-auth.schema"
+      ],
+      "origin": {
+        "date": "Wed, 11 Jul 2018 11:16:55 GMT",
+        "sha256": "6bde4e545fd6d589d4cdc55af5ea605704d2b1504c8a352f2f93838292f74941",
+        "size": 12504,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gluu-oauth2-client-auth-1.0-0.src.rock"
+      },
+      "size": 39404,
+      "summary": "Gluu OAuth 2.0 client authentication",
+      "undeclared_requires": [
+        "JSON",
+        "kong.api.crud_helpers",
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "kong.tools.utils",
+        "oxdweb"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.singletons",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

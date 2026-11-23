@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "tonos-client",
+  "versions": {
+    "1.45.0-1": {
+      "bin": [],
+      "deps": [
+        "dkjson >= 2.5"
+      ],
+      "files": {
+        "tonos/client.lua": {
+          "sha256": "32ec480193aa3cf449d72abbb99b2093de2715c6b0eeaef2c899ad7b9575219c",
+          "size": 20691,
+          "url": "blob:32ec480193aa3cf449d72abbb99b2093de2715c6b0eeaef2c899ad7b9575219c"
+        }
+      },
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Wed, 29 Nov 2023 10:47:48 GMT",
+        "rockspec": {
+          "date": "Wed, 29 Nov 2023 10:47:48 GMT",
+          "sha256": "8cbfd6ccc60f195f1b864cecb2a40c3b2334f30e1dd4b4930a6f8ca35db0bd07",
+          "size": 866
+        },
+        "src": {
+          "date": "Wed, 29 Nov 2023 10:47:49 GMT",
+          "sha256": "a176b065de4bd42ff97f0684f619a9c611129b4b31f9a9d54d0709d0f0190f65",
+          "size": 22064,
+          "url": "https://luarocks.org/tonos-client-1.45.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "tonos.client",
+        "tonosclua"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "NDEBUG"
+              ],
+              "incdirs": [
+                "src/tonosclua/include"
+              ],
+              "libraries": [
+                "ton_client"
+              ],
+              "name": "tonosclua",
+              "sources": [
+                "src/tonosclua/tonosclua.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 29 Nov 2023 10:47:49 GMT",
+        "sha256": "a176b065de4bd42ff97f0684f619a9c611129b4b31f9a9d54d0709d0f0190f65",
+        "size": 22064,
+        "type": "luarocks",
+        "url": "https://luarocks.org/tonos-client-1.45.0-1.src.rock"
+      },
+      "size": 20691,
+      "summary": "Lua bindings to TON OS SDK's Core Client Library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

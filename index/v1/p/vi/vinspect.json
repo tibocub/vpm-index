@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "vinspect",
+  "versions": {
+    "0.0.2-1": {
+      "bin": [],
+      "deps": [
+        "lcurses >= 9.0.0"
+      ],
+      "files": {
+        "vinspect.lua": {
+          "sha256": "a9c1f5594c082ac323f91b5a6c390681871db9302e149742a2408b3782218778",
+          "size": 17972,
+          "url": "blob:a9c1f5594c082ac323f91b5a6c390681871db9302e149742a2408b3782218778"
+        }
+      },
+      "homepage": "https://github.com/mpeterv/vinspect",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Tue, 10 May 2016 12:09:09 GMT",
+        "rockspec": {
+          "date": "Tue, 10 May 2016 12:09:09 GMT",
+          "sha256": "a289fa34efa9cdf332b698d296acae8717de06787ea29d52d541a6762a9b5bba",
+          "size": 726
+        },
+        "src": {
+          "date": "Tue, 10 May 2016 12:09:22 GMT",
+          "sha256": "9d84608de527c75cc6df6286a29343ae3d83130afc2f41a8235b3b12449d2acd",
+          "size": 9078,
+          "url": "https://luarocks.org/vinspect-0.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "vinspect",
+        "vinspect.mouse"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "libraries": [
+                "ncurses"
+              ],
+              "name": "vinspect.mouse",
+              "sources": [
+                "mouse.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 10 May 2016 12:09:22 GMT",
+        "sha256": "9d84608de527c75cc6df6286a29343ae3d83130afc2f41a8235b3b12449d2acd",
+        "size": 9078,
+        "type": "luarocks",
+        "url": "https://luarocks.org/vinspect-0.0.2-1.src.rock"
+      },
+      "size": 17972,
+      "summary": "Interactive Lua value visualizer.",
+      "undeclared_requires": [
+        "curses"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

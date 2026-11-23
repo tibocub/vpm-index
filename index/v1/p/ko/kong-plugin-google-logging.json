@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-google-logging",
+  "versions": {
+    "0.0.1-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson",
+        "mimetypes"
+      ],
+      "files": {
+        "kong/plugins/google-logging/google/core/http.lua": {
+          "sha256": "48fdf4af86d40223a3a0db11e5d6be1c38996188199e45a7098b817074a3e8c6",
+          "size": 1704,
+          "url": "https://raw.githubusercontent.com/SmartParkingTechnology/kong-google-logging-plugin/e5151b9517f23b76666067d4c5694c665a30b03b/kong/plugins/google-logging/google/core/http.lua"
+        },
+        "kong/plugins/google-logging/google/core/oauth.lua": {
+          "sha256": "6a6eb17b920ebb0051402d3ae5b3cf90537b4a5522a284964422fb68f9c48659",
+          "size": 3406,
+          "url": "https://raw.githubusercontent.com/SmartParkingTechnology/kong-google-logging-plugin/e5151b9517f23b76666067d4c5694c665a30b03b/kong/plugins/google-logging/google/core/oauth.lua"
+        },
+        "kong/plugins/google-logging/handler.lua": {
+          "sha256": "52422039cae4e1e80ea3fa0cd25357be39a67c2135608a7eb036b4b6cc2ae652",
+          "size": 4835,
+          "url": "https://raw.githubusercontent.com/SmartParkingTechnology/kong-google-logging-plugin/e5151b9517f23b76666067d4c5694c665a30b03b/kong/plugins/google-logging/handler.lua"
+        },
+        "kong/plugins/google-logging/schema.lua": {
+          "sha256": "18327220a6bbf8eb3fcdfe6fffbbfcd36b22bb00ec5899545566499bf0330069",
+          "size": 1390,
+          "url": "https://raw.githubusercontent.com/SmartParkingTechnology/kong-google-logging-plugin/e5151b9517f23b76666067d4c5694c665a30b03b/kong/plugins/google-logging/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/SmartParkingTechnology/kong-google-logging-plugin",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 02 Nov 2020 19:36:11 GMT",
+        "rockspec": {
+          "date": "Mon, 02 Nov 2020 19:36:11 GMT",
+          "sha256": "07b7e849f931b50d85d4f1579232de5ffedddd7eaee86e69bddeea7ca640a7c8",
+          "size": 1562
+        },
+        "src": {
+          "date": "Mon, 02 Nov 2020 19:36:13 GMT",
+          "sha256": "90b20f4da6e1ebb8f327206ef0cbe174d2b036d1cebf761636e50847ed229b22",
+          "size": 25616,
+          "url": "https://luarocks.org/kong-plugin-google-logging-0.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.google-logging.google.core.http",
+        "kong.plugins.google-logging.google.core.oauth",
+        "kong.plugins.google-logging.handler",
+        "kong.plugins.google-logging.schema"
+      ],
+      "origin": {
+        "commit": "e5151b9517f23b76666067d4c5694c665a30b03b",
+        "type": "git",
+        "url": "https://github.com/SmartParkingTechnology/kong-google-logging-plugin"
+      },
+      "size": 11335,
+      "summary": "Plugin for exporting Kong request data such as service name, route name, consumer name or request latency to Google Cloud Logging.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.batch_queue",
+        "ltn12",
+        "mime",
+        "resty.openssl.digest",
+        "resty.openssl.pkey",
+        "socket",
+        "socket.url",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "missing module: ssl.https",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "lua-ctables",
+  "versions": {
+    "1.2.2-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://gitlab.com/mambrus/lua-ctables",
+      "license": "MIT",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Sat, 19 Jul 2025 21:38:25 GMT",
+        "rockspec": {
+          "date": "Sat, 19 Jul 2025 21:38:25 GMT",
+          "sha256": "aabc4ae9eaf537631533cc378979e628664113680507f0fb1854cd0d2ebbf5c9",
+          "size": 1411
+        },
+        "src": {
+          "date": "Sat, 19 Jul 2025 21:38:26 GMT",
+          "sha256": "117f85b97742360a18fadbaaca35faa3642ac01e7b3c92dcfc9c2692a381ba1d",
+          "size": 62035,
+          "url": "https://luarocks.org/lua-ctables-1.2.2-2.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "cmake",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "cmake": {
+            "variables": {
+              "BUILD_LUAROCK": "ON",
+              "CMAKE_INSTALL_PREFIX": "$(PREFIX)",
+              "DSO_VERSION_SPECIFIC": "OFF",
+              "LUA": "$(LUA)",
+              "LUA_INCLUDE_DIR": "$(LUA_INCDIR)",
+              "LUA_LIBRARY_DIR": "$(LUA_DIR)/lib"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sat, 19 Jul 2025 21:38:26 GMT",
+        "sha256": "117f85b97742360a18fadbaaca35faa3642ac01e7b3c92dcfc9c2692a381ba1d",
+        "size": 62035,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-ctables-1.2.2-2.src.rock"
+      },
+      "summary": "Bridge between C-arrays/buffers and Lua multi-dimensional tables.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+local picocolors = {}
+
+local function init(open, close, _replace)
+	return function(input)
+		return open .. input .. close
+	end
+end
+
+picocolors.reset = init("\x1b[0m", "\x1b[0m")
+picocolors.bold = init("\x1b[1m", "\x1b[22m", "\x1b[22m\x1b[1m")
+picocolors.dim = init("\x1b[2m", "\x1b[22m", "\x1b[22m\x1b[2m")
+picocolors.italic = init("\x1b[3m", "\x1b[23m")
+picocolors.underline = init("\x1b[4m", "\x1b[24m")
+picocolors.inverse = init("\x1b[7m", "\x1b[27m")
+picocolors.hidden = init("\x1b[8m", "\x1b[28m")
+picocolors.strikethrough = init("\x1b[9m", "\x1b[29m")
+
+picocolors.black = init("\x1b[30m", "\x1b[39m")
+picocolors.red = init("\x1b[31m", "\x1b[39m")
+picocolors.green = init("\x1b[32m", "\x1b[39m")
+picocolors.yellow = init("\x1b[33m", "\x1b[39m")
+picocolors.blue = init("\x1b[34m", "\x1b[39m")
+picocolors.magenta = init("\x1b[35m", "\x1b[39m")
+picocolors.cyan = init("\x1b[36m", "\x1b[39m")
+picocolors.white = init("\x1b[37m", "\x1b[39m")
+picocolors.gray = init("\x1b[90m", "\x1b[39m")
+
+return picocolors

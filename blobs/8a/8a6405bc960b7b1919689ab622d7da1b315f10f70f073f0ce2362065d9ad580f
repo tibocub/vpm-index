@@ -1,0 +1,317 @@
+-- Built-in qdisc plugins: htb, tbf, sfq, netem, cake, ingress, clsact,
+-- fq_codel, prio, hfsc.
+
+local Registry = require("htb.registry")
+local toml = require("htb.toml")
+
+local M = {}
+
+local function str(v)
+    return tostring(v)
+end
+
+-- Emit [key, value] for each present key, in the given order.
+local function emitInOrder(params, keys)
+    local out = {}
+    for _, key in ipairs(keys) do
+        if params[key] ~= nil then
+            out[#out + 1] = key
+            out[#out + 1] = str(params[key])
+        end
+    end
+    return out
+end
+
+local function isTruthy(v)
+    local s = tostring(v):lower()
+    return s ~= "false" and s ~= "0" and s ~= "no" and s ~= ""
+end
+
+local CAKE_BOOLEAN_PARAMS = {
+    diffserv4 = true, diffserv3 = true, diffserv8 = true, besteffort = true,
+    flowblind = true, srchost = true, dsthost = true, hosts = true,
+    flows = true, ["dual-srchost"] = true, ["dual-dsthost"] = true,
+    nat = true, nonat = true, wash = true, nowash = true,
+    ["split-gso"] = true, ["no-split-gso"] = true,
+    ["ack-filter"] = true, ["no-ack-filter"] = true,
+    ingress = true, egress = true, raw = true, conservative = true,
+}
+
+-- htb: hierarchical token bucket (root qdisc + classes). The qdisc itself
+-- takes no rate — per-class rates live on the classes. Valid qdisc options
+-- are r2q, direct_qlen and offload (default is handled by the script gen).
+Registry.register("qdisc", "htb", {
+    description = "HTB hierarchical token bucket",
+    params = {
+        r2q = "DRR quantums as rate in Bps/r2q (default 10)",
+        direct_qlen = "direct queue length limit",
+        offload = "enable hardware offload (bool)",
+    },
+    generate = function(p)
+        local out = {}
+        if p.r2q ~= nil then
+            out[#out + 1] = "r2q"
+            out[#out + 1] = str(p.r2q)
+        end
+        if p.direct_qlen ~= nil then
+            out[#out + 1] = "direct_qlen"
+            out[#out + 1] = str(p.direct_qlen)
+        end
+        if p.offload ~= nil and isTruthy(p.offload) then
+            out[#out + 1] = "offload"
+        end
+        return out
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- tbf: simple single-queue token bucket.
+Registry.register("qdisc", "tbf", {
+    description = "TBF token bucket filter",
+    params = {
+        rate = "maximum transmit rate (required)",
+        burst = "bucket size in bytes (required)",
+        latency = "maximum queue latency",
+    },
+    generate = function(p)
+        return emitInOrder(p, { "latency", "burst", "rate" })
+    end,
+    validate = function(p)
+        local errs = {}
+        if p.rate == nil then
+            errs[#errs + 1] = "TBF requires 'rate' parameter"
+        end
+        return errs
+    end,
+})
+
+-- sfq: stochastic fair queuing (leaf qdisc).
+Registry.register("qdisc", "sfq", {
+    description = "SFQ stochastic fair queuing",
+    params = {
+        quantum = "bytes dequeued per round (typically MTU)",
+        perturb = "seconds between hash perturbations (default 10)",
+    },
+    generate = function(p)
+        local out = {}
+        local perturb = p.perturb
+        if perturb == nil then
+            perturb = "10"
+        end
+        if p.quantum ~= nil then
+            out[#out + 1] = "quantum"
+            out[#out + 1] = str(p.quantum)
+        end
+        out[#out + 1] = "perturb"
+        out[#out + 1] = str(perturb)
+        return out
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- netem: network emulator (delay, loss, corruption).
+Registry.register("qdisc", "netem", {
+    description = "NETEM network emulator",
+    params = {
+        delay = "fixed or variable delay",
+        loss = "random packet loss probability",
+        duplicate = "packet duplication probability",
+        corrupt = "random corruption probability",
+        reorder = "packet reordering probability",
+    },
+    generate = function(p)
+        return emitInOrder(p, { "delay", "loss", "duplicate", "corrupt", "reorder" })
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- cake: modern qdisc with QoS and bandwidth limiting.
+Registry.register("qdisc", "cake", {
+    description = "CAKE qdisc",
+    params = {
+        bandwidth = "shaping rate",
+        diffserv4 = "4-tier DSCP priority (bool)",
+        wash = "clear DSCP bits on egress (bool)",
+    },
+    generate = function(p)
+        local out = {}
+        if p.bandwidth ~= nil then
+            out[#out + 1] = "bandwidth"
+            out[#out + 1] = str(p.bandwidth)
+        end
+        for key, value in toml.orderedPairs(p) do
+            if key ~= "bandwidth" then
+                if CAKE_BOOLEAN_PARAMS[key] then
+                    if isTruthy(value) then
+                        out[#out + 1] = key
+                    end
+                else
+                    out[#out + 1] = key
+                    out[#out + 1] = str(value)
+                end
+            end
+        end
+        return out
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- pfifo_fast: simple priority FIFO (the kernel's default leaf qdisc). Used as
+-- a lightweight leaf where no AQM is wanted (e.g. a high-rate LAN class).
+Registry.register("qdisc", "pfifo_fast", {
+    description = "PFIFO fast priority queue",
+    -- Note: there is no `default` (band) param here. The `default` key in a
+    -- qdisc section is a known field (the default class for classful qdiscs)
+    -- and is hoisted out of params, so a pfifo_fast band default could never
+    -- reach this plugin. The kernel default band (0) is used instead.
+    params = {
+        bands = "number of priority bands (1-12, default 3)",
+        priority = "packet priority per band (space-separated)",
+    },
+    generate = function(p)
+        local out = {}
+        if p.bands ~= nil then
+            out[#out + 1] = "bands"
+            out[#out + 1] = str(p.bands)
+        end
+        if p.priority ~= nil then
+            out[#out + 1] = "priority"
+            for w in tostring(p.priority):gmatch("%S+") do
+                out[#out + 1] = w
+            end
+        end
+        return out
+    end,
+    validate = function(p)
+        local errs = {}
+        if p.bands ~= nil then
+            local b = tonumber(p.bands)
+            if b == nil or b < 1 or b > 12 then
+                errs[#errs + 1] = "pfifo_fast bands must be 1-12, got " .. tostring(p.bands)
+            end
+        end
+        return errs
+    end,
+})
+
+-- ingress: ingress qdisc.
+Registry.register("qdisc", "ingress", {
+    description = "Ingress qdisc",
+    params = {},
+    generate = function(_p)
+        return {}
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- clsact: common qdisc (alternative to ingress).
+Registry.register("qdisc", "clsact", {
+    description = "CLST common qdisc",
+    params = {},
+    generate = function(_p)
+        return {}
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- fq_codel: fair queue controlled delay.
+Registry.register("qdisc", "fq_codel", {
+    description = "FQ-CoDel AQM",
+    params = {
+        limit = "max packets in queue",
+        flows = "number of flow buckets",
+        target = "target sojourn time",
+        interval = "moving time window",
+        quantum = "bytes dequeued per round",
+        ecn = "enable ECN marking (bool)",
+        noecn = "disable ECN marking (bool)",
+    },
+    generate = function(p)
+        local out = {}
+        for _, key in ipairs({ "limit", "flows", "target", "interval", "quantum", "ecn", "noecn" }) do
+            if p[key] ~= nil then
+                local val = str(p[key])
+                if (key == "ecn" or key == "noecn") and isTruthy(val) then
+                    out[#out + 1] = key
+                else
+                    out[#out + 1] = key
+                    out[#out + 1] = val
+                end
+            end
+        end
+        return out
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- prio: priority scheduler.
+Registry.register("qdisc", "prio", {
+    description = "Priority scheduler",
+    params = {
+        bands = "number of priority bands (2-16)",
+        priomap = "16-value priority-to-band map",
+    },
+    generate = function(p)
+        local out = {}
+        if p.bands ~= nil then
+            out[#out + 1] = "bands"
+            out[#out + 1] = str(p.bands)
+        end
+        if p.priomap ~= nil then
+            out[#out + 1] = "priomap"
+            for w in tostring(p.priomap):gmatch("%S+") do
+                out[#out + 1] = w
+            end
+        end
+        return out
+    end,
+    validate = function(p)
+        local errs = {}
+        if p.bands ~= nil then
+            local b = tonumber(p.bands)
+            if b == nil or b < 2 or b > 16 then
+                errs[#errs + 1] = "prio bands must be 2-16, got " .. tostring(p.bands)
+            end
+        end
+        if p.priomap ~= nil then
+            local n = 0
+            for _ in tostring(p.priomap):gmatch("%S+") do
+                n = n + 1
+            end
+            if n ~= 16 then
+                errs[#errs + 1] = "priomap must have exactly 16 values, got " .. n
+            end
+        end
+        return errs
+    end,
+})
+
+-- hfsc: hierarchical fair service curve.
+Registry.register("qdisc", "hfsc", {
+    description = "HFSC service curves",
+    params = {
+        default = "default class minor number",
+    },
+    generate = function(_p)
+        return {}
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+return M

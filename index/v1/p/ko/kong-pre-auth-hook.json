@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "kong-pre-auth-hook",
+  "versions": {
+    "1.1-7": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/pre-auth-hook/access.lua": {
+          "sha256": "4d1d6e5ec02edfbcf9a2c8ae1f35c966ed9bd81e126768c49f907e7f90ea2f49",
+          "size": 2389,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-pre-auth-hook/c77455f8f10cf1ca3d8d3e006d952ec754e389de/kong/plugins/pre-auth-hook/access.lua"
+        },
+        "kong/plugins/pre-auth-hook/filters.lua": {
+          "sha256": "47bb58644afb60a0611faf00e869d44e2fe638196cd963621ed1bd6f252c181b",
+          "size": 3439,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-pre-auth-hook/c77455f8f10cf1ca3d8d3e006d952ec754e389de/kong/plugins/pre-auth-hook/filters.lua"
+        },
+        "kong/plugins/pre-auth-hook/handler.lua": {
+          "sha256": "86f1a697a137890315ecf6d62b862e516663b487070183878c2b58f380d0d4ed",
+          "size": 1488,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-pre-auth-hook/c77455f8f10cf1ca3d8d3e006d952ec754e389de/kong/plugins/pre-auth-hook/handler.lua"
+        },
+        "kong/plugins/pre-auth-hook/schema.lua": {
+          "sha256": "2287f2ff16b3bb19a37340951ed213e6e7b3f1995e4700ff608816dcd4e3d44a",
+          "size": 1872,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-pre-auth-hook/c77455f8f10cf1ca3d8d3e006d952ec754e389de/kong/plugins/pre-auth-hook/schema.lua"
+        },
+        "kong/plugins/pre-auth-hook/utilities.lua": {
+          "sha256": "9aaad14bcd2daaffae35e3d863137cdba60b239d77ef0752b8d73f74ec049a1b",
+          "size": 2751,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-pre-auth-hook/c77455f8f10cf1ca3d8d3e006d952ec754e389de/kong/plugins/pre-auth-hook/utilities.lua"
+        }
+      },
+      "homepage": "https://github.com/newtonx-inc/kong-pre-auth-hook",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 23 Mar 2021 21:54:53 GMT",
+        "rockspec": {
+          "date": "Tue, 23 Mar 2021 21:54:53 GMT",
+          "sha256": "f2f299945ebcab3e30675c55891045082b02e59569e07b5d91e3789441722331",
+          "size": 1175
+        }
+      },
+      "modules": [
+        "kong.plugins.pre-auth-hook.access",
+        "kong.plugins.pre-auth-hook.filters",
+        "kong.plugins.pre-auth-hook.handler",
+        "kong.plugins.pre-auth-hook.schema",
+        "kong.plugins.pre-auth-hook.utilities"
+      ],
+      "origin": {
+        "commit": "c77455f8f10cf1ca3d8d3e006d952ec754e389de",
+        "ref": "v1.1-7",
+        "type": "git",
+        "url": "https://github.com/newtonx-inc/kong-pre-auth-hook"
+      },
+      "size": 11939,
+      "summary": "A Kong plugin for performing configurable operations before auth plugins run",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing global: kong",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

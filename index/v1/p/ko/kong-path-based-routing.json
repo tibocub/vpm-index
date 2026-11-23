@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "kong-path-based-routing",
+  "versions": {
+    "2.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-path-based-routing/access.lua": {
+          "sha256": "7f22b733fd66543e2d7770d8314d303f8e599e22fabbd2bee2c950979b54322b",
+          "size": 416,
+          "url": "https://raw.githubusercontent.com/Optum/kong-path-based-routing/3bafb9642550980b0efff46fcb26ed5c538b9eb2/src/access.lua"
+        },
+        "kong/plugins/kong-path-based-routing/handler.lua": {
+          "sha256": "1c9097f63f042a067417d59c9319e8bfdfb74eb79de8f8f59c934fceda451bfa",
+          "size": 306,
+          "url": "https://raw.githubusercontent.com/Optum/kong-path-based-routing/3bafb9642550980b0efff46fcb26ed5c538b9eb2/src/handler.lua"
+        },
+        "kong/plugins/kong-path-based-routing/schema.lua": {
+          "sha256": "8e6c24ec296e04a21863e6b9a09ccd0b6c54884709cd7bfbe38e75e14c6e848b",
+          "size": 392,
+          "url": "https://raw.githubusercontent.com/Optum/kong-path-based-routing/3bafb9642550980b0efff46fcb26ed5c538b9eb2/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-path-based-routing",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 06 Jun 2024 03:53:35 GMT",
+        "rockspec": {
+          "date": "Thu, 06 Jun 2024 03:53:35 GMT",
+          "sha256": "efb118888066b21b657b6caee903451d0760725f00e78d1c16fd1218bfa5c67a",
+          "size": 657
+        },
+        "src": {
+          "date": "Thu, 06 Jun 2024 03:53:36 GMT",
+          "sha256": "9bbf940ac1b8d601c68e446348c4b69778e2e04bda2c61c533fff154f9bd930d",
+          "size": 26892,
+          "url": "https://luarocks.org/kong-path-based-routing-2.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-path-based-routing.access",
+        "kong.plugins.kong-path-based-routing.handler",
+        "kong.plugins.kong-path-based-routing.schema"
+      ],
+      "origin": {
+        "commit": "3bafb9642550980b0efff46fcb26ed5c538b9eb2",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-path-based-routing.git"
+      },
+      "size": 1114,
+      "summary": "A plugin for Kong which dynamically sets the upstream hostname at runtime, based on the request URI",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

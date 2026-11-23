@@ -1,0 +1,55 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-redirect",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/redirect/handler.lua": {
+          "sha256": "ea0bea16d3e4e2cf53d7d9f7b06f7b345dc7fde1d911c02b41fbf506a2682aa0",
+          "size": 503,
+          "url": "https://raw.githubusercontent.com/nagra-insight/kong-plugin-redirect/165298db617499162d9aa1ca787de9fbf078ade0/kong/plugins/redirect/handler.lua"
+        },
+        "kong/plugins/redirect/schema.lua": {
+          "sha256": "590636067bac8ec9799110a279186f4e939c8810e06e22ffe74c169b525fc190",
+          "size": 347,
+          "url": "https://raw.githubusercontent.com/nagra-insight/kong-plugin-redirect/165298db617499162d9aa1ca787de9fbf078ade0/kong/plugins/redirect/schema.lua"
+        }
+      },
+      "homepage": "Kong API Gateway middleware plugin for redirect purposes.",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Tue, 08 Feb 2022 09:09:04 GMT",
+        "rockspec": {
+          "date": "Tue, 08 Feb 2022 09:09:04 GMT",
+          "sha256": "6616c980fa81c2f5fb9105796c156f1ea64fab3f6129e4122126170e1cf9dda3",
+          "size": 470
+        }
+      },
+      "modules": [
+        "kong.plugins.redirect.handler",
+        "kong.plugins.redirect.schema"
+      ],
+      "origin": {
+        "commit": "165298db617499162d9aa1ca787de9fbf078ade0",
+        "type": "git",
+        "url": "https://github.com/nagra-insight/kong-plugin-redirect"
+      },
+      "size": 850,
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-referer-blacklist",
+  "versions": {
+    "2.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/referer-blacklist/handler.lua": {
+          "sha256": "956298713644bf6e23988409319d6a43782606918446a6262a34e69c82bc6372",
+          "size": 3057,
+          "url": "https://raw.githubusercontent.com/valseek/kong-plugin-referer-blacklist/2606b2f54bfa4bd000beee2674fa8b4a062666a4/kong/plugins/referer-blacklist/handler.lua"
+        },
+        "kong/plugins/referer-blacklist/schema.lua": {
+          "sha256": "f58f9ec4807d0d79fc71f8c4b72e3a555d9032b9590619cd455ebd18fcbac3ca",
+          "size": 118,
+          "url": "https://raw.githubusercontent.com/valseek/kong-plugin-referer-blacklist/2606b2f54bfa4bd000beee2674fa8b4a062666a4/kong/plugins/referer-blacklist/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 22 Oct 2020 08:49:42 GMT",
+        "rockspec": {
+          "date": "Thu, 22 Oct 2020 08:49:42 GMT",
+          "sha256": "1b88e7787b11fcf3c25389312bb533c055d4c73041d9faa7438bed9d141f2b7c",
+          "size": 639
+        }
+      },
+      "modules": [
+        "kong.plugins.referer-blacklist.handler",
+        "kong.plugins.referer-blacklist.schema"
+      ],
+      "origin": {
+        "commit": "2606b2f54bfa4bd000beee2674fa8b4a062666a4",
+        "ref": "v2.0.8",
+        "type": "git",
+        "url": "https://github.com/valseek/kong-plugin-referer-blacklist"
+      },
+      "size": 3175,
+      "summary": "Easily add referer black list access to your API by enabling this plugin",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.lrucache"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

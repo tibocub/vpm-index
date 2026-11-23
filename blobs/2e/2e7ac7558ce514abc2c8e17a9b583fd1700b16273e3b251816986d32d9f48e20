@@ -1,0 +1,50 @@
+local _module_0 = { }
+local basexx = require('basexx')
+local url = require('net.url')
+local FLASH_COOKIE_NAME = '__Host-flash'
+local flash
+flash = function(res, msg, typ)
+	if typ == nil then
+		typ = 'I'
+	end
+	local v = basexx.to_url64(url.buildQuery({
+		type = typ,
+		message = msg
+	}))
+	return res.cookie:set({
+		key = FLASH_COOKIE_NAME,
+		value = v,
+		path = '/',
+		secure = true,
+		httponly = true,
+		same_site = 'Strict'
+	})
+end
+_module_0["flash"] = flash
+local consume_flash
+consume_flash = function(req, res)
+	flash = req.cookie:get(FLASH_COOKIE_NAME)
+	if not flash then
+		return
+	end
+	local msg = url.parseQuery(basexx.from_url64(flash))
+	if msg then
+		local _with_0 = req.ctx.locals
+		if _with_0.messages == nil then
+			_with_0.messages = { }
+		end
+		local _obj_0 = _with_0.messages
+		_obj_0[#_obj_0 + 1] = msg
+	end
+	return res.cookie:set({
+		key = FLASH_COOKIE_NAME,
+		value = '',
+		path = '/',
+		secure = true,
+		httponly = true,
+		same_site = 'Strict',
+		max_age = 0
+	})
+end
+_module_0["consume_flash"] = consume_flash
+return _module_0

@@ -1,0 +1,13 @@
+local misc = {}
+
+function misc.strcut(str, sep)
+	local i = string.find(str, sep, 1, true) -- true = plain text match
+	if not i then
+		return str, "" -- separator not found
+	end
+	local before = string.sub(str, 1, i - 1)
+	local after = string.sub(str, i + #sep)
+	return before, after
+end
+
+return misc

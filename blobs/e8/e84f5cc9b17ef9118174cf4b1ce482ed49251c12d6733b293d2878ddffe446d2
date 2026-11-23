@@ -1,0 +1,27 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--An expect call.
+local ExpectFn = {}
+ExpectFn.__index = ExpectFn
+setmetatable(ExpectFn, {__index = Terminal})
+package.loaded[...] = ExpectFn
+
+--Constructor.
+function ExpectFn.new(ln, col, value, types)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.EXPECT, {line = ln, col = col}), ExpectFn)
+  self.value = value
+  self.types = types
+
+  --(2) return
+  return self
+end
+
+--@override
+function ExpectFn:__tostring()
+  return string.format("(expect %s %s)", tostring(self.value), tostring(self.types))
+end

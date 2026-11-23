@@ -1,0 +1,36 @@
+local doc = require("cerulean.doc")
+local parser = require("cerulean.parser")
+local source = require("cerulean.source")
+
+local RenderContext = {}
+
+
+
+
+
+
+local render_context = {
+   RenderContext = RenderContext,
+}
+
+function RenderContext.new(
+   raw_render_block,
+   raw_render_expr,
+   fmt_off_regions,
+   source_lines)
+
+   local self = setmetatable({}, { __index = RenderContext })
+   self.fmt_off_regions = fmt_off_regions
+   self.source_lines = source_lines
+   self.render_block = function(node)
+      return raw_render_block(self, node)
+   end
+   self.render_expr = function(
+      node, same_indent_on_line)
+
+      return raw_render_expr(self, node, same_indent_on_line)
+   end
+   return self
+end
+
+return render_context

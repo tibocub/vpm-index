@@ -1,0 +1,22 @@
+-- WhiskAiCo (Lua module)
+-- whisk-ai.co official website backlink rock.
+
+local M = {}
+
+M.VERSION = "0.1.0"
+M.WEBSITE = "https://www.whisk-ai.co"
+
+function M.info()
+  return {
+    name = "WhiskAiCo",
+    version = M.VERSION,
+    website = M.WEBSITE,
+    description = "whisk-ai.co official website backlink rock."
+  }
+end
+
+function M.website()
+  return M.WEBSITE
+end
+
+return M

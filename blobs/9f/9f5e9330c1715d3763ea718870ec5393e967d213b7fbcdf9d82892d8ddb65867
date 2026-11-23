@@ -1,0 +1,141 @@
+local child = require 'luachild'
+local json = require 'cjson'
+local mime = require 'mime'
+local socket = require 'socket'
+
+local native = require 'marionette.native'
+
+--
+
+local marionette = {}
+
+local function nonblocking_file(f)
+	if native.setnonblocking(f, true) then
+		return f
+	end
+
+	-- fallback behaviour for Windows (polling)
+	local prev = f:seek()
+	local f_nb = {}
+
+	function f_nb.read(_, ...)
+		local next = f:seek 'end'
+
+		if next ~= prev then
+			f:seek('set', prev)
+			local ret = f:read(...)
+			prev = f:seek()
+
+			return ret
+		end
+	end
+
+	setmetatable(f_nb, { __index = f })
+	return f_nb
+end
+
+function marionette.start(options)
+	options = options or {}
+
+	local s = socket.tcp()
+	s:settimeout(0) -- non-blocking (allow coroutines)
+
+	os.execute 'mkdir -p /tmp/marionette'
+
+	local stderr, w = child.pipe()
+	local m = { stderr = nonblocking_file(stderr) }
+
+	local args = { options.executable or 'firefox', '--marionette', '--profile', '/tmp/marionette', stderr = w }
+
+	if options.headless ~= false then table.insert(args, '--headless') end
+	if options.extra_args then table.insert(args, options.extra_args) end
+
+	local _ = assert(child.spawn(args))
+
+	function m._receive()
+		local chunks = {}
+		local len_prefix = ''
+		local remaining = 4
+
+		while remaining > 0 do
+			local chunk = s:receive(math.min(8072, remaining))
+			if not chunk then
+				coroutine.yield()
+			else
+				if #chunks > 0 then
+					table.insert(chunks, chunk)
+					remaining = remaining - #chunk
+				else
+					local seppos = chunk:find ':'
+					len_prefix = len_prefix .. chunk:sub(1, seppos and (seppos - 1) or #chunk)
+
+					if seppos then
+						table.insert(chunks, chunk:sub(seppos + 1))
+						remaining = tonumber(len_prefix) - #chunks[1]
+					end
+				end
+			end
+			coroutine.yield()
+		end
+
+		local res = json.decode(table.concat(chunks))
+
+		if type(res[3]) == 'table' and res[3].error then
+			error(res[3].message)
+		end
+		if #res == 4 then
+			return res[4]
+		else
+			return res
+		end
+	end
+
+	local ssc = 1
+	local ok, err
+	for _ = 0, 100 do
+		ok, err = s:connect('127.0.0.1', 2828)
+		if ok then
+			break
+		else
+			socket.sleep(.1)
+		end
+	end
+	if not ok then
+		error(err)
+	end
+	m._receive() -- hello message
+
+	--
+
+	function m._command(command, params)
+		local dat = ('[0, %i, "%s", %s]'):format(ssc, command, params and json.encode(params) or 'null')
+		s:send(#dat .. ':' .. dat)
+		ssc = ssc + 1
+
+		return m._receive()
+	end
+
+	function m.navigate(url, opts)
+		opts = opts or {}
+		opts.url = url
+		m._command('WebDriver:Navigate', opts)
+	end
+
+	function m.pdf(filename, opts)
+		opts = opts or {}
+		local b = (mime.unb64(m._command('WebDriver:Print', opts).value))
+
+		local f = assert(io.open(filename, 'wb'))
+		f:write(b)
+		f:close()
+	end
+
+	function m.close()
+		m._command 'Marionette:Quit'
+	end
+
+	m._command('WebDriver:NewSession', options.parameters)
+	return m
+end
+
+return marionette

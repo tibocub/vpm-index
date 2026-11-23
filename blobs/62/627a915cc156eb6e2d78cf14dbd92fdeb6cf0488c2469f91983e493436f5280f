@@ -1,0 +1,35 @@
+local util = require 'netacea_util'
+
+local netacea_txn = {}
+
+-- Prefers HAProxy's own unique id (set via unique-id-format in haproxy.cfg)
+-- so RequestId lines up with the access log / other systems referencing the
+-- same request; falls back to a generated id when that isn't configured.
+function netacea_txn.request_id(txn)
+    local id = util.safe_call(function() return txn.f:unique_id() end)
+    if not id or id == "" then
+        id = util.uuidv7()
+    end
+    return id
+end
+
+-- Prefers the response's own Content-Length header when present, since
+-- txn.f:bytes_out() is read before the response body is forwarded to the
+-- client and so under-reports (or reads as 0) for normal responses. Falls
+-- back to bytes_out for chunked/streamed responses that don't set
+-- Content-Length.
+function netacea_txn.bytes_sent(txn)
+    local content_length = util.safe_call(function()
+        local headers = txn.http:res_get_headers()["content-length"]
+        return headers and headers[0]
+    end)
+    if content_length then
+        local parsed = tonumber(content_length)
+        if parsed then
+            return parsed
+        end
+    end
+    return util.safe_call(function() return txn.f:bytes_out() end) or 0
+end
+
+return netacea_txn

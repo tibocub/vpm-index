@@ -1,0 +1,91 @@
+local toolchain = require "lrocket.toolchain"
+local lua = require "lrocket.lua"
+
+local sfs = require "sfs"
+
+local cpath = {}
+
+local function prepare(symbol, modname, file)
+	---@type lrocket.ModInfo
+	local res = {
+		lang = "shared",
+		chunkname = modname,
+		modname = modname,
+		path = file,
+	}
+
+	return res
+end
+
+function cpath.expandpath(path)
+	return (path:gsub("([^;]+)%?%?", "%1/?"..toolchain.EXT_SHARED))
+end
+
+function cpath._searchpath(glob, path, _prepare)
+	local crumbs = {}
+	for pos in glob:gmatch "%f[%.%z]()" do
+		table.insert(crumbs, 1, glob:sub(1, pos-1))
+	end
+
+	local luaopen_pat = {}
+	for crumb in glob:gmatch "[^.]+" do
+		table.insert(luaopen_pat, (crumb
+			:gsub("%p", "%%%1")
+			:gsub("%%%*%%%*", ".-")
+			:gsub("%%%*", "[^_]*")
+			:gsub("^.*$", "(%1)"))
+		)
+	end
+
+	local luaopen = string.format("^luaopen_%s$", table.concat(luaopen_pat, "_")
+		:gsub("%%%*%%%*", ".*")
+		--[[
+			TODO: the following :gsub statement could be unsafe: while .- tries to match as little as possible,
+			it will consume as much as necessary, thus matching like a ** not *
+			It will probably not happen because modules tend to be stored in different files, but if the same file contains
+			  a.b.c.d
+			  a.b.c
+			and the pattern is
+			  a.*.c
+			it will match the first one rather than the second
+		--]]
+		:gsub("%%%*", ".-")
+	)
+
+	for subpath in path:gmatch "[^;]+" do
+		for _, submodname in ipairs(crumbs) do
+			local globpath = sfs.normalize(subpath:gsub("%?", (submodname:gsub("%.", "/"))))
+
+			for file in sfs.glob(globpath) do
+				local symbols = toolchain.symbols(file)
+
+				if symbols then
+					-- table.sort: only fixes the above TODO probablistically (!)
+					--             to be fixed properly
+					table.sort(symbols, function(a,b) return #a < #b end)
+					for _, symbol in ipairs(symbols) do
+						local modcrumbs = { symbol:match(luaopen) }
+						if #modcrumbs > 0 then
+							local modname = table.concat(modcrumbs, ".")
+							coroutine.yield(modname, _prepare(symbol, modname, file))
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function cpath.searchpath(glob, path)
+	return cpath._searchpath(glob, path, prepare)
+end
+
+function cpath.defaultpath(trees)
+	local res = {}
+	for _, tree in ipairs(trees) do
+		res[#res+1] = sfs.combine(tree, 'lib/lua', lua.PUC_LUA_VERSION, "??")
+	end
+	return lua.insertdefaults(lua.LUA_CPATH, res)
+end
+
+return cpath

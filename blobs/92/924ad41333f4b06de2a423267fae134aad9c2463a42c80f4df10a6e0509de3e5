@@ -1,0 +1,283 @@
+-- Kinesis ingest pipeline: request-time code just enqueues a cheap record
+-- table (ingest.enqueue); a single background task (started via
+-- core.register_task) drains the queue, batches records by size-or-time,
+-- and sends them to Kinesis. Failed records are re-queued onto a dead
+-- letter queue and retried on a later tick. Batching/DLQ retry never runs
+-- on the request path, so a slow or unavailable Kinesis endpoint cannot add
+-- latency to proxied requests.
+
+local Queue = require 'ingest_queue'
+local Kinesis = require 'kinesis'
+local json = require 'dkjson'
+local netacea_config = require 'netacea_config'
+
+local ingest = {}
+
+local PARTITION_KEY_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+local config = netacea_config.load().kinesis
+
+local DEBUG_LOGGING = config.debug
+
+local function debug(message)
+    if DEBUG_LOGGING then
+        core.Info("netacea ingest (debug): " .. message)
+    end
+end
+
+ingest.enabled = config.enabled
+ingest.batch_size = config.batch_size
+ingest.batch_timeout = config.batch_timeout
+
+ingest.data_queue = Queue.new(config.queue_size, true)
+ingest.dead_letter_queue = Queue.new(config.dead_letter_queue_size, true)
+
+-- Retry limit for send failures (e.g. a persistent Kinesis outage), bounding
+-- how many times a single dead-lettered record is resent before being
+-- dropped as a permanent failure.
+ingest.max_retries = config.max_retries
+
+-- Backoff applied by the run loop between failed ticks, so a persistent
+-- Kinesis outage can't spin the loop in a tight retry cycle.
+local BACKOFF_BASE_SECONDS = 1
+local BACKOFF_MAX_SECONDS = 30
+
+local kinesis_client
+
+-- Lazily builds the Kinesis client from env vars the first time it's
+-- needed, so a misconfigured/absent stream name only matters if ingest is
+-- actually enabled and something gets enqueued.
+local function get_client()
+    if kinesis_client then
+        return kinesis_client
+    end
+
+    local stream_name = config.stream_name
+    local access_key = config.access_key
+    local secret_key = config.secret_key
+
+    if not (stream_name and access_key and secret_key) then
+        local missing = {}
+        if not stream_name then missing[#missing + 1] = "NETACEA_KINESIS_STREAM_NAME" end
+        if not access_key then missing[#missing + 1] = "NETACEA_KINESIS_ACCESS_KEY" end
+        if not secret_key then missing[#missing + 1] = "NETACEA_KINESIS_SECRET_KEY" end
+        core.Info("netacea ingest: Kinesis not configured (missing " .. table.concat(missing, ", ") .. ")")
+        return nil
+    end
+
+    kinesis_client = Kinesis.new({
+        stream_name = stream_name,
+        region = config.region,
+        access_key = access_key,
+        secret_key = secret_key,
+        endpoint = config.endpoint,
+        debug = DEBUG_LOGGING,
+    })
+
+    return kinesis_client
+end
+
+local function random_partition_key()
+    local out = {}
+    for i = 1, 10 do
+        local idx = math.random(#PARTITION_KEY_CHARS)
+        out[i] = PARTITION_KEY_CHARS:sub(idx, idx)
+    end
+    return table.concat(out)
+end
+
+-- Enqueues a record (a plain Lua table) for later delivery to Kinesis. This
+-- is the only ingest function meant to be called from the request path -
+-- it does no network I/O, just a JSON encode and a queue push.
+--
+-- The record is encoded as a single-element JSON array (`[{...}]`), not a
+-- bare object, matching the payload shape lua_haproxy_netacea's ingest
+-- pipeline sends - the shared downstream Kinesis consumer expects records
+-- in that shape.
+function ingest.enqueue(record)
+    if not ingest.enabled then
+        return
+    end
+
+    local encode_ok, encoded = pcall(json.encode, { record })
+    if not encode_ok then
+        core.Info("netacea ingest: failed to encode record: " .. tostring(encoded))
+        return
+    end
+
+    local ok, push_err = ingest.data_queue:push({
+        partition_key = random_partition_key(),
+        data = encoded,
+    })
+    if ok then
+        debug("enqueued record, data queue now holds " .. ingest.data_queue:count() .. " record(s)")
+    else
+        core.Info("netacea ingest: data queue full, dropping record: " .. push_err)
+    end
+end
+
+-- Sends a batch to Kinesis, returning true on success and false on failure
+-- (including the "not configured" case) so the run loop can back off
+-- instead of spinning tightly on a persistent failure.
+local function send_batch(batch)
+    local client = get_client()
+    if not client then
+        core.Info("netacea ingest: Kinesis not configured, dropping " .. #batch .. " record(s)")
+        return false
+    end
+
+    local ok, err, failed_records, accepted = client:put_records(batch)
+    if ok then
+        local first = accepted and accepted[1]
+        local proof = first
+            and (" (e.g. shard " .. tostring(first.ShardId) .. ", sequence " .. tostring(first.SequenceNumber) .. ")")
+            or ""
+        core.Info("netacea ingest: sent " .. #batch .. " record(s) to Kinesis" .. proof)
+        return true
+    end
+
+    core.Info("netacea ingest: put_records failed: " .. tostring(err or "unknown error"))
+
+    for _, record in ipairs(failed_records or {}) do
+        record.retries = (record.retries or 0) + 1
+        if record.retries > ingest.max_retries then
+            core.Info("netacea ingest: record exceeded " .. ingest.max_retries .. " retries, dropping permanently")
+        else
+            local pushed, push_err = ingest.dead_letter_queue:push(record)
+            if not pushed then
+                core.Info("netacea ingest: dead letter queue full, dropping record: " .. push_err)
+            end
+        end
+    end
+
+    return false
+end
+
+-- Kinesis PutRecords caps a single request at 5 MiB total, separately from
+-- its 500-record count limit. Batches are built against both limits so a
+-- batch of individually-small records can't add up past the size limit and
+-- have the whole request rejected by Kinesis.
+local MAX_BATCH_BYTES = 5 * 1024 * 1024
+
+local function record_size(item)
+    return #(item.data or "") + #(item.partition_key or "")
+end
+
+-- Batch state persists across ticks so a batch can accumulate over
+-- multiple, non-blocking drain calls before it's big enough (or old
+-- enough) to send.
+local pending_batch = {}
+local pending_batch_bytes = 0
+local last_flush_time = os.time()
+
+-- Dead letter items are drained first so retries take priority over new data.
+local FILL_ORDER = { "dead_letter_queue", "data_queue" }
+
+-- Holds at most one item per queue that was popped but didn't fit in the
+-- current batch by size, so it isn't lost and is tried again first on the
+-- next fill (queues have no peek, so an over-budget item has to come back
+-- out this way rather than being pushed back to the tail).
+local held_over = {}
+
+-- Fills pending_batch up to batch_size/MAX_BATCH_BYTES and returns whether
+-- the batch is now full - either by count, or because the next available
+-- item didn't fit by size (left in held_over). A full-by-size batch can sit
+-- well under MAX_BATCH_BYTES (that's the point: it stopped *before*
+-- exceeding the limit), so callers can't just compare bytes to the cap to
+-- know whether it should flush now rather than wait for more items.
+local function fill_batch()
+    local full = false
+
+    for _, queue_name in ipairs(FILL_ORDER) do
+        while #pending_batch < ingest.batch_size and pending_batch_bytes < MAX_BATCH_BYTES do
+            local item = held_over[queue_name] or ingest[queue_name]:pop()
+            held_over[queue_name] = nil
+            if item == nil then
+                break
+            end
+
+            local size = record_size(item)
+            if #pending_batch > 0 and pending_batch_bytes + size > MAX_BATCH_BYTES then
+                held_over[queue_name] = item
+                full = true
+                break
+            end
+
+            pending_batch[#pending_batch + 1] = item
+            pending_batch_bytes = pending_batch_bytes + size
+        end
+
+        if #pending_batch >= ingest.batch_size then
+            full = true
+        end
+    end
+
+    return full
+end
+
+-- Runs a single drain-and-maybe-flush tick. Returns the number of records
+-- flushed this tick (0 if nothing was sent) and whether the send failed, so
+-- the run loop can distinguish "nothing to do" from "failing repeatedly" and
+-- back off accordingly. Exposed separately from the run loop so it can be
+-- exercised directly in tests.
+function ingest._tick()
+    local full = fill_batch()
+
+    local should_flush = full
+        or (#pending_batch > 0 and (os.time() - last_flush_time) >= ingest.batch_timeout)
+
+    if not should_flush then
+        return 0, false
+    end
+
+    local batch = pending_batch
+    pending_batch = {}
+    pending_batch_bytes = 0
+    last_flush_time = os.time()
+
+    local ok = send_batch(batch)
+    return #batch, not ok
+end
+
+-- Test-only: resets module-level batch state between specs.
+function ingest._reset()
+    pending_batch = {}
+    pending_batch_bytes = 0
+    held_over = {}
+    last_flush_time = os.time()
+    kinesis_client = nil
+end
+
+-- core.sleep() only accepts whole seconds (HAProxy's Lua scheduler has no
+-- sub-second sleep), so idle ticks poll once per second rather than every
+-- 100ms as in the OpenResty reference implementation. On send failure, the
+-- loop backs off exponentially (capped at backoff_max) instead of retrying
+-- immediately, so a persistent Kinesis outage can't spin the loop in a tight
+-- retry cycle that hammers Kinesis/logging and starves new records.
+local function run()
+    local consecutive_failures = 0
+    while true do
+        local sent, failed = ingest._tick()
+        if failed then
+            consecutive_failures = consecutive_failures + 1
+            local backoff = math.min(BACKOFF_MAX_SECONDS, BACKOFF_BASE_SECONDS * (2 ^ (consecutive_failures - 1)))
+            core.sleep(math.max(1, math.ceil(backoff)))
+        else
+            consecutive_failures = 0
+            if sent == 0 then
+                core.sleep(1)
+            end
+        end
+    end
+end
+
+function ingest.start()
+    if not ingest.enabled then
+        return
+    end
+    core.register_task(run)
+end
+
+ingest.start()
+
+return ingest

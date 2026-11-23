@@ -1,0 +1,60 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-optional-jwt",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/optional-jwt/handler.lua": {
+          "sha256": "085ff3457f08777c1ed93303737f812ec5df0a9a77a16f90d4339ce5a35b00d6",
+          "size": 7983,
+          "url": "https://raw.githubusercontent.com/PrimePassCinema/kong-plugin-optional-jwt/3f5988297c1b73cf999e326a91693ffdac51ab0e/kong/plugins/optional-jwt/handler.lua"
+        },
+        "kong/plugins/optional-jwt/schema.lua": {
+          "sha256": "05bfe0a33be19df6ca0ded4f8e63aec5aed0fd0c9bac44ef11791923c562a9ce",
+          "size": 1518,
+          "url": "https://raw.githubusercontent.com/PrimePassCinema/kong-plugin-optional-jwt/3f5988297c1b73cf999e326a91693ffdac51ab0e/kong/plugins/optional-jwt/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/PrimePassCinema/kong-plugin-optional-jwt",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 03 Jul 2020 04:12:45 GMT",
+        "rockspec": {
+          "date": "Fri, 03 Jul 2020 04:12:45 GMT",
+          "sha256": "4ba4cf1d612b53f386db97a4f6871b74c4cc5396e9786ccc7164005b552eda30",
+          "size": 662
+        }
+      },
+      "modules": [
+        "kong.plugins.optional-jwt.handler",
+        "kong.plugins.optional-jwt.schema"
+      ],
+      "origin": {
+        "commit": "3f5988297c1b73cf999e326a91693ffdac51ab0e",
+        "ref": "0.1.1",
+        "type": "git",
+        "url": "https://github.com/PrimePassCinema/kong-plugin-optional-jwt"
+      },
+      "size": 9501,
+      "summary": "Kong plugin to make JWT verification optinal",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

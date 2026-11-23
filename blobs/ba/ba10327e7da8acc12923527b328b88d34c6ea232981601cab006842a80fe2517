@@ -1,0 +1,236 @@
+-- Graphviz rendering for `htb --show`.
+--
+-- Emits a DOT digraph mirroring the original tool's `--show` output:
+-- qdiscs and classes as nodes, hierarchy edges from parent to child, and
+-- dotted filter edges pointing at the class a filter sends traffic to.
+--
+-- `buildDot` returns the DOT text (pure Lua, no external deps). `render`
+-- writes it to a file and, when the `dot` binary is available, renders a PNG.
+
+local M = {}
+
+local function str(v)
+    return tostring(v)
+end
+
+-- Build a graphviz node id from a tc handle/classid ("1:1" -> "h1_1").
+local function nodeId(handle)
+    return "h" .. (handle:gsub(":", "_"))
+end
+
+-- Resolve a speed alias (e.g. "full") to its concrete value.
+local function speed(value, speeds)
+    if speeds[value] ~= nil then
+        return speeds[value]
+    end
+    return value
+end
+
+-- Serialize a label for use inside a double-quoted DOT string. Backslashes
+-- and quotes in the data are escaped, and real newlines become graphviz "\n"
+-- line breaks. Order matters: the "\n" conversion runs last so the backslash
+-- it introduces is not re-escaped.
+local function esc(s)
+    s = s:gsub("\\", "\\\\")
+    s = s:gsub('"', '\\"')
+    s = s:gsub("\n", "\\n")
+    return s
+end
+
+-- Build the secondary label lines for a qdisc node.
+local function qdiscExtra(q, speeds)
+    local t = q.qdisc_type
+    local p = q.params
+    local extra = {}
+    if t == "sfq" then
+        extra[#extra + 1] = "perturb: " .. str(p.perturb or "10")
+    elseif t == "netem" then
+        if p.delay then
+            extra[#extra + 1] = "delay: " .. str(p.delay)
+        end
+        if p.loss then
+            extra[#extra + 1] = "loss: " .. str(p.loss)
+        end
+        if p.duplicate then
+            extra[#extra + 1] = "dups: " .. str(p.duplicate)
+        end
+        if p.corrupt then
+            extra[#extra + 1] = "corrupt: " .. str(p.corrupt)
+        end
+    elseif t == "htb" or t == "tbf" then
+        if p.latency then
+            extra[#extra + 1] = "latency: " .. str(p.latency)
+        end
+        if p.burst then
+            extra[#extra + 1] = "burst: " .. str(p.burst)
+        end
+        if p.rate then
+            extra[#extra + 1] = "rate : " .. speed(p.rate, speeds)
+        end
+    end
+    return table.concat(extra, "\n")
+end
+
+-- Build the "rate=.../ceil" line for a class node.
+local function classRateCeil(c, speeds)
+    local rate = c.params.rate
+    local ceil = c.params.ceil
+    local rateS = rate and speed(rate, speeds) or ""
+    local ceilS = ceil and speed(ceil, speeds) or ""
+    return "rate=" .. rateS .. "/" .. ceilS
+end
+
+-- Build the match-detail lines for a filter node.
+local function filterExtra(f)
+    local extra = ""
+    if f.filter_type == "u32" then
+        for k, v in pairs(f.ip_matches) do
+            if k == "src" or k == "dst" or k == "sport" or k == "dport" then
+                extra = extra .. "\n" .. k .. "=" .. str(v)
+            end
+        end
+    elseif f.filter_type == "flower" then
+        for k, v in pairs(f.match_params) do
+            extra = extra .. "\n" .. k .. "=" .. str(v)
+        end
+    end
+    return extra
+end
+
+-- Generate the DOT digraph text for the resolved configuration.
+function M.buildDot(config, result)
+    local lines = {}
+    local speeds = config.speeds
+
+    -- Map every qdisc/class name to its graphviz node id.
+    local idByName = {}
+    for _, q in ipairs(config.qdiscs) do
+        idByName[q.name] = nodeId(result.qdisc_handles[q.name])
+    end
+    for _, c in ipairs(config.classes) do
+        idByName[c.name] = nodeId(result.class_ids[c.name])
+    end
+
+    -- Qdisc nodes.
+    for _, q in ipairs(config.qdiscs) do
+        local nid = idByName[q.name]
+        local label = string.format(
+            "Queue[%s] %s (%s)\n%s",
+            q.qdisc_type, q.name, result.qdisc_handles[q.name], qdiscExtra(q, speeds)
+        )
+        lines[#lines + 1] = string.format('\t%s [label="%s"];', nid, esc(label))
+    end
+
+    -- Class nodes.
+    local defaults = {}
+    for _, q in ipairs(config.qdiscs) do
+        if q.default ~= "" then
+            defaults[q.default] = true
+        end
+    end
+    for _, c in ipairs(config.classes) do
+        local nid = idByName[c.name]
+        local label = string.format(
+            "%s class %s (%s)\n%s",
+            c.class_type, c.name, result.class_ids[c.name], classRateCeil(c, speeds)
+        )
+        if defaults[c.name] then
+            lines[#lines + 1] = string.format('\t%s [label="%s", color="orange"];', nid, esc(label))
+        else
+            lines[#lines + 1] = string.format('\t%s [label="%s"];', nid, esc(label))
+        end
+    end
+
+    -- Hierarchy edges: parent -> child.
+    for _, q in ipairs(config.qdiscs) do
+        local parent = q.parent
+        if parent ~= nil and parent ~= "root" and idByName[parent] then
+            lines[#lines + 1] = string.format("\t%s -> %s;", idByName[parent], idByName[q.name])
+        end
+    end
+    for _, c in ipairs(config.classes) do
+        local parent = c.parent
+        if parent ~= nil and idByName[parent] then
+            lines[#lines + 1] = string.format("\t%s -> %s;", idByName[parent], idByName[c.name])
+        end
+    end
+
+    -- Filter nodes and edges: filter -> send_to (dotted).
+    for _, f in ipairs(config.filters) do
+        local fid = "h" .. f.name
+        lines[#lines + 1] = string.format(
+            '\t%s [label="%s", shape="plain", fontsize="8"];',
+            fid, esc(f.name .. filterExtra(f))
+        )
+        if f.send_to ~= "" and idByName[f.send_to] then
+            lines[#lines + 1] = string.format(
+                "\t%s -> %s [arrowhead=\"dot\"];",
+                fid, idByName[f.send_to]
+            )
+        end
+    end
+
+    local body = table.concat(lines, "\n")
+    return "digraph TC {\n" .. body .. "\n}\n"
+end
+
+-- Run a shell command and return its exit code (nil if it could not run).
+-- os.execute's return shape varies by version:
+--   Lua 5.1:   (success, reason, code)
+--   Lua 5.3/4: (reason, code)
+--   Lua 5.5:   (success|nil, reason, code)
+-- The code is the 3rd value when three are returned, else the 2nd.
+local function runCode(cmd)
+    local r = { os.execute(cmd) }
+    if r[3] ~= nil then
+        return r[3]
+    end
+    if type(r[1]) == "string" then
+        return r[2]
+    end
+    return nil
+end
+
+-- True when the named executable is available on PATH.
+local function hasCmd(name)
+    return runCode(string.format("command -v %s >/dev/null 2>&1", name)) == 0
+end
+
+-- Open a file with the platform's default viewer, without blocking. The
+-- opener is launched in the background so the CLI returns immediately instead
+-- of waiting for the viewer window to close. Returns true if one was launched.
+local function openFile(path)
+    for _, opener in ipairs({ "xdg-open", "open" }) do
+        if hasCmd(opener) then
+            os.execute(string.format("%s '%s' >/dev/null 2>&1 &", opener, path))
+            return true
+        end
+    end
+    return false
+end
+
+-- Write the DOT to a file, render a PNG when graphviz is available, and open
+-- it in the default viewer (best-effort). Returns the path to the .gv file.
+function M.render(config, result, filename)
+    filename = filename or "TC.gv"
+    local dot = M.buildDot(config, result)
+    local f = assert(io.open(filename, "w"))
+    f:write(dot)
+    f:close()
+
+    if not hasCmd("dot") then
+        io.stderr:write("htb: graphviz 'dot' not found; wrote DOT to " .. filename .. "\n")
+        return filename
+    end
+
+    local png = filename:sub(1, #filename - 3) .. ".png"
+    runCode(string.format("dot -Tpng '%s' -o '%s' >/dev/null 2>&1", filename, png))
+
+    -- Open the rendered image in the background, and report the path either
+    -- way so headless users know where the file was written.
+    openFile(png)
+    io.stderr:write("htb: graph: " .. png .. "\n")
+    return filename
+end
+
+return M

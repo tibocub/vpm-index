@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "tsdevstack-api-key",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/tsdevstack-api-key/handler.lua": {
+          "sha256": "c8dfcbcfdac89029b9f05dcec5a89c85d6eee498d7b2725e34cb2f5bd95e2c56",
+          "size": 12002,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-api-key/handler.lua"
+        },
+        "kong/plugins/tsdevstack-api-key/redis.lua": {
+          "sha256": "544d033334e1b4f12210b6e93461b0cd5796f3ad9b606e90894c344e1a131dc8",
+          "size": 4187,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-api-key/redis.lua"
+        },
+        "kong/plugins/tsdevstack-api-key/schema.lua": {
+          "sha256": "ce3be0e89f32b25c9b749d8a7d700ea23d7dbc92a5d3ab3cee2e150c92b08d8d",
+          "size": 2086,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-api-key/schema.lua"
+        },
+        "kong/plugins/tsdevstack-api-key/script.lua": {
+          "sha256": "6d412fe78aea10e4fc2eccc48a052da7ca65351d82aa947ba4bb8f754691f776",
+          "size": 5856,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-api-key/script.lua"
+        },
+        "kong/plugins/tsdevstack-api-key/windows.lua": {
+          "sha256": "a6315e31a1e785ffaa332d3fb43a9fddccf0d1b0d59c7196728a533dc7a07462",
+          "size": 2848,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-api-key/windows.lua"
+        }
+      },
+      "homepage": "https://github.com/tsdevstack/kong-plugins",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 18 Nov 2026 11:25:26 GMT",
+        "rockspec": {
+          "date": "Wed, 18 Nov 2026 11:25:26 GMT",
+          "sha256": "9ebbe51af73ff4d1fd496710b6a9cc7eb471a2f292f0665541f33f8c8e3cc62f",
+          "size": 1002
+        },
+        "src": {
+          "date": "Wed, 18 Nov 2026 11:25:26 GMT",
+          "sha256": "940f48b1bd6c44508ad3c374f669dd83f794d9e2d4a36f02bc070054c5fb377d",
+          "size": 37299,
+          "url": "https://luarocks.org/tsdevstack-api-key-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.tsdevstack-api-key.handler",
+        "kong.plugins.tsdevstack-api-key.redis",
+        "kong.plugins.tsdevstack-api-key.schema",
+        "kong.plugins.tsdevstack-api-key.script",
+        "kong.plugins.tsdevstack-api-key.windows"
+      ],
+      "origin": {
+        "commit": "535e69b7cbb24532dd8582197f7e643b306e90ed",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/tsdevstack/kong-plugins.git"
+      },
+      "size": 26979,
+      "summary": "API keys checked against Redis, with per-key limits per time window",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.tools.redis.schema",
+        "kong.tools.sha256",
+        "resty.redis",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.sha256",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

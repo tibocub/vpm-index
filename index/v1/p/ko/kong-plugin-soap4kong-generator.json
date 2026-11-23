@@ -1,0 +1,103 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-soap4kong-generator",
+  "versions": {
+    "0.1.3-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "xml2lua >= 1.5-2",
+        "lua-cjson >= 2.1.0.6-1",
+        "lua-resty-template >= 2.0-1"
+      ],
+      "files": {
+        "kong/plugins/soap4kong-generator/fileUtil.lua": {
+          "sha256": "42824b7b362ca7e40472478e1c71325bff0a607f0f96a037c3c32e2462d4c056",
+          "size": 604,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong-generator/fileUtil.lua"
+        },
+        "kong/plugins/soap4kong-generator/generator.lua": {
+          "sha256": "5cd9b9a6ead058ca24da50d10c6e929fb8033c62c796d451cc56cb536f258c1b",
+          "size": 3375,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong-generator/generator.lua"
+        },
+        "kong/plugins/soap4kong-generator/handler.lua": {
+          "sha256": "ad064204d736525f594b7e79153a7b2191c5a86eb62d8733de04eb4085b57bfb",
+          "size": 778,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong-generator/handler.lua"
+        },
+        "kong/plugins/soap4kong-generator/schema.lua": {
+          "sha256": "14438311d15f8ca7b238e2579aebed15910d792a713393bfb0a6da28c4b87efb",
+          "size": 3162,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong-generator/schema.lua"
+        },
+        "kong/plugins/soap4kong-generator/validator.lua": {
+          "sha256": "fa33b039ed9434a367940ff51df284b343b9eefa92643a1a9bc775970bf8bf5a",
+          "size": 2175,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong-generator/validator.lua"
+        },
+        "kong/plugins/soap4kong-generator/wsdl.lua": {
+          "sha256": "ecce58cb5b8bc19b75194462a6ca6b73905eb4adedd652aa7617a47da4bb504e",
+          "size": 2454,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong-generator/wsdl.lua"
+        },
+        "kong/plugins/soap4kong-generator/xsd2xml.lua": {
+          "sha256": "0aa09d9dc10d3e0d57e94fe312e9c7c84323f2c3c5044ed12df59e2c15ad15fb",
+          "size": 7027,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong-generator/xsd2xml.lua"
+        }
+      },
+      "homepage": "https://madebymakers.github.io/kong-plugin-soap4kong/",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Sat, 02 Oct 2021 18:20:08 GMT",
+        "rockspec": {
+          "date": "Sat, 02 Oct 2021 18:20:08 GMT",
+          "sha256": "3b58455c2862f2c2b95f8b4a6adceeb58d0fe432db5993353ea5dd451da325b5",
+          "size": 1351
+        },
+        "src": {
+          "date": "Sat, 02 Oct 2021 18:20:10 GMT",
+          "sha256": "b3f86e40660a2b38ff89ad9ac804cc06a38b5ea0f5db59e181a005bb968283f9",
+          "size": 92506,
+          "url": "https://luarocks.org/kong-plugin-soap4kong-generator-0.1.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.soap4kong-generator.fileUtil",
+        "kong.plugins.soap4kong-generator.generator",
+        "kong.plugins.soap4kong-generator.handler",
+        "kong.plugins.soap4kong-generator.schema",
+        "kong.plugins.soap4kong-generator.validator",
+        "kong.plugins.soap4kong-generator.wsdl",
+        "kong.plugins.soap4kong-generator.xsd2xml"
+      ],
+      "origin": {
+        "commit": "3f9861d58d07708bbb7e3ca443fb03421b13c709",
+        "ref": "0.1.3",
+        "type": "git",
+        "url": "https://github.com/MadeByMakers/kong-plugin-soap4kong"
+      },
+      "size": 19575,
+      "summary": "A plugin for the Kong Microservice API Gateway to convert a REST API request to a SOAP request and convert the SOAP Response to json",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

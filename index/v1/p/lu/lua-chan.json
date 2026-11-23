@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "lua-chan",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/easeway/lua-chan",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 02:43:15 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 02:43:15 GMT",
+          "sha256": "1d7c72d8ede62580ad62dae57b723f418a7c09a691bd02a0fda3bb8f8f1b4586",
+          "size": 477
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 02:43:15 GMT",
+          "sha256": "48de54c5b47f44d00f9ca22e18f934ef8d85187bb25b1ac5a9dab37e7be39686",
+          "size": 8524,
+          "url": "https://luarocks.org/lua-chan-0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "chan"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "libraries": [
+                "pthread",
+                "rt"
+              ],
+              "name": "chan",
+              "sources": [
+                "src/lua-chan.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 02:43:15 GMT",
+        "sha256": "48de54c5b47f44d00f9ca22e18f934ef8d85187bb25b1ac5a9dab37e7be39686",
+        "size": 8524,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-chan-0.1-1.src.rock"
+      },
+      "summary": "Simple and fast message queue for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

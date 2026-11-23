@@ -1,0 +1,276 @@
+-- ============================================================
+-- Shiva Test — Shiva Framework Mock
+-- Wires up real shiva-fw libs when installed, or stubs them.
+-- ============================================================
+
+local ShivaMock = {}
+
+-- ========================
+-- Try to load real shiva-fw
+-- ========================
+
+local function tryRequire(mod)
+    local ok, result = pcall(require, mod)
+    return ok and result or nil
+end
+
+local realCollection = tryRequire('shiva.collection')
+local realError      = tryRequire('shiva.errors')
+local realContainer  = tryRequire('shiva.container')
+local realEventBus   = tryRequire('shiva.eventbus')
+local realStr        = tryRequire('shiva.str')
+local realTbl        = tryRequire('shiva.tbl')
+local realNum        = tryRequire('shiva.num')
+local realValidator  = tryRequire('shiva.validator')
+
+-- ========================
+-- Stub implementations
+-- (used when shiva-fw is not installed)
+-- ========================
+
+-- Minimal Collection stub
+local function makeCollection(t)
+    local col = { _data = t or {} }
+    function col:all()        return self._data end
+    function col:count()      return #self._data end
+    function col:first()      return self._data[1] end
+    function col:last()       return self._data[#self._data] end
+    function col:push(v)      self._data[#self._data + 1] = v; return self end
+    function col:contains(v)
+        for _, item in ipairs(self._data) do if item == v then return true end end
+        return false
+    end
+    function col:filter(fn)
+        local res = {}
+        for _, v in ipairs(self._data) do if fn(v) then res[#res + 1] = v end end
+        return makeCollection(res)
+    end
+    function col:map(fn)
+        local res = {}
+        for i, v in ipairs(self._data) do res[i] = fn(v) end
+        return makeCollection(res)
+    end
+    function col:each(fn)
+        for _, v in ipairs(self._data) do fn(v) end
+        return self
+    end
+    function col:isEmpty()    return #self._data == 0 end
+    function col:toTable()    return self._data end
+    return col
+end
+
+local collect = realCollection and realCollection.collect
+    or function(t) return makeCollection(t) end
+
+-- Minimal Error stub
+local Error
+if realError then
+    Error = realError
+else
+    Error = {}
+    Error.__index = Error
+    function Error.new(code, message, data)
+        return setmetatable({ code = code, message = message, data = data, isShivaError = true }, Error)
+    end
+    function Error:__tostring()
+        return string.format('[%s] %s', self.code or 'ERROR', self.message or '')
+    end
+    function Error:is(code) return self.code == code end
+end
+
+-- Minimal Container stub
+local Container
+if realContainer then
+    Container = realContainer
+else
+    local _bindings = {}
+    Container = {}
+    function Container.bind(key, fn)  _bindings[key] = fn end
+    function Container.resolve(key)
+        local fn = _bindings[key]
+        if fn then return fn() end
+        error('Container: binding "' .. tostring(key) .. '" not found')
+    end
+    function Container.reset() _bindings = {} end
+end
+
+-- Minimal EventBus stub
+local EventBus
+if realEventBus then
+    EventBus = realEventBus
+else
+    local _handlers = {}
+    EventBus = {}
+    function EventBus.on(event, handler)
+        _handlers[event] = _handlers[event] or {}
+        table.insert(_handlers[event], handler)
+    end
+    function EventBus.emit(event, ...)
+        for _, h in ipairs(_handlers[event] or {}) do h(...) end
+    end
+    function EventBus.off(event, handler)
+        if not _handlers[event] then return end
+        for i, h in ipairs(_handlers[event]) do
+            if h == handler then table.remove(_handlers[event], i); return end
+        end
+    end
+    function EventBus.reset() _handlers = {} end
+end
+
+-- Str / Tbl / Num stubs (shim only what shiva-core typically calls)
+local Str = realStr or {
+    trim    = function(s) return s:match('^%s*(.-)%s*$') end,
+    starts  = function(s, p) return s:sub(1, #p) == p end,
+    ends    = function(s, p) return p == '' or s:sub(-#p) == p end,
+    split   = function(s, sep)
+        local t = {}
+        for part in s:gmatch('([^' .. sep .. ']+)') do t[#t + 1] = part end
+        return t
+    end,
+    format  = function(tpl, vals)
+        return (tpl:gsub('{(%w+)}', function(k) return tostring(vals[k] or '') end))
+    end,
+}
+
+local Tbl = realTbl or {
+    keys    = function(t) local k = {}; for key in pairs(t) do k[#k+1] = key end; return k end,
+    values  = function(t) local v = {}; for _, val in pairs(t) do v[#v+1] = val end; return v end,
+    merge   = function(a, b) local r = {}; for k, v in pairs(a) do r[k] = v end; for k, v in pairs(b) do r[k] = v end; return r end,
+    contains = function(t, v) for _, val in pairs(t) do if val == v then return true end end; return false end,
+    deepcopy = function(orig)
+        local copy = {}
+        for k, v in pairs(orig) do
+            copy[k] = type(v) == 'table' and Tbl and Tbl.deepcopy(v) or v
+        end
+        return copy
+    end,
+}
+
+local Num = realNum or {
+    clamp  = function(v, mn, mx) return math.max(mn, math.min(mx, v)) end,
+    round  = function(v, d) local f = 10^(d or 0); return math.floor(v * f + 0.5) / f end,
+    lerp   = function(a, b, t) return a + (b - a) * t end,
+}
+
+-- Minimal Validator stub
+local Validator = realValidator or {
+    new = function(rules)
+        return {
+            validate = function(_, data)
+                return { valid = true, errors = {} }
+            end,
+        }
+    end,
+}
+
+-- ========================
+-- Install into _G
+-- ========================
+
+---@param G table
+function ShivaMock.install(G)
+    G.collect    = collect
+    G.Error      = Error
+    G.Container  = Container
+    G.EventBus   = EventBus
+    G.Str        = Str
+    G.Tbl        = Tbl
+    G.Num        = Num
+    G.Validator  = Validator
+
+    -- Shiva-core globals (lightweight stubs)
+    -- NOTE: must use rawget() to check existence — by the time this runs,
+    -- natives.install() has already set a __index metamethod on _G that
+    -- returns stub functions for any PascalCase name, so `G.X or {}` would
+    -- keep the stub function rather than setting a real table.
+    if not rawget(G, 'Config') then
+        G.Config = setmetatable({}, {
+            __index    = function(_, _) return nil end,
+            __newindex = function(t, k, v) rawset(t, k, v) end,
+        })
+    end
+
+    if not rawget(G, 'Locale') then
+        G.Locale = {
+            t = function(_, key, _) return key end,
+        }
+    end
+
+    if not rawget(G, 'Log') then
+        G.Log = {
+            debug = function(_, msg) print('[DEBUG] ' .. tostring(msg)) end,
+            info  = function(_, msg) print('[INFO]  ' .. tostring(msg)) end,
+            warn  = function(_, msg) print('[WARN]  ' .. tostring(msg)) end,
+            error = function(_, msg) print('[ERROR] ' .. tostring(msg)) end,
+        }
+    end
+
+    if not rawget(G, 'Validate') then
+        G.Validate = function(schema, data)
+            if Validator.new then
+                return Validator.new(schema):validate(data)
+            end
+            return { valid = true, errors = {} }
+        end
+    end
+
+    -- shiva-core server globals
+    if not rawget(G, 'Scheduler') then
+        G.Scheduler = {
+            _tasks    = {},
+            every     = function() end,
+            interval  = function() end,
+            delay     = function() end,
+            cancel    = function() end,
+            cancelAll = function() end,
+            active    = function() return {} end,
+        }
+    end
+
+    if not rawget(G, 'State') then
+        G.State = {
+            _global   = {},
+            _store    = {},
+            setPlayer = function() end,
+            getPlayer = function() return nil end,
+            set       = function() end,
+            get       = function(_, default) return default end,
+            has       = function() return false end,
+            delete    = function() end,
+        }
+    end
+
+    -- shiva-core client global (used when mode == 'client')
+    if not rawget(G, 'ClientState') then
+        G.ClientState = {
+            _local      = {},
+            set         = function() end,
+            get         = function(_, default) return default end,
+            delete      = function() end,
+            watch       = function() return 0 end,
+            watchPlayer = function() return 0 end,
+            getPlayer   = function(_, default) return default end,
+            unwatch     = function() end,
+        }
+    end
+
+    -- shiva-core jurisdiction global
+    if not rawget(G, 'Jurisdiction') then
+        G.Jurisdiction = {
+            getConfig = function(_, key) return G.Config and G.Config.get(key) or nil end,
+            get       = function() return 'default' end,
+        }
+    end
+end
+
+-- Expose for test assertions / direct use
+ShivaMock.collect    = collect
+ShivaMock.Error      = Error
+ShivaMock.Container  = Container
+ShivaMock.EventBus   = EventBus
+ShivaMock.Str        = Str
+ShivaMock.Tbl        = Tbl
+ShivaMock.Num        = Num
+ShivaMock.Validator  = Validator
+
+return ShivaMock

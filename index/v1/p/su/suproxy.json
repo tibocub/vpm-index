@@ -1,0 +1,307 @@
+{
+  "kind": "lib",
+  "name": "suproxy",
+  "versions": {
+    "v0.6.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-openssl >= 0.6",
+        "lua-resty-logger-socket >= v0.1"
+      ],
+      "files": {
+        "suproxy/balancer/balancer.lua": {
+          "sha256": "22748d1a4116e1881f2881e28170aa551e47627448297b5bfdde2cdfe1291587",
+          "size": 2694,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/balancer/balancer.lua"
+        },
+        "suproxy/channel.lua": {
+          "sha256": "4fda83faa37cce6d62b2d463110e461a82ddfe2e54f4102d5a6c96c078c4fe90",
+          "size": 10340,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/channel.lua"
+        },
+        "suproxy/example/gateway.lua": {
+          "sha256": "2c668bbc8a481ac87f9f1272cca003c620e12e619d9b64943dd25dd15310029c",
+          "size": 12712,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/example/gateway.lua"
+        },
+        "suproxy/example/session.lua": {
+          "sha256": "3125a2be40f5cb460cbc07bf9637f293eda213364ff8d599a2e245bfd5b4ad29",
+          "size": 1935,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/example/session.lua"
+        },
+        "suproxy/http/handlers.lua": {
+          "sha256": "28a8674bdab3269f36d733e0e2d941a133a2c0f24db49238ad576b36a12a93c9",
+          "size": 5937,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/http/handlers.lua"
+        },
+        "suproxy/http/initParam.lua": {
+          "sha256": "0c22a9f35c1dfd77985f235fe9220ab007ae2b6a48badadfdc1fa20fbe673419",
+          "size": 734,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/http/initParam.lua"
+        },
+        "suproxy/http/mockauth.lua": {
+          "sha256": "cb6505371d4fe73f31ab533b0bfd5c4f20a15e281841aff50baa047c5c8bd661",
+          "size": 1826,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/http/mockauth.lua"
+        },
+        "suproxy/http/ssoProcessors.lua": {
+          "sha256": "adc2b07927322a0b8d5b9781d542769fafb50eb0a1a994c479fdff282ba32eef",
+          "size": 5977,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/http/ssoProcessors.lua"
+        },
+        "suproxy/ldap.lua": {
+          "sha256": "4262b3f878f14c919d24fe83378b59c802dea7bfe41006b399557b03f5eda8d6",
+          "size": 5499,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ldap.lua"
+        },
+        "suproxy/ldap/ldapPackets.lua": {
+          "sha256": "ccbde6fbb30c3b601e2441b19977c4e7377bfa2b757df55a107c575b99dac42f",
+          "size": 13674,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ldap/ldapPackets.lua"
+        },
+        "suproxy/ldap/parser.lua": {
+          "sha256": "f82c164348d299078a72bb51621370a20aec5903569d86212d1ec832bdce6d42",
+          "size": 1181,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ldap/parser.lua"
+        },
+        "suproxy/parser.lua": {
+          "sha256": "f39922fc926cacf1b2224f9bc9423832048a144830b9eff21f2305b9782179e1",
+          "size": 3766,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/parser.lua"
+        },
+        "suproxy/session/session.lua": {
+          "sha256": "eddac2f19f5c99a9ff333b628092959c710674c472322e39b745baf4519808d6",
+          "size": 1068,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/session/session.lua"
+        },
+        "suproxy/session/sessionManager.lua": {
+          "sha256": "05ecac7f873d6f5f314129c37cd9f7af7f4a78449e28bb40f6b09a876f40c9d0",
+          "size": 4669,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/session/sessionManager.lua"
+        },
+        "suproxy/ssh2.lua": {
+          "sha256": "473eabb06ff8ea75b2c82cc1b3c193b4cd7396fef14d1458a1747867f39264b3",
+          "size": 17137,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ssh2.lua"
+        },
+        "suproxy/ssh2/commandCollector.lua": {
+          "sha256": "aa79cef89a51031e6191b6d584f0a4c651ad821be1d458dd1637b13c82e5d320",
+          "size": 5894,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ssh2/commandCollector.lua"
+        },
+        "suproxy/ssh2/parser.lua": {
+          "sha256": "effce149deb01f1f1fe2ef785ae965ef45d4bfc1dd8b8048ded9a30f8e0eda4f",
+          "size": 1427,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ssh2/parser.lua"
+        },
+        "suproxy/ssh2/shellCommand.lua": {
+          "sha256": "c08b4526a391347b72d2555b715611050384de495ee0b12c9b69a803cf84248a",
+          "size": 3661,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ssh2/shellCommand.lua"
+        },
+        "suproxy/ssh2/ssh2CipherConf.lua": {
+          "sha256": "c5dd80f0970633455a59482a06cce37121ef8026781ce162f84a18cd6283f142",
+          "size": 4873,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ssh2/ssh2CipherConf.lua"
+        },
+        "suproxy/ssh2/ssh2Packets.lua": {
+          "sha256": "dd2b041de963cd726372d7443ff77fb66d2d6106374e1d2fde85776235609096",
+          "size": 7264,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/ssh2/ssh2Packets.lua"
+        },
+        "suproxy/tds.lua": {
+          "sha256": "40cb09d6bacb59f2fd693653aed0cf053a07fcacde1d612dfeb4311e08f4de77",
+          "size": 5727,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tds.lua"
+        },
+        "suproxy/tds/datetime.lua": {
+          "sha256": "322a7a20f21b2ad88e5b6e2a16dc7a9000b8844c7398cfb137b8491e36bb7b6e",
+          "size": 1700,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tds/datetime.lua"
+        },
+        "suproxy/tds/parser.lua": {
+          "sha256": "e996f217513dec48c77a0413f009ce774bc6b2b9fc3f16e3a24d4299acbb020b",
+          "size": 1371,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tds/parser.lua"
+        },
+        "suproxy/tds/tdsPackets.lua": {
+          "sha256": "260a88ce789a71add3b192f60a1983bbe0875fb5048b47cb87182760dd6d692a",
+          "size": 29886,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tds/tdsPackets.lua"
+        },
+        "suproxy/tds/token.lua": {
+          "sha256": "86dc30d140e28ba65a68d01d4e502ddf7df4a513eccbb5e7535d03df92ab0963",
+          "size": 22007,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tds/token.lua"
+        },
+        "suproxy/tds/version.lua": {
+          "sha256": "e347533d3a17f6004d90eb9dbadea844d6515e1ede69328914fb7353f096e98d",
+          "size": 8369,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tds/version.lua"
+        },
+        "suproxy/test.lua": {
+          "sha256": "07d764c47d667fa86264a51c300928036812d54d9972f602f0cb60048d33e291",
+          "size": 1200,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/test.lua"
+        },
+        "suproxy/tns.lua": {
+          "sha256": "1c66d974d3f7be5e094f4db4cfb345786d57a23149984c5318a08edd6d24ba33",
+          "size": 9977,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tns.lua"
+        },
+        "suproxy/tns/crypt.lua": {
+          "sha256": "7c4f57a79630cd24b4e715e6ab0441592afcca616aff37c7eba7e2660dd8bc28",
+          "size": 6814,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tns/crypt.lua"
+        },
+        "suproxy/tns/parser.lua": {
+          "sha256": "c4ff007c0bad584735dbe754f715220cab903e20e8fda84d087ed0f174e5507b",
+          "size": 2226,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tns/parser.lua"
+        },
+        "suproxy/tns/tnsPackets.lua": {
+          "sha256": "11f037bb6ebe774c4ba98499592762ddac71c776e76668fb6cc4f0cc35ad43ac",
+          "size": 48397,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/tns/tnsPackets.lua"
+        },
+        "suproxy/utils/asn1.lua": {
+          "sha256": "591c79ef8708d9400605b1fb8aac21696b12ddd884564ca51e57601b861325bd",
+          "size": 15955,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/asn1.lua"
+        },
+        "suproxy/utils/compatibleLog.lua": {
+          "sha256": "fd18359cd4654c3ba2e18b04be242c3ee3ee9b56ea764f81dd05566320ec6053",
+          "size": 2208,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/compatibleLog.lua"
+        },
+        "suproxy/utils/datetime.lua": {
+          "sha256": "b81976eeacd071edb07c6154e0844dbd8af4b73f79c61410369c03ba145309b3",
+          "size": 2291,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/datetime.lua"
+        },
+        "suproxy/utils/event.lua": {
+          "sha256": "cc6350aae7e1bef1db8bc020fb16a16aeb32041cdb3152edb78d818137e7e1dc",
+          "size": 2633,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/event.lua"
+        },
+        "suproxy/utils/ffi-zlib.lua": {
+          "sha256": "9cfb7d4182742d4633e3c3ec1238530facdd1d8e1282065e76b9ca7e36ff664b",
+          "size": 7911,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/ffi-zlib.lua"
+        },
+        "suproxy/utils/json.lua": {
+          "sha256": "e2eae392176918e5e39c0a5e8bb6659e415258142d1dc5657b749c0450dcdde7",
+          "size": 10024,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/json.lua"
+        },
+        "suproxy/utils/pureluapack.lua": {
+          "sha256": "a0d68aad61d21a017dbe954e46ce44c959fbc5a22530d8d9acea85fa12078a11",
+          "size": 14338,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/pureluapack.lua"
+        },
+        "suproxy/utils/stringUtils.lua": {
+          "sha256": "a770b7ebae902c97810136e80c86115241b519a0c1d950cea297f46f445d5bae",
+          "size": 8138,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/stringUtils.lua"
+        },
+        "suproxy/utils/tableUtils.lua": {
+          "sha256": "185084b38600cf2bfb22c439c360e26d839916cb644588f6fe8cab5639aa6d7b",
+          "size": 7640,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/tableUtils.lua"
+        },
+        "suproxy/utils/unicode.lua": {
+          "sha256": "85419cb3968a4da8f0ba944474821fc58bea3b20291b864ffb168bf6a09101f3",
+          "size": 9352,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/unicode.lua"
+        },
+        "suproxy/utils/utils.lua": {
+          "sha256": "41aa697ffd43067658c2544c2edeb5f05e86b747d5c7c7032d1c683c6ef21ac2",
+          "size": 3806,
+          "url": "https://raw.githubusercontent.com/yizhu2000/suproxy/1943adb5bf9ee39c15afe73605cc0136330fd58a/utils/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/yizhu2000/suproxy",
+      "host": "openresty",
+      "license": "BSD",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 22 Oct 2020 05:40:58 GMT",
+        "rockspec": {
+          "date": "Thu, 22 Oct 2020 05:40:58 GMT",
+          "sha256": "021afed94918b20086d8ab544e551135b0159ed64d163da40bcf93062e3b49e6",
+          "size": 2528
+        }
+      },
+      "modules": [
+        "suproxy.balancer.balancer",
+        "suproxy.channel",
+        "suproxy.example.gateway",
+        "suproxy.example.session",
+        "suproxy.http.handlers",
+        "suproxy.http.initParam",
+        "suproxy.http.mockauth",
+        "suproxy.http.ssoProcessors",
+        "suproxy.ldap",
+        "suproxy.ldap.ldapPackets",
+        "suproxy.ldap.parser",
+        "suproxy.parser",
+        "suproxy.session.session",
+        "suproxy.session.sessionManager",
+        "suproxy.ssh2",
+        "suproxy.ssh2.commandCollector",
+        "suproxy.ssh2.parser",
+        "suproxy.ssh2.shellCommand",
+        "suproxy.ssh2.ssh2CipherConf",
+        "suproxy.ssh2.ssh2Packets",
+        "suproxy.tds",
+        "suproxy.tds.datetime",
+        "suproxy.tds.parser",
+        "suproxy.tds.tdsPackets",
+        "suproxy.tds.token",
+        "suproxy.tds.version",
+        "suproxy.test",
+        "suproxy.tns",
+        "suproxy.tns.crypt",
+        "suproxy.tns.parser",
+        "suproxy.tns.tnsPackets",
+        "suproxy.utils.asn1",
+        "suproxy.utils.compatibleLog",
+        "suproxy.utils.datetime",
+        "suproxy.utils.event",
+        "suproxy.utils.ffi-zlib",
+        "suproxy.utils.json",
+        "suproxy.utils.pureluapack",
+        "suproxy.utils.stringUtils",
+        "suproxy.utils.tableUtils",
+        "suproxy.utils.unicode",
+        "suproxy.utils.utils"
+      ],
+      "origin": {
+        "commit": "1943adb5bf9ee39c15afe73605cc0136330fd58a",
+        "ref": "v0.6.0",
+        "type": "git",
+        "url": "https://github.com/yizhu2000/suproxy.git"
+      },
+      "size": 334238,
+      "undeclared_requires": [
+        "bit",
+        "resty.aes",
+        "resty.http",
+        "resty.jwt",
+        "resty.redis",
+        "resty.session",
+        "suproxy."
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 29,
+        "status": "partial",
+        "total": 42
+      }
+    }
+  }
+}

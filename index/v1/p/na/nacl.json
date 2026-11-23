@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "nacl",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/kext/lua-nacl/",
+      "license": "Public Domain",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Fri, 25 Sep 2015 09:21:38 GMT",
+        "rockspec": {
+          "date": "Fri, 25 Sep 2015 09:21:38 GMT",
+          "sha256": "95f26c8013f73e1db4a81bebf88bbb3479b829cc1dd2038e482ad6b7f986923c",
+          "size": 577
+        },
+        "src": {
+          "date": "Fri, 25 Sep 2015 09:21:40 GMT",
+          "sha256": "a9ed99abe6873c06852746a0ffcb0c41e89dd4d2a866b624b219af94886c0946",
+          "size": 14801,
+          "url": "https://luarocks.org/nacl-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "nacl"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "nacl",
+              "sources": [
+                "src/lua_nacl.c",
+                "src/tweetnacl.c",
+                "src/devurandom.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 25 Sep 2015 09:21:40 GMT",
+        "sha256": "a9ed99abe6873c06852746a0ffcb0c41e89dd4d2a866b624b219af94886c0946",
+        "size": 14801,
+        "type": "luarocks",
+        "url": "https://luarocks.org/nacl-1.0.0-1.src.rock"
+      },
+      "summary": "Lua bindings for NaCl",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

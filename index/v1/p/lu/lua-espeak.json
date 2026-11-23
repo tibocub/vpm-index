@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "lua-espeak",
+  "versions": {
+    "1.36r1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://lua-espeak.luaforge.net/",
+      "license": "GNU GPL v3",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 02:39:56 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 02:39:56 GMT",
+          "sha256": "f5be98e26f47b4732ea3d8ff2003429fd2cd951755c8684d00ae1c14b6a24395",
+          "size": 999
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 02:39:56 GMT",
+          "sha256": "b9697ea2a11ba497fa238dae3a6535767b2492697b551cab1be546b983a8e907",
+          "size": 92311,
+          "url": "https://luarocks.org/lua-espeak-1.36r1-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "ESPEAK"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "ESPEAK": {
+              "header": "espeak/speak_lib.h"
+            }
+          },
+          "make": {
+            "variables": {
+              "CFLAGS": "-I$(LUA_INCDIR) -I$(ESPEAK_INCDIR) -O3 -Wall",
+              "INSTALL_PATH": "$(LIBDIR)",
+              "LFLAGS": "$(LIBFLAG) -L$(ESPEAK_LIBDIR)",
+              "LIBS": "-lespeak"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 02:39:56 GMT",
+        "sha256": "b9697ea2a11ba497fa238dae3a6535767b2492697b551cab1be546b983a8e907",
+        "size": 92311,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-espeak-1.36r1-1.src.rock"
+      },
+      "summary": "A speech synthesis library for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

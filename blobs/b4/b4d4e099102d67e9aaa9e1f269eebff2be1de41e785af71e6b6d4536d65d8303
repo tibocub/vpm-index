@@ -1,0 +1,51 @@
+--- Utility functions for the Azure SDK.
+-- @module resty.azure.utils
+
+local utils = {}
+
+--- Logs an error message and returns a nil response with the error message.
+-- @tparam string msg The error message to log.
+-- @return nil, nil, msg; nil response with the error message as the 3rd return value.
+function utils.log_error(msg)
+  ngx.log(ngx.ERR, msg)
+  return nil, nil, msg
+end
+
+--- Builds proxy options from configuration and instance options.
+-- @tparam table global_config The global configuration object.
+-- @tparam table opts The options table from the instance.
+-- @return proxy_opts table or nil if no proxy configuration found.
+function utils.build_proxy_opts(global_config, opts)
+  local proxy_opts
+  local auth_username = opts.auth_username or global_config.auth_username
+  local auth_password = opts.auth_password or global_config.auth_password
+
+  -- Check if any proxy options are configured
+  local has_proxy_config = opts.http_proxy or opts.https_proxy or opts.no_proxy or
+                          global_config.http_proxy or global_config.https_proxy or global_config.no_proxy
+
+  if (auth_username or auth_password) and (not has_proxy_config) then
+    utils.log_error("username/password found, but no proxy config")
+  end
+
+  if has_proxy_config then
+    proxy_opts = {
+      http_proxy  = opts.http_proxy  or global_config.http_proxy,
+      https_proxy = opts.https_proxy or global_config.https_proxy,
+      no_proxy    = opts.no_proxy    or global_config.no_proxy,
+    }
+ 
+    -- Generate auth header and set proxy authorization if credentials are provided
+    if auth_username and auth_password then
+      local base64_encode = ngx.encode_base64
+      local auth_header = "Basic " .. base64_encode(auth_username .. ":" .. auth_password)
+      proxy_opts.https_proxy_authorization = auth_header
+      proxy_opts.http_proxy_authorization = auth_header
+    end
+  end
+
+  return proxy_opts
+end
+
+
+return utils

@@ -1,0 +1,269 @@
+{
+  "kind": "app",
+  "name": "lua-spore",
+  "versions": {
+    "0.4.3-1": {
+      "bin": {
+        "discovery2spore": "bin/discovery2spore",
+        "openapi2spore": "bin/openapi2spore",
+        "raml2spore": "bin/raml2spore",
+        "swagger2spore": "bin/swagger2spore",
+        "wadl2spore": "bin/wadl2spore"
+      },
+      "deps": [
+        "dkjson >= 2.5",
+        "luasocket >= 2.0.2"
+      ],
+      "files": {
+        "Spore.lua": {
+          "sha256": "58adeb1d3b4d807ac9bdb916d8e4eac0791dbedce05c4d31f357ad864efc2ac3",
+          "size": 9582,
+          "url": "blob:58adeb1d3b4d807ac9bdb916d8e4eac0791dbedce05c4d31f357ad864efc2ac3"
+        },
+        "Spore/GoogleDiscovery.lua": {
+          "sha256": "704fd926dd4f7ee3f8c9578d81f328bd82b0998ac029c862af602f94287dd188",
+          "size": 3729,
+          "url": "blob:704fd926dd4f7ee3f8c9578d81f328bd82b0998ac029c862af602f94287dd188"
+        },
+        "Spore/Middleware/Auth/AWS.lua": {
+          "sha256": "4fbcba09810a20843c49b520a4bdbbb6c9636c8941920ab60fd32bd8ff1010f1",
+          "size": 3763,
+          "url": "blob:4fbcba09810a20843c49b520a4bdbbb6c9636c8941920ab60fd32bd8ff1010f1"
+        },
+        "Spore/Middleware/Auth/Basic.lua": {
+          "sha256": "15cff82ffbb9f3a789efad9b3497d13155966fe3a4fec9e85b5cb669100dc8c4",
+          "size": 501,
+          "url": "blob:15cff82ffbb9f3a789efad9b3497d13155966fe3a4fec9e85b5cb669100dc8c4"
+        },
+        "Spore/Middleware/Auth/Bearer.lua": {
+          "sha256": "cad588a649a13d3917265460519457deecb1c6f336804c6939c151493291d898",
+          "size": 472,
+          "url": "blob:cad588a649a13d3917265460519457deecb1c6f336804c6939c151493291d898"
+        },
+        "Spore/Middleware/Auth/DataPublica.lua": {
+          "sha256": "80725ff8009afc3ed10aeaec616af1eeca16b3229ae53635997806be56ad6db5",
+          "size": 1959,
+          "url": "blob:80725ff8009afc3ed10aeaec616af1eeca16b3229ae53635997806be56ad6db5"
+        },
+        "Spore/Middleware/Auth/Digest.lua": {
+          "sha256": "6aeec46bf5d1620b7b90c478f73148f59750b69c8101e6d4eb7a71d68e2a593e",
+          "size": 3829,
+          "url": "blob:6aeec46bf5d1620b7b90c478f73148f59750b69c8101e6d4eb7a71d68e2a593e"
+        },
+        "Spore/Middleware/Auth/OAuth.lua": {
+          "sha256": "c3df47ff4f2bf2ed9c94dfc96536a20b24a4823cecea668c54ec140f3ce4c049",
+          "size": 5826,
+          "url": "blob:c3df47ff4f2bf2ed9c94dfc96536a20b24a4823cecea668c54ec140f3ce4c049"
+        },
+        "Spore/Middleware/Cache.lua": {
+          "sha256": "0251475cfc0831149dac963cccb79510188839ca6a2e505ef6538ff91ae0dac7",
+          "size": 694,
+          "url": "blob:0251475cfc0831149dac963cccb79510188839ca6a2e505ef6538ff91ae0dac7"
+        },
+        "Spore/Middleware/Cookie/Session.lua": {
+          "sha256": "e45b63aeffe807b8dd761eedda800beb8bcd3d0baa69c4fe9b1c0d61d1db4d7c",
+          "size": 1436,
+          "url": "blob:e45b63aeffe807b8dd761eedda800beb8bcd3d0baa69c4fe9b1c0d61d1db4d7c"
+        },
+        "Spore/Middleware/DoNotTrack.lua": {
+          "sha256": "f2ef8da06eaa974f6885340ef83ea54cd5fa0326e3252aff1682fa77b221bffa",
+          "size": 315,
+          "url": "blob:f2ef8da06eaa974f6885340ef83ea54cd5fa0326e3252aff1682fa77b221bffa"
+        },
+        "Spore/Middleware/Format/JSON.lua": {
+          "sha256": "0966cab9c5cb4d596f47a54ce30dc9a841249258c46412ec2138bdea6f9bb572",
+          "size": 1523,
+          "url": "blob:0966cab9c5cb4d596f47a54ce30dc9a841249258c46412ec2138bdea6f9bb572"
+        },
+        "Spore/Middleware/Format/XML.lua": {
+          "sha256": "375c1fe40002b03ede430cb66391fc30ae72ccff9e4d73448048f2f015aebbf1",
+          "size": 1520,
+          "url": "blob:375c1fe40002b03ede430cb66391fc30ae72ccff9e4d73448048f2f015aebbf1"
+        },
+        "Spore/Middleware/Format/YAML.lua": {
+          "sha256": "7d6b0c405a32a72e8f71a6f63402ff26cf5a95fa48e678d385aa35d4817b6a22",
+          "size": 1539,
+          "url": "blob:7d6b0c405a32a72e8f71a6f63402ff26cf5a95fa48e678d385aa35d4817b6a22"
+        },
+        "Spore/Middleware/Logging.lua": {
+          "sha256": "a5bf0f7ceba0672f9936941b3b135149bd09cad964184e2db7fd9a5626e4fcca",
+          "size": 314,
+          "url": "blob:a5bf0f7ceba0672f9936941b3b135149bd09cad964184e2db7fd9a5626e4fcca"
+        },
+        "Spore/Middleware/Mock.lua": {
+          "sha256": "9b7bb1b08ce6ef48222b290a45f5381473192847c2d3be0289ad1c7f551cef18",
+          "size": 620,
+          "url": "blob:9b7bb1b08ce6ef48222b290a45f5381473192847c2d3be0289ad1c7f551cef18"
+        },
+        "Spore/Middleware/Parameter/Default.lua": {
+          "sha256": "40e2f9e6f7b07a9136c491a23559a17d1899e24c16f3fc59989af58b984d021e",
+          "size": 1160,
+          "url": "blob:40e2f9e6f7b07a9136c491a23559a17d1899e24c16f3fc59989af58b984d021e"
+        },
+        "Spore/Middleware/Parameter/Force.lua": {
+          "sha256": "e4be06f2262c3e3189247b843ebc2cf15ead064ed816105448b57e1b17c4c5a0",
+          "size": 421,
+          "url": "blob:e4be06f2262c3e3189247b843ebc2cf15ead064ed816105448b57e1b17c4c5a0"
+        },
+        "Spore/Middleware/Proxy/Basic.lua": {
+          "sha256": "adbf290b503bd27a483a8235fb11cbd960faedf7c9729ad999f2b4b2cc118708",
+          "size": 1544,
+          "url": "blob:adbf290b503bd27a483a8235fb11cbd960faedf7c9729ad999f2b4b2cc118708"
+        },
+        "Spore/Middleware/Redirection.lua": {
+          "sha256": "8f5cfa0e441e2b22f6dcc9dd5e6337ff7f13a1af2116c47212a979bb08b69fba",
+          "size": 1898,
+          "url": "blob:8f5cfa0e441e2b22f6dcc9dd5e6337ff7f13a1af2116c47212a979bb08b69fba"
+        },
+        "Spore/Middleware/Runtime.lua": {
+          "sha256": "bac9d008d949155465850530d7452da56af960f58048e134e302b9c2348a10cf",
+          "size": 861,
+          "url": "blob:bac9d008d949155465850530d7452da56af960f58048e134e302b9c2348a10cf"
+        },
+        "Spore/Middleware/UserAgent.lua": {
+          "sha256": "825133c2351d0eb23bd9fdc2fef5fb663265b3ece7d9a7ad1f9232eb7ab81d37",
+          "size": 360,
+          "url": "blob:825133c2351d0eb23bd9fdc2fef5fb663265b3ece7d9a7ad1f9232eb7ab81d37"
+        },
+        "Spore/OpenAPI.lua": {
+          "sha256": "2c6c828b31308219873aa503a59aeb5546fb531c72b2292f6f3967baf380a592",
+          "size": 842,
+          "url": "blob:2c6c828b31308219873aa503a59aeb5546fb531c72b2292f6f3967baf380a592"
+        },
+        "Spore/Protocols.lua": {
+          "sha256": "4fbacfe15894a330eec9b39fd4ae33bee057d097a21b2c78341919a3e65430c2",
+          "size": 4968,
+          "url": "blob:4fbacfe15894a330eec9b39fd4ae33bee057d097a21b2c78341919a3e65430c2"
+        },
+        "Spore/RAML.lua": {
+          "sha256": "5d9a21b55d45a9f27158cadfce708ae026f4e4ab2b3a00e3229e1b103e214648",
+          "size": 5082,
+          "url": "blob:5d9a21b55d45a9f27158cadfce708ae026f4e4ab2b3a00e3229e1b103e214648"
+        },
+        "Spore/Request.lua": {
+          "sha256": "7a0a1bf1b1bd75de1957e25390ea48be0466a4b65f1de3260b0b4020b48c9987",
+          "size": 7112,
+          "url": "blob:7a0a1bf1b1bd75de1957e25390ea48be0466a4b65f1de3260b0b4020b48c9987"
+        },
+        "Spore/Swagger.lua": {
+          "sha256": "da21ad095c40d3696bb45c742dbc3215d61080f3de107250bee704e4987afffc",
+          "size": 13340,
+          "url": "blob:da21ad095c40d3696bb45c742dbc3215d61080f3de107250bee704e4987afffc"
+        },
+        "Spore/WADL.lua": {
+          "sha256": "376aa22882901623f8368b1b48c4574663682686d1b4049d20caa0904071863f",
+          "size": 4333,
+          "url": "blob:376aa22882901623f8368b1b48c4574663682686d1b4049d20caa0904071863f"
+        },
+        "Spore/XML.lua": {
+          "sha256": "c17e0d2493361f8ec506f5a6e65e3d7bdd6e9341944b9a289c557a616973b757",
+          "size": 4008,
+          "url": "blob:c17e0d2493361f8ec506f5a6e65e3d7bdd6e9341944b9a289c557a616973b757"
+        },
+        "bin/discovery2spore": {
+          "sha256": "7110e8876a0912cac2afc9558d93d2a5c93c7546be1dc6212e884236d0b82421",
+          "size": 540,
+          "url": "blob:7110e8876a0912cac2afc9558d93d2a5c93c7546be1dc6212e884236d0b82421"
+        },
+        "bin/openapi2spore": {
+          "sha256": "1434b29d22d57cfbd4f67eaac8f0c0891f8341c9ff6e48c4eb3affc0dda6facf",
+          "size": 946,
+          "url": "blob:1434b29d22d57cfbd4f67eaac8f0c0891f8341c9ff6e48c4eb3affc0dda6facf"
+        },
+        "bin/raml2spore": {
+          "sha256": "78b5777fc38607d5227be0eac5752aebc8ccf5a8b6fb3bb276cca21622b0fa43",
+          "size": 836,
+          "url": "blob:78b5777fc38607d5227be0eac5752aebc8ccf5a8b6fb3bb276cca21622b0fa43"
+        },
+        "bin/swagger2spore": {
+          "sha256": "b59e21d3360dc729390664aa53969592e1ae45ca72e0bdbfcad8a98c68b10d4e",
+          "size": 953,
+          "url": "blob:b59e21d3360dc729390664aa53969592e1ae45ca72e0bdbfcad8a98c68b10d4e"
+        },
+        "bin/wadl2spore": {
+          "sha256": "15215910822ebf685a680f91372e199c3deef4bc23a2adabe32a97b3042ab291",
+          "size": 478,
+          "url": "blob:15215910822ebf685a680f91372e199c3deef4bc23a2adabe32a97b3042ab291"
+        }
+      },
+      "homepage": "https://fperrad.frama.io/lua-Spore/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 28 Apr 2026 07:46:03 GMT",
+        "rockspec": {
+          "date": "Tue, 28 Apr 2026 07:46:03 GMT",
+          "sha256": "da24e735b831ed649fc443b090956685fc8ac3f53c2a53d67cdf035269a830ea",
+          "size": 3959
+        },
+        "src": {
+          "date": "Tue, 28 Apr 2026 07:46:21 GMT",
+          "sha256": "f8fb27d0449360fb79f9a11ec054b8b1b89da4f01ca22bf69771b8cc179b1215",
+          "size": 43395,
+          "url": "https://luarocks.org/lua-spore-0.4.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "Spore",
+        "Spore.GoogleDiscovery",
+        "Spore.Middleware.Auth.AWS",
+        "Spore.Middleware.Auth.Basic",
+        "Spore.Middleware.Auth.Bearer",
+        "Spore.Middleware.Auth.DataPublica",
+        "Spore.Middleware.Auth.Digest",
+        "Spore.Middleware.Auth.OAuth",
+        "Spore.Middleware.Cache",
+        "Spore.Middleware.Cookie.Session",
+        "Spore.Middleware.DoNotTrack",
+        "Spore.Middleware.Format.JSON",
+        "Spore.Middleware.Format.XML",
+        "Spore.Middleware.Format.YAML",
+        "Spore.Middleware.Logging",
+        "Spore.Middleware.Mock",
+        "Spore.Middleware.Parameter.Default",
+        "Spore.Middleware.Parameter.Force",
+        "Spore.Middleware.Proxy.Basic",
+        "Spore.Middleware.Redirection",
+        "Spore.Middleware.Runtime",
+        "Spore.Middleware.UserAgent",
+        "Spore.OpenAPI",
+        "Spore.Protocols",
+        "Spore.RAML",
+        "Spore.Request",
+        "Spore.Swagger",
+        "Spore.WADL",
+        "Spore.XML"
+      ],
+      "origin": {
+        "sha256": "74299fb058bce065943b72f3f676b8eb921d569f4d0a1eba7f67d0276dd15ed0",
+        "type": "archive",
+        "url": "https://framagit.org/fperrad/lua-Spore/raw/releases/lua-spore-0.4.3.tar.gz"
+      },
+      "size": 87304,
+      "summary": "a generic ReST client",
+      "undeclared_requires": [
+        "http.request",
+        "http.tls",
+        "ltn12",
+        "lxp.lom",
+        "lyaml",
+        "mime",
+        "openssl.digest",
+        "openssl.hmac",
+        "openssl.ssl.context",
+        "socket",
+        "socket.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

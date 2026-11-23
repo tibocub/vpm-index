@@ -1,0 +1,65 @@
+local xml2lua = require "xml2lua" -- https://github.com/manoelcampos/xml2lua
+local cjson = require("cjson.safe").new() -- https://github.com/openresty/lua-cjson
+local mime_type = require "kong.plugins.uoa-soap-to-rest.mime_type"
+local ngx_re = require "ngx.re"
+local pl_stringx = require "pl.stringx"
+
+local mime_type_includes = mime_type.includes
+local parse_mime_type = mime_type.parse_mime_type
+local split = ngx_re.split
+local strip = pl_stringx.strip
+local lua_to_xml = xml2lua.toXml
+
+local _RT = {}
+
+local function is_json_body(content_type_header)
+  if not content_type_header then
+    return false
+  end
+  local content_types = split(content_type_header, ",")
+  local expected_media_type = { type = "application", subtype = "json" }
+  for _, content_type in ipairs(content_types) do
+    local t, subtype = parse_mime_type(strip(content_type))
+    if not t or not subtype then
+      goto continue
+    end
+    local media_type = { type = t, subtype = subtype }
+    if mime_type_includes(expected_media_type, media_type) then
+      return true
+    end
+    ::continue::
+  end
+
+  return false
+end
+
+function _RT.transform_headers()
+  if (is_json_body(kong.response.get_headers()["Content-Type"])) then
+    -- Remove the content-length header because the body is going to change
+    kong.response.clear_header("Content-Length")
+    kong.response.set_header("Content-Type", 'application/xml')
+  end
+end
+
+function _RT.transform_json_body(conf, body)
+  --kong.log.inspect(body)
+
+  if not body then
+    return nil, 'cannot parse empty response body'
+  end
+
+  local decode_ok, decoded_body = pcall(cjson.decode, body)
+  if not decode_ok then
+    return nil, 'failed to parse response body: ' .. decoded_body
+  end
+
+  --kong.log.inspect(decoded_body)
+  local to_xml_ok, xml_body = pcall(lua_to_xml, decoded_body, conf.xml_response_root_block_name)
+  if not to_xml_ok then
+    return nil, 'failed to convert response body to XML: ' .. xml_body
+  end
+  --kong.log.inspect(xml_body)
+  return xml_body
+end
+
+return _RT

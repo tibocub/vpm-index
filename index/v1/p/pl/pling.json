@@ -1,0 +1,124 @@
+{
+  "kind": "lib",
+  "name": "pling",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-cjson == 2.1.0.10-1",
+        "luasec == 1.3.2-1",
+        "luasocket == 3.1.0-1",
+        "luamqtt == 3.5.0-1",
+        "luabitop == 1.0.3-1"
+      ],
+      "files": {
+        "pling/init.lua": {
+          "sha256": "fd4efb6c58f7ef5ff58b7720aec35fc0ec6d83bd8bf68eddf28a685ca09dd17f",
+          "size": 975,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/init.lua"
+        },
+        "pling/logger.lua": {
+          "sha256": "1dea7e90f99de10753ea470042759b71e7bd1024d89d550e9d09d1264976fab9",
+          "size": 1643,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/logger.lua"
+        },
+        "pling/notifiers/audio.lua": {
+          "sha256": "9f38adf78982ace411d67db4ddfbc54ad2dde2ca584382b91065e0ec4ba391b2",
+          "size": 3524,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/audio.lua"
+        },
+        "pling/notifiers/discord.lua": {
+          "sha256": "4beca2e00f09acc652398695b8305e3f89ce86f029d79cb876fec2ae271bd64d",
+          "size": 1553,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/discord.lua"
+        },
+        "pling/notifiers/email.lua": {
+          "sha256": "588a762fcfeaab646b3bbf506ba1c4a3b572dc635c6e1ec0aabf8eb547cdfe89",
+          "size": 5917,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/email.lua"
+        },
+        "pling/notifiers/gpio.lua": {
+          "sha256": "a0ce9a2be23b010f802b9048e55104f59437b37fb8309a511acbe309f485a49d",
+          "size": 2460,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/gpio.lua"
+        },
+        "pling/notifiers/mqtt.lua": {
+          "sha256": "cf8c2258ce41e9a6478ce5714f66868a98dd60b4ef2a07c7214387c6bed0048b",
+          "size": 3466,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/mqtt.lua"
+        },
+        "pling/notifiers/slack.lua": {
+          "sha256": "2fe85a16b5fa3d7eeb4e4c2882a40bd20ed56afb2a9302960f629f76882f5ae9",
+          "size": 1507,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/slack.lua"
+        },
+        "pling/notifiers/webhook.lua": {
+          "sha256": "ca88d3a672c17a732a5d61492f20df6c8c87c303f5b288a6f9e27806b6ba3af3",
+          "size": 1631,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/webhook.lua"
+        },
+        "pling/notifiers/webhook_transport.lua": {
+          "sha256": "07519100ea6dccbc3b0ca0bbf9c25857c664c1272f381a4aa140d1166f56edc3",
+          "size": 3230,
+          "url": "https://raw.githubusercontent.com/Desvelao/pling/1760c58add1a80a3df0d8e4533270fda3107c179/src/pling/notifiers/webhook_transport.lua"
+        }
+      },
+      "homepage": "https://github.com/Desvelao/pling",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.2",
+      "luarocks": {
+        "date": "Tue, 15 Sep 2026 19:49:26 GMT",
+        "rockspec": {
+          "date": "Tue, 15 Sep 2026 19:49:26 GMT",
+          "sha256": "a7af9c779ac76c9b4bbe9c50fc4251ae5eb4060cc9ece3b33c243f53052dbb12",
+          "size": 1879
+        },
+        "src": {
+          "date": "Tue, 15 Sep 2026 19:49:26 GMT",
+          "sha256": "dd9e03044f09ec05fe971e47ab2afb65d1ae46434171c105f576ca6dee86cb58",
+          "size": 34555,
+          "url": "https://luarocks.org/pling-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "pling",
+        "pling.logger",
+        "pling.notifiers.audio",
+        "pling.notifiers.discord",
+        "pling.notifiers.email",
+        "pling.notifiers.gpio",
+        "pling.notifiers.mqtt",
+        "pling.notifiers.slack",
+        "pling.notifiers.webhook",
+        "pling.notifiers.webhook_transport"
+      ],
+      "origin": {
+        "commit": "1760c58add1a80a3df0d8e4533270fda3107c179",
+        "ref": "v0.1.0",
+        "type": "git",
+        "url": "https://github.com/Desvelao/pling.git"
+      },
+      "size": 25906,
+      "summary": "Standalone Lua library for sending notifications through pluggable channels",
+      "undeclared_requires": [
+        "ltn12",
+        "socket",
+        "socket.http",
+        "socket.smtp"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

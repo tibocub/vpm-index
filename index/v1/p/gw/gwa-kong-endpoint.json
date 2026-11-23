@@ -1,0 +1,100 @@
+{
+  "kind": "lib",
+  "name": "gwa-kong-endpoint",
+  "versions": {
+    "1.3.2-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/bcgov-gwa-endpoint/access.lua": {
+          "sha256": "49c7963db80adeb864df68813ef6f21a16b0dd724d2ac5a598a977d947e9c3e5",
+          "size": 3834,
+          "url": "https://raw.githubusercontent.com/bcgov/gwa-kong-endpoint/cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265/kong/plugins/bcgov-gwa-endpoint/access.lua"
+        },
+        "kong/plugins/bcgov-gwa-endpoint/api.lua": {
+          "sha256": "82206bde3eee8731755f134d178069e2703ac08e1ed2d1203df23e9f21142c5b",
+          "size": 1911,
+          "url": "https://raw.githubusercontent.com/bcgov/gwa-kong-endpoint/cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265/kong/plugins/bcgov-gwa-endpoint/api.lua"
+        },
+        "kong/plugins/bcgov-gwa-endpoint/daos.lua": {
+          "sha256": "5a4371fdd0b3d25bc71605aa164612f24f10da925a5dd372c382a7e22c62a68f",
+          "size": 708,
+          "url": "https://raw.githubusercontent.com/bcgov/gwa-kong-endpoint/cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265/kong/plugins/bcgov-gwa-endpoint/daos.lua"
+        },
+        "kong/plugins/bcgov-gwa-endpoint/handler.lua": {
+          "sha256": "54166d908c3c3eab38aa88b47017bb8c2af3e0894632f8fa06778509a90cde58",
+          "size": 1738,
+          "url": "https://raw.githubusercontent.com/bcgov/gwa-kong-endpoint/cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265/kong/plugins/bcgov-gwa-endpoint/handler.lua"
+        },
+        "kong/plugins/bcgov-gwa-endpoint/migrations/cassandra.lua": {
+          "sha256": "c233941f4217e12e583e51b212e6dbebbbdc7a2d1fdd005941279d7f0f7b13c5",
+          "size": 1195,
+          "url": "https://raw.githubusercontent.com/bcgov/gwa-kong-endpoint/cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265/kong/plugins/bcgov-gwa-endpoint/migrations/cassandra.lua"
+        },
+        "kong/plugins/bcgov-gwa-endpoint/migrations/postgres.lua": {
+          "sha256": "66d51dcb32f5e2dd7ac34eac544e5562dca0335ec57d4fad696a41b19ad6c00c",
+          "size": 1464,
+          "url": "https://raw.githubusercontent.com/bcgov/gwa-kong-endpoint/cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265/kong/plugins/bcgov-gwa-endpoint/migrations/postgres.lua"
+        },
+        "kong/plugins/bcgov-gwa-endpoint/schema.lua": {
+          "sha256": "51eceffc3dad43b3b158cf6aa0c5a97c4b5f81bfce8a5389092e602a40bc28ae",
+          "size": 98,
+          "url": "https://raw.githubusercontent.com/bcgov/gwa-kong-endpoint/cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265/kong/plugins/bcgov-gwa-endpoint/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 28 Sep 2018 21:30:54 GMT",
+        "rockspec": {
+          "date": "Fri, 28 Sep 2018 21:30:54 GMT",
+          "sha256": "545742d032521835d911250b08c0decffcf0ac8592deea79c8d462b178f4f11a",
+          "size": 1057
+        },
+        "src": {
+          "date": "Fri, 28 Sep 2018 21:30:54 GMT",
+          "sha256": "c57a92cb5dd77a46c566a02488948a75dae2506a0f879a8d87942b6e54c5384c",
+          "size": 14281,
+          "url": "https://luarocks.org/gwa-kong-endpoint-1.3.2-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.bcgov-gwa-endpoint.access",
+        "kong.plugins.bcgov-gwa-endpoint.api",
+        "kong.plugins.bcgov-gwa-endpoint.daos",
+        "kong.plugins.bcgov-gwa-endpoint.handler",
+        "kong.plugins.bcgov-gwa-endpoint.migrations.cassandra",
+        "kong.plugins.bcgov-gwa-endpoint.migrations.postgres",
+        "kong.plugins.bcgov-gwa-endpoint.schema"
+      ],
+      "origin": {
+        "commit": "cf845f2e95abd7f3ca8a05fa78dbd6183cfbc265",
+        "ref": "1.3.2-3",
+        "type": "git",
+        "url": "https://github.com/bcgov/gwa-kong-endpoint.git"
+      },
+      "size": 10948,
+      "summary": "BC Government GWA Plugin",
+      "undeclared_requires": [
+        "kong.api.crud_helpers",
+        "kong.constants",
+        "kong.plugins.acl.groups",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "kong.tools.utils",
+        "lapis.application"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.utils",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 7
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "nvtx",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "torch",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "torch"
+      ],
+      "files": [],
+      "homepage": "https://github.com/apaszke/torch-nvtx",
+      "license": "BSD",
+      "luarocks": {
+        "date": "Sat, 16 Apr 2016 17:49:42 GMT",
+        "rockspec": {
+          "date": "Sat, 16 Apr 2016 17:49:42 GMT",
+          "sha256": "8f70e29f50455887f5154cfd915a383725925fe50f8ff7324458c47a2f2ebb42",
+          "size": 501
+        },
+        "src": {
+          "date": "Sat, 16 Apr 2016 17:49:44 GMT",
+          "sha256": "fc140f8063592e7dd4ce077bb305ce02cf9dcb06185cec9258067e7fc3a4fa1a",
+          "size": 3740,
+          "url": "https://luarocks.org/nvtx-0.1-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "cmake",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "cmake": {
+            "variables": {
+              "CMAKE_BUILD_TYPE": "Release",
+              "CMAKE_PREFIX_PATH": "$(LUA_BINDIR)/..",
+              "LUA_CPATH": "$(LIBDIR)",
+              "LUA_PATH": "$(LUADIR)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sat, 16 Apr 2016 17:49:44 GMT",
+        "sha256": "fc140f8063592e7dd4ce077bb305ce02cf9dcb06185cec9258067e7fc3a4fa1a",
+        "size": 3740,
+        "type": "luarocks",
+        "url": "https://luarocks.org/nvtx-0.1-1.src.rock"
+      },
+      "summary": "NVIDIA Tools Extension Library wrapper for Torch",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

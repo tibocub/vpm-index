@@ -1,0 +1,78 @@
+local GSA_3_ROUTING_TAG = "google-storage-adapter-3"
+
+--[[
+    .--.  .---.  .---. .----..-. .-. .---. .-. .----. .-. .-.
+   / {} \{_   _}{_   _}| {_  |  `| |{_   _}| |/  {}  \|  `| |
+  /  /\  \ | |    | |  | {__ | |\  |  | |  | |\      /| |\  |
+  `-'  `-' `-'    `-'  `----'`-' `-'  `-'  `-' `----' `-' `-'
+
+
+  The lack of escaping the ‘-’ character has already caused 3 incidents.
+  Please note that the second parameter in the expression:
+
+  "string.gsub(‘string-string’, ‘string%-string’, ‘’)"
+
+  accepts only a pattern string not a regular string!
+  Escaping the hyphen symbol (%) is mandatory!
+
+  PS: Increment the incident number if this happens again!
+]]
+local function escape_hyphen(str)
+  return string.gsub(str, "%-", "%%-")
+end
+
+local function get_service_path()
+  local service = kong.router.get_service()
+  if service then
+    return service.path
+  end
+  return ""
+end
+
+-- handle case when we have a trailing slash in the end of the path
+local function add_index_file_to_path(req_path)
+  if string.match(req_path, "(.*)/$") then
+    return req_path .. "index.html"
+  elseif string.match(req_path, "(.*)/[^/.]+$") then
+    return req_path .. "/index.html"
+  end
+  return req_path
+end
+
+local function remove_prefix_from_path(path)
+  -- by default we have the /sites prefix
+  if path then
+    return path:gsub("/sites", "")
+  end
+  -- TODO move it out of here
+  kong.log.err('An error occurred while processing the request path')
+  return "/404.html"
+end
+
+-- TODO potenially we could avoid this function by using the current route.paths as immutable
+local function modify_route_paths_by_site_name(route_paths, current_site_name, new_site_name)
+  local mroute_paths = {}
+  for i in pairs(route_paths) do
+    local path = route_paths[i]:gsub(current_site_name, new_site_name)
+    mroute_paths[i] = path
+  end
+  return mroute_paths
+end
+
+local function is_it_version_3_route(route)
+  for i in pairs(route.tags) do
+    if route.tags[i] == GSA_3_ROUTING_TAG then
+      return true
+    end
+  end
+  return false
+end
+
+return {
+  escape_hyphen = escape_hyphen,
+  get_service_path = get_service_path,
+  add_index_file_to_path = add_index_file_to_path,
+  remove_prefix_from_path = remove_prefix_from_path,
+  modify_route_paths_by_site_name = modify_route_paths_by_site_name,
+  is_it_version_3_route = is_it_version_3_route,
+}

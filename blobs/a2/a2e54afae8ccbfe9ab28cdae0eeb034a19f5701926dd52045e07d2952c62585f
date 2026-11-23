@@ -1,0 +1,129 @@
+local rockydocs = require("rockydocs.rockydocs")
+local M = {}
+
+--- Setup keymaps and commands for the Rockydocs plugin.
+--- @param config table Configuration table containing keymaps and commands
+function M.setup_commands(config)
+	-- Set default values for keymaps if not provided
+	config.keymap_serve = config.keymap_serve or "<leader>rds"
+	config.keymap_stop = config.keymap_stop or "<leader>rdx"
+	config.keymap_build = config.keymap_build or "<leader>rdb"
+	config.keymap_new = config.keymap_new or "<leader>rdn"
+	config.keymap_open = config.keymap_open or "<leader>rdo"
+
+	-- Register keymap to serve the Rockydocs project
+	if config.keymap_serve then
+		vim.keymap.set("n", config.keymap_serve, function()
+			rockydocs.serve_rockydocs(config.command_serve, function()
+				vim.notify("Rockydocs server started successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Serve Rockydocs" })
+	end
+
+	-- Register keymap to stop the Rockydocs server
+	if config.keymap_stop then
+		vim.keymap.set("n", config.keymap_stop, function()
+			rockydocs.stop_rockydocs(function()
+				vim.notify("Rockydocs server stopped successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Stop Rockydocs server" })
+	end
+
+	-- Register keymap to build the Rockydocs project
+	if config.keymap_build then
+		vim.keymap.set("n", config.keymap_build, function()
+			rockydocs.build_rockydocs(config.command_build, function()
+				vim.notify("Rockydocs built successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Build Rockydocs" })
+	end
+
+	-- Register keymap to create a new Rockydocs project
+	if config.keymap_new then
+		vim.keymap.set("n", config.keymap_new, function()
+			rockydocs.new_rockydocs(function()
+				vim.notify("Rockydocs project created successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Create new Rockydocs project" })
+	end
+
+	-- Register keymap to open Rockydocs in the browser
+	if config.keymap_open then
+		vim.keymap.set("n", config.keymap_open, function()
+			rockydocs.rockydocs_open(function()
+				vim.notify("Rockydocs opened in the default browser!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Open Rockydocs in browser" })
+	end
+
+	-- Create a single user command `:Rockydocs` with subcommands
+	vim.api.nvim_create_user_command("Rockydocs", function(opts)
+		local args = opts.fargs
+		if #args == 0 then
+			vim.notify("Please specify a subcommand: serve, build, new, stop, open", vim.log.levels.ERROR)
+			return
+		end
+
+		local subcommand = args[1]
+
+		if subcommand == "serve" then
+			rockydocs.serve_rockydocs(config.command_serve, function()
+				vim.notify("Rockydocs server started successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif subcommand == "stop" then
+			rockydocs.stop_rockydocs(function()
+				vim.notify("Rockydocs server stopped successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif subcommand == "build" then
+			rockydocs.build_rockydocs(config.command_build, function()
+				vim.notify("Rockydocs built successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif subcommand == "new" then
+			rockydocs.new_rockydocs(function()
+				vim.notify("Rockydocs project created successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif subcommand == "open" then
+			rockydocs.rockydocs_open(function()
+				vim.notify("Rockydocs opened in the default browser!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		else
+			vim.notify("Unknown subcommand: " .. subcommand, vim.log.levels.ERROR)
+		end
+	end, {
+		nargs = "+",
+		complete = function(arglead, _cmdline, _cursorpos)
+			local commands = { "serve", "stop", "build", "new", "open" }
+			local matches = {}
+			for _, cmd in ipairs(commands) do
+				if cmd:find(arglead) == 1 then
+					table.insert(matches, cmd)
+				end
+			end
+			return matches
+		end,
+		desc = "Rockydocs command: serve, stop, build, new, open",
+	})
+end
+
+-- Return the module table
+return M

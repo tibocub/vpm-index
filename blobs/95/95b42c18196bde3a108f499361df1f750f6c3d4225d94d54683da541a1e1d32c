@@ -1,0 +1,1134 @@
+--imports
+local tablex = require("pl.tablex")
+local stringx = require("pl.stringx")
+local SentType = require("dogma.syn.SentType")
+local NodeType = require("dogma.syn.NodeType")
+local TerminalType = require("dogma.syn.TerminalType")
+local NonTerminalType = require("dogma.syn.NonTerminalType")
+local transName = require("dogma.trans.js._.util").transName
+local SubTrans = require("dogma.trans.js._.SubTrans")
+
+--An expression transformer to JavaScript.
+local ExpTrans = {}
+ExpTrans.__index = ExpTrans
+setmetatable(ExpTrans, {__index = SubTrans})
+package.loaded[...] = ExpTrans
+
+--Constructor.
+function ExpTrans.new(trans)
+  return setmetatable(SubTrans.new(trans), ExpTrans)
+end
+
+--Last seed used.
+local lastSeed = os.time()
+
+--Return a random aux variable for internal use.
+--
+--@return string
+function ExpTrans._getAuxVarName()
+  lastSeed = math.random(1, lastSeed)
+  math.randomseed(lastSeed)
+  return "$$aux" .. os.time() .. math.random(1000, 9999)
+end
+
+--Transform an expression.
+--
+--@param exp:Exp    Expression to transform.
+--@param list:bool  Return a two-sized list.
+--                  The second one contains the additional sentences.
+--
+--@return string or {string, string}
+function ExpTrans:transform(exp, list)
+  local code
+  local prev = ""
+
+  --(1) build
+  if exp.type == SentType.EXP then
+    --expression
+    code = self:_transExp(exp)
+
+    --aux vars
+    local vars = {}
+    for var in string.gmatch(code, "$$aux%d+") do
+      table.insert(vars, var)
+    end
+
+    for var, _ in pairs(tablex.makeset(vars)) do
+      local let = string.format("let %s;", var)
+
+      if not stringx.lfind(code, let) then
+        code =  let .. code
+      end
+    end
+  else
+    code = self:_transXmlExp(exp)
+  end
+
+  --(2) return
+  if list then
+    return {code, prev}
+  else
+    return code
+  end
+end
+
+--Transform an expression.
+--
+--@param exp:Exp      Expression to transform.
+--@return string
+function ExpTrans:_transExp(exp)
+  return self:_transNode(exp.tree.root)
+end
+
+--Transform a node.
+--
+--@param node:Node
+--@return string
+function ExpTrans:_transNode(node)
+  if node.type == NodeType.TERMINAL then
+    return self:_transTerminal(node)
+  elseif node.type == NodeType.NON_TERMINAL then
+    return self:_transNonTerminal(node)
+  end
+end
+
+--Transform a terminal node.
+--
+--@param node:Terminal
+--@return string
+function ExpTrans:_transTerminal(node)
+  if node.subtype == TerminalType.NAME then
+    return transName(node.data)
+  elseif node.subtype == TerminalType.NUM then
+    return tostring(node.data)
+  elseif node.subtype == TerminalType.TEXT then
+    return string.format([["%s"]], node.data:gsub("\\", "\\\\"):gsub('"', '\\"')):gsub("\n", "\\n"):gsub("\t", "\\t")
+  elseif node.subtype == TerminalType.TMPL_TEXT then
+    return string.format([[`%s`]], node.data)
+  elseif node.subtype == TerminalType.RE then
+    return string.format([[re("%s")]], node.data:gsub('"', '\"'))
+  elseif node.subtype == TerminalType.TRUE then
+    return "true"
+  elseif node.subtype == TerminalType.FALSE then
+    return "false"
+  elseif node.subtype == TerminalType.JSON_DECODE then
+    return string.format("json.decode(%s, %s)", self:transform(node.exp), node.asType)
+  elseif node.subtype == TerminalType.NIL then
+    return "null"
+  elseif node.subtype == TerminalType.LIST then
+    return self:_transLiteralList(node)
+  elseif node.subtype == TerminalType.FOR_LIST then
+    return self:_transLiteralForList(node)
+  elseif node.subtype == TerminalType.SET then
+    return self:_transLiteralSet(node)
+  elseif node.subtype == TerminalType.MAP then
+    return self:_transLiteralMap(node)
+  elseif node.subtype == TerminalType.SELF then
+    return "this"
+  elseif node.subtype == TerminalType.SUPER then
+    return "super"
+  elseif node.subtype == TerminalType.NOP then
+    return "dogma.nop()"
+  elseif node.subtype == TerminalType.FN then
+    return self:_transLiteralFn(node)
+  elseif node.subtype == TerminalType.SUBEXP then
+    if node.exps == nil then
+      return self:transform(node.data)
+    else
+      if #node.exps == 0 then
+        return "null"
+      else
+        local code = "("
+
+        for i, exp in ipairs(node.exps) do
+          if i > 1 then
+            code = code .. ", "
+          end
+
+          code = code .. self:transform(exp)
+        end
+
+        code = code .. ")"
+
+        return code
+      end
+    end
+  elseif node.subtype == TerminalType.NATIVE then
+    return self:_transNativeFn(node)
+  elseif node.subtype == TerminalType.NEW then
+    return self:_transNewFn(node)
+  elseif node.subtype == TerminalType.CONST then
+    return self:_transConstFn(node)
+  elseif node.subtype == TerminalType.COPY then
+    return self:_transCopyFn(node)
+  elseif node.subtype == TerminalType.AWAIT then
+    return self:_transAwaitFn(node)
+  elseif node.subtype == TerminalType.MAWAIT then
+    return self:_transMawaitFn(node)
+  elseif node.subtype == TerminalType.CWAIT then
+    return self:_transCwaitFn(node)
+  elseif node.subtype == TerminalType.OVERLOAD then
+    return self:_transOverloadFn(node)
+  elseif node.subtype == TerminalType.PEVAL then
+    return self:_transPevalFn(node)
+  elseif node.subtype == TerminalType.PAWAIT then
+    return self:_transPawaitFn(node)
+  elseif node.subtype == TerminalType.MPAWAIT then
+    return self:_transMpawaitFn(node)
+  elseif node.subtype == TerminalType.PCWAIT then
+    return self:_transPcwaitFn(node)
+  elseif node.subtype == TerminalType.PWAIT then
+    return self:_transPwaitFn(node)
+  elseif node.subtype == TerminalType.THROW then
+    return self:_transThrowFn(node)
+  elseif node.subtype == TerminalType.USE then
+    return self:_transUseFn(node)
+  elseif node.subtype == TerminalType.EMIT then
+    return self:_transEmitFn(node)
+  elseif node.subtype == TerminalType.EXPECT then
+    return self:_transExpectFn(node)
+  elseif node.subtype == TerminalType.IF then
+    return self:_transIfSubExp(node)
+  elseif node.subtype == TerminalType.WITH_DO then
+    return self:_transWithDoSubExp(node)
+  elseif node.subtype == TerminalType.CAST then
+    return self:_transCastFn(node)
+  elseif node.subtype == TerminalType.CATCH then
+    return self:_transCatchFn(node)
+  elseif node.subtype == TerminalType.SELF_DEFER then
+    return self:_transSelfDeferFn(node)
+  elseif node.subtype == TerminalType.SELF_DEFERRED then
+    return self:_transSelfDeferredFn(node)
+  end
+end
+
+--Transform cast().
+function ExpTrans:_transCastFn(call)
+  return string.format("dogma.setTypeToObject(%s, %s)", self:transform(call.exp), call.to)
+end
+
+--Transform catch().
+function ExpTrans:_transCatchFn(node)
+  return string.format("dogma.catchError(() => %s)", self:transform(node.exp))
+end
+
+--Transform self.defer().
+function ExpTrans:_transSelfDeferFn(call)
+  return string.format("this.$deferred.push(() => %s)", self:transform(call.arg))
+end
+
+--Transform self.deferred().
+function ExpTrans:_transSelfDeferredFn(call)
+  return "{const errors = []; while (this.$deferred.length > 0) {try {const r = this.$deferred.pop()(); /*istanbul ignore next*/if (r instanceof Promise) r.then(() => null, () => null);} catch(e) {errors.push(e);}} /*istanbul ignore next*/if (errors.length > 0) throw new Error(errors); }"
+end
+
+--Transform if Exp then Exp else Exp end
+function ExpTrans:_transIfSubExp(node)
+  return string.format(
+    "(%s ? %s : %s)",
+    self:transform(node.cond),
+    self:transform(node.trueCase),
+    node.falseCase ~= nil and self:transform(node.falseCase) or "null"
+  )
+end
+
+--Transform with..do subexpression.
+function ExpTrans:_transWithDoSubExp(node)
+  --(1) get aux var to use
+  local auxVar = self:_getAuxVarName()
+
+  --(2) build ifs and else
+  local code = ""
+
+  for i, clause in ipairs(node.ifs) do
+    code = code .. string.format(
+      "%s(%s == %s) ? (%s)",
+      i == 1 and "" or " : ",
+      auxVar,
+      self:transform(clause.cond),
+      self:transform(clause.value)
+    )
+  end
+
+  code = code .. " : " .. (node.els and self:transform(node.els) or " null")
+
+  --(2) return
+  return string.format(
+    "((%s = %s),(%s))",
+    auxVar,
+    self:transform(node.value),
+    code
+  )
+end
+
+--Transform a native() function.
+function ExpTrans:_transNativeFn(fn)
+  return string.format(fn.code)
+end
+
+--Transform a new() function.
+function ExpTrans:_transNewFn(fn)
+  return string.format("new $$Class$$(%s)", self:transform(fn.arg))
+end
+
+--Transform a const() function.
+function ExpTrans:_transConstFn(fn)
+  return string.format("dogma.immutable(%s)", self:transform(fn.exp))
+end
+
+--Transform a copy() function.
+function ExpTrans:_transCopyFn(fn)
+  return string.format("dogma.copy(%s)", self:transform(fn.exp))
+end
+
+--Transform a simple await() function.
+function ExpTrans:_transAwaitFn(fn)
+  return string.format("(0,await(%s))", self:transform(fn.arg))
+end
+
+--Transform a multi await() function.
+function ExpTrans:_transMawaitFn(fn)
+  local arg
+
+  if #fn.args == 1 then
+    arg = self:transform(fn.args[1])
+  else
+    arg = "["
+
+    for i, exp in ipairs(fn.args) do
+      arg = arg .. (i ==  1 and "" or ", ") .. self:transform(exp)
+    end
+
+    arg = arg .."]"
+  end
+
+  return string.format("(0,await(Promise.all(%s)))", arg)
+end
+
+--Transform a pawait() function.
+function ExpTrans:_transPawaitFn(fn)
+  return string.format("await(dogma.pawait(() => %s))", self:transform(fn.arg))
+end
+
+--Transform a multi pawait() function.
+function ExpTrans:_transMpawaitFn(fn)
+  --(1) get promises argument
+  local arg
+
+  if #fn.args == 1 then
+    arg = self:transform(fn.args[1])
+  else
+    arg = "["
+
+    for i, exp in ipairs(fn.args) do
+      arg = arg .. (i ==  1 and "" or ", ") .. self:transform(exp)
+    end
+
+    arg = arg .."]"
+  end
+
+  --/2) return
+  local auxVar = self:_getAuxVarName()
+  return string.format(
+    "(%s = (0,await(Promise.allSettled(%s))).map((i) => [i.status == 'fulfilled', i.value || i.reason]), [!%s.find((i) => i[0] === false), %s])",
+    auxVar,
+    arg,
+    auxVar,
+    auxVar
+  )
+end
+
+--Transform a cwait() function.
+function ExpTrans:_transCwaitFn(fn)
+  return string.format(
+    "(0,await(new Promise((rslv, rej) => { function done(err, rslt) { if (err) rej(err); else rslv(rslt); } %s; })))",
+    self:transform(fn.exp)
+  )
+end
+
+--Transform a pcwait() function.
+function ExpTrans:_transPcwaitFn(fn)
+  return string.format(
+    "(0,await(new Promise((rslv) => { function done(err, rslt) { if (err) rslv([false, err]); else rslv([true, rslt]); } %s; })))",
+    self:transform(fn.exp)
+  )
+end
+
+--Transform a pawait() function.
+function ExpTrans:_transPwaitFn(fn)
+  return string.format("dogma.pwait((done) => {%s;})", self:transform(fn.exp))
+end
+
+--Transform a use() function.
+function ExpTrans:_transUseFn(fn)
+  return string.format("dogma.use(require(%s))", self:transform(fn.exp))
+end
+
+--Transform an overload() function.
+function ExpTrans:_transOverloadFn(fn)
+  --(1) build parameters
+  local params
+
+  if #fn.params == 0 then
+    params = "[]"
+  else
+    params = "["
+
+    for i, param in ipairs(fn.params) do
+      if i > 1 then
+        params = params .. ", "
+      end
+
+      if param:isMandatory() then
+        params = params .. string.format("dogma.OverloadParam({kind: 'm', type: %s})", self:_transDataType(param.type))
+      elseif param:isOptional() then
+        params = params .. string.format("dogma.OverloadParam({kind: 'o', type: %s})", self:_transDataType(param.type))
+      elseif param:isDiscard() then
+        params = params .. "dogma.OverloadParam({kind: '...'})"
+      end
+    end
+
+    params = params .. "]"
+  end
+
+  --(2) return
+  return string.format("dogma.overload(Array.from(arguments), %s)", params)
+end
+
+--Transform a peval() function.
+function ExpTrans:_transPevalFn(fn)
+  return string.format("dogma.peval(() => {return %s;})", self:transform(fn.exp))
+end
+
+--Transform an emit() function.
+function ExpTrans:_transEmitFn(fn)
+  --(1) build code
+  local code = string.format("dogma.emit(this, %s, ", self:transform(fn.event))
+
+  if #fn.arg == 0 then
+    code = code .. self:transform(fn.arg)
+  else
+    code = code .. "{"
+
+    for i, item in ipairs(fn.arg) do
+      code = code .. string.format(
+        "%s%s: %s",
+        i == 1 and "" or ", ",
+        item.name,
+        type(item.value) == "string" and item.value or self:transform(item.value)
+      )
+    end
+
+    code = code .. "}"
+  end
+
+  code = code .. ")"
+
+  --(2) return code
+  return code
+end
+
+--Transform an expect() function.
+function ExpTrans:_transExpectFn(fn)
+  local var = self:transform(fn.value)
+  local val = self:transform(fn.value)
+
+  if fn.types == nil then
+    return string.format("dogma.expect('%s', %s)", var, val)
+  else
+    return string.format("dogma.expect('%s', %s, %s)", var, val, self:transform(fn.types))
+  end
+end
+
+--Transform a throw() function.
+function ExpTrans:_transThrowFn(fn)
+  local code
+
+  --(1) transform
+  code = "dogma.raise("
+
+  if #fn.args == 1 then
+    code = code .. self:transform(fn.args[1])
+  else
+    for i, arg in ipairs(fn.args) do
+      code = code .. (i == 1 and "" or ", ") .. self:transform(arg)
+    end
+  end
+
+  code = code .. ")"
+
+  --(2) return
+  return code
+end
+
+--Transform a literal for list: [for].
+function ExpTrans:_transLiteralForList(term)
+  local code
+  local data = term.data
+
+  --(1) transform
+  if  #data.vars == 1 then
+    code = string.format(
+      "(%s).map((%s)=>%s)",
+      self:transform(data.iter),
+      data.vars[1],
+      self:transform(data.exp)
+    )
+  else
+    code = string.format(
+      "(entries(%s)).map(([%s, %s])=>%s)",
+      self:transform(data.iter),
+      data.vars[1],
+      data.vars[2],
+      self:transform(data.exp)
+    )
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a literal list.
+function ExpTrans:_transLiteralList(term)
+  local code
+
+  --(1) transform
+  code = "["
+
+  for ix, item in ipairs(term.data) do
+    code = code .. (ix == 1 and "" or ", ") .. self:transform(item)
+  end
+
+  code = code .. "]"
+
+  --(2) return
+  return code
+end
+
+--Transform a literal set.
+function ExpTrans:_transLiteralSet(term)
+  local code
+
+  --(1) transform
+  code = "dogma.set("
+
+  for ix, item in ipairs(term.data) do
+    code = code .. (ix == 1 and "" or ", ") .. self:transform(item)
+  end
+
+  code = code .. ")"
+
+  --(2) return
+  return code
+end
+
+--Transform a literal map.
+function ExpTrans:_transLiteralMap(term)
+  local code, cond
+
+  --(1) transform
+  --unconditional
+  code = "{"
+  cond = false
+
+  for i, e in ipairs(term.data) do
+    if e.cond then
+      cond = true
+    else
+      code = code .. (i == 1 and "" or ", ")
+
+      if e.name then
+        code = code .. string.format(
+          '[%s]: %s',
+          type(e.name) == "string" and string.format('"%s"', e.name) or self:transform(e.name),
+          self:transform(e.value)
+        )
+      else
+        code = code .. self:transform(e.value):gsub("^%.%.%.%(", "..."):gsub("%)$", "")
+      end
+    end
+  end
+
+  code = code .. "}"
+
+  --conditional
+  if cond then
+    code = "Object.assign({}, " .. code
+
+    for _, e in ipairs(term.data) do
+      if e.cond then
+        code = code .. string.format(
+          ', (%s ? {[%s]: %s} : {})',
+          self:transform(e.cond),
+          type(e.name) == "string" and string.format('"%s"', e.name) or self:transform(e.name),
+          self:transform(e.value)
+        )
+      end
+    end
+
+    code = code .. ")"
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a literal function.
+function ExpTrans:_transLiteralFn(term)
+  local strans = self._.trans._.stmtTrans
+
+  if term.data.catch then
+    return string.format(
+      "(%s(%s) => { try { %s%s%s%s%s%s%s } catch (_) { %s }})",
+      term.data.async and "async " or "",
+      strans:_transParams(term.data.params),
+      strans:_transReturnVarDef(term.data),
+      strans:_transParamsCheck(term.data.params),
+      strans:_transParamsTrans(term.data.params),
+      strans:_transParamsUnpacks(term.data.params),
+      strans:_transParamsByCopy(term.data.params),
+      strans:_transBody(term.data.body),
+      term.data.rvar and string.format(" return %s;", term.data.rvar == "self" and "this" or term.data.rvar) or "",
+      self:transform(term.data.catch)
+    )
+  else
+    return string.format(
+      "(%s(%s)%s => { %s%s%s%s%s%s%s%s })",
+      term.data.async and "async " or "",
+      strans:_transParams(term.data.params),
+      strans:_transSubparams(term.data.subparams or {}, {prefix = " => "}),
+      strans:_transReturnVarDef(term.data),
+      strans:_transParamsCheck(term.data.params),
+      strans:_transSubparamsCheck(term.data.subparams or {}),
+      strans:_transParamsTrans(term.data.params),
+      strans:_transParamsUnpacks(term.data.params),
+      strans:_transParamsByCopy(term.data.params),
+      strans:_transBody(term.data.body),
+      term.data.rvar and string.format(" return %s;", term.data.rvar == "self" and "this" or term.data.rvar) or ""
+    )
+  end
+end
+
+--Transform a non-terminal node.
+--
+--@param node:NonTerminal
+--@return string
+function ExpTrans:_transNonTerminal(node)
+  if node.subtype == NonTerminalType.OP then
+    return self:_transOp(node)
+  end
+end
+
+--Transform an operator node.
+--
+--@param node:Op
+--@return string
+function ExpTrans:_transOp(node)
+  if node.arity == "u" then
+    return self:_transUnaryOp(node)
+  elseif node.arity == "b" then
+    return self:_transBinOp(node)
+  elseif node.arity == "t" then
+    return self:_transTernaryOp(node)
+  elseif node.arity == "n" then
+    return self:_transNaryOp(node)
+  end
+end
+
+function ExpTrans:_transUnaryOp(node)
+  if node.op == "$" then
+    return "ps.env." .. node.child.data
+  elseif node.op == "." then
+    return "this." .. node.child.data
+  elseif node.op == ":" then
+    return "this._" .. node.child.data
+  elseif node.op == "!" then
+    return "this." .. self:getVisibPrefix("!") .. node.child.data
+  elseif node.op == "not" then
+    return string.format("!(%s)", self:_transNode(node.child))
+  elseif node.op == "~" then
+    return string.format("~(%s)", self:_transNode(node.child))
+  elseif node.op == "+" then
+    return string.format("+(%s)", self:_transNode(node.child))
+  elseif node.op == "-" then
+    return string.format("-(%s)", self:_transNode(node.child))
+  elseif node.op == "..." then
+    return string.format("...(%s)", self:_transNode(node.child))
+  elseif node.op == "<<<" then
+    return string.format("dogma.lshift(%s)", self:_transNode(node.child))
+  elseif node.op == ">>>" then
+    return string.format("dogma.rshift(%s)", self:_transNode(node.child))
+  end
+end
+
+function ExpTrans:_transBinOp(node)
+  local left, right = node.children[1], node.children[2]
+
+  if tablex.find({"+", "-", "*", "**", "/", "%", "==", "!=", "===", "!==", "<", "<=", ">", ">=", "<<", "<<"}, node.op) then
+    return "(" .. self:_transNode(left) .. node.op .. self:_transNode(right) .. ")"
+  elseif node.op == "&&" then
+    return self:_transAnd(node)
+  elseif node.op == "||" then
+    return self:_transOr(node)
+  elseif tablex.find({"=", "+=", "-=", "*=", "**=", "/=", "%=", "<<=", ">>=", "|=", "&=", "^="}, node.op) then
+    return self:_transAssign(node)
+  elseif node.op == "==~" then
+    return self:_transEnumEq(node)
+  elseif node.op == "!=~" then
+    return self:_transEnumNe(node)
+  elseif node.op == "==^" then
+    return self:_transDeepEq(node)
+  elseif node.op == "!=^" then
+    return self:_transDeepNe(node)
+  elseif node.op == "=~" then
+    return self:_transEnumAssign(node)
+  elseif node.op == "?=" then
+    return self:_transCondAssign(node)
+  elseif node.op == "??" then
+    return self:_transNullishCoalescing(node)
+  elseif node.op == ".=" then
+    return self:_transAssignWithPubProp(node)
+  elseif node.op == ":=" then
+    return self:_transConstAssign(node)
+  elseif node.op == ">>>" then
+    return string.format("dogma.rshift(%s, %s)", self:_transNode(left), self:_transNode(right))
+  elseif node.op == "<<<" then
+    return string.format("dogma.lshift(%s, %s)", self:_transNode(left), self:_transNode(right))
+  elseif node.op == "and" then
+    return "(" .. self:_transNode(left) .. "&&" .. self:_transNode(right) .. ")"
+  elseif node.op == "or" then
+    return "((" .. self:_transNode(left) .. ") || (" .. self:_transNode(right) .. "))"
+  elseif node.op == "?" then
+    return string.format("(%s != null ? %s.%s : null)", self:_transNode(left), self:_transNode(left), self:_transNode(right))
+  elseif tablex.find({".", ":", "!"}, node.op) then
+    if left.subtype == TerminalType.SUPER then
+      return string.format('dogma.super(this, "%s%s")', self:getVisibPrefix(node.op), self:_transNode(right))
+    else
+      return string.format("%s.%s%s", self:_transNode(left), self:getVisibPrefix(node.op), right.data)
+    end
+  elseif node.op == "is" then
+    return string.format("dogma.is(%s, %s)", self:_transNode(left), self:_transNode(right))
+  elseif node.op == "isnot" then
+    return string.format("dogma.isNot(%s, %s)", self:_transNode(left), self:_transNode(right))
+  elseif node.op == "in" then
+    return string.format("dogma.includes(%s, %s)", self:_transNode(right), self:_transNode(left))
+  elseif node.op == "notin" then
+    return string.format("!dogma.includes(%s, %s)", self:_transNode(right), self:_transNode(left))
+  elseif node.op == "like" then
+    return string.format("dogma.like(%s, %s)", self:_transNode(left), self:_transNode(right))
+  elseif node.op == "notlike" then
+    return string.format("dogma.notLike(%s, %s)", self:_transNode(left), self:_transNode(right))
+  elseif node.op == "[]" then
+    return string.format("dogma.getItem(%s, %s)", self:_transNode(left), self:_transNode(right))
+  elseif node.op == "?[]" then
+    return string.format("dogma.getOptionalItem(%s, %s)", self:_transNode(left), self:_transNode(right))
+  end
+end
+
+function ExpTrans:_transNullishCoalescing(op)
+  return string.format(
+    "(%s ?? %s)",
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transAnd(op)
+  return string.format(
+    'dogma.pevalAnd(() => {%s}, () => {return %s;})',
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transOr(op)
+  return string.format(
+    'dogma.pevalOr(() => {return %s;}, () => {return %s;})',
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transDeepEq(op)
+  return string.format(
+    'dogma.deepEq(%s, "%s")',
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transDeepNe(op)
+  return string.format(
+    '(!dogma.deepEq(%s, "%s"))',
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transEnumEq(op)
+  return string.format(
+    'dogma.enumEq(%s, "%s")',
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transEnumNe(op)
+  return string.format(
+    '(!dogma.enumEq(%s, "%s"))',
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transEnumAssign(op)
+  return string.format(
+    '(%s = dogma.enumGet(%s, "%s"))',
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[1]),
+    self:_transNode(op.children[2])
+  )
+end
+
+function ExpTrans:_transCondAssign(op)
+  local left, right = op.children[1], op.children[2]
+  local code
+
+  --(1) transform
+  if left.arity == "b" and left.op == "[]" then
+    code = string.format(
+      'dogma.setItem("=", %s, %s, dogma.getItem(%s, %s) ?? %s)',
+      self:_transNode(left.children[1]),
+      self:_transNode(left.children[2]),
+      self:_transNode(left.children[1]),
+      self:_transNode(left.children[2]),
+      self:_transNode(right)
+    )
+  else
+    code = string.format(
+      "(%s = %s ?? %s)",
+      self:_transNode(left),
+      self:_transNode(left),
+      self:_transNode(right)
+    )
+  end
+
+  --(2) return
+  return code
+end
+
+function ExpTrans:_transAssign(op)
+  local left, right = op.children[1], op.children[2]
+  local code
+
+  --(1) transform
+  if left.op == "[]" then
+    code = string.format(
+      [[dogma.setItem("%s", %s, %s, %s)]],
+      op.op,
+      self:_transNode(left.children[1]),
+      self:_transNode(left.children[2]),
+      self:_transNode(right)
+    )
+  else
+    code = string.format("(%s%s%s)", self:_transNode(left), op.op, self:_transNode(right))
+  end
+
+  --(2) return
+  return code
+end
+
+function ExpTrans:_transConstAssign(op)
+  local left, right = op.children[1], op.children[2]
+  local code
+
+  --(1) transform
+  if left.arity == "u" and left.op == "." then
+    code = string.format(
+      [[Object.defineProperty(this, "%s", {value: %s, enum: true})]],
+      self:_transNode(left.child),
+      self:_transNode(right)
+    )
+  elseif left.arity == "b" and left.op == "." then
+    code = string.format(
+      [[Object.defineProperty(%s, "%s", {value: %s, enum: true})]],
+      self:_transNode(left.children[1]),
+      self:_transNode(left.children[2]),
+      self:_transNode(right)
+    )
+  elseif tablex.find({":", "!"}, left.op) then
+    if left.arity == "u" then
+      code = string.format(
+        [[Object.defineProperty(this, "%s%s", {value: %s})]],
+        self:getVisibPrefix(left.op),
+        left.child.data,
+        self:_transNode(right)
+      )
+    else
+      code = string.format(
+        [[Object.defineProperty(%s, "%s%s", {value: %s})]],
+        self:_transNode(left.children[1]),
+        self:getVisibPrefix(left.op),
+        left.children[2].data,
+        self:_transNode(right)
+      )
+    end
+  elseif left.op == "[]" then
+    code = string.format(
+      [[dogma.setItem("=", %s, %s, %s)]],
+      self:_transNode(left.children[1]),
+      self:_transNode(left.children[2]),
+      self:_transNode(right)
+    )
+  end
+
+  --(2) return
+  return code
+end
+
+function ExpTrans:_transAssignWithPubProp(op)
+  local left, right = op.children[1], op.children[2]
+  local code
+
+  --(1) transform
+  if left.arity == "u" then
+    code = string.format(
+      'Object.defineProperty(this, "_%s", {value: %s, writable: true});',
+      left.child.data,
+      self:_transNode(right)
+    )
+
+    code = code .. string.format(
+      'Object.defineProperty(this, "%s", {enum: true, get() { return this._%s; }})',
+      left.child.data,
+      left.child.data
+    )
+  end
+
+  --(2) return
+  return code
+end
+
+function ExpTrans:_transTernaryOp(op)
+  if op.op == "[]" then
+    return string.format(
+      "dogma.getSlice(%s, %s, %s)",
+      self:_transNode(op.children[1]),
+      self:_transNode(op.children[2]),
+      self:_transNode(op.children[3])
+    )
+  end
+end
+
+function ExpTrans:_transNaryOp(node)
+  if node.op == "()" then
+    return self:_transCallOp(node)
+  elseif node.op == "{}" then
+    return self:_transMPackOp(node)
+  elseif node.op == "[]" then
+    return self:_transLPackOp(node)
+  elseif node.op == ".{}" then
+    return self:_transUpdateOp(node)
+  end
+end
+
+function ExpTrans:_transCallOp(node)
+  --(1) get callee
+  local callee = self:_transNode(node.children[1])
+
+  --(2) get arguments
+  local positionals, nameds = "", ""
+
+  for i, arg in ipairs(node.children) do
+    if i > 1 then
+      if arg:isPositional() then
+        positionals = positionals .. (positionals == "" and "" or ", ") .. self:_transNode(arg.value.tree.root)
+      else
+        nameds = nameds .. (nameds == "" and "" or ", ") .. string.format(
+          "'%s': %s",
+          arg.name,
+          arg.value ~= nil and self:_transNode(arg.value.tree.root) or arg.name
+        )
+      end
+    end
+  end
+
+  --(3) return
+  local code = string.format("%s(%s", callee, positionals)
+
+  if nameds ~= "" then
+    code = code .. (positionals ~= "" and ", " or "") .. string.format("{%s}", nameds)
+  end
+
+  return code .. ")"
+end
+
+--list[*] or list[*,items].
+function ExpTrans:_transLPackOp(node)
+  local ops
+
+  --(1) transform
+  for ix, item in ipairs(node.children) do
+    if ix == 1 then
+      ops = self:_transNode(item)
+    else
+      ops = ops .. ", " .. self:transform(item)
+    end
+  end
+
+  --(2) return
+  return string.format("dogma.cloneL(%s)", ops)
+end
+
+--map{*,fields} or map{fields}.
+function ExpTrans:_transMPackOp(node)
+  local code
+
+  --(1) transform
+  if #node.children > 1 and (node.children[2].name == "*" or node.children[2].name == "**") then
+    local method = (node.children[2].name == "*" and "clone" or "copyAndUpdate")
+    local proj = ""
+    local rm = ""
+    local rename = ""
+    local dup = ""
+
+    for i, item in ipairs(node.children) do
+      if i >= 3 then  --1st: the map to clone; 2nd: *
+        if item.name then
+          local prefix = self:getVisibPrefix(item.visib)
+
+          if item.remove then
+            rm = rm .. (rm == "" and "" or ", ") .. string.format('"%s"', item.name)
+          elseif item.rename then
+            rename = rename .. (rename == "" and "" or ", ") .. string.format('"%s": "%s"', item.value, item.name)
+          else
+            proj = proj .. (proj == "" and "" or ", ") .. string.format(
+              '"%s%s": %s',
+              prefix,
+              item.name,
+              self:transform(item.value)
+            )
+          end
+        else
+          dup = (dup == "" and "" or ", ") .. self:transform(item.value):gsub("^dogma.pack%(", ""):gsub("%)$", "")
+        end
+      end
+    end
+
+    code = string.format(
+      "dogma.%s(%s, {%s}, {%s}, [%s], [%s])",
+      method,
+      self:_transNode(node.children[1]),
+      proj,
+      rename,
+      rm,
+      dup
+    )
+  else
+    code = ""
+
+    for i, item in ipairs(node.children) do
+      local prefix = self:getVisibPrefix(item.visib)
+
+      if i == 1 then
+        code = code .. self:_transNode(item)
+      else
+        if item.name then
+          if item.value == nil then
+            code = code .. string.format(', "%s%s"', prefix, item.name)
+          else
+            code = code .. string.format(
+              ', {name: "%s%s", value: %s}',
+              prefix,
+              item.name,
+              self:transform(item.value)
+            )
+          end
+        else
+          code = code .. string.format(
+            ', {value: %s}',
+            self:transform(item.value):gsub("^dogma.pack%(", ""):gsub("%)$", "")
+          )
+        end
+      end
+    end
+
+    code = string.format("dogma.pack(%s)", code)
+  end
+
+  --(2) return
+  return code
+end
+
+function ExpTrans:_transUpdateOp(op)
+  local code
+
+  --(1) transform
+  code = "dogma.update(" .. self:_transNode(op.children[1])
+
+  for _, fld in ipairs(table.pack(table.unpack(op.children, 2))) do
+    if fld.type then
+      code = code .. string.format(
+        ', {name: [%s], visib: "%s", assign: "%s", value: %s, type: "%s"}',
+        table.concat(tablex.map(function(name) return string.format('"%s"', name) end, fld.name), ", "),
+        op.visib,
+        fld.assign or "=",
+        fld.value and self:transform(fld.value) or fld.name,
+        fld.type
+      )
+    else
+      code = code .. string.format(
+        ', {name: "%s", visib: "%s", assign: "%s", value: %s}',
+        (op.visib == "!" and self:getVisibPrefix(op.visib) or "") .. fld.name,
+        op.visib,
+        fld.assign or "=",
+        fld.value and self:transform(fld.value) or fld.name
+      )
+    end
+  end
+
+  code = code .. ")"
+
+  --(2) return
+  return code
+end
+
+--Transform a XML expression.
+--
+--@param exp:XmlExp Expression to transform.
+function ExpTrans:_transXmlExp(exp)
+  return "(" .. self:_transLiteralXml(exp.tree.root) .. ")"
+end
+
+--Transform a literal XML.
+function ExpTrans:_transLiteralXml(term)
+  local code
+
+  --(1) transform
+  code = "<" .. term.data.element
+
+  for _, i in ipairs(term.data.props) do
+    if i.name then
+      code = code .. string.format(" %s={%s}", i.name, self:transform(i.value))
+    else
+      code = code .. string.format(" {...%s}", self:_transNode(i.value))
+    end
+  end
+
+  code = code .. ">"
+
+  for _, item in ipairs(term.data.content) do
+    if item.type == SentType.EXP then
+      code = code .. string.format("{%s}", self:transform(item))
+    elseif item.type == NodeType.TERMINAL and item.subtype == TerminalType.SUBEXP then
+      code = code .. string.format("{%s}", self:_transNode(item))
+    else
+      code = code .. self:_transLiteralXml(item)
+    end
+  end
+
+  code = code .. string.format("</%s>", term.data.element)
+
+  --(2) return
+  return code
+end

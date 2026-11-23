@@ -1,0 +1,96 @@
+{
+  "kind": "lib",
+  "name": "lua-bz2",
+  "versions": {
+    "0.2.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "bz2/ltn12.lua": {
+          "sha256": "d5ec0161d09dc1d921d65c57176eafd9f873570b160c7aa2b150cb03d53c7688",
+          "size": 1763,
+          "url": "blob:d5ec0161d09dc1d921d65c57176eafd9f873570b160c7aa2b150cb03d53c7688"
+        }
+      },
+      "homepage": "https://github.com/lunarmodules/lua-bz2",
+      "license": "ISC",
+      "luarocks": {
+        "date": "Mon, 31 Aug 2026 10:08:29 GMT",
+        "rockspec": {
+          "date": "Mon, 31 Aug 2026 10:08:29 GMT",
+          "sha256": "94531816f6599bd461f564c75ad3376e710dc4e8e784ce120c0cd7830252dd37",
+          "size": 1430
+        },
+        "src": {
+          "date": "Mon, 31 Aug 2026 10:08:29 GMT",
+          "sha256": "53ac27cd9128d16686f33bc341711ad333e91e90e26ced4856f84ca1e8bebb11",
+          "size": 36483,
+          "url": "https://luarocks.org/lua-bz2-0.2.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "bz2",
+        "bz2.ltn12"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "BZ2"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "BZ2": {
+              "library": "bz2"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "COMPAT53_PREFIX=compat53"
+              ],
+              "incdirs": [
+                "$(BZ2_INCDIR)"
+              ],
+              "libdirs": [
+                "$(BZ2_LIBDIR)"
+              ],
+              "libraries": [
+                "bz2"
+              ],
+              "name": "bz2",
+              "sources": [
+                "lbz.c",
+                "lbz2_common.c",
+                "lbz2_file_reader.c",
+                "lbz2_file_writer.c",
+                "lbz2_stream.c",
+                "compat-5.3.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 31 Aug 2026 10:08:29 GMT",
+        "sha256": "53ac27cd9128d16686f33bc341711ad333e91e90e26ced4856f84ca1e8bebb11",
+        "size": 36483,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-bz2-0.2.3-1.src.rock"
+      },
+      "size": 1763,
+      "summary": "A Lua binding to Julian Seward's libbzip2",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

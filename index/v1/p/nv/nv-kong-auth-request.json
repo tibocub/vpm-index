@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "nv-kong-auth-request",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-auth-request/access.lua": {
+          "sha256": "04776af62c4f143d9fbf69d2df05be24d5b04a6f604133adc8a85a3094d7cc35",
+          "size": 1418,
+          "url": "https://raw.githubusercontent.com/novisto/kong-auth-request/a50307a9d05ad6e8402f07519223373dd4685852/src/access.lua"
+        },
+        "kong/plugins/kong-auth-request/handler.lua": {
+          "sha256": "9d2ab06f47540a7e19b630c8a06220d6939cfcda66643af49465001d57760206",
+          "size": 262,
+          "url": "https://raw.githubusercontent.com/novisto/kong-auth-request/a50307a9d05ad6e8402f07519223373dd4685852/src/handler.lua"
+        },
+        "kong/plugins/kong-auth-request/schema.lua": {
+          "sha256": "ba89de82880b265c2a7af7e60d956dd1e499857da538b75999552d20bf3a6c66",
+          "size": 619,
+          "url": "https://raw.githubusercontent.com/novisto/kong-auth-request/a50307a9d05ad6e8402f07519223373dd4685852/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Wed, 25 Jun 2025 17:14:42 GMT",
+        "rockspec": {
+          "date": "Wed, 25 Jun 2025 17:14:42 GMT",
+          "sha256": "25bd8458b77759ca4c17318dc1cb055cb0ff44ae35bd3150a869eab79a39c6c6",
+          "size": 589
+        },
+        "src": {
+          "date": "Wed, 25 Jun 2025 17:14:43 GMT",
+          "sha256": "33c0555007f0eff71a2963849c40426666445bd0e007f2ce762886e4a653a25e",
+          "size": 5086,
+          "url": "https://luarocks.org/nv-kong-auth-request-0.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-auth-request.access",
+        "kong.plugins.kong-auth-request.handler",
+        "kong.plugins.kong-auth-request.schema"
+      ],
+      "origin": {
+        "commit": "a50307a9d05ad6e8402f07519223373dd4685852",
+        "ref": "0.1.0",
+        "type": "git",
+        "url": "https://github.com/novisto/kong-auth-request"
+      },
+      "size": 2299,
+      "summary": "A Kong plugin that make GET auth request before proxying the original. Maintained by Novisto.",
+      "undeclared_requires": [
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

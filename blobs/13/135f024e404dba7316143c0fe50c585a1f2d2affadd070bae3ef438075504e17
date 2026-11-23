@@ -1,0 +1,414 @@
+local _module_0 = { }
+local string = require('string')
+local table = require('table')
+local inspect = require('inspect')
+local M = require('moses')
+local url = require('net.url')
+local count_segments
+count_segments = function(plain_route)
+	local _, n = string.gsub(plain_route, '/', '')
+	return n
+end
+local plain_prefix_len
+plain_prefix_len = function(plain_route, vars)
+	if #vars == 0 then
+		return #plain_route
+	end
+	local i = string.find(plain_route, '/[', 1, true)
+	if not i then
+		return #plain_route
+	end
+	return i + 1
+end
+local get_default_view
+get_default_view = function(method, tpls)
+	local tpl
+	if tpls ~= nil then
+		tpl = tpls[method]
+	end
+	if not tpl and method == 'head' then
+		if tpls ~= nil then
+			tpl = tpls['get']
+		end
+	end
+	return tpl
+end
+local _anon_func_0 = function(ori_req, req)
+	if req ~= nil then
+		return req
+	else
+		return ori_req
+	end
+end
+local _anon_func_1 = function(ori_res, res)
+	if res ~= nil then
+		return res
+	else
+		return ori_res
+	end
+end
+local make_next_fn
+make_next_fn = function(current, next)
+	return function(ori_req, ori_res)
+		local next_thunk
+		next_thunk = function(req, res)
+			return next(_anon_func_0(ori_req, req), _anon_func_1(ori_res, res))
+		end
+		return current(ori_req, ori_res, next_thunk)
+	end
+end
+local make_handler
+make_handler = function(handler, mws)
+	do
+		local _tab_0 = { }
+		local _idx_0 = 1
+		for _key_0, _value_0 in pairs(mws) do
+			if _idx_0 == _key_0 then
+				_tab_0[#_tab_0 + 1] = _value_0
+				_idx_0 = _idx_0 + 1
+			else
+				_tab_0[_key_0] = _value_0
+			end
+		end
+		mws = _tab_0
+	end
+	local nxt = handler
+	for i = #mws, 1, -1 do
+		nxt = make_next_fn(mws[i], nxt)
+	end
+	return nxt
+end
+local make_match_fn
+make_match_fn = function(handler, supported_methods, state, tpls)
+	local plain_route, pat_route, mws, vars = state.plain_route, state.pat_route, state.mws, state.vars
+	local compiled_handler = make_handler(handler, mws)
+	return function(method, uri)
+		if #vars == 0 then
+			if uri.path == plain_route then
+				return {
+					plain_route = plain_route,
+					pat_route = pat_route,
+					num_segments = count_segments(plain_route),
+					num_vars = 0,
+					len_prefix = plain_prefix_len(plain_route, vars),
+					default_view = get_default_view(method, tpls),
+					handler = compiled_handler,
+					supported_methods = supported_methods
+				}
+			else
+				return nil
+			end
+		end
+		local ms = {
+			string.match(uri.path, "^" .. tostring(pat_route) .. "$")
+		}
+		if #ms > 0 then
+			local var_hash = M.map(M.zip(vars, ms), function(tup)
+				return tup[1], tup[2]
+			end)
+			return {
+				plain_route = plain_route,
+				pat_route = pat_route,
+				num_segments = count_segments(plain_route),
+				num_vars = #vars,
+				len_prefix = plain_prefix_len(plain_route, vars),
+				default_view = get_default_view(method, tpls),
+				vars = var_hash,
+				handler = compiled_handler,
+				supported_methods = supported_methods
+			}
+		else
+			return nil
+		end
+	end
+end
+local walk_routes
+walk_routes = function(node, state, router)
+	local plain_route, pat_route, mws, vars = state.plain_route, state.pat_route, state.mws, state.vars
+	if plain_route == '/' then
+		plain_route, pat_route = '', ''
+	end
+	plain_route = plain_route .. "/" .. tostring(node.segment)
+	pat_route = pat_route .. "/" .. tostring(node.pattern)
+	if node.pattern_var then
+		vars[#vars + 1] = node.pattern_var
+	end
+	if node.mws then
+		local _tab_0 = { }
+		local _idx_0 = #_tab_0 + 1
+		for _index_0 = 1, #mws do
+			local _value_0 = mws[_index_0]
+			_tab_0[_idx_0] = _value_0
+			_idx_0 = _idx_0 + 1
+		end
+		local _obj_0 = node.mws
+		local _idx_1 = #_tab_0 + 1
+		for _index_0 = 1, #_obj_0 do
+			local _value_0 = _obj_0[_index_0]
+			_tab_0[_idx_1] = _value_0
+			_idx_1 = _idx_1 + 1
+		end
+		mws = _tab_0
+	end
+	local top_level_mws = nil
+	if plain_route == '/' then
+		top_level_mws = mws
+		if #mws > 0 then
+			mws = { }
+		end
+	end
+	local new_state = nil
+	if node.handlers or #node.children > 0 then
+		new_state = {
+			plain_route = plain_route,
+			pat_route = pat_route,
+			mws = mws,
+			vars = vars
+		}
+	end
+	if node.handlers then
+		local supported_methods
+		do
+			local _accum_0 = { }
+			local _len_0 = 1
+			for k in pairs(node.handlers) do
+				_accum_0[_len_0] = k
+				_len_0 = _len_0 + 1
+			end
+			supported_methods = _accum_0
+		end
+		local last_matcher = nil
+		for method, handler in pairs(node.handlers) do
+			local matcher = make_match_fn(handler, supported_methods, new_state, node.templates)
+			if router[method] == nil then
+				router[method] = { }
+			end
+			do
+				local _obj_0 = router[method]
+				_obj_0[#_obj_0 + 1] = matcher
+			end
+			last_matcher = matcher
+		end
+		local _update_0 = 'all'
+		if router[_update_0] == nil then
+			router[_update_0] = { }
+		end
+		local _obj_0 = router['all']
+		_obj_0[#_obj_0 + 1] = last_matcher
+	end
+	local _list_0 = node.children
+	for _index_0 = 1, #_list_0 do
+		local child = _list_0[_index_0]
+		walk_routes(child, new_state, router)
+	end
+	return top_level_mws
+end
+local match_haystack
+match_haystack = function(haystack, method, uri)
+	local matches
+	do
+		local _accum_0 = { }
+		local _len_0 = 1
+		for _index_0 = 1, #haystack do
+			local matcher = haystack[_index_0]
+			local _continue_0 = false
+			repeat
+				local m = matcher(method, uri)
+				if not m then
+					_continue_0 = true
+					break
+				end
+				_accum_0[_len_0] = m
+				_len_0 = _len_0 + 1
+				_continue_0 = true
+			until true
+			if not _continue_0 then
+				break
+			end
+		end
+		matches = _accum_0
+	end
+	local best_match = nil
+	for _index_0 = 1, #matches do
+		local m = matches[_index_0]
+		if not best_match or m.num_segments > best_match.num_segments then
+			best_match = m
+		else
+			if m.num_segments == best_match.num_segments then
+				if m.num_vars < best_match.num_vars then
+					best_match = m
+				else
+					if m.num_vars == best_match.num_vars then
+						if m.len_prefix > best_match.len_prefix then
+							best_match = m
+						end
+					end
+				end
+			end
+		end
+	end
+	return best_match
+end
+local router_normalize
+router_normalize = function(self, req)
+	local scheme = req.is_https and 'https' or 'http'
+	local host
+	do
+		local _exp_0 = req.host
+		if _exp_0 ~= nil then
+			host = _exp_0
+		else
+			host = ''
+		end
+	end
+	return M.tap(M.result(url.parse(scheme .. '://' .. host .. req.raw_uri), 'normalize'), function(uri)
+		if uri.path ~= '/' and string.sub(uri.path, -1) == '/' then
+			uri.path = string.sub(uri.path, 1, -2)
+		end
+	end)
+end
+local router_not_found
+router_not_found = function(self, req, res)
+	res.status = 404
+	return res:write_text('Not found')
+end
+local router_method_not_allowed
+router_method_not_allowed = function(self, req, res, supported_methods)
+	res.status = 405
+	res.headers.allow = table.concat(supported_methods, ', ')
+	return res:write_text('Method not allowed')
+end
+local _anon_func_2 = function(self)
+	local _exp_0 = self['all']
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return { }
+	end
+end
+local router_handler
+router_handler = function(self, req, res)
+	local method = req.method
+	local uri = self:normalize(req)
+	req.parsed_uri = uri
+	local haystack
+	do
+		local _exp_0 = self[method]
+		if _exp_0 ~= nil then
+			haystack = _exp_0
+		else
+			haystack = { }
+		end
+	end
+	if self.any then
+		local _tab_0 = { }
+		local _idx_0 = 1
+		for _key_0, _value_0 in pairs(haystack) do
+			if _idx_0 == _key_0 then
+				_tab_0[#_tab_0 + 1] = _value_0
+				_idx_0 = _idx_0 + 1
+			else
+				_tab_0[_key_0] = _value_0
+			end
+		end
+		local _obj_0 = self.any
+		local _idx_1 = 1
+		for _key_0, _value_0 in pairs(_obj_0) do
+			if _idx_1 == _key_0 then
+				_tab_0[#_tab_0 + 1] = _value_0
+				_idx_1 = _idx_1 + 1
+			else
+				_tab_0[_key_0] = _value_0
+			end
+		end
+		haystack = _tab_0
+	end
+	if method == 'head' and self.get then
+		local _tab_0 = { }
+		local _idx_0 = 1
+		for _key_0, _value_0 in pairs(haystack) do
+			if _idx_0 == _key_0 then
+				_tab_0[#_tab_0 + 1] = _value_0
+				_idx_0 = _idx_0 + 1
+			else
+				_tab_0[_key_0] = _value_0
+			end
+		end
+		local _obj_0 = self.get
+		local _idx_1 = 1
+		for _key_0, _value_0 in pairs(_obj_0) do
+			if _idx_1 == _key_0 then
+				_tab_0[#_tab_0 + 1] = _value_0
+				_idx_1 = _idx_1 + 1
+			else
+				_tab_0[_key_0] = _value_0
+			end
+		end
+		haystack = _tab_0
+	end
+	local match = match_haystack(haystack, method, uri)
+	if match then
+		res.default_view = match.default_view
+		req.path_vars = match.vars
+		req.plain_route = match.plain_route
+		req.pat_route = match.pat_route
+		return match.handler(req, res)
+	else
+		match = match_haystack(_anon_func_2(self), method, uri)
+		if match then
+			table.sort(match.supported_methods)
+			return self:method_not_allowed(req, res, match.supported_methods)
+		else
+			return self:not_found(req, res)
+		end
+	end
+end
+local _anon_func_3 = function(normalize, router_normalize)
+	if normalize ~= nil then
+		return normalize
+	else
+		return router_normalize
+	end
+end
+local _anon_func_4 = function(not_found, router_not_found)
+	if not_found ~= nil then
+		return not_found
+	else
+		return router_not_found
+	end
+end
+local _anon_func_5 = function(method_not_allowed, router_method_not_allowed)
+	if method_not_allowed ~= nil then
+		return method_not_allowed
+	else
+		return router_method_not_allowed
+	end
+end
+local new
+new = function(routes_tree, opts)
+	local not_found, method_not_allowed, normalize
+	if opts then
+		not_found, method_not_allowed, normalize = opts.not_found, opts.method_not_allowed, opts.normalize
+	end
+	local router = {
+		normalize = _anon_func_3(normalize, router_normalize),
+		handler = router_handler,
+		not_found = _anon_func_4(not_found, router_not_found),
+		method_not_allowed = _anon_func_5(method_not_allowed, router_method_not_allowed)
+	}
+	local top_level_mws = walk_routes(routes_tree, {
+		plain_route = '',
+		pat_route = '',
+		mws = { },
+		vars = { }
+	}, router)
+	return make_handler((function()
+		local _base_0 = router
+		local _fn_0 = _base_0.handler
+		return _fn_0 and function(...)
+			return _fn_0(_base_0, ...)
+		end
+	end)(), top_level_mws)
+end
+_module_0["new"] = new
+return _module_0

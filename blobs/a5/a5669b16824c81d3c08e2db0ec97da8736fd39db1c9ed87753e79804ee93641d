@@ -1,0 +1,95 @@
+-- content: the result shapes a tool hands back to the model.
+
+local json = require("mcptk.json")
+
+---@class mcptk.Content one block of tool output
+---@field type string "text", "image", "audio" or "resource_link"
+
+---@alias mcptk.Result { content: mcptk.Content[], structuredContent: table|nil, isError: boolean|nil }
+
+---@class mcptk.content
+local M = {}
+
+---@param s any turned into a string
+---@return mcptk.Content
+function M.text(s)
+	return { type = "text", text = tostring(s) }
+end
+
+---@param data string base64, already encoded
+---@param mime string|nil defaults to "image/png"
+---@return mcptk.Content
+function M.image(data, mime)
+	return { type = "image", data = data, mimeType = mime or "image/png" }
+end
+
+---@param data string base64, already encoded
+---@param mime string|nil defaults to "audio/wav"
+---@return mcptk.Content
+function M.audio(data, mime)
+	return { type = "audio", data = data, mimeType = mime or "audio/wav" }
+end
+
+---Points the model at a resource instead of inlining it.
+---@param uri string
+---@param name string|nil
+---@param desc string|nil
+---@return mcptk.Content
+function M.link(uri, name, desc)
+	return { type = "resource_link", uri = uri, name = name,
+	    description = desc }
+end
+
+---A failed call the model can read and retry.
+---@param msg any
+---@return mcptk.Result
+function M.error(msg)
+	return { isError = true, content = { M.text(msg) } }
+end
+
+local function is_block(v)
+	return type(v) == "table" and type(v.type) == "string"
+end
+
+---Normalizes whatever a tool returned into a tools/call result.
+---
+---    string, number, boolean  one text block
+---    nil                      empty content
+---    a content block          wrapped in an array
+---    { content = ... }        passed through
+---    any other table          structuredContent, plus its JSON as text
+---@param v any whatever the tool returned
+---@return mcptk.Result
+function M.result(v)
+	if v == nil then
+		return { content = json.EMPTY_ARRAY }
+	end
+
+	local t = type(v)
+
+	if t == "string" or t == "number" or t == "boolean" then
+		return { content = { M.text(v) } }
+	end
+	if t ~= "table" then
+		return M.error("tool returned a " .. t)
+	end
+	if v.content ~= nil then
+		return v
+	end
+	if is_block(v) then
+		return { content = { v } }
+	end
+	if #v > 0 and is_block(v[1]) then
+		return { content = v }
+	end
+
+	local ok, encoded = pcall(json.encode, v)
+
+	if not ok then
+		return M.error("tool result is not encodable: " ..
+		    tostring(encoded))
+	end
+	return { content = { M.text(encoded) }, structuredContent = v }
+end
+
+return M

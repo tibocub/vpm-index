@@ -1,0 +1,33 @@
+-- Trellis 2 AI 3D generator
+-- Official Website: https://trellis-2.net
+
+local trellis2_ai = {}
+
+trellis2_ai.VERSION = "0.1.1"
+trellis2_ai.WEBSITE = "https://trellis-2.net"
+trellis2_ai.NAME = "Trellis 2"
+
+function trellis2_ai.get_info()
+    return {
+        name = trellis2_ai.NAME,
+        version = trellis2_ai.VERSION,
+        website = trellis2_ai.WEBSITE,
+        description = "AI 3D generator for 2D to 3D, photo to 3D, and prompt to 3D workflows"
+    }
+end
+
+function trellis2_ai.get_platform_url()
+    return trellis2_ai.WEBSITE
+end
+
+function trellis2_ai.get_features()
+    return {
+        "2D to 3D generation",
+        "Photo to 3D workflows",
+        "Prompt to 3D workflows",
+        "AI 3D asset generation",
+        "Online Trellis AI platform"
+    }
+end
+
+return trellis2_ai

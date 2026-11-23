@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-validation",
+  "versions": {
+    "1.2-9": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-validation/handler.lua": {
+          "sha256": "b84f115eb4a0aabd81c5df6164dd6644cd399d7a83f73eaf3c643fc7c10d07f8",
+          "size": 5784,
+          "url": "https://raw.githubusercontent.com/alisonjf/kong-jwt-validation-plugin/5715c8b8847f184bb113ee97c1f3357b55f90bb5/src/handler.lua"
+        },
+        "kong/plugins/jwt-validation/schema.lua": {
+          "sha256": "1661ae84968051f6661f51875e2b8f3db22784919167a0b4d5126b1ebfda2fde",
+          "size": 372,
+          "url": "https://raw.githubusercontent.com/alisonjf/kong-jwt-validation-plugin/5715c8b8847f184bb113ee97c1f3357b55f90bb5/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/alisonjf/kong-jwt-validation-plugin.git",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 01 Aug 2021 17:35:40 GMT",
+        "rockspec": {
+          "date": "Sun, 01 Aug 2021 17:35:40 GMT",
+          "sha256": "d6493a20e053d9b0eeb3e3de94a7b6ef235269644cb290517765df66629323c2",
+          "size": 639
+        },
+        "src": {
+          "date": "Sun, 01 Aug 2021 17:35:42 GMT",
+          "sha256": "bf6983a3ab618b4889a9b1158a7224a53ece417009c12c6ded5fc3287bb251fd",
+          "size": 5049,
+          "url": "https://luarocks.org/kong-plugin-jwt-validation-1.2-9.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-validation.handler",
+        "kong.plugins.jwt-validation.schema"
+      ],
+      "origin": {
+        "commit": "5715c8b8847f184bb113ee97c1f3357b55f90bb5",
+        "type": "git",
+        "url": "https://github.com/alisonjf/kong-jwt-validation-plugin.git"
+      },
+      "size": 6156,
+      "summary": "A plugin for Kong which adds a custom generated JWT expiration time, user id and user profile id claim validation",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

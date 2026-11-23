@@ -1,0 +1,58 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-inigo",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/inigo/handler.lua": {
+          "sha256": "adcc1416403bfa56d1daf2f3853330c93d446472070da1024d59f74c8d0f9fd3",
+          "size": 7569,
+          "url": "https://raw.githubusercontent.com/inigolabs/inigo-kong/aed46016e75a34fa5aedaace7ae3432eb685f5a3/kong/plugins/inigo/handler.lua"
+        },
+        "kong/plugins/inigo/schema.lua": {
+          "sha256": "9a03532a6dbb8866bd861c46992c7a95723153b30e4169c20d9aaa6d0d54fccb",
+          "size": 986,
+          "url": "https://raw.githubusercontent.com/inigolabs/inigo-kong/aed46016e75a34fa5aedaace7ae3432eb685f5a3/kong/plugins/inigo/schema.lua"
+        }
+      },
+      "homepage": "https://inigolabs.github.io/inigo-kong",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luajit": true,
+      "luarocks": {
+        "date": "Mon, 29 Apr 2024 11:26:50 GMT",
+        "rockspec": {
+          "date": "Mon, 29 Apr 2024 11:26:50 GMT",
+          "sha256": "3435aa5ba1b1c821b86c78d305e4a0c13c7dfd4ecc169428537729c9da8468fb",
+          "size": 1040
+        }
+      },
+      "modules": [
+        "kong.plugins.inigo.handler",
+        "kong.plugins.inigo.schema"
+      ],
+      "origin": {
+        "commit": "aed46016e75a34fa5aedaace7ae3432eb685f5a3",
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/inigolabs/inigo-kong.git"
+      },
+      "size": 8555,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

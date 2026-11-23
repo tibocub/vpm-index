@@ -1,0 +1,53 @@
+--imports
+local TerminalType = require("dogma.syn.TerminalType")
+local LiteralRoutine = require("dogma.syn._.LiteralRoutine")
+
+--A literal function node.
+local LiteralFn = {}
+LiteralFn.__index = LiteralFn
+setmetatable(LiteralFn, {__index = LiteralRoutine})
+package.loaded[...] = LiteralFn
+
+--Constructor.
+function LiteralFn.new(ln, col, async, params, subparams, rtype, rvar, catch, body)
+  --(1) create
+  local self = setmetatable(
+    LiteralRoutine.new(TerminalType.FN, ln, col, async, params, catch, body),
+    LiteralFn
+  )
+
+  self.data.subparams = subparams or {}
+  self.data.rtype = rtype
+  self.data.rvar = rvar
+
+  --(2) return
+  return self
+end
+
+--@override
+function LiteralFn:__tostring()
+  local desc
+
+  if self.data.async then
+    desc = "async fn("
+  else
+    desc = "fn("
+  end
+
+  for i, p in ipairs(self.data.params) do
+    desc = desc .. (i == 1 and "" or ", ") .. p.name
+  end
+  desc = desc .. ")"
+
+  if self.data.catch then
+    desc = desc .. " => " .. tostring(self.data.catch)
+  end
+
+  desc = desc .. "{"
+  for i, s in ipairs(self.data.body) do
+    desc = desc .. (i == 1 and "" or "; ") .. tostring(s)
+  end
+  desc = desc .. "}"
+
+  return desc
+end

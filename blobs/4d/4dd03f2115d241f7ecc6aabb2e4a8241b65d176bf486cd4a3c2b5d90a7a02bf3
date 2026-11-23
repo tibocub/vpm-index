@@ -1,0 +1,21 @@
+-- mytestpkg.lua
+-- usage : local Math = require 'mytestpkg'
+local Math = {}
+
+Math.sin = {}
+
+-- Function to compute sine of an angle given in degrees
+function Math.sin.deg(x)
+  return math.sin(x * math.pi / 180) -- Convert degrees to radians and calculate sine
+end
+
+-- Function to compute sine of an angle given in radians
+function Math.sin.rad(x)
+  return math.sin(x) -- Simply use math.sin for radians
+end
+
+-- print(Math.sin.deg(30))              -- Should output 0.5
+-- print(30 * math.pi / 180)            -- Should output 0.5235987755983
+-- print(Math.sin.rad(0.5235987755983)) -- Should 0.5
+
+return Math

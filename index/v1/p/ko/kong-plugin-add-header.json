@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-add-header",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [
+        "classic 0.1.0-1",
+        "kong-lib-logger >= 0.3.0-1"
+      ],
+      "files": {
+        "kong/plugins/add-header/handler.lua": {
+          "sha256": "5200f5332c6ef3d2de4fc2af86300cf593cfd933673f21b24f42e64a8ab81c2f",
+          "size": 479,
+          "url": "blob:5200f5332c6ef3d2de4fc2af86300cf593cfd933673f21b24f42e64a8ab81c2f"
+        },
+        "kong/plugins/add-header/schema.lua": {
+          "sha256": "11a4c687ea154e0cb2d08e42a635b2603995a9ade37c54236b8237471aaff78f",
+          "size": 344,
+          "url": "blob:11a4c687ea154e0cb2d08e42a635b2603995a9ade37c54236b8237471aaff78f"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-add-header",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 20 Mar 2020 14:57:49 GMT",
+        "rockspec": {
+          "date": "Fri, 20 Mar 2020 14:57:49 GMT",
+          "sha256": "7b13f28031b00aff0d586a9b81ecc2f5e74937cfb0e3d2d23bd06acf16c91234",
+          "size": 655
+        },
+        "src": {
+          "date": "Fri, 20 Mar 2020 14:57:51 GMT",
+          "sha256": "1c99e374d52e0b14b2a7a2ae4357500eaf8c4657cd58b33aea4763124ab2a653",
+          "size": 11377,
+          "url": "https://luarocks.org/kong-plugin-add-header-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.add-header.handler",
+        "kong.plugins.add-header.schema"
+      ],
+      "origin": {
+        "date": "Fri, 20 Mar 2020 14:57:51 GMT",
+        "sha256": "1c99e374d52e0b14b2a7a2ae4357500eaf8c4657cd58b33aea4763124ab2a653",
+        "size": 11377,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-add-header-1.0.1-1.src.rock"
+      },
+      "size": 823,
+      "summary": "Header setter for Kong API gateway plugins.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

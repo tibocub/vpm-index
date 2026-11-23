@@ -1,0 +1,317 @@
+local ffi = require "ffi"
+local libcurl = require "luajit-curl"
+
+ffi.cdef("struct upload_status { size_t bytes_read; char *pt; };")
+
+ffi.cdef("size_t strlen(const char *s);")
+
+ffi.cdef("void *memcpy(void *buf1, const void *buf2, size_t n);")
+
+ffi.cdef[[
+enum { CURLOPT_MIMEPOST = 10000 + 269 };
+
+enum { CURL_ZERO_TERMINATED = ((size_t) -1) };
+
+/* Mime/form handling support. */
+typedef struct curl_mime      curl_mime;      /* Mime context. */
+typedef struct curl_mimepart  curl_mimepart;  /* Mime part context. */
+
+/*
+ * NAME curl_mime_init()
+ *
+ * DESCRIPTION
+ *
+ * Create a mime context and return its handle. The easy parameter is the
+ * target handle.
+ */
+extern curl_mime *curl_mime_init(CURL *easy);
+
+/*
+ * NAME curl_mime_free()
+ *
+ * DESCRIPTION
+ *
+ * release a mime handle and its substructures.
+ */
+extern void curl_mime_free(curl_mime *mime);
+
+/*
+ * NAME curl_mime_addpart()
+ *
+ * DESCRIPTION
+ *
+ * Append a new empty part to the given mime context and return a handle to
+ * the created part.
+ */
+extern curl_mimepart *curl_mime_addpart(curl_mime *mime);
+
+/*
+ * NAME curl_mime_name()
+ *
+ * DESCRIPTION
+ *
+ * Set mime/form part name.
+ */
+extern CURLcode curl_mime_name(curl_mimepart *part, const char *name);
+
+/*
+ * NAME curl_mime_filename()
+ *
+ * DESCRIPTION
+ *
+ * Set mime part remote file name.
+ */
+extern CURLcode curl_mime_filename(curl_mimepart *part,
+                                        const char *filename);
+
+/*
+ * NAME curl_mime_type()
+ *
+ * DESCRIPTION
+ *
+ * Set mime part type.
+ */
+extern CURLcode curl_mime_type(curl_mimepart *part, const char *mimetype);
+
+/*
+ * NAME curl_mime_encoder()
+ *
+ * DESCRIPTION
+ *
+ * Set mime data transfer encoder.
+ */
+extern CURLcode curl_mime_encoder(curl_mimepart *part,
+                                       const char *encoding);
+
+/*
+ * NAME curl_mime_data()
+ *
+ * DESCRIPTION
+ *
+ * Set mime part data source from memory data,
+ */
+extern CURLcode curl_mime_data(curl_mimepart *part,
+                                    const char *data, size_t datasize);
+
+/*
+ * NAME curl_mime_filedata()
+ *
+ * DESCRIPTION
+ *
+ * Set mime part data source from named file.
+ */
+extern CURLcode curl_mime_filedata(curl_mimepart *part,
+                                        const char *filename);
+
+/*
+ * NAME curl_mime_data_cb()
+ *
+ * DESCRIPTION
+ *
+ * Set mime part data source from callback function.
+ */
+extern CURLcode curl_mime_data_cb(curl_mimepart *part,
+                                       curl_off_t datasize,
+                                       curl_read_callback readfunc,
+                                       curl_seek_callback seekfunc,
+                                       curl_free_callback freefunc,
+                                       void *arg);
+
+/*
+ * NAME curl_mime_subparts()
+ *
+ * DESCRIPTION
+ *
+ * Set mime part data source from subparts.
+ */
+extern CURLcode curl_mime_subparts(curl_mimepart *part,
+                                        curl_mime *subparts);
+/*
+ * NAME curl_mime_headers()
+ *
+ * DESCRIPTION
+ *
+ * Set mime part headers.
+ */
+extern CURLcode curl_mime_headers(curl_mimepart *part,
+                                       struct curl_slist *headers,
+                                       int take_ownership);
+]]
+
+local _M = {}
+
+_M.index = _M
+
+function payload_source(ptr, size, nmemb, userp)
+	local upload_ctx = ffi.cast("struct upload_status*", userp)
+
+	local room = size * nmemb
+
+	if size == 0 or nmemb == 0 or (size * nmemb) < 1 then
+		return 0
+	end
+
+	local addr = ffi.cast("const char*", upload_ctx.pt)
+
+	local data = addr + upload_ctx.bytes_read
+
+	if data then
+		local len = ffi.C.strlen(data)
+
+		if room < len then
+			len = room
+		end
+
+		ffi.C.memcpy(ptr, data, len)
+
+		upload_ctx.bytes_read = upload_ctx.bytes_read + len
+
+		return len
+	end
+
+	return 0
+end
+
+function send(self, msg)
+	local curl = libcurl.curl_easy_init()
+
+	if curl == nil then
+		error("curl is nil")
+	end
+
+	libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_VERBOSE, false)
+
+	--libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_SSL_VERIFYPEER, false);
+
+	--libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_SSL_VERIFYHOST, false);
+
+	if msg.mailer.options["auth_type"] == "plain" or msg.mailer.options["auth_type"] == "login" then
+		libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_USERNAME, msg.mailer.options["username"]);
+
+		libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_PASSWORD, msg.mailer.options["password"]);
+
+		libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_LOGIN_OPTIONS, "AUTH=PLAIN");
+	end
+
+	local url = ""
+
+	if msg.mailer.options.ssl then
+		url = url .. "smtps://"
+	else
+		url = url .. "smtp://"
+	end
+
+	url = url .. msg.mailer.options.host .. ":" .. msg.mailer.options.port
+
+	libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_URL, url)
+
+	libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_MAIL_FROM, string.gsub(msg.data.from, "^From ", ""))
+
+	local recipients = ffi.new("struct curl_slist *")
+
+	for _, v in ipairs(msg.data.to or {}) do
+		v = string.gsub(v, "^To ", "")
+		recipients = libcurl.curl_slist_append(recipients, v)
+	end
+
+	for _, v in ipairs(msg.data.cc or {}) do
+		v = string.gsub(v, "^Cc ", "")
+		recipients = libcurl.curl_slist_append(recipients, v)
+	end
+
+	for _, v in ipairs(msg.data.bcc or {}) do
+		v = string.gsub(v, "^Bcc ", "")
+		recipients = libcurl.curl_slist_append(recipients, v)
+	end
+
+	libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_MAIL_RCPT, recipients)
+
+	local headers = ffi.new("struct curl_slist *")
+
+	for k, v in pairs(msg.data.headers) do
+		headers = libcurl.curl_slist_append(headers, k .. ": " .. v)
+	end
+
+	libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_HTTPHEADER, headers)
+
+	local mime = libcurl.curl_mime_init(curl)
+
+	local alt = libcurl.curl_mime_init(curl)
+
+	local part
+
+	if msg.data.html then
+		part = libcurl.curl_mime_addpart(alt)
+		libcurl.curl_mime_data(part, msg.data.html, #msg.data.html)
+		libcurl.curl_mime_type(part, "text/html")
+	end
+
+	if msg.data.text then
+		part = libcurl.curl_mime_addpart(alt)
+		libcurl.curl_mime_data(part, msg.data.text, #msg.data.text)
+		libcurl.curl_mime_type(part, "text/plain")
+	end
+
+	part = libcurl.curl_mime_addpart(mime)
+	libcurl.curl_mime_subparts(part, alt)
+	libcurl.curl_mime_type(part, "multipart/alternative")
+	local slist = libcurl.curl_slist_append(nil, "Content-Disposition: inline")
+	libcurl.curl_mime_headers(part, slist, 1)
+
+	for _, v in ipairs(msg.data.attachments or {}) do
+		part = libcurl.curl_mime_addpart(mime)
+		libcurl.curl_mime_data(part, v.content, #v.content)
+		libcurl.curl_mime_filename(part, v.filename)
+		libcurl.curl_mime_type(part, v.content_type)
+	end
+
+	libcurl.curl_easy_setopt(curl, libcurl.CURLOPT_MIMEPOST, mime);
+
+
+
+	local res = libcurl.curl_easy_perform(curl)
+
+	if res ~= libcurl.CURLE_OK then
+		local err = string.format("curl_easy_perform() failed: %s\n", ffi.string(libcurl.curl_easy_strerror(res)))
+
+		libcurl.curl_slist_free_all(headers)
+
+		libcurl.curl_slist_free_all(recipients)
+
+		libcurl.curl_easy_cleanup(curl)
+
+		libcurl.curl_mime_free(mime)
+
+		curl = nil
+
+		error(err)
+	end
+
+	libcurl.curl_slist_free_all(headers)
+
+	libcurl.curl_slist_free_all(recipients)
+
+	libcurl.curl_easy_cleanup(curl)
+
+	libcurl.curl_mime_free(mime)
+
+	curl = nil
+end
+
+function _M.new(mail)
+	local self = setmetatable(_M, {})
+
+	return self, nil
+end
+
+function _M:send(msg)
+	local ok, err = pcall(send, self, msg)
+
+	if not ok then
+		return false, err
+	end
+
+	return true
+end
+
+return _M

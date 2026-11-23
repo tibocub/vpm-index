@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-s3-presign",
+  "versions": {
+    "0.3.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-http >= 0.17"
+      ],
+      "files": {
+        "kong/plugins/s3-presign/handler.lua": {
+          "sha256": "8da74452bae042e796b74dcb217e75b5f1e66131c61bebe86330c26ecf989470",
+          "size": 11068,
+          "url": "https://raw.githubusercontent.com/adamtheapiguy/kong-plugin-s3-presign/928ca260b081ca5a7616e418d4c997dd04f1fb5e/kong/plugins/s3-presign/handler.lua"
+        },
+        "kong/plugins/s3-presign/schema.lua": {
+          "sha256": "d733f382f488fd20bb50ae2ce2de807d57524af1d0fe5830a4e8f65692855b4b",
+          "size": 4271,
+          "url": "https://raw.githubusercontent.com/adamtheapiguy/kong-plugin-s3-presign/928ca260b081ca5a7616e418d4c997dd04f1fb5e/kong/plugins/s3-presign/schema.lua"
+        },
+        "kong/plugins/s3-presign/sigv4.lua": {
+          "sha256": "d8734040dab0e236127d6d47b78644257ec7c371e992587cfa7f35c5ece1402a",
+          "size": 6285,
+          "url": "https://raw.githubusercontent.com/adamtheapiguy/kong-plugin-s3-presign/928ca260b081ca5a7616e418d4c997dd04f1fb5e/kong/plugins/s3-presign/sigv4.lua"
+        }
+      },
+      "homepage": "https://github.com/adamtheapiguy/kong-plugin-s3-presign",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 27 Jul 2026 23:53:26 GMT",
+        "rockspec": {
+          "date": "Mon, 27 Jul 2026 23:53:26 GMT",
+          "sha256": "a83daba42e447fee133ab2c09cd35b6a634a96cd813dec944c0dd228e5ab4b81",
+          "size": 1025
+        },
+        "src": {
+          "date": "Mon, 27 Jul 2026 23:53:27 GMT",
+          "sha256": "88b61d957bdd96de1255754e16d36d18a3ce1ca00e7dbc67892d9372fad919db",
+          "size": 17668,
+          "url": "https://luarocks.org/kong-plugin-s3-presign-0.3.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.s3-presign.handler",
+        "kong.plugins.s3-presign.schema",
+        "kong.plugins.s3-presign.sigv4"
+      ],
+      "origin": {
+        "commit": "928ca260b081ca5a7616e418d4c997dd04f1fb5e",
+        "ref": "v0.3.0",
+        "type": "git",
+        "url": "https://github.com/adamtheapiguy/kong-plugin-s3-presign.git"
+      },
+      "size": 21624,
+      "summary": "Mints presigned S3 URLs and lists bucket contents natively in Kong",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.openssl.hmac",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+-- The plugin has no settings. Like the legacy schema it replaces, it may be scoped to consumers.
+return {
+  name = "universal-jwt",
+  fields = {
+    { protocols = typedefs.protocols_http },
+    {
+      config = {
+        type = "record",
+        fields = {},
+      },
+    },
+  },
+}

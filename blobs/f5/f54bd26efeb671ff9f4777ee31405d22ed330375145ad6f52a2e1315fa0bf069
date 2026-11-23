@@ -1,0 +1,288 @@
+-- Optional references for std.lua, not a tool, skill, or injected prompt.
+-- Lua's require cache is shared across lanes: keep topic values private and
+-- check the caller on EVERY lookup, including through a cached module table.
+local topics = {
+    recipes = [=[
+# Orchestration recipes
+
+Use `subagents.run` for one background delegation. It returns a name such as `agent-1` immediately; completion wakes you with its output. Use `std.lua` scripts for dynamic fan-out, branching, or staged waves.
+
+A `std.lua` script has access to `subagents.workflow`, `subagents.workflows`, and `subagents.agents`. Pass workflow-local inline profiles as the second argument; they shadow discovered profiles only for that workflow. Put the complete, specific context each worker needs in that worker's `prompt`. Start a background workflow and save its returned record:
+
+```lua
+return subagents.workflow(function(ctx)
+  local a = ctx:agent{name="api", system_prompt="Research APIs.", prompt="Inspect the API surface."}
+  local b = ctx:agent{name="tests", system_prompt="Research tests.", prompt="Inspect test coverage."}
+  local research = ctx:await({a, b}, "all")
+
+  local implementation = ctx:agent{
+    name="implement",
+    system_prompt="Implement focused changes.",
+    prompt="Implement using this research:\n" .. research[1].output .. "\n" .. research[2].output,
+  }:await()
+
+  local reviewers = {
+    ctx:agent{name="correctness", system_prompt="Review correctness.", prompt=implementation.output},
+    ctx:agent{name="simplicity", system_prompt="Review for simplicity.", prompt=implementation.output},
+  }
+  local reviews = ctx:await(reviewers, "all")
+  return reviews[1].output .. "\n\n" .. reviews[2].output
+end)
+```
+
+Workflow callbacks run in background coroutines, not registered tool-handler coroutines, so they cannot call `panto.ext.call_tool`, `panto.ext.start_tool`, or `tools.*`. Use those only in the top-level `std.lua` script.
+
+**Program, don't transcribe.** A `std.lua` script is a program, not a transcript: write each piece of text once and let code produce the variations. Templates are the one mechanism: a `[[long string]]` with `{name}` placeholders, filled by `template:gsub("{([%w_]+)}", vars)` where `vars` is a table. Do not use `string.format`, `..` chains, or any other placeholder style. Near-identical prompts come from a loop over a data table, never copy-pasted per child; a shared system prompt goes in `profiles` once, not in every `ctx:agent`. Children share your workspace, so a prompt can name a file to read instead of quoting its contents. If the script is mostly quoted text, that is the signal to factor it.
+
+```lua
+local brief = [[
+Audit the {area} module under {root} for unchecked errors. Read-only.
+Report as a bullet list; end with RESULT={"issues":<count>}
+]]
+return subagents.workflow(function(ctx)
+  local workers = {}
+  for _, area in ipairs({"auth", "billing", "search"}) do
+    workers[#workers + 1] = ctx:agent{name=area, profile="auditor",
+      prompt=brief:gsub("{([%w_]+)}", {area=area, root="src/"})}
+  end
+  local out = {}
+  for _, r in ipairs(ctx:await(workers, "all")) do out[#out + 1] = r.output end
+  return table.concat(out, "\n\n")
+end, { profiles = {
+  { name = "auditor", system_prompt = "Audit one area carefully." },
+} })
+```
+
+**Deterministic code drives; agents advise.** A workflow is code you control wrapped around judgment you cannot. Put every decision that can be nailed down into Lua — loops, counts, ordering, retries, pass/fail gates — and spend agents only on discovery and judgment. When Lua needs a fact an agent found (a list to fan out over, a verdict, a chosen option), tell that agent to end its report with one machine-parseable line, parse it, and let the parsed value shape the rest of the graph. `json.encode(value)` and `json.decode(text)` are available; invalid JSON makes `json.decode` raise, and JSON `null` decodes to the truthy `json.null` sentinel.
+
+```lua
+return subagents.workflow(function(ctx)
+  local found = ctx:agent{
+    name="inventory",
+    system_prompt="Inventory work items. Read-only.",
+    prompt="List every open PR in owner/repo. End with exactly one line: RESULT={\"prs\":[<numbers>]}",
+  }:await()
+
+  local line = found.output and found.output:match("RESULT=([^\n]+)")
+  local items
+  if line then
+    local ok, decoded = pcall(json.decode, line)
+    if ok and decoded ~= json.null then items = decoded end
+  end
+  if type(items) ~= "table" or not items.prs then return "inventory produced no parseable RESULT line" end
+
+  local reviewers = {}
+  for _, pr in ipairs(items.prs) do
+    reviewers[#reviewers + 1] = ctx:agent{
+      name = "review-" .. pr,
+      system_prompt = "Review one pull request.",
+      prompt = "Review PR #" .. pr .. " in owner/repo.",
+    }
+  end
+
+  local reviews, out = ctx:await(reviewers, "all"), {}
+  for _, review in ipairs(reviews) do out[#out + 1] = review.output end
+  return table.concat(out, "\n\n")
+end)
+```
+
+Every `ctx:agent` needs a non-empty `name` unique within that workflow. A workflow callback must return a string. Inspect a running or finished workflow with a later `std.lua` script, for example:
+
+```lua
+local w = subagents.workflows["workflow-1"]
+return w.status .. (w.result and ("\n" .. w.result) or "")
+```
+
+Agent fields are `name`, `status`, `output`, `error`, and `id`; `agent:cancel()` requests cancellation and returns true only while it is running. Workflow fields are `id`, `status`, `result`, `error`, and `agents`; `workflow:cancel()` requests cancellation of every running agent. All records are read-only.
+
+**Children wake you; never wait for them.** Completion arrives as a new turn carrying the agent's output or the workflow's result (or the error), for `subagents.run`, `std.lua`, and `subagents.workflow` (including workflows the user starts with `/workflow:<name>`); inspect the corresponding table only for more, such as individual workers inside a workflow or a truncated report. There is no need to keep the tool-call loop alive until then: do not run `sleep` via `shell` or re-inspect `subagents.agents`/`subagents.workflows` in a loop, since those calls burn tokens and delay nothing but your own response. If you have other useful work, do it; otherwise end your turn.
+]=],
+    delegation = [=[# Delegation
+
+Use the `subagents.run` tool for one background child. In std.lua, tools are
+called through `tools.subagents__run{...}`, NOT `subagents.run`.
+
+```lua
+return tools.subagents__run{
+  system_prompt="Review code for concrete correctness issues. Read-only.",
+  prompt="Inspect the current workspace and report concrete bugs.",
+}
+```
+
+Pass exactly one of `profile`, `system_prompt`, or `id`; `prompt` must be
+nonempty. Empty optional strings are omitted. Load `.inventory` for discovered
+profiles (only available when configured) and warnings.
+
+Children share the workspace and inherited tools, except `subagents.*` and the
+subagents Lua namespace. They receive their role/profile prompt, not your
+conversation or system prompt; provide complete context. They cannot ask the
+user questions. Their final response is the delegation result.
+
+`model` and `reasoning` are optional, resolved independently: call > profile >
+primary. Continuations inherit their stored model/reasoning before falling back
+to the primary. Use `subagents.models` before choosing unfamiliar values:
+no arguments returns the inherited model/reasoning and provider counts;
+`{model="provider:alias"}` returns an exact match with valid reasoning levels;
+`{provider=..., query=..., limit=...}` searches (limit 1–50, default 10).
+In std.lua call it as `tools.subagents__models{...}`.
+
+`subagents.run` immediately returns a session-scoped name such as `agent-1`.
+Completion sends a new turn carrying the output (or error); do not poll, sleep,
+or keep a tool loop alive while waiting. Do other work or end your turn. The
+named record stays inspectable:
+
+```lua
+local a = assert(subagents.agents["agent-1"], "unknown agent")
+return a.output or a.error or a.status
+```
+
+Records expose `name`, `status`, `output`, `error`, `id`, and `:cancel()`.
+Status is `running`, `completed`, `failed`, or `cancelled`; cancellation returns
+true only while the child is running. Fields are read-only. `id` is the durable
+conversation ID, NOT the session-scoped name; pass it to `subagents.run` with a
+new `prompt` to continue. A child ID belongs to its owning primary session.
+Settled records and IDs survive session rebuilds/resumes.
+
+When std.lua is unavailable, the delegation tools still work, but namespace
+workflows and record inspection are unavailable.
+]=],
+    workflow = [=[# Workflows in std.lua (primary only)
+
+Use `subagents.run` for a single delegation, discovered workflow profiles for
+fixed graphs, and `subagents.workflow` in std.lua for dynamic graphs. Load
+`require("subagents.docs").recipes` for staged fan-out and branching patterns;
+`.inventory` lists configured profiles, workflows, and discovery warnings.
+
+## Callback API
+
+`subagents.workflow(function(ctx) ... end, opts?)` returns a field-read-only
+workflow record immediately. The callback runs in a background coroutine and
+must return a string. Save the returned record or its `id`; completion wakes
+you with that string, and `subagents.workflows[id]` holds per-agent detail. Do not poll
+or sleep waiting for completion; do other work or end your turn.
+
+```lua
+return subagents.workflow(function(ctx)
+  local result = ctx:agent{
+    name="inspect", system_prompt="Inspect code. Read-only.",
+    prompt="Inspect the current workspace and summarize its structure.",
+  }:await()
+  return result.output or result.error or result.status
+end)
+```
+
+- `ctx:agent{name=..., profile|system_prompt|id=..., prompt=..., model?,
+  reasoning?, output?}` returns a handle. Each name is nonempty and unique
+  within this workflow, even across stages. Selector/prompt/model rules match
+  `subagents.run` (see `.delegation`).
+- `handle:await()` returns one settled result. `ctx:await(handles, "all")`
+  returns results in input order. `ctx:await(handles, "first")` returns one
+  settled result and an array of remaining handles (not automatically cancelled).
+  Default mode is `"all"`; repeated awaits reuse settled results.
+- Results carry `status`, `output`, `error`, and `id` when available. Check
+  `status` before consuming output. Child/spawn failures are result values;
+  invalid arguments, duplicate names, callback errors, or exceeded limits fail
+  the workflow. Unawaited children are drained before the workflow settles.
+- `opts.profiles={{name=..., system_prompt=..., description?}, ...}` provides
+  workflow-local profiles that shadow discovered ones only inside that workflow.
+  Use `ctx:agent` model/reasoning overrides rather than inline profile fields.
+- At most 32 child starts per namespace workflow; host concurrency defaults to
+  five (layered `[subagents].max_concurrent` can override it). Excess concurrent
+  work queues. The callback has a 10,000,000-instruction guard.
+- Callbacks cannot call `tools.*`, `panto.ext.call_tool`, or
+  `panto.ext.start_tool`: those require the registered top-level tool-handler
+  coroutine. Run tool calls in the top-level std.lua script, not a callback.
+
+## Records and lifecycle
+
+Workflow records expose `id`, `status`, `result`, `error`, `agents`, and
+`:cancel()`. `agents[name]` exposes the named child's `name`, `status`, `output`,
+`error`, `id`, and `:cancel()`. Fields are read-only; cancellation requests
+return true only while running. Status is `running`, `completed`, `failed`, or
+`cancelled`. Workflow child record outputs are text; structured handle outputs
+are decoded Lua values. Direct delegations live in `subagents.agents`, not
+`subagents.workflows`.
+
+Records render progress boards when returned from std.lua. Settled records and
+IDs persist across rebuilds/resumes. Ordinary primary turn endings leave work
+running; interruption cancels ordinary work. Command-started workflows survive
+primary interruption. Session switches are refused while work runs; forced
+teardown cancels it. Completion sends a turn carrying the agent output or workflow result.
+The namespace and all these documentation topics are withheld from child lanes.
+
+## Structured one-turn workers
+
+Pass `output={name="emit_result", description=..., schema=<JSON Schema table>}`
+to `ctx:agent` (`name` defaults to `emit_result`). The child must call that
+synthetic output tool; prose alone or missing/invalid structured output fails
+the child. Successful handle `.output` is the decoded value. Workers are
+one-shot, not resumable; do not combine `id` with `output`.
+
+```lua
+return subagents.workflow(function(ctx)
+  local r = ctx:agent{
+    name="classify", system_prompt="Use the result tool to classify input.",
+    prompt="Is 2 even?",
+    output={schema={type="object", required={"even"},
+      properties={even={type="boolean"}}}},
+  }:await()
+  if r.status ~= "completed" then return r.error or r.status end
+  return json.encode(r.output)
+end)
+```
+
+Validation covers `type`, `enum`, `required`, `properties`,
+`additionalProperties=false`, `items`, `minItems`/`maxItems`,
+`minLength`/`maxLength`, and `minimum`/`maximum`; other keywords are ignored.
+
+## Discovered fixed graphs
+
+The `subagents.workflow` TOOL accepts `{profile=..., prompt=...}` and returns a
+workflow id, not a record. In std.lua use `tools.subagents__workflow{...}`;
+`subagents.workflow(...)` is the callback API, not that tool. The tool is omitted
+only when the discovered workflow inventory is empty; invalid entries still
+count, so the tool can explain their load errors. `/workflow:<name>` commands
+are registered only for valid profiles. Each dependent step receives its predecessors'
+labeled outputs; terminal or explicitly selected steps become the report in
+`subagents.workflows[id].result`.
+]=],
+}
+
+local function inventory()
+    local profiles = require("subagents.spawn").profiles()
+    local workflows = require("subagents.toml_workflows").workflows()
+    local lines = { "# Discovered subagents", "", "Subagent profiles:" }
+    local function entries(list, workflow_entries)
+        if #list == 0 then lines[#lines + 1] = "  (none)" end
+        for _, entry in ipairs(list) do
+            local detail = workflow_entries and entry.definition or entry
+            local description = detail and detail.description
+            lines[#lines + 1] = "  " .. entry.name ..
+                (entry.error and (" — unavailable: " .. entry.error) or
+                (description and description ~= "" and (" — " .. description) or ""))
+        end
+    end
+    local function warnings(heading, found)
+        if #found == 0 then return end
+        lines[#lines + 1] = ""
+        lines[#lines + 1] = heading
+        for _, warning in ipairs(found) do lines[#lines + 1] = "  " .. warning end
+    end
+    entries(profiles.list)
+    warnings("Profile warnings:", profiles.warnings)
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = "Workflow profiles:"
+    entries(workflows.list, true)
+    warnings("Workflow warnings:", workflows.warnings)
+    return table.concat(lines, "\n")
+end
+
+return setmetatable({}, {
+    __index = function(_, topic)
+        if not require("subagents.namespace").called_by_primary() then return nil end
+        if topic == "inventory" then return inventory() end
+        return topics[topic]
+    end,
+    __newindex = function() error("subagents docs are read-only", 2) end,
+    __metatable = false,
+})

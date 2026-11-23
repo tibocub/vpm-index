@@ -1,0 +1,59 @@
+--- Global authentication.
+-- @module resty.azure.api.auth
+local log_and_error = require("resty.azure.utils").log_error
+
+local _M = {}
+
+--- Authenticates to Azure using the given configuration and options.
+-- Will try to create `ClientCredentials`, `WorkloadIdentityCredentials`, and `ManagedIdentityCredentials` objects
+-- in that order, using the given configuration and options.
+--
+-- Returns the first one that succeeds.
+-- @tparam table global_config The global configuration object.
+-- @tparam table opts The options table passed to the credential objects constructors.
+-- @return The authenticated credentials object, or nil+error.
+function _M.authenticate(global_config, opts, source)
+  local creds, err
+
+  -- try each implemented authentication class, find the first one that gives us a token
+  for _, class_name in ipairs {
+    "ClientCredentials",
+    "WorkloadIdentityCredentials",
+    "ManagedIdentityCredentials",
+  } do
+    local ok, cred_class = xpcall(require, debug.traceback, "resty.azure.credentials." .. class_name)
+    if ok then
+      creds, err = cred_class:new(global_config, opts, source)
+
+      if not err then
+        ngx.log(ngx.INFO, "successfully authenticated to azure with ", class_name, " mechanism")
+        return creds
+      else
+        ngx.log(ngx.DEBUG, "could not authenticate to azure with ", class_name, " class, error: ", err)
+      end
+    else
+      ngx.log(ngx.DEBUG, "could not instantiate auth method class ", class_name, ", ", debug.traceback())
+    end
+  end
+
+  ngx.log(ngx.ERR, "no authentication mechanism worked for azure")
+  return nil, "no authentication mechanism worked for azure"
+end
+
+--- Retrieves an access token from the given credentials object. Any errors will be logged.
+-- @tparam credentials credentials The credentials instance to retrieve the token from.
+-- @treturn[1] string the access token
+-- @treturn[1] number its expiry time
+-- @treturn[2] nil
+-- @treturn[2] nil
+-- @treturn[2] string error message
+function _M.get_token(credentials)
+  local ok, token, expiry, err = credentials:get()
+  if not ok then
+    return log_and_error("error refreshing token: " .. err)
+  end
+  return token, expiry, nil
+end
+
+
+return _M

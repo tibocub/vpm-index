@@ -1,0 +1,38 @@
+--- Utility functions for the Zensical plugin.
+local messages_module = require("zensical.messages")
+local M = {}
+local uvx_paths = {}
+
+--- Set the paths for uvx (called from setup)
+--- @param paths table List of paths to search for uvx
+function M.set_uvx_paths(paths)
+	uvx_paths = paths
+end
+
+--- Function to retrieve a message by key
+--- @param category string The category of the message (e.g., "server", "build")
+--- @param key string The key of the message within the category
+--- @return string The formatted message
+function M.get_msg(category, key)
+	if not messages_module.messages[category] then
+		error(string.format("Message category '%s' does not exist.", category))
+	end
+	if not messages_module.messages[category][key] then
+		error(string.format("Message key '%s' does not exist in category '%s'.", key, category))
+	end
+	return messages_module.messages[category][key]
+end
+
+--- Check if `uvx` is available in any of the configured paths
+--- @return string|boolean The path to `uvx` if found, otherwise `false`
+function M.is_uvx_available()
+	for _, path in ipairs(uvx_paths) do
+		local expanded_path = vim.fn.expand(path)
+		if vim.fn.executable(expanded_path) == 1 then
+			return expanded_path
+		end
+	end
+	return false
+end
+
+return M

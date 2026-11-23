@@ -1,0 +1,55 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-path-prefix",
+  "versions": {
+    "0.1.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/path-prefix/handler.lua": {
+          "sha256": "641be24dee8e42b42a1575cbd59a34a15eb22736fcbf9ae7fde133b30f67703d",
+          "size": 1333,
+          "url": "https://raw.githubusercontent.com/SuriyaRuk/kong-plugin-path-prefix/1e35376612700ea2ce724f91aa52e190634789a5/kong/plugins/path-prefix/handler.lua"
+        },
+        "kong/plugins/path-prefix/schema.lua": {
+          "sha256": "ec41e6478d5af537430d7730b103afb80a7af78f7e579ee7dfc8c5cd5423b94f",
+          "size": 636,
+          "url": "https://raw.githubusercontent.com/SuriyaRuk/kong-plugin-path-prefix/1e35376612700ea2ce724f91aa52e190634789a5/kong/plugins/path-prefix/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 19 Dec 2022 06:45:58 GMT",
+        "rockspec": {
+          "date": "Mon, 19 Dec 2022 06:45:58 GMT",
+          "sha256": "5ce39635cc0cbef7f4d919f08d8ad0b950b1a5ed56ded00495ffcc6c10255a9d",
+          "size": 574
+        }
+      },
+      "modules": [
+        "kong.plugins.path-prefix.handler",
+        "kong.plugins.path-prefix.schema"
+      ],
+      "origin": {
+        "commit": "1e35376612700ea2ce724f91aa52e190634789a5",
+        "type": "git",
+        "url": "https://github.com/SuriyaRuk/kong-plugin-path-prefix.git"
+      },
+      "size": 1969,
+      "summary": "A Kong plugin for rewriting upstream route uris.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

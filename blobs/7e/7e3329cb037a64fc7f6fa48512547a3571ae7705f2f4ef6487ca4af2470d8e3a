@@ -1,0 +1,222 @@
+local kong = kong
+
+local utils = require "kong.plugins.google-storage-adapter.path.utils"
+local resolve_old = require "kong.plugins.google-storage-adapter.path.resolve-old"
+
+local NOT_FOUND_ERROR_PAGE = "404.html"
+
+local function resolve_file_route(route_paths, req_path)
+  local potential_index_html_file = utils.add_index_file_to_path(req_path)
+  -- check if there's an index.html that matches our req_path
+  for i in pairs(route_paths) do
+    if route_paths[i] == potential_index_html_file then
+      return potential_index_html_file
+    end
+  end
+  -- check if there's a file with the same as our req_path (not an index.html)
+  for i in pairs(route_paths) do
+    if route_paths[i] == req_path then
+      return req_path
+    end
+  end
+end
+
+local function resolve_linked_route(route, req_path, req_site_name, conf)
+  local linked_to = nil
+  local linked_path = nil
+  local linked_to_pattern = "linked%-to_"
+  local linked_path_pattern = "linked%-path_"
+  for i in pairs(route.tags) do
+    if route.tags[i]:find(linked_to_pattern) then
+      linked_to = route.tags[i]:gsub(linked_to_pattern, "")
+    end
+    if route.tags[i]:find(linked_path_pattern) then
+      linked_path = route.tags[i]:gsub(linked_path_pattern, ""):gsub("%%", "/")
+    end
+  end
+
+  if linked_to and linked_path then
+    -- to make correct substitution we have to escape the hyphen
+    local req_site_name_escaped = utils.escape_hyphen(req_site_name)
+    local linked_path_escaped = utils.escape_hyphen(linked_path)
+
+    local path_slug = req_path:match("^/sites/" .. req_site_name_escaped .. "(.*)")
+    local potential_file_path = "/sites/" .. linked_to .. path_slug:gsub(linked_path_escaped, "", 1)
+
+    -- route.paths here are paths from linked site
+    -- e.g. for the req_path = "/sites/ageofmagic/currencyinfo/" (pointed to the site "ageofmagic-info-1")
+    --  {
+    -- "/sites/ageofmagic-info-1/",
+    -- "/sites/ageofmagic-info-1/index.html",
+    -- "/sites/ageofmagic-info-1/manifest.json",
+    -- "/sites/ageofmagic-info-1/navigation.json",
+    -- "~/sites/ageofmagic(/[a-z]{2,3}-[A-Z]{2})?/currencyinfo/?$",
+    --  }
+    local computed_file_path = resolve_file_route(route.paths, potential_file_path)
+    if conf.path_transformation.log then
+      local log_message = string.format(
+      "The linked route path has been used. " ..
+      "req_site_name %s, linked_to %s, linked_path %s, " ..
+      "req_site_name_escaped %s, path_slug %s, " ..
+      "potential_file_path %s, computed_file_path %s",
+        req_site_name,
+        linked_to,
+        linked_path,
+        req_site_name_escaped,
+        path_slug,
+        potential_file_path,
+        computed_file_path
+      )
+      kong.log.notice(log_message)
+      kong.log.inspect(
+        "route.paths", route.paths
+      )
+    end
+    return computed_file_path
+  end
+end
+
+-- looking if there's a custom error page given, e.g. "/sites/ageofmagic/404.html"
+local function resolve_error_page(route, req_site_name, error_page_filename)
+  local potential_file_path = string.format("/sites/%s/%s", req_site_name, error_page_filename)
+  for i in pairs(route.paths) do
+    if route.paths[i] == potential_file_path then
+      return potential_file_path
+    end
+  end
+end
+
+local function get_normalized_path_impl(req_path, conf)
+  local service_path = utils.get_service_path()
+  -- if there's any override to a particular page (e.g. 403.html)
+  if service_path:match(".html") then
+    if conf.path_transformation.log then
+      local log_message = string.format(
+      "The service path has been used for the path resolving. The service_path is %s",
+        service_path
+      )
+      kong.log.notice(log_message)
+    end
+    return service_path
+  end
+
+  local route = kong.router.get_route()
+  local req_site_name = req_path:match("^/sites/([a-zA-Z0-9-_]+)") or "" -- e.g. "kh-webshop-bla-bla"
+
+  -- if there's an active experiment we will change the service path
+  local ab_testing_site_name = kong.ctx.shared.ab_testing_site_name
+  if ab_testing_site_name and ab_testing_site_name ~= req_site_name then
+    local log_message = string.format(
+      "An active A/B test has been found, the service request path will be changed to the %s service",
+      ab_testing_site_name
+    )
+    kong.log.notice(log_message)
+
+    -- to make correct substitution we have to escape the hyphen
+    local req_site_name_escaped = utils.escape_hyphen(req_site_name)
+    local mroute_paths = utils.modify_route_paths_by_site_name(route.paths, req_site_name_escaped, ab_testing_site_name)
+    local potential_file_path = req_path:gsub(req_site_name_escaped, ab_testing_site_name)
+
+    return resolve_file_route(mroute_paths, potential_file_path)
+  end
+
+  if utils.is_it_version_3_route(route) then
+    -- file path resolving (the new way)
+    local file_route_path = resolve_file_route(route.paths, req_path)
+    if file_route_path then
+      if conf.path_transformation.log then
+        local log_message = string.format(
+          "The file route path has been used for the path resolving. " ..
+          "The file_route_path is %s",
+          file_route_path
+        )
+        kong.log.notice(log_message)
+      end
+      return file_route_path
+    end
+
+    -- linked site path resolving (the new way)
+    local linked_route_path = resolve_linked_route(route, req_path, req_site_name, conf)
+    if linked_route_path then
+      if conf.path_transformation.log then
+        local log_message = string.format(
+          "The linked route path has been used for the path resolving. " ..
+          "The linked_route_path is %s",
+          linked_route_path
+        )
+        kong.log.notice(log_message)
+      end
+      return linked_route_path
+    end
+
+    local not_found_error_route_path = resolve_error_page(route, req_site_name, NOT_FOUND_ERROR_PAGE)
+    if not_found_error_route_path then
+      if conf.path_transformation.log then
+        local log_message = string.format(
+          "The not found custom error route path has been used for the path resolving. " ..
+          "The not_found_error_route_path is %s",
+          not_found_error_route_path
+        )
+        kong.log.notice(log_message)
+      end
+      kong.ctx.plugin.status = 404
+      return not_found_error_route_path
+    end
+
+    -- We return the default 404 page if there's no route path found
+    kong.ctx.plugin.status = 404
+    return string.format("/%s", NOT_FOUND_ERROR_PAGE)
+  end
+
+  -- the old way of the path handling
+  -- will be removed in the future
+  local file_path_by_req_path = resolve_old.try_to_resolve_file_path_by_req_path(req_path, service_path, req_site_name,
+    conf)
+  local log_message = string.format(
+    "The old version of the path handling has been used. " ..
+    "The file_path_by_req_path is %s. The req_site_name is %s",
+    file_path_by_req_path,
+    req_site_name
+  )
+  kong.log.warn(log_message)
+  return file_path_by_req_path
+end
+
+---
+-- Constructs a normal req path to an exact resourse
+--
+-- Example:
+-- /my-page -> /my-page/index.html
+-- /my-page/ -> /my-page/index.html
+-- /linked-site/ru-RU/first-game-subpath/index.html -> /first-game/ru-RU/index.html
+--
+local function get_normalized_path(conf)
+  local req_path = kong.request.get_path()
+  if not conf.path_transformation.enabled then
+    return req_path
+  end
+
+  local target_path = utils.remove_prefix_from_path(get_normalized_path_impl(req_path, conf))
+  if conf.path_transformation.log then
+    local log_message = string.format("The upstream path will be modifed. The req_path is %s, the target_path %s",
+      req_path, target_path)
+    kong.log.notice(log_message)
+  end
+  return target_path
+end
+
+
+local function transform_uri(conf)
+  if not conf.path_transformation.enabled then
+    return
+  end
+
+  local normalized_path = get_normalized_path(conf)
+  kong.service.request.set_path(normalized_path)
+  kong.service.request.set_raw_query("")
+end
+
+return {
+  transform_uri = transform_uri,
+  get_normalized_path = get_normalized_path,
+}

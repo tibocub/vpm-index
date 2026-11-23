@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "rpi-gpio",
+  "versions": {
+    "0.2-1": {
+      "bin": [],
+      "deps": [
+        "bit32",
+        "copastimer >= 1.0"
+      ],
+      "files": {
+        "GPIO/lcd-hd44780.lua": {
+          "sha256": "187a1d8b08f437c51b51920cc8866d9e319b4a8ddb15a1e6d93b0640ec96c76b",
+          "size": 8943,
+          "url": "blob:187a1d8b08f437c51b51920cc8866d9e319b4a8ddb15a1e6d93b0640ec96c76b"
+        }
+      },
+      "homepage": "https://github.com/Tieske/rpi-gpio",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.2",
+      "luarocks": {
+        "date": "Tue, 03 Jun 2014 18:34:58 GMT",
+        "rockspec": {
+          "date": "Tue, 03 Jun 2014 18:34:58 GMT",
+          "sha256": "fb416581d4f6aadbefa78fbedb833a6ec33c5b89dc8afbf9ae1d8f0328083334",
+          "size": 1320
+        },
+        "src": {
+          "date": "Tue, 03 Jun 2014 18:34:59 GMT",
+          "sha256": "68ac3803169e2e2cda44402180f1d6f79f7e3b363f8d978ca4eb29cf4b7fabe2",
+          "size": 44236,
+          "url": "https://luarocks.org/rpi-gpio-0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "GPIO",
+        "GPIO.lcd-hd44780"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "source",
+                "lua"
+              ],
+              "libraries": [
+                "pthread"
+              ],
+              "name": "GPIO",
+              "sources": [
+                "lua/RPi_GPIO_Lua_module.c",
+                "lua/darksidesync_aux.c",
+                "source/c_gpio.c",
+                "source/cpuinfo.c",
+                "source/event_gpio.c",
+                "source/soft_pwm.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "rpi-gpio-lua_version_0.2"
+      },
+      "origin": {
+        "date": "Tue, 03 Jun 2014 18:34:59 GMT",
+        "sha256": "68ac3803169e2e2cda44402180f1d6f79f7e3b363f8d978ca4eb29cf4b7fabe2",
+        "size": 44236,
+        "type": "luarocks",
+        "url": "https://luarocks.org/rpi-gpio-0.2-1.src.rock"
+      },
+      "size": 8943,
+      "summary": "Lua module to control the GPIO on a Raspberry Pi",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

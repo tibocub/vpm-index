@@ -1,0 +1,335 @@
+local lpeg = require 'lpeg'
+local P, R, S, V = lpeg.P, lpeg.R, lpeg.S, lpeg.V
+local C, Ct, Cg, Cc = lpeg.C, lpeg.Ct, lpeg.Cg, lpeg.Cc
+
+-- Basic patterns
+local space = S(" \t")^1
+local optional_space = S(" \t")^0
+local newline = P"\n" + P"\r\n" + P"\r"
+local tab = P"\t"
+local comment = P"#" * (1 - newline)^0 * newline
+local blank_line = optional_space * newline
+
+-- Whitespace skipping that won't accept empty string
+local ws = (blank_line + comment)^0
+
+-- Variable name pattern
+local standard_name = R("az", "AZ") * (R("az", "AZ", "09", "__"))^0
+local custom_name = P"_" * (R("az", "AZ", "09", "__"))^1
+local name = C(standard_name + custom_name)
+
+-- Shell variable reference patterns
+local shell_var_simple = P"$" * name
+local shell_var_braced = P"${" * C((1 - P"}")^1) * P"}"
+local shell_var = shell_var_braced + shell_var_simple
+
+-- String patterns (extended to capture shell variables)
+local quoted_char = (P'\\"' + (1 - P'"'))
+local quoted_string = P'"' * C(quoted_char^0) * P'"'
+local unquoted_char = (1 - S(" \t\n\r#\""))
+local unquoted_string = C(unquoted_char^1)
+local value = quoted_string + unquoted_string
+
+-- Array value pattern with tab or space separation
+local array_value = Ct(
+    value * -- First value
+    ((space + (newline * tab)) * value)^0 -- Additional values
+)
+
+-- Assignment pattern
+local assignment = Ct(
+    Cc("assignment") * 
+    Cg(name, "variable") * 
+    optional_space * P"=" * optional_space * 
+    Cg(array_value, "value")
+)
+
+-- Export statement pattern
+local export_stmt = Ct(
+    Cc("export") *
+    P"export" * space *
+    Cg(name, "variable") *
+    optional_space * P"=" * optional_space *
+    Cg(C((1 - newline)^0), "value")
+)
+
+-- Case statement patterns
+local case_pattern = C((1 - P")")^1) -- Match until )
+local case_body = C((1 - P";;")^0) -- Match until ;;
+
+local case_branch = Ct(
+    optional_space * (newline^-1) * optional_space *
+    Cg(case_pattern, "pattern") * 
+    P")" * optional_space * 
+    Cg(case_body, "body") *
+    optional_space * P";;" * optional_space * (newline^-1)
+)
+
+local case_stmt = Ct(
+    Cc("case") *
+    P"case" * space * 
+    Cg(C((1 - space * P"in")^1), "variable") *
+    space * P"in" * optional_space * (newline^-1) *
+    Cg(Ct(case_branch^1), "branches") *
+    optional_space * (newline^-1) * optional_space * P"esac"
+)
+
+-- For loop pattern
+local for_loop = Ct(
+    Cc("for") *
+    P"for" * space *
+    Cg(name, "iterator") *
+    space * P"in" * space *
+    Cg(C((1 - (P";" + space * P"do"))^1), "items") *
+    optional_space * (P";" * optional_space * P"do" + space * P"do") *
+    optional_space * (newline^-1) *
+    Cg(C((1 - (optional_space * (newline^-1) * optional_space * P"done"))^0), "body") *
+    optional_space * (newline^-1) * optional_space * P"done"
+)
+
+-- Line pattern that ensures proper termination
+local line_end = optional_space * (comment + newline + P(-1))
+
+-- Statement can be assignment, export, case, or for loop
+local statement = (for_loop + case_stmt + export_stmt + assignment) * line_end
+
+-- Main grammar
+local grammar = P{
+    "APKBUILD",
+    APKBUILD = Ct(ws * (statement * ws)^0),
+}
+
+-- Helper functions
+local function clean_value(value)
+    if type(value) ~= "string" then return value end
+    -- Trim whitespace and remove quotes
+    value = value:match("^%s*(.-)%s*$")
+    value = value:gsub('^"(.-)"$', '%1')
+    return value
+end
+
+local function split_by_tabs_and_newlines(str)
+    local result = {}
+    for value in str:gmatch("[^\t\n]+") do
+        value = clean_value(value)
+        if value ~= "" then
+            table.insert(result, value)
+        end
+    end
+    return #result == 1 and result[1] or result
+end
+
+local function split_by_spaces(str)
+    local result = {}
+    for value in str:gmatch("%S+") do
+        value = clean_value(value)
+        if value ~= "" then
+            table.insert(result, value)
+        end
+    end
+    return #result == 1 and result[1] or result
+end
+
+local function process_value(value, is_array_field)
+    if not is_array_field then
+        return clean_value(value)
+    end
+    
+    -- For array fields, check if we need to split
+    if type(value) == "string" then
+        -- If it contains tabs or newlines, split by those
+        if value:find("\t") or value:find("\n") then
+            return split_by_tabs_and_newlines(value)
+        else
+            -- Otherwise split by spaces
+            return split_by_spaces(value)
+        end
+    elseif type(value) == "table" then
+        local result = {}
+        for _, v in ipairs(value) do
+            if type(v) == "string" then
+                if v:find("\t") or v:find("\n") then
+                    local split = split_by_tabs_and_newlines(v)
+                    if type(split) == "table" then
+                        for _, sv in ipairs(split) do
+                            table.insert(result, sv)
+                        end
+                    else
+                        table.insert(result, split)
+                    end
+                else
+                    local split = split_by_spaces(v)
+                    if type(split) == "table" then
+                        for _, sv in ipairs(split) do
+                            table.insert(result, sv)
+                        end
+                    else
+                        table.insert(result, split)
+                    end
+                end
+            else
+                table.insert(result, clean_value(v))
+            end
+        end
+        -- Return string if only one value, otherwise return table
+        return #result == 1 and result[1] or result
+    end
+    local cleaned = clean_value(value)
+    return cleaned
+end
+
+-- Function to extract function bodies
+local function extract_functions(content)
+    local functions = {}
+    local current_func = nil
+    local current_body = {}
+    
+    -- Split content into lines for processing
+    local lines = {}
+    for line in content:gmatch("[^\r\n]+") do
+        table.insert(lines, line)
+    end
+    
+    for i, line in ipairs(lines) do
+        if not current_func then
+            -- Look for function start
+            local func_name = line:match("^([%a_][%w_]*)%(%s*%)%s*{%s*$")
+            if func_name then
+                current_func = func_name
+            end
+        else
+            -- Look for function end
+            if line:match("^}%s*$") then
+                functions[current_func] = table.concat(current_body, "\n")
+                current_func = nil
+                current_body = {}
+            else
+                table.insert(current_body, line)
+            end
+        end
+    end
+    
+    return functions
+end
+
+local function parse_apkbuild(content)
+    if type(content) ~= "string" then
+        error("Expected string input for parse_apkbuild")
+    end
+    
+    local raw_result = grammar:match(content)
+    if not raw_result then
+        error("Failed to parse APKBUILD content")
+    end
+    
+    -- Convert the flat table into a key-value structure
+    local parsed_data = {
+        variables = {},
+        exports = {},
+        shell_logic = {}
+    }
+    
+    -- Fields that should always remain as arrays even with one value
+    local force_array_fields = {
+        depends = true,
+        makedepends = true,
+        checkdepends = true,
+        subpackages = true,
+        source = true,
+        options = true,
+        provides = true,
+        replaces = true
+    }
+    
+    for i = 1, #raw_result do
+        local entry = raw_result[i]
+        if type(entry) == "table" then
+            local stmt_type = entry[1]
+            
+            if stmt_type == "assignment" then
+                local key = entry.variable
+                local value = entry.value
+                
+                if key and value then
+                    local is_array = force_array_fields[key] or 
+                                    (key:match("^_.*s$") and type(value) == "table" and #value > 1)
+                    
+                    local processed_value = process_value(value, is_array)
+                    
+                    if not force_array_fields[key] and type(processed_value) == "table" and #processed_value == 1 then
+                        parsed_data.variables[key] = processed_value[1]
+                    else
+                        parsed_data.variables[key] = processed_value
+                    end
+                end
+                
+            elseif stmt_type == "export" then
+                local key = entry.variable
+                local value = entry.value
+                if key and value then
+                    parsed_data.exports[key] = clean_value(value)
+                end
+                
+            elseif stmt_type == "case" then
+                table.insert(parsed_data.shell_logic, {
+                    type = "case",
+                    variable = entry.variable,
+                    branches = entry.branches
+                })
+                
+            elseif stmt_type == "for" then
+                table.insert(parsed_data.shell_logic, {
+                    type = "for",
+                    iterator = entry.iterator,
+                    items = entry.items,
+                    body = entry.body
+                })
+            end
+        end
+    end
+    
+    -- Extract and add functions
+    parsed_data.functions = extract_functions(content)
+    
+    return parsed_data
+end
+
+local function get_field(parsed_data, field_name)
+    if not parsed_data then return nil end
+    if type(field_name) ~= "string" then return nil end
+    
+    -- Check variables first
+    if parsed_data.variables and parsed_data.variables[field_name] then
+        return parsed_data.variables[field_name]
+    end
+    
+    -- Check exports
+    if parsed_data.exports and parsed_data.exports[field_name] then
+        return parsed_data.exports[field_name]
+    end
+    
+    -- Check functions
+    if parsed_data.functions and parsed_data.functions[field_name] then
+        return parsed_data.functions[field_name]
+    end
+    
+    -- Check for shell_logic or other top-level fields
+    return parsed_data[field_name]
+end
+
+local function format_value(value)
+    if type(value) == "table" then
+        return "[" .. table.concat(value, ", ") .. "]"
+    elseif value == nil then
+        return "(not set)"
+    else
+        return tostring(value)
+    end
+end
+
+return {
+    parse = parse_apkbuild,
+    grammar = grammar,
+    get_field = get_field,
+    format_value = format_value,
+}

@@ -1,0 +1,99 @@
+{
+  "kind": "lib",
+  "name": "gamecake-gles",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/gles.lua": {
+          "sha256": "208a84f182cc891a48131ad45f6e26e9fb64d1ff9f9db0859de704052e412781",
+          "size": 37301,
+          "url": "blob:208a84f182cc891a48131ad45f6e26e9fb64d1ff9f9db0859de704052e412781"
+        },
+        "wetgenes/glescode.lua": {
+          "sha256": "2653cc716bee6f62eb56c01576a67b01e9c7be1517a377c42c11680a0861bad4",
+          "size": 21648,
+          "url": "blob:2653cc716bee6f62eb56c01576a67b01e9c7be1517a377c42c11680a0861bad4"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:25:31 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:25:31 GMT",
+          "sha256": "f7dde267d73944294d9ad7e0bf35ca716a7714cde93769a27e29f2d2cc361b23",
+          "size": 1655
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:25:32 GMT",
+          "sha256": "8070d1f93f888bc3845b14819a796058ab311dc51dece9a2ed71e520a1ae01e0",
+          "size": 137166,
+          "url": "https://luarocks.org/gamecake-gles-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.gles",
+        "wetgenes.gles.core",
+        "wetgenes.glescode"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "INCLUDE_GLES_GL=\"GL/gl3w.h\"",
+                "LUA_GLES_GL"
+              ],
+              "incdirs": [
+                "lua_gles",
+                "lua_gles/include",
+                "lib_hacks/code"
+              ],
+              "name": "wetgenes.gles.core",
+              "sources": [
+                "lua_gles/code/lua_gles.c",
+                "lua_gles/src/gl3w.c",
+                "lua_tardis/code/lua_tardis.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:25:32 GMT",
+        "sha256": "8070d1f93f888bc3845b14819a796058ab311dc51dece9a2ed71e520a1ae01e0",
+        "size": 137166,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-gles-0.9-261005.src.rock"
+      },
+      "size": 58949,
+      "summary": "GLES",
+      "undeclared_requires": [
+        "bit",
+        "wetgenes.glslang",
+        "wetgenes.grd",
+        "wetgenes.logs",
+        "wetgenes.string",
+        "wetgenes.tardis"
+      ],
+      "vlr": {
+        "cause": "missing module: wetgenes.string",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-mithril",
+  "versions": {
+    "0.8.7-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/mithril/handler.lua": {
+          "sha256": "6e29fa1282f685bbe957faca71a3c002ca9eb0e691901654ccb61d4c523d0fc0",
+          "size": 9103,
+          "url": "blob:6e29fa1282f685bbe957faca71a3c002ca9eb0e691901654ccb61d4c523d0fc0"
+        },
+        "kong/plugins/mithril/mint.lua": {
+          "sha256": "16f0be8cb89da9b25a6be942e9f0acf11e3941a2323b63e7c015fe8b32d3c699",
+          "size": 1401,
+          "url": "blob:16f0be8cb89da9b25a6be942e9f0acf11e3941a2323b63e7c015fe8b32d3c699"
+        },
+        "kong/plugins/mithril/rate-limiting/init.lua": {
+          "sha256": "c2932ec1191122151b4d3959e5402d7524b155d9ca530947fb914ab44c0c1a6e",
+          "size": 3093,
+          "url": "blob:c2932ec1191122151b4d3959e5402d7524b155d9ca530947fb914ab44c0c1a6e"
+        },
+        "kong/plugins/mithril/rate-limiting/policy.lua": {
+          "sha256": "5d984fdb35bf14be16f10494612526011e661f99663403cbf0318859d1ebd4fa",
+          "size": 4204,
+          "url": "blob:5d984fdb35bf14be16f10494612526011e661f99663403cbf0318859d1ebd4fa"
+        },
+        "kong/plugins/mithril/schema.lua": {
+          "sha256": "d97787d7be3e08f5f691b7dcde6b155d486ef6728e71c9effd50ccd1e67e03ba",
+          "size": 5138,
+          "url": "blob:d97787d7be3e08f5f691b7dcde6b155d486ef6728e71c9effd50ccd1e67e03ba"
+        },
+        "kong/plugins/mithril/warden.lua": {
+          "sha256": "5440f7310e39beddf1424201f8576e6bace26f364b54ba6003858260239bc52f",
+          "size": 7370,
+          "url": "blob:5440f7310e39beddf1424201f8576e6bace26f364b54ba6003858260239bc52f"
+        }
+      },
+      "homepage": "http://getkong.org",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 26 Oct 2026 14:33:46 GMT",
+        "rockspec": {
+          "date": "Mon, 26 Oct 2026 14:33:46 GMT",
+          "sha256": "2995e7b0c6c9649e73368ccdd647c4adbcc1c2d61c2e4043f686fa3179d8f167",
+          "size": 1307
+        },
+        "src": {
+          "date": "Mon, 26 Oct 2026 14:33:46 GMT",
+          "sha256": "d70d26934ea80331e093b0f8c98f57cec87b07534300fb21d47cea1b849e04d2",
+          "size": 23825,
+          "url": "https://luarocks.org/kong-plugin-mithril-0.8.7-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.mithril.handler",
+        "kong.plugins.mithril.mint",
+        "kong.plugins.mithril.rate-limiting",
+        "kong.plugins.mithril.rate-limiting.policy",
+        "kong.plugins.mithril.schema",
+        "kong.plugins.mithril.warden"
+      ],
+      "origin": {
+        "date": "Mon, 26 Oct 2026 14:33:46 GMT",
+        "sha256": "d70d26934ea80331e093b0f8c98f57cec87b07534300fb21d47cea1b849e04d2",
+        "size": 23825,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-mithril-0.8.7-1.src.rock"
+      },
+      "size": 30309,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.reports",
+        "kong.tools.timestamp",
+        "kong.tools.utils",
+        "pl.stringx",
+        "resty.cookie",
+        "resty.http",
+        "resty.jwt",
+        "resty.md5",
+        "resty.redis",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.cookie)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 6
+      }
+    }
+  }
+}

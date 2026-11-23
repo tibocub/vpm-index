@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-api-gateway-jurnal",
+  "versions": {
+    "1.0.2-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-cjson >= 2.1.0.10-1"
+      ],
+      "files": {
+        "kong/plugins/api-gateway-jurnal/handler.lua": {
+          "sha256": "fd2f7b503ae8363a7dca9a531e34d72b7ba7d0fcfd10401eef546e9f3b9ba203",
+          "size": 3006,
+          "url": "blob:fd2f7b503ae8363a7dca9a531e34d72b7ba7d0fcfd10401eef546e9f3b9ba203"
+        },
+        "kong/plugins/api-gateway-jurnal/schema.lua": {
+          "sha256": "5aa3e888e949c16b90fd7eee9d9c45b9e7102a7cf7ed35ef5cbdac0f4670eb9d",
+          "size": 839,
+          "url": "blob:5aa3e888e949c16b90fd7eee9d9c45b9e7102a7cf7ed35ef5cbdac0f4670eb9d"
+        }
+      },
+      "homepage": "https://alamtopani.github.io/kong-plugin-api-gateway-jurnal",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 12 Sep 2024 03:24:46 GMT",
+        "rockspec": {
+          "date": "Thu, 12 Sep 2024 03:24:46 GMT",
+          "sha256": "2fe5ff34a76088770d07ba83bed838b5e73e58ddc517fcec3cfad1d17b3f4ec3",
+          "size": 1109
+        },
+        "src": {
+          "date": "Thu, 12 Sep 2024 03:24:48 GMT",
+          "sha256": "5b5144479cf3d861e96618c834cded52e6f76ed3857b438c4014e995f2d4b5bc",
+          "size": 14744,
+          "url": "https://luarocks.org/kong-plugin-api-gateway-jurnal-1.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.api-gateway-jurnal.handler",
+        "kong.plugins.api-gateway-jurnal.schema"
+      ],
+      "origin": {
+        "date": "Thu, 12 Sep 2024 03:24:48 GMT",
+        "sha256": "5b5144479cf3d861e96618c834cded52e6f76ed3857b438c4014e995f2d4b5bc",
+        "size": 14744,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-api-gateway-jurnal-1.0.2-1.src.rock"
+      },
+      "size": 3845,
+      "summary": "This plugin is used to inject access token to header for each request to the upstream service",
+      "undeclared_requires": [
+        "bit",
+        "kong.db.schema.typedefs",
+        "kong.tools.utils",
+        "lyaml",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

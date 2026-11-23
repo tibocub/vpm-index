@@ -1,0 +1,236 @@
+--imports
+local Lexer = require("dogma.lex.Lexer")
+local TokenType = require("dogma.lex.TokenType")
+local DirectiveParser = require("dogma.syn.DirectiveParser")
+local ExpParser = require("dogma.syn.ExpParser")
+local StmtParser = require("dogma.syn.StmtParser")
+local UnpackParser = require("dogma.syn.UnpackParser")
+local Annots = require("dogma.syn._.Annots")
+
+--A parser.
+local Parser = {}
+Parser.__index = Parser
+package.loaded[...] = Parser
+
+--Constructor.
+function Parser.new()
+  local self
+
+  --(1) create
+  self = setmetatable({_ = {}}, Parser)
+  self._.options = {react = false}
+  self._.lexer = Lexer.new()
+  self._.directiveParser = DirectiveParser.new(self)
+  self._.expParser = ExpParser.new(self)
+  self._.stmtParser = StmtParser.new(self)
+  self._.unpackParser = UnpackParser.new(self)
+  self._.expParser._.stmtParser = self._.stmtParser
+
+  --(2) return
+  return self
+end
+
+--Parse a given text.
+--
+--@param txt:string   Text to parse.
+--@param file?:string File name.
+function Parser:parse(txt, file, opts)
+  if not opts then
+    opts = {react = false}
+  end
+
+  self._.lexer:scan(txt, file)
+  self._.file = file
+  self._.options = opts
+end
+
+--Configure React option.
+function Parser:setReact()
+  self._.options.react = true
+end
+
+--Parse the next sentence.
+--
+--@return Sentence
+function Parser:next()
+  local lex, stmter, direr = self._.lexer, self._.stmtParser, self._.directiveParser
+  local sent, tok, annots
+
+  --(1) remove white lines and read annotations
+  annots = Annots.new()
+  tok = lex:advance()
+  while true do
+    if tok == nil then
+      break
+    elseif tok.type == TokenType.EOL then
+      lex:next()
+    elseif tok.type == TokenType.ANNOTATION then
+      lex:next()
+      annots:insert(tok)
+    else
+      break
+    end
+
+    tok = lex:advance()
+  end
+
+   --(2) parse next sentence
+  tok = lex:advance()
+
+  if tok ~= nil then
+    if tok.type == TokenType.DIRECTIVE then
+      if tok.value:find("^coverage ") then
+        sent = direr:nextCoverage()
+      elseif tok.value == "env" then
+        sent = direr:nextEnv()
+      elseif tok.value:find("^if ") then
+        sent = direr:nextIf()
+      elseif tok.value:find("^insert ") then
+        sent = direr:nextInsert()
+      elseif tok.value:find("^/") then
+        sent = direr:nextRunWith()
+      elseif tok.value == "react" then
+        sent = direr:nextReact()
+        self:setReact()
+      end
+    elseif tok:isKeyword() then
+      if tok.value == "async" then
+        local aux = lex:advance(2)
+
+        if aux:isKeyword("fn") then
+          sent = stmter:nextFn(annots)
+        elseif aux:isKeyword("proc") or aux:isKeyword("pr") then
+          sent = stmter:nextProc(annots)
+        else
+          sent = stmter:nextAsync()
+        end
+      elseif tok.value == "await" then
+        tok = lex:advance(2)
+
+        if tok:isKeyword("for") then
+          sent = stmter:nextForEach()
+        else
+          sent = self:nextExp()
+        end
+      elseif tok.value == "break" then
+        sent = stmter:nextBreak()
+      elseif tok.value == "const" then
+        sent = stmter:nextConst()
+      elseif tok.value == "do" then
+        sent = stmter:nextDo()
+      elseif tok.value == "enum" then
+        sent = stmter:nextEnum(annots)
+      elseif tok.value == "export" or tok.value == "pub" then
+        local toParse = tok.value
+
+        tok = lex:advance(2)
+
+        if tok:isKeyword() then
+          if tok.value == "async" then
+            tok = lex:advance(3)
+
+            if tok:isKeyword("fn") then
+              sent = stmter:nextFn(annots)
+            elseif tok:isKeyword("proc") or tok:isKeyword("pr") then
+              sent = stmter:nextProc(annots)
+            end
+          elseif tok.value == "const" then
+            sent = stmter:nextConst()
+          elseif tok.value == "enum" then
+            sent = stmter:nextEnum(annots)
+          elseif tok.value == "fn" then
+            sent = stmter:nextFn(annots)
+          elseif tok.value == "intf" then
+            sent = stmter:nextIntf(annots)
+          elseif tok.value == "proc" or tok.value == "pr" then
+            sent = stmter:nextProc(annots)
+          elseif tok.value == "type" then
+            sent = stmter:nextType(annots)
+          elseif tok.value == "struct" then
+            sent = stmter:nextStruct(annots)
+          elseif tok.value == "var" then
+            sent = stmter:nextVar()
+          end
+        end
+
+        if not sent then
+          if toParse == "pub" then
+            sent = stmter:nextPub()
+          elseif toParse == "export" then
+            sent = stmter:nextExport()
+          end
+        end
+      elseif tok.value == "fn" then
+        sent = stmter:nextFn(annots)
+      elseif tok.value == "for" then
+        tok = lex:advance(2)
+
+        if tok:isKeyword("each") then
+          sent = stmter:nextForEach()
+        else
+          sent = stmter:nextFor()
+        end
+      elseif tok.value == "from" then
+        sent = stmter:nextFrom()
+      elseif tok.value == "if" then
+        sent = stmter:nextIf()
+      elseif tok.value == "intf" then
+        sent = stmter:nextIntf(annots)
+      elseif tok.value == "next" then
+        sent = stmter:nextNext()
+      elseif tok.value == "proc" or tok.value == "pr" then
+        sent = stmter:nextProc(annots)
+      elseif tok.value == "return" then
+        sent = stmter:nextReturn()
+      elseif tok.value == "type" then
+        sent = stmter:nextType(annots)
+      elseif tok.value == "struct" then
+        sent = stmter:nextStruct(annots)
+      elseif tok.value == "until" then
+        sent = stmter:nextUntil()
+      elseif tok.value == "use" then
+        tok = lex:advance(2)
+
+        if not tok:isSymbol("(") or (tok:isSymbol("(") and lex:advance(3):isEol()) then
+          sent = stmter:nextUse()
+        end
+      elseif tok.value == "var" then
+        sent = stmter:nextVar()
+      elseif tok.value == "while" then
+        sent = stmter:nextWhile()
+      elseif tok.value == "with" then
+        sent = stmter:nextWith()
+      elseif tok.value == "yield" then
+        sent = stmter:nextYield()
+      end
+    end
+
+    if not sent and tok:isSymbol() and (tok.value == "[" or tok.value == "{") then
+      sent = self._.unpackParser:next()
+    end
+
+    if not sent then
+      sent = self:nextExp()
+    end
+  end
+
+  --(3) return
+  return sent
+end
+
+--Read the next expression.
+--
+--@return Exp
+function Parser:nextExp()
+  local ok, res = pcall(function() return self._.expParser:next() end)
+
+  if ok then
+    return res
+  else
+    if res:match(".lua:[0-9]+: %([0-9]+, [0-9]+%)") then
+      error(self._.lexer._.file .. res:gsub("^.+lua:[0-9]+:", ""))
+    else
+      error(res)
+    end
+  end
+end

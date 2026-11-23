@@ -1,0 +1,56 @@
+-- Plugin registry for qdiscs, filters, and actions.
+--
+-- Plugins (see htb.plugins.*) register themselves here. The resolver and
+-- script generator look up renderers by (kind, name).
+
+local M = {}
+
+local Kinds = { qdisc = {}, filter = {}, action = {} }
+
+-- Register a plugin.
+--   kind: "qdisc" | "filter" | "action"
+--   name: e.g. "sfq", "u32", "mirred"
+--   spec: { description = string, params = { name = {description, required, example} },
+--           render = function(entry, ctx) -> list of strings }
+function M.register(kind, name, spec)
+    if not Kinds[kind] then
+        error("unknown plugin kind: " .. tostring(kind), 2)
+    end
+    Kinds[kind][name] = spec
+end
+
+function M.get(kind, name)
+    return Kinds[kind] and Kinds[kind][name]
+end
+
+function M.has(kind, name)
+    return M.get(kind, name) ~= nil
+end
+
+-- List everything, for `htb --list`.
+function M.list_all()
+    local function entries(tbl)
+        local out = {}
+        for name, spec in pairs(tbl) do
+            out[#out + 1] = { name = name, description = spec.description, params = spec.params }
+        end
+        -- deterministic ordering
+        table.sort(out, function(a, b) return a.name < b.name end)
+        return out
+    end
+
+    return {
+        qdiscs = entries(Kinds.qdisc),
+        filters = entries(Kinds.filter),
+        actions = entries(Kinds.action),
+    }
+end
+
+-- Reset (used by tests).
+function M.reset()
+    for k in pairs(Kinds) do
+        Kinds[k] = {}
+    end
+end
+
+return M

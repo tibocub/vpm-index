@@ -1,0 +1,100 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-agent-guard",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-http >= 0.17",
+        "lua-resty-openssl >= 0.8"
+      ],
+      "files": {
+        "kong/plugins/agent-guard/client.lua": {
+          "sha256": "20793f53713c4ed4c7314ce93f26398587cd2d1239dee7c41bb21bc7e5d18038",
+          "size": 1102,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/client.lua"
+        },
+        "kong/plugins/agent-guard/crypto.lua": {
+          "sha256": "5e2c15083ade7d0fed9b3a13766e5594f0489d8a34febbfbc68b5bffb981c792",
+          "size": 1200,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/crypto.lua"
+        },
+        "kong/plugins/agent-guard/handler.lua": {
+          "sha256": "024b06fb0bac84ded39d5bacc2ad009c689a14178dc264dfc17674d4ccd770db",
+          "size": 4336,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/handler.lua"
+        },
+        "kong/plugins/agent-guard/jwt_bind.lua": {
+          "sha256": "59dafd41bacbbfb3e6142e9956609406e78c09cf9fd158a81861c95bbb7868d0",
+          "size": 1379,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/jwt_bind.lua"
+        },
+        "kong/plugins/agent-guard/keys.lua": {
+          "sha256": "0afcce593e522bb4ffea9972b684c598a7677f56da0a5daa5ae7ab6f02a3e0d7",
+          "size": 1039,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/keys.lua"
+        },
+        "kong/plugins/agent-guard/request.lua": {
+          "sha256": "52db8b29ef8bf2212567e0876f403a363441ca714c16aa134aa2e1d1f1e2ce01",
+          "size": 1403,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/request.lua"
+        },
+        "kong/plugins/agent-guard/schema.lua": {
+          "sha256": "31694bacd0c889fc0a0c8d517c164285d5dc824b8ea6885ab0cef99073ba7f8e",
+          "size": 1795,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/schema.lua"
+        },
+        "kong/plugins/agent-guard/verify.lua": {
+          "sha256": "d05c488c8c11758d6b5b8260d1e5665e0640321a5e1a10a84cd48cda453cef63",
+          "size": 3319,
+          "url": "https://raw.githubusercontent.com/complyee/kong-plugin-agent-guard/0c24ed02426512918ffc51ccace7d7b1860a0b6f/kong/plugins/agent-guard/verify.lua"
+        }
+      },
+      "homepage": "https://agent-cr.com/plugins#kong-gateway",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 12 Nov 2026 09:33:09 GMT",
+        "rockspec": {
+          "date": "Thu, 12 Nov 2026 09:33:09 GMT",
+          "sha256": "15aacaee1b3c554ae2e5e489c886087a90449bb461c88e52d6e5b96524d83ed7",
+          "size": 1504
+        }
+      },
+      "modules": [
+        "kong.plugins.agent-guard.client",
+        "kong.plugins.agent-guard.crypto",
+        "kong.plugins.agent-guard.handler",
+        "kong.plugins.agent-guard.jwt_bind",
+        "kong.plugins.agent-guard.keys",
+        "kong.plugins.agent-guard.request",
+        "kong.plugins.agent-guard.schema",
+        "kong.plugins.agent-guard.verify"
+      ],
+      "origin": {
+        "commit": "0c24ed02426512918ffc51ccace7d7b1860a0b6f",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/complyee/kong-plugin-agent-guard"
+      },
+      "size": 15573,
+      "summary": "Agent Control Room enforcement point for Kong Gateway",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "ngx.base64",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

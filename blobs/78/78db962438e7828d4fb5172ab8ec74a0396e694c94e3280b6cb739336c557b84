@@ -1,0 +1,182 @@
+local dir = require "pl.dir"
+local path = require "pl.path"
+local graph = require "volksdata.graph"
+local nsm = require "volksdata.namespace"
+local term = require "volksdata.term"
+local triple = require "volksdata.triple"
+
+local pkar = require "pocket_archive"
+local repo = require "pocket_archive.repo"
+
+local logger = pkar.logger
+
+local member_of_pred = term.new_iriref_ns("pas:memberOf")
+local label_pred = term.new_iriref_ns("pas:label")
+local descr_pred = term.new_iriref_ns("pas:description")
+local ns_pred = term.new_iriref_ns("pas:namespace")
+
+
+--[[-- List all vocabularies as vkey:metadata pairs.
+
+Invoking this function refreshes the `index` attribute of the module.
+
+@treturn table Keys are vocabulary keys; values are tables including:
+    label, description, namespace.
+]]
+local function get_index(t)
+    if not rawget(t, "_index") then
+        local voc_ts = t.gr:term_set(
+            pkar.RDF_TYPE, triple.POS_P,
+            t.voc_type, triple.POS_O)
+
+        local index = {}
+        for voc_uri in voc_ts:iter() do
+            local vkey = voc_uri.data:gsub("^" .. pkar.config.model.vocab_ns, "")
+            local v = {
+                ns = t.gr:attr(voc_uri, ns_pred):iter()().data,
+            }
+            local label_ts = t.gr:attr(voc_uri, label_pred)
+            -- TODO multilingual
+            v.label = label_ts:iter()().data
+            local descr_ts = t.gr:attr(voc_uri, descr_pred)
+            if #descr_ts > 0 then v.description = descr_ts:iter()().data end
+            index[vkey] = v
+        end
+        rawset(t, "_index", index)
+    end
+
+    return rawget(t, "_index")
+end
+
+
+logger:debug("Loading vocab module: " .. debug.traceback())
+
+local M = {
+    --- Graph under which all controlled vocabularies are stored.
+    voc_type = term.new_iriref_ns("pas:Vocabulary"),
+    term_type = term.new_iriref_ns("pas:VocabularyTerm"),
+    -- Cache of URI-label terms, indexed by vocab ID and term ID.
+    gr = nil,  -- Graph with all vocab triples.
+    term_cache = {},  -- Term cache.
+    index = nil,   -- Index of vocab metadata from `list()`.
+}
+
+setmetatable(M, {
+    __index = function(t, k)
+        if k == "index" then return get_index(M)
+        elseif k == "gr" then
+            if not rawget(t, "_gr") then
+                local gr = graph.new(
+                      repo.store, pkar.config.namespace.gr .. "vocab")
+                rawset(t, "_gr", gr)
+            end
+            return rawget(t, "_gr")
+
+        else return nil end
+    end,
+})
+
+setmetatable(M.term_cache, { __mode = "v" })
+
+
+function M.init()
+    -- Reset vocabulary graph.
+    M.gr:remove()
+
+    local it = M.gr:add_init()
+    local voc_ct, term_ct = 0, 0
+
+    logger:info("Initializing controlled vocabularies.")
+
+    for _, fpath in ipairs(dir.getfiles(
+        path.join(pkar.config_path, "vocab"), "*.lua"
+    )) do
+        local vocs = dofile(fpath)
+
+        for voc_key, data in pairs(vocs) do
+            logger:debug("Adding vocabulary: " .. data.label)
+            local voc_uri = term.new_iriref_ns("pav:" .. voc_key)
+            it:add_iter(triple.new(voc_uri, pkar.RDF_TYPE, M.voc_type))
+            it:add_iter(triple.new(
+                    voc_uri, label_pred, term.new_lit(data.label)))
+            it:add_iter(triple.new(
+                    voc_uri, ns_pred,
+                    term.new_lit(data.namespace or pkar.config.model.vocab_ns)))
+            if data.description then
+                it:add_iter(triple.new(
+                        voc_uri, term.new_iriref_ns("pas:description"),
+                        term.new_lit(data.label)))
+            end
+            for t_key, label in pairs(data.entries) do
+                logger:debug(("Adding term %s to %s"):format(label, data.label))
+                local term_uri = term.new_iriref((
+                    data.namespace or pkar.config.model.vocab_ns
+                ) .. t_key)
+                it:add_iter(triple.new(term_uri, pkar.RDF_TYPE, M.term_type))
+                it:add_iter(triple.new(term_uri, member_of_pred, voc_uri))
+                it:add_iter(triple.new(term_uri, label_pred, term.new_lit(label)))
+
+                term_ct = term_ct + 1
+            end
+            voc_ct = voc_ct + 1
+        end
+    end
+    it:add_done()
+    logger:info(("Added %d terms to %d vocabularies."):format(term_ct, voc_ct))
+
+    -- Reset index and term cache.
+    M.index = nil
+    M.term_cache = {}
+end
+
+
+-- Return fully-qualified URI and label of a term by vocab key and term key.
+function M.get(vkey, tkey)
+    -- The term cache keys are concatenations of vocabulary and term keys,
+    -- separated by a colon.
+    if M.term_cache[vkey .. ":" .. tkey] == nil then
+        local v_uri = term.new_iriref_ns("pav:" .. vkey)
+        if not M.gr:contains(triple.new(v_uri, pkar.RDF_TYPE, M.voc_type)) then
+            return nil, "No such vocabulary key: " .. vkey
+        end
+        -- ns should be guaranteed unless the DB is broken.
+        local ns_ts = M.gr:attr(v_uri, ns_pred)
+        local ns = ns_ts:iter()().data
+
+        local t_uri = term.new_iriref(ns .. tkey)
+        -- TODO multilingual
+        local label_ts = M.gr:attr(t_uri, label_pred)
+        if #label_ts == 0 then return nil, "No such term key: " .. tkey end
+
+        local label = label_ts:iter()().data
+        M.term_cache[vkey .. ":" .. tkey] = {t_uri, label}
+    end
+
+    return table.unpack(M.term_cache[vkey .. ":" .. tkey])
+end
+
+
+function M.terms(vkey)
+    local v_uri = term.new_iriref_ns("pav:" .. vkey)
+    if not M.gr:contains(triple.new(v_uri, pkar.RDF_TYPE, M.voc_type)) then
+        return nil, "No such vocabulary key: " .. vkey
+    end
+    local ns = M.gr:attr(v_uri, ns_pred):iter()().data
+
+    terms_ts = M.gr:term_set(
+            member_of_pred, triple.POS_P,
+            v_uri, triple.POS_O)
+
+    terms = {}
+    for t_uri in terms_ts:iter() do
+        local tkey = t_uri.data:gsub("^" .. ns, "")
+        -- TODO multilingual
+        local label = M.gr:attr(t_uri, label_pred):iter()().data
+
+        terms[tkey] = {label = label, uri = t_uri.data}
+    end
+
+    return terms
+end
+
+return M

@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "lua-m6502",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "M6502/utils.lua": {
+          "sha256": "e315c357287be319dbc2cc4dd786bce2eb57e82571d027ba5123d205dd8e6e7e",
+          "size": 3484,
+          "url": "blob:e315c357287be319dbc2cc4dd786bce2eb57e82571d027ba5123d205dd8e6e7e"
+        }
+      },
+      "homepage": "http://github.com/mooffie/lua-M6502",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Wed, 31 Aug 2016 12:53:47 GMT",
+        "rockspec": {
+          "date": "Wed, 31 Aug 2016 12:53:47 GMT",
+          "sha256": "ee46223e5139fd31b6dcda93e50e18e5b0f9b0a76c43d4b51eb890cf9a74b418",
+          "size": 869
+        },
+        "src": {
+          "date": "Wed, 31 Aug 2016 12:53:57 GMT",
+          "sha256": "e1008d557cc1ee2bccebd1c6de5108abbf21482a29a29b2bb867c7daeff55f90",
+          "size": 62936,
+          "url": "https://luarocks.org/lua-m6502-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "M6502",
+        "M6502.utils"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "M6502",
+              "sources": [
+                "src/main.c",
+                "src/utils.c",
+                "src/lutils.c",
+                "lib/piumarta/lib6502.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 31 Aug 2016 12:53:57 GMT",
+        "sha256": "e1008d557cc1ee2bccebd1c6de5108abbf21482a29a29b2bb867c7daeff55f90",
+        "size": 62936,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-m6502-1.0-1.src.rock"
+      },
+      "size": 3484,
+      "summary": "Emulator for the 6502 microprocessor (using Ian Piumarta's C library)",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+local _module_0 = { }
+local string = require('string')
+local table = require('table')
+local split
+split = function(s, sep, plain)
+	local ix, list = 1, { }
+	while #sep > 0 and ix <= (#s + 1) do
+		local sepix, endix = string.find(s, sep, ix, plain)
+		if not sepix then
+			sepix, endix = #s + 1, #s + 1
+		end
+		list[#list + 1] = string.sub(s, ix, sepix - 1)
+		ix = endix + 1
+	end
+	if #list == 0 then
+		list[#list + 1] = s
+	end
+	return list
+end
+_module_0["split"] = split
+local escapepat
+escapepat = function(s)
+	s = string.gsub(s, '[%-%.%+%[%]%(%)%$%^%%%?%*]', '%%%1')
+	return s
+end
+_module_0["escapepat"] = escapepat
+return _module_0

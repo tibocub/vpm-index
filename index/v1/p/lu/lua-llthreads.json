@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "lua-llthreads",
+  "versions": {
+    "1.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/Neopallium/lua-llthreads",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Wed, 02 Oct 2024 10:06:18 GMT",
+        "rockspec": {
+          "date": "Wed, 02 Oct 2024 10:06:18 GMT",
+          "sha256": "93f161f6f8955e20fdd245a04eb8aa40843b3373f2ad58d14b28a5331541dea9",
+          "size": 458
+        },
+        "src": {
+          "date": "Wed, 02 Oct 2024 10:06:19 GMT",
+          "sha256": "8493b372f7cd8576ef480589e9fd36d2808d47d10d496f597224fe1cbc6e91c8",
+          "size": 34173,
+          "url": "https://luarocks.org/lua-llthreads-1.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "llthreads"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "libraries": [
+                "pthread"
+              ],
+              "name": "llthreads",
+              "sources": [
+                "src/pre_generated-llthreads.nobj.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 02 Oct 2024 10:06:19 GMT",
+        "sha256": "8493b372f7cd8576ef480589e9fd36d2808d47d10d496f597224fe1cbc6e91c8",
+        "size": 34173,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-llthreads-1.3-1.src.rock"
+      },
+      "summary": "Low-Level threads for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+--imports
+local Directive = require("dogma.syn._.Directive")
+local DirectiveType = require("dogma.syn.DirectiveType")
+
+--A react directive.
+local ReactDirective = {}
+ReactDirective.__index = ReactDirective
+setmetatable(ReactDirective, {__index = Directive})
+package.loaded[...] = ReactDirective
+
+--Constructor.
+function ReactDirective.new(ln, col)
+  return setmetatable(Directive.new(DirectiveType.REACT, ln, col), ReactDirective)
+end

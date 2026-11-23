@@ -1,0 +1,100 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-cads-jwt-keycloak",
+  "versions": {
+    "1.6.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-keycloak/handler.lua": {
+          "sha256": "334b258fc01a49a9f09de21ddb6faf8a08f3c3d54c687d7d40d0772b18ad079b",
+          "size": 12684,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak/2e644703a0ce7850947524fba69721f739162c24/src/handler.lua"
+        },
+        "kong/plugins/jwt-keycloak/key_conversion.lua": {
+          "sha256": "82bce263f6b269d0f54b378ce27c8cc397330f4391feb4a19d4f863fa9ff6508",
+          "size": 2529,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak/2e644703a0ce7850947524fba69721f739162c24/src/key_conversion.lua"
+        },
+        "kong/plugins/jwt-keycloak/keycloak_keys.lua": {
+          "sha256": "58b86203b0977730697255885a8e0a3b7e32e860ad26513ada4d14ec88eb5bbe",
+          "size": 1755,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak/2e644703a0ce7850947524fba69721f739162c24/src/keycloak_keys.lua"
+        },
+        "kong/plugins/jwt-keycloak/schema.lua": {
+          "sha256": "1b32fc82fdf7f3a8055789ab2c302ab2bf9f373becf8788f7da678cdf26e5fc7",
+          "size": 2017,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak/2e644703a0ce7850947524fba69721f739162c24/src/schema.lua"
+        },
+        "kong/plugins/jwt-keycloak/validators/issuers.lua": {
+          "sha256": "6017d9f5f8cdde25bd7a1f5352c688415494a417ae5c9662d86d1dc8830c4aca",
+          "size": 552,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak/2e644703a0ce7850947524fba69721f739162c24/src/validators/issuers.lua"
+        },
+        "kong/plugins/jwt-keycloak/validators/roles.lua": {
+          "sha256": "81f2ae4090693bd22c9015bcd0ab3f95726fdd5ab18733580d17dd0e3a1bd8e8",
+          "size": 2384,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak/2e644703a0ce7850947524fba69721f739162c24/src/validators/roles.lua"
+        },
+        "kong/plugins/jwt-keycloak/validators/scope.lua": {
+          "sha256": "0d0f5e3b063c4f34ca4fabcac6f9fef20ff3c78827b2994fa57bb72723d86dd0",
+          "size": 1109,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak/2e644703a0ce7850947524fba69721f739162c24/src/validators/scope.lua"
+        }
+      },
+      "homepage": "https://github.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak.git",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5",
+      "luarocks": {
+        "date": "Fri, 08 Mar 2024 18:58:47 GMT",
+        "rockspec": {
+          "date": "Fri, 08 Mar 2024 18:58:47 GMT",
+          "sha256": "f3f56de5ad9a7b9a3c7c7274e1904b7faa3d07df4ad14981197b0b67d35417e6",
+          "size": 1400
+        },
+        "src": {
+          "date": "Fri, 08 Mar 2024 18:58:47 GMT",
+          "sha256": "589df951835cbe06078b867e815a5032b9e8be1dbbd619e724c284bb4986a9c5",
+          "size": 40856,
+          "url": "https://luarocks.org/kong-plugin-cads-jwt-keycloak-1.6.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-keycloak.handler",
+        "kong.plugins.jwt-keycloak.key_conversion",
+        "kong.plugins.jwt-keycloak.keycloak_keys",
+        "kong.plugins.jwt-keycloak.schema",
+        "kong.plugins.jwt-keycloak.validators.issuers",
+        "kong.plugins.jwt-keycloak.validators.roles",
+        "kong.plugins.jwt-keycloak.validators.scope"
+      ],
+      "origin": {
+        "commit": "2e644703a0ce7850947524fba69721f739162c24",
+        "ref": "1.6.0",
+        "type": "git",
+        "url": "https://github.com/CADSCombustibleLemons/kong-plugin-cads-jwt-keycloak"
+      },
+      "size": 23030,
+      "summary": "A Kong plugin that will validate tokens issued by keycloak",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser",
+        "socket",
+        "socket.http",
+        "socket.url",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 7
+      }
+    }
+  }
+}

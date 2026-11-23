@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-certificate-sso",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-http",
+        "lua-resty-jwt",
+        "lua-resty-string >= 0.9",
+        "net-url >= 0.9-1"
+      ],
+      "files": {
+        "resty/certificate-sso.lua": {
+          "sha256": "6f86db8232f046cb11114395256f3a9a01ebad56ebedbeac3fe7600b3920e9df",
+          "size": 13783,
+          "url": "https://raw.githubusercontent.com/sidoh/lua-resty-certificate-sso/ba709ac4e1869c465bab060620acd6cafc504835/./lib/resty/certificate-sso.lua"
+        }
+      },
+      "homepage": "https://github.com/sidoh/lua-resty-certificate-sso",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Sat, 12 Oct 2019 22:09:11 GMT",
+        "rockspec": {
+          "date": "Sat, 12 Oct 2019 22:09:11 GMT",
+          "sha256": "45d7d5ebf5d078b093b00d17763bd862918a37f36dd5ed2a0f7a99fe2a01120e",
+          "size": 996
+        },
+        "src": {
+          "date": "Sat, 12 Oct 2019 22:09:12 GMT",
+          "sha256": "e8da4a0fd88c3b6a73ef593cabbc36189fce2de2ed7334a6b4506b2e0e879db4",
+          "size": 18714,
+          "url": "https://luarocks.org/lua-resty-certificate-sso-0.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.certificate-sso"
+      ],
+      "origin": {
+        "commit": "ba709ac4e1869c465bab060620acd6cafc504835",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/sidoh/lua-resty-certificate-sso"
+      },
+      "size": 13783,
+      "summary": "A library and recipe for enabling client certificate-based SSO using OpenResty",
+      "undeclared_requires": [
+        "resty.jwt",
+        "resty.jwt-validators",
+        "resty.sso-authorizer"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-ngxvar",
+  "versions": {
+    "0.5.2-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "resty/ngxvar.lua": {
+          "sha256": "d56887db5b85d414723c9f3024f28f472af608038e747bb373fe74966d91f26a",
+          "size": 152,
+          "url": "https://raw.githubusercontent.com/api7/lua-var-nginx-module/53fe749f0a446d4beb89e002c7e20e57df5ba381/lib/resty/ngxvar.lua"
+        },
+        "resty/ngxvar/http.lua": {
+          "sha256": "28ed9377412d7fc256dc958b66de7300014db38165aa0e68e77c82b81fa0fcca",
+          "size": 4530,
+          "url": "https://raw.githubusercontent.com/api7/lua-var-nginx-module/53fe749f0a446d4beb89e002c7e20e57df5ba381/lib/resty/ngxvar/http.lua"
+        },
+        "resty/ngxvar/stream.lua": {
+          "sha256": "1d305a9fbf80b4615cb1434eb23e79986cd73297936e85684c4a8956f45b948d",
+          "size": 331,
+          "url": "https://raw.githubusercontent.com/api7/lua-var-nginx-module/53fe749f0a446d4beb89e002c7e20e57df5ba381/lib/resty/ngxvar/stream.lua"
+        }
+      },
+      "homepage": "https://github.com/api7/lua-var-nginx-module",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 17 Dec 2020 10:49:09 GMT",
+        "rockspec": {
+          "date": "Thu, 17 Dec 2020 10:49:09 GMT",
+          "sha256": "b9d5ce996c90f92a31c433fce9d07125d1dc51d45fbfdbad46997edef9e452d8",
+          "size": 621
+        }
+      },
+      "modules": [
+        "resty.ngxvar",
+        "resty.ngxvar.http",
+        "resty.ngxvar.stream"
+      ],
+      "origin": {
+        "commit": "53fe749f0a446d4beb89e002c7e20e57df5ba381",
+        "ref": "v0.5.2",
+        "type": "git",
+        "url": "https://github.com/api7/lua-var-nginx-module"
+      },
+      "size": 5013,
+      "summary": "Fetch nginx variable by FFI way for OpenResty which is faster",
+      "undeclared_requires": [
+        "resty.core.base"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

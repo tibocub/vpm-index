@@ -1,0 +1,30 @@
+--An overload parameter.
+local OverloadParam = {}
+OverloadParam.__index = OverloadParam
+package.loaded[...] = OverloadParam
+
+--Constructor.
+function OverloadParam.new(kind, type)
+  return setmetatable({kind = kind, type = type}, OverloadParam)
+end
+
+--Check whether the parameter is mandatory.
+--
+--@returns bool
+function OverloadParam:isMandatory()
+  return self.kind == "mandatory"
+end
+
+--Check whether the parameter is optional.
+--
+--@returns bool
+function OverloadParam:isOptional()
+  return self.kind == "optional"
+end
+
+--Check whether the parameter is discarding of the rest.
+--
+--@return bool
+function OverloadParam:isDiscard()
+  return self.kind == "..."
+end

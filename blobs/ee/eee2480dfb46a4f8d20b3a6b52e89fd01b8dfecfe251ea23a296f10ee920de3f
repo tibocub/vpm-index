@@ -1,0 +1,93 @@
+local kong = kong
+local ngx = ngx
+local http = require "resty.http"
+local math = math
+local timer_at = ngx.timer.at
+
+local http_connect_timeout = 1000
+local http_send_timeout = 1000
+local http_read_timeout = 1000
+local http_keepalive_timeout = 60000
+
+local TrafficShadowingHandler = {
+    PRIORITY = 1,
+    VERSION = "1.0.0",
+}
+
+local function set_logger_metrics(tags, stat_name, stat_type, stat_value, sample_rate)
+    if kong.ctx.shared.logger_metrics == nil then
+        kong.ctx.shared.logger_metrics = {}
+    end
+
+    table.insert(kong.ctx.shared.logger_metrics, {
+        tags = tags,
+        stat_name = stat_name,
+        stat_type = stat_type,
+        stat_value = stat_value,
+        sample_rate = sample_rate,
+    })
+end
+
+local function generate_random_number()
+    return math.random(100)
+end
+
+local function get_request_params()
+    local request = {
+        body = ngx.req.get_body_data(),
+        headers = kong.request.get_headers(),
+        method = kong.request.get_method(),
+        path = ngx.var.upstream_uri,
+    }
+    return request
+end
+
+local function get_mirror_url(mirror_url)
+    return "http://" .. mirror_url
+end
+
+local function send_request(premature, mirror_url, params)
+    if premature then
+        return
+    end
+
+    local http_client = http.new()
+    http_client:set_timeouts(http_connect_timeout, http_send_timeout, http_read_timeout)
+
+    local url = get_mirror_url(mirror_url)
+
+    local res, err = http_client:request_uri(url, params)
+    if err then
+        return nil, err
+    end
+    http_client:set_keepalive(http_keepalive_timeout)
+
+    return res
+end
+
+function TrafficShadowingHandler:access(conf)
+    ngx.req.read_body()
+end
+
+function TrafficShadowingHandler:log(conf)
+    local random_number = generate_random_number()
+
+    if conf.sampling_rate < random_number then
+        return
+    end
+
+    local request_params = get_request_params()
+
+    for _, mirror_url in pairs(conf.upstream_urls) do
+        local ok, err = timer_at(0, send_request, mirror_url, request_params)
+        if err then
+            kong.log.err("Error while sending request to mirror service: " .. err)
+            set_logger_metrics({
+                "mirror_url:" .. mirror_url,
+            }, "traffic_shadowing.error", "c", 1, 1)
+        end
+    end
+
+end
+
+return TrafficShadowingHandler

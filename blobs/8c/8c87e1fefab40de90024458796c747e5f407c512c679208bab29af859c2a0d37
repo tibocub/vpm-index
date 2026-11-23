@@ -1,0 +1,102 @@
+
+--- Code formatter
+---@class lrocket.CFmt
+---@field onwrite fun(text: string)
+local CFmt = {} do
+	CFmt.__index = CFmt
+	CFmt._indent = '\t'
+	CFmt._newline = '\n'
+	CFmt.level = 0
+	CFmt.vars = {}
+
+---@diagnostic disable-next-line: unused-local
+	function CFmt.onwrite(text)
+		error("define onwrite first", 2)
+	end
+
+	function CFmt:indent()
+		self.level = self.level + 1
+	end
+
+	function CFmt:deindent()
+		self.level = self.level - 1
+	end
+
+	function CFmt:writeindent()
+		self.onwrite(self._indent:rep(self.level))
+	end
+
+	function CFmt:newline()
+		self.onwrite(self._newline)
+	end
+
+	function CFmt:write(...)
+		for _, item in ipairs { ... } do
+			self.onwrite(item)
+		end
+	end
+
+	function CFmt:fline(fmt, ...)
+		self:writeindent()
+		self.onwrite(string.format(fmt, ...))
+		self:newline()
+	end
+
+	function CFmt:line(...)
+		self:list("", ...)
+	end
+
+	---@param sep string
+	---@param ... any
+	function CFmt:list(sep, ...)
+		self:writeindent()
+		local res = { ... }
+		for i = 1, select('#', ...) do
+			res[i] = tostring(res[i])
+		end
+		self.onwrite(table.concat(res, sep))
+		self:newline()
+	end
+
+	function CFmt:multiline(str)
+		local preindent = math.huge
+		for pot_preindent in ('\n'..str):gmatch "\n([ \t]*)%S+" do
+			preindent = math.min(preindent, #pot_preindent)
+		end
+		preindent = preindent + 1
+		for line in (str:match "^(.-)%s*$".."\n"):gmatch "([^\n]-)\n" do
+			self:line(line:sub(preindent))
+		end
+	end
+
+	function CFmt:fmultiline(fmt, ...)
+		self:multiline(fmt:format(...))
+	end
+
+	function CFmt:varmulti(fmt, vars)
+		vars = vars or self.vars
+		vars["$"] = "$"
+		self:multiline(fmt:gsub("$(%b{})", function(n) return vars[n:sub(2, -2)] end))
+	end
+end
+
+local cfmt = {}
+
+--- Generates a new lua formatter
+---@param file? file*
+---@param indent? string
+---@param newline? string
+---@return lrocket.CFmt
+function cfmt.newformatter(file, indent, newline)
+	local f = setmetatable({ _indent = indent, _newline = newline }, CFmt)
+
+	if file then
+		function f.onwrite(text)
+			file:write(text)
+		end
+	end
+
+	return f
+end
+
+return cfmt

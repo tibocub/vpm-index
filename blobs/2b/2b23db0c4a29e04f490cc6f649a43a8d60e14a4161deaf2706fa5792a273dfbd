@@ -1,0 +1,592 @@
+#!/usr/bin/lua
+
+local cli = require "cli"
+local json = require "cjson"
+local volk = require "volksdata"
+local dset = require "volksdata.data_set"
+local graph = require "volksdata.graph"
+local nsm = require "volksdata.namespace"
+local store = require "volksdata.store"
+local term = require "volksdata.term"
+
+local pkar = require "pocket_archive"
+local admin = require "pocket_archive.admin"
+local cmdoc = require "pocket_archive.cmdoc"
+local model = require "pocket_archive.model"
+local pres = require "pocket_archive.presentation"
+local repo = require "pocket_archive.repo"
+local submission = require "pocket_archive.submission"
+local Tree = require "pocket_archive.tree".Tree
+local vocab = require "pocket_archive.vocab"
+
+local RSRC_PFX = model.RSRC_PFX
+
+
+cli.locale "en_US"  -- TODO set with multilingual support.
+
+io.output(io.stdout)
+
+
+--- Local ID to URI converter that strips prefix.
+local id_to_uri = function(id)
+    return model.id_to_uri(id:gsub("^" .. RSRC_PFX, ""))
+end
+
+
+--
+-- CLI commands.
+--
+
+init = cli.command {
+    "Initialize a new Pocket Archive store.",
+    function()
+        io.write("WARNING! This will WIPE all your archive and website data!\n")
+        io.write("Enter 'yes' if you know what you are doing: ")
+        io.flush()
+        local a = io.read()
+        if a == "yes" then
+            io.write("Alright, you asked for it.\n")
+            admin.init()
+        else io.write("Chicken out.\n")
+        end
+    end
+}
+
+
+deposit = cli.command {
+    [[Deposit a Submission Information Package (SIP).
+
+    The command outputs the submission report as JSON to standard output, that
+    can be piped to `jq` or another parsing tool.
+
+    Exit codes:
+
+    0: success
+    1: general error
+    ]],
+
+    cli.positional "path" { "Path of the laundry list file." },
+
+    cli.flag "c,cleanup" {
+        "Remove laundry list and SIP after successful submission.",
+        type = cli.boolean,
+    },
+
+    function(args)
+        --require "debugger"()
+        local sub, err = submission.Submission:new(args.path)
+        local report
+        if not sub then
+            report = err
+        else report = sub:deposit(args.cleanup) end
+        io.write(json.encode(report))
+        io.write("\n")
+
+        if report.result ~= "success" then os.exit(1) end
+    end
+}
+
+
+list = cli.command {
+    "List all resource IDs.",
+
+    cli.flag "t,type" {
+        "Filter by type (codename). By default, all resources are listed.",
+        type = cli.string,
+        default = "resource"
+    },
+
+    cli.flag "v,verbose" {
+        "Display additional information (content type & label).",
+        type = cli.boolean,
+    },
+
+    function(args)
+        local ts, err = repo.list_resources(args.type)
+        if not ts then
+            io.write(err)
+            return 1
+        end
+        for s in ts:iter() do
+            io.stdout:write(nsm.denormalize_uri(s.data))
+            if args.verbose then
+                local label = (repo.get_single_v(s, "label") or {}).data
+                local schema = model.from_uri(
+                        repo.get_single_v(s, "content_type"))
+                io.stdout:write("\t" .. schema.label)
+                io.stdout:write("\t" .. (label or "-"))
+            end
+            io.stdout:write("\n")
+        end
+    end,
+}
+
+
+list_subs = cli.command {
+    "List all submissions.",
+
+    function()
+        for _, sub in ipairs(submission.list()) do
+            print(sub.tstamp, sub.id, sub.label or "")
+        end
+    end,
+}
+
+
+remove = cli.command {
+    "Remove a list of resources.",
+
+    cli.positional "path" {
+        ("Path of the delete list file or input stream. It must contain \z
+        one ID per line, in the short URI format (`%s<ID>`). If not \z
+        provided or `-', it is set to standard input."):format(RSRC_PFX),
+        type = cli.string,
+        default = "-",
+    },
+
+    cli.flag "m,members" {
+        "Remove the resource members recursively.",
+        type = cli.boolean,
+        default = false,
+    },
+
+    function(args)
+        if args.path == "-" then args.path = nil end
+        local ct = 0
+        for id in io.lines(args.path) do
+            if #id > 0 then  -- skip blank lines.
+                -- Normalize ID.
+                local _id = RSRC_PFX .. id:gsub("^" .. RSRC_PFX, "")
+                io.stderr:write("Deleting: " .. _id .. "\n")
+                local del_ids = repo.remove(_id, args.members)
+                for _ in pairs(del_ids) do ct = ct + 1 end
+            end
+        end
+
+        io.stdout:write(ct .. "\n")
+    end
+}
+
+
+gen_site = cli.command {
+    "Generate a static site from the archive.",
+
+    cli.flag "n,no-media" {
+        "Do not regenerate presentation media.",
+        type = cli.boolean,
+        default = false,
+    },
+
+    function() pres.generate_site() end
+}
+
+
+dump_res = cli.command {
+    [[Generate an RDF representation of one or more resources.
+
+    The output is in the TriG format.
+
+    Exit codes:
+
+    0: Success
+    1: General error
+    2: Wrong arguments
+    4: Resource not found
+    ]],
+
+    cli.positional "ids" {
+        "ID of the resource(s) to dump. If empty, read IDs from standard \z
+        input, separated by whitespace.",
+        type = cli.string,
+        many = true,
+        default = {},
+    },
+    --[[  TODO support NT/NQ if requested.
+    cli.flag "f,format" {
+        "RDF format. Options are `nt` and `nq`, or empty. Both `nt` and `nq` \z
+        will yield NT for a single resource and NQ for multiple \z
+        resources. Any other values (including none) will yield TTL for a \z
+        single resource and TriG for multiple resources.",
+        type = cli.string,
+        default = "ttl",
+    },
+    --]]
+    cli.flag "t,tree" {
+        "Include tree metadata.",
+        type = cli.boolean,
+        default = false,
+    },
+    cli.flag "o,output" {
+        "Output file. If not specified, output to stdout.",
+        type = cli.string,
+        default = io.stdout,
+    },
+
+    function(args)
+        io.output(args.output)
+        local ids
+        if #args.ids == 0 then
+            ids = {}
+            for id in io.stdin:read("a"):gmatch("[^%s]+") do
+                table.insert(ids, (id:gsub("^" .. RSRC_PFX, "")))
+            end
+            if #ids == 0 then
+                io.stderr:write("No IDs provided from input.\n")
+                os.exit(2)
+            end
+        else ids = args.ids end
+
+        -- Create a temporary store with a default graph containing all the
+        -- requested resources.
+        local tmp_store = store.new(
+                store.T_MDB, "file:///tmp/" .. model.idgen(6))
+        local default_gr = graph.new(tmp_store, repo.DEFAULT_CTX.data)
+        for _, id in ipairs(ids) do
+            local gr = repo.get_rsrc(model.id_to_uri(id))
+            if not gr then
+                io.stderr:write(("Resource not found: %s\n"):format(id))
+                os.exit(4)
+            end
+            gr:copy(default_gr)
+
+            if args.tree then
+                local t = Tree.get(id)
+                if t then
+                    tmp_t = graph.new(tmp_store, t.uri)
+                    t.gr:copy(tmp_t)
+                end
+            end
+        end
+
+        local ds = dset.new(tmp_store, true)
+        for chunk in ds:encode(volk.CODEC_FMT_TRIG) do io.write(chunk) end
+
+        if args.output ~= io.stdout then
+            print("File written to ", args.output)
+            io.close()
+        end
+    end,
+}
+
+
+get_members = cli.command {
+    "List all members of a resource.",
+
+    cli.positional "id" {
+        "ID of the resource.",
+        type = cli.string,
+    },
+
+    function(args)
+        -- Normalize prefix.
+        local s = id_to_uri(args.id)
+        for m_uri in repo.get_members(s):iter() do
+            io.stdout:write(model.uri_to_id(m_uri.data) .. "\n")
+        end
+    end,
+}
+
+
+dump_ll = cli.command {
+    [[Generate a laundry list for a stored resource or a whole submission.
+
+    Exit codes:
+
+    0: Success
+    1: General error
+    2: Wrong arguments
+    4: Resource not found
+    ]],
+
+    cli.positional "ids" {
+        "ID of the resource(s) to dump. If empty, read IDs from standard \z
+        input, separated by whitespace.",
+        type = cli.string,
+        many = true,
+        default = {},
+    },
+
+    cli.flag "t,type" {
+        "Type of laundry list. Use `sub` for a whole submission, or `res` \z
+        for an individual resource.",
+        type = cli.string,
+        default = "res",
+    },
+
+    cli.flag "o,output" {
+        "Output file. If `-` (the default), output to stdout.",
+        type = cli.string,
+        default = "-",
+    },
+
+    cli.flag "s,sparse" {
+        "Sparse output: trim empty columns. Slightly slower.",
+        type = cli.boolean,
+        default = false,
+    },
+
+    function(args)
+        local ids
+        if #args.ids == 0 then
+            ids = {}
+            for id in io.stdin:read("a"):gmatch("%g+") do
+                table.insert(ids, id)
+            end
+            if #ids == 0 then
+                io.stderr:write("No IDs provided from input.\n")
+                os.exit(2)
+            end
+        else ids = args.ids end
+
+        -- Multires LL cannot be sparse.
+        local sparse = #ids == 1 and args.sparse
+
+        if args.ouput == "-" then args.ouput = nil end
+        local fh =
+                (args.output == "-") and io.stdout
+                or io.open(args.output, "w")
+
+        for i, id in ipairs(ids) do
+            io.stderr:write("ID to dump: '" .. id .. "'\n")
+            local out
+            if args.type == "sub" then
+                -- Normalize prefix.
+                local s = term.new_iriref_ns("sub:" .. id:gsub("^sub:", ""))
+
+                -- Dump whole submission.
+                --[[
+                local co = coroutine.create(sub.generate_sub_ll)
+                while true do
+                    local r, res = coroutine.resume(co, s)
+                    if not r then break end
+                    if res then io.write(res) end
+                end
+                --]]
+                out = submission.generate_sub_ll(s, args.sparse)
+            else
+                -- One resource only.
+                local s = id_to_uri(id)
+
+                -- Concatenate LL data
+                out = submission.generate_res_ll(
+                    s,
+                    sparse,
+                    i ~= 1  -- Only write header on first iteration.
+                )
+            end
+            if out then fh:write(out)
+            else
+                io.stderr:write(("No resource found: \n"):format(id))
+                os.exit(4)
+            end
+        end
+
+        if args.output ~= "-" then
+            if out then print("File written to ", args.output) end
+            fh:close()
+        end
+    end
+}
+
+
+dump_tree = cli.command {
+    [[Generate a resource tree if it has one.
+
+    Return codes:
+
+    0: success (prints results to stdout)
+    4: resource not found
+    5: tree not found
+    ]],
+
+    cli.positional "id" {
+        "ID of the resource.",
+        type = cli.string,
+    },
+
+    function(args)
+        id = args.id:gsub("^" .. RSRC_PFX, "")
+        if not repo.is_rsrc(term.new_iriref_ns(RSRC_PFX .. id)) then
+            os.exit(4)
+        end
+
+        local tree = Tree.get(id)
+        if tree then
+            io.stdout:write(tostring(tree))
+        else
+            io.stdout:write("{}\n")
+            os.exit(5)
+        end
+    end,
+}
+
+
+update_vocab = cli.command {
+    "Update the controlled vocabularies.",
+
+    function(args)
+        io.stderr:write(vocab.init())
+    end,
+}
+
+
+list_terms = cli.command {
+    "List all terms in a vocabulary in pairs of: key, label.",
+
+    cli.positional "vkey" {
+        "Vocabulary key.",
+        type = cli.string,
+    },
+
+    function(args)
+        local res, msg = vocab.terms(args.vkey)
+        if not res then
+            io.stderr:write("ERROR: " .. msg .. "\n")
+            os.exit(4)
+        end
+        io.stdout:write(json.encode(res))
+    end
+}
+
+
+export = cli.command {
+    "Export the whole metadata store as RDF.",
+
+    cli.positional "path" {
+        "Destination file path.",
+        type = cli.string,
+        default = "-"
+    },
+
+    function(args)
+        if args.path == "-" then args.path = nil end
+        repo.export(args.path)
+        if args.path then
+            io.stderr:write("File written to " .. args.path .. "\n")
+        end
+    end,
+}
+
+
+backup = cli.command {
+    [[Perform a full archive backup to a destination folder.
+
+    This includes files, raw database, and configuration.
+
+    The configuration is modified so that the data paths point to the
+    backup copy, which is fully functional without any modification.
+    ]],
+
+    cli.positional "path" {
+        "Destination folder. The backup will be created in a new time-stamped \z
+        folder under it.",
+        type = cli.string,
+    },
+
+    function(args)
+        io.stdout:write(json.encode(admin.backup(args.path)))
+    end
+}
+
+
+restore = cli.command {
+    "Restore a metadata DB from a backup. \n\z
+    This command wipes out and rebuilds the target repository. \n\n\z
+    Note: the `PKAR_CONFIG` environment variable does not play a role here. \z
+    The locations to restore to (dres, ores, configuration) are indicated in \z
+    the manifest file provided.",
+
+    cli.positional "manifest" {
+        "Manifest file created by the `backup` command. It should be in the \z
+        backup folder under the nanme `pkar_restore.json`.",
+        type = cli.string,
+    },
+
+    function(args)
+        io.write("WARNING! This will WIPE all your archive data!\n\z
+            The locations affected are indicated in the file: `" ..
+            args.manifest .. "`. \n\z
+            It is STRONGLY RECOMMENDED to review the paths in `ores.dest`, \z
+            `dres.dest`, and `config.dest` of the JSON file, which will be \z
+            overwritten by this operation, before proceeding.\n\n")
+        io.write("Enter 'yes' if you want to continue: ")
+        io.flush()
+        local a = io.read()
+        if a == "yes" then
+            io.write("Alright, you asked for it.\n")
+            io.stdout:write(admin.restore(args.manifest))
+        else io.write("Chicken out.\n") end
+    end
+}
+
+
+list_ctypes = cli.command {
+    "List all content types.",
+
+    function(args)
+        for tname in pairs(model.schemata) do
+            io.write(tname)
+            io.write("\n")
+        end
+    end,
+}
+
+
+dump_config = cli.command {
+    "Dump the current configuration as JSON.",
+
+    function()
+        io.write(json.encode({
+            config_dir = pkar.config_path,
+            config = pkar.config,
+        }))
+    end
+}
+
+
+dump_schema = cli.command {
+    "Generate a structured representation of a content type schema as JSON.",
+
+    cli.positional "ctype" {
+        "Content type name.",
+        type = cli.string,
+    },
+
+    function(args)
+        local schema = model.schemata[args.ctype]
+        if not schema then
+            print("No such content type: ", ctype)
+            return 1
+        end
+
+        io.write(json.encode(schema))
+        io.write("\n")
+    end,
+}
+
+
+gen_cmdoc = cli.command {
+    "Generate an HTML page with content model documentation.",
+
+    cli.positional "path" {
+        "path for the generated file. Leave blank to output to stdout.",
+        type = cli.string,
+        default = "-",
+    },
+
+    function(args)
+        out_path = args.path
+        if out_path == "-" then out_path = nil end
+
+        ret = cmdoc.generate_doc(out_path)
+
+        if out_path then
+            io.write("Documentation generated at " .. ret .. "\n")
+        end
+    end,
+}
+
+
+cli.program {
+    "Pocket Archive command line interface.",
+}

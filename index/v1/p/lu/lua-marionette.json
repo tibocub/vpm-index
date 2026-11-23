@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "lua-marionette",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson ~> 2",
+        "luachild ~> 0.1",
+        "luasocket ~> 3"
+      ],
+      "files": {
+        "marionette/init.lua": {
+          "sha256": "9f5e9330c1715d3763ea718870ec5393e967d213b7fbcdf9d82892d8ddb65867",
+          "size": 2859,
+          "url": "blob:9f5e9330c1715d3763ea718870ec5393e967d213b7fbcdf9d82892d8ddb65867"
+        }
+      },
+      "homepage": "https://codeberg.org/leso-kn/lua-marionette",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sat, 08 Mar 2025 16:55:50 GMT",
+        "rockspec": {
+          "date": "Sat, 08 Mar 2025 16:55:50 GMT",
+          "sha256": "9441c21daad7cff4c04ca075a5ecfb9db977f7929921ba15455f194bf56b98da",
+          "size": 567
+        },
+        "src": {
+          "date": "Sat, 08 Mar 2025 16:55:51 GMT",
+          "sha256": "749a7f081357c658e63caac929d68aa565cc73866faef7553e7efb094e774066",
+          "size": 6497,
+          "url": "https://luarocks.org/lua-marionette-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "marionette",
+        "marionette.init",
+        "marionette.native"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "marionette.native",
+              "sources": [
+                "marionette/native.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-marionette"
+      },
+      "origin": {
+        "date": "Sat, 08 Mar 2025 16:55:51 GMT",
+        "sha256": "749a7f081357c658e63caac929d68aa565cc73866faef7553e7efb094e774066",
+        "size": 6497,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-marionette-0.1.1-1.src.rock"
+      },
+      "size": 2859,
+      "summary": "A client for the marionette protocol to automate the Mozilla Firefox browser in Lua",
+      "undeclared_requires": [
+        "luachild",
+        "mime",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

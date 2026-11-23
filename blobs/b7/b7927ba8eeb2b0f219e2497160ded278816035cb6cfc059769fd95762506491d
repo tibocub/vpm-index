@@ -1,0 +1,331 @@
+-- Variable for storing all the functions
+local dog = {}
+
+-- Functions are divided according to the standard library to extend
+dog.io = {}
+dog.os = {}
+dog.string = {}
+dog.utf8 = {}
+
+-- Imports dog functions to _G
+-- Allows using the other functions without a prefix, i.e.:
+-- dog.os.uname() => os.uname()
+function dog.import()
+  local msg = "[WARNING] [DOG] "
+  msg = msg .. "Ignoring import: '@1' already exists; use '@2' instead"
+  for libkey, dogfns in pairs(dog) do
+    local lib = _G[libkey]
+    if type(dogfns) == "table" then
+      for fnkey, fn in pairs(dogfns) do
+        if not(lib[fnkey]) then
+          lib[fnkey] = fn
+        else
+          local name = libkey .. "." .. fnkey .. "()"
+          msg = msg:gsub("@1", name):gsub("@2", "dog." .. name)
+          print(msg)
+        end
+      end
+    end
+  end
+end
+
+-- Tries popen
+-- @param ... string: Chunks for popen
+-- @return boolean, string: Status and output of popen
+function dog.io.try(...)
+  local cmd = table.concat({...}, " ") .. " 2>&1"
+  local handle = io.popen(cmd)
+  local output = handle:read("*a")
+  local status = (handle:close() ~= nil and true or false)
+  return status, output
+end
+
+-- Gets OS short name
+-- It is just intented to know if it is Linux, macOS or Windows.
+-- @return string: "linux" or "bsd" or "macos" or "windows"
+function dog.os.uname()
+  local status, output = dog.io.try("uname")
+  if status then
+    output = output:gsub(" .*", ""):lower()
+    if output ~= "linux" and output:match("bsd") ~= nil then
+      return "bsd"
+    elseif output ~= "linux" then
+      return "macos"
+    end
+    return "linux"
+  end
+  return "windows"
+end
+
+-- Checks if OS is windows
+-- @return boolean: Windows or not
+function dog.os.iswin()
+  return dog.os.uname() == "windows"
+end
+
+-- Checks if OS is Unix
+-- @return boolean: Unix or not
+function dog.os.isunix()
+  return dog.os.uname() ~= "windows"
+end
+
+-- Gets OS language
+-- @return string, string, string: Language, locale and encoding
+function dog.os.lang()
+  local lang = os.getenv("LANG")
+  if lang ~= nil then
+    return lang:match("(%w%w)_?(%w?%w?)%.?(.*)")
+  end
+  return "en", "US", "UTF-8"
+end
+
+-- Checks if string is empty
+-- @return boolean: Empty or not
+function dog.string.isempty(str)
+  return str == ''
+end
+
+-- Changes newlines so everything is in one line
+-- @return string: String with formatted newlines as literal "\n"
+function dog.string.linearize(str)
+  return str:gsub("\n", "\\n")
+end
+
+-- Normalizes string
+-- @return string: Normalized string
+function dog.string.normalize(str)
+  str = str:lower()
+  for newchar, chars in pairs(dog.utf8.table()) do
+    for _, oldchar in ipairs(chars) do
+      str = str:gsub(oldchar, newchar)
+    end
+  end
+  return str
+end
+
+-- Adds indent
+-- @param num number: Indent size, 2 by default
+-- @param char string: Indent character, space by default
+-- @return strin: Indented string
+function dog.string.indent(str, num, char)
+  num = num or 2
+  char = char or " "
+  char = string.rep(char, num)
+  return char .. str:gsub("\n", "\n" .. char)
+end
+
+-- Splits the string
+-- Note: only support splitting by one character.
+-- Could be solved by slicing with find.
+-- @param sep string: String separator, space by default
+-- @return table: String matches
+function dog.string.split(str, sep)
+  sep = sep or "%s+"
+  local parts = {}
+  for part in str:gmatch("([^" .. sep .. "]+)") do
+    table.insert(parts, part)
+  end
+  return parts
+end
+
+-- Removes spaces at the beginning of the string
+-- @return string: Left stripped string
+function dog.string.lstrip(str)
+  return str:gsub("^%s+", "")
+end
+
+-- Removes spaces at the end of the string
+-- @return string: Right stripped string
+function dog.string.rstrip(str)
+  return str:gsub("%s+$", "")
+end
+
+-- Removes spaces at the beginning and at the end of the string
+-- @return string: Stripped string
+function dog.string.strip(str)
+  str = dog.string.lstrip(str)
+  return dog.string.rstrip(str)
+end
+
+-- Alias of strip
+function dog.string.trim(str)
+  return dog.string.strip(str)
+end
+
+-- The following are heavily influenced by Python pathlib
+-- Check: https://docs.python.org/3/library/pathlib.html
+
+-- Checks if string is a file or a directory
+-- @return boolean: Exists or not
+function dog.string.exists(str)
+  return os.rename(str, str) ~= nil
+end
+
+-- Checks if string is a file
+-- @return boolean: File or not
+function dog.string.isfile(str)
+  if dog.string.exists(str) then
+    return io.open(str, "a+") ~= nil
+  end
+  return false
+end
+
+-- Checks if string is a directory
+-- @return boolean: Directory or not
+function dog.string.isdir(str)
+  if dog.string.exists(str) then
+    return io.open(str, "a+") == nil
+  elseif str == "." or str == ".." then
+    return true
+  end
+  return false
+end
+
+-- Reads file content as string
+-- @return string or nil: File as string or nil
+function dog.string.readtext(str)
+  if dog.string.exists(str) then
+    return io.open(str):read("*a")
+  end
+end
+
+-- Read file content as lines
+-- @return table: Table of file lines or nil
+function dog.string.readlines(str)
+  local lines = {}
+  if dog.string.exists(str) then
+    for line in io.open(str):lines() do
+      table.insert(lines, line)
+    end
+  end
+  return lines
+end
+
+-- Gets file without suffix
+-- @return string: File wihtout suffix
+function dog.string.stem(str)
+  return str:gsub("%.%a+$", "")
+end
+
+-- Gets file extensions
+-- @return table: List of file extensions
+function dog.string.suffixes(str)
+  local suffixes = {}
+  for suffix in str:gmatch("%.%a+") do
+    table.insert(suffixes, suffix)
+  end
+  return suffixes
+end
+
+-- Gets file final extension
+-- @return string: Final file extension
+function dog.string.suffix(str)
+  local suffixes = str:suffixes()
+  if suffixes[#suffixes] then
+    return suffixes[#suffixes]
+  end
+  return ""
+end
+
+-- Gets an equivalency table between ASCII and Unicode
+-- Note: filled on demand.
+-- @return table: ASCII-Unicode table equivalency
+function dog.utf8.table()
+  return {
+    ["a"] = {"á", "à", "ä"},
+    ["e"] = {"é", "è", "ë"},
+    ["i"] = {"í", "ì", "ï"},
+    ["o"] = {"ó", "ò", "ö"},
+    ["u"] = {"ú", "ù", "ü"},
+    ["n"] = {"ñ"},
+  }
+end
+
+-- Extends Pandoc Library
+-- Check: https://pandoc.org/lua-filters.html#module-pandoc
+
+if pandoc ~= nil then
+
+  -- Gets file extension namespace
+  -- Check: https://pandoc.org/MANUAL.html#general-options
+  -- If suffix is 'md' or empty, the default is markdown.
+  -- For the rest, the format is the suffix.
+  -- @param file string: File name
+  -- @return string: File extension according to Pandoc format namespaces
+  function pandoc.getext(file)
+    local ext = dog.string.suffix(file):gsub("^.", "")
+    return ((ext == "md" or dog.string.isempty(ext)) and "markdown" or ext)
+  end
+
+  -- Pandoc converter
+  -- Converts input file name into output format name.
+  -- If ofile is not nil, writes output file name.
+  -- If iformat is nil, defaults to ifile extension name.
+  -- @param ifile string: Input file name
+  -- @param oformat string: Output format name
+  -- @param ofile string or nil: Output file name
+  -- @param iformat string or nil: Input format name
+  -- @return string: Output file content
+  function pandoc.convert(ifile, oformat, ofile, iformat)
+    iformat = (iformat == nil and pandoc.getext(ifile) or iformat)
+    local itext = pandoc.read(dog.string.readtext(ifile), iformat)
+    local doc = pandoc.write(itext, oformat)
+    if ofile ~= nil then
+      local eol = (dog.os:isunix() and "\n" or "\r\n")
+      io.open(ofile, "w"):write(doc, eol):close()
+    end
+    return doc
+  end
+
+  -- Stringifies Pandoc content
+  -- Avoids undesired behavios of pandoc.utils.stringify, such as quotes and
+  -- backslashes conversions.
+  -- @param content pandoc.MetaValue: Pandoc content value
+  -- @return string: Pandoc stringified value
+  function pandoc.utils.rawstringify(content)
+    return pandoc.utils.stringify(content:walk {
+      Plain = function(plain)
+        table.insert(plain.content, pandoc.Space())
+        return plain
+      end,
+      Quoted = function(quoted)
+        local q = (quoted.quotetype == SingleQuoted and '"' or "'")
+        return pandoc.Str(q .. pandoc.utils.stringify(quoted.content) .. q)
+      end,
+      RawInline = function(rawinline)
+        return pandoc.Str(rawinline.text:gsub("\\n", "\n"):gsub("\\t", "\t"))
+      end,
+      SoftBreak = function(_)
+        return pandoc.Str("\n")
+      end,
+      Inline = function(inline) return pandoc.utils.stringify(inline) end,
+    })
+  end
+
+  -- Converts pandoc.Meta to table
+  -- Note that stringified numbers, such "1", are converted to numbers because
+  -- Pandoc doesn't make distinctions between strings and numbers.
+  -- Check: https://pandoc.org/lua-filters.html#type-metavalue
+  -- @param meta pandoc.Meta: Pandoc MetaValues collection
+  -- @return table: Pandoc metadata as table
+  function pandoc.metatotable(meta)
+    local newmeta = {}
+    for k, v in pairs(meta) do
+      if pandoc.utils.type(v) == "table" then
+        newmeta[k] = pandoc.metatotable(v)
+      else
+        if type(v) == "boolean" then
+          newmeta[k] = v
+        elseif tonumber(v) then
+          newmeta[k] = tonumber(v)
+        else
+          newmeta[k] = pandoc.utils.rawstringify(v)
+        end
+      end
+    end
+    return newmeta
+  end
+
+end
+
+return dog

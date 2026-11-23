@@ -1,0 +1,66 @@
+
+local files = {
+  {"name",'Name',ht="SELF"},
+  {"filename",'File'},
+  {"created",'Time',ht="DATETIME"},
+  {"fsize",'Size',ht="NUM"},
+  {"user"},
+  link = {id="refid",mod='refbase'},
+  order = "edited desc",
+  name = "File",
+  remove = 'Remove',
+}
+
+local folds = {
+  {'name', "Name",ht="SELF"},
+  {'note',"Description"},
+  {'folders.folder',"Folder",ht="SELECT",rt="file.folders"},
+  {'images',"Images",ht="CHECKBOX"},
+  {'user'},
+  name = "Folder",
+}
+
+local images = {
+  {"name","Name"},
+  {"view","",    ht = 'SHOW'},
+  {"description",'Description', ht="SHOW"},
+  --{"filename",'File'},
+  --{"fsize",'Size',ht="NUM"},
+  {"user"},
+  {"type"},
+  {"note"},
+  {"data"},
+  join={"file.folders on file.files.folder = file.folders.rowid"},
+  where = "file.files.rowid != (select min(file.files.rowid) from file.files where file.files.folder = file.folders.rowid)",
+  link = {id="file.files.folder"},
+  order = "file.files.rowid asc",
+  name = "File",
+  -- card=true,
+}
+
+local docs = {
+  {'docs.name', "Name",ht="SELF"},
+  {'files.name','File',ht='REF',rt='file.files'},
+  {'url','URL', ht = "WWW"},
+  {'send', "Send",ht="SHOW",opt="align='right'"},
+  {'user'},
+  {'refbase'},
+  {'refid'},
+  {'docs.file'},
+  join = {
+    "file.files on file.docs.file = file.files.rowid",
+  },
+  name = "Document",
+  link = {id="refid",mod="refbase"},
+}
+
+return {
+  {"files","Files",ls = files,guest={view=true}},
+  {"folders","Folders",{files={id="file.files.folder"},folders={id='folder'},docs={id='file.docs.folder'}},ls=folds},
+  {"images","Gallery",{files={id="file.files.folder",ls=images}},menu=2,
+                        guest={view=true,list=true,finder=false}
+                      },
+  {"docs","Documents",ls=docs,firms=1,persons=1,menu=3,mails=1,sales=1,
+                              files={id='file'},['transacts']=1}, --todo base
+}
+

@@ -1,0 +1,374 @@
+-- json: pure-lua JSON codec. no C library, no luarocks.
+--
+-- portable across lua 5.1 - 5.4 and luajit: no bitwise operators, no
+-- integer division, no goto.
+--
+-- lua tables lose two JSON distinctions. sentinels resolve both:
+--   json.null        explicit null. decode yields it, encode emits it
+--   json.EMPTY_ARRAY encodes as [], because a bare {} encodes as {}
+-- an empty table encodes as an object. MCP payloads want that nearly
+-- everywhere: capabilities, properties, arguments.
+
+---@class mcptk.json
+local M = {}
+
+---Explicit JSON null. Decode yields it, encode emits it.
+---@type table
+M.null = setmetatable({}, { __tostring = function() return "null" end })
+---Encodes as [], where a bare {} encodes as {}.
+---@type table
+M.EMPTY_ARRAY = setmetatable({}, { __tostring = function() return "[]" end })
+
+-- bounds recursion on both sides. on decode it stops a hostile message
+-- from exhausting the C stack; on encode it turns a reference cycle
+-- into an error instead of a hang.
+local MAX_DEPTH = 200
+
+-- ---- decode ----
+
+local function skip_ws(s, i)
+	while i <= #s do
+		local c = s:sub(i, i)
+		if c ~= " " and c ~= "\t" and c ~= "\n" and c ~= "\r" then
+			break
+		end
+		i = i + 1
+	end
+	return i
+end
+
+local function utf8_encode(cp)
+	if cp < 0x80 then
+		return string.char(cp)
+	elseif cp < 0x800 then
+		return string.char(0xC0 + math.floor(cp / 0x40),
+		    0x80 + cp % 0x40)
+	elseif cp < 0x10000 then
+		return string.char(0xE0 + math.floor(cp / 0x1000),
+		    0x80 + math.floor(cp / 0x40) % 0x40,
+		    0x80 + cp % 0x40)
+	end
+	return string.char(0xF0 + math.floor(cp / 0x40000),
+	    0x80 + math.floor(cp / 0x1000) % 0x40,
+	    0x80 + math.floor(cp / 0x40) % 0x40,
+	    0x80 + cp % 0x40)
+end
+
+local decode_value	-- forward decl, mutually recursive
+
+local ESCAPE_CHARS = {
+	n = "\n", t = "\t", r = "\r", b = "\b", f = "\f",
+	['"'] = '"', ["\\"] = "\\", ["/"] = "/",
+}
+
+local function decode_string(s, i)
+	i = i + 1	-- past opening quote
+
+	local out = {}
+
+	while true do
+		local c = s:sub(i, i)
+
+		if c == "" then
+			error("unterminated string")
+		elseif c == '"' then
+			return table.concat(out), i + 1
+		elseif c == "\\" then
+			local e = s:sub(i + 1, i + 1)
+			local lit = ESCAPE_CHARS[e]
+
+			if lit then
+				out[#out + 1] = lit
+			elseif e == "u" then
+				local hex = s:sub(i + 2, i + 5)
+				local cp = tonumber(hex, 16)
+
+				if #hex < 4 or not cp then
+					error("bad \\u escape at " .. i)
+				end
+				i = i + 4
+
+				-- a non-BMP codepoint arrives as a surrogate
+				-- pair. joining them here is what keeps emoji
+				-- in tool arguments intact.
+				if cp >= 0xD800 and cp <= 0xDBFF and
+				    s:sub(i + 2, i + 3) == "\\u" then
+					local lo = tonumber(
+					    s:sub(i + 4, i + 7), 16)
+
+					if lo and lo >= 0xDC00 and
+					    lo <= 0xDFFF then
+						cp = 0x10000 +
+						    (cp - 0xD800) * 0x400 +
+						    (lo - 0xDC00)
+						i = i + 6
+					end
+				end
+				out[#out + 1] = utf8_encode(cp)
+			else
+				error("bad escape: \\" .. e)
+			end
+			i = i + 2
+		else
+			out[#out + 1] = c
+			i = i + 1
+		end
+	end
+end
+
+local function decode_number(s, i)
+	local j = i
+
+	if s:sub(j, j) == "-" then
+		j = j + 1
+	end
+	while s:sub(j, j):match("%d") do
+		j = j + 1
+	end
+	if s:sub(j, j) == "." then
+		j = j + 1
+		while s:sub(j, j):match("%d") do
+			j = j + 1
+		end
+	end
+	if s:sub(j, j) == "e" or s:sub(j, j) == "E" then
+		j = j + 1
+		if s:sub(j, j) == "+" or s:sub(j, j) == "-" then
+			j = j + 1
+		end
+		while s:sub(j, j):match("%d") do
+			j = j + 1
+		end
+	end
+
+	local n = tonumber(s:sub(i, j - 1))
+
+	if j == i or not n then
+		error("bad number at " .. i)
+	end
+	return n, j
+end
+
+local function decode_object(s, i, depth)
+	local obj = {}
+
+	i = skip_ws(s, i + 1)
+	if s:sub(i, i) == "}" then
+		return obj, i + 1
+	end
+	while true do
+		i = skip_ws(s, i)
+		if s:sub(i, i) ~= '"' then
+			error("expected string key at " .. i)
+		end
+
+		local key
+
+		key, i = decode_string(s, i)
+		i = skip_ws(s, i)
+		if s:sub(i, i) ~= ":" then
+			error("expected ':' at " .. i)
+		end
+
+		local val
+
+		val, i = decode_value(s, i + 1, depth + 1)
+		obj[key] = val
+		i = skip_ws(s, i)
+
+		local d = s:sub(i, i)
+
+		if d == "," then
+			i = i + 1
+		elseif d == "}" then
+			return obj, i + 1
+		else
+			error("expected ',' or '}' at " .. i)
+		end
+	end
+end
+
+local function decode_array(s, i, depth)
+	local arr = {}
+
+	i = skip_ws(s, i + 1)
+	if s:sub(i, i) == "]" then
+		return arr, i + 1
+	end
+	while true do
+		local val
+
+		val, i = decode_value(s, i, depth + 1)
+		arr[#arr + 1] = val
+		i = skip_ws(s, i)
+
+		local d = s:sub(i, i)
+
+		if d == "," then
+			i = i + 1
+		elseif d == "]" then
+			return arr, i + 1
+		else
+			error("expected ',' or ']' at " .. i)
+		end
+	end
+end
+
+decode_value = function(s, i, depth)
+	if depth > MAX_DEPTH then
+		error("nesting too deep")
+	end
+	i = skip_ws(s, i)
+
+	local c = s:sub(i, i)
+
+	if c == '"' then
+		return decode_string(s, i)
+	elseif c == "{" then
+		return decode_object(s, i, depth)
+	elseif c == "[" then
+		return decode_array(s, i, depth)
+	elseif s:sub(i, i + 3) == "true" then
+		return true, i + 4
+	elseif s:sub(i, i + 4) == "false" then
+		return false, i + 5
+	elseif s:sub(i, i + 3) == "null" then
+		return M.null, i + 4
+	elseif c:match("[%d%-]") then
+		return decode_number(s, i)
+	end
+	error("unexpected character '" .. c .. "' at " .. i)
+end
+
+---Decodes a JSON document.
+---
+---Trailing content after the top-level value is an error, not
+---something to skip. This parses whole messages, where "{...} junk"
+---means sender and parser disagree, and guessing which half is right
+---is how smuggling bugs start.
+---@param s string document to decode
+---@return any|nil value decoded value, or nil on bad input
+---@return string|nil err reason the input was rejected
+function M.decode(s)
+	if type(s) ~= "string" then
+		return nil, "decode wants a string"
+	end
+
+	local ok, v, pos = pcall(decode_value, s, 1, 1)
+
+	if not ok then
+		return nil, v
+	end
+	pos = skip_ws(s, pos)
+	if pos <= #s then
+		return nil, "trailing garbage at " .. pos
+	end
+	return v
+end
+
+-- ---- encode ----
+
+local encode_value	-- forward decl
+
+local function is_array(t)
+	if t == M.EMPTY_ARRAY then
+		return true
+	end
+
+	local n = 0
+
+	for _ in pairs(t) do
+		n = n + 1
+	end
+	return n > 0 and n == #t
+end
+
+local ESCAPES = {
+	["\\"] = "\\\\", ['"'] = '\\"', ["\n"] = "\\n",
+	["\r"] = "\\r", ["\t"] = "\\t", ["\b"] = "\\b", ["\f"] = "\\f",
+}
+
+-- every control character, not just the named ones. a raw byte below
+-- 0x20 inside a string is what a strict parser rejects, and a tool
+-- that read a file is how one gets there.
+local function encode_string(s)
+	return '"' .. s:gsub('[%c\\"]', function(c)
+		return ESCAPES[c] or ("\\u%04x"):format(c:byte())
+	end) .. '"'
+end
+
+local function encode_array(t, depth)
+	local parts = {}
+
+	for i = 1, #t do
+		parts[i] = encode_value(t[i], depth + 1)
+	end
+	return "[" .. table.concat(parts, ",") .. "]"
+end
+
+-- keys are sorted so the same table always encodes to the same bytes.
+-- tests diff stdout, and lua hash order does not hold still.
+local function encode_object(t, depth)
+	local keys = {}
+
+	for k in pairs(t) do
+		keys[#keys + 1] = tostring(k)
+	end
+	table.sort(keys)
+
+	local parts = {}
+
+	for i = 1, #keys do
+		local k = keys[i]
+		local v = t[k]
+
+		if v == nil then
+			v = t[tonumber(k)]
+		end
+		parts[i] = encode_string(k) .. ":" .. encode_value(v, depth + 1)
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+encode_value = function(v, depth)
+	if depth > MAX_DEPTH then
+		error("nesting too deep (reference cycle?)")
+	end
+	if v == nil or v == M.null then
+		return "null"
+	elseif v == M.EMPTY_ARRAY then
+		return "[]"
+	end
+
+	local t = type(v)
+
+	if t == "boolean" then
+		return v and "true" or "false"
+	elseif t == "number" then
+		if v ~= v or v == math.huge or v == -math.huge then
+			error("cannot encode " .. tostring(v))
+		end
+		return tostring(v)
+	elseif t == "string" then
+		return encode_string(v)
+	elseif t == "table" then
+		if next(v) == nil then
+			return "{}"
+		end
+		if is_array(v) then
+			return encode_array(v, depth)
+		end
+		return encode_object(v, depth)
+	end
+	error("cannot encode a " .. t)
+end
+
+---Encodes a value as JSON. Raises on a cycle, on inf or nan, and on a
+---type JSON has no shape for.
+---@param v any
+---@return string
+function M.encode(v)
+	return encode_value(v, 1)
+end
+
+return M

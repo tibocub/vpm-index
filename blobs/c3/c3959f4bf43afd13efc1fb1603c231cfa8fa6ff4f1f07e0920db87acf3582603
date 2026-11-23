@@ -1,0 +1,28 @@
+--A function parameter.
+local Param = {}
+Param.__index = Param
+package.loaded[...] = Param
+
+--Constructor.
+--
+--@param const:bool
+--@param mod?:string . or : or ....
+--@param name:string
+--@param opt:bool
+--@param byCopy:bool
+--@param dtype?:Exp       Data type.
+--@param utype:string     Unpack type: List or Map.
+--@param uvars:list       Unpack variables.
+--@param val?:Exp
+function Param.new(const, name, mod, opt, byCopy, dtype, uvars, val)
+  return setmetatable({
+    const = const,
+    name = name,
+    modifier = mod,  --. or : or ...
+    optional = not not opt,
+    byCopy = byCopy and true or nil,
+    type = dtype,
+    uVars = uvars,
+    value = val
+  }, Param)
+end

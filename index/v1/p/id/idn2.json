@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "idn2",
+  "versions": {
+    "0.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/daurnimator/lua-idn2",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 05 May 2019 04:01:14 GMT",
+        "rockspec": {
+          "date": "Sun, 05 May 2019 04:01:14 GMT",
+          "sha256": "20d1541099315d7fc6b05c185edddaabd8c6c0cf959b457d6270d2eaa1707d4b",
+          "size": 665
+        },
+        "src": {
+          "date": "Sun, 05 May 2019 04:01:15 GMT",
+          "sha256": "5ec4bd54ffb644f681aaf9c467bf74481cb90504c70678710ee6cfbddd23142b",
+          "size": 9248,
+          "url": "https://luarocks.org/idn2-0.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "idn2"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "IDN2"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "IDN2": {
+              "header": "idn2.h",
+              "library": "idn2"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(IDN2_INCDIR)"
+              ],
+              "libdirs": [
+                "$(IDN2_LIBDIR)"
+              ],
+              "libraries": [
+                "idn2"
+              ],
+              "name": "idn2",
+              "sources": [
+                "idn2/idn2.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-idn2-0.1"
+      },
+      "origin": {
+        "date": "Sun, 05 May 2019 04:01:15 GMT",
+        "sha256": "5ec4bd54ffb644f681aaf9c467bf74481cb90504c70678710ee6cfbddd23142b",
+        "size": 9248,
+        "type": "luarocks",
+        "url": "https://luarocks.org/idn2-0.1-0.src.rock"
+      },
+      "summary": "Bindings to libidn2, an implementation of IDNA2008/TR46 internationalized domain names",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

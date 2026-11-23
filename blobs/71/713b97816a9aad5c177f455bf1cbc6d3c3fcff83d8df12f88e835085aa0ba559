@@ -1,0 +1,10 @@
+-- Plugins loader.
+--
+-- Requiring `htb.plugins` registers all built-in qdiscs, filters, and actions
+-- with the registry. The CLI requires this before resolving.
+
+require("htb.plugins.qdiscs")
+require("htb.plugins.filters")
+require("htb.plugins.actions")
+
+return { name = "htb.plugins" }

@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "nginx-lua-oauth2",
+  "versions": {
+    "1.0.0-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-cjson",
+        "lua-resty-cookie",
+        "lua-resty-string",
+        "lua-resty-jwt"
+      ],
+      "files": {
+        "nginx-lua-oauth2.lua": {
+          "sha256": "2a4066ddfc12ca6ed46ea7a8ecd16f9908f4fcb5bf7c9647cab411f3e399f9c9",
+          "size": 4416,
+          "url": "blob:2a4066ddfc12ca6ed46ea7a8ecd16f9908f4fcb5bf7c9647cab411f3e399f9c9"
+        }
+      },
+      "homepage": "https://github.com/mo22/nginx-lua-oauth2",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 22 Nov 2016 09:44:27 GMT",
+        "rockspec": {
+          "date": "Tue, 22 Nov 2016 09:44:27 GMT",
+          "sha256": "7f4d7557c3e8a28d602b16a347930284b6d22a5efb53230a23ddd0c263e80bf9",
+          "size": 544
+        },
+        "src": {
+          "date": "Tue, 22 Nov 2016 09:44:29 GMT",
+          "sha256": "6cc877458390f7f477532aaad8447e0c7afe602644b84cc06b04525bb3e5b399",
+          "size": 3353,
+          "url": "https://luarocks.org/nginx-lua-oauth2-1.0.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "nginx-lua-oauth2"
+      ],
+      "origin": {
+        "date": "Tue, 22 Nov 2016 09:44:29 GMT",
+        "sha256": "6cc877458390f7f477532aaad8447e0c7afe602644b84cc06b04525bb3e5b399",
+        "size": 3353,
+        "type": "luarocks",
+        "url": "https://luarocks.org/nginx-lua-oauth2-1.0.0-0.src.rock"
+      },
+      "size": 4416,
+      "summary": "nginx lua plugin for oauth",
+      "undeclared_requires": [
+        "resty.http",
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

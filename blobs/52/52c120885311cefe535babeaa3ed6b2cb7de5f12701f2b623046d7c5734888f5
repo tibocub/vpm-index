@@ -1,0 +1,14 @@
+--imports
+local Directive = require("dogma.syn._.Directive")
+local DirectiveType = require("dogma.syn.DirectiveType")
+
+--An env directive.
+local EnvDirective = {}
+EnvDirective.__index = EnvDirective
+setmetatable(EnvDirective, {__index = Directive})
+package.loaded[...] = EnvDirective
+
+--Constructor.
+function EnvDirective.new(ln, col)
+  return setmetatable(Directive.new(DirectiveType.ENV, ln, col), EnvDirective)
+end

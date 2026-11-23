@@ -1,0 +1,102 @@
+{
+  "kind": "lib",
+  "name": "haproxy-impart",
+  "versions": {
+    "0.2.1-1": {
+      "bin": [],
+      "deps": [
+        "lua-cbor >= 1.0.0",
+        "luaposix >= 36.3, < 38",
+        "bit32"
+      ],
+      "files": {
+        "haproxy/impart.lua": {
+          "sha256": "49696d7f20c3177490277c11750c78fa04c2a8fc1b609a3842b2f97dd418139b",
+          "size": 18570,
+          "url": "blob:49696d7f20c3177490277c11750c78fa04c2a8fc1b609a3842b2f97dd418139b"
+        },
+        "impart/sdk/client.lua": {
+          "sha256": "c0b2ec46e9836e2cdb6f04a209b264d968c029803fb28b28ec076d838c47e764",
+          "size": 5428,
+          "url": "blob:c0b2ec46e9836e2cdb6f04a209b264d968c029803fb28b28ec076d838c47e764"
+        },
+        "impart/sdk/conn.lua": {
+          "sha256": "a0a155f1dd68407581752ece80d5630bf42827f3085819bc5fc12dde7f55bc99",
+          "size": 4637,
+          "url": "blob:a0a155f1dd68407581752ece80d5630bf42827f3085819bc5fc12dde7f55bc99"
+        },
+        "impart/sdk/const.lua": {
+          "sha256": "a8d6249d30dc3516b44f398ad166e006d364be8d4bc20e056e68b53d90ecd99d",
+          "size": 263,
+          "url": "blob:a8d6249d30dc3516b44f398ad166e006d364be8d4bc20e056e68b53d90ecd99d"
+        },
+        "impart/sdk/init.lua": {
+          "sha256": "033141febc444f7492a3a3b134297a4f00b7447d3e3110e4577186c743d523ce",
+          "size": 648,
+          "url": "blob:033141febc444f7492a3a3b134297a4f00b7447d3e3110e4577186c743d523ce"
+        },
+        "impart/sdk/profiles.lua": {
+          "sha256": "b6cb08a117bd7ec5f0e455660e6c9f0482a8e5391b26725db453293a87c412c5",
+          "size": 8985,
+          "url": "blob:b6cb08a117bd7ec5f0e455660e6c9f0482a8e5391b26725db453293a87c412c5"
+        },
+        "impart/sdk/rpcmsgs.lua": {
+          "sha256": "9af00fd0d595599bb99b597fba74bac71e646577702bd76d760b9fa5cea76b10",
+          "size": 18796,
+          "url": "blob:9af00fd0d595599bb99b597fba74bac71e646577702bd76d760b9fa5cea76b10"
+        },
+        "impart/sdk/server_info.lua": {
+          "sha256": "060249616dcd2db5fdf0af7887b9905091220731fa6886a1e60020ebb18c9253",
+          "size": 4258,
+          "url": "blob:060249616dcd2db5fdf0af7887b9905091220731fa6886a1e60020ebb18c9253"
+        }
+      },
+      "homepage": "https://www.impart.security/",
+      "license": "Apache-2.0",
+      "luarocks": {
+        "date": "Mon, 02 Nov 2026 22:37:24 GMT",
+        "rockspec": {
+          "date": "Mon, 02 Nov 2026 22:37:24 GMT",
+          "sha256": "1066c1e8bff9c609df9e68b97ea55c738a31db0aa466592fb210907db4f20c79",
+          "size": 1679
+        },
+        "src": {
+          "date": "Mon, 02 Nov 2026 22:37:24 GMT",
+          "sha256": "ecb3180e0e18e9cd375f799c126bac623667ade31550801ebed0506e17a42bf4",
+          "size": 22700,
+          "url": "https://luarocks.org/haproxy-impart-0.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "haproxy.impart",
+        "impart.sdk",
+        "impart.sdk.client",
+        "impart.sdk.conn",
+        "impart.sdk.const",
+        "impart.sdk.profiles",
+        "impart.sdk.rpcmsgs",
+        "impart.sdk.server_info"
+      ],
+      "origin": {
+        "sha256": "b929f7e1db9846a43b8baa81faef39d4a02e009d89dccd2996e4e67c750e5856",
+        "type": "archive",
+        "url": "https://dl.impartsecurity.net/artifacts/plugins/haproxy/lua/0.2.1/artifacts/impart-0.2.1.tar.gz"
+      },
+      "size": 61585,
+      "summary": "Impart Security's HAProxy module.",
+      "undeclared_requires": [
+        "posix.sys.socket",
+        "posix.unistd"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

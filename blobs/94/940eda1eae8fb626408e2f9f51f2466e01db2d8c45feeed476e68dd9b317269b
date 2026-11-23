@@ -1,0 +1,24 @@
+--imports
+local ObjectStmt = require("dogma.syn._.ObjectStmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--A type statement.
+local TypeDefStmt = {}
+TypeDefStmt.__index = TypeDefStmt
+setmetatable(TypeDefStmt, {__index = ObjectStmt})
+package.loaded[...] = TypeDefStmt
+
+--Constructor.
+function TypeDefStmt.new(ln, col, annots, visib, name, types, min, max)
+  local self
+
+  --(1) create
+  self = setmetatable(ObjectStmt.new(StmtType.TYPEDEF, ln, col, name, visib), TypeDefStmt)
+  self.annots = annots
+  self.types = types
+  self.min = min
+  self.max = max
+
+  --(2) return
+  return self
+end

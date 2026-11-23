@@ -1,0 +1,107 @@
+
+local sfs = require 'sfs'
+local log       = require 'lrocket.log'
+local routines = require 'lrocket.routines'
+local lra = require 'lrocket.lra'
+local lua = require 'lrocket.lua'
+local loader = require 'lrocket.loader'
+local utils = require 'lrocket.utils'
+
+---@type lrocket.Generator
+local lrca_gen = {}
+
+local function serialize(t, prefix)
+	prefix = prefix or ''
+	local res = {}
+	res[#res+1] = "{\n"
+	for k,v in utils.spairs(t) do
+		res[#res+1] = string.format(prefix..'\t[%q] = ', k)
+		if type(v) == 'table' then
+			res[#res+1] = serialize(v, prefix.."\t")
+		else
+			res[#res+1] = string.format("%q", v)
+		end
+		res[#res+1] = ",\n"
+	end
+	res[#res+1] = prefix.."}"
+	return table.concat(res)
+end
+
+function lrca_gen.build(src, output, userargs)
+	local f = assert(lra.open(output, 'w')) --[[@as lrocket.LRAW]]
+
+	local dyntb = {
+		chunkmaps = {},
+		vfs = {},
+	}
+
+	if userargs.optimize and userargs.optimize ~= 'none' then
+		for from, dst in pairs(src.uniqueembeds) do
+			if dst then
+				dyntb.vfs["lr://"..from] = dst.embedpath
+			end
+		end
+	end
+
+	local mods_need_scoping = {}
+
+	local function needsscoping(modname)
+		return userargs.debug or mods_need_scoping[modname]
+	end
+
+	local uniques = {}
+	for _, embed in ipairs(src.embeds) do
+		if uniques[embed.lrpath] == nil or embed.embedpath == uniques[embed.lrpath].embedpath then
+			uniques[embed.lrpath] = embed
+		else
+			uniques[embed.lrpath] = false
+			mods_need_scoping[embed.namespace] = true
+		end
+	end
+
+	routines.writelua(f, loader.START_LUA, 'start.lua', "=start.lua")
+	routines.writelua(f, src.root, 'main.lua', "=main.lua", not not needsscoping "<main>")
+
+	local dyntbl = {
+		chunkmaps = {},
+		vfs = {},
+	}
+
+	for i, mod in ipairs(src.mods) do
+		if i == 1 and mod.modname ~= "<main>" then
+			f:linknode(string.format("lua_modules/%s.lua", mod.modname:gsub("%.", "/")), "main.lua")
+		elseif i > 1 then
+			mod:embed(f, (userargs.optimize and 'O' or '')..(needsscoping(mod.modname) and 'g' or ''))
+			dyntbl.chunkmaps[mod.chunkname] = mod.modname
+		end
+	end
+
+	dyntbl.chunkmaps[lua.chunkname(src.root, 'main.lua')] = '<main>'
+
+	for lrpath, embed in pairs(uniques) do
+		if embed and embed.lrmode == 'global' then
+			dyntbl.vfs[embed.lrpath] = embed.embedpath
+		end
+	end
+
+	for _, embed in ipairs(src.embeds) do
+		dyntbl.vfs[string.format("lr://%s:%s", embed.namespace, embed.lrpath)] = embed.embedpath
+	end
+
+	f:newnode('dyntb.lua', { modification = os.time(); --[[access = os.time(); change = os.time()]] })
+	f:write("return ", serialize(dyntbl), '\n')
+
+	for path, res in utils.spairs(src.res) do
+		if sfs.isFile(path) then
+			f:newnode(res, { modification = sfs.attributes(path, "modification") })
+			f:write(sfs.read(path, true))
+		else
+			log.warnf('resource file "%s" required by "%s" not found\n', path, src.uniqueembeds[res].source)
+		end
+	end
+
+	f:close()
+end
+
+return lrca_gen
+

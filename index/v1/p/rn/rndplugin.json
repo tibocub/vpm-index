@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "rndplugin",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/rndplugin/handler.lua": {
+          "sha256": "a7be644def653d0e47c350c228d3de671391242976e9d91ecef4eb221510e665",
+          "size": 1911,
+          "url": "https://raw.githubusercontent.com/anggawardn/rndplugin/de818af3e17fbaeeba998466d6563c01bbab584f/src/handler.lua"
+        },
+        "kong/plugins/rndplugin/schema.lua": {
+          "sha256": "f61b5cfcb1521e98c68bc5bdcc8de6274a042391425d99a8b834f7fae8d9442c",
+          "size": 175,
+          "url": "https://raw.githubusercontent.com/anggawardn/rndplugin/de818af3e17fbaeeba998466d6563c01bbab584f/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/anggawardn/rndplugin",
+      "host": "openresty",
+      "license": "*** please specify a license ***",
+      "luarocks": {
+        "date": "Thu, 03 Oct 2019 08:14:51 GMT",
+        "rockspec": {
+          "date": "Thu, 03 Oct 2019 08:14:51 GMT",
+          "sha256": "2666e64748a154f67e1309857d274a73b5cdd56e03561121e178096531e1fce3",
+          "size": 545
+        }
+      },
+      "modules": [
+        "kong.plugins.rndplugin.handler",
+        "kong.plugins.rndplugin.schema"
+      ],
+      "origin": {
+        "commit": "de818af3e17fbaeeba998466d6563c01bbab584f",
+        "type": "git",
+        "url": "https://github.com/anggawardn/rndplugin.git"
+      },
+      "size": 2086,
+      "summary": "kong plugin to check request token authorization and forward request to filer payload(security-matrix) written in lua",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "socket.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,222 @@
+-- voice/VoiceUDP.lua
+-- Handles UDP socket communication with Discord's voice server.
+-- Responsibilities:
+--   1. IP discovery (send a 74-byte discovery packet, read back our external IP/port)
+--   2. Sending RTP-framed, encrypted Opus packets
+--   3. (Optional) Receiving audio packets from other users
+
+local socket = require("socket")  -- LuaSocket
+
+-- RTP constants
+local RTP_VERSION    = 0x80        -- Version=2, Padding=0, Extension=0, CC=0
+local RTP_PAYLOAD    = 0x78        -- Marker=0, PayloadType=120 (Discord uses 120 for Opus)
+local RTP_HEADER_LEN = 12          -- Fixed RTP header size in bytes
+
+-- XSalsa20-Poly1305 encryption is provided by luasodium (libsodium binding).
+-- We lazy-require it so the rest of the library still loads without it.
+local function load_sodium()
+  local ok, sodium = pcall(require, "luasodium")
+  if not ok then
+    error(
+      "[VoiceUDP] luasodium is required for voice encryption.\n" ..
+      "Install it with: luarocks install luasodium"
+    )
+  end
+  return sodium
+end
+
+local VoiceUDP = {}
+VoiceUDP.__index = VoiceUDP
+
+--- Create a new VoiceUDP instance.
+-- @param ip         string  Voice server IP
+-- @param port       number  Voice server port
+-- @param ssrc       number  Our SSRC from the READY payload
+-- @param secret_key table   Array of 32 integers (the session secret key)
+-- @param mode       string  Encryption mode, e.g. "xsalsa20_poly1305"
+function VoiceUDP.new(ip, port, ssrc, secret_key, mode)
+  local self      = setmetatable({}, VoiceUDP)
+  self.server_ip  = ip
+  self.server_port= port
+  self.ssrc       = ssrc
+  self.secret_key = secret_key  -- {byte, byte, ...} table of 32 values
+  self.mode       = mode or "xsalsa20_poly1305"
+  self._sock      = nil
+  self._sequence  = 0
+  self._timestamp = 0
+  self._sodium    = nil
+  -- Cache the secret key as a binary string for luasodium
+  self._key_str   = nil
+  return self
+end
+
+--- Open the UDP socket and bind a local port.
+function VoiceUDP:open()
+  self._sock = socket.udp()
+  self._sock:settimeout(5)
+  -- Bind to any available local port
+  assert(self._sock:setsockname("*", 0))
+  self._sock:setpeername(self.server_ip, self.server_port)
+  -- Build binary key string
+  local bytes = {}
+  for _, b in ipairs(self.secret_key) do
+    bytes[#bytes + 1] = string.char(b)
+  end
+  self._key_str = table.concat(bytes)
+  self._sodium  = load_sodium()
+end
+
+--- Perform Discord's IP discovery.
+-- Sends a 74-byte packet with opcode=0x1 and our SSRC,
+-- then reads the response to find our external IP and port.
+-- @return ip string, port number
+function VoiceUDP:discover_ip()
+  assert(self._sock, "Call open() before discover_ip()")
+
+  -- Build the discovery request packet (74 bytes)
+  -- Byte layout: [0-1] type=0x0001, [2-3] length=70, [4-7] SSRC, [8-71] address (null-padded), [72-73] port
+  local packet = {
+    string.char(0x00, 0x01),         -- Type: Request
+    string.char(0x00, 0x46),         -- Length: 70
+    -- SSRC as big-endian uint32
+    string.char(
+      math.floor(self.ssrc / 0x1000000) % 0x100,
+      math.floor(self.ssrc / 0x10000)   % 0x100,
+      math.floor(self.ssrc / 0x100)     % 0x100,
+      self.ssrc                          % 0x100
+    ),
+    string.rep("\0", 66),            -- 64 bytes address + 2 bytes port (all zeros)
+  }
+  self._sock:send(table.concat(packet))
+
+  -- Read the response
+  local data, err = self._sock:receive(74)
+  if not data then
+    error("[VoiceUDP] IP discovery failed: " .. tostring(err))
+  end
+
+  -- Parse response: type[2] len[2] ssrc[4] address[64] port[2]
+  -- Address starts at byte 9 (1-indexed in Lua) and is null-terminated
+  local addr_raw = data:sub(9, 72)
+  local addr     = addr_raw:match("([^%z]+)")  -- up to first null byte
+
+  -- Port is last 2 bytes, big-endian
+  local pb1, pb2 = data:byte(73, 74)
+  local port     = pb1 * 256 + pb2
+
+  return addr, port
+end
+
+--- Build a 12-byte RTP header.
+-- @return string (12 bytes)
+function VoiceUDP:_build_rtp_header()
+  local seq  = self._sequence
+  local ts   = self._timestamp
+  local ssrc = self.ssrc
+
+  return string.char(
+    RTP_VERSION,
+    RTP_PAYLOAD,
+    -- Sequence (big-endian uint16)
+    math.floor(seq / 0x100) % 0x100,
+    seq % 0x100,
+    -- Timestamp (big-endian uint32)
+    math.floor(ts / 0x1000000) % 0x100,
+    math.floor(ts / 0x10000)   % 0x100,
+    math.floor(ts / 0x100)     % 0x100,
+    ts % 0x100,
+    -- SSRC (big-endian uint32)
+    math.floor(ssrc / 0x1000000) % 0x100,
+    math.floor(ssrc / 0x10000)   % 0x100,
+    math.floor(ssrc / 0x100)     % 0x100,
+    ssrc % 0x100
+  )
+end
+
+--- Encrypt an Opus frame using xsalsa20_poly1305.
+-- Nonce = 24-byte RTP header (header padded with 12 zero bytes).
+-- @param header string  12-byte RTP header
+-- @param opus   string  Raw Opus audio bytes
+-- @return string  Ciphertext (Opus encrypted + 16-byte MAC)
+function VoiceUDP:_encrypt(header, opus)
+  -- Nonce: RTP header (12 bytes) + 12 zero bytes = 24 bytes
+  local nonce = header .. string.rep("\0", 12)
+  -- luasodium: crypto_secretbox_easy(message, nonce, key) → ciphertext
+  return self._sodium.crypto_secretbox_easy(opus, nonce, self._key_str)
+end
+
+--- Encrypt using xsalsa20_poly1305_suffix mode.
+-- Nonce is 24 random bytes appended after the ciphertext.
+function VoiceUDP:_encrypt_suffix(opus)
+  local nonce = self._sodium.randombytes(24)
+  local cipher = self._sodium.crypto_secretbox_easy(opus, nonce, self._key_str)
+  return cipher .. nonce
+end
+
+--- Encrypt using xsalsa20_poly1305_lite mode.
+-- Nonce is a 4-byte incrementing counter padded to 24 bytes, appended after ciphertext.
+function VoiceUDP:_encrypt_lite(opus)
+  -- Use _timestamp as the lite nonce counter (wraps at uint32 max)
+  local n = self._timestamp % 0x100000000
+  local nonce_prefix = string.char(
+    math.floor(n / 0x1000000) % 0x100,
+    math.floor(n / 0x10000)   % 0x100,
+    math.floor(n / 0x100)     % 0x100,
+    n % 0x100
+  )
+  local nonce = nonce_prefix .. string.rep("\0", 20)
+  local cipher = self._sodium.crypto_secretbox_easy(opus, nonce, self._key_str)
+  return cipher .. nonce_prefix
+end
+
+--- Send one Opus audio frame over UDP.
+-- Automatically increments sequence and timestamp.
+-- @param opus_frame  string   Raw Opus-encoded audio bytes
+-- @param frame_size  number   PCM samples per frame (default 960 = 20ms @ 48kHz)
+function VoiceUDP:send_opus(opus_frame, frame_size)
+  assert(self._sock,    "Call open() before send_opus()")
+  assert(self._key_str, "Secret key not set — call set_secret_key() after SESSION_DESCRIPTION")
+
+  frame_size = frame_size or 960  -- 20ms at 48kHz stereo
+
+  local header     = self:_build_rtp_header()
+  local encrypted
+
+  if self.mode == "xsalsa20_poly1305" then
+    encrypted = self:_encrypt(header, opus_frame)
+  elseif self.mode == "xsalsa20_poly1305_suffix" then
+    encrypted = self:_encrypt_suffix(opus_frame)
+  elseif self.mode == "xsalsa20_poly1305_lite" then
+    encrypted = self:_encrypt_lite(opus_frame)
+  else
+    error("[VoiceUDP] Unsupported encryption mode: " .. tostring(self.mode))
+  end
+
+  local packet = header .. encrypted
+  self._sock:send(packet)
+
+  -- Advance counters (wrap around per spec)
+  self._sequence  = (self._sequence  + 1)          % 0x10000
+  self._timestamp = (self._timestamp + frame_size)  % 0x100000000
+end
+
+--- Update the secret key (called after SESSION_DESCRIPTION is received).
+-- @param secret_key table  Array of 32 integers
+function VoiceUDP:set_secret_key(secret_key)
+  self.secret_key = secret_key
+  local bytes = {}
+  for _, b in ipairs(secret_key) do
+    bytes[#bytes + 1] = string.char(b)
+  end
+  self._key_str = table.concat(bytes)
+end
+
+--- Close the UDP socket.
+function VoiceUDP:close()
+  if self._sock then
+    self._sock:close()
+    self._sock = nil
+  end
+end
+
+return VoiceUDP

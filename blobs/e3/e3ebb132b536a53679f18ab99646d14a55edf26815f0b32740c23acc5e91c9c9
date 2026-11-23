@@ -1,0 +1,288 @@
+local cqueues = require("cqueues")
+local websocket = require("http.websocket")
+local JSON = require("luacord.utils.JSON")
+local enums = require("luacord.enums")
+
+local GatewayClient = {}
+GatewayClient.__index = GatewayClient
+
+local function sleep(seconds)
+  if seconds and seconds > 0 then
+    cqueues.sleep(seconds)
+  end
+end
+
+local function now()
+  return cqueues.monotime and cqueues.monotime() or os.clock()
+end
+
+---Create a new gateway client.
+---@param restClient table
+---@param options? table
+---@return table
+function GatewayClient.new(restClient, options)
+  options = options or {}
+  local self = setmetatable({}, GatewayClient)
+  self.rest = restClient
+  self.token = options.token
+  self.intents = options.intents or enums.GatewayIntentBits.GUILDS
+  self.dispatch = options.dispatch or function() end
+  self.logger = options.logger or function() end
+  self.shard = options.shard
+  self.presence = options.presence
+  self.large_threshold = options.large_threshold or 250
+  self.properties = options.properties or {
+    os = jit and "linux-luajit" or "linux-lua",
+    browser = "luacord",
+    device = "luacord",
+  }
+  self.running = false
+  self.loop = nil
+  self.ws = nil
+  self.seq = nil
+  self.session_id = nil
+  self.gateway_url = nil
+  self.resume_gateway_url = nil
+  self.heartbeat_interval = nil
+  self.heartbeat_ack = true
+  self.heartbeat_deadline = 0
+  self.reconnect_attempt = 0
+  return self
+end
+
+---Set or replace the bot token used for gateway authentication.
+---@param token string
+function GatewayClient:setToken(token)
+  assert(type(token) == "string" and token ~= "", "token must be a non-empty string")
+  self.token = token
+end
+
+function GatewayClient:_send(op, data)
+  if not self.ws then
+    return false, "gateway websocket not connected"
+  end
+  local encoded, err = JSON.encode({ op = op, d = data })
+  if not encoded then
+    return false, "failed to encode gateway payload: " .. tostring(err)
+  end
+  local ok, sendErr = self.ws:send(encoded)
+  if not ok then
+    return false, sendErr
+  end
+  return true
+end
+
+function GatewayClient:_sendHeartbeat()
+  self.heartbeat_ack = false
+  self.heartbeat_deadline = now() + ((self.heartbeat_interval or 45000) / 1000) * 1.5
+  return self:_send(enums.GatewayOpcode.HEARTBEAT, self.seq)
+end
+
+function GatewayClient:_identify()
+  local payload = {
+    token = self.token,
+    intents = self.intents,
+    properties = self.properties,
+    large_threshold = self.large_threshold,
+    compress = false,
+  }
+  if self.shard then
+    payload.shard = self.shard
+  end
+  if self.presence then
+    payload.presence = self.presence
+  end
+  return self:_send(enums.GatewayOpcode.IDENTIFY, payload)
+end
+
+function GatewayClient:_resume()
+  if not self.session_id or not self.seq then
+    return false, "cannot resume without session_id and sequence"
+  end
+  return self:_send(enums.GatewayOpcode.RESUME, {
+    token = self.token,
+    session_id = self.session_id,
+    seq = self.seq,
+  })
+end
+
+function GatewayClient:_startHeartbeatLoop()
+  self.loop:wrap(function()
+    local interval = (self.heartbeat_interval or 45000) / 1000
+    sleep(interval)
+    while self.running and self.ws do
+      if not self.heartbeat_ack and now() > self.heartbeat_deadline then
+        self.logger("gateway heartbeat ack timeout; reconnecting")
+        pcall(function()
+          self.ws:close()
+        end)
+        self.ws = nil
+        break
+      end
+      self:_sendHeartbeat()
+      sleep(interval)
+    end
+  end)
+end
+
+function GatewayClient:_handleDispatch(eventName, data, payload)
+  if eventName == "READY" then
+    self.session_id = data.session_id
+    self.resume_gateway_url = data.resume_gateway_url or self.resume_gateway_url
+    self.reconnect_attempt = 0
+  end
+  self.dispatch(eventName, data, payload)
+end
+
+function GatewayClient:_handlePayload(payload)
+  local op = payload.op
+  local t = payload.t
+  local d = payload.d
+  local s = payload.s
+
+  if s ~= nil then
+    self.seq = s
+  end
+
+  if op == enums.GatewayOpcode.HELLO then
+    self.heartbeat_interval = d.heartbeat_interval
+    self.heartbeat_ack = true
+    self:_startHeartbeatLoop()
+    if self.session_id and self.seq then
+      local ok = self:_resume()
+      if not ok then
+        self:_identify()
+      end
+    else
+      self:_identify()
+    end
+    return true
+  end
+
+  if op == enums.GatewayOpcode.HEARTBEAT_ACK then
+    self.heartbeat_ack = true
+    return true
+  end
+
+  if op == enums.GatewayOpcode.HEARTBEAT then
+    self:_sendHeartbeat()
+    return true
+  end
+
+  if op == enums.GatewayOpcode.RECONNECT then
+    return nil, "server requested reconnect"
+  end
+
+  if op == enums.GatewayOpcode.INVALID_SESSION then
+    local resumable = d == true
+    sleep(math.random())
+    if resumable and self.session_id and self.seq then
+      self:_resume()
+    else
+      self.session_id = nil
+      self.seq = nil
+      self:_identify()
+    end
+    return true
+  end
+
+  if op == enums.GatewayOpcode.DISPATCH then
+    self:_handleDispatch(t, d, payload)
+    return true
+  end
+
+  return true
+end
+
+function GatewayClient:_connect()
+  if not self.gateway_url then
+    local data, err = self.rest:getGatewayBot()
+    if not data then
+      return nil, "failed to fetch gateway URL: " .. tostring(err and err.message or err)
+    end
+    self.gateway_url = data.url
+  end
+
+  local url = self.resume_gateway_url or self.gateway_url
+  local uri = tostring(url) .. "?v=10&encoding=json"
+  local ws, err = websocket.new_from_uri(uri)
+  if not ws then
+    return nil, "failed to initialize websocket: " .. tostring(err)
+  end
+  local ok, connErr = ws:connect(30)
+  if not ok then
+    return nil, "failed to connect websocket: " .. tostring(connErr)
+  end
+  self.ws = ws
+  return true
+end
+
+function GatewayClient:_pump()
+  while self.running and self.ws do
+    local raw, recvErr = self.ws:receive()
+    if not raw then
+      return nil, "gateway receive error: " .. tostring(recvErr)
+    end
+    local payload, decodeErr = JSON.decode(raw)
+    if not payload then
+      return nil, "failed to decode gateway payload: " .. tostring(decodeErr)
+    end
+    local ok, handleErr = self:_handlePayload(payload)
+    if not ok then
+      return nil, handleErr
+    end
+  end
+  return nil, "gateway stopped"
+end
+
+function GatewayClient:_disconnect()
+  if self.ws then
+    pcall(function()
+      self.ws:close()
+    end)
+    self.ws = nil
+  end
+end
+
+function GatewayClient:_run()
+  while self.running do
+    local ok, connErr = self:_connect()
+    if not ok then
+      self.logger(connErr)
+      self.reconnect_attempt = self.reconnect_attempt + 1
+      sleep(math.min(2 ^ self.reconnect_attempt, 60))
+    else
+      local _, pumpErr = self:_pump()
+      if pumpErr then
+        self.logger(pumpErr)
+      end
+      self:_disconnect()
+      if not self.running then
+        break
+      end
+      self.reconnect_attempt = self.reconnect_attempt + 1
+      sleep(math.min(2 ^ self.reconnect_attempt, 60))
+    end
+  end
+end
+
+---Start the gateway lifecycle loop.
+---@param loop table
+function GatewayClient:start(loop)
+  assert(loop, "gateway start requires a cqueues loop")
+  assert(self.token and self.token ~= "", "gateway token is not set")
+  self.loop = loop
+  self.running = true
+  self.loop:wrap(function()
+    self:_run()
+  end)
+end
+
+---Stop the gateway loop and close websocket.
+function GatewayClient:stop()
+  self.running = false
+  self:_disconnect()
+end
+
+return GatewayClient
+

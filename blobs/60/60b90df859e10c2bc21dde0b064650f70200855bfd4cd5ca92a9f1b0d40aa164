@@ -1,0 +1,163 @@
+-- dms_c — Lua-side wrapper over the native (C) DMS parser.
+--
+-- This file is what `require("dms_c")` resolves to. It re-exports
+-- everything from the underlying C module (`dms_c_native`) and
+-- replaces `decode_front_matter` with the prescan-based Path B
+-- implementation that the other FFI ports — dms-py, dms-rb, dms-php,
+-- dms-js — also ship. The native (Path A) entry point remains
+-- accessible as `decode_front_matter_native` so power users (and the
+-- `bench/bench_front_matter.lua` script) can opt back into it.
+--
+-- Why Path B: locating the closing `+++` in pure Lua and feeding the
+-- ~FM-sized slice to `decode_lite_document` makes the wall time
+-- bounded by the FM block itself, not the document body. On a 1.2MB
+-- body the bench measures Path B at >100x faster than Path A, which
+-- still has to walk the body once for NUL/ASCII/NFC pre-checks.
+--
+-- The pre-scan deliberately handles only the trivia patterns that
+-- show up in real docs (blank lines, simple `# ...` line comments).
+-- Anything else (block comments, tabs in unusual places, missing
+-- closer) returns nil and the wrapper falls through to a full
+-- `decode_lite_document` so canonical diagnostics — most importantly
+-- "unterminated FM" — surface unchanged from the C parser.
+
+local core = require("dms_c_native")
+
+local M = {}
+
+-- Re-export every symbol from the native module, including
+-- VERSION, the deprecated parse* aliases, and the canonical decode*
+-- entry points. Wrapping rather than `setmetatable(M, {__index=core})`
+-- keeps lookups cheap and avoids surprising callers that iterate
+-- `pairs(dms_c)`.
+for k, v in pairs(core) do
+  M[k] = v
+end
+
+-- Path A — the native `dms_decode_front_matter` entry point. Kept
+-- around (a) for the bench, and (b) as a deliberate opt-in for callers
+-- who want the canonical FM-only diagnostic scope (errors that only
+-- manifest in the body don't surface, period). Path B falls back to
+-- a full `decode_lite_document` when the prescan can't find a clean
+-- closer, so its diagnostics are a strict superset.
+M.decode_front_matter_native = core.decode_front_matter
+
+-- ---- Path B prescan ------------------------------------------------
+
+local sbyte, ssub, sfind = string.byte, string.sub, string.find
+
+-- Skip leading trivia and return the byte offset where the front
+-- matter opener should sit, or nil if we hit something we don't want
+-- to handle (block comments, etc.) — let the full decoder take over.
+--
+-- Recognised trivia: blank lines, ASCII spaces/tabs, `#` line
+-- comments, `//` line comments. These are the only forms the bench
+-- fixtures and the conformance corpus regularly put in front of FM.
+-- Anything more exotic (`### ###` line, `/* ... */` block, `#[ ... ]`
+-- block) returns nil and we fall through to the canonical decoder.
+local function skip_trivia(src, n)
+  local i = 1
+  while i <= n do
+    local b = sbyte(src, i)
+    if b == 0x20 or b == 0x09 or b == 0x0A or b == 0x0D then
+      i = i + 1
+    elseif b == 0x23 then -- '#'
+      -- `#[` opens a block comment — punt to full decode.
+      if sbyte(src, i + 1) == 0x5B then return nil end
+      local nl = sfind(src, "\n", i + 1, true)
+      if not nl then return n + 1 end
+      i = nl + 1
+    elseif b == 0x2F and sbyte(src, i + 1) == 0x2F then -- '//'
+      -- `//` line comment.
+      local nl = sfind(src, "\n", i + 2, true)
+      if not nl then return n + 1 end
+      i = nl + 1
+    elseif b == 0x2F and sbyte(src, i + 1) == 0x2A then -- '/*'
+      -- Block comment — punt.
+      return nil
+    else
+      return i
+    end
+  end
+  return i
+end
+
+-- True iff the line beginning at `src[pos]` is exactly `+++` after
+-- trimming spaces/tabs (and a trailing `\r`). Mirrors the C parser's
+-- closer test. Returns the byte offset of the line's `\n` (or
+-- `n + 1` if at EOF) on match, nil otherwise.
+local function line_is_marker(src, pos, n)
+  -- `+++` must start at column 1 per SPEC §Front matter.
+  if sbyte(src, pos) ~= 0x2B
+  or sbyte(src, pos + 1) ~= 0x2B
+  or sbyte(src, pos + 2) ~= 0x2B then
+    return nil
+  end
+  -- Allow trailing spaces/tabs and an optional `\r` before the `\n`
+  -- (or EOF). Anything else means it's not a clean closer.
+  local i = pos + 3
+  while i <= n do
+    local b = sbyte(src, i)
+    if b == 0x20 or b == 0x09 or b == 0x0D then
+      i = i + 1
+    elseif b == 0x0A then
+      return i
+    else
+      return nil
+    end
+  end
+  return n + 1
+end
+
+-- Try to locate the FM block in `src` and return the truncated source
+-- ending at (and including) the closing `+++` line's `\n`, or nil if
+-- the prescan can't / shouldn't handle this input. Cases that fall
+-- through to the full decoder:
+--   * `src` is not a string (let the C path raise the canonical error)
+--   * No `+++` opener at column 1 after trivia
+--   * Opener present but no closer found before EOF
+--   * Opener line has trailing junk
+--   * Trivia before the opener is more exotic than we handle
+local function try_fm_slice(src)
+  if type(src) ~= "string" then return nil end
+  local n = #src
+  local opener = skip_trivia(src, n)
+  if not opener or opener > n then return nil end
+  local opener_nl = line_is_marker(src, opener, n)
+  if not opener_nl then return nil end
+  -- Walk lines forward looking for a closer at column 1.
+  local scan = opener_nl + 1
+  while scan <= n do
+    local closer_nl = line_is_marker(src, scan, n)
+    if closer_nl then
+      -- Slice through (and including) the closer's newline.
+      if closer_nl <= n then
+        return ssub(src, 1, closer_nl)
+      else
+        return src
+      end
+    end
+    local nxt = sfind(src, "\n", scan, true)
+    if not nxt then return nil end -- unterminated FM, defer to native
+    scan = nxt + 1
+  end
+  return nil
+end
+
+-- Public Path B entry point — same contract as the C-level
+-- `decode_front_matter`: returns the meta table when FM is present
+-- (possibly empty for `+++\n+++`), nil when no FM, raises on parse
+-- errors inside the FM block.
+function M.decode_front_matter(src)
+  local sliced = try_fm_slice(src)
+  if sliced then
+    return core.decode_lite_document(sliced).meta
+  end
+  -- Couldn't slice cheaply (no FM at all, unterminated FM, exotic
+  -- trivia). Defer to the native FM entry point — it handles
+  -- "no FM" by returning nil and surfaces the canonical
+  -- "unterminated FM" diagnostic.
+  return core.decode_front_matter(src)
+end
+
+return M

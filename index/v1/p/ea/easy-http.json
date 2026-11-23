@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "easy-http",
+  "versions": {
+    "0.1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/Frityet/easy-http",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Tue, 13 Aug 2024 21:59:37 GMT",
+        "rockspec": {
+          "date": "Tue, 13 Aug 2024 21:59:37 GMT",
+          "sha256": "5960deef81f97f509a090656e2cd30a6b41ac8fb5ca1f62cca02715dd5f02eda",
+          "size": 861
+        },
+        "src": {
+          "date": "Tue, 13 Aug 2024 21:59:37 GMT",
+          "sha256": "8686123ee743703b1cd7705166b583f1db2d58e41d9daae59a512518f698b7ef",
+          "size": 45214,
+          "url": "https://luarocks.org/easy-http-0.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "easyhttp"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "CURL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "CURL": {
+              "library": "curl"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(CURL_INCDIR)",
+                "src"
+              ],
+              "libdirs": [
+                "$(CURL_LIBDIR)"
+              ],
+              "libraries": [
+                "curl"
+              ],
+              "name": "easyhttp",
+              "sources": [
+                "src/easyhttp.c",
+                "src/async.c",
+                "src/extern/compat-5.3.c",
+                "src/extern/tinycthread.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 13 Aug 2024 21:59:37 GMT",
+        "sha256": "8686123ee743703b1cd7705166b583f1db2d58e41d9daae59a512518f698b7ef",
+        "size": 45214,
+        "type": "luarocks",
+        "url": "https://luarocks.org/easy-http-0.1.2-1.src.rock"
+      },
+      "summary": "Easy and portable HTTP(s) requests",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

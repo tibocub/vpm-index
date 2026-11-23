@@ -1,0 +1,136 @@
+--- WorkloadIdentityCredentials class.
+-- @classmod WorkloadIdentityCredentials
+
+
+-- Create class
+local Super = require "resty.azure.credentials.Credentials"
+local WorkloadIdentityCredentials = setmetatable({}, Super)
+local json = require "cjson.safe"
+local fmt = string.format
+local utils = require "resty.azure.utils"
+
+local pl_file = require "pl.file"
+local pl_path = require "pl.path"
+
+WorkloadIdentityCredentials.__index = WorkloadIdentityCredentials
+
+
+--- Constructor, inherits from `Credentials`.
+--
+-- @tparam table global_config global configuration table
+-- @tparam table opts options table, additional fields to the `Credentials` class:
+-- @tparam[opt="AZURE"] string opts.envPrefix prefix to use when looking for environment variables.
+-- @return new WorkloadIdentityCredentials object, or nil+error
+function WorkloadIdentityCredentials:new(global_config, opts, source)
+  local self = Super:new(opts)  -- override 'self' to be the new object/class
+  setmetatable(self, WorkloadIdentityCredentials)
+
+  opts = opts or {}
+  self.envPrefix = opts.envPrefix or "AZURE"
+  self.global_config = global_config
+  self.opts = opts
+  self.source = source
+
+  local _, _, _, err = self:get() -- force immediate refresh
+
+  return self, err
+end
+
+
+-- updates credentials.
+-- @return success, or nil+err
+function WorkloadIdentityCredentials:refresh()
+  -- use JWT assertion grant to exchange injected serviceaccount token for Azure services bearer
+
+  -- check for injects env location of assertion token, then check for token presence on disk
+  local azure_federated_token_file = self.opts.federated_token_file or self.global_config.AZURE_FEDERATED_TOKEN_FILE or os.getenv("AZURE_FEDERATED_TOKEN_FILE")
+  if not azure_federated_token_file or azure_federated_token_file == "" then
+    return false, "Couldn't find AZURE_FEDERATED_TOKEN_FILE env variable"
+  end
+
+  local azure_authority_host = self.opts.authority_host or self.global_config.AZURE_AUTHORITY_HOST or os.getenv("AZURE_AUTHORITY_HOST")
+  if not azure_authority_host or azure_authority_host == "" then
+    return false, "Couldn't find AZURE_AUTHORITY_HOST env variable"
+  end
+
+  local azure_client_id = self.opts.client_id or self.global_config.AZURE_CLIENT_ID or os.getenv("AZURE_CLIENT_ID")
+  if not azure_client_id or azure_client_id == "" then
+    return false, "Couldn't find AZURE_CLIENT_ID env variable"
+  end
+
+  local azure_tenant_id = self.opts.tenant_id or self.global_config.AZURE_TENANT_ID or os.getenv("AZURE_TENANT_ID")
+  if not azure_tenant_id or azure_tenant_id == "" then
+    return false, "Couldn't find AZURE_TENANT_ID env variable"
+  end
+
+  -- check for the injected azure assertion token on the filesystem
+  if not pl_path.exists(azure_federated_token_file) then
+    return false, "Couldn't find federated token file on filesystem"
+  end
+
+  local assertion_token = pl_file.read(azure_federated_token_file)
+  if not assertion_token then
+    return false, "Couldn't read federated token file from filesystem"
+  end
+
+  -- local token_resource = self.opts.token_resource
+  --                     or self.scope_map[self.source or ""] and self.scope_map[self.source or ""].resource
+  --                     or self.global_config.AZURE_TOKEN_RESOURCE
+  --                     or nil
+
+  local token_scope = self:resolve_token_parameter("scope", "token_scope")
+  
+
+  -- local token_version = self.opts.token_version
+  --                    or self.scope_map[self.source or ""] and self.scope_map[self.source or ""].version
+  --                    or self.global_config.AZURE_TOKEN_VERSION
+  --                    or nil
+
+  local httpc = require "resty.luasocket.http".new()
+  ngx.update_time()
+  local time_now = ngx.now()
+
+  local url = fmt("%s%s/oauth2/v2.0/token", azure_authority_host, azure_tenant_id)
+  ngx.log(ngx.DEBUG, "making jwt-assertion auth POST to ", url)
+
+  -- Build proxy options from configuration
+  local proxy_opts = utils.build_proxy_opts(self.global_config, self.opts)
+
+  -- TODO remove hard-coded token audience - support many audiences, depending on the target Azure service
+  local res, err = httpc:request_uri(
+    url,
+    {
+      method = "POST",
+      body = fmt("client_id=%s&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&grant_type=client_credentials&client_assertion=%s&scope=%s", azure_client_id, assertion_token, token_scope),
+      headers = {
+          ["Content-Type"] = "application/x-www-form-urlencoded",
+      },
+      ssl_verify = self.opts.ssl_verify or self.global_config.AZURE_SSL_VERIFY,
+      proxy_opts = proxy_opts,
+      keepalive = false,
+    }
+  )
+
+  if not res then
+    ngx.log(ngx.DEBUG, "oauth client_credentials grant request failed: ", err)
+    return false, fmt("oauth client_credentials grant request failed: ", err)
+  end
+
+  if res.status ~= 200 then
+    return false, fmt("request failed, status: %s, body: %s", res.status, res.body)
+  end
+
+  local auth_response, err = json.decode(res.body)
+  if err then
+    return false, "cannot parse auth response body"
+  end
+
+  if not auth_response.access_token then
+    return false, "access token not in response body"
+  end
+
+  self:set(auth_response.access_token, auth_response.expires_in + time_now)
+  return true, nil
+end
+
+return WorkloadIdentityCredentials

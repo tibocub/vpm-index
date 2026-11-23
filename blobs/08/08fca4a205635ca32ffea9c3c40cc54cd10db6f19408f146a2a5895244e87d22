@@ -1,0 +1,45 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--An emit call.
+local EmitFn = {}
+EmitFn.__index = EmitFn
+setmetatable(EmitFn, {__index = Terminal})
+package.loaded[...] = EmitFn
+
+--Constructor.
+function EmitFn.new(ln, col, event, arg)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.EMIT, {line = ln, col = col}), EmitFn)
+  self.event = event
+  self.arg = arg
+
+  --(2) return
+  return self
+end
+
+--@override
+function EmitFn:__tostring()
+  --(1) build
+  local code = string.format("(emit %s ", tostring(self.event))
+
+  if #self.arg == 0 then
+    code = code .. tostring(self.arg)
+  else
+    code = code .. "{"
+
+    for i, item in ipairs(self.arg) do
+      code = code .. string.format("%s%s=%s", i == 1 and "" or ", ", item.name, item.value)
+    end
+
+    code = code .. "}"
+  end
+
+  code = code .. ")"
+
+  --(2) return
+  return code
+end

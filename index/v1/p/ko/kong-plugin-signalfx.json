@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-signalfx",
+  "versions": {
+    "0.0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/signalfx/api.lua": {
+          "sha256": "e9e61d6103884672c1e2e5c459b73db5f6deee21476731015c7f91af401ff3c5",
+          "size": 2003,
+          "url": "https://raw.githubusercontent.com/signalfx/kong-plugin-signalfx/949c56ac7ab7e8bceaaa5cb8ee6315061ee2598f/kong/plugins/signalfx/api.lua"
+        },
+        "kong/plugins/signalfx/handler.lua": {
+          "sha256": "889da7464ee682c147991d9bd33102827732d0b0938fa26ed810fa8fca8a5935",
+          "size": 6146,
+          "url": "https://raw.githubusercontent.com/signalfx/kong-plugin-signalfx/949c56ac7ab7e8bceaaa5cb8ee6315061ee2598f/kong/plugins/signalfx/handler.lua"
+        },
+        "kong/plugins/signalfx/schema.lua": {
+          "sha256": "bc4f4228338462f44459157ae2d49949f85e3c797e9282c62ebd5460ee3ca286",
+          "size": 96,
+          "url": "https://raw.githubusercontent.com/signalfx/kong-plugin-signalfx/949c56ac7ab7e8bceaaa5cb8ee6315061ee2598f/kong/plugins/signalfx/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/signalfx/kong-plugin-signalfx",
+      "host": "openresty",
+      "license": "Apache",
+      "luarocks": {
+        "date": "Wed, 06 Feb 2019 14:04:49 GMT",
+        "rockspec": {
+          "date": "Wed, 06 Feb 2019 14:04:49 GMT",
+          "sha256": "0966e76311c0d444838f727c5c345f34e0a32a801f4f3093d4c0d42f9096e1aa",
+          "size": 666
+        },
+        "src": {
+          "date": "Wed, 06 Feb 2019 14:04:50 GMT",
+          "sha256": "09b7da79f1a8846caa7fa5c7632eefb96eefeb094e89fb5c0bca974fd56b4833",
+          "size": 18555,
+          "url": "https://luarocks.org/kong-plugin-signalfx-0.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.signalfx.api",
+        "kong.plugins.signalfx.handler",
+        "kong.plugins.signalfx.schema"
+      ],
+      "origin": {
+        "commit": "949c56ac7ab7e8bceaaa5cb8ee6315061ee2598f",
+        "ref": "0.0.2",
+        "type": "git",
+        "url": "https://github.com/signalfx/kong-plugin-signalfx"
+      },
+      "size": 8245,
+      "summary": "Aggregates Kong metrics for consumption via /signalfx status endpoint",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "pl.pretty",
+        "pl.stringx",
+        "resty.lock"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.stringx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

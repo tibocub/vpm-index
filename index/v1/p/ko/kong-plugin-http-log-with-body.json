@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-http-log-with-body",
+  "versions": {
+    "0.1.1-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/http-log-with-body/handler.lua": {
+          "sha256": "f32f2ad83776858ddad432fe951117dee31e149c0c77582405681a63d37781f5",
+          "size": 5748,
+          "url": "https://raw.githubusercontent.com/zenvia/kong-plugin-http-log-with-body/c0e806817391669a27c6d24278bb4cc8a849f449/kong/plugins/http-log-with-body/handler.lua"
+        },
+        "kong/plugins/http-log-with-body/schema.lua": {
+          "sha256": "a2c894d2a5d12b10bc26653f83eab53db3521904b4c0f91851e74d54a46b381b",
+          "size": 932,
+          "url": "https://raw.githubusercontent.com/zenvia/kong-plugin-http-log-with-body/c0e806817391669a27c6d24278bb4cc8a849f449/kong/plugins/http-log-with-body/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "luarocks": {
+        "date": "Wed, 07 Aug 2019 23:05:29 GMT",
+        "rockspec": {
+          "date": "Wed, 07 Aug 2019 23:05:29 GMT",
+          "sha256": "2615a54cb3f3d5be3893ebbb7f5009099218b39e33885919c8099b2eebdcf919",
+          "size": 492
+        },
+        "src": {
+          "date": "Wed, 07 Aug 2019 23:05:30 GMT",
+          "sha256": "045bd2b003a60e13a3566c187cf786ecfd9a69c51dd0526e47d77e8c09d37d61",
+          "size": 4607,
+          "url": "https://luarocks.org/kong-plugin-http-log-with-body-0.1.1-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.http-log-with-body.handler",
+        "kong.plugins.http-log-with-body.schema"
+      ],
+      "origin": {
+        "commit": "c0e806817391669a27c6d24278bb4cc8a849f449",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/zenvia/kong-plugin-http-log-with-body"
+      },
+      "size": 6680,
+      "summary": "This plugin allows Kong to send log using HTTP request.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.log-serializers.basic",
+        "kong.plugins.response-transformer.body_transformer",
+        "kong.tools.batch_queue",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.log-serializers.basic",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

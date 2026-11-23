@@ -1,0 +1,40 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--An overload() call.
+local OverloadFn = {}
+OverloadFn.__index = OverloadFn
+setmetatable(OverloadFn, {__index = Terminal})
+package.loaded[...] = OverloadFn
+
+--Constructor.
+function OverloadFn.new(ln, col, params)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.OVERLOAD, {line = ln, col = col}), OverloadFn)
+  self.params = params
+
+  --(2) return
+  return self
+end
+
+--@override
+function OverloadFn:__tostring()
+  --(1) build params
+  local params = ""
+
+  for _, param in ipairs(self.params) do
+    if param:isMandatory() then
+      params = params .. " " .. param.type.type.name
+    elseif param:isOptional() then
+      params = params .. " ?" .. param.type.type.name
+    elseif param:isDiscard() then
+      params = params .. " ..."
+    end
+  end
+
+  --(2) return
+  return string.format("(overload%s)", params)
+end

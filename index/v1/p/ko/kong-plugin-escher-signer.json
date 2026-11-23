@@ -1,0 +1,108 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-escher-signer",
+  "versions": {
+    "2.0.0-1": {
+      "bin": [],
+      "deps": [
+        "classic 0.1.0-1",
+        "escher 0.4.0-1",
+        "kong-lib-logger >= 0.3.0-1",
+        "lua-easy-crypto 1.0.0"
+      ],
+      "files": {
+        "kong/plugins/escher-signer/api.lua": {
+          "sha256": "b8952424db7624945b8f05e5296a3e7dd1172b1415bacb83a5530634fea24ca7",
+          "size": 1781,
+          "url": "blob:b8952424db7624945b8f05e5296a3e7dd1172b1415bacb83a5530634fea24ca7"
+        },
+        "kong/plugins/escher-signer/daos.lua": {
+          "sha256": "6e8162dbe37a0e34239d135a37f394293e0e09678fb48cc43fe713a7c8326757",
+          "size": 378,
+          "url": "blob:6e8162dbe37a0e34239d135a37f394293e0e09678fb48cc43fe713a7c8326757"
+        },
+        "kong/plugins/escher-signer/encrypter.lua": {
+          "sha256": "62aba2f11cd40e0f88db5b46fee2a3102285e633b04836387df7c1a3cae8a075",
+          "size": 733,
+          "url": "blob:62aba2f11cd40e0f88db5b46fee2a3102285e633b04836387df7c1a3cae8a075"
+        },
+        "kong/plugins/escher-signer/handler.lua": {
+          "sha256": "8e46d69f597c7a723ffa4cb55f647a943709534d53185d2442af3a57f5ce6a4a",
+          "size": 4898,
+          "url": "blob:8e46d69f597c7a723ffa4cb55f647a943709534d53185d2442af3a57f5ce6a4a"
+        },
+        "kong/plugins/escher-signer/migrations/000_base_escher_signer.lua": {
+          "sha256": "6e2fba0198b2b773e5ef435545b4041d35ab736b7bbe6dd390d7f5e44cd3383f",
+          "size": 553,
+          "url": "blob:6e2fba0198b2b773e5ef435545b4041d35ab736b7bbe6dd390d7f5e44cd3383f"
+        },
+        "kong/plugins/escher-signer/migrations/init.lua": {
+          "sha256": "13d643cf0949396a3e84d06ffa07f8433be4659d6e7b803d9866fd9ed998041f",
+          "size": 39,
+          "url": "blob:13d643cf0949396a3e84d06ffa07f8433be4659d6e7b803d9866fd9ed998041f"
+        },
+        "kong/plugins/escher-signer/schema.lua": {
+          "sha256": "796ef7e8d7e2bfa99d495f79616e6c79415f5b7419630e2183e7f74f7a7ad7e0",
+          "size": 1566,
+          "url": "blob:796ef7e8d7e2bfa99d495f79616e6c79415f5b7419630e2183e7f74f7a7ad7e0"
+        },
+        "kong/plugins/escher-signer/signature_generator.lua": {
+          "sha256": "fb4b969099d062f60870f208c30531ae89100953dfd1c0091c349d08fc5cf581",
+          "size": 1858,
+          "url": "blob:fb4b969099d062f60870f208c30531ae89100953dfd1c0091c349d08fc5cf581"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-escher-signer",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Mon, 23 Mar 2020 12:54:42 GMT",
+        "rockspec": {
+          "date": "Mon, 23 Mar 2020 12:54:42 GMT",
+          "sha256": "8ad288bf4db7f7b155254ec8de5638e6721a1ebfadd89b13ee2e0ec8716b2a45",
+          "size": 1324
+        },
+        "src": {
+          "date": "Mon, 23 Mar 2020 12:54:43 GMT",
+          "sha256": "5cf143542e049f0ecc5673f954ac2e130419405a53a12d501c0eba7565417707",
+          "size": 20892,
+          "url": "https://luarocks.org/kong-plugin-escher-signer-2.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.escher-signer.api",
+        "kong.plugins.escher-signer.daos",
+        "kong.plugins.escher-signer.encrypter",
+        "kong.plugins.escher-signer.handler",
+        "kong.plugins.escher-signer.migrations",
+        "kong.plugins.escher-signer.migrations.000_base_escher_signer",
+        "kong.plugins.escher-signer.schema",
+        "kong.plugins.escher-signer.signature_generator"
+      ],
+      "origin": {
+        "date": "Mon, 23 Mar 2020 12:54:43 GMT",
+        "sha256": "5cf143542e049f0ecc5673f954ac2e130419405a53a12d501c0eba7565417707",
+        "size": 20892,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-escher-signer-2.0.0-1.src.rock"
+      },
+      "size": 11806,
+      "summary": "Escher signer plugin for Kong API gateway",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

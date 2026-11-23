@@ -1,0 +1,42 @@
+--imports
+local SubExp = require("dogma.syn._.SubExp")
+
+--A sequence of expressions: (exp, exp, exp...).
+local ExpSeq = {}
+ExpSeq.__index = ExpSeq
+setmetatable(ExpSeq, {__index = SubExp})
+package.loaded[...] = ExpSeq
+
+--Constructor.
+function ExpSeq.new(ln, col)
+  --(1) create
+  local self = setmetatable(SubExp.new(ln, col), ExpSeq)
+  self.exps = {}
+
+  --(2) return
+  return self
+end
+
+--Add a new [exp]ression.
+function ExpSeq:insert(exp)
+  table.insert(self.exps, exp)
+end
+
+--@override
+function ExpSeq:__tostring()
+  --(1) build repr
+  local repr = "("
+
+  for i, exp in ipairs(self.exps) do
+    if i > 1 then
+      repr = repr .. ", "
+    end
+
+    repr = repr .. tostring(exp)
+  end
+
+  repr = repr .. ")"
+
+  --/(2) return
+  return repr
+end

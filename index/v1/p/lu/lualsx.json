@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "lualsx",
+  "versions": {
+    "1.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/SolraBizna/lsx",
+      "license": "zlib",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Thu, 01 Jul 2021 04:38:07 GMT",
+        "rockspec": {
+          "date": "Thu, 01 Jul 2021 04:38:07 GMT",
+          "sha256": "14d134a3dc902fc1fc496bfe36a342e96ad52226cbbae47fd9eb5a32ce9431c8",
+          "size": 644
+        },
+        "src": {
+          "date": "Thu, 01 Jul 2021 04:38:08 GMT",
+          "sha256": "9aeb623643bfb20df287819d49b4d5ea21e60d146cf68f63328afb1fe1067730",
+          "size": 104508,
+          "url": "https://luarocks.org/lualsx-1.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "lsx"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "include"
+              ],
+              "name": "lsx",
+              "sources": [
+                "src/lsx_sha256.c",
+                "src/lsx_twofish.c",
+                "src/lsx_bzero.c",
+                "src/lsx_random.c",
+                "src/lualsx.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 01 Jul 2021 04:38:08 GMT",
+        "sha256": "9aeb623643bfb20df287819d49b4d5ea21e60d146cf68f63328afb1fe1067730",
+        "size": 104508,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lualsx-1.1.1-1.src.rock"
+      },
+      "summary": "A Lua library implementing Twofish and SHA-256",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

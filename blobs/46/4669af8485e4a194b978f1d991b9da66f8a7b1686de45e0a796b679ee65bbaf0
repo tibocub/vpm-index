@@ -1,0 +1,1114 @@
+-- Expandable progress boards for in-flight children, with a bounded replay
+-- path that rebuilds durable child turns when a primary session is reopened.
+
+local paths = require("subagents.paths")
+local ok_uv, uv = pcall(require, "luv")
+
+local COLLAPSED_LINES = 4
+local MAX_HISTORY_LINES = 512
+local MAX_HISTORY_BYTES = 128 * 1024
+local MAX_LINE_BYTES = 4096
+local MAX_PRESENTATION_BYTES = 32 * 1024
+local MAX_PRESENTATION_LINES = 128
+local MAX_RENDER_LINES = 4096
+local MAX_REPLAY_SESSIONS = 1024
+local MAX_REPLAY_MESSAGES = 8192
+local MAX_REPLAY_CARDS = 512
+local MAX_REPLAY_BLOCKS = 4096
+local MAX_REPLAY_BLOCK_BYTES = 64 * 1024
+local MAX_REPLAY_MESSAGE_BYTES = 256 * 1024
+local BODY_INDENT = "    "
+local PROGRESS_TOOLS = {
+    ["subagents.run"] = true,
+    ["subagents.workflow"] = true,
+    ["subagents.lua"] = true,
+}
+
+local GLYPHS = {
+    queued = "◌",
+    running = "◷",
+    completed = "✔",
+    failed = "✖",
+    cancelled = "⊘",
+}
+
+-- Foreground roles mirror src/tui_theme.zig. The host owns the active
+-- snapshot; resolve it during each component render so a live theme switch
+-- recolors existing boards without rebuilding their semantic state.
+local BOLD = "\27[1m"
+local STATUS_ROLE = {
+    queued = "dim",
+    running = "tool_pending",
+    completed = "tool_success",
+    failed = "tool_error",
+    cancelled = "dim",
+}
+
+local function render_style()
+    return require("panto").ext.style()
+end
+
+local function paint(open, reset, text)
+    return open .. text .. reset
+end
+
+-- Four columns, like BODY_INDENT, so width arithmetic is shared: a coloured
+-- bar is what visually groups one card's rows apart from its neighbours.
+local function gutter(open, reset)
+    return "  " .. paint(open, reset, "│") .. " "
+end
+
+-- Colour a sanitized history line by its shape. Whole lines only: a styled
+-- label followed by plain text would split `label: value` with an escape.
+local function decorate(line, style)
+    if line:find("^⚒ ") then return paint(style.tool_header, style.reset, line) end
+    if line:find("^error[^:]*: ") then return paint(style.tool_error, style.reset, line) end
+    if line:find("^↳ ") then
+        return paint(style.dim, style.reset, line)
+    end
+    return line
+end
+
+local M = {}
+local boards = {}
+local background_workflows = {}
+local bound = setmetatable({}, { __mode = "k" })
+local tools_collapsed = true
+local sid_width = 8
+local replay_board
+local replaying = true
+
+local function sanitize(text)
+    return (tostring(text or ""):gsub("[%z\1-\31\127]", " "))
+end
+
+local function sanitize_multiline(text)
+    return (tostring(text or ""):gsub("[%z\1-\9\11-\31\127]", " "))
+end
+
+local function display_tool_name(name)
+    return type(name) == "string" and name:gsub("__", ".") or "tool"
+end
+
+-- The fixed-profile workflow board reads its profile label from the recorded
+-- tool input. Child replay itself uses the bounded owner index below.
+local function decode_input(text)
+    if type(text) ~= "string" or text == "" then return nil end
+    local ok, panto = pcall(require, "panto")
+    local json = ok and type(panto) == "table" and type(panto.ext) == "table" and panto.ext.json or nil
+    if type(json) ~= "table" or type(json.decode) ~= "function" then
+        local dk_ok, dkjson = pcall(require, "dkjson")
+        json = dk_ok and type(dkjson) == "table" and dkjson or nil
+    end
+    if type(json) ~= "table" or type(json.decode) ~= "function" then return nil end
+    local decoded_ok, value = pcall(json.decode, text)
+    if not decoded_ok or type(value) ~= "table" then return nil end
+    return value
+end
+
+-- Already-sanitized (and possibly styled) text to rows; the host's wrap keeps
+-- escapes whole and replays active SGR state on continuation rows.
+local function rows(text, width, emit)
+    for _, row in ipairs(require("panto").text.wrap(text, math.max(1, width))) do
+        emit(row)
+    end
+end
+
+local function wrap(text, width, emit, style)
+    rows(decorate(sanitize(text), style), width, emit)
+end
+
+local card_mt = {}
+card_mt.__index = card_mt
+
+local function handle_alive(handle)
+    if not handle or type(handle.alive) ~= "function" then return false end
+    local ok, alive = pcall(handle.alive, handle)
+    return ok and alive == true
+end
+
+local function invalidate_board(board)
+    for handle in pairs(board.handles) do
+        if handle_alive(handle) then pcall(handle.invalidate, handle) end
+    end
+end
+
+local function repaint(card)
+    local board = card.board
+    if board then invalidate_board(board) end
+end
+
+local function clock()
+    return ok_uv and type(uv.hrtime) == "function" and uv.hrtime() / 1e9 or nil
+end
+
+local function elapsed_text(card)
+    if not card.started_at then return card.timed and "0s" or nil end
+    local seconds = math.max(0, math.floor((card.finished_at or clock() or card.started_at) - card.started_at))
+    if seconds >= 3600 then
+        return string.format("%dh%02dm", seconds // 3600, seconds % 3600 // 60)
+    elseif seconds >= 60 then
+        return string.format("%dm%02ds", seconds // 60, seconds % 60)
+    end
+    return seconds .. "s"
+end
+
+-- Token counts the way the host footer prints them: 845, 1.2k, 12.3k, 1.5M.
+local function short_count(n)
+    if n < 1000 then return tostring(n) end
+    local unit, symbol = 1000, "k"
+    if n >= 999950 then unit, symbol = 1000000, "M" end
+    local tenths = (n + unit // 20) // (unit // 10)
+    if tenths % 10 == 0 then return (tenths // 10) .. symbol end
+    return string.format("%d.%d%s", tenths // 10, tenths % 10, symbol)
+end
+
+-- "12.3k ctx · 45k tok · $0.12", absent until the first response lands; cost
+-- is dropped when the host cannot price the model.
+local function usage_text(card)
+    local u = card.usage
+    if not u then return nil end
+    local text = short_count(card.context) .. " ctx · " ..
+        short_count(u.input + u.output + u.cache_read + u.cache_write) .. " tok"
+    if card.cost then text = text .. string.format(" · $%.2f", card.cost) end
+    return text
+end
+
+-- Fold one response's usage into the card: tokens sum, context is the latest
+-- prompt size (as the host footer computes it), and the host prices the sum.
+local function add_usage(card, usage)
+    local u = card.usage or { input = 0, output = 0, cache_read = 0, cache_write = 0 }
+    for field in pairs(u) do u[field] = u[field] + (math.tointeger(usage[field]) or 0) end
+    card.usage = u
+    card.context = (math.tointeger(usage.input) or 0) + (math.tointeger(usage.cache_read) or 0) +
+        (math.tointeger(usage.cache_write) or 0)
+    local price = require("panto").ext.usage_cost
+    if card.model_ref and type(price) == "function" then
+        local ok, cost = pcall(price, { model = card.model_ref, usage = u })
+        card.cost = ok and math.type(cost) == "float" and cost or nil
+    end
+end
+
+-- One unref'd 1s timer per board repaints running timers; it retires itself
+-- once no live card is still running.
+local function ensure_ticker(board)
+    if board.ticker or not ok_uv or type(uv.new_timer) ~= "function" then return end
+    local timer = uv.new_timer()
+    if not timer then return end
+    board.ticker = timer
+    pcall(timer.unref, timer)
+    timer:start(1000, 1000, function()
+        local running = false
+        for _, card in ipairs(board.cards) do
+            if card.status == "running" or card.status == "queued" then running = true end
+        end
+        invalidate_board(board)
+        if not running then
+            timer:stop()
+            timer:close()
+            board.ticker = nil
+        end
+    end)
+end
+
+-- `history` is a deque (`history_first..history_last`) so dropping the oldest
+-- line is O(1); a replayed child transcript pushes thousands of lines at once.
+function card_mt:history_count()
+    return self.history_last - self.history_first + 1
+end
+
+local function trim(card)
+    while card:history_count() > MAX_HISTORY_LINES or card.history_bytes > MAX_HISTORY_BYTES do
+        local removed = card.history[card.history_first]
+        card.history[card.history_first] = nil
+        card.history_first = card.history_first + 1
+        card.history_bytes = card.history_bytes - #removed
+    end
+end
+
+local function adopt(card, line)
+    line = sanitize(line):sub(1, MAX_LINE_BYTES)
+    card.history_last = card.history_last + 1
+    card.history[card.history_last] = line
+    card.history_bytes = card.history_bytes + #line
+    trim(card)
+end
+
+local function marker(card, text)
+    card.partial = false
+    if text ~= nil and text ~= "" then adopt(card, text) end
+end
+
+local function append_text(card, text)
+    text = tostring(text or "")
+    local from = 1
+    while from <= #text do
+        local newline = text:find("\n", from, true)
+        local last = newline and newline - 1 or #text
+        if card.partial and card:history_count() > 0 then
+            local index = card.history_last
+            local old = card.history[index]
+            local room = MAX_LINE_BYTES - #old
+            local chunk = room > 0 and text:sub(from, math.min(last, from + room - 1)) or ""
+            local grown = old .. sanitize(chunk)
+            card.history[index] = grown
+            card.history_bytes = card.history_bytes + #grown - #old
+            trim(card)
+        else
+            adopt(card, text:sub(from, math.min(last, from + MAX_LINE_BYTES - 1)))
+        end
+        card.partial = newline == nil
+        if not newline then break end
+        from = newline + 1
+    end
+end
+
+local function append_labeled(card, label, text)
+    text = tostring(text or "")
+    local continuation = string.rep(" ", #label)
+    local from, first = 1, true
+    while true do
+        local newline = text:find("\n", from, true)
+        local last = newline and newline - 1 or #text
+        local prefix = first and label or continuation
+        local room = math.max(0, MAX_LINE_BYTES - #prefix)
+        local line = room > 0 and text:sub(from, math.min(last, from + room - 1)) or ""
+        adopt(card, prefix .. line)
+        first = false
+        if not newline then break end
+        from = newline + 1
+    end
+end
+
+function card_mt:event(event)
+    if type(event) ~= "table" then return end
+    local kind, index = event.type, event.index
+    if kind == "block_start" then
+        self.blocks[index] = event.block_type
+        self.block_had_delta[index] = false
+    elseif kind == "content_delta" then
+        if self.blocks[index] == "text" and type(event.delta) == "string" then
+            append_text(self, event.delta)
+            self.block_had_delta[index] = true
+        end
+    elseif kind == "tool_details" then
+        self.tools[index] = { id = event.id, name = event.name }
+        local detail = display_tool_name(event.name)
+        if event.id and event.id ~= "" then detail = detail .. " [" .. event.id .. "]" end
+        marker(self, "⚒ " .. detail)
+    elseif kind == "block_complete" then
+        if event.block_type == "text" and not self.block_had_delta[index] and type(event.text) == "string" then
+            append_text(self, event.text)
+        elseif event.block_type == "tool_use" then
+            if not self.tools[index] then
+                local detail = display_tool_name(event.name)
+                if event.id and event.id ~= "" then detail = detail .. " [" .. event.id .. "]" end
+                marker(self, "⚒ " .. detail)
+            end
+            if type(event.text) == "string" then append_labeled(self, "input: ", event.text) end
+        end
+        self.blocks[index], self.block_had_delta[index] = nil, nil
+        self.partial = false
+    elseif kind == "tool_dispatch_result" then
+        for _, result in ipairs(type(event.tool_results) == "table" and event.tool_results or {}) do
+            if type(result) == "table" then
+                local label = result.is_error and "error" or "result"
+                if type(result.tool_use_id) == "string" and result.tool_use_id ~= "" then
+                    label = label .. " [" .. result.tool_use_id .. "]"
+                end
+                append_labeled(self, label .. ": ", result.output)
+            end
+        end
+        self.partial = false
+    elseif kind == "message_complete" then
+        if event.role == "assistant" and type(event.usage) == "table" then add_usage(self, event.usage) end
+        self.blocks, self.block_had_delta = {}, {}
+        self.partial = false
+    elseif kind == "tool_dispatch_complete" then
+        self.partial = false
+    else
+        return
+    end
+    repaint(self)
+end
+
+local function sort_cards(board)
+    local positions = {}
+    for index, card in ipairs(board.cards) do positions[card] = index end
+    table.sort(board.cards, function(a, b)
+        local function settled(card) return card.status ~= "running" and card.status ~= "queued" end
+        local a_done, b_done = settled(a), settled(b)
+        if a_done ~= b_done then return a_done end
+        if a.sequence ~= b.sequence then return a.sequence < b.sequence end
+        return positions[a] < positions[b]
+    end)
+end
+
+-- A live card waits as "queued" until the job gate gives it a slot; only then
+-- does its timer start.
+function card_mt:start()
+    if self.status ~= "queued" then return end
+    self.status = "running"
+    self.started_at = clock()
+    if self.board then ensure_ticker(self.board) end
+    repaint(self)
+end
+
+function card_mt:done(status, message)
+    self.status = GLYPHS[status] and status or "failed"
+    if self.started_at and not self.finished_at then self.finished_at = clock() end
+    if self.status ~= "completed" then marker(self, message) else self.partial = false end
+    if self.board then sort_cards(self.board) end
+    repaint(self)
+end
+
+local NOOP = setmetatable({ history = {} }, { __index = { event = function() end, done = function() end, start = function() end } })
+
+local function register_sid(sid)
+    if sid == "" then return end
+    for _, board in pairs(boards) do
+        for _, card in ipairs(board.cards) do
+            local other = card.sid
+            if other ~= "" and other ~= sid then
+                local limit, common = math.min(#sid, #other), 0
+                while common < limit and sid:byte(common + 1) == other:byte(common + 1) do
+                    common = common + 1
+                end
+                sid_width = math.max(sid_width, math.min(common + 1, math.max(#sid, #other)))
+            end
+        end
+    end
+end
+
+local function body_lines(card, width, collapsed, style)
+    local out, total = {}, 0
+    local status = style[STATUS_ROLE[card.status] or STATUS_ROLE.running]
+    local indent = gutter(status, style.reset)
+    local function add(line)
+        total = total + 1
+        if collapsed and #out == COLLAPSED_LINES then table.remove(out, 1) end
+        if #out < MAX_RENDER_LINES then out[#out + 1] = indent .. line end
+    end
+    if not collapsed then
+        local metadata_truncated = false
+        local function add_metadata(label, text)
+            local continuation = string.rep(" ", #label)
+            local from, first, lines = 1, true, 0
+            local function add_bounded(line)
+                if lines < MAX_PRESENTATION_LINES then
+                    lines = lines + 1
+                    add(line)
+                else
+                    metadata_truncated = true
+                end
+            end
+            while true do
+                local newline = text:find("\n", from, true)
+                local last = newline and newline - 1 or #text
+                rows(paint(style.dim, style.reset, sanitize((first and label or continuation) .. text:sub(from, last))),
+                    width, add_bounded)
+                first = false
+                if not newline then break end
+                from = newline + 1
+            end
+        end
+        if card.system_prompt then add_metadata("system prompt: ", card.system_prompt) end
+        if card.prompt then add_metadata("prompt: ", card.prompt) end
+        if metadata_truncated then add("... prompt display truncated") end
+    end
+    for i = card.history_first, card.history_last do wrap(card.history[i], width, add, style) end
+    if not collapsed and total > #out then
+        out[#out] = indent .. paint(style.dim, style.reset, "... retained history exceeds render limit")
+    end
+    -- Transient activity, not history: keep it visible even when history is capped.
+    if card.status == "running" then
+        for _, block_type in pairs(card.blocks) do
+            if block_type == "thinking" then
+                rows(paint(style.dim, style.reset, "Thinking..."), width, function(line)
+                    out[#out + 1] = indent .. line
+                end)
+                break
+            end
+        end
+    end
+    return out
+end
+
+local function render(board, width, fallback)
+    local out = {}
+    local style = render_style()
+    width = math.floor(tonumber(width) or 0)
+    if width <= #BODY_INDENT then return out end
+    if #board.cards == 0 and not board.title and not fallback then return out end
+    out[#out + 1] = ""
+    if board.title then
+        out[#out + 1] = require("panto").text.truncate(
+            paint(style.tool_header, style.reset, sanitize("⚙ " .. board.title)), width)
+    end
+    if #board.cards == 0 and fallback then
+        out[#out + 1] = require("panto").text.truncate(paint(style.dim, style.reset, sanitize(fallback)), width)
+    end
+    for _, card in ipairs(board.cards) do
+        local color = style[STATUS_ROLE[card.status] or STATUS_ROLE.running]
+        local sid = card.sid ~= "" and (" " .. card.sid:sub(1, sid_width) ..
+            (sid_width < #card.sid and "..." or "")) or ""
+        out[#out + 1] = require("panto").text.truncate(
+            paint(color, style.reset, GLYPHS[card.status] or GLYPHS.running) .. " " ..
+            paint(BOLD, style.reset, sanitize(card.label)) .. paint(style.dim, style.reset, sanitize(sid)) ..
+            " — " .. paint(color, style.reset, card.status) ..
+            (card.model and paint(style.dim, style.reset, " · " .. sanitize(card.model)) or "") ..
+            (usage_text(card) and paint(style.dim, style.reset, " · " .. usage_text(card)) or "") ..
+            (elapsed_text(card) and paint(style.dim, style.reset, " · " .. elapsed_text(card)) or ""), width)
+        local lines = body_lines(card, width - #BODY_INDENT, board.collapsed, style)
+        for _, line in ipairs(lines) do out[#out + 1] = line end
+    end
+    if board.pinned then out[#out + 1] = "" end
+    return out
+end
+
+local function set_board_pinned(board, pinned)
+    local handle = board.owner[1]
+    if board.pinned == pinned or not handle or not handle_alive(handle) then return end
+    local ok = pcall(handle.set_pinned, handle, pinned)
+    if ok then
+        board.pinned = pinned
+        invalidate_board(board)
+    end
+end
+
+local function sync_board_pin(board)
+    local workflows = type(board.key) == "string" and background_workflows[board.key] or 0
+    set_board_pinned(board, board.tool_active or (workflows or 0) > 0)
+end
+
+local function prune_boards()
+    for key, board in pairs(boards) do
+        for handle in pairs(board.handles) do
+            if not handle_alive(handle) then board.handles[handle] = nil end
+        end
+        if board.owner[1] and not handle_alive(board.owner[1]) then
+            board.owner[1] = nil
+            board.pinned = false
+        end
+        if board.owner[1] == nil and next(board.handles) == nil and not board.tool_active and
+            not (background_workflows[key] and background_workflows[key] > 0) then
+            boards[key] = nil
+        end
+    end
+end
+
+local function new_board(key)
+    local board = {
+        key = key,
+        cards = {},
+        -- Strong on purpose: nothing else holds a component handle, so weak
+        -- refs would let GC drop the live entry. prune_boards drops dead ones.
+        handles = {},
+        owner = {},
+        collapsed = tools_collapsed,
+        next_sequence = 0,
+        pinned = false,
+        tool_active = false,
+    }
+    board.component = {
+        render = function(_, width) return render(board, width) end,
+        attached = function(_, handle)
+            board.handles[handle] = true
+            local owner = board.owner[1]
+            if owner ~= handle and not handle_alive(owner) then
+                board.owner[1] = handle
+                board.pinned = false
+            end
+            sync_board_pin(board)
+        end,
+    }
+    return board
+end
+
+-- A std.lua call that starts subagent work owns this board. Registering it with
+-- std.lua shows it on the call's entry whatever the script returns; a returned
+-- workflow record replaces it with a view of the same board. The script creates
+-- the board before its background coroutine can add child cards; std.lua's
+-- attached(handle) hook supplies the live transcript handle later.
+function M.prepare(tool_call_id)
+    if type(tool_call_id) ~= "string" or tool_call_id == "" then return nil end
+    local board = boards[tool_call_id]
+    if board == nil then
+        board = new_board(tool_call_id)
+        boards[tool_call_id] = board
+    end
+    board.title = board.title or ("std.lua " .. tool_call_id)
+    board.tool_active = true
+    sync_board_pin(board)
+    local ok, std = pcall(require, "_std")
+    if ok and type(std) == "table" and type(std.lua_component) == "function" then
+        pcall(std.lua_component, tool_call_id, board.component)
+    end
+    return board.component
+end
+
+function M.attach(tool_call_id, handle)
+    if type(tool_call_id) ~= "string" or tool_call_id == "" then return end
+    local board = boards[tool_call_id]
+    if board == nil then
+        board = new_board(tool_call_id)
+        boards[tool_call_id] = board
+    end
+    board.component:attached(handle)
+end
+
+function M.render(tool_call_id, width, fallback)
+    local board = type(tool_call_id) == "string" and boards[tool_call_id] or nil
+    return board and render(board, width, fallback) or {}
+end
+
+-- No pruning here: a host rerender (compaction) releases every old entry before
+-- re-claiming the survivors, so each dead board must outlive the first claim.
+function M.claim(event)
+    local name = event.tool_name
+    if not PROGRESS_TOOLS[name] then return end
+    if type(event.set_component) ~= "function" then return end
+    if type(event.collapsed) == "boolean" then tools_collapsed = event.collapsed end
+    local key = event.id or event.tool_call_id or name
+    local prior = boards[key]
+    local board = new_board(key)
+    if prior then
+        board.handles, board.owner, board.pinned = prior.handles, prior.owner, prior.pinned
+    end
+    if name == "subagents.workflow" then
+        local decoded = decode_input(event.input)
+        local profile = decoded and type(decoded.profile) == "string" and decoded.profile or nil
+        board.title = name .. (profile and (" " .. profile) or "")
+    end
+    local attached, handle = pcall(event.set_component, event, board.component)
+    if not attached then return end
+    board.component:attached(handle)
+    boards[key] = board
+    -- A re-claimed call (the host rebuilt its entry) keeps its cards and state.
+    -- Otherwise replayed calls are historical; only a call dispatched during the
+    -- live turn belongs at the bottom of the screen.
+    if prior and key ~= name then
+        board.cards, board.next_sequence, board.tool_active = prior.cards, prior.next_sequence, prior.tool_active
+        for _, card in ipairs(board.cards) do card.board = board end
+        ensure_ticker(board)
+    elseif replaying then
+        replay_board(board, type(key) == "string" and key or nil)
+    else
+        board.tool_active = true
+    end
+    sync_board_pin(board)
+end
+
+-- A result settles the outer tool invocation. Keep the board attached to its
+-- transcript entry, but leave it pinned while a background workflow it started
+-- is still running.
+function M.settle(event)
+    -- Host events are userdata; tool handler contexts are tables.
+    local key = event ~= nil and (event.id or event.tool_call_id) or nil
+    local board = key and boards[key]
+    if board then
+        board.tool_active = false
+        sync_board_pin(board)
+    end
+    local co = coroutine.running()
+    if co and bound[co] == key then bound[co] = nil end
+end
+
+function M.workflow_started(tool_call_id)
+    if type(tool_call_id) ~= "string" or tool_call_id == "" then return end
+    background_workflows[tool_call_id] = (background_workflows[tool_call_id] or 0) + 1
+    local board = boards[tool_call_id]
+    if board then sync_board_pin(board) end
+end
+
+function M.workflow_finished(tool_call_id)
+    if type(tool_call_id) ~= "string" or tool_call_id == "" then return end
+    local count = background_workflows[tool_call_id]
+    if count == nil then return end
+    if count <= 1 then background_workflows[tool_call_id] = nil else background_workflows[tool_call_id] = count - 1 end
+    local board = boards[tool_call_id]
+    if board then sync_board_pin(board) end
+end
+
+function M.collapse(event)
+    if type(event.collapsed) ~= "boolean" then return end
+    prune_boards()
+    tools_collapsed = event.collapsed
+    for _, board in pairs(boards) do
+        board.collapsed = tools_collapsed
+        invalidate_board(board)
+    end
+end
+
+-- The call whose transcript entry shows a delegation tool's children. A tool
+-- called from inside std.lua (`tools.subagents__run`) has no entry of its own,
+-- so its children render on the owning std.lua call's board.
+function M.owner(context)
+    if type(context) ~= "table" then return nil end
+    local parent, own = context.parent_tool_call_id, context.tool_call_id
+    if type(parent) == "string" and parent ~= "" then return parent, true end
+    if type(own) == "string" and own ~= "" then return own, false end
+    return nil
+end
+
+function M.bind(context)
+    local key, nested = M.owner(context)
+    if nested then M.prepare(key) end
+    local co = coroutine.running()
+    if co then bound[co] = key end
+end
+
+function M.bind_coroutine(co, tool_call_id)
+    if type(co) ~= "thread" then return end
+    if type(tool_call_id) ~= "string" or tool_call_id == "" then tool_call_id = nil end
+    bound[co] = tool_call_id
+end
+
+-- The outer tool call is durable child-turn metadata, not model-visible output.
+-- Expose it to the spawn seam without making the board state global: workflow
+-- callbacks run on the same coroutine as their owning tool handler.
+function M.tool_call_id()
+    local co = coroutine.running()
+    return co and bound[co] or nil
+end
+
+local function new_card(board, label, id, detail, presentation, sequence)
+    if board == nil then return NOOP end
+    local sid = type(id) == "string" and sanitize(id):sub(1, MAX_LINE_BYTES) or ""
+    register_sid(sid)
+    if type(sequence) ~= "number" or sequence < 1 or sequence % 1 ~= 0 then
+        board.next_sequence = board.next_sequence + 1
+        sequence = board.next_sequence
+    else
+        board.next_sequence = math.max(board.next_sequence, sequence)
+    end
+    local card = setmetatable({
+        board = board,
+        label = sanitize(label or "subagent"):sub(1, MAX_LINE_BYTES),
+        sid = sid,
+        sequence = sequence,
+        status = "running",
+        history = {},
+        history_first = 1,
+        history_last = 0,
+        history_bytes = 0,
+        partial = false,
+        blocks = {},
+        block_had_delta = {},
+        tools = {},
+        prompt = type(presentation) == "table" and type(presentation.prompt) == "string" and
+            sanitize_multiline(presentation.prompt):sub(1, MAX_PRESENTATION_BYTES) or nil,
+        system_prompt = type(presentation) == "table" and type(presentation.system_prompt) == "string" and
+            sanitize_multiline(presentation.system_prompt):sub(1, MAX_PRESENTATION_BYTES) or nil,
+        -- "provider:alias", for pricing usage; never displayed.
+        model_ref = type(presentation) == "table" and type(presentation.model) == "string" and
+            presentation.model or nil,
+    }, card_mt)
+    board.cards[#board.cards + 1] = card
+    if detail then card.model = sanitize(detail):sub(1, MAX_LINE_BYTES) end
+    repaint(card)
+    return card
+end
+
+function M.card(label, id, detail, presentation)
+    local key = bound[coroutine.running()]
+    local board = key and boards[key]
+    if board == nil or (board.owner[1] and not handle_alive(board.owner[1])) then return NOOP end
+    local card = new_card(board, label, id, detail, presentation)
+    card.status, card.timed = "queued", true
+    ensure_ticker(board)
+    return card
+end
+
+local function nonempty(value)
+    return type(value) == "string" and value ~= "" and value or nil
+end
+
+-- Keep replay work finite even when a damaged child file contains pathological
+-- payloads. The card itself has stricter history limits; this cap bounds the
+-- temporary strings made while translating stored blocks into progress events.
+local function bounded_text(value, limit)
+    if type(value) ~= "string" then return "" end
+    return #value > limit and value:sub(1, limit) or value
+end
+
+local function text_blocks(blocks, limit)
+    if type(blocks) ~= "table" then return "" end
+    local pieces, bytes, seen = {}, 0, 0
+    for _, block in ipairs(blocks) do
+        seen = seen + 1
+        if seen > MAX_REPLAY_BLOCKS then break end
+        if type(block) == "table" and (block.type == "text" or block.type == "system") and type(block.text) == "string" then
+            if #pieces > 0 and bytes < limit then
+                pieces[#pieces + 1] = "\n"
+                bytes = bytes + 1
+            end
+            local room = limit - bytes
+            if room <= 0 then break end
+            local text = block.text:sub(1, room)
+            pieces[#pieces + 1] = text
+            bytes = bytes + #text
+            if #text < #block.text then break end
+        end
+    end
+    return table.concat(pieces)
+end
+
+local function blocks_of(message)
+    return type(message) == "table" and type(message.blocks) == "table" and message.blocks or {}
+end
+
+local function message_text(message)
+    return type(message) == "table" and text_blocks(blocks_of(message), MAX_REPLAY_BLOCK_BYTES) or ""
+end
+
+local function metadata_for(conv, index)
+    if conv == nil or type(conv.message_metadata) ~= "function" then return nil end
+    local ok, metadata = pcall(conv.message_metadata, conv, index)
+    if not ok or type(metadata) ~= "table" or type(metadata.subagents) ~= "table" then
+        return nil
+    end
+    return metadata.subagents
+end
+
+local function owner_of(metadata)
+    if type(metadata) ~= "table" then return nil end
+    return nonempty(metadata.tool_call_id)
+end
+
+local function session_identity(info)
+    local metadata = type(info) == "table" and info.metadata or nil
+    if type(metadata) == "string" then metadata = decode_input(metadata) end
+    if type(metadata) ~= "table" then return nil, nil end
+    return nonempty(metadata.subagent_name), nonempty(metadata.subagent_profile)
+end
+
+local function child_manifest(conv, messages)
+    for index = 1, #messages do
+        local message = messages[index]
+        if type(message) == "table" and message.role == "system" then
+            local metadata = metadata_for(conv, index)
+            local profile_name = metadata and nonempty(metadata.agent)
+            if profile_name then
+                local system_prompt
+                if metadata.inline == true then
+                    system_prompt = nonempty(message_text(message))
+                end
+                return profile_name, system_prompt
+            end
+        end
+    end
+    return nil, nil
+end
+
+local function result_text(block)
+    if type(block) ~= "table" then return "" end
+    local parts = block.parts or block.content
+    if type(parts) ~= "table" then return "" end
+    local pieces, bytes, seen = {}, 0, 0
+    for _, part in ipairs(parts) do
+        seen = seen + 1
+        if seen > MAX_REPLAY_BLOCKS then break end
+        if type(part) == "table" and type(part.text) == "string" then
+            local room = MAX_REPLAY_BLOCK_BYTES - bytes
+            if room <= 0 then break end
+            local text = part.text:sub(1, room)
+            pieces[#pieces + 1] = text
+            bytes = bytes + #text
+            if #text < #part.text then break end
+        end
+    end
+    return table.concat(pieces, "\n")
+end
+
+local function is_prompt_message(message)
+    return type(message) == "table" and message.role == "user" and message_text(message) ~= ""
+end
+
+-- Translate one stored child turn through the same card event path used by a
+-- live stream. No outer tool result is involved: all displayed content comes
+-- from this child's durable conversation.
+local function replay_turn(board, conv, messages, start, finish, info, profile_name, system_prompt, sequence,
+        subagent_name, subagent_profile)
+    local metadata = metadata_for(conv, start)
+    local prompt = message_text(messages[start])
+    if prompt == "" then return end
+
+    local id = nonempty(info and info.id)
+    local model_ref = nonempty(metadata and metadata.model) or nonempty(info and info.model)
+    local reasoning = nonempty(metadata and metadata.reasoning) or nonempty(info and info.reasoning)
+    local model = model_ref
+    if model and reasoning then model = model .. " (" .. reasoning .. ")" end
+    local name = nonempty(metadata and metadata.name) or subagent_name
+    local profile = nonempty(metadata and metadata.agent) or subagent_profile
+    local label = profile_name or "subagent"
+    if name then
+        label = name
+        if profile then label = name .. " (" .. profile .. ")" end
+    end
+    local card = new_card(board, label, id, model, {
+        prompt = prompt,
+        system_prompt = system_prompt,
+        model = model_ref,
+    }, sequence)
+    local pending, terminal_assistant = {}, false
+    local block_index = 0
+
+    for index = start + 1, finish - 1 do
+        local message = messages[index]
+        if type(message) == "table" and message.role == "assistant" then
+            local has_tool = false
+            local has_response = false
+            local seen_blocks = 0
+            for _, block in ipairs(blocks_of(message)) do
+                seen_blocks = seen_blocks + 1
+                if seen_blocks > MAX_REPLAY_BLOCKS then break end
+                if type(block) == "table" and block.type == "tool_use" then
+                    has_tool = true
+                    local tool_id = bounded_text(block.id, MAX_REPLAY_BLOCK_BYTES)
+                    local tool_name = bounded_text(block.name, MAX_REPLAY_BLOCK_BYTES)
+                    local input = bounded_text(block.input, MAX_REPLAY_BLOCK_BYTES)
+                    if tool_id ~= "" then pending[tool_id] = true end
+                    card:event({ type = "block_complete", block_type = "tool_use",
+                        index = block_index, id = tool_id, name = tool_name, text = input })
+                    block_index = block_index + 1
+                else
+                    -- Thinking-only and other non-text assistant messages are
+                    -- still real completed responses; presentation text is
+                    -- optional and must not decide terminal status.
+                    has_response = true
+                    if type(block) == "table" and block.type == "text" then
+                        local text = bounded_text(block.text, MAX_REPLAY_BLOCK_BYTES)
+                        if text ~= "" then
+                            card:event({ type = "block_complete", block_type = "text",
+                                index = block_index, text = text })
+                        end
+                        block_index = block_index + 1
+                    end
+                end
+            end
+            -- A response containing a tool call is not the settled assistant
+            -- answer; a later assistant message after its results is.
+            terminal_assistant = has_response and not has_tool
+            if type(message.usage) == "table" then
+                card:event({ type = "message_complete", role = "assistant", usage = message.usage })
+            end
+        elseif type(message) == "table" and message.role == "user" then
+            local results = {}
+            local seen_blocks = 0
+            for _, block in ipairs(blocks_of(message)) do
+                seen_blocks = seen_blocks + 1
+                if seen_blocks > MAX_REPLAY_BLOCKS then break end
+                if type(block) == "table" and block.type == "tool_result" then
+                    local tool_id = bounded_text(block.tool_use_id, MAX_REPLAY_BLOCK_BYTES)
+                    if tool_id ~= "" then pending[tool_id] = nil end
+                    results[#results + 1] = {
+                        tool_use_id = tool_id,
+                        output = result_text(block),
+                        is_error = block.is_error == true,
+                    }
+                end
+            end
+            if #results > 0 then
+                card:event({ type = "tool_dispatch_result", tool_results = results })
+            end
+        end
+    end
+
+    local status = metadata and nonempty(metadata.status)
+    if status ~= "completed" and status ~= "failed" and status ~= "cancelled" then
+        status = nil
+    end
+    if status == nil then
+        local settled = terminal_assistant
+        if settled then
+            for _ in pairs(pending) do
+                settled = false
+                break
+            end
+        end
+        status = settled and "completed" or "failed"
+    end
+    card:done(status, status == "failed" and "child turn has no settled assistant response" or nil)
+    card.replay_sequence = sequence
+    return card
+end
+
+local function replay_sequence(metadata)
+    local sequence = type(metadata) == "table" and tonumber(metadata.sequence) or nil
+    if sequence == nil or sequence < 1 or sequence % 1 ~= 0 then return nil end
+    return sequence
+end
+
+local function card_before(a, b)
+    if a.replay_sequence and b.replay_sequence and a.replay_sequence ~= b.replay_sequence then
+        return a.replay_sequence < b.replay_sequence
+    end
+    if (a.replay_sequence ~= nil) ~= (b.replay_sequence ~= nil) then
+        return a.replay_sequence ~= nil
+    end
+    return a.replay_ordinal < b.replay_ordinal
+end
+
+-- Owner tool_call_id -> replayed cards. Built once per replay from every child
+-- file (each loaded exactly once) on the first replayed board, then dropped
+-- when the first live turn begins. Without it every board rescans the whole
+-- child store just to find its own turns.
+local replay_index
+
+local function build_replay_index()
+    local owners = {}
+    local path_ok, store_dir = pcall(paths.child_store_dir)
+    if not path_ok or type(store_dir) ~= "string" or store_dir == "" then return owners end
+    local panto_ok, panto = pcall(require, "panto")
+    if not panto_ok or type(panto) ~= "table" or type(panto.file_system_jsonl_store) ~= "function" then return owners end
+    local store_ok, store = pcall(panto.file_system_jsonl_store, { dir = store_dir })
+    if not store_ok or store == nil or type(store.list_bounded) ~= "function" or
+        type(store.load_messages) ~= "function" then return owners end
+
+    -- The store owns both bounds. In particular, this never asks the binding
+    -- for an unbounded catalog or conversation and trims only after a backend
+    -- has already applied the requested limit.
+    local listed, infos = pcall(store.list_bounded, store, { limit = MAX_REPLAY_SESSIONS })
+    if not listed or type(infos) ~= "table" then return owners end
+    local sessions = {}
+    for _, info in ipairs(infos) do
+        if type(info) == "table" and nonempty(info.id) then sessions[#sessions + 1] = info end
+    end
+    table.sort(sessions, function(a, b)
+        local ac, bc = nonempty(a.created), nonempty(b.created)
+        if ac and bc and ac ~= bc then return ac < bc end
+        return a.id < b.id
+    end)
+
+    -- Translate each bounded session into bounded card history immediately;
+    -- retaining whole conversations for all sessions would merely move the
+    -- unbounded replay footprint from the store to Lua while sorting.
+    local scratch = new_board()
+    local ordinal = 0
+    for _, info in ipairs(sessions) do
+        local loaded, conv = pcall(store.load_messages, store, info.id, {
+            limit = MAX_REPLAY_MESSAGES,
+            from_end = true,
+            max_bytes = MAX_REPLAY_MESSAGE_BYTES,
+        })
+        if loaded and conv ~= nil and type(conv.messages) == "function" then
+            local messages_ok, messages = pcall(conv.messages, conv)
+            if messages_ok and type(messages) == "table" and #messages > 0 then
+                local turns = {}
+                local index = 1
+                while index <= #messages do
+                    if is_prompt_message(messages[index]) then
+                        local finish = index + 1
+                        while finish <= #messages and not is_prompt_message(messages[finish]) do
+                            finish = finish + 1
+                        end
+                        local metadata = metadata_for(conv, index)
+                        local owner = owner_of(metadata)
+                        if owner then
+                            turns[#turns + 1] = {
+                                owner = owner,
+                                start = index,
+                                finish = finish,
+                                metadata = metadata,
+                                sequence = replay_sequence(metadata),
+                            }
+                        end
+                        index = finish
+                    else
+                        index = index + 1
+                    end
+                end
+
+                if #turns > 0 then
+                    local subagent_name, subagent_profile = session_identity(info)
+                    local manifest_ok, manifest_conv = pcall(store.load_messages, store, info.id, {
+                        limit = 1,
+                        role = "system",
+                        metadata_key = "subagents",
+                        max_bytes = MAX_REPLAY_MESSAGE_BYTES,
+                    })
+                    local profile_name, system_prompt
+                    if manifest_ok and manifest_conv ~= nil and type(manifest_conv.messages) == "function" then
+                        local got_messages, manifest_messages = pcall(manifest_conv.messages, manifest_conv)
+                        if got_messages and type(manifest_messages) == "table" then
+                            local got_manifest
+                            got_manifest, profile_name, system_prompt = pcall(child_manifest, manifest_conv, manifest_messages)
+                            if not got_manifest then profile_name, system_prompt = nil, nil end
+                        end
+                    end
+                    for _, turn in ipairs(turns) do
+                        local cards = owners[turn.owner] or {}
+                        owners[turn.owner] = cards
+                        if #cards < MAX_REPLAY_CARDS then
+                            ordinal = ordinal + 1
+                            local card_ok, card = pcall(replay_turn, scratch, conv, messages,
+                                turn.start, turn.finish, info, profile_name, system_prompt, turn.sequence,
+                                subagent_name, subagent_profile)
+                            if card_ok and card ~= nil then
+                                card.replay_ordinal = ordinal
+                                cards[#cards + 1] = card
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    for _, cards in pairs(owners) do table.sort(cards, card_before) end
+    return owners
+end
+
+replay_board = function(board, tool_call_id)
+    if board == nil or type(tool_call_id) ~= "string" or tool_call_id == "" then return end
+    if replay_index == nil then replay_index = build_replay_index() end
+    for _, card in ipairs(replay_index[tool_call_id] or {}) do
+        if #board.cards >= MAX_REPLAY_CARDS then break end
+        card.board = board
+        board.cards[#board.cards + 1] = card
+        register_sid(card.sid)
+        repaint(card)
+    end
+end
+
+-- Called during startup transcript replay, before std.lua renders its result.
+-- The existing bounded child-store index is shared with subagents.run and
+-- fixed workflow replay; no unbounded session scan is introduced here.
+function M.replay_component(tool_call_id)
+    if not replaying or type(tool_call_id) ~= "string" or tool_call_id == "" then return nil end
+    if replay_index == nil then replay_index = build_replay_index() end
+    local cards = replay_index[tool_call_id]
+    if type(cards) ~= "table" or #cards == 0 then return nil end
+    local board = new_board(tool_call_id)
+    board.title = "std.lua " .. tool_call_id
+    boards[tool_call_id] = board
+    replay_board(board, tool_call_id)
+    return board.component
+end
+
+-- The host fires this before the first live model turn, after startup
+-- conversation replay has finished. Keeping the mode explicit avoids scanning
+-- child files for every ordinary foreground call.
+function M.begin_replay()
+    replaying = true
+    replay_index = nil
+end
+
+function M.begin_live_turn()
+    replaying = false
+    replay_index = nil
+end
+
+function M.reset()
+    for _, board in pairs(boards) do
+        board.tool_active = false
+        sync_board_pin(board)
+    end
+    prune_boards()
+    -- `bound` has weak coroutine keys. Foreground handlers clear themselves in
+    -- settle(); background workflow bindings must survive turn boundaries.
+end
+
+return M
+

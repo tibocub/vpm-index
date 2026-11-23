@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "gamecake-pack",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/pack.lua": {
+          "sha256": "dd862915ba2b8a73b20d4790aad40e713cd458fa7a7bbffe1dd638efb500381e",
+          "size": 6521,
+          "url": "blob:dd862915ba2b8a73b20d4790aad40e713cd458fa7a7bbffe1dd638efb500381e"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:25:45 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:25:45 GMT",
+          "sha256": "4a2866f4d3e3a00d6f6b1bb91154ce8b2595dbb92603dc954fa74947f85a8fee",
+          "size": 1229
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:25:46 GMT",
+          "sha256": "b161e6a2cc532068e4107fe74d2ee8726ae3b50ad8b3e989b24afa84a86f9d67",
+          "size": 20889,
+          "url": "https://luarocks.org/gamecake-pack-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.pack",
+        "wetgenes.pack.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "lua_pack",
+                "lib_hacks/code"
+              ],
+              "name": "wetgenes.pack.core",
+              "sources": [
+                "lua_pack/code/lua_pack.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:25:46 GMT",
+        "sha256": "b161e6a2cc532068e4107fe74d2ee8726ae3b50ad8b3e989b24afa84a86f9d67",
+        "size": 20889,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-pack-0.9-261005.src.rock"
+      },
+      "size": 6521,
+      "summary": "binary string userdata packing",
+      "undeclared_requires": [
+        "bit",
+        "wetgenes.string"
+      ],
+      "vlr": {
+        "cause": "missing module: wetgenes.string",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,126 @@
+--- Azure class.
+-- This class provides methods for interacting with Azure services, such as secrets, keys, and certificates.
+-- @classmod Azure
+
+local fmt = string.format
+local global_config = require("resty.azure.config").global
+local auth = require("resty.azure.api.auth").authenticate
+local get_token = require("resty.azure.api.auth").get_token
+local build_request = require("resty.azure.api.request.build")
+local execute_request = require("resty.azure.api.request.execute")
+local utils = require("resty.azure.utils")
+
+local Azure = {}
+
+--- Creates a new instance of the `Azure` class.
+-- @tparam table opts A table of options to configure the instance. Supported options are:
+-- @tparam string opts.tenant_id The Azure tenant ID.
+-- @tparam string opts.client_id The Azure client ID.
+-- @tparam string opts.client_secret The Azure client secret.
+-- @tparam string opts.subscription_id The Azure subscription ID.
+-- @tparam string opts.resource_group The Azure resource group.
+-- @tparam string opts.location The Azure location.
+-- @tparam string opts.http_proxy HTTP proxy URL (e.g., "http://proxy.example.com:8080").
+-- @tparam string opts.https_proxy HTTPS proxy URL (e.g., "http://proxy.example.com:8080").
+-- @tparam string opts.no_proxy Comma-separated list of hosts to bypass proxy.
+-- @tparam string opts.auth_username Proxy authentication username (used with auth_password to generate Basic auth header).
+-- @tparam string opts.auth_password Proxy authentication password (used with auth_username to generate Basic auth header).
+-- @treturn table A new instance of the `Azure` class.
+function Azure:new(opts)
+  local azure_methods = {}
+  azure_methods["opts"] = {}
+
+  self.__index = self
+  self.global_config = global_config
+  self.opts = opts
+  -- inject global Azure config
+  for k, v in pairs(opts or {}) do
+    azure_methods.opts[k] = v
+  end
+
+  -- Authenticates the Azure client using the provided credentials.
+  -- If `credentials` are not set, runs `auth()` to get them.
+  -- Caches the credentials for future use.
+  azure_methods.authenticate = function(source)
+    if not azure_methods.credentials then
+      local credentials, err = auth(self.global_config, self.opts, source)
+      if err or not credentials then
+        return nil, err
+      end
+      azure_methods.credentials = credentials
+    end
+  end
+
+  -- Sends a request to Azure using the provided options.
+  -- @param opts A table containing the request options (url, method, body).
+  -- @param source A string containing the source API package, for selecting the right scope/audience.
+  -- @return response The response from the Azure API.
+  -- @return response_error An error message if the request fails.
+  azure_methods.make_request = function(self, r_opts, source)
+    local _, err = azure_methods.authenticate(source)
+    if err then
+      return nil, nil, fmt("could not authenticate to Azure: %s", err)
+    end
+    -- todo: check if token is expired
+    local token, _, err = get_token(azure_methods.credentials)
+    if not token then
+      return nil, nil, fmt("could not get Azure token: %s", err)
+    end
+    local url = r_opts.url
+
+    -- Build proxy options from configuration and instance options
+    local proxy_opts = utils.build_proxy_opts(self.global_config, self.opts)
+
+    local request = build_request(r_opts.method, r_opts.body, token, self.global_config.AZURE_SSL_VERIFY, proxy_opts, r_opts.extra_headers)
+    return execute_request(url, request)
+  end
+  -- Defines methods for accessing Azure Key Vault secrets
+  -- @param self The object instance
+  -- @param vault_uri The URI of the Azure Key Vault
+  -- @return An object instance for accessing the specified Azure Key Vault resource
+  azure_methods.secrets = function(self, vault_uri)
+    local secrets = require("resty.azure.api.secrets"):new(self, vault_uri)
+    return secrets
+  end
+
+  -- Defines methods for accessing Azure Key Vault keys.
+  -- @param self The object instance
+  -- @param vault_uri The URI of the Azure Key Vault
+  -- @return An object instance for accessing the specified Azure Key Vault resource
+  azure_methods.keys = function(self, vault_uri)
+    local keys = require("resty.azure.api.keys"):new(self, vault_uri)
+    return keys
+  end
+
+  -- Defines methods for accessing Azure Key Vault certificates.
+  -- @param self The object instance
+  -- @param vault_uri The URI of the Azure Key Vault
+  -- @return An object instance for accessing the specified Azure Key Vault resource
+  azure_methods.certificates = function(self, vault_uri)
+    local certificates = require("resty.azure.api.certificates"):new(self, vault_uri)
+    return certificates
+  end
+
+  -- Defines methods for accessing Azure Blob Storage.
+  -- @param self The object instance
+  -- @param storage_account The name of the Azure Storage account
+  -- @param container_name The name of the blob container
+  -- @return An object instance for accessing the specified Azure Blob Storage container
+  azure_methods.blobstorage = function(self, storage_account, container_name)
+    local blobstorage = require("resty.azure.api.blobstorage"):new(self, storage_account, container_name)
+    return blobstorage
+  end
+
+  local azure_instance = setmetatable(azure_methods, Azure)
+
+  return azure_instance
+end
+
+return setmetatable(
+  Azure,
+  {
+    __call = function(self, ...)
+      return self:new(...)
+    end,
+  }
+)

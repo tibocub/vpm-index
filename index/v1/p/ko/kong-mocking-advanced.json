@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "kong-mocking-advanced",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "faker = 0.0.1-1",
+        "aspect = 2.3-0",
+        "lua-resty-ljsonschema = 1.1.3-1"
+      ],
+      "files": {
+        "kong/plugins/kong-mocking-advanced/faker-exts.lua": {
+          "sha256": "ef3643bf4b48b20322755890963b5017a30906addd37499be0509fc0ce2b6da9",
+          "size": 1292,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-mocking-advanced/68ae1bfdde42e2a841680769e9acbb05fca503f8/kong/plugins/kong-mocking-advanced/faker-exts.lua"
+        },
+        "kong/plugins/kong-mocking-advanced/handler.lua": {
+          "sha256": "8d0d710f621c6c075d4ff05bc2a7ac60d6be505bf918044906711be8ace7d2ad",
+          "size": 26494,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-mocking-advanced/68ae1bfdde42e2a841680769e9acbb05fca503f8/kong/plugins/kong-mocking-advanced/handler.lua"
+        },
+        "kong/plugins/kong-mocking-advanced/oas3-utils.lua": {
+          "sha256": "fece96814e0414e6d4967c132cf3d2a2d882b9ccd24200b80c3847e3c5caf633",
+          "size": 2655,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-mocking-advanced/68ae1bfdde42e2a841680769e9acbb05fca503f8/kong/plugins/kong-mocking-advanced/oas3-utils.lua"
+        },
+        "kong/plugins/kong-mocking-advanced/schema.lua": {
+          "sha256": "2ad03c5a0b6cf99ffbe0d58e8653b37cf323f1e871ce9621f9caf17aa036c771",
+          "size": 3609,
+          "url": "https://raw.githubusercontent.com/Platformatory/kong-mocking-advanced/68ae1bfdde42e2a841680769e9acbb05fca503f8/kong/plugins/kong-mocking-advanced/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 27 Apr 2023 06:31:29 GMT",
+        "rockspec": {
+          "date": "Thu, 27 Apr 2023 06:31:29 GMT",
+          "sha256": "67e258400b237dfa37e649ac8681deaa2e5b87f27d646698fd6234445cf70f71",
+          "size": 941
+        },
+        "src": {
+          "date": "Thu, 27 Apr 2023 06:31:31 GMT",
+          "sha256": "d9fbaadae9c1affdc496e2518ab9b0ba0e3153743106b6da014116e12b7ddccc",
+          "size": 23312,
+          "url": "https://luarocks.org/kong-mocking-advanced-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-mocking-advanced.faker-exts",
+        "kong.plugins.kong-mocking-advanced.handler",
+        "kong.plugins.kong-mocking-advanced.oas3-utils",
+        "kong.plugins.kong-mocking-advanced.schema"
+      ],
+      "origin": {
+        "commit": "68ae1bfdde42e2a841680769e9acbb05fca503f8",
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/Platformatory/kong-mocking-advanced.git"
+      },
+      "size": 34050,
+      "summary": "OpenAPI driven response mocking & faking",
+      "undeclared_requires": [
+        "inspect",
+        "kong.db.schema.typedefs",
+        "ltn12",
+        "lyaml",
+        "openai",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

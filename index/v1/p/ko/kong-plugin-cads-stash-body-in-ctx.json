@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-cads-stash-body-in-ctx",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/stash-body-in-ctx/handler.lua": {
+          "sha256": "001e587b78d42e948473bee8110754a7d84a2b52909bf37a32df034770a50f25",
+          "size": 570,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-stash-body-in-ctx/f0db66743357ff13dd6a6f02487a47295666202b/src/handler.lua"
+        },
+        "kong/plugins/stash-body-in-ctx/schema.lua": {
+          "sha256": "44eaa765326782e5d83db7d786564b13eabcb7e9c9580414b1ad8548a79ee958",
+          "size": 390,
+          "url": "https://raw.githubusercontent.com/CADSCombustibleLemons/kong-plugin-cads-stash-body-in-ctx/f0db66743357ff13dd6a6f02487a47295666202b/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/CADSCombustibleLemons/kong-plugin-cads-stash-body-in-ctx.git",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5",
+      "luarocks": {
+        "date": "Fri, 02 Jun 2023 20:28:53 GMT",
+        "rockspec": {
+          "date": "Fri, 02 Jun 2023 20:28:53 GMT",
+          "sha256": "73d922b348b13a291d01e448c7144fd4a20ebdea8c988f0d32397ab874876597",
+          "size": 1111
+        },
+        "src": {
+          "date": "Fri, 02 Jun 2023 20:28:54 GMT",
+          "sha256": "49f028d9a5673b90a132a4e0fff0dc6b248b9e7a5525dd79a5e9f0752c4f47ea",
+          "size": 8993,
+          "url": "https://luarocks.org/kong-plugin-cads-stash-body-in-ctx-1.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.stash-body-in-ctx.handler",
+        "kong.plugins.stash-body-in-ctx.schema"
+      ],
+      "origin": {
+        "commit": "f0db66743357ff13dd6a6f02487a47295666202b",
+        "ref": "1.1.0",
+        "type": "git",
+        "url": "https://github.com/CADSCombustibleLemons/kong-plugin-cads-stash-body-in-ctx"
+      },
+      "size": 960,
+      "summary": "A Kong plugin that will stash the request body in the kong.ctx.shared to be later consumed as a custom_fields_by_lua in the http-log plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

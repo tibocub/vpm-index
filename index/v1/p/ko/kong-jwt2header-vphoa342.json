@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "kong-jwt2header-vphoa342",
+  "versions": {
+    "1.0-4": {
+      "bin": [],
+      "deps": [
+        "lua-cjson >= 2.1"
+      ],
+      "files": {
+        "kong/plugins/kong-jwt2header-vphoa342/handler.lua": {
+          "sha256": "0c357a148375f796d8bea27df9fefe1ef7d5c974cd0cc353e1e16effaff35bc1",
+          "size": 3139,
+          "url": "https://raw.githubusercontent.com/vphoa342/kong-jwt2header/1c5761d88e2ef34d71a6896d9e1690ae30aa8c93/handler.lua"
+        },
+        "kong/plugins/kong-jwt2header-vphoa342/schema.lua": {
+          "sha256": "fb99da81fcc95e3182950727be36cd4f71f4169a109143e201f57a0c51a54220",
+          "size": 607,
+          "url": "https://raw.githubusercontent.com/vphoa342/kong-jwt2header/1c5761d88e2ef34d71a6896d9e1690ae30aa8c93/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/vphoa342/kong-jwt2header",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Mon, 03 Feb 2025 14:07:52 GMT",
+        "rockspec": {
+          "date": "Mon, 03 Feb 2025 14:07:52 GMT",
+          "sha256": "6ea265b74e7a0a32543ff9a7bf62752c07a0826f897d9e65a7204580820f5a26",
+          "size": 778
+        },
+        "src": {
+          "date": "Mon, 03 Feb 2025 14:07:55 GMT",
+          "sha256": "b1287daab31419c1e0876c0772419f21c9393ab40d4205f46fe06d2cd9b1c193",
+          "size": 547221,
+          "url": "https://luarocks.org/kong-jwt2header-vphoa342-1.0-4.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-jwt2header-vphoa342.handler",
+        "kong.plugins.kong-jwt2header-vphoa342.schema"
+      ],
+      "origin": {
+        "commit": "1c5761d88e2ef34d71a6896d9e1690ae30aa8c93",
+        "ref": "1.0.4",
+        "type": "git",
+        "url": "https://github.com/vphoa342/kong-jwt2header"
+      },
+      "size": 3746,
+      "summary": "Converts JWT claims to Headers to allow for Routing by JWT Claim and/or upstream JWT Claim consumption by header",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.jwt.jwt_parser",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

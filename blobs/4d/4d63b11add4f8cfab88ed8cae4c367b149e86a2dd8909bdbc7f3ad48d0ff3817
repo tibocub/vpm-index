@@ -1,0 +1,26 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A cwait call.
+local CwaitFn = {}
+CwaitFn.__index = CwaitFn
+setmetatable(CwaitFn, {__index = Terminal})
+package.loaded[...] = CwaitFn
+
+--Constructor.
+function CwaitFn.new(ln, col, exp)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.CWAIT, {line=ln, col=col}), CwaitFn)
+  self.exp = exp
+
+  --(2) return
+  return self
+end
+
+--@override
+function CwaitFn:__tostring()
+  return string.format("(cwait %s)", tostring(self.exp))
+end

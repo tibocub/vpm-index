@@ -1,0 +1,430 @@
+-- ============================================================
+-- Shiva Test Runner
+-- Lightweight, busted-compatible API, zero dependencies.
+-- Runs on standard Lua 5.4 outside of FiveM.
+-- Sourced from shiva-fw/libs/test/init.lua
+-- ============================================================
+
+local Test = {}
+
+-- ========================
+-- State
+-- ========================
+
+local suites = {}
+local currentSuite = nil
+local results = { passed = 0, failed = 0, errors = 0, skipped = 0, total = 0 }
+local startTime = 0
+
+-- ========================
+-- Colors (ANSI)
+-- ========================
+
+local colors = {
+    green  = '\27[32m',
+    red    = '\27[31m',
+    yellow = '\27[33m',
+    cyan   = '\27[36m',
+    dim    = '\27[2m',
+    bold   = '\27[1m',
+    reset  = '\27[0m',
+}
+
+local function green(s)  return colors.green .. s .. colors.reset end
+local function red(s)    return colors.red .. s .. colors.reset end
+local function yellow(s) return colors.yellow .. s .. colors.reset end
+local function dim(s)    return colors.dim .. s .. colors.reset end
+local function bold(s)   return colors.bold .. s .. colors.reset end
+
+-- ========================
+-- Assertion Library
+-- ========================
+
+---@class Expect
+local Expect = {}
+Expect.__index = Expect
+
+function Expect.new(value)
+    return setmetatable({ _value = value, _negated = false }, Expect)
+end
+
+function Expect:_fail(msg)
+    error({ type = 'assertion', message = msg }, 3)
+end
+
+function Expect:_check(condition, passMsg, failMsg)
+    if self._negated then
+        if condition then self:_fail(failMsg) end
+    else
+        if not condition then self:_fail(failMsg) end
+    end
+    return self
+end
+
+---@return Expect
+function Expect:Not()
+    self._negated = not self._negated
+    return self
+end
+
+Expect.never = Expect.Not
+
+function Expect:notToBe(expected)
+    return self:Not():toBe(expected)
+end
+Expect.not_toBe = Expect.notToBe
+
+function Expect:toBe(expected)
+    return self:_check(
+        ---@diagnostic disable-next-line equality-compare-boolean
+        self._value == expected,
+        'Values match',
+        string.format('Expected %s to%s equal %s',
+            ---@diagnostic disable-next-line tostring-check
+            tostring(self._value),
+            self._negated and ' not' or '',
+            tostring(expected))
+    )
+end
+
+function Expect:toEqual(expected)
+    local function deepEqual(a, b)
+        if type(a) ~= type(b) then return false end
+        if type(a) ~= 'table' then return a == b end
+        for k, v in pairs(a) do
+            if not deepEqual(v, b[k]) then return false end
+        end
+        for k, v in pairs(b) do
+            if not deepEqual(v, a[k]) then return false end
+        end
+        return true
+    end
+
+    return self:_check(
+        ---@diagnostic disable-next-line tostring-check
+        deepEqual(self._value, expected),
+        'Values deeply equal',
+        string.format('Expected deep equality.\n    Got:      %s\n    Expected: %s',
+            ---@diagnostic disable-next-line tostring-check
+            tostring(self._value), tostring(expected))
+    )
+end
+
+function Expect:toBeNil()
+    return self:_check(
+        ---@diagnostic disable-next-line equality-compare-nil
+        self._value == nil,
+        'Value is nil',
+        string.format('Expected nil, got %s (%s)',
+            ---@diagnostic disable-next-line tostring-check
+            tostring(self._value), type(self._value))
+    )
+end
+
+function Expect:toBeTruthy()
+    return self:_check(
+        ---@diagnostic disable-next-line equality-compare-nil
+        self._value ~= nil and self._value ~= false,
+        'Value is truthy',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected truthy, got %s', tostring(self._value))
+    )
+end
+
+function Expect:toBeFalsy()
+    return self:_check(
+        ---@diagnostic disable-next-line equality-compare-nil
+        self._value == nil or self._value == false,
+        'Value is falsy',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected falsy, got %s', tostring(self._value))
+    )
+end
+
+function Expect:toBeTrue()
+    ---@diagnostic disable-next-line equality-compare-boolean
+    return self:_check(self._value == true, 'Value is true',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected true, got %s', tostring(self._value)))
+end
+
+function Expect:toBeFalse()
+    ---@diagnostic disable-next-line equality-compare-boolean
+    return self:_check(self._value == false, 'Value is false',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected false, got %s', tostring(self._value)))
+end
+
+function Expect:toBeGreaterThan(n)
+    ---@diagnostic disable-next-line equality-compare-nil
+    return self:_check(self._value > n, 'Greater than',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected %s > %s', tostring(self._value), tostring(n)))
+end
+
+function Expect:toBeLessThan(n)
+    ---@diagnostic disable-next-line equality-compare-nil
+    return self:_check(self._value < n, 'Less than',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected %s < %s', tostring(self._value), tostring(n)))
+end
+
+function Expect:toBeGreaterThanOrEqual(n)
+    ---@diagnostic disable-next-line equality-compare-nil
+    return self:_check(self._value >= n, 'Greater than or equal',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected %s >= %s', tostring(self._value), tostring(n)))
+end
+
+function Expect:toBeLessThanOrEqual(n)
+    ---@diagnostic disable-next-line equality-compare-nil
+    return self:_check(self._value <= n, 'Less than or equal',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected %s <= %s', tostring(self._value), tostring(n)))
+end
+
+function Expect:toBeCloseTo(expected, precision)
+    precision = precision or 2
+    ---@diagnostic disable-next-line equality-compare-nil
+    local diff = math.abs(self._value - expected)
+    local threshold = 10 ^ -precision / 2
+    return self:_check(diff < threshold, 'Close to',
+        string.format('Expected %s to be close to %s (precision %d)',
+            ---@diagnostic disable-next-line tostring-check
+            tostring(self._value), tostring(expected), precision))
+end
+
+function Expect:toBeType(expectedType)
+    ---@diagnostic disable-next-line equality-compare-nil
+    return self:_check(type(self._value) == expectedType, 'Type matches',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected type "%s", got "%s"', expectedType, type(self._value)))
+end
+
+function Expect:toContain(item)
+    local found = false
+    ---@diagnostic disable-next-line equality-compare-nil
+    if type(self._value) == 'table' then
+        ---@diagnostic disable-next-line generic-table-inference
+        for _, v in ipairs(self._value) do
+            if v == item then found = true; break end
+        end
+        ---@diagnostic disable-next-line equality-compare-nil
+    elseif type(self._value) == 'string' then
+        ---@diagnostic disable-next-line equality-compare-nil
+        found = self._value:find(item, 1, true) ~= nil
+    end
+    return self:_check(found, 'Contains item',
+        ---@diagnostic disable-next-line tostring-check
+        string.format('Expected %s to contain %s', tostring(self._value), tostring(item)))
+end
+
+function Expect:toHaveLength(n)
+    ---@diagnostic disable-next-line equality-compare-nil
+    local len = #self._value
+    return self:_check(len == n, 'Has length',
+        string.format('Expected length %d, got %d', n, len))
+end
+
+function Expect:toThrow(pattern)
+    ---@diagnostic disable-next-line equality-compare-nil
+    if type(self._value) ~= 'function' then
+        self:_fail('Expected a function for toThrow()')
+    end
+    ---@diagnostic disable-next-line pcall-check
+    local ok, err = pcall(self._value)
+    if pattern then
+        local errStr = type(err) == 'string' and err or (type(err) == 'table' and err.message or tostring(err))
+        return self:_check(not ok and errStr:find(pattern),
+            'Throws matching error',
+            string.format('Expected error matching "%s", got: %s', pattern, tostring(err)))
+    end
+    return self:_check(not ok, 'Throws error',
+        'Expected function to throw an error')
+end
+
+function Expect:toMatchTable(subset)
+    ---@diagnostic disable-next-line equality-compare-nil
+    if type(self._value) ~= 'table' then
+        self:_fail('Expected a table')
+    end
+    for k, v in pairs(subset) do
+        ---@diagnostic disable-next-line equality-compare-nil
+        if self._value[k] ~= v then
+            return self:_check(false, 'Table matches',
+                string.format('Key "%s": expected %s, got %s',
+                    ---@diagnostic disable-next-line tostring-check
+                    tostring(k), tostring(v), tostring(self._value[k])))
+        end
+    end
+    return self:_check(true, 'Table matches subset', '')
+end
+
+-- ========================
+-- DSL Functions
+-- ========================
+
+---@param value any
+---@return Expect
+function Test.expect(value)
+    return Expect.new(value)
+end
+
+---@param name string
+---@param fn function
+function Test.describe(name, fn)
+    local parent = currentSuite
+    local suite = {
+        name = name,
+        fullName = parent and (parent.fullName .. ' > ' .. name) or name,
+        tests = {},
+        children = {},
+        beforeEach = nil,
+        afterEach = nil,
+    }
+
+    if parent then
+        parent.children[#parent.children + 1] = suite
+    else
+        suites[#suites + 1] = suite
+    end
+
+    currentSuite = suite
+    fn()
+    currentSuite = parent
+end
+
+---@param name string
+---@param fn function
+function Test.it(name, fn)
+    if not currentSuite then
+        error('it() must be called inside describe()')
+    end
+    currentSuite.tests[#currentSuite.tests + 1] = {
+        name = name,
+        fn = fn,
+        skip = false,
+    }
+end
+
+---@param fn function
+function Test.beforeEach(fn)
+    if currentSuite then
+        currentSuite.beforeEach = fn
+    end
+end
+
+---@param fn function
+function Test.afterEach(fn)
+    if currentSuite then
+        currentSuite.afterEach = fn
+    end
+end
+
+-- ========================
+-- Runner
+-- ========================
+
+local function runSuite(suite, depth, parentBeforeEach, parentAfterEach)
+    local indent = string.rep('  ', depth)
+    print(indent .. bold(suite.name))
+
+    local effectiveBeforeEach = suite.beforeEach or parentBeforeEach
+    local effectiveAfterEach = suite.afterEach or parentAfterEach
+
+    if suite.beforeEach and parentBeforeEach then
+        effectiveBeforeEach = function()
+            parentBeforeEach()
+            suite.beforeEach()
+        end
+    end
+
+    for _, test in ipairs(suite.tests) do
+        results.total = results.total + 1
+
+        if test.skip then
+            results.skipped = results.skipped + 1
+            print(indent .. '  ' .. yellow('○ ' .. test.name .. ' (skipped)'))
+        else
+            if effectiveBeforeEach then
+                local ok, err = pcall(effectiveBeforeEach)
+                if not ok then
+                    results.errors = results.errors + 1
+                    print(indent .. '  ' .. red('✗ ' .. test.name))
+                    print(indent .. '    ' .. red('beforeEach failed: ' .. tostring(err)))
+                    goto continue
+                end
+            end
+
+            local ok, err = pcall(test.fn)
+
+            if effectiveAfterEach then
+                pcall(effectiveAfterEach)
+            end
+
+            if ok then
+                results.passed = results.passed + 1
+                print(indent .. '  ' .. green('✓ ') .. dim(test.name))
+            else
+                results.failed = results.failed + 1
+                local msg
+                if type(err) == 'table' and err.type == 'assertion' then
+                    msg = err.message
+                else
+                    msg = tostring(err)
+                end
+                print(indent .. '  ' .. red('✗ ' .. test.name))
+                print(indent .. '    ' .. red(msg))
+            end
+        end
+
+        ::continue::
+    end
+
+    for _, child in ipairs(suite.children) do
+        runSuite(child, depth + 1, effectiveBeforeEach, effectiveAfterEach)
+    end
+end
+
+---@param options? { verbose?: boolean, filter?: string }
+---@return boolean
+function Test.run(options)
+    options = options or {}
+    startTime = os.clock()
+
+    print('')
+    print(bold('Shiva Test Runner'))
+    print(dim(string.rep('─', 50)))
+    print('')
+
+    for _, suite in ipairs(suites) do
+        if not options.filter or suite.name:find(options.filter) then
+            runSuite(suite, 0)
+            print('')
+        end
+    end
+
+    local elapsed = os.clock() - startTime
+    print(dim(string.rep('─', 50)))
+
+    local summary = string.format(
+        '%s %d passed%s%s  %s',
+        green('✓'),
+        results.passed,
+        results.failed > 0 and string.format('  %s %d failed', red('✗'), results.failed) or '',
+        results.skipped > 0 and string.format('  %s %d skipped', yellow('○'), results.skipped) or '',
+        dim(string.format('(%d total, %.3fs)', results.total, elapsed))
+    )
+    print(summary)
+    print('')
+
+    return results.failed == 0 and results.errors == 0
+end
+
+function Test.reset()
+    suites = {}
+    currentSuite = nil
+    results = { passed = 0, failed = 0, errors = 0, skipped = 0, total = 0 }
+end
+
+return Test

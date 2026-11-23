@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "lua-bsdiff",
+  "versions": {
+    "0.0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/lalawue/lua-bsdiff.git",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 30 Sep 2021 13:28:45 GMT",
+        "rockspec": {
+          "date": "Thu, 30 Sep 2021 13:28:45 GMT",
+          "sha256": "f73e123a6ef10651116899412891daec8c418a2126acd08fdbb0f35ebb084745",
+          "size": 670
+        },
+        "src": {
+          "date": "Thu, 30 Sep 2021 13:28:46 GMT",
+          "sha256": "4829a84dc2a5237a716b0c1792d5a8003fd0867064ad675c0412a253cd66fcb3",
+          "size": 16100,
+          "url": "https://luarocks.org/lua-bsdiff-0.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "bsdiff"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src"
+              ],
+              "name": "bsdiff",
+              "sources": [
+                "src/lua-bsdiff.c",
+                "src/bsdiff.c",
+                "src/bspatch.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 30 Sep 2021 13:28:46 GMT",
+        "sha256": "4829a84dc2a5237a716b0c1792d5a8003fd0867064ad675c0412a253cd66fcb3",
+        "size": 16100,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-bsdiff-0.0.2-1.src.rock"
+      },
+      "summary": "Memory bsdiff & bspatch lib for Lua",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

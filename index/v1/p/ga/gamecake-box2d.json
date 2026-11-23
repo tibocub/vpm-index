@@ -1,0 +1,115 @@
+{
+  "kind": "lib",
+  "name": "gamecake-box2d",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/box2d.lua": {
+          "sha256": "8ce35d03ee25556793482c48e12c5f51c662d2a0bdc8efd6b79a9756e29ef445",
+          "size": 33910,
+          "url": "blob:8ce35d03ee25556793482c48e12c5f51c662d2a0bdc8efd6b79a9756e29ef445"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:25:20 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:25:20 GMT",
+          "sha256": "d5b3e87db9ba492a630ffa971b109e6d33e50fc62e21a87f1e1694a95a1c4955",
+          "size": 2639
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:25:21 GMT",
+          "sha256": "71aff9d3f3a2208aab6b8318c5c372fd74c544e9e389d62ca0f2cd49c2047a63",
+          "size": 1018848,
+          "url": "https://luarocks.org/gamecake-box2d-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.box2d",
+        "wetgenes.box2d.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "lua_box2d",
+                "lib_box2d/git/include"
+              ],
+              "name": "wetgenes.box2d.core",
+              "sources": [
+                "lua_boxxd/code/lua_box2d.c",
+                "lib_box2d/git/src/aabb.c",
+                "lib_box2d/git/src/arena_allocator.c",
+                "lib_box2d/git/src/bitset.c",
+                "lib_box2d/git/src/body.c",
+                "lib_box2d/git/src/broad_phase.c",
+                "lib_box2d/git/src/constraint_graph.c",
+                "lib_box2d/git/src/contact.c",
+                "lib_box2d/git/src/contact_solver.c",
+                "lib_box2d/git/src/core.c",
+                "lib_box2d/git/src/distance.c",
+                "lib_box2d/git/src/distance_joint.c",
+                "lib_box2d/git/src/dynamic_tree.c",
+                "lib_box2d/git/src/geometry.c",
+                "lib_box2d/git/src/hull.c",
+                "lib_box2d/git/src/id_pool.c",
+                "lib_box2d/git/src/island.c",
+                "lib_box2d/git/src/joint.c",
+                "lib_box2d/git/src/manifold.c",
+                "lib_box2d/git/src/math_functions.c",
+                "lib_box2d/git/src/motor_joint.c",
+                "lib_box2d/git/src/mover.c",
+                "lib_box2d/git/src/parallel_for.c",
+                "lib_box2d/git/src/physics_world.c",
+                "lib_box2d/git/src/prismatic_joint.c",
+                "lib_box2d/git/src/recording.c",
+                "lib_box2d/git/src/recording_replay.c",
+                "lib_box2d/git/src/revolute_joint.c",
+                "lib_box2d/git/src/scheduler.c",
+                "lib_box2d/git/src/sensor.c",
+                "lib_box2d/git/src/shape.c",
+                "lib_box2d/git/src/solver.c",
+                "lib_box2d/git/src/solver_set.c",
+                "lib_box2d/git/src/table.c",
+                "lib_box2d/git/src/timer.c",
+                "lib_box2d/git/src/types.c",
+                "lib_box2d/git/src/weld_joint.c",
+                "lib_box2d/git/src/wheel_joint.c",
+                "lib_box2d/git/src/world_snapshot.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:25:21 GMT",
+        "sha256": "71aff9d3f3a2208aab6b8318c5c372fd74c544e9e389d62ca0f2cd49c2047a63",
+        "size": 1018848,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-box2d-0.9-261005.src.rock"
+      },
+      "size": 33910,
+      "summary": "box2d V3",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

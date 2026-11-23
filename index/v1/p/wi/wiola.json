@@ -1,0 +1,123 @@
+{
+  "kind": "lib",
+  "name": "wiola",
+  "versions": {
+    "0.13.3-1": {
+      "bin": [],
+      "deps": [
+        "luarestyredis",
+        "rapidjson >= 0.5",
+        "lua-resty-hmac >= v1.0",
+        "lua-messagepack >= 0.4",
+        "redis-lua >= 2.0"
+      ],
+      "files": {
+        "wiola.lua": {
+          "sha256": "c5e33c94dd4f28f97ce86b0a713d9df9762d14703338fb0d32f379dc32d03cfd",
+          "size": 51337,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola.lua"
+        },
+        "wiola/config.lua": {
+          "sha256": "90571652ae195c37dff94e5f00cf629af7fde39e1a331ffcb874e1f60ba43e25",
+          "size": 5676,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/config.lua"
+        },
+        "wiola/flushdb.lua": {
+          "sha256": "518fff5cc1b4aa88533cbf3f14c0b283407b74de3f2cfca7bb49e170d52483a0",
+          "size": 461,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/flushdb.lua"
+        },
+        "wiola/headers.lua": {
+          "sha256": "593eb566f464bdb7c91691c6673c09b59419c46362670bfff95a6003a4cfb4c1",
+          "size": 1396,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/headers.lua"
+        },
+        "wiola/post-handler.lua": {
+          "sha256": "c7f98069dc0990b604808a7b0f61ce90a585c63c2066571465a2c5dbb0fc040c",
+          "size": 457,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/post-handler.lua"
+        },
+        "wiola/raw-handler.lua": {
+          "sha256": "3e66d38dc897b7f9fb0dd11126cf60429c865690de0eadc78b258de021152e31",
+          "size": 7282,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/raw-handler.lua"
+        },
+        "wiola/serializers/json_serializer.lua": {
+          "sha256": "f9bfe0818dd7d396cddeb0f2882242b84890959ec19e111441c48256834f00f8",
+          "size": 201,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/serializers/json_serializer.lua"
+        },
+        "wiola/serializers/msgpack_serializer.lua": {
+          "sha256": "5c32ef8a99537823f995b83b3d25e05b09049f6f715d4086ed2c2f6a41336f1e",
+          "size": 783,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/serializers/msgpack_serializer.lua"
+        },
+        "wiola/stores/redis.lua": {
+          "sha256": "e4424014ba4762f1ea5eb1b91e31e37b57d29f345e4e3421fa66575853c215e8",
+          "size": 29445,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/stores/redis.lua"
+        },
+        "wiola/ws-handler.lua": {
+          "sha256": "dd14574102e1bcad0c8b694a825f0da7abe1c83a13d50d4ed75fe9e5392443ec",
+          "size": 6343,
+          "url": "https://raw.githubusercontent.com/KSDaemon/wiola/bb26d9470bf528c9f644a7e8f57f3c977f589216/lib/wiola/ws-handler.lua"
+        }
+      },
+      "homepage": "https://github.com/KSDaemon/wiola",
+      "host": "openresty",
+      "license": "BSD 2-Clause license",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 08 Sep 2021 19:43:48 GMT",
+        "rockspec": {
+          "date": "Wed, 08 Sep 2021 19:43:48 GMT",
+          "sha256": "aa6d4c5faeca7233e61ddaed023ddc1725349015bead214808b7b60e4454a48d",
+          "size": 1458
+        },
+        "src": {
+          "date": "Wed, 08 Sep 2021 19:43:50 GMT",
+          "sha256": "06f19232cad9544b042ce7b169826479822e13292e930cc53cb825814f6e531f",
+          "size": 117264,
+          "url": "https://luarocks.org/wiola-0.13.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "wiola",
+        "wiola.config",
+        "wiola.flushdb",
+        "wiola.headers",
+        "wiola.post-handler",
+        "wiola.raw-handler",
+        "wiola.serializers.json_serializer",
+        "wiola.serializers.msgpack_serializer",
+        "wiola.stores.redis",
+        "wiola.ws-handler"
+      ],
+      "origin": {
+        "commit": "bb26d9470bf528c9f644a7e8f57f3c977f589216",
+        "ref": "v0.13.3",
+        "type": "git",
+        "url": "https://github.com/KSDaemon/wiola.git"
+      },
+      "size": 103381,
+      "summary": "LUA WAMP router",
+      "undeclared_requires": [
+        "bit",
+        "ngx.semaphore",
+        "rapidjson",
+        "resty.lock",
+        "resty.redis",
+        "resty.websocket.server"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-aws-lambda-response-transformer",
+  "versions": {
+    "0.1.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/aws-lambda-response-transformer/handler.lua": {
+          "sha256": "aaad3dd763bea2a7758dd3f8bcb4ccf475a3494cdcad83a9440afae752a94d6c",
+          "size": 5317,
+          "url": "https://raw.githubusercontent.com/jlcd/aws-lambda-response-transformer/99b1e903256afcb093bd6b8a24a7e68887b7442f/kong/plugins/aws-lambda-response-transformer/handler.lua"
+        },
+        "kong/plugins/aws-lambda-response-transformer/schema.lua": {
+          "sha256": "d186b22245cb8bce44a969a0da145e0a4c8398482e04ed6d1947a59cb0590b0a",
+          "size": 1985,
+          "url": "https://raw.githubusercontent.com/jlcd/aws-lambda-response-transformer/99b1e903256afcb093bd6b8a24a7e68887b7442f/kong/plugins/aws-lambda-response-transformer/schema.lua"
+        },
+        "kong/plugins/aws-lambda-response-transformer/v4.lua": {
+          "sha256": "a7f592e6ea2525037a8a5f421d5bfc9ffc0e539774bed0b793d22540e0f01f0b",
+          "size": 7157,
+          "url": "https://raw.githubusercontent.com/jlcd/aws-lambda-response-transformer/99b1e903256afcb093bd6b8a24a7e68887b7442f/kong/plugins/aws-lambda-response-transformer/v4.lua"
+        }
+      },
+      "homepage": "https://github.com/jlcd/aws-lambda-response-transformer",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 05 Dec 2018 16:26:22 GMT",
+        "rockspec": {
+          "date": "Wed, 05 Dec 2018 16:26:22 GMT",
+          "sha256": "8daa785ca55fc3548b02ba20c013f3f056ace3476580699b1eaec62851fce5ab",
+          "size": 1523
+        }
+      },
+      "modules": [
+        "kong.plugins.aws-lambda-response-transformer.handler",
+        "kong.plugins.aws-lambda-response-transformer.schema",
+        "kong.plugins.aws-lambda-response-transformer.v4"
+      ],
+      "origin": {
+        "commit": "99b1e903256afcb093bd6b8a24a7e68887b7442f",
+        "ref": "0.1.6",
+        "type": "git",
+        "url": "https://github.com/jlcd/aws-lambda-response-transformer"
+      },
+      "size": 14459,
+      "summary": "Kong custom plugin for changing AWS Lambda response status code based on a property in the body",
+      "undeclared_requires": [
+        "crypto",
+        "kong.plugins.aws-lambda-status-code.v4",
+        "kong.plugins.base_plugin",
+        "kong.tools.public",
+        "kong.tools.responses",
+        "kong.tools.utils",
+        "pl.stringx",
+        "resty.http",
+        "resty.sha256"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

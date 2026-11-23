@@ -1,0 +1,105 @@
+{
+  "kind": "lib",
+  "name": "simulua",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "simulua.lua": {
+          "sha256": "4a74a481e6fae9d906d82a6f2a004fd1549fce9800130e374dd0d067732f14f2",
+          "size": 5370,
+          "url": "blob:4a74a481e6fae9d906d82a6f2a004fd1549fce9800130e374dd0d067732f14f2"
+        }
+      },
+      "homepage": "http://simulua.luaforge.net",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 01 Mar 2014 21:29:05 GMT",
+        "rockspec": {
+          "date": "Sat, 01 Mar 2014 21:29:05 GMT",
+          "sha256": "5cc2127c902c3eff75027ab8c69ac113d0ae770a3b5952d7cbe1da59c7fe8af1",
+          "size": 955
+        },
+        "src": {
+          "date": "Sat, 01 Mar 2014 21:29:06 GMT",
+          "sha256": "6f23fd66e69145a90f43913c06f88220d7a6f0e8a564554f2a2dc7fbaa6fe137",
+          "size": 92777,
+          "url": "https://luarocks.org/simulua-0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "binomial",
+        "cdf",
+        "queue",
+        "rng",
+        "simulua",
+        "stack"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "binomial",
+              "sources": [
+                "lib/binomial.c"
+              ]
+            },
+            {
+              "name": "cdf",
+              "sources": [
+                "lib/dcdflib.c",
+                "lib/ipmpar.c",
+                "lib/cdf.c"
+              ]
+            },
+            {
+              "name": "queue",
+              "sources": [
+                "lib/queue.c"
+              ]
+            },
+            {
+              "name": "rng",
+              "sources": [
+                "lib/ranlib.c",
+                "lib/mt.c",
+                "lib/rng.c"
+              ]
+            },
+            {
+              "name": "stack",
+              "sources": [
+                "lib/stack.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 01 Mar 2014 21:29:06 GMT",
+        "sha256": "6f23fd66e69145a90f43913c06f88220d7a6f0e8a564554f2a2dc7fbaa6fe137",
+        "size": 92777,
+        "type": "luarocks",
+        "url": "https://luarocks.org/simulua-0.1-1.src.rock"
+      },
+      "size": 5370,
+      "summary": "Simulua is a discrete-event process-oriented simulation library for Lua.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

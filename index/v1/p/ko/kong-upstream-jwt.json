@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "kong-upstream-jwt",
+  "versions": {
+    "1.4-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-upstream-jwt/access.lua": {
+          "sha256": "2006477145bf3702b06bfc53218e9e4207b0a6b71720a7f51c05b5aac3dadd61",
+          "size": 5028,
+          "url": "https://raw.githubusercontent.com/Optum/kong-upstream-jwt/2035ded48dffcb67f790f248d715b77b571ae873/src/access.lua"
+        },
+        "kong/plugins/kong-upstream-jwt/handler.lua": {
+          "sha256": "beae6ce89bb5048dd72bddea3241253e50c544b7a016cb1e57fc0897ac7243ec",
+          "size": 380,
+          "url": "https://raw.githubusercontent.com/Optum/kong-upstream-jwt/2035ded48dffcb67f790f248d715b77b571ae873/src/handler.lua"
+        },
+        "kong/plugins/kong-upstream-jwt/schema.lua": {
+          "sha256": "ae9c16507518574ba568f0eafa454428443e4c5b39ec3c60b740bd564ddaa70f",
+          "size": 674,
+          "url": "https://raw.githubusercontent.com/Optum/kong-upstream-jwt/2035ded48dffcb67f790f248d715b77b571ae873/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-upstream-jwt",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 10 Aug 2023 03:30:49 GMT",
+        "rockspec": {
+          "date": "Thu, 10 Aug 2023 03:30:49 GMT",
+          "sha256": "d7cec04748758c360ee13dddab96d906e662c4d7f1b08df6390a1ade51c093be",
+          "size": 1590
+        },
+        "src": {
+          "date": "Thu, 10 Aug 2023 03:30:50 GMT",
+          "sha256": "13c505f20b09b261eb37bb74c2982ec2554c62a779b24682cd6c4eefca789634",
+          "size": 17793,
+          "url": "https://luarocks.org/kong-upstream-jwt-1.4-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-upstream-jwt.access",
+        "kong.plugins.kong-upstream-jwt.handler",
+        "kong.plugins.kong-upstream-jwt.schema"
+      ],
+      "origin": {
+        "commit": "2035ded48dffcb67f790f248d715b77b571ae873",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-upstream-jwt.git"
+      },
+      "size": 6082,
+      "summary": "A plugin for Kong which adds a signed JWT to HTTP Headers of outgoing requests",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.tools.utils",
+        "pl.file",
+        "resty.openssl.digest",
+        "resty.openssl.pkey",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.sha256)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

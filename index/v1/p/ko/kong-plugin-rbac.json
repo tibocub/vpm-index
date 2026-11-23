@@ -1,0 +1,114 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-rbac",
+  "versions": {
+    "0.3.6-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lodash",
+        "reason": "missing-file:lodash.lua/src/lodash.lua"
+      },
+      "deps": [
+        "router == 2.1-0",
+        "lodash == 0.02-0"
+      ],
+      "files": {
+        "kong/plugins/rbac/api.lua": {
+          "sha256": "4214580752c9c3d668373a7a5898d6cec7ea3019d16d5c6c8f0e6be1a9aed4b7",
+          "size": 15399,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/api.lua"
+        },
+        "kong/plugins/rbac/constants.lua": {
+          "sha256": "d0127017f87838f5867160134fd6b104823a86764ff346f38d64e00988fe604c",
+          "size": 103,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/constants.lua"
+        },
+        "kong/plugins/rbac/daos.lua": {
+          "sha256": "8a8975ce90a91228113795f23924c2a37fb6b045b599eb444abb1ef971050af9",
+          "size": 2347,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/daos.lua"
+        },
+        "kong/plugins/rbac/functions.lua": {
+          "sha256": "7b33dcfa27cf72b7c0a6cf3201770d59948384a9fb8a1661cabaae6007583478",
+          "size": 1468,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/functions.lua"
+        },
+        "kong/plugins/rbac/handler.lua": {
+          "sha256": "24f735068c5980c0c9018163846902f9a539f199ed3ae8fd155eec19a94645ac",
+          "size": 8484,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/handler.lua"
+        },
+        "kong/plugins/rbac/migrations/cassandra.lua": {
+          "sha256": "b550499710342d54dcdf249be7cfdeb20e4a334600bb1a797678ba042b4fecf1",
+          "size": 1659,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/migrations/cassandra.lua"
+        },
+        "kong/plugins/rbac/migrations/postgres.lua": {
+          "sha256": "cbe5ee41c142e9057fd06c3d770cf559b5313715a957b10207ef140cb410578e",
+          "size": 2314,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/migrations/postgres.lua"
+        },
+        "kong/plugins/rbac/schema.lua": {
+          "sha256": "9d48b4b956afeea8bc0931f55ae8e82165cd6f368f5c380be3440e8943d029a8",
+          "size": 1838,
+          "url": "https://raw.githubusercontent.com/mr5/kong-rbac/6602177b5086af75c13869c6400fb13060a77707/kong/plugins/rbac/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/mr5/kong-rbac",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "luarocks": {
+        "date": "Mon, 02 Jul 2018 10:18:57 GMT",
+        "rockspec": {
+          "date": "Mon, 02 Jul 2018 10:18:57 GMT",
+          "sha256": "b2b03b392fcd5915681e0fe63187d419a728257e8da8f5876ea319b4bbcb0b5a",
+          "size": 1295
+        },
+        "src": {
+          "date": "Mon, 02 Jul 2018 10:18:59 GMT",
+          "sha256": "2c1e9f34d6b1ea5e226bf7e3de134010d3b37d99991ea9f9389fab36852868f4",
+          "size": 17122,
+          "url": "https://luarocks.org/kong-plugin-rbac-0.3.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.rbac.api",
+        "kong.plugins.rbac.constants",
+        "kong.plugins.rbac.daos",
+        "kong.plugins.rbac.functions",
+        "kong.plugins.rbac.handler",
+        "kong.plugins.rbac.migrations.cassandra",
+        "kong.plugins.rbac.migrations.postgres",
+        "kong.plugins.rbac.schema"
+      ],
+      "origin": {
+        "commit": "6602177b5086af75c13869c6400fb13060a77707",
+        "ref": "0.3.6",
+        "type": "git",
+        "url": "https://github.com/mr5/kong-rbac"
+      },
+      "size": 33612,
+      "summary": "Kong-rbac is a rbac plugin for Kong",
+      "undeclared_requires": [
+        "kong.api.crud_helpers",
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.public",
+        "kong.tools.responses",
+        "kong.tools.utils",
+        "lodash",
+        "pl.stringx"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

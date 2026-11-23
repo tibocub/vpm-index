@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-kafka-log",
+  "versions": {
+    "0.0.1-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-kafka",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "lua-resty-kafka >= 0.06"
+      ],
+      "files": {
+        "kong/plugins/kafka-log/handler.lua": {
+          "sha256": "bd844f53cddb5af1a84949c68096885a0db6a3488d88582f4e3b259ad9a60b82",
+          "size": 2003,
+          "url": "https://raw.githubusercontent.com/yskopets/kong-plugin-kafka-log/a6a5a9fc30cb1a3d33a06740cf8d2154919b03d5/kong/plugins/kafka-log/handler.lua"
+        },
+        "kong/plugins/kafka-log/producers.lua": {
+          "sha256": "2f3bec44182f5dca0f39b692e0a1d524f0d9df40000c4cec8e9cd124b4a5702d",
+          "size": 1395,
+          "url": "https://raw.githubusercontent.com/yskopets/kong-plugin-kafka-log/a6a5a9fc30cb1a3d33a06740cf8d2154919b03d5/kong/plugins/kafka-log/producers.lua"
+        },
+        "kong/plugins/kafka-log/schema.lua": {
+          "sha256": "6b292ca5db9bfc20665209cbbcee44506908ca51d21adf956d54713e55079fa4",
+          "size": 1780,
+          "url": "https://raw.githubusercontent.com/yskopets/kong-plugin-kafka-log/a6a5a9fc30cb1a3d33a06740cf8d2154919b03d5/kong/plugins/kafka-log/schema.lua"
+        },
+        "kong/plugins/kafka-log/types.lua": {
+          "sha256": "3434b5ae2c3bf148a42d2aacf15763d184bd6c0e43793709e1c6062615c775a9",
+          "size": 399,
+          "url": "https://raw.githubusercontent.com/yskopets/kong-plugin-kafka-log/a6a5a9fc30cb1a3d33a06740cf8d2154919b03d5/kong/plugins/kafka-log/types.lua"
+        }
+      },
+      "homepage": "https://github.com/yskopets/kong-plugin-kafka-log",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 08 Nov 2018 19:54:26 GMT",
+        "rockspec": {
+          "date": "Thu, 08 Nov 2018 19:54:26 GMT",
+          "sha256": "e33e46acce5a2840c426ad5c5bd9f4334e47b84ee71addb39fe9a46f6dd758cd",
+          "size": 766
+        }
+      },
+      "modules": [
+        "kong.plugins.kafka-log.handler",
+        "kong.plugins.kafka-log.producers",
+        "kong.plugins.kafka-log.schema",
+        "kong.plugins.kafka-log.types"
+      ],
+      "origin": {
+        "commit": "a6a5a9fc30cb1a3d33a06740cf8d2154919b03d5",
+        "ref": "0.0.1",
+        "type": "git",
+        "url": "https://github.com/yskopets/kong-plugin-kafka-log"
+      },
+      "size": 5577,
+      "summary": "This plugin sends request and response logs to Kafka.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "kong.tools.utils",
+        "resty.kafka.producer"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

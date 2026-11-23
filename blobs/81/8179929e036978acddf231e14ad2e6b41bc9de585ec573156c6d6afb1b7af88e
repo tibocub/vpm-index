@@ -1,0 +1,224 @@
+-- © yokerp.com --
+
+local socket = require'socket'
+local ssl = require("ssl")
+local mime = require'mime'
+local ssmtp =  require'socket.smtp'
+local class = require'class'
+local concat = table.concat
+local try = socket.try
+
+local smtp = class('yoke.smtp')
+smtp._VERSION = '0.0.2'
+
+function smtp:initialize(host,port)
+  self.host = host
+  self.port = port
+  self.msg = {
+    headers = {
+      Date = os.date("%a, %d %b %Y %H:%M:%S %z"),
+      ['X-Mailer'] = concat{'yoke.smtp-',self._VERSION},
+    },
+    body = nil,
+  }
+end
+
+function smtp:login(user,password)
+  self.user = user
+  self.password = password
+  return 'OK'
+end
+
+function smtp:getlogin()
+  return self.uname
+end
+
+function smtp:subject(subject)
+  self.msg.headers.subject = concat{"=?utf-8?B?",mime.b64(subject),"?= "}
+end
+
+function smtp:from(addr,name)
+  if name then
+    name = concat{"=?utf-8?B?",mime.b64(name),"?= "}
+  end
+  self.msg.headers.from = concat{name or '',name and ' ' or '','<',addr,'>'}
+  self.from = concat{'<',addr,'>'}
+end
+
+function smtp:to(addr)
+  self.msg.headers.to = concat{'<',addr,'>'}
+end
+
+function smtp:reply(addr)
+  self.msg.headers.reply = addr
+end
+
+function smtp:body(text,html)
+
+  if not self.msg.body then
+    if not html then
+      self.msg.headers['Content-Type'] = 'text/plain; charset=UTF-8'
+      self.msg.headers['Content-Transfer-Encoding'] = 'base64'
+      self.msg.body = mime.wrp(76,mime.b64(text))
+    else
+      self.msg.headers['Content-Type'] = 'multipart/mixed'
+      self.msg.body = {
+        {
+          headers = {
+            ['Content-Type'] = 'text/plain; charset=UTF-8',
+            ['Content-Transfer-Encoding'] = 'base64'
+          },
+          body = mime.wrp(76,mime.b64(text))
+        },
+        {
+          headers = {
+            ['Content-Type'] = 'text/html; charset=UTF-8',
+            ['Content-Transfer-Encoding'] = 'base64'
+          },
+          body = mime.wrp(76,mime.b64(html))
+        }
+      }
+    end
+  elseif type(self.msg.body) == 'table' then
+
+    if text then
+      self.msg.body[#self.msg.body + 1] = {
+          headers = {
+            ['Content-Type'] = 'text/plain; charset=UTF-8',
+            ['Content-Transfer-Encoding'] = 'base64'
+          },
+          body = mime.wrp(76,mime.b64(text))
+      }
+    end
+    if html then
+      self.msg.body[#self.msg.body + 1] = {
+          headers = {
+            ['Content-Type'] = 'text/html; charset=UTF-8',
+            ['Content-Transfer-Encoding'] = 'base64'
+          },
+          body = mime.wrp(76,mime.b64(html))
+      }
+    end
+  end
+end
+
+function smtp:attach(name,file) --todo
+  if self.msg.headers['Content-Type'] ~= 'multipart/mixed' and self.msg.body then --text/plain
+    if type(self.msg.body) == 'string' then
+      self.msg.body = {
+        {
+          headers = {
+            ['Content-Type'] = self.msg.headers['Content-Type'],
+            ['Content-Transfer-Encoding'] = 'base64'
+          },
+          body = self.msg.body
+        }
+      }
+    end
+    self.msg.headers['Content-Type'] = 'multipart/mixed'
+  elseif not self.msg.body then
+    self.msg.headers['Content-Type'] = 'multipart/mixed'
+    self.msg.body = {}
+  end
+
+  local ext = ((name or ''):match("%.(.+)$") or ''):lower()
+  local ct = 'application/X-other-1'
+  if ext == "gif" then
+    ct = "image/gif"
+  elseif ext == "zip" then
+    ct = "application/zip"
+  elseif ext == "pdf" then
+    ct = "application/pdf"
+  elseif ext == "jpg" or ext == "jpeg" then
+    ct = "image/jpg"
+  elseif ext == "txt" then
+    ct = "plain/txt"
+  elseif ext == "bmp" then
+    ct = "image/bmp"
+  elseif ext == "htm" or ext == "html" then
+    ct = "plain/html"
+  elseif ext == "png" then
+    ct = "image/png"
+  elseif ext == "exe" then
+    ct = "application/X-exectype-1"
+  end
+  self.msg.body[#self.msg.body + 1] = {
+    headers = {
+      ['Content-Type'] = concat{ct,'; name="',name,'"'},
+      ['Content-Transfer-Encoding'] = 'base64',
+      ['Content-Disposition'] = concat{'attachment; filename="',name,'"'},
+    },
+    body = mime.wrp(76,mime.b64(file))
+  }
+end
+--tls
+local function reg(conn)
+  local mt = getmetatable(conn.sock).__index
+  for name, method in pairs(mt) do
+    if type(method) == "function" then
+      conn[name] = function (self, ...)
+        return method(self.sock, ...)
+      end
+    end
+  end
+end
+
+local function create(params)
+  return function()
+    local conn = {}
+    conn.sock = try(socket.tcp())
+    local st = getmetatable(conn.sock).__index.settimeout
+    function conn:settimeout(...)
+      return st(self.sock, ...)
+    end
+    function conn:connect(host, port)
+      try(self.sock:connect(host, port))
+      self.sock = try(ssl.wrap(self.sock, params))
+      try(self.sock:dohandshake())
+      reg(self, getmetatable(self.sock))
+      return 1
+    end
+    return conn
+  end
+end
+
+ssmtp.send = socket.protect(function(mailt)
+    local s = ssmtp.open(mailt.server, mailt.port, mailt.create)
+    local ext = s:greet(mailt.domain)
+    s:login(mailt.user,mailt.password)
+    s:send(mailt)
+    s:quit()
+    return s:close()
+end)
+
+
+function smtp:send(to)
+  local params = {
+    server = self.host,
+    port = self.port,
+    user = self.user,
+    password = self.password,
+
+    from = self.from,
+    rcpt = type(to) == 'table' and to or type(to) == 'string' and {to} or {self.msg.headers.to},
+    source = ssmtp.message(self.msg),
+    mode = 'client',
+    protocol = "tlsv1_2", --sslv23
+    options  = "all",
+    verify   = "none",
+  }
+  params.create = create(params)
+
+  if self.host and self.port and self.user and self.password and self.msg.headers.to then
+    local res,err = ssmtp.send(params)
+    if res == 1 then
+      self.uname = self.user
+      return 'OK'
+    end
+    return concat{'send:error:',err}
+  else
+    return 'send.params:error'
+  end
+end
+
+return smtp

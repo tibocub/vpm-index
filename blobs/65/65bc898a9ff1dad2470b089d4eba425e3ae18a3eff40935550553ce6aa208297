@@ -1,0 +1,96 @@
+local openidc    = require "resty.openidc"
+local validators = require "resty.jwt-validators"
+local log        = require "kong.plugins.jwt-verifier.log"
+
+local ipairs = ipairs
+local select = select
+local sub    = string.sub
+local table  = table
+
+local plugin = {
+  PRIORITY = 1000,
+  VERSION = "0.2.1",
+}
+
+local KID_ERROR_PREFIX = "RSA key with id "
+
+local function discovery_docs(plugin_conf)
+  local docs = {}
+  local errs = {}
+
+  for _, url in ipairs(plugin_conf.discovery_urls) do
+    local opts = {
+      discovery = url,
+      ssl_verify = (plugin_conf.ssl_verify and "yes" or "no"),
+      iat_slack  = 0,
+      token_signing_alg_values_expected = { "RS256" },
+    }
+
+    local _, err = openidc.get_discovery_doc(opts)
+    if err then
+       table.insert(errs, err)
+    else
+       table.insert(docs, opts)
+    end
+  end
+
+  return docs, errs
+end
+
+local function jwt_verify(plugin_conf, opts)
+  local claim_spec = {
+    iss   = validators.equals_any_of(plugin_conf.allowed_issuers),
+    exp   = validators.is_not_expired(),
+    nbf   = validators.opt_is_not_before(),
+    iat   = validators.opt_is_not_before(),
+    __jwt = validators.require_one_of({ "iat", "nbf" })
+  }
+
+  local err
+  if plugin_conf.verify_claims then
+    err = select(2, openidc.bearer_jwt_verify(opts, claim_spec))
+  else
+    err = select(2, openidc.bearer_jwt_verify(opts))
+  end
+
+  return err
+end
+
+local function is_kid_error(err)
+  return err and sub(err, 1, #KID_ERROR_PREFIX) == KID_ERROR_PREFIX or false
+end
+
+function plugin:access(plugin_conf)
+  local docs, errs = discovery_docs(plugin_conf)
+
+  if #docs == 0 then
+    for _, err in ipairs(errs) do
+      log.err(err)
+    end
+    return kong.response.exit(500, { message = "An unexpected error occurred" })
+  end
+
+  local errs = {}
+  for _, doc in ipairs(docs) do
+    local err = jwt_verify(plugin_conf, doc)
+    if err ~= nil then
+      if is_kid_error(err) then
+        table.insert(errs, err)
+      else
+        log.err(err)
+        return kong.response.exit(401, { message =  "Unauthorized" })
+      end
+    else
+      return
+    end
+  end
+
+  if #errs ~= 0 then
+    for _, err in ipairs(errs) do
+      log.err(err)
+    end
+    return kong.response.exit(401, { message =  "Unauthorized" })
+  end
+end
+
+return plugin

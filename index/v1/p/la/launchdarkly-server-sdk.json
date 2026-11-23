@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "launchdarkly-server-sdk",
+  "versions": {
+    "2.2.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/launchdarkly/lua-server-sdk",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1, <= 5.4",
+      "luarocks": {
+        "date": "Mon, 10 Aug 2026 23:39:24 GMT",
+        "rockspec": {
+          "date": "Mon, 10 Aug 2026 23:39:24 GMT",
+          "sha256": "429ad8279009cda115853314db2edbdc9dd3540acd429f4743050bafe6d68508",
+          "size": 1546
+        },
+        "src": {
+          "date": "Mon, 10 Aug 2026 23:39:25 GMT",
+          "sha256": "37218765b0df5b6e8e920b0bdc7d0a3657cb857d3e0744f7fea743707c1160c9",
+          "size": 90006,
+          "url": "https://luarocks.org/launchdarkly-server-sdk-2.2.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "launchdarkly_server_sdk"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LD"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LD": {
+              "header": "launchdarkly/server_side/bindings/c/sdk.h",
+              "library": "launchdarkly-cpp-server"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LD_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LD_LIBDIR)"
+              ],
+              "libraries": [
+                "launchdarkly-cpp-server"
+              ],
+              "name": "launchdarkly_server_sdk",
+              "sources": [
+                "launchdarkly-server-sdk.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 10 Aug 2026 23:39:25 GMT",
+        "sha256": "37218765b0df5b6e8e920b0bdc7d0a3657cb857d3e0744f7fea743707c1160c9",
+        "size": 90006,
+        "type": "luarocks",
+        "url": "https://luarocks.org/launchdarkly-server-sdk-2.2.0-0.src.rock"
+      },
+      "summary": "LaunchDarkly SDK for server-side applications.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

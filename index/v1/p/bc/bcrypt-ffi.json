@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "bcrypt-ffi",
+  "versions": {
+    "1.0.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "bcrypt.lua": {
+          "sha256": "2f240fd1af94b28e56b37bbb80f231a57846e160327abfd369dec051f97ebec9",
+          "size": 1445,
+          "url": "blob:2f240fd1af94b28e56b37bbb80f231a57846e160327abfd369dec051f97ebec9"
+        }
+      },
+      "homepage": "https://github.com/gas-buddy/lua-bcrypt-ffi",
+      "host": "luajit",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 28 Jul 2016 16:06:11 GMT",
+        "rockspec": {
+          "date": "Thu, 28 Jul 2016 16:06:11 GMT",
+          "sha256": "5d7d609614ba4b23725afedf84598a1518ab58cd9e8b5abaf55e42ff696e8cca",
+          "size": 606
+        },
+        "src": {
+          "date": "Thu, 28 Jul 2016 16:06:12 GMT",
+          "sha256": "a93508e494877334e75546033a44205d4f2feb5222722b75d7020e83dc69c2e7",
+          "size": 20217,
+          "url": "https://luarocks.org/bcrypt-ffi-1.0.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "bcrypt",
+        "libluabcrypt"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src/"
+              ],
+              "libraries": [
+                "crypto"
+              ],
+              "name": "libluabcrypt",
+              "sources": [
+                "src/bcrypt.c",
+                "src/blowfish.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 28 Jul 2016 16:06:12 GMT",
+        "sha256": "a93508e494877334e75546033a44205d4f2feb5222722b75d7020e83dc69c2e7",
+        "size": 20217,
+        "type": "luarocks",
+        "url": "https://luarocks.org/bcrypt-ffi-1.0.0-0.src.rock"
+      },
+      "size": 1445,
+      "summary": "LuaJIT FFI binding for the bcrypt password hashing algorithm",
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

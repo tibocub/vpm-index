@@ -1,0 +1,93 @@
+{
+  "kind": "lib",
+  "name": "lcrypt",
+  "versions": {
+    "0.4-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://rocks.simbio.se/lcrypt",
+      "license": "LGPL v2.1",
+      "lua": ">= 5.1, < 5.3",
+      "luarocks": {
+        "date": "Fri, 24 Jul 2015 18:37:33 GMT",
+        "rockspec": {
+          "date": "Fri, 24 Jul 2015 18:37:33 GMT",
+          "sha256": "eab39cba67a591432c9661aee7e618b056d40fd81604cd2acc4a59ea21f3e61b",
+          "size": 1064
+        },
+        "src": {
+          "date": "Fri, 24 Jul 2015 18:37:35 GMT",
+          "sha256": "3130f75b1e81bb969360ab0d3c320993c7db0161884aa51e4e7abedf0d6777c5",
+          "size": 27045,
+          "url": "https://luarocks.org/lcrypt-0.4-0.src.rock"
+        }
+      },
+      "modules": [
+        "lcrypt"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "platforms"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "platforms": []
+          },
+          "modules": [
+            {
+              "defines": [
+                "_FILE_OFFSET_BITS=64",
+                "USE_LTM",
+                "LTC_SOURCE",
+                "LTM_DESC",
+                "LITTLE_ENDIAN"
+              ],
+              "incdirs": [
+                "$(LIBTOMCRYPT_INCDIR)",
+                "$(LIBTOMMATH_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LIBTOMCRYPT_LIBDIR)",
+                "$(LIBTOMMATH_LIBDIR)"
+              ],
+              "libraries": [
+                "z",
+                "tommath",
+                "tomcrypt",
+                "util",
+                "m"
+              ],
+              "name": "lcrypt",
+              "sources": [
+                "lcrypt.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 24 Jul 2015 18:37:35 GMT",
+        "sha256": "3130f75b1e81bb969360ab0d3c320993c7db0161884aa51e4e7abedf0d6777c5",
+        "size": 27045,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lcrypt-0.4-0.src.rock"
+      },
+      "summary": "Lua bindings to libtomcrypt and libtommath",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

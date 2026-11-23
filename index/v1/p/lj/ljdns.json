@@ -1,0 +1,56 @@
+{
+  "kind": "lib",
+  "name": "ljdns",
+  "versions": {
+    "2.4-0": {
+      "bin": [],
+      "deps": [
+        "ljsyscall >= 0.12",
+        "lua-cjson >= 2.1.0"
+      ],
+      "files": [],
+      "homepage": "https://github.com/vavrusa/ljdns",
+      "license": "BSD",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 01 Mar 2017 23:37:02 GMT",
+        "rockspec": {
+          "date": "Wed, 01 Mar 2017 23:37:02 GMT",
+          "sha256": "caed647df5be9a01a6c05b78e97c142d85420411db7587f6a72db2cf3184bc7d",
+          "size": 1459
+        }
+      },
+      "modules": [
+        "dns",
+        "dns.dnssec",
+        "dns.lmdb",
+        "dns.nbio",
+        "dns.nbio.openresty",
+        "dns.nbio.syscall",
+        "dns.rrparser",
+        "dns.sift",
+        "dns.tls",
+        "dns.utils",
+        "kdns_clib"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBKNOT",
+          "LIBZSCANNER"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "no_plan_reason": "no source rock on luarocks.org"
+      },
+      "origin": {
+        "commit": "82105df1d8f9bfd991ef3c47118f74219f96ba7f",
+        "type": "git",
+        "url": "https://github.com/vavrusa/ljdns"
+      },
+      "summary": "A contemporary DNS library focused on performance using LuaJIT FFI."
+    }
+  }
+}

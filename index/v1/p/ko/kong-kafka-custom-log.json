@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "kong-kafka-custom-log",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-kafka",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "lua-resty-kafka >= 0.06"
+      ],
+      "files": {
+        "kong/plugins/kong-kafka-custom-log/handler.lua": {
+          "sha256": "03cd23a2f17d5ebfa365dd4c0d1fb128386ea5a0b4bdb077cd5c33b3723a5ee2",
+          "size": 2245,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-kafka-custom-log/93d6d876baa357b71c339a292b30bae3167efaad/kong/plugins/kong-kafka-custom-log/handler.lua"
+        },
+        "kong/plugins/kong-kafka-custom-log/producers.lua": {
+          "sha256": "42bb73d1c379bf4c0b717f2a6f73164becd6e157d1392673facd4b7e1b9d07d4",
+          "size": 1407,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-kafka-custom-log/93d6d876baa357b71c339a292b30bae3167efaad/kong/plugins/kong-kafka-custom-log/producers.lua"
+        },
+        "kong/plugins/kong-kafka-custom-log/schema.lua": {
+          "sha256": "92c0811d9ae8b217e63a648f9d13f45cb19967881db50c039a4d7aeb94590f8a",
+          "size": 2239,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-kafka-custom-log/93d6d876baa357b71c339a292b30bae3167efaad/kong/plugins/kong-kafka-custom-log/schema.lua"
+        },
+        "kong/plugins/kong-kafka-custom-log/types.lua": {
+          "sha256": "3434b5ae2c3bf148a42d2aacf15763d184bd6c0e43793709e1c6062615c775a9",
+          "size": 399,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-kafka-custom-log/93d6d876baa357b71c339a292b30bae3167efaad/kong/plugins/kong-kafka-custom-log/types.lua"
+        }
+      },
+      "homepage": "https://github.com/mykaarma/kong-kafka-custom-log",
+      "host": "openresty",
+      "license": "GPL-3",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 19 Oct 2022 10:45:17 GMT",
+        "rockspec": {
+          "date": "Wed, 19 Oct 2022 10:45:17 GMT",
+          "sha256": "395ecaf9728e26167b7f75069b0eb06e55cb455033a11adaff0d684e08750a68",
+          "size": 934
+        },
+        "src": {
+          "date": "Wed, 19 Oct 2022 10:45:17 GMT",
+          "sha256": "8957641992fa25b07779029ec7a1acde069c3d9fb713393b7910160f83734041",
+          "size": 21302,
+          "url": "https://luarocks.org/kong-kafka-custom-log-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-kafka-custom-log.handler",
+        "kong.plugins.kong-kafka-custom-log.producers",
+        "kong.plugins.kong-kafka-custom-log.schema",
+        "kong.plugins.kong-kafka-custom-log.types"
+      ],
+      "origin": {
+        "commit": "93d6d876baa357b71c339a292b30bae3167efaad",
+        "ref": "0.1.0",
+        "type": "git",
+        "url": "https://github.com/mykaarma/kong-kafka-custom-log"
+      },
+      "size": 6290,
+      "summary": "kong-kafka-custom-log is a custom plugin made at MyKaarma to publish custom logs to Apache Kafka",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.utils",
+        "resty.kafka.producer",
+        "uuid"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

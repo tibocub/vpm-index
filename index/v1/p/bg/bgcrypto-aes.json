@@ -1,0 +1,96 @@
+{
+  "kind": "lib",
+  "name": "bgcrypto-aes",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "bgcrypto/cmac.lua": {
+          "sha256": "7a80772a8e1c6767accb15c8ae3492e86c35b90c0f2889c9fe0bc16acda4f956",
+          "size": 6594,
+          "url": "blob:7a80772a8e1c6767accb15c8ae3492e86c35b90c0f2889c9fe0bc16acda4f956"
+        },
+        "bgcrypto/private/bit.lua": {
+          "sha256": "b23f57ac71cb5a96de682659fb51b18f139db4eae503efb08dc34f6c90d8317f",
+          "size": 2021,
+          "url": "blob:b23f57ac71cb5a96de682659fb51b18f139db4eae503efb08dc34f6c90d8317f"
+        }
+      },
+      "homepage": "https://github.com/moteus/bgcrypto-aes",
+      "license": "BSD",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Sun, 05 May 2019 13:48:09 GMT",
+        "rockspec": {
+          "date": "Sun, 05 May 2019 13:48:09 GMT",
+          "sha256": "ee81bd36008e19eea3128f411fb64a4f4ca62370032b2630b02b01b825ec9602",
+          "size": 987
+        },
+        "src": {
+          "date": "Sun, 05 May 2019 13:48:11 GMT",
+          "sha256": "f76a5a11592bf75bc2738a253aae6656bb1732e1d4ef9aa6aa14ce5023af79c7",
+          "size": 80393,
+          "url": "https://luarocks.org/bgcrypto-aes-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "bgcrypto.aes",
+        "bgcrypto.cmac",
+        "bgcrypto.private.bit"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "RETURN_VALUES",
+                "VOID_RETURN=void",
+                "INT_RETURN=int"
+              ],
+              "incdirs": [
+                "src/aes"
+              ],
+              "name": "bgcrypto.aes",
+              "sources": [
+                "src/aes/aes_modes.c",
+                "src/aes/aescrypt.c",
+                "src/aes/aeskey.c",
+                "src/aes/aestab.c",
+                "src/aes/aes_ni.c",
+                "src/l52util.c",
+                "src/laes.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-bgcrypto-aes-0.1.0"
+      },
+      "origin": {
+        "date": "Sun, 05 May 2019 13:48:11 GMT",
+        "sha256": "f76a5a11592bf75bc2738a253aae6656bb1732e1d4ef9aa6aa14ce5023af79c7",
+        "size": 80393,
+        "type": "luarocks",
+        "url": "https://luarocks.org/bgcrypto-aes-0.1.0-1.src.rock"
+      },
+      "size": 8615,
+      "summary": "AES encryption library",
+      "undeclared_requires": [
+        "bit"
+      ],
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "ok",
+        "total": 3
+      }
+    }
+  }
+}

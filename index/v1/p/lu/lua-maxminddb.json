@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "lua-maxminddb",
+  "versions": {
+    "1.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/wesen1/lua-maxminddb",
+      "license": "LGPL",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 24 Jan 2021 09:47:46 GMT",
+        "rockspec": {
+          "date": "Sun, 24 Jan 2021 09:47:46 GMT",
+          "sha256": "e9c362b544c3f141d4b1fa7264bf4c2064ac6955db909087750be8b0bcbc3182",
+          "size": 1018
+        },
+        "src": {
+          "date": "Sun, 24 Jan 2021 09:47:47 GMT",
+          "sha256": "c72a2f3a068424448cec1695b1f47bea1c80b9248de9c5f488bfe8a0e2cb483b",
+          "size": 5648,
+          "url": "https://luarocks.org/lua-maxminddb-1.0-2.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "LIBMAXMINDDB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBMAXMINDDB": {
+              "header": "maxminddb.h",
+              "library": "libmaxminddb.so"
+            }
+          },
+          "make": {
+            "build_variables": {
+              "CFLAGS": "$(CFLAGS)",
+              "LIBFLAG": "$(LIBFLAG)",
+              "LIBMAXMINDDB_INCDIR": "$(LIBMAXMINDDB_INCDIR)",
+              "LIBMAXMINDDB_LIBDIR": "$(LIBMAXMINDDB_LIBDIR)",
+              "LUA": "$(LUA)",
+              "LUA_BINDIR": "$(LUA_BINDIR)",
+              "LUA_INCDIR": "$(LUA_INCDIR)",
+              "LUA_LIBDIR": "$(LUA_LIBDIR)"
+            },
+            "install_variables": {
+              "INST_BINDIR": "$(BINDIR)",
+              "INST_CONFDIR": "$(CONFDIR)",
+              "INST_LIBDIR": "$(LIBDIR)",
+              "INST_LUADIR": "$(LUADIR)",
+              "INST_PREFIX": "$(PREFIX)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sun, 24 Jan 2021 09:47:47 GMT",
+        "sha256": "c72a2f3a068424448cec1695b1f47bea1c80b9248de9c5f488bfe8a0e2cb483b",
+        "size": 5648,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-maxminddb-1.0-2.src.rock"
+      },
+      "summary": "Lua bindings to MaxMind DB v2",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

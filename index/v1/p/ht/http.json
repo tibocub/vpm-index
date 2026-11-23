@@ -1,0 +1,215 @@
+{
+  "kind": "lib",
+  "name": "http",
+  "versions": {
+    "0.4-0": {
+      "bin": [],
+      "deps": [
+        "compat53 >= 0.3",
+        "bit32",
+        "cqueues >= 20161214",
+        "luaossl >= 20161208",
+        "basexx >= 0.2.0",
+        "lpeg",
+        "lpeg_patterns >= 0.5",
+        "binaryheap >= 0.3",
+        "fifo"
+      ],
+      "files": {
+        "http/bit.lua": {
+          "sha256": "a072eaddcf891a39dc291034c465d7a3b1cb1f50ca7f44ae71d5e79ca51d276a",
+          "size": 1335,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/bit.lua"
+        },
+        "http/client.lua": {
+          "sha256": "156183b59720696e9fee4ba9d2a90d90af81e3d55413724889ba81d222ad8ebb",
+          "size": 3165,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/client.lua"
+        },
+        "http/compat/prosody.lua": {
+          "sha256": "40ce197f60f3dc7585cb13302cb88e0ce46fc157264800fe2d05928ec19ab598",
+          "size": 2393,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/compat/prosody.lua"
+        },
+        "http/compat/socket.lua": {
+          "sha256": "f4d63ad8e560bb0df746507a4e425387ab937c07563dc43fd56c6b740da257f3",
+          "size": 4940,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/compat/socket.lua"
+        },
+        "http/connection_common.lua": {
+          "sha256": "27b41b851f1132c9144bbdc0cea6448158559ef586c22024cd9c0cb5f46c0015",
+          "size": 2159,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/connection_common.lua"
+        },
+        "http/cookie.lua": {
+          "sha256": "b3299d47555fb720cc9e54d2055c3d9c9ae614a8cb23148fd101ba53af82c82a",
+          "size": 25261,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/cookie.lua"
+        },
+        "http/h1_connection.lua": {
+          "sha256": "309626bcb8587ef47962eaf4b00277eca2caa02d414fdc5076af3638510332c9",
+          "size": 13426,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/h1_connection.lua"
+        },
+        "http/h1_reason_phrases.lua": {
+          "sha256": "dde546b68b311edee0c19a1ace1c658636437e3ff7218a058f6680bb79f51132",
+          "size": 2123,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/h1_reason_phrases.lua"
+        },
+        "http/h1_stream.lua": {
+          "sha256": "46f1d930dbf90abe02af2ae057ba9028d3a6c9e367ee1b63db9173b174ee08eb",
+          "size": 33551,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/h1_stream.lua"
+        },
+        "http/h2_connection.lua": {
+          "sha256": "7d16e9ef3226186441348357d080a765ab0ccaf4f2ce71a1eaecc90d7f47babd",
+          "size": 18124,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/h2_connection.lua"
+        },
+        "http/h2_error.lua": {
+          "sha256": "604330953bd67efb31b4bdb06634fab5d403fb410761c3ac112a40cf7600505a",
+          "size": 3031,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/h2_error.lua"
+        },
+        "http/h2_stream.lua": {
+          "sha256": "e117ee2a5abb9fdf29835084abef2380f4b73a4700351e388f94e4c2e68fea17",
+          "size": 48379,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/h2_stream.lua"
+        },
+        "http/headers.lua": {
+          "sha256": "3d7b5a06c33ff7f26f030d824d380257a346ce86a228c89d53d076fbceaaca99",
+          "size": 5000,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/headers.lua"
+        },
+        "http/hpack.lua": {
+          "sha256": "13a4a45cd78077f0343d222c5356ef838be2800b0bae8f58f8d298fb479d1d46",
+          "size": 26931,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/hpack.lua"
+        },
+        "http/hsts.lua": {
+          "sha256": "957fde52528f168b2fa2e136afff8981fce2d2164fc113a2b802c23d68392806",
+          "size": 3032,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/hsts.lua"
+        },
+        "http/proxies.lua": {
+          "sha256": "fc1af046eaf45833923f6af11df35cbf0ade88d357ebae77dbaf61ddbc53f81d",
+          "size": 2019,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/proxies.lua"
+        },
+        "http/request.lua": {
+          "sha256": "28036f21b8debbad1deb05c9e433a22d0e75cbb063bfbaa83c412166e7693e22",
+          "size": 19941,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/request.lua"
+        },
+        "http/server.lua": {
+          "sha256": "8c38450d010a025e11affe6bb2836287c63b1ec50a73b5d5321244494dd8a538",
+          "size": 13865,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/server.lua"
+        },
+        "http/socks.lua": {
+          "sha256": "6c15df1588f435dc83068bf90c9ec1db3e624f01210dcedcbd9ac9d84d0ea7a4",
+          "size": 10882,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/socks.lua"
+        },
+        "http/stream_common.lua": {
+          "sha256": "d1bf87e5563ed9a5d7f96f468fe779c624f886ae841e9be5ab1ae6a921b9aa06",
+          "size": 4479,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/stream_common.lua"
+        },
+        "http/tls.lua": {
+          "sha256": "98d558149648f818adad6efa2e6824bd0523258b0e6dcd17d8e2418bf5a645ff",
+          "size": 32807,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/tls.lua"
+        },
+        "http/util.lua": {
+          "sha256": "3396bdf6d8014c2c57dcf684d12c3040e5a04c1889c8ddc918a11eb6d3d8a91b",
+          "size": 7617,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/util.lua"
+        },
+        "http/version.lua": {
+          "sha256": "12b1c1eb575c861efad7c3e8b232307af556a7970f987f070253e701b2b3cf53",
+          "size": 151,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/version.lua"
+        },
+        "http/websocket.lua": {
+          "sha256": "4b6f98c082ed6416f9ce0c549159c7c781a61a9e71dd5f3a6dd51f1fcf494f62",
+          "size": 25846,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/websocket.lua"
+        },
+        "http/zlib.lua": {
+          "sha256": "8a45197beee1f52ba53d51e3140e2f7e3cf2365689a9684eac35a566be2b338b",
+          "size": 1841,
+          "url": "https://raw.githubusercontent.com/daurnimator/lua-http/v0.4/http/zlib.lua"
+        }
+      },
+      "homepage": "https://github.com/daurnimator/lua-http",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 05 Feb 2021 15:43:38 GMT",
+        "rockspec": {
+          "date": "Fri, 05 Feb 2021 15:43:38 GMT",
+          "sha256": "d8457c88e5deb46cf6339f335c1173749617c19201d6dc3402c4482f973f6e4d",
+          "size": 1672
+        },
+        "src": {
+          "date": "Fri, 05 Feb 2021 15:43:39 GMT",
+          "sha256": "dbe1b29ff89fb937059e4398c9a628361d97d856acc87fd8cd85cb9340cde328",
+          "size": 168868,
+          "url": "https://luarocks.org/http-0.4-0.src.rock"
+        }
+      },
+      "modules": [
+        "http.bit",
+        "http.client",
+        "http.compat.prosody",
+        "http.compat.socket",
+        "http.connection_common",
+        "http.cookie",
+        "http.h1_connection",
+        "http.h1_reason_phrases",
+        "http.h1_stream",
+        "http.h2_connection",
+        "http.h2_error",
+        "http.h2_stream",
+        "http.headers",
+        "http.hpack",
+        "http.hsts",
+        "http.proxies",
+        "http.request",
+        "http.server",
+        "http.socks",
+        "http.stream_common",
+        "http.tls",
+        "http.util",
+        "http.version",
+        "http.websocket",
+        "http.zlib"
+      ],
+      "origin": {
+        "sha256": "59c84640ad067e3c8e00101b077be999d1d1cbe9a1fb7368b51be5e41e67d9f3",
+        "type": "archive",
+        "url": "https://github.com/daurnimator/lua-http/archive/v0.4.zip"
+      },
+      "size": 312298,
+      "summary": "HTTP library for Lua",
+      "undeclared_requires": [
+        "cqueues",
+        "cqueues.auxlib",
+        "cqueues.condition",
+        "cqueues.errno",
+        "cqueues.socket",
+        "zlib"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

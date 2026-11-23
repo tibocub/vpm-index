@@ -1,0 +1,34 @@
+local commands = require("zensical.commands")
+local M = {}
+
+--- Default configuration for the Zensical plugin
+---
+local default_config = {
+	keymap_start = "<leader>zes", -- Keymap to start the Zensical server
+	keymap_stop = "<leader>zex", -- Keymap to stop the Zensical server
+	keymap_build = "<leader>zeb", -- Keymap to build the Zensical project
+	command_serve = "zensical serve", -- Command to start the Zensical server
+	command_build = "zensical build", -- Command to build the Zensical project
+	command_new = "zensical new .", -- Command to create a new Zensical project
+	uvx_paths = {
+		"~/.local/bin/uvx", -- User-local binary path
+		"/usr/bin/uvx", -- System-wide binary path
+		"/usr/local/bin/uvx", -- Alternative system-wide binary path
+	},
+}
+
+--- Plugin setup function
+--- @param opts table|nil User-provided configuration options (optional)
+---
+function M.setup(opts)
+	-- Deep merge user options with default configuration
+	local config = vim.tbl_deep_extend("force", default_config, opts or {})
+
+	-- Set the paths for `uvx` in the utils module
+	require("zensical.utils").set_uvx_paths(config.uvx_paths)
+
+	-- Initialize commands and keymaps
+	commands.setup_commands(config)
+end
+
+return M

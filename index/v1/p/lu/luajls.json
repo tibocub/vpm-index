@@ -1,0 +1,965 @@
+{
+  "kind": "lib",
+  "name": "luajls",
+  "versions": {
+    "0.7-3": {
+      "bin": [],
+      "deps": [
+        "dkjson",
+        "sha1",
+        "xml2lua",
+        "dumbluaparser"
+      ],
+      "files": {
+        "jls/init.lua": {
+          "sha256": "e93d61d18313150a13a9ae06e68bcb5c2df2a443ed46690199f0462bad2bf429",
+          "size": 484,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/init.lua"
+        },
+        "jls/io/File.lua": {
+          "sha256": "f0cba47720899763be36511d5af0e60e6d0e7e3caeefd6750d8d1c3879618ca7",
+          "size": 9159,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/File.lua"
+        },
+        "jls/io/FileDescriptor-.lua": {
+          "sha256": "33ca9ee3b11985eb14361ca2c3f52e4d18eb1c441861515852c289a92807792a",
+          "size": 7272,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/FileDescriptor-.lua"
+        },
+        "jls/io/FileDescriptor-luv.lua": {
+          "sha256": "243455bd2478f5257a516d3e21e259569647811cf3890167b48335341ebb22c4",
+          "size": 3430,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/FileDescriptor-luv.lua"
+        },
+        "jls/io/FileDescriptor.lua": {
+          "sha256": "2aa74eb3e4e42390d18189162e4c68d70f832e1af26b55d218a3908470dcafb3",
+          "size": 100,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/FileDescriptor.lua"
+        },
+        "jls/io/Path.lua": {
+          "sha256": "79b6c76c65b5a41f02b4277f3a1cbcaa249f627556c8cbca86229ba0a01c1f0a",
+          "size": 7331,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/Path.lua"
+        },
+        "jls/io/Pipe-luachild.lua": {
+          "sha256": "ba68baf923345e61944ee2f173608ce0cec87a8cf6529334120eebf5b7008afa",
+          "size": 2792,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/Pipe-luachild.lua"
+        },
+        "jls/io/Pipe-luv.lua": {
+          "sha256": "f046c340663ced662959f5bb49c3c3f6a36e441333fe62db7136e0175d9f4959",
+          "size": 5880,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/Pipe-luv.lua"
+        },
+        "jls/io/Pipe.lua": {
+          "sha256": "42a0c032ec7c591190238ad142acb5796249c7a685766e68f91b2fc663408db4",
+          "size": 88,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/Pipe.lua"
+        },
+        "jls/io/Serial-.lua": {
+          "sha256": "be55a619aabf93080e2485b66807be2af16d752f0172cdd68d782e492662d254",
+          "size": 1308,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/Serial-.lua"
+        },
+        "jls/io/Serial-luv.lua": {
+          "sha256": "ae614ee851fe137b3270a3967c8bc9d620efc83ec3c3e2cee57d3a67bfeb7971",
+          "size": 1613,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/Serial-luv.lua"
+        },
+        "jls/io/Serial.lua": {
+          "sha256": "b054db0f09ad4002c9a2dad2df6af77bb92bfe500d29e735a6cb0f13f439fdfa",
+          "size": 84,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/Serial.lua"
+        },
+        "jls/io/SerialBase.lua": {
+          "sha256": "48daa91cdb2b3c3dc71fc898e4c6be10522b1351787ec66bfb56b8372101208b",
+          "size": 3869,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/SerialBase.lua"
+        },
+        "jls/io/StreamHandler.lua": {
+          "sha256": "efd451be098f244af9637788b0d31d285c52dd682fc79b6c48e20218fae02ce1",
+          "size": 9939,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/StreamHandler.lua"
+        },
+        "jls/io/fs-lfs.lua": {
+          "sha256": "8f6d9b2f3996d10586285115115821e6d41bbf000553633878bbb49ec8390b81",
+          "size": 613,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/fs-lfs.lua"
+        },
+        "jls/io/fs-luv.lua": {
+          "sha256": "a516430f35c0dfd23680e74d008f3404f7cda34f6111a35964801e4d815bf23a",
+          "size": 1062,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/fs-luv.lua"
+        },
+        "jls/io/fs.lua": {
+          "sha256": "751e49957b95984bf983b7adb04ec7652468841107213cc5741670c352af0428",
+          "size": 79,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/fs.lua"
+        },
+        "jls/io/streams/BlockStreamHandler.lua": {
+          "sha256": "e3be116e7538811d92bdf6b7d34588fe4be88dd6a5138c680adf05c45d4849b3",
+          "size": 2518,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/BlockStreamHandler.lua"
+        },
+        "jls/io/streams/BufferedStreamHandler.lua": {
+          "sha256": "bdd4bc7b227cce55d24553e644fb0ce3fd01696cde31adbe2641224fa0bb9ce7",
+          "size": 1550,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/BufferedStreamHandler.lua"
+        },
+        "jls/io/streams/CallbackStreamHandler.lua": {
+          "sha256": "6851819273c249139066ce2a3da02a0c9aaab7b29aaffb83064ac4f5040e2eb3",
+          "size": 63,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/CallbackStreamHandler.lua"
+        },
+        "jls/io/streams/ChunkedStreamHandler.lua": {
+          "sha256": "b4597ba87881d2eada0a32007b9162fcc5848a4fbe4267bea645f115aef75362",
+          "size": 4335,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/ChunkedStreamHandler.lua"
+        },
+        "jls/io/streams/DelayedStreamHandler.lua": {
+          "sha256": "9fa2256ccad1f0fd053a6ccda1b6c63ebd5c4405dd714f1be111a4f291a7bdc3",
+          "size": 2687,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/DelayedStreamHandler.lua"
+        },
+        "jls/io/streams/FileStreamHandler.lua": {
+          "sha256": "417c235f845be9ace930ca40ad09a988320be4af57bf25a7ca962bb31cdd72e3",
+          "size": 7172,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/FileStreamHandler.lua"
+        },
+        "jls/io/streams/LimitedStreamHandler.lua": {
+          "sha256": "ad99e8c90e8cf4fd9c46cd0165e11f46f0b6a00e76444a7e008814eb43543a9c",
+          "size": 245,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/LimitedStreamHandler.lua"
+        },
+        "jls/io/streams/PromiseStreamHandler.lua": {
+          "sha256": "4221abe0f8e7e4bcbfd5067a44de9f5000a5bedf673125d0c47cdc15ba318d44",
+          "size": 1565,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/PromiseStreamHandler.lua"
+        },
+        "jls/io/streams/PromisesStreamHandler.lua": {
+          "sha256": "f89ddeb210fee7bf83ecabf47de6e81ab8c5b6fbb16fa695647f73aa7a7cb401",
+          "size": 2087,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/PromisesStreamHandler.lua"
+        },
+        "jls/io/streams/RangeStreamHandler.lua": {
+          "sha256": "bac0c67791681a2b10de71d5862109efe15b79607d3c2ce7b7ce30f9fb1f0f40",
+          "size": 2655,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/RangeStreamHandler.lua"
+        },
+        "jls/io/streams/StreamHandler.lua": {
+          "sha256": "76430b99339757ede1afdc1560166ac2e887844f86d66fb13752dcf3348fd4ac",
+          "size": 64,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/StreamHandler.lua"
+        },
+        "jls/io/streams/WrappedStreamHandler.lua": {
+          "sha256": "2d9dfb29ed45449c9bc917d72c60d6f3d730e76bd1c49e25a2749e7a3e5b5c12",
+          "size": 85,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/io/streams/WrappedStreamHandler.lua"
+        },
+        "jls/lang/Exception.lua": {
+          "sha256": "3dc36c08315704d0e44c53d1837cee7da8cdf1c1bf4159baf23bee7cb0f357db",
+          "size": 4819,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/Exception.lua"
+        },
+        "jls/lang/ProcessBuilder.lua": {
+          "sha256": "b0d378d5d7ad2fc21068be1626cbf60db2a6e3a40a548ab0a6465a8c62d756f1",
+          "size": 5007,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessBuilder.lua"
+        },
+        "jls/lang/ProcessHandle-.lua": {
+          "sha256": "14cc44f8ec39f4050bf2317f5c9aff54626fab5b8ef9c7062655ab1e487ae4e8",
+          "size": 44,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessHandle-.lua"
+        },
+        "jls/lang/ProcessHandle-linux.lua": {
+          "sha256": "af93acc88459217106653ff1e92afcbcbbc3517f34914b25eec5a41f68332279",
+          "size": 1232,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessHandle-linux.lua"
+        },
+        "jls/lang/ProcessHandle-luachild.lua": {
+          "sha256": "6b8ff47327912b794d5a527eb7be2865400ceca5b9101f3d3ec4462aac14467e",
+          "size": 1932,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessHandle-luachild.lua"
+        },
+        "jls/lang/ProcessHandle-luv.lua": {
+          "sha256": "5f4d8771a9b58fab467a83c28d481e44f6eaf43f73eee961e9347cb11c0b0b29",
+          "size": 3930,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessHandle-luv.lua"
+        },
+        "jls/lang/ProcessHandle-win32.lua": {
+          "sha256": "a54ef2aca95dafdaa91c0521a47861348eb5b9ff49c3fcfe723431b8ac2acaf4",
+          "size": 1049,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessHandle-win32.lua"
+        },
+        "jls/lang/ProcessHandle.lua": {
+          "sha256": "41e42c322ec67fde8d434be372fdd0f385e280d53a76408000aa6871aa961e0b",
+          "size": 137,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessHandle.lua"
+        },
+        "jls/lang/ProcessHandleBase.lua": {
+          "sha256": "810c7ba374bc21d200effc7217903e42ae101eef9418316882280fec29d811d5",
+          "size": 2779,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ProcessHandleBase.lua"
+        },
+        "jls/lang/Promise.lua": {
+          "sha256": "144c4628667ad6b7e6f926acbe96554d17f699b19ba677c129b62249ca8832b4",
+          "size": 17935,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/Promise.lua"
+        },
+        "jls/lang/StringBuffer.lua": {
+          "sha256": "b3866c44771aa701c738c5ceffbed0ba9f269012c688ad439aa050b70d771a52",
+          "size": 6843,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/StringBuffer.lua"
+        },
+        "jls/lang/Thread-llthreads.lua": {
+          "sha256": "d9094e0c7ca6e235de97ba76e9c539fb7046797c1f69f13b2801e75de467b7a5",
+          "size": 1408,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/Thread-llthreads.lua"
+        },
+        "jls/lang/Thread-luv.lua": {
+          "sha256": "16c5279ff18f1a894f42a11651815c46aeb13fac134061dda18127d3e7f325a8",
+          "size": 804,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/Thread-luv.lua"
+        },
+        "jls/lang/Thread.lua": {
+          "sha256": "805e17442b5650b8a8d24561884663173c3689c362a3adb748aa20605be946fd",
+          "size": 97,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/Thread.lua"
+        },
+        "jls/lang/ThreadBase.lua": {
+          "sha256": "7df5486f8f724399f0fcfb338683f444e17d9bf8cae06f257bfd90ff60111aa0",
+          "size": 4858,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/ThreadBase.lua"
+        },
+        "jls/lang/class.lua": {
+          "sha256": "e3a61fd00684dbc479226752b1e7c90e993a6cc14e651d21ea67977e615f0f1e",
+          "size": 10300,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/class.lua"
+        },
+        "jls/lang/event-.lua": {
+          "sha256": "dc7fd8ff9dad03f8c40d90a32c7ff002aa8b6421d0e6132219a609ab532c5269",
+          "size": 5582,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/event-.lua"
+        },
+        "jls/lang/event-luv.lua": {
+          "sha256": "afe16499908cbe2772c3c0e4989388ca568b437acc5e1593fb59f826d69450f2",
+          "size": 2076,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/event-luv.lua"
+        },
+        "jls/lang/event.lua": {
+          "sha256": "db8bf13439933cb79b5d164d53da39995d41d5750f0ad25858927a3f52f4bf7c",
+          "size": 674,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/event.lua"
+        },
+        "jls/lang/formatCommandLine.lua": {
+          "sha256": "c35cf21c9434b3af7446eda30edf2d95c8fa3d66b481d7609d4e34904e5e3fc6",
+          "size": 855,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/formatCommandLine.lua"
+        },
+        "jls/lang/loader.lua": {
+          "sha256": "66ad4eebad1fc883c81866b6514242ffa94fe13a6bdfb4d56499d97b87870f85",
+          "size": 10593,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/loader.lua"
+        },
+        "jls/lang/logger.lua": {
+          "sha256": "025c35ad84289406eca7cffa854b15126ab4261a46e96728590c46887bce56c2",
+          "size": 9534,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/logger.lua"
+        },
+        "jls/lang/loopWithTimeout.lua": {
+          "sha256": "0bce547c32c45071a686462aa0bdf3b312e78d453330f349b3af8ed40837f782",
+          "size": 1109,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/loopWithTimeout.lua"
+        },
+        "jls/lang/luv_stream.lua": {
+          "sha256": "0927a11d9889da846d1f6f18f66a9ea1ec4114d2199c580ab1fb0ddbc4c6b6ff",
+          "size": 2271,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/luv_stream.lua"
+        },
+        "jls/lang/protectedCall.lua": {
+          "sha256": "bb5d63f095d255505319b22bc412d2b03cba9b62d04faf9958afc9d66084d9e6",
+          "size": 68,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/protectedCall.lua"
+        },
+        "jls/lang/protectedCallLog.lua": {
+          "sha256": "bb5d63f095d255505319b22bc412d2b03cba9b62d04faf9958afc9d66084d9e6",
+          "size": 68,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/protectedCallLog.lua"
+        },
+        "jls/lang/runtime.lua": {
+          "sha256": "df55c32adc4d5e9d9056f78160d8c144cf7009ca4cc6bd31f67aaf0901efeb0f",
+          "size": 59,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/runtime.lua"
+        },
+        "jls/lang/setenv.lua": {
+          "sha256": "216d6a96a84c3974e04091ad80dff7a620512e63d4588a508ffbc3a5bc623399",
+          "size": 156,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/setenv.lua"
+        },
+        "jls/lang/sys-.lua": {
+          "sha256": "b1f0e31b4679f840f6585df7b93d64e95d69fbb275cd49614ba13bc9ddbcddc5",
+          "size": 371,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/sys-.lua"
+        },
+        "jls/lang/sys-luv.lua": {
+          "sha256": "282c864fe82c9f9cf74c6b6b2a20c341486a3e8ca4e830937aba356fbbe621f2",
+          "size": 408,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/sys-luv.lua"
+        },
+        "jls/lang/sys-socket.lua": {
+          "sha256": "43e708a7070ac3f4e6a5433716e3f7858e48c25dd1cd9d565efa4bb2619c2357",
+          "size": 438,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/sys-socket.lua"
+        },
+        "jls/lang/sys.lua": {
+          "sha256": "19a99ff4e7b82effe00453b356332b625e1a2bfa36064e4c575fc9a4e225d6d0",
+          "size": 105,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/sys.lua"
+        },
+        "jls/lang/system.lua": {
+          "sha256": "ee32e59a6aa01b8cc6245e678a5eab5ab1da7a2fe199eba50ab80487f0eae028",
+          "size": 7564,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/lang/system.lua"
+        },
+        "jls/net/Selector-socket.lua": {
+          "sha256": "60dd88647bd017d8ab863d1512b3df557bdb1f30d53a89ad494d74383691368d",
+          "size": 11753,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/Selector-socket.lua"
+        },
+        "jls/net/TcpClient.lua": {
+          "sha256": "1b2f4fc52508e6b3f16cb52fb90c206d13f8938e6dd554e460f48810ba3e4fad",
+          "size": 61,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/TcpClient.lua"
+        },
+        "jls/net/TcpServer.lua": {
+          "sha256": "1b2f4fc52508e6b3f16cb52fb90c206d13f8938e6dd554e460f48810ba3e4fad",
+          "size": 61,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/TcpServer.lua"
+        },
+        "jls/net/TcpSocket-luv.lua": {
+          "sha256": "e34d2f74496c10907ed32dd3c782c7df9106ec89d9ca3e1ee74a1f931295fa85",
+          "size": 12201,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/TcpSocket-luv.lua"
+        },
+        "jls/net/TcpSocket-socket.lua": {
+          "sha256": "41194de3896ce6cd36a22e091ed6d5c8f2b155f7f2d4f6e7d262ed270d973a03",
+          "size": 4178,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/TcpSocket-socket.lua"
+        },
+        "jls/net/TcpSocket.lua": {
+          "sha256": "b5e8c910972393f8da5ce5898eac169766b253137a69c5c8a0c472e856698d38",
+          "size": 98,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/TcpSocket.lua"
+        },
+        "jls/net/UdpSocket-luv.lua": {
+          "sha256": "5079a68e1e1e8b12b6b729fbe79c122391ee0a9706e7ab7e7c6ff88c9e2831a5",
+          "size": 5794,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/UdpSocket-luv.lua"
+        },
+        "jls/net/UdpSocket-socket.lua": {
+          "sha256": "88fc7808a14b80a7febae75d5740a53633884092f0c487d081ea0e9e122587b5",
+          "size": 4484,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/UdpSocket-socket.lua"
+        },
+        "jls/net/UdpSocket.lua": {
+          "sha256": "e889b87b2745e30f74029c798dc813fb7d7cf35bac87337dc26574429df94d90",
+          "size": 98,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/UdpSocket.lua"
+        },
+        "jls/net/Url.lua": {
+          "sha256": "85da6e81ed75f3f66711c9ff4583ae80f426bfd90d5c8ae15fa2e177026a229e",
+          "size": 9005,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/Url.lua"
+        },
+        "jls/net/dns-luv.lua": {
+          "sha256": "be458d2b3174700198f646814fb5df1af39392ea7cc23f4141b7d757a195b365",
+          "size": 1489,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/dns-luv.lua"
+        },
+        "jls/net/dns-socket.lua": {
+          "sha256": "3cdd749fe593112a7d6f6882db004245a6506fbeecc737e0477ec9119be6a154",
+          "size": 493,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/dns-socket.lua"
+        },
+        "jls/net/dns.lua": {
+          "sha256": "79fd55a8bf06515cccda61b14f64012c04ed72d4c61ee9505ac4428644b70d75",
+          "size": 86,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/dns.lua"
+        },
+        "jls/net/http/Attributes.lua": {
+          "sha256": "4cf8174c2dc9fc07dda196305be05c15ae547c137f511ce9f8e5f826ccb0d519",
+          "size": 1440,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/Attributes.lua"
+        },
+        "jls/net/http/HeaderStreamHandler.lua": {
+          "sha256": "c1902336aa1abf883d00ce205b0f08ca96cca3797b5ef1000610209581487b93",
+          "size": 3637,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HeaderStreamHandler.lua"
+        },
+        "jls/net/http/HttpClient.lua": {
+          "sha256": "1f3f62c79a9651ac448eefffbedfc6ffdfbb0f08ca6ea4a19c26ff7130557f58",
+          "size": 10989,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpClient.lua"
+        },
+        "jls/net/http/HttpContext.lua": {
+          "sha256": "7d18551ac0d21e3a82ea33c93c198967bd7e43ab6dd8762e721bffd656ce29fd",
+          "size": 79,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpContext.lua"
+        },
+        "jls/net/http/HttpExchange.lua": {
+          "sha256": "df8caf9965f80bf7edebd72aa605ff716131882e8db34c6bc2485314478d2ba5",
+          "size": 11959,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpExchange.lua"
+        },
+        "jls/net/http/HttpFilter.lua": {
+          "sha256": "204a54dd715eb205b263e65ff114696263a5249498c7f21deb36483d8efcfbe9",
+          "size": 3346,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpFilter.lua"
+        },
+        "jls/net/http/HttpHandler.lua": {
+          "sha256": "3cc12aabc3f41ad5fe847ac72a14a94a70ffd9539709a78aca44179ba9003031",
+          "size": 6035,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpHandler.lua"
+        },
+        "jls/net/http/HttpHeaders.lua": {
+          "sha256": "21ed8491be4c27f72de8c78ee04b190a628eb39bbfa8900e902c4f4c8201708a",
+          "size": 6929,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpHeaders.lua"
+        },
+        "jls/net/http/HttpMessage.lua": {
+          "sha256": "5a7c81e7206cfb3654d133ee45719a48921f0e299ad0affd4efc89e810105af1",
+          "size": 19708,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpMessage.lua"
+        },
+        "jls/net/http/HttpRequest.lua": {
+          "sha256": "235d9b3d7c11460c7983aa6e6097f87fada0fb5b7d64244797a2fc72a9042c40",
+          "size": 68,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpRequest.lua"
+        },
+        "jls/net/http/HttpResponse.lua": {
+          "sha256": "235d9b3d7c11460c7983aa6e6097f87fada0fb5b7d64244797a2fc72a9042c40",
+          "size": 68,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpResponse.lua"
+        },
+        "jls/net/http/HttpServer.lua": {
+          "sha256": "968e153ae9bc187ff65eece5d3789e8514415f38552b891ec2646763303c59dd",
+          "size": 17220,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpServer.lua"
+        },
+        "jls/net/http/HttpSession.lua": {
+          "sha256": "1f75f520a54511ef4f613c8f2ff574fb42aadad271ce2243f5e4943a7db7f6ec",
+          "size": 1578,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/HttpSession.lua"
+        },
+        "jls/net/http/WebSocket.lua": {
+          "sha256": "bb5c59aa4bee237f98448c46cccfd41f8717a47b5db31cc2588a0325198ca388",
+          "size": 18997,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/WebSocket.lua"
+        },
+        "jls/net/http/filter/BasicAuthenticationHttpFilter.lua": {
+          "sha256": "92d0ca8b22f01b0add10c787878e2695545489dbc84ac22d83a11f57ee20427a",
+          "size": 2727,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/filter/BasicAuthenticationHttpFilter.lua"
+        },
+        "jls/net/http/filter/LogHttpFilter.lua": {
+          "sha256": "8f9f12a60fc6b3b8365d9a036c82863594a27b192f5d9aebe1c1c00bb25a1838",
+          "size": 825,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/filter/LogHttpFilter.lua"
+        },
+        "jls/net/http/filter/PathHttpFilter.lua": {
+          "sha256": "4a05bc901ef8283b53a522fd55954109bfaf8ba20dbda65156bfda1174dc9669",
+          "size": 2013,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/filter/PathHttpFilter.lua"
+        },
+        "jls/net/http/filter/SessionHttpFilter.lua": {
+          "sha256": "157f1606944c8ec66a246fcf3f2d36eee6312d175e9821220d22a8e521b1b330",
+          "size": 2520,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/filter/SessionHttpFilter.lua"
+        },
+        "jls/net/http/form.lua": {
+          "sha256": "3d643650a79bf9842a7aba95bbb1fc1a075746a3cb05da4f26db9ee99d0466b6",
+          "size": 4124,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/form.lua"
+        },
+        "jls/net/http/handler/FileHttpHandler.lua": {
+          "sha256": "b2a671976e6f94ebcd05ad5e98ebcb0ac9d80a9d1ed1620be378b202d6a1cad7",
+          "size": 14238,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/handler/FileHttpHandler.lua"
+        },
+        "jls/net/http/handler/ProxyHttpHandler.lua": {
+          "sha256": "8d3abb04a725a1cdcd576213c8085d0e5cbe3e55458b1dcb401d43afbbb670fe",
+          "size": 10444,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/handler/ProxyHttpHandler.lua"
+        },
+        "jls/net/http/handler/RestHttpHandler.lua": {
+          "sha256": "e082e5722970fc74342505598d2a0f62da8a402984362e30c5cb1d44c3009a86",
+          "size": 9400,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/handler/RestHttpHandler.lua"
+        },
+        "jls/net/http/handler/TableHttpHandler.lua": {
+          "sha256": "c26ac329f38b0a2ce8afe885f21c016b69f51510851e4875fc5652947501ec73",
+          "size": 3069,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/handler/TableHttpHandler.lua"
+        },
+        "jls/net/http/handler/WebDavHttpHandler.lua": {
+          "sha256": "5de72fdac425ffd1dbbbb1c5ed2c76925095c0ac1dbf57d72ab928e1fe14e4c0",
+          "size": 7518,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/handler/WebDavHttpHandler.lua"
+        },
+        "jls/net/http/handler/ZipFileHttpHandler.lua": {
+          "sha256": "aeacc7ce530e2ab6d30175397d8ac5e16198f46db140b7dc9300138d45a1ce17",
+          "size": 1674,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/handler/ZipFileHttpHandler.lua"
+        },
+        "jls/net/http/ws.lua": {
+          "sha256": "695f038f21af8cf06c1b09ad5782bb4e08334de0cacac721cf53bdf19e235ae2",
+          "size": 354,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/http/ws.lua"
+        },
+        "jls/net/mqtt.lua": {
+          "sha256": "a62493a573ab55158c45319628a20d18475a812eff950e5ac63c7b224836f4d0",
+          "size": 29905,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/mqtt.lua"
+        },
+        "jls/net/secure.lua": {
+          "sha256": "2cec9ee789d9e60587dcd4db11503471f363ff3cd45c70a67a5df58b0eb32cb4",
+          "size": 17185,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/net/secure.lua"
+        },
+        "jls/util/Channel.lua": {
+          "sha256": "fb774973d346d6ca458f94f6c92513e27a1ad7f4d396ea472369e260d9ce1ba1",
+          "size": 12281,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Channel.lua"
+        },
+        "jls/util/Codec.lua": {
+          "sha256": "97761ff97a36627c89f7eb5dff65da795fb3391dc6ab612164020e022836c2be",
+          "size": 4131,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Codec.lua"
+        },
+        "jls/util/CoroutineScheduler.lua": {
+          "sha256": "0c96139a48dca560c676a567df04f3bbe4077dd7d02f6cbd5e24836d55128d51",
+          "size": 7673,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/CoroutineScheduler.lua"
+        },
+        "jls/util/Date.lua": {
+          "sha256": "cf24abf1dce7eaa8ebbf21f6b0ec0221efe5eff93c8e055b898e34b22d6c5f8f",
+          "size": 12270,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Date.lua"
+        },
+        "jls/util/EventPublisher.lua": {
+          "sha256": "746dfda9007c33f875703d83d481b95281cc9348b4c8572112658cd2380f978c",
+          "size": 4766,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/EventPublisher.lua"
+        },
+        "jls/util/List.lua": {
+          "sha256": "2f3f0775d2f7f4ac710acb979ef3138e9e061796c6f37face4c30c7fb9055a3c",
+          "size": 10662,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/List.lua"
+        },
+        "jls/util/LocalDateTime.lua": {
+          "sha256": "4ed72dda8944b9dca7f4a8a150714f986e165eabd78ac26ddecbf0694041c0b5",
+          "size": 9975,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/LocalDateTime.lua"
+        },
+        "jls/util/Map.lua": {
+          "sha256": "f974d6340707542418720a0283ece71ffa6e8f56f428461320beaa94b59a45eb",
+          "size": 5845,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Map.lua"
+        },
+        "jls/util/MessageDigest.lua": {
+          "sha256": "ec3a1b80bd730220927db1347c4fe7c8451d7beeb7b462e5e0e72a971d30225e",
+          "size": 3013,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/MessageDigest.lua"
+        },
+        "jls/util/Scheduler.lua": {
+          "sha256": "18670918a1122579f6c8af456fff22c87ad9eed7277c9a6edad52b0146c1d754",
+          "size": 14249,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Scheduler.lua"
+        },
+        "jls/util/SerialWorker.lua": {
+          "sha256": "f763df3a48c315b1371710c8445f2f5a385bc68b4b133c1ac88f37da1574a292",
+          "size": 5214,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/SerialWorker.lua"
+        },
+        "jls/util/Struct.lua": {
+          "sha256": "70063869b186457ce4039b739cdabaec61a8cf820a347d7039b1e4dd21c43c43",
+          "size": 2751,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Struct.lua"
+        },
+        "jls/util/TableList.lua": {
+          "sha256": "d0d4ca7ba9f36ea215a8194cd279d5ce517b84cf604fcf23d9b5c0fea4e713d5",
+          "size": 72,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/TableList.lua"
+        },
+        "jls/util/WebView.lua": {
+          "sha256": "558dbc0afd0530043bb8d041468dd2928769e8536b60143b079967c1ffde407b",
+          "size": 17885,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/WebView.lua"
+        },
+        "jls/util/Worker-.lua": {
+          "sha256": "9918052abc2b904b09dba5f3d971fde6b1b4094de25e3ffd7f588b74a77128aa",
+          "size": 1766,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Worker-.lua"
+        },
+        "jls/util/Worker-channel.lua": {
+          "sha256": "8452952d42bf9f10be084c4f08f71c8d08eb1d9f49f2abc7889c02a74d2ff7d9",
+          "size": 5787,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Worker-channel.lua"
+        },
+        "jls/util/Worker.lua": {
+          "sha256": "d597f5d2052f89fe012ca1b6d4aa968752399851be8b4b08c0aa5c05705b77ec",
+          "size": 92,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/Worker.lua"
+        },
+        "jls/util/ast.lua": {
+          "sha256": "5f1f318092885865ed1b4e414b6cec059d1b5877d00bd362dacd11df071a8f64",
+          "size": 7600,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/ast.lua"
+        },
+        "jls/util/base64.lua": {
+          "sha256": "5112d72ca6139959a85a72788e514b799f93c88ebdb21b3219527421318a72fe",
+          "size": 79,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/base64.lua"
+        },
+        "jls/util/cd/base64.lua": {
+          "sha256": "d61bba40c515cf8b5c8e48a386fe820a41c84ef079db0ae9301e2c9e9aec9540",
+          "size": 4068,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/cd/base64.lua"
+        },
+        "jls/util/cd/cipher.lua": {
+          "sha256": "5912f82f1f599c7d3ba8cb3b606adbee7a0917164cce9672215899330186d44f",
+          "size": 2517,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/cd/cipher.lua"
+        },
+        "jls/util/cd/deflate.lua": {
+          "sha256": "4eb534e1a649cba88c3e69b7c90684fe02e27bcb3bcbf503b270beeb0925d3ca",
+          "size": 1791,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/cd/deflate.lua"
+        },
+        "jls/util/cd/gzip.lua": {
+          "sha256": "8bfed5e349b0550fe603f0f0313f5bf992f9e09bd49d19fcec05199ea14c525e",
+          "size": 853,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/cd/gzip.lua"
+        },
+        "jls/util/cd/hex.lua": {
+          "sha256": "292d8613f80c6496c48197389c509df95992c924fee5179dd63c579f5a003751",
+          "size": 2379,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/cd/hex.lua"
+        },
+        "jls/util/color.lua": {
+          "sha256": "00a9277e3c0b73f8f430cc1d314b49e4633d64b6586facd252b4014e4ce1e70f",
+          "size": 1978,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/color.lua"
+        },
+        "jls/util/compat.lua": {
+          "sha256": "65a15a26a3952625736127aa1a0294f2557f6978eb1a1ef4334c9b4cf22009f8",
+          "size": 15070,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/compat.lua"
+        },
+        "jls/util/hex.lua": {
+          "sha256": "8691c4e6c7345156b7a10bd250238ae0b9710323fe0df09867f4eda4a28db09e",
+          "size": 76,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/hex.lua"
+        },
+        "jls/util/json-cjson.lua": {
+          "sha256": "0c7e8dd5a8cf0b63b96e168a73f3d867e25d4da1d193570baf0cb17a91bdb587",
+          "size": 435,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/json-cjson.lua"
+        },
+        "jls/util/json-dkjson.lua": {
+          "sha256": "96198057c74f109ead9437293079ed54878c0dfdaf6a55e38dbde9aca186f6ae",
+          "size": 25,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/json-dkjson.lua"
+        },
+        "jls/util/json-lunajson.lua": {
+          "sha256": "b6e6574dd5f99188c6218925b9f6a0d5abb42995eef93214d0eea257414ef2ad",
+          "size": 272,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/json-lunajson.lua"
+        },
+        "jls/util/json.lua": {
+          "sha256": "a27d053394ec68eb640973082ee7fb1cd4b459a20f874597886a310580343272",
+          "size": 5717,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/json.lua"
+        },
+        "jls/util/md/crc32-.lua": {
+          "sha256": "ca875e3a4af7fbf21e036f849ee54465055299bb051d2eadfacebc8ba5b828ce",
+          "size": 3762,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/crc32-.lua"
+        },
+        "jls/util/md/crc32-zlib.lua": {
+          "sha256": "c5918efaf36e6e7df3df984bbede84bb8219945539cac2a4337163adeba3fb9e",
+          "size": 472,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/crc32-zlib.lua"
+        },
+        "jls/util/md/crc32.lua": {
+          "sha256": "1760c5816a0e164b72bb808fd3fad8b3994a809fad5f26349376c496c9514c17",
+          "size": 93,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/crc32.lua"
+        },
+        "jls/util/md/md5-.lua": {
+          "sha256": "8aeed473ba30ffb7d7ae5f87847f8dbbf6408a14323a608c4ebf5be43e37be38",
+          "size": 6191,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/md5-.lua"
+        },
+        "jls/util/md/md5-openssl.lua": {
+          "sha256": "a21bab150563f278397d237a997440349863b612559f9e43e9555c256f7d5e40",
+          "size": 59,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/md5-openssl.lua"
+        },
+        "jls/util/md/md5.lua": {
+          "sha256": "72bd9da2efa6d5d6bd8494d1c0b68668f1573b1b621248628b37576da2b24f70",
+          "size": 92,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/md5.lua"
+        },
+        "jls/util/md/sha1-.lua": {
+          "sha256": "867a9ec745b6f4384940bf50daa20e3d210f7b4b29b309876e6eb3d66e6208c1",
+          "size": 534,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/sha1-.lua"
+        },
+        "jls/util/md/sha1-openssl.lua": {
+          "sha256": "eef266a9336da165dcda5277c662638b8a237590ea0669825bd0429601552972",
+          "size": 60,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/sha1-openssl.lua"
+        },
+        "jls/util/md/sha1.lua": {
+          "sha256": "308ee9acc147f06727941cfbd57d106df7a6cf4cf71dbfd96e16dcb3cbf10c80",
+          "size": 94,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/md/sha1.lua"
+        },
+        "jls/util/strings.lua": {
+          "sha256": "64e1970cbd245ff949b26cde217065f57d3cd201030a757b9be0fb6c6c4ecebf",
+          "size": 6326,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/strings.lua"
+        },
+        "jls/util/tables.lua": {
+          "sha256": "2cd66f724e2b4d54600c0def6b8a05cc6ece09fcfea8abdf92e41805b468090c",
+          "size": 36409,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/tables.lua"
+        },
+        "jls/util/xml.lua": {
+          "sha256": "d78303de6dc624caef04201d7da65ccb272d6e228f0cd851d953947b0bc0dd2d",
+          "size": 6521,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/xml.lua"
+        },
+        "jls/util/zip/Deflater.lua": {
+          "sha256": "080ef9b7a4a141c957f8622a724a793841da800de110aa9d027ebf180a5955d6",
+          "size": 1893,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/zip/Deflater.lua"
+        },
+        "jls/util/zip/Inflater.lua": {
+          "sha256": "6f45b39d562f76b285f721aa11fdb73d9b141c37acc6ca41ea6b2b898715b3bc",
+          "size": 1968,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/zip/Inflater.lua"
+        },
+        "jls/util/zip/ZipFile.lua": {
+          "sha256": "e0b1f6e3476bfe2f97b19d22dd3864e00bed46e05e469900ea029e006418feaa",
+          "size": 28576,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/zip/ZipFile.lua"
+        },
+        "jls/util/zip/gzip.lua": {
+          "sha256": "01fbece275096f222ddcb167adf54eb4fede1237855e6ae15943e8e454cef4bc",
+          "size": 6894,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/zip/gzip.lua"
+        },
+        "jls/util/zip/tar.lua": {
+          "sha256": "7cb5f34cfccac0ca96ae4653dda6696128cc1478a9db6b662907f85e4c06ee22",
+          "size": 6099,
+          "url": "https://raw.githubusercontent.com/javalikescript/luajls/0.7.3/jls/util/zip/tar.lua"
+        }
+      },
+      "homepage": "https://github.com/javalikescript/luajls",
+      "license": "MIT",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Tue, 27 Feb 2024 21:29:10 GMT",
+        "rockspec": {
+          "date": "Tue, 27 Feb 2024 21:29:10 GMT",
+          "sha256": "1396cef7763a23a769a67adf9c1e10d00fdbdee66a1b2f5a7170e64d1159565a",
+          "size": 11437
+        }
+      },
+      "modules": [
+        "jls",
+        "jls.io.File",
+        "jls.io.FileDescriptor",
+        "jls.io.FileDescriptor-",
+        "jls.io.FileDescriptor-luv",
+        "jls.io.Path",
+        "jls.io.Pipe",
+        "jls.io.Pipe-luachild",
+        "jls.io.Pipe-luv",
+        "jls.io.Serial",
+        "jls.io.Serial-",
+        "jls.io.Serial-luv",
+        "jls.io.SerialBase",
+        "jls.io.StreamHandler",
+        "jls.io.fs",
+        "jls.io.fs-lfs",
+        "jls.io.fs-luv",
+        "jls.io.streams.BlockStreamHandler",
+        "jls.io.streams.BufferedStreamHandler",
+        "jls.io.streams.CallbackStreamHandler",
+        "jls.io.streams.ChunkedStreamHandler",
+        "jls.io.streams.DelayedStreamHandler",
+        "jls.io.streams.FileStreamHandler",
+        "jls.io.streams.LimitedStreamHandler",
+        "jls.io.streams.PromiseStreamHandler",
+        "jls.io.streams.PromisesStreamHandler",
+        "jls.io.streams.RangeStreamHandler",
+        "jls.io.streams.StreamHandler",
+        "jls.io.streams.WrappedStreamHandler",
+        "jls.lang.Exception",
+        "jls.lang.ProcessBuilder",
+        "jls.lang.ProcessHandle",
+        "jls.lang.ProcessHandle-",
+        "jls.lang.ProcessHandle-linux",
+        "jls.lang.ProcessHandle-luachild",
+        "jls.lang.ProcessHandle-luv",
+        "jls.lang.ProcessHandle-win32",
+        "jls.lang.ProcessHandleBase",
+        "jls.lang.Promise",
+        "jls.lang.StringBuffer",
+        "jls.lang.Thread",
+        "jls.lang.Thread-llthreads",
+        "jls.lang.Thread-luv",
+        "jls.lang.ThreadBase",
+        "jls.lang.class",
+        "jls.lang.event",
+        "jls.lang.event-",
+        "jls.lang.event-luv",
+        "jls.lang.formatCommandLine",
+        "jls.lang.loader",
+        "jls.lang.logger",
+        "jls.lang.loopWithTimeout",
+        "jls.lang.luv_stream",
+        "jls.lang.protectedCall",
+        "jls.lang.protectedCallLog",
+        "jls.lang.runtime",
+        "jls.lang.setenv",
+        "jls.lang.sys",
+        "jls.lang.sys-",
+        "jls.lang.sys-luv",
+        "jls.lang.sys-socket",
+        "jls.lang.system",
+        "jls.net.Selector-socket",
+        "jls.net.TcpClient",
+        "jls.net.TcpServer",
+        "jls.net.TcpSocket",
+        "jls.net.TcpSocket-luv",
+        "jls.net.TcpSocket-socket",
+        "jls.net.UdpSocket",
+        "jls.net.UdpSocket-luv",
+        "jls.net.UdpSocket-socket",
+        "jls.net.Url",
+        "jls.net.dns",
+        "jls.net.dns-luv",
+        "jls.net.dns-socket",
+        "jls.net.http.Attributes",
+        "jls.net.http.HeaderStreamHandler",
+        "jls.net.http.HttpClient",
+        "jls.net.http.HttpContext",
+        "jls.net.http.HttpExchange",
+        "jls.net.http.HttpFilter",
+        "jls.net.http.HttpHandler",
+        "jls.net.http.HttpHeaders",
+        "jls.net.http.HttpMessage",
+        "jls.net.http.HttpRequest",
+        "jls.net.http.HttpResponse",
+        "jls.net.http.HttpServer",
+        "jls.net.http.HttpSession",
+        "jls.net.http.WebSocket",
+        "jls.net.http.filter.BasicAuthenticationHttpFilter",
+        "jls.net.http.filter.LogHttpFilter",
+        "jls.net.http.filter.PathHttpFilter",
+        "jls.net.http.filter.SessionHttpFilter",
+        "jls.net.http.form",
+        "jls.net.http.handler.FileHttpHandler",
+        "jls.net.http.handler.ProxyHttpHandler",
+        "jls.net.http.handler.RestHttpHandler",
+        "jls.net.http.handler.TableHttpHandler",
+        "jls.net.http.handler.WebDavHttpHandler",
+        "jls.net.http.handler.ZipFileHttpHandler",
+        "jls.net.http.ws",
+        "jls.net.mqtt",
+        "jls.net.secure",
+        "jls.util.Channel",
+        "jls.util.Codec",
+        "jls.util.CoroutineScheduler",
+        "jls.util.Date",
+        "jls.util.EventPublisher",
+        "jls.util.List",
+        "jls.util.LocalDateTime",
+        "jls.util.Map",
+        "jls.util.MessageDigest",
+        "jls.util.Scheduler",
+        "jls.util.SerialWorker",
+        "jls.util.Struct",
+        "jls.util.TableList",
+        "jls.util.WebView",
+        "jls.util.Worker",
+        "jls.util.Worker-",
+        "jls.util.Worker-channel",
+        "jls.util.ast",
+        "jls.util.base64",
+        "jls.util.cd.base64",
+        "jls.util.cd.cipher",
+        "jls.util.cd.deflate",
+        "jls.util.cd.gzip",
+        "jls.util.cd.hex",
+        "jls.util.color",
+        "jls.util.compat",
+        "jls.util.hex",
+        "jls.util.json",
+        "jls.util.json-cjson",
+        "jls.util.json-dkjson",
+        "jls.util.json-lunajson",
+        "jls.util.md.crc32",
+        "jls.util.md.crc32-",
+        "jls.util.md.crc32-zlib",
+        "jls.util.md.md5",
+        "jls.util.md.md5-",
+        "jls.util.md.md5-openssl",
+        "jls.util.md.sha1",
+        "jls.util.md.sha1-",
+        "jls.util.md.sha1-openssl",
+        "jls.util.strings",
+        "jls.util.tables",
+        "jls.util.xml",
+        "jls.util.zip.Deflater",
+        "jls.util.zip.Inflater",
+        "jls.util.zip.ZipFile",
+        "jls.util.zip.gzip",
+        "jls.util.zip.tar"
+      ],
+      "origin": {
+        "sha256": "45292aa70a59c5ed38dd1344d32d4e664177fb36a29db996a45f1f3212652ee3",
+        "type": "archive",
+        "url": "https://github.com/javalikescript/luajls/archive/refs/tags/0.7.3.zip"
+      },
+      "size": 710419,
+      "summary": "luajls is a set of Lua modules for developing stand-alone Lua applications",
+      "undeclared_requires": [
+        "linux",
+        "llthreads",
+        "luachild",
+        "lunajson",
+        "luv",
+        "openssl",
+        "serial",
+        "socket",
+        "webview",
+        "win32",
+        "zlib"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

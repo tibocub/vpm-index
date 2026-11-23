@@ -1,0 +1,118 @@
+--imports
+local Trans = require("dogma.trans.Trans")
+local DirectiveTrans = require("dogma.trans.js._.DirectiveTrans")
+local ExpTrans = require("dogma.trans.js._.ExpTrans")
+local StmtTrans = require("dogma.trans.js._.StmtTrans")
+local UnpackTrans = require("dogma.trans.js._.UnpackTrans")
+local StmtType = require("dogma.syn.StmtType")
+local DirectiveType = require("dogma.syn.DirectiveType")
+
+--internal data
+local PRE = {}
+PRE["@dogmalang/core"] = 'import {any, bool, func, list, map, num, promise, proxy, re, set, text, timestamp, abstract, bind, coalesce, date, dogma, echo, echof, expect, fmt, json, keys, len, print, printf, promisify, ps, remove, sleep, todo, typename, values} from "@dogmalang/core";\n'
+
+--A JavaScript transformer.
+local JsTrans = {}
+JsTrans.__index = JsTrans
+setmetatable(JsTrans, {__index = Trans})
+package.loaded[...] = JsTrans
+
+--Constructor.
+function JsTrans.new(opts)
+  local self
+
+  --(1) create
+  self = setmetatable(Trans.new(opts), JsTrans)
+  self.module = "@dogmalang/core"
+  self.directives = opts and opts.directives or {}
+  table.insert(self.directives, "js")
+  self._.directiveTrans = DirectiveTrans.new(self)
+  self._.expTrans = ExpTrans.new(self)
+  self._.stmtTrans = StmtTrans.new(self)
+  self._.unpackTrans = UnpackTrans.new(self)
+
+  --(2) return
+  return self
+end
+
+--@override
+function JsTrans:next(opts)
+  local parser = self._.parser
+  local out
+
+  --(1) arguments
+  if not opts then
+    opts = {}
+  end
+
+  --(2) transform
+  local first = false
+
+  out = ""
+  while true do
+    local sent, covDir
+
+    sent = parser:next()
+
+    if sent == nil then
+      break
+    else
+      if sent:isDirective(DirectiveType.COVERAGE) then
+        covDir = sent
+        sent = parser:next()
+
+        if sent == nil then
+          sent = covDir
+          covDir = nil
+        end
+      else
+        covDir = nil
+      end
+    end
+
+    out = out .. self:_trans(sent, ";", covDir) .. "\n"
+
+    if opts.importDogmalang then
+      if not first then
+        first = true
+
+        if out:find("^#!/") then
+          out = out .. PRE[self.module]
+        else
+          out = PRE[self.module] .. out
+        end
+      end
+    end
+  end
+
+  --(2) return
+  return out
+end
+
+function JsTrans:_trans(sent, eoe, covDir)
+  if covDir ~= nil then
+    if sent:isStmt(StmtType.WITH) then
+      return self._.stmtTrans:_transWith(sent, covDir)
+    elseif sent:isStmt(StmtType.IF) then
+      return self._.stmtTrans:_transIf(sent, covDir)
+    else
+      return self._.directiveTrans:transform(covDir) .. self:_trans(sent, eoe, nil)
+    end
+  else
+    if sent:isDirective() then
+      return self._.directiveTrans:transform(sent)
+    elseif sent:isExp() or sent:isXmlExp() then
+      return self._.expTrans:transform(sent) .. (eoe or "")
+    elseif sent:isStmt() then
+      return self._.stmtTrans:transform(sent)
+    elseif sent:isUnpack() then
+      return self._.unpackTrans:transform(sent)
+    end
+  end
+end
+
+function JsTrans:_transExp(exp, list)
+  if exp:isExp() or exp:isXmlExp() then
+    return table.unpack(self._.expTrans:transform(exp, list))
+  end
+end

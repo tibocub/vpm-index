@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-healthcheck",
+  "versions": {
+    "3.1.2-1": {
+      "bin": [],
+      "deps": [
+        "penlight >= 1.9.2",
+        "lua-resty-timer ~> 1"
+      ],
+      "files": {
+        "resty/healthcheck.lua": {
+          "sha256": "27c3f4400f5a86dd270ad76b89eb72520ad8406286689495607a2f1421eb84e4",
+          "size": 66002,
+          "url": "https://raw.githubusercontent.com/Kong/lua-resty-healthcheck/2a0c14f998dee329571cbe68004f97a79c2ee5d3/lib/resty/healthcheck.lua"
+        }
+      },
+      "homepage": "https://github.com/Kong/lua-resty-healthcheck",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 09 Apr 2026 03:38:48 GMT",
+        "rockspec": {
+          "date": "Thu, 09 Apr 2026 03:38:48 GMT",
+          "sha256": "3ad4989754e3046f0e7158f135aa029903c0a7609eea06a383544949fcf92219",
+          "size": 681
+        },
+        "src": {
+          "date": "Thu, 09 Apr 2026 03:38:50 GMT",
+          "sha256": "73e8095af75ddbf41fd812d2a6303388811e5380b21af0f746d680a9a384d9b0",
+          "size": 154282,
+          "url": "https://luarocks.org/lua-resty-healthcheck-3.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.healthcheck"
+      ],
+      "origin": {
+        "commit": "2a0c14f998dee329571cbe68004f97a79c2ee5d3",
+        "ref": "3.1.2",
+        "type": "git",
+        "url": "https://github.com/Kong/lua-resty-healthcheck.git"
+      },
+      "size": 66002,
+      "summary": "Healthchecks for OpenResty to check upstream service status",
+      "undeclared_requires": [
+        "bit",
+        "ngx.ssl",
+        "resty.events.compat",
+        "resty.lock",
+        "resty.worker.events"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 1
+      }
+    }
+  }
+}

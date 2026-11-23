@@ -1,0 +1,61 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-sa-jwt-claims-validate",
+  "versions": {
+    "0.5.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson"
+      ],
+      "files": {
+        "kong/plugins/sa-jwt-claims-validate/handler.lua": {
+          "sha256": "b25fd28a10ea9732ed30653d69c8ee00d050bbedd3b6e2a6d54e6d365e06572f",
+          "size": 8135,
+          "url": "https://raw.githubusercontent.com/Voronenko/kong-plugin-sa-jwt-claims-validate/162af282d957eb6fdc785b1b1277e03149889174/kong/plugins/sa-jwt-claims-validate/handler.lua"
+        },
+        "kong/plugins/sa-jwt-claims-validate/schema.lua": {
+          "sha256": "e3290152fdbbc3c0ffdcab5451b39425e9bdfdcc3a43ef16de32ff58893df108",
+          "size": 5924,
+          "url": "https://raw.githubusercontent.com/Voronenko/kong-plugin-sa-jwt-claims-validate/162af282d957eb6fdc785b1b1277e03149889174/kong/plugins/sa-jwt-claims-validate/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Voronenko/kong-plugin-sa-jwt-claims-validate",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 20 Mar 2020 22:56:45 GMT",
+        "rockspec": {
+          "date": "Fri, 20 Mar 2020 22:56:45 GMT",
+          "sha256": "b1452daee66a65c3308acacc060ef9c9abae2a6ed6041c200e8c483c04dfaf99",
+          "size": 5363
+        }
+      },
+      "modules": [
+        "kong.plugins.sa-jwt-claims-validate.handler",
+        "kong.plugins.sa-jwt-claims-validate.schema"
+      ],
+      "origin": {
+        "commit": "162af282d957eb6fdc785b1b1277e03149889174",
+        "ref": "0.5.0",
+        "type": "git",
+        "url": "https://github.com/Voronenko/kong-plugin-sa-jwt-claims-validate"
+      },
+      "size": 14059,
+      "summary": "kong-plugin-sa-jwt-claims-validate is a plugin for kong v2 family, that helps to validate JWT token contents before accessing your API",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.jwt.jwt_parser",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

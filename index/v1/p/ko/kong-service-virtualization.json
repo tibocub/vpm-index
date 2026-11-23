@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-service-virtualization",
+  "versions": {
+    "0.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-service-virtualization/access.lua": {
+          "sha256": "de3ecaae577fb5dabfcef9701a5c0f16e8defdb85804cef781f16153bae0b41a",
+          "size": 2793,
+          "url": "https://raw.githubusercontent.com/Optum/kong-service-virtualization/9fc0d9881bf132ac4f6fb38596f3bd437e785668/src/access.lua"
+        },
+        "kong/plugins/kong-service-virtualization/handler.lua": {
+          "sha256": "02c82241e8c39a1991be51015505af179093c508604de78c25c6d0530f0c6eb9",
+          "size": 418,
+          "url": "https://raw.githubusercontent.com/Optum/kong-service-virtualization/9fc0d9881bf132ac4f6fb38596f3bd437e785668/src/handler.lua"
+        },
+        "kong/plugins/kong-service-virtualization/schema.lua": {
+          "sha256": "e98e3e89ad96d177c8aac2c5293314442ca9bc4be9bfd20ea42d2fce627f75eb",
+          "size": 309,
+          "url": "https://raw.githubusercontent.com/Optum/kong-service-virtualization/9fc0d9881bf132ac4f6fb38596f3bd437e785668/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-service-virtualization",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 11 Jun 2020 05:07:43 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Jun 2020 05:07:43 GMT",
+          "sha256": "8d3de419061280f6cc6cf23c792f9d0079f34c1337ea68988cb4568ebbedf7e8",
+          "size": 734
+        },
+        "src": {
+          "date": "Thu, 11 Jun 2020 05:07:44 GMT",
+          "sha256": "5fa46dcd9bdeb9ec0ecd595490e341f41e35e4514e22c1db4f3edb0f8bdff67a",
+          "size": 164869,
+          "url": "https://luarocks.org/kong-service-virtualization-0.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-service-virtualization.access",
+        "kong.plugins.kong-service-virtualization.handler",
+        "kong.plugins.kong-service-virtualization.schema"
+      ],
+      "origin": {
+        "commit": "9fc0d9881bf132ac4f6fb38596f3bd437e785668",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-service-virtualization.git"
+      },
+      "size": 3520,
+      "summary": "This plugin enables virtual API request and response pair mocking on the Kong API Gateway before the actual backend service is ready to serve transactions",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.sha256)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

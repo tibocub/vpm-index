@@ -1,0 +1,27 @@
+local M = {}
+local BASE_URL = 'https://iptv-org.pro'
+
+local function encode(value)
+  local text = tostring(value)
+  return (text:gsub('([^%w%-%._~])', function(char)
+    return string.format('%%%02X', string.byte(char))
+  end))
+end
+
+function M.metadata()
+  return {name='iptv-org pro', homepage=BASE_URL,
+    description='Independent public television channel directory URL helpers.',
+    canonicalPages={home=M.home_url(), channels=M.channels_url(), countries=M.countries_url(), categories=M.categories_url(), about=M.about_url(), attribution=M.attribution_url()},
+    tags={'television', 'channels', 'directory'}}
+end
+function M.home_url() return BASE_URL .. '/' end
+function M.channels_url() return BASE_URL .. '/channels/' end
+function M.countries_url() return BASE_URL .. '/countries/' end
+function M.categories_url() return BASE_URL .. '/categories/' end
+function M.about_url() return BASE_URL .. '/about/' end
+function M.attribution_url() return BASE_URL .. '/attribution/' end
+function M.search_url(query) return BASE_URL .. '/search/?q=' .. encode(query) end
+function M.country_url(code) return BASE_URL .. '/countries/' .. encode(code) .. '/' end
+function M.category_url(category) return BASE_URL .. '/categories/' .. encode(category) .. '/' end
+function M.channel_url(country, slug) return BASE_URL .. '/channels/' .. encode(country) .. '/' .. encode(slug) .. '/' end
+return M

@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "lua-nanoid",
+  "versions": {
+    "1.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "nanoid/ffi.lua": {
+          "sha256": "ffd0159397bd0e69c6fdd771f1953d7a3e960361d5bdd89d3c69751f30d019af",
+          "size": 3216,
+          "url": "blob:ffd0159397bd0e69c6fdd771f1953d7a3e960361d5bdd89d3c69751f30d019af"
+        }
+      },
+      "homepage": "https://github.com/liweitianux/nanoid",
+      "host": "luajit",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Mon, 04 Sep 2023 06:43:09 GMT",
+        "rockspec": {
+          "date": "Mon, 04 Sep 2023 06:43:09 GMT",
+          "sha256": "95d3068152e2b9a9ea55a4c622da57aafbe2a9c03c46913d6a3f92bea4a618c6",
+          "size": 776
+        },
+        "src": {
+          "date": "Mon, 04 Sep 2023 06:43:10 GMT",
+          "sha256": "c2665dc082d8f844264c2794341e1addca966f77d8d64006a9500a3f1b23e0bc",
+          "size": 20612,
+          "url": "https://luarocks.org/lua-nanoid-1.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "libnanoid",
+        "nanoid",
+        "nanoid.ffi"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "NDEBUG"
+              ],
+              "name": "libnanoid",
+              "sources": [
+                "nanoid.c"
+              ]
+            },
+            {
+              "defines": [
+                "NDEBUG"
+              ],
+              "name": "nanoid",
+              "sources": [
+                "nanoid_lua.c",
+                "nanoid.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 04 Sep 2023 06:43:10 GMT",
+        "sha256": "c2665dc082d8f844264c2794341e1addca966f77d8d64006a9500a3f1b23e0bc",
+        "size": 20612,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-nanoid-1.1.1-1.src.rock"
+      },
+      "size": 3216,
+      "summary": "A tiny, secure, URL-friendly, unique string ID generator for Lua/LuaJIT",
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

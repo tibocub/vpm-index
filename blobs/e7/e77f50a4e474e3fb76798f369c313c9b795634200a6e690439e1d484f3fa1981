@@ -1,0 +1,34 @@
+
+local status = {
+    {0,"New"},
+    {1,"Inbox"},
+    {2,"Draft"},
+    {3,"Sent"},
+}
+
+local mails = {
+  {"email",'Email',ht = "SELF"},
+  {"subject",'Subject'},
+  {'plain','Plain',opt="style='word-break:break-all;'"},
+  {"date",'Date'},
+  {"status",'Status',ht='SELECT',rf = status},
+  {"contact"},
+  link = {id="contact"},
+  name = "Mails"
+}
+
+local logins = {
+  {"login",'Login',ht = "SELF"},
+  {"host",'Host'},
+  {"protocol",'Protocol'},
+  {"active",'Active',ht="CHECKBOX"},
+  {"user"},
+  link = {id="user"},
+  name = "Email",
+}
+
+return {
+  {"logins","Logins",ls=logins,off=true},
+  {"mails","Mails",persons=10,firms={id="firm",11},ls=mails},
+}
+

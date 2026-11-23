@@ -1,0 +1,791 @@
+{
+  "kind": "lib",
+  "name": "mason.nvim",
+  "versions": {
+    "2.3.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "mason-core/EventEmitter.lua": {
+          "sha256": "097a5084862d8721ecfb43e7f7d091ddea112e8238f5a019d1a921468b5bbf98",
+          "size": 2387,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/EventEmitter.lua"
+        },
+        "mason-core/async/control.lua": {
+          "sha256": "1bf411bd865be1c5839e53d74f8297f6cc9bb8b5c3e6409d08bdb2e72337463a",
+          "size": 3731,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/async/control.lua"
+        },
+        "mason-core/async/init.lua": {
+          "sha256": "ba6ff4f67aa7b641ccf29d73b706fc89a6bf8da4ad71b02046aa5e6c6cda39a9",
+          "size": 6061,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/async/init.lua"
+        },
+        "mason-core/async/uv.lua": {
+          "sha256": "db1bc3e5c47070455ca9706d960ec7f633479df9e036b9498e5a508dbfccd66a",
+          "size": 1013,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/async/uv.lua"
+        },
+        "mason-core/fetch.lua": {
+          "sha256": "feb078c3ea89b19d45ad05ad3ce85accb501fe9853c8ffe5fcecf97bc98cd5e9",
+          "size": 4837,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/fetch.lua"
+        },
+        "mason-core/fs.lua": {
+          "sha256": "d0d893be89148622cc120f74f65897fe543ab376d9ce3cf43d2587a32e74efd5",
+          "size": 6957,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/fs.lua"
+        },
+        "mason-core/functional/data.lua": {
+          "sha256": "ad2045a725b6041b9318dd4263e8f72827248b9c8c611f2aed8e2927a2dc655c",
+          "size": 507,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/data.lua"
+        },
+        "mason-core/functional/function.lua": {
+          "sha256": "da56be2fa7e7573a464a8e5e5712dda1f49b54c554eba7f52e8a74a031377175",
+          "size": 3229,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/function.lua"
+        },
+        "mason-core/functional/init.lua": {
+          "sha256": "cd61be97d480244794ed1fd7129f4d6f115235a0c2ad953d28a73edb5e4a8525",
+          "size": 4272,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/init.lua"
+        },
+        "mason-core/functional/list.lua": {
+          "sha256": "6365b0e0aa9ff7f37c23691f230408c6541c6b47a9025d98b800afd1c1596ebe",
+          "size": 6889,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/list.lua"
+        },
+        "mason-core/functional/logic.lua": {
+          "sha256": "16d84d7fd41bb169b48da155a1b37604a4570bfae428a0bd7e7ef446e0e08938",
+          "size": 1918,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/logic.lua"
+        },
+        "mason-core/functional/number.lua": {
+          "sha256": "c198580cbe423f580c4a869cf0ec1ed4bcc8fe3d96fffd82a096e2ad532b4ac6",
+          "size": 633,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/number.lua"
+        },
+        "mason-core/functional/relation.lua": {
+          "sha256": "7ef9ac1ae759834065848215912b0c6fe57070ce3b0fc2b323e15e1e188b47bc",
+          "size": 980,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/relation.lua"
+        },
+        "mason-core/functional/string.lua": {
+          "sha256": "e67c379cbd341525c86a63a418e88c5d2856fdd5b7cffe88bc1de057e96a8891",
+          "size": 3467,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/string.lua"
+        },
+        "mason-core/functional/table.lua": {
+          "sha256": "3eddec8d04fda81bcc27a8dfd9c3cbfa4221254656e677bf9033ef1b87ca25c5",
+          "size": 2594,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/table.lua"
+        },
+        "mason-core/functional/type.lua": {
+          "sha256": "09a73927633e0bbef9ea0af7f0928a83d2828ed036e1d658112c9ff0b1eca0b2",
+          "size": 317,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/functional/type.lua"
+        },
+        "mason-core/installer/InstallHandle.lua": {
+          "sha256": "85a07ff7fe0ee127a7a66a91fbf11795452e0d8572b2bee44f64a548374895d4",
+          "size": 6494,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/InstallHandle.lua"
+        },
+        "mason-core/installer/InstallLocation.lua": {
+          "sha256": "db6ea3a202f1f14a761f407d36ea5c4866368e04f165e20956630ea377cf69a2",
+          "size": 2446,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/InstallLocation.lua"
+        },
+        "mason-core/installer/InstallRunner.lua": {
+          "sha256": "40abb541e01b83f476d26a36387e196a90da32814cb2c7101e13f1a2e6b6532a",
+          "size": 7942,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/InstallRunner.lua"
+        },
+        "mason-core/installer/UninstallRunner.lua": {
+          "sha256": "7330108ad7a48e11fd96006876cf186428b60af679a4acc4a4d842e762added9",
+          "size": 3896,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/UninstallRunner.lua"
+        },
+        "mason-core/installer/compiler/compilers/cargo.lua": {
+          "sha256": "52f217317ee48f95fc31491ccfd72e449d7296f7605ed7b7572e63693fcf737c",
+          "size": 2189,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/cargo.lua"
+        },
+        "mason-core/installer/compiler/compilers/composer.lua": {
+          "sha256": "45ccf9a9ef9db1d61fba04d3dd2acf78c9e937fc79ebc3c140cde6db419f6369",
+          "size": 899,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/composer.lua"
+        },
+        "mason-core/installer/compiler/compilers/gem.lua": {
+          "sha256": "b4a17119598fe4ff94e04b0e41e40a783a2c17e4629c31a9eb890333ef39ed33",
+          "size": 961,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/gem.lua"
+        },
+        "mason-core/installer/compiler/compilers/generic/build.lua": {
+          "sha256": "a80f557717ada5aa11e4cca4f216eb051c7653f0467075389e514a9a8e540d6c",
+          "size": 1274,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/generic/build.lua"
+        },
+        "mason-core/installer/compiler/compilers/generic/download.lua": {
+          "sha256": "a0f8a05e3b059171e585a221ccfa5ef70bcfe1b92b342f838e56b5c27f43c20e",
+          "size": 1627,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/generic/download.lua"
+        },
+        "mason-core/installer/compiler/compilers/generic/init.lua": {
+          "sha256": "a04e046824f697e5c14f15dade375a145a88fe742c5fefbd264b3044c7232146",
+          "size": 1425,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/generic/init.lua"
+        },
+        "mason-core/installer/compiler/compilers/github/build.lua": {
+          "sha256": "e70551106976fed235a35e0496b98e7bc19765785f2e3071671b42f6289ab354",
+          "size": 1468,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/github/build.lua"
+        },
+        "mason-core/installer/compiler/compilers/github/init.lua": {
+          "sha256": "779c567d8ebc21fe06809b8f3dd88061ac63a037e919541053dd43517e634bfb",
+          "size": 1759,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/github/init.lua"
+        },
+        "mason-core/installer/compiler/compilers/github/release.lua": {
+          "sha256": "b4cf7969435ce29b5c1cf094e5f4abb36ae7a427feb6ade00ff014b3925cccf7",
+          "size": 1888,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/github/release.lua"
+        },
+        "mason-core/installer/compiler/compilers/golang.lua": {
+          "sha256": "917afbe19f8f07653a9c841ee33c05d07d0d516c209300447ae309b2cdf47bbc",
+          "size": 1327,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/golang.lua"
+        },
+        "mason-core/installer/compiler/compilers/luarocks.lua": {
+          "sha256": "b442748115328dc1ac43c87f811ab6c0bda85d84cd410a27a82c57f492e838da",
+          "size": 1285,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/luarocks.lua"
+        },
+        "mason-core/installer/compiler/compilers/mason.lua": {
+          "sha256": "d5a403a5e0d6929f2604041ca53c192b9cf158ea8cb9efe9b769e2aa8d5dc549",
+          "size": 1121,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/mason.lua"
+        },
+        "mason-core/installer/compiler/compilers/npm.lua": {
+          "sha256": "8a54933252e98275669fff80c4badbb6025907719db39eccc7ab574c5db3910c",
+          "size": 1424,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/npm.lua"
+        },
+        "mason-core/installer/compiler/compilers/nuget.lua": {
+          "sha256": "16a6d527d982817127db9e95164448790e7b755462e147e872664d116651b9f2",
+          "size": 693,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/nuget.lua"
+        },
+        "mason-core/installer/compiler/compilers/opam.lua": {
+          "sha256": "14d79f1606730be46566966657032648af3160ffc216b1e866e484b37607b405",
+          "size": 688,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/opam.lua"
+        },
+        "mason-core/installer/compiler/compilers/openvsx.lua": {
+          "sha256": "4ae35935a824c7d7743c44b139673e228d09c11d107c38eb82c6ed99beb7b97c",
+          "size": 2081,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/openvsx.lua"
+        },
+        "mason-core/installer/compiler/compilers/pypi.lua": {
+          "sha256": "a71ba69629d20a6d66cf661a226a81602c82a9f199eca7ee3c85cbd5a608ccc2",
+          "size": 1629,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/compilers/pypi.lua"
+        },
+        "mason-core/installer/compiler/expr.lua": {
+          "sha256": "5016195d13027b21b1cdc0552c5226b8450ac8fc8123a4839fef0fc982e03fc4",
+          "size": 3114,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/expr.lua"
+        },
+        "mason-core/installer/compiler/init.lua": {
+          "sha256": "866e713a2a797e869fc94046cdfffd33cbc3cb4ef288c1af2563e5d3a08bcb27",
+          "size": 8966,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/init.lua"
+        },
+        "mason-core/installer/compiler/link.lua": {
+          "sha256": "456b0172472612f73f3d7abaeeec8482adf1cc63a8f44b2a351e3abe94c7c331",
+          "size": 10970,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/link.lua"
+        },
+        "mason-core/installer/compiler/schemas.lua": {
+          "sha256": "0838125c46c103ae208e5bee55530d03a9dd85010af3f69b855715db6e254737",
+          "size": 2731,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/schemas.lua"
+        },
+        "mason-core/installer/compiler/util.lua": {
+          "sha256": "54c45a29867cb0d7401f2f6dc4757a6f51d2529998d314e3832c45ea4cd0f7d5",
+          "size": 3074,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/compiler/util.lua"
+        },
+        "mason-core/installer/context/InstallContextCwd.lua": {
+          "sha256": "4d41a36a1a4c6bb5ad4bb6ca929c561ffcb4ef831f570b378a110b18a27cdd5c",
+          "size": 1422,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/context/InstallContextCwd.lua"
+        },
+        "mason-core/installer/context/InstallContextFs.lua": {
+          "sha256": "d7f1d708f9f752cef0cb5bd7df2f4272c2407f8a09f82568c24c11b94f8d1f3b",
+          "size": 3572,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/context/InstallContextFs.lua"
+        },
+        "mason-core/installer/context/InstallContextSpawn.lua": {
+          "sha256": "81c4a88411b1e148c52f654a280fe6646158bd7855bad9c6e6e7b840bb13174d",
+          "size": 1759,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/context/InstallContextSpawn.lua"
+        },
+        "mason-core/installer/context/init.lua": {
+          "sha256": "9067595bb2563fc38cc613d9ef5423aa3558c35bea1bddd31df2390ecd94a351",
+          "size": 12449,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/context/init.lua"
+        },
+        "mason-core/installer/init.lua": {
+          "sha256": "b1d201eb8898e456291dc9ea61ba7b01ab3759b534703dab69f6625cdb9e1eb5",
+          "size": 197,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/init.lua"
+        },
+        "mason-core/installer/linker.lua": {
+          "sha256": "4945b59469962bcec0b326ff667f668186acbd30da4c3193b98374af6671ed33",
+          "size": 7171,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/linker.lua"
+        },
+        "mason-core/installer/managers/cargo.lua": {
+          "sha256": "5cbdddd3a04eaf14512ea62bf90ebc7979e9aef59d15753f058205ff9327de84",
+          "size": 1487,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/cargo.lua"
+        },
+        "mason-core/installer/managers/common.lua": {
+          "sha256": "5ecc9922cbab2217c24dfdd058834cb64682b83fd7cc5a4879cce11ab9837b0c",
+          "size": 3697,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/common.lua"
+        },
+        "mason-core/installer/managers/composer.lua": {
+          "sha256": "3d31d9aafd113f9c56d3689887b3d6966e49a9da533abbef716f3f8bcf9f4122",
+          "size": 1216,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/composer.lua"
+        },
+        "mason-core/installer/managers/gem.lua": {
+          "sha256": "f270904c7a2c2fc80c39f7bd7db3d539eead739bd71a6748fe6e75964329daa7",
+          "size": 1852,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/gem.lua"
+        },
+        "mason-core/installer/managers/golang.lua": {
+          "sha256": "3cb8210f85cbc0e0330bc661903daea7ac46d38e3a961fc2244148eb9773ab1e",
+          "size": 1422,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/golang.lua"
+        },
+        "mason-core/installer/managers/luarocks.lua": {
+          "sha256": "eb6f52f250b6d4ba0f3b36f0d78a99244a4bc436099f50797317b49bce727f5d",
+          "size": 1249,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/luarocks.lua"
+        },
+        "mason-core/installer/managers/npm.lua": {
+          "sha256": "27986cf804af258e6713b086ff4963853c0fe96ed37368cee37a6f4c05e3e4f2",
+          "size": 3332,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/npm.lua"
+        },
+        "mason-core/installer/managers/nuget.lua": {
+          "sha256": "105418ccb32ae366b608d55b573817d142a6b90613f3414b345fd2381196ed1b",
+          "size": 1104,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/nuget.lua"
+        },
+        "mason-core/installer/managers/opam.lua": {
+          "sha256": "61981bf84b308d8d0d79a5943399c1626705bf94d15d3e0caa01d0dd92eef16c",
+          "size": 1028,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/opam.lua"
+        },
+        "mason-core/installer/managers/powershell.lua": {
+          "sha256": "943df832463fa853f0ce86e8c1a4d05242522fa69a9ccfb3d59a2b3d8e1c9700",
+          "size": 1348,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/powershell.lua"
+        },
+        "mason-core/installer/managers/pypi.lua": {
+          "sha256": "fb29b47e5c96fc489173729c01b775b18de0e75af829865a08449155a72e4856",
+          "size": 8681,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/pypi.lua"
+        },
+        "mason-core/installer/managers/std.lua": {
+          "sha256": "28e6db572ba57772e24e800e3b39caf22422ced6d558c41e9c3108508845688d",
+          "size": 7801,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/installer/managers/std.lua"
+        },
+        "mason-core/log.lua": {
+          "sha256": "94bc1cb0e1f5150ae66236d7bd5706f596095c317a5c434a671f84e47b8f024a",
+          "size": 6039,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/log.lua"
+        },
+        "mason-core/notify.lua": {
+          "sha256": "81b298d857bb1d318c6921904350ac17428c3e8af37c6803008a63cd397a7f91",
+          "size": 160,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/notify.lua"
+        },
+        "mason-core/optional.lua": {
+          "sha256": "2b0a6ab28ad6cb86c9494937bfdda900a0cf9488ef624f3c961cdf4569d497b2",
+          "size": 2721,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/optional.lua"
+        },
+        "mason-core/package/AbstractPackage.lua": {
+          "sha256": "7e31795f39f953a8d7af9a677ae9a056a7c6453d9116411c05fa419c681b0692",
+          "size": 7492,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/package/AbstractPackage.lua"
+        },
+        "mason-core/package/init.lua": {
+          "sha256": "f30ce241ddcd2c2891cc74a448ee41c5b9e61ceeaf93dc4d4a13a037c5c8a1a0",
+          "size": 6124,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/package/init.lua"
+        },
+        "mason-core/path.lua": {
+          "sha256": "7c2d0262abb372332fe95c7f320219af42a445ee8ff710ad0af5aa288fa080e3",
+          "size": 1319,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/path.lua"
+        },
+        "mason-core/pep440/init.lua": {
+          "sha256": "dffe958d9e5954fceb82378f1a8be733895f943f2fcabb70f3ecf4ad4725c1e3",
+          "size": 2025,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/pep440/init.lua"
+        },
+        "mason-core/platform.lua": {
+          "sha256": "0410e1f4fc9de81d60e02ef67d8f6848ccf3bdf9a1ac5b23e5f397635539c448",
+          "size": 7182,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/platform.lua"
+        },
+        "mason-core/process.lua": {
+          "sha256": "a1339809721c9b2576ea56e0deb6d6b87091ded481002294de5639924e6304ac",
+          "size": 7706,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/process.lua"
+        },
+        "mason-core/providers.lua": {
+          "sha256": "cec7c386c7b367a38c551ad83459f74abd09f79807e30539b6ddf525df96906c",
+          "size": 4734,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/providers.lua"
+        },
+        "mason-core/purl.lua": {
+          "sha256": "cea1f530e926f5592726f336b959d3fe257a3a6d7236454b10c6a32fad83eec0",
+          "size": 7705,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/purl.lua"
+        },
+        "mason-core/receipt.lua": {
+          "sha256": "b06082c251a247b0016a14b668449e9cf7b7478a363796268e8b5bddcd205a5c",
+          "size": 5311,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/receipt.lua"
+        },
+        "mason-core/result.lua": {
+          "sha256": "45edd5699746a35216e92bfb2b6c8ce58cf679ee27bdae5a0dc27c4ff7274c78",
+          "size": 4960,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/result.lua"
+        },
+        "mason-core/semver.lua": {
+          "sha256": "05098a2c2c49bfe7a86cc4e524c1ab6098c09c73a32ba74f76f10ae7facae9dc",
+          "size": 379,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/semver.lua"
+        },
+        "mason-core/spawn.lua": {
+          "sha256": "9c14c63d9aee56764f0241ef407a8b27a25a5470228d083fd1f2ff92b5f8d75c",
+          "size": 6097,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/spawn.lua"
+        },
+        "mason-core/system-package.lua": {
+          "sha256": "f939ecfce3f0bfccfc7b4ed2bff46ce2593362aed39333a4aa9e6436fef66aa1",
+          "size": 2863,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/system-package.lua"
+        },
+        "mason-core/terminator.lua": {
+          "sha256": "270182f2c4064cd1ecdfaa7404e6514c7dd05a39fa308c27228052d8ece2eae5",
+          "size": 3148,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/terminator.lua"
+        },
+        "mason-core/ui/display.lua": {
+          "sha256": "61dce4eafff34550de76fbd6c404c5cac2ab4abb56f763a19c1d3652d336a202",
+          "size": 21985,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/ui/display.lua"
+        },
+        "mason-core/ui/init.lua": {
+          "sha256": "ab22d69070a83ab9e9e93dc5d0b946378336a27dec357b75c1bba5eda19a3846",
+          "size": 5444,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/ui/init.lua"
+        },
+        "mason-core/ui/state.lua": {
+          "sha256": "673e2682bb2472258e1e0c36e5063b6e9053d00fffb42974444930c01ddfbf7b",
+          "size": 640,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-core/ui/state.lua"
+        },
+        "mason-registry/api.lua": {
+          "sha256": "3a1b4926ed52163e67a65ac5c2380dd84eb61bac76fd9fd3aa64accca9862239",
+          "size": 4035,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/api.lua"
+        },
+        "mason-registry/index/init.lua": {
+          "sha256": "1232d8379de77e154ca533689af2e42629dd7574bda5a0a390799849f07607c3",
+          "size": 10,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/index/init.lua"
+        },
+        "mason-registry/init.lua": {
+          "sha256": "3a88ab61ee6c9f64a383339fe27af0cd22765830aab39b291ceac2c79b89bcb9",
+          "size": 7505,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/init.lua"
+        },
+        "mason-registry/installer.lua": {
+          "sha256": "0484a27b54e80e792587a42ee1081a6b673cbc4535681db4966def090ed4ed2d",
+          "size": 2673,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/installer.lua"
+        },
+        "mason-registry/sources/file.lua": {
+          "sha256": "3fc80cf0a83ffb6cb733b7f11ed7628cd3ba3f064f55a3d406dfd6f65d02e74b",
+          "size": 6449,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/sources/file.lua"
+        },
+        "mason-registry/sources/github.lua": {
+          "sha256": "290f67a09e0155dc558ae14e19a104e5f7684040f17638645c2116bdf98cfd12",
+          "size": 6570,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/sources/github.lua"
+        },
+        "mason-registry/sources/init.lua": {
+          "sha256": "827c70b7d1abb53d1380f35df73e8e0ef790abec8007143e313af6f4e2911f26",
+          "size": 8037,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/sources/init.lua"
+        },
+        "mason-registry/sources/lua.lua": {
+          "sha256": "9943b86849dc7d7dcb10293d28102c4883e281916a57ade4d624757f67ff4bc3",
+          "size": 2741,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/sources/lua.lua"
+        },
+        "mason-registry/sources/synthesized.lua": {
+          "sha256": "894b90475a0417c7454a43fd31d0bfe6e7a87ea4642c43c3b5738e5dbd8c729f",
+          "size": 3544,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/sources/synthesized.lua"
+        },
+        "mason-registry/sources/util.lua": {
+          "sha256": "9f0a1be2addd4b580d7e74a411b11c79bb19f9a372c68393fcca3be1a195ee91",
+          "size": 1443,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-registry/sources/util.lua"
+        },
+        "mason-test/helpers.lua": {
+          "sha256": "27c687fdb7c4ff0c6b97a2c663469e2bd5296b6968227e08e70f9b5a8af67db3",
+          "size": 2062,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-test/helpers.lua"
+        },
+        "mason-vendor/semver.lua": {
+          "sha256": "6db77b4481641877ef149ff4f22297e40a3bf77315bc4f27c784eaaa4ed101ad",
+          "size": 7215,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-vendor/semver.lua"
+        },
+        "mason-vendor/zzlib/inflate-bit32.lua": {
+          "sha256": "3cdbb53f261a9b13262763fe7316a580d88370c01c38193312b38c6a0fa68ce5",
+          "size": 7173,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-vendor/zzlib/inflate-bit32.lua"
+        },
+        "mason-vendor/zzlib/inflate-bwo.lua": {
+          "sha256": "8c87648a7c1d9a7299015d936ea861c48405d629fba5fb9089c0d833e562b030",
+          "size": 6984,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-vendor/zzlib/inflate-bwo.lua"
+        },
+        "mason-vendor/zzlib/init.lua": {
+          "sha256": "05b458d46516d81007c051ae73744a65af4f898c35832b6e51c55b775cf8b957",
+          "size": 5677,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason-vendor/zzlib/init.lua"
+        },
+        "mason/api/command.lua": {
+          "sha256": "6e700ffe5a52ecdfe0092a720a758e7b0e636ced7bb93fc4de52e49a07690cfb",
+          "size": 9598,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/api/command.lua"
+        },
+        "mason/health.lua": {
+          "sha256": "108ca01761a8fbbd9908bf48b6c40885ff15c8643a32c05bfcfe64faf11d3cf8",
+          "size": 10635,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/health.lua"
+        },
+        "mason/init.lua": {
+          "sha256": "fa62bd7f773627643e452a1767da23a93348321b29bd82e2e7d3db4959c2b8f8",
+          "size": 966,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/init.lua"
+        },
+        "mason/providers/client/gh.lua": {
+          "sha256": "55dfef6f4f16d0d3393c501028f0194b639d94d7128f2cfa512c29882d2f753b",
+          "size": 1497,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/client/gh.lua"
+        },
+        "mason/providers/client/golang.lua": {
+          "sha256": "f6d01561c04a514ad0b127577d149dfb9ead374df9cd0b62fc3743829217f105",
+          "size": 481,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/client/golang.lua"
+        },
+        "mason/providers/client/init.lua": {
+          "sha256": "9901a9fe4030433743940857f9c2362ec2f7e5ca83873d88b0946be50268dc52",
+          "size": 345,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/client/init.lua"
+        },
+        "mason/providers/client/npm.lua": {
+          "sha256": "fa7be98434205e5debc0add5d4bb63338b556951bb701e9a05511380d957bf90",
+          "size": 594,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/client/npm.lua"
+        },
+        "mason/providers/client/openvsx.lua": {
+          "sha256": "83cab82d9b0fa448f295c51ddf2b6a156a284e62179ffe6616b84ed9d23339b5",
+          "size": 893,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/client/openvsx.lua"
+        },
+        "mason/providers/client/pypi.lua": {
+          "sha256": "29d0947ffad75fabb958eb171f6ed418e1c81fcc7b002a2115fb71661ecae29b",
+          "size": 2314,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/client/pypi.lua"
+        },
+        "mason/providers/client/rubygems.lua": {
+          "sha256": "c85f6be53667d34117caed6a9842c46233de44535cd864479572c46e9b37e75e",
+          "size": 909,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/client/rubygems.lua"
+        },
+        "mason/providers/registry-api/init.lua": {
+          "sha256": "8c358d9f67d86287a402d618890de65233a596877a7929fe4f4bcc0ad7578678",
+          "size": 3013,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/providers/registry-api/init.lua"
+        },
+        "mason/settings.lua": {
+          "sha256": "67616f102992deef6dc9b885cce67a25d1cfd1228b9fce0fc715c873f9ea32a8",
+          "size": 7539,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/settings.lua"
+        },
+        "mason/ui/colors.lua": {
+          "sha256": "b4f60eccdcab0e676a0cc13783e93e822e62a23c435d932192b1ba9ec275056b",
+          "size": 1331,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/colors.lua"
+        },
+        "mason/ui/components/header.lua": {
+          "sha256": "cc19dc3edbcf6d37d290c0e47014443cda64a59c888329d4159cc514ecbc47f7",
+          "size": 2935,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/header.lua"
+        },
+        "mason/ui/components/help/dap.lua": {
+          "sha256": "c2ffc7d178ccd22de9841048dbf834183db6ca829ef5873f7dfbe1f56442e042",
+          "size": 1038,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/help/dap.lua"
+        },
+        "mason/ui/components/help/formatter.lua": {
+          "sha256": "f72522c97aeadc113c8e545fc26650b59f6e90cb75f71eb3bd0080d7bb542763",
+          "size": 644,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/help/formatter.lua"
+        },
+        "mason/ui/components/help/init.lua": {
+          "sha256": "6d8601bbe3cc4c77ecdcdd4781eb12959237d0832fbc76f40e119ca891ef3285",
+          "size": 7593,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/help/init.lua"
+        },
+        "mason/ui/components/help/linter.lua": {
+          "sha256": "1cc8e5e1fc74e1fddd26642ea962ef84c61cf889a4a9357830a419dcb18b99ea",
+          "size": 685,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/help/linter.lua"
+        },
+        "mason/ui/components/help/lsp.lua": {
+          "sha256": "f257a141187915d7f518af2ce323c4aa2c46985b51190f43c7a2b83e0a560aba",
+          "size": 1145,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/help/lsp.lua"
+        },
+        "mason/ui/components/json-schema.lua": {
+          "sha256": "01be842096add2233158c35dbfabc5206ba992d0614f29ab08cf26d064048f2e",
+          "size": 6643,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/json-schema.lua"
+        },
+        "mason/ui/components/language-filter.lua": {
+          "sha256": "83556bec9d365b6ad47c02e5440415fc321f1bc2fc59e17f8beeddffc9abc933",
+          "size": 1120,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/language-filter.lua"
+        },
+        "mason/ui/components/main/init.lua": {
+          "sha256": "82377d1e6d5675900bfc05ddd53f4920da70de2676f5935433515892a696b294",
+          "size": 244,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/main/init.lua"
+        },
+        "mason/ui/components/main/package_list.lua": {
+          "sha256": "3263fe0f1e7ef63f947f7c06e2d091aaa55647f2cb9e81fabd2f1db3d3b2615f",
+          "size": 15748,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/main/package_list.lua"
+        },
+        "mason/ui/components/tabs.lua": {
+          "sha256": "c3f4d79254dbfbdd75079fc3ff1c9362293bfa7d9ee55204a4f107df7115c6f1",
+          "size": 1279,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/components/tabs.lua"
+        },
+        "mason/ui/init.lua": {
+          "sha256": "3cb58fb3e2d4f27e667677d5ec6e8bec785d1c85b16246b857188de90e2efb7d",
+          "size": 448,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/init.lua"
+        },
+        "mason/ui/instance.lua": {
+          "sha256": "9f4080c9308ff4837ae20ce9b8959888bbffdfc9af51917c304715db3a176927",
+          "size": 25636,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/instance.lua"
+        },
+        "mason/ui/palette.lua": {
+          "sha256": "5bc3f06c3601852c0344b091a79490f8008cefcf155f391496bb5dd1316cd3da",
+          "size": 864,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/ui/palette.lua"
+        },
+        "mason/version.lua": {
+          "sha256": "a1d561566d6b7d9db9f7c3f42fd8d37870ed8145ce46d3461774ca4ba7f37c35",
+          "size": 211,
+          "url": "https://raw.githubusercontent.com/williamboman/mason.nvim/v2.3.1/lua/mason/version.lua"
+        }
+      },
+      "homepage": "https://github.com/williamboman/mason.nvim",
+      "host": "nvim",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 11 Jun 2026 16:11:30 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Jun 2026 16:11:30 GMT",
+          "sha256": "4609bb00f7509cc3911e18a354ce97e81cc8dfa3501be77990455c642324ef92",
+          "size": 852
+        },
+        "src": {
+          "date": "Thu, 11 Jun 2026 16:11:30 GMT",
+          "sha256": "dfb9e585eeef74ddf6ef4d581a4f85065117c5e0584f16666af0177cce3ab506",
+          "size": 284230,
+          "url": "https://luarocks.org/mason.nvim-2.3.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "mason",
+        "mason-core.EventEmitter",
+        "mason-core.async",
+        "mason-core.async.control",
+        "mason-core.async.uv",
+        "mason-core.fetch",
+        "mason-core.fs",
+        "mason-core.functional",
+        "mason-core.functional.data",
+        "mason-core.functional.function",
+        "mason-core.functional.list",
+        "mason-core.functional.logic",
+        "mason-core.functional.number",
+        "mason-core.functional.relation",
+        "mason-core.functional.string",
+        "mason-core.functional.table",
+        "mason-core.functional.type",
+        "mason-core.installer",
+        "mason-core.installer.InstallHandle",
+        "mason-core.installer.InstallLocation",
+        "mason-core.installer.InstallRunner",
+        "mason-core.installer.UninstallRunner",
+        "mason-core.installer.compiler",
+        "mason-core.installer.compiler.compilers.cargo",
+        "mason-core.installer.compiler.compilers.composer",
+        "mason-core.installer.compiler.compilers.gem",
+        "mason-core.installer.compiler.compilers.generic",
+        "mason-core.installer.compiler.compilers.generic.build",
+        "mason-core.installer.compiler.compilers.generic.download",
+        "mason-core.installer.compiler.compilers.github",
+        "mason-core.installer.compiler.compilers.github.build",
+        "mason-core.installer.compiler.compilers.github.release",
+        "mason-core.installer.compiler.compilers.golang",
+        "mason-core.installer.compiler.compilers.luarocks",
+        "mason-core.installer.compiler.compilers.mason",
+        "mason-core.installer.compiler.compilers.npm",
+        "mason-core.installer.compiler.compilers.nuget",
+        "mason-core.installer.compiler.compilers.opam",
+        "mason-core.installer.compiler.compilers.openvsx",
+        "mason-core.installer.compiler.compilers.pypi",
+        "mason-core.installer.compiler.expr",
+        "mason-core.installer.compiler.link",
+        "mason-core.installer.compiler.schemas",
+        "mason-core.installer.compiler.util",
+        "mason-core.installer.context",
+        "mason-core.installer.context.InstallContextCwd",
+        "mason-core.installer.context.InstallContextFs",
+        "mason-core.installer.context.InstallContextSpawn",
+        "mason-core.installer.linker",
+        "mason-core.installer.managers.cargo",
+        "mason-core.installer.managers.common",
+        "mason-core.installer.managers.composer",
+        "mason-core.installer.managers.gem",
+        "mason-core.installer.managers.golang",
+        "mason-core.installer.managers.luarocks",
+        "mason-core.installer.managers.npm",
+        "mason-core.installer.managers.nuget",
+        "mason-core.installer.managers.opam",
+        "mason-core.installer.managers.powershell",
+        "mason-core.installer.managers.pypi",
+        "mason-core.installer.managers.std",
+        "mason-core.log",
+        "mason-core.notify",
+        "mason-core.optional",
+        "mason-core.package",
+        "mason-core.package.AbstractPackage",
+        "mason-core.path",
+        "mason-core.pep440",
+        "mason-core.platform",
+        "mason-core.process",
+        "mason-core.providers",
+        "mason-core.purl",
+        "mason-core.receipt",
+        "mason-core.result",
+        "mason-core.semver",
+        "mason-core.spawn",
+        "mason-core.system-package",
+        "mason-core.terminator",
+        "mason-core.ui",
+        "mason-core.ui.display",
+        "mason-core.ui.state",
+        "mason-registry",
+        "mason-registry.api",
+        "mason-registry.index",
+        "mason-registry.installer",
+        "mason-registry.sources",
+        "mason-registry.sources.file",
+        "mason-registry.sources.github",
+        "mason-registry.sources.lua",
+        "mason-registry.sources.synthesized",
+        "mason-registry.sources.util",
+        "mason-test.helpers",
+        "mason-vendor.semver",
+        "mason-vendor.zzlib",
+        "mason-vendor.zzlib.inflate-bit32",
+        "mason-vendor.zzlib.inflate-bwo",
+        "mason.api.command",
+        "mason.health",
+        "mason.providers.client",
+        "mason.providers.client.gh",
+        "mason.providers.client.golang",
+        "mason.providers.client.npm",
+        "mason.providers.client.openvsx",
+        "mason.providers.client.pypi",
+        "mason.providers.client.rubygems",
+        "mason.providers.registry-api",
+        "mason.settings",
+        "mason.ui",
+        "mason.ui.colors",
+        "mason.ui.components.header",
+        "mason.ui.components.help",
+        "mason.ui.components.help.dap",
+        "mason.ui.components.help.formatter",
+        "mason.ui.components.help.linter",
+        "mason.ui.components.help.lsp",
+        "mason.ui.components.json-schema",
+        "mason.ui.components.language-filter",
+        "mason.ui.components.main",
+        "mason.ui.components.main.package_list",
+        "mason.ui.components.tabs",
+        "mason.ui.instance",
+        "mason.ui.palette",
+        "mason.version"
+      ],
+      "origin": {
+        "sha256": "6bb0517b476ab203642aa936470e75543cbc777e1193684c0d87aba63f7ca913",
+        "type": "archive",
+        "url": "https://github.com/williamboman/mason.nvim/archive/v2.3.1.zip"
+      },
+      "size": 466450,
+      "summary": "Portable package manager for Neovim that runs everywhere Neovim runs. Easily install and manage LSP servers, DAP servers, linters, and formatters.",
+      "undeclared_requires": [
+        "bit",
+        "health",
+        "luassert.spy"
+      ],
+      "vlr": {
+        "cause": "missing global: vim",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 23,
+        "status": "partial",
+        "total": 123
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "iwi",
+  "versions": {
+    "0.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://rocks.simbio.se/iwi",
+      "license": "LGPL v3",
+      "lua": ">= 5.1, < 5.3",
+      "luarocks": {
+        "date": "Thu, 23 Jul 2015 20:49:43 GMT",
+        "rockspec": {
+          "date": "Thu, 23 Jul 2015 20:49:43 GMT",
+          "sha256": "2a59390d8d0e40e2eddcf08c1ad42ad30d02dca91845e54e2a6950fa5f81b143",
+          "size": 690
+        },
+        "src": {
+          "date": "Thu, 23 Jul 2015 20:49:45 GMT",
+          "sha256": "91b827d1ec9f6e6d0e39cb8ce6be5a1f229246840da80a703d1a3c36dc602058",
+          "size": 9577,
+          "url": "https://luarocks.org/iwi-0.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "iwi"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "platforms"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "platforms": []
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBGEOHASH_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LIBGEOHASH_LIBDIR)"
+              ],
+              "libraries": [
+                "m",
+                "geohash"
+              ],
+              "name": "iwi",
+              "sources": [
+                "iwi.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 23 Jul 2015 20:49:45 GMT",
+        "sha256": "91b827d1ec9f6e6d0e39cb8ce6be5a1f229246840da80a703d1a3c36dc602058",
+        "size": 9577,
+        "type": "luarocks",
+        "url": "https://luarocks.org/iwi-0.1-0.src.rock"
+      },
+      "summary": "Lua binding to libgeohash",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

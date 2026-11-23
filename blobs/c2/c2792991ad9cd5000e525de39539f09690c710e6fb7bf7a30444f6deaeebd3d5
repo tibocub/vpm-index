@@ -1,0 +1,315 @@
+local utils = require("rockydocs.utils")
+local templates = require("rockydocs.template")
+local M = {}
+local job = nil
+local is_manually_stopped = false
+
+local function noop() end
+
+--- Check if a file or directory exists
+--- @param path string Path to check
+--- @return boolean True if the file or directory exists, otherwise false
+local function exists(path)
+	return vim.fn.empty(vim.fn.glob(path)) == 0
+end
+
+--- Find the PID of the process using the specified port
+--- @param port number Port number to check
+--- @return number|nil PID of the process, or nil if not found
+local function find_pid_by_port(port)
+	local command = string.format("lsof -t -iTCP:%d -sTCP:LISTEN 2>/dev/null || echo ''", port)
+	local handle = io.popen(command)
+	local pid = handle:read("*a"):gsub("^\n+", ""):gsub("\n+$", "")
+	handle:close()
+	return tonumber(pid) or nil
+end
+
+--- Check if Rockydocs server is already running on port 8000
+--- @return boolean True if the server is running, otherwise false
+function M.is_server_running()
+	return find_pid_by_port(8000) ~= nil
+end
+
+--- Check if mkdocs.yml exists in the current directory
+--- @return boolean True if the file exists, otherwise false
+local function is_mkdocs_yml_exists()
+	local path = vim.fn.expand("mkdocs.yml")
+	return vim.fn.filereadable(path) == 1
+end
+
+--- Start the Rockydocs server
+--- @param command string Command to start the server
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.serve_rockydocs(command, on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+	is_manually_stopped = false
+
+	if M.is_server_running() then
+		vim.schedule(function()
+			on_error(utils.get_msg("server", "already_running"))
+		end)
+		return false
+	end
+
+	if not is_mkdocs_yml_exists() then
+		vim.schedule(function()
+			on_error(utils.get_msg("config", "missing_yml"))
+		end)
+		return false
+	end
+
+	local uvx_command = utils.build_uvx_command(command)
+
+	vim.notify(utils.get_msg("info", "starting"), vim.log.levels.INFO)
+	job = vim.system({
+		"/bin/sh",
+		"-c",
+		uvx_command,
+	}, { text = true, cwd = vim.fn.getcwd() }, function(obj)
+		vim.schedule(function()
+			if not is_manually_stopped and obj.code ~= 0 then
+				on_error(utils.get_msg("server", "start_error"):format(obj.code))
+			end
+			job = nil
+		end)
+	end)
+	vim.schedule(function()
+		on_success(utils.get_msg("server", "started"))
+	end)
+	return true
+end
+
+--- Stop the Rockydocs server
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.stop_rockydocs(on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	local pid = find_pid_by_port(8000)
+	if not pid then
+		vim.schedule(function()
+			on_error(utils.get_msg("server", "not_running"))
+		end)
+		return false
+	end
+
+	vim.notify(utils.get_msg("info", "stopping"):format(pid), vim.log.levels.INFO)
+	is_manually_stopped = true
+
+	vim.system({ "kill", "-9", pid }, { text = true }, function(obj)
+		vim.schedule(function()
+			if obj.code == 0 then
+				on_success(utils.get_msg("server", "stopped"))
+			else
+				on_error(utils.get_msg("server", "stop_error"):format(obj.stderr or "unknown error"))
+			end
+			job = nil
+		end)
+	end)
+	return true
+end
+
+--- Build Rockydocs project
+--- @param command string Command to build the project
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.build_rockydocs(command, on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	local uvx_command = utils.build_uvx_command(command)
+
+	vim.notify(utils.get_msg("info", "building"), vim.log.levels.INFO)
+	job = vim.system({
+		"/bin/sh",
+		"-c",
+		uvx_command,
+	}, { text = true, cwd = vim.fn.getcwd() }, function(obj)
+		vim.schedule(function()
+			if obj.code ~= 0 then
+				on_error(utils.get_msg("build", "error"):format(obj.code))
+			end
+			job = nil
+		end)
+	end)
+	vim.schedule(function()
+		on_success(utils.get_msg("build", "success"))
+	end)
+	return true
+end
+
+--- Create a new Rockydocs project with a custom structure.
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+--- @return boolean True if the project was created, otherwise false
+function M.new_rockydocs(on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	if is_mkdocs_yml_exists() then
+		on_error("Error: mkdocs.yml already exists in the current directory.")
+		return false
+	end
+
+	vim.notify("Creating new Rockydocs project...", vim.log.levels.INFO)
+
+	-- Define paths
+	local docs_dir = "docs"
+	local docs_index = docs_dir .. "/index.md"
+	local theme_dir = ".theme"
+	local theme_assets_js = theme_dir .. "/assets/javascripts"
+	local theme_assets_css = theme_dir .. "/assets/stylesheets"
+	local theme_assets_fonts = theme_dir .. "/assets/fonts"
+	local theme_assets_img = theme_dir .. "/assets"
+	local theme_main_html = theme_dir .. "/main.html"
+	local iframe_worker_js = theme_assets_js .. "/iframe-worker.js"
+	local extra_css = theme_assets_css .. "/extra.css"
+	local logo_png = theme_assets_img .. "/logo.png"
+
+	-- Check if main directories already exist
+	if exists(docs_dir) then
+		on_error("Error: docs directory already exists.")
+		return false
+	end
+
+	if exists(theme_dir) then
+		on_error("Error: .theme directory already exists.")
+		return false
+	end
+
+	-- Create docs directory
+	local ok1, err1 = pcall(vim.fn.mkdir, docs_dir, "p")
+	if not ok1 then
+		on_error("Error creating docs directory: " .. (err1 or "unknown error"))
+		return false
+	end
+
+	-- Create .theme directory
+	local ok2, err2 = pcall(vim.fn.mkdir, theme_dir, "p")
+	if not ok2 then
+		on_error("Error creating .theme directory: " .. (err2 or "unknown error"))
+		return false
+	end
+
+	-- Create .theme/assets/javascripts directory
+	local ok3, err3 = pcall(vim.fn.mkdir, theme_assets_js, "p")
+	if not ok3 then
+		on_error("Error creating .theme/assets/javascripts directory: " .. (err3 or "unknown error"))
+		return false
+	end
+
+	-- Create .theme/assets/stylesheets directory
+	local ok4, err4 = pcall(vim.fn.mkdir, theme_assets_css, "p")
+	if not ok4 then
+		on_error("Error creating .theme/assets/stylesheets directory: " .. (err4 or "unknown error"))
+		return false
+	end
+
+	-- Create .theme/assets/fonts directory
+	local ok5, err5 = pcall(vim.fn.mkdir, theme_assets_fonts, "p")
+	if not ok5 then
+		on_error("Error creating .theme/assets/fonts directory: " .. (err5 or "unknown error"))
+		return false
+	end
+
+	-- Create .theme/assets directory
+	local ok6, err6 = pcall(vim.fn.mkdir, theme_assets_img, "p")
+	if not ok6 then
+		on_error("Error creating .theme/assets directory: " .. (err6 or "unknown error"))
+		return false
+	end
+
+	-- Create files
+	local function write_file(filepath, content)
+		local file = io.open(filepath, "w")
+		if not file then
+			on_error("Error creating " .. filepath .. ": unable to open file for writing")
+			return false
+		end
+		file:write(content)
+		file:close()
+		return true
+	end
+
+	-- Create index.md
+	if not write_file(docs_index, templates.index_md) then
+		return false
+	end
+
+	-- Create main.html
+	if not write_file(theme_main_html, templates.main_html) then
+		return false
+	end
+
+	-- Create iframe-worker.js
+	if not write_file(iframe_worker_js, templates.iframe_worker_js) then
+		return false
+	end
+
+	-- Create extra.css
+	if not write_file(extra_css, templates.extra_css) then
+		return false
+	end
+
+	-- Create logo.png (placeholder)
+	local logo_file = io.open(logo_png, "w")
+	if not logo_file then
+		on_error("Error creating logo.png file: unable to open file for writing")
+		return false
+	end
+	logo_file:close()
+
+	-- Create mkdocs.yml
+	local mkdocs_file = io.open("mkdocs.yml", "w")
+	if not mkdocs_file then
+		on_error("Error creating mkdocs.yml file: unable to open file for writing")
+		return false
+	end
+	mkdocs_file:write(templates.mkdocs_yml)
+	mkdocs_file:close()
+
+	on_success("Rockydocs project created successfully!")
+	return true
+end
+
+--- Open the default browser to the Rockydocs server URL.
+-- This function is not compatible with Windows.
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.rockydocs_open(on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	-- Check if the server is running on port 8000
+	if not M.is_server_running() then
+		vim.schedule(function()
+			on_error(utils.get_msg("browser", "server_not_running"))
+		end)
+		return false
+	end
+
+	-- URL for the Rockydocs server
+	local url = "http://localhost:8000"
+
+	-- Command to open the URL in the default browser (Linux/macOS)
+	local command = string.format("xdg-open '%s' 2>/dev/null", url)
+
+	-- Execute the command to open the browser
+	local success = os.execute(command)
+	if not success then
+		vim.schedule(function()
+			on_error(utils.get_msg("browser", "open_error"))
+		end)
+		return false
+	end
+
+	vim.schedule(function()
+		on_success(utils.get_msg("browser", "opened"))
+	end)
+	return true
+end
+
+return M

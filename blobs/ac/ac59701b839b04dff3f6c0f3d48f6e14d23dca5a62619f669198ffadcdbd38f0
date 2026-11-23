@@ -1,0 +1,54 @@
+local enums = require("luacord.enums")
+
+local Permissions = {}
+Permissions.__index = Permissions
+
+local ADMIN = enums.PermissionFlagsBits.ADMINISTRATOR
+
+function Permissions.new(bits)
+  return setmetatable({
+    bits = tonumber(bits) or 0,
+  }, Permissions)
+end
+
+local function hasBit(bits, flag)
+  return math.floor(bits / flag) % 2 >= 1
+end
+
+function Permissions:has(flag, ignoreAdmin)
+  local bit = tonumber(flag) or 0
+  if bit == 0 then
+    return false
+  end
+  if not ignoreAdmin and hasBit(self.bits, ADMIN) then
+    return true
+  end
+  return hasBit(self.bits, bit)
+end
+
+function Permissions:add(flag)
+  local bit = tonumber(flag) or 0
+  if bit > 0 and not hasBit(self.bits, bit) then
+    self.bits = self.bits + bit
+  end
+  return self
+end
+
+function Permissions:remove(flag)
+  local bit = tonumber(flag) or 0
+  if bit > 0 and hasBit(self.bits, bit) then
+    self.bits = self.bits - bit
+  end
+  return self
+end
+
+function Permissions:serialize()
+  local out = {}
+  for name, flag in pairs(enums.PermissionFlagsBits) do
+    out[name] = self:has(flag, true)
+  end
+  return out
+end
+
+return Permissions
+

@@ -1,0 +1,80 @@
+local constants = require 'netacea_constants'
+
+-- Matches lua_haproxy_netacea's IntegrationType/IntegrationVersion fields so
+-- the shared Kinesis consumer recognises records from this integration the
+-- same way it does for the OpenResty one. Bump alongside the rockspec
+-- version.
+local INTEGRATION_TYPE = "haproxy"
+local INTEGRATION_VERSION = "1.0.0"
+
+local ingest_record = {}
+
+function ingest_record.computeBcType(match, mitigate, captcha)
+    local applied = ''
+
+    if match ~= constants.idTypes.NONE and match ~= '' then
+        applied = applied .. (constants.matchBcTypes[match] or ('[' .. tostring(match) .. ']')) .. '_'
+    end
+    if mitigate ~= constants.mitigationTypes.NONE and mitigate ~= '' then
+        applied = applied .. (constants.mitigateBcTypes[mitigate] or ('[' .. tostring(mitigate) .. ']'))
+    end
+    if captcha ~= constants.captchaStates.NONE and captcha ~= '' then
+        if applied ~= '' then
+            applied = applied .. ','
+        end
+        applied = applied .. (
+            constants.captchaBcTypes[captcha]
+            or constants.checkpointBcTypes[captcha]
+            or ('[' .. tostring(captcha) .. ']')
+        )
+    end
+
+    return applied
+end
+
+-- Request-side data (method/path/host/headers/query/etc.) comes from
+-- session.ingest, captured by netacea_session.parse() during the http-req
+-- phase. Response-side data (status, byte counts, unique id) is passed in
+-- via `response` rather than fetched here, since where it comes from
+-- differs by call site: netacea.handle_response reads it from
+-- txn.f:status()/:bytes_out()/etc. once a real backend response exists,
+-- while a request mitigated with a locally-built 403 (see
+-- netacea's mitigate()) never reaches that phase and has to supply the
+-- equivalent values itself.
+function ingest_record.build(session, response)
+    local data = session.ingest or {}
+    local method = data.method or ""
+    local path = data.path or ""
+    local query = data.query or ""
+    local protocol = data.protocol or "HTTP/1.1"
+
+    return {
+        Request = method .. " " .. path .. (query ~= "" and ("?" .. query) or "") .. " " .. protocol,
+        TimeLocal = os.date("%d/%b/%Y:%H:%M:%S %z"),
+        TimeUnixMsUTC = os.time() * 1000,
+        RealIp = data.client_ip or "",
+        XForwardedFor = data.xff or "",
+        UserAgent = data.user_agent or "",
+        Status = tostring(response.status or ""),
+        RequestTime = response.request_time or "",
+        BytesSent = response.bytes_sent or 0,
+        Referer = data.referer or "",
+        UserId = session.user_id or "",
+        NetaceaMitigationApplied = (session.protector_error or session.config_error)
+            and "error_open"
+            or ingest_record.computeBcType(session.match, session.mitigate, session.captcha),
+        IntegrationType = INTEGRATION_TYPE,
+        IntegrationVersion = INTEGRATION_VERSION,
+        Query = query,
+        RequestHost = data.host or "",
+        RequestId = response.request_id or "",
+        ProtectionMode = session.mode or "",
+        BytesReceived = response.bytes_received or 0,
+        NetaceaUserIdCookieStatus = session.cookie_status or constants.userIdCookieStatus.NEW,
+        CustomerSessionId = session.customer_session_id,
+        ProtectorStatus = tonumber(session.protector_status) or 0,
+        Optional = {},
+    }
+end
+
+return ingest_record

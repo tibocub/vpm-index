@@ -1,0 +1,113 @@
+local pm      = require 'piecemeal'
+
+-- setting up terminal parser combinators
+local lex = {
+	WS = pm.lexeme 'WS',
+	NL = pm.lexeme 'NL',
+	equals = pm.lexeme 'equals',
+	lbrack = pm.lexeme 'lbrack',
+	rbrack = pm.lexeme 'rbrack',
+	comment = pm.lexeme 'comment',
+	raw = pm.lexeme 'raw',
+	word = pm.lexeme 'word',
+}
+
+local opt = {}
+for k, v in pairs(lex) do
+	opt[k] = pm.opt(v)
+end
+
+-- utility functions
+local function findtype (d, tp)
+	for _, v in pairs(d) do
+		if v and type(v) == 'table' and v.type == tp then return v end
+	end
+	return nil
+end
+
+local function flattenvalue (d)
+	local out = ''
+	for _, v in ipairs(d) do
+		if type(v) == 'table' then
+			if v.value then out = out .. v.value
+			else v = flattenvalue(v); out = out .. v end -- try to recurse
+		elseif type(v) == 'string' then
+			out = out .. v
+		else
+			out = out .. tostring(v)
+		end
+	end
+	return out
+end
+
+-- parsing rules
+local el = pm.postp(
+	pm.all(opt.WS, opt.comment, pm.alt(lex.NL, pm.eof())),
+	function () return {type='el'} end)
+
+local section = pm.postp(
+	pm.all(opt.WS,
+		lex.lbrack, opt.WS, opt.word, opt.WS, lex.rbrack,
+		el),
+	function (d)
+		local out = ''
+		local word = findtype(d, 'word')
+		if word then out = word.value end
+		return {type='section', name=out}
+	end)
+
+local kv_v = pm.postp(
+	pm.all(lex.word, pm.star(pm.all(lex.WS, lex.word))),
+	function (d)
+		return {type='kv_v', value=flattenvalue(d)}
+	end)
+
+local kv = pm.postp(
+	pm.all(opt.WS, lex.word, opt.WS, lex.equals,
+		opt.WS, kv_v, el),
+	function (d)
+		local key = findtype(d, 'word')
+		local kv_v = findtype(d, 'kv_v')
+		return {
+			type = 'kv',
+			key = key.value,
+			value = kv_v.value,
+		}
+	end)
+
+local rkv_v = pm.postp(
+	pm.plus(lex.raw),
+	function (d)
+		local out = {}
+		for _, v in ipairs(d) do
+			table.insert(out, v.value:sub(2,-2)) -- terribly inefficient
+		end
+		return {
+			type = 'rkv_v',
+			value = table.concat(out, '`'), -- ditto
+		}
+	end)
+
+local rkv = pm.postp(
+	pm.all(opt.WS, lex.word, opt.WS, lex.equals,
+		opt.WS, rkv_v, el),
+	function (d)
+		local key = findtype(d, 'word')
+		local rkv_v = findtype(d, 'rkv_v')
+		return {
+			type = 'kv',
+			key = key.value,
+			value = rkv_v.value,
+		}
+	end)
+
+local part = pm.alt(section, kv, rkv, el)
+local cni = pm.postp(pm.star(part),
+	function (d)
+		for i, v in ipairs(d) do
+			if v.type == 'el' or v.type == 'eof' then table.remove(d, i) end
+		end
+		return d
+	end)
+
+return cni

@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-jwt2header-raftx24",
+  "versions": {
+    "1.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-jwt2header/handler.lua": {
+          "sha256": "61b477652ecdf04c2a75bc81432c0411d9dce824d5bae7da835792b85fa73c7f",
+          "size": 2485,
+          "url": "https://raw.githubusercontent.com/raftx24/kong-jwt2header/bbf9cd1311237e23ff55eccc6f1c64300d5cf345/plugin/handler.lua"
+        },
+        "kong/plugins/kong-jwt2header/schema.lua": {
+          "sha256": "fb99da81fcc95e3182950727be36cd4f71f4169a109143e201f57a0c51a54220",
+          "size": 607,
+          "url": "https://raw.githubusercontent.com/raftx24/kong-jwt2header/bbf9cd1311237e23ff55eccc6f1c64300d5cf345/plugin/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Sat, 09 Apr 2022 22:17:07 GMT",
+        "rockspec": {
+          "date": "Sat, 09 Apr 2022 22:17:07 GMT",
+          "sha256": "9fa09a2d1c90d27d6d751f23c61799a3597aeaf11dbb53e4dd07df84c46e682b",
+          "size": 512
+        },
+        "src": {
+          "date": "Sat, 09 Apr 2022 22:17:09 GMT",
+          "sha256": "e4ab0a6592522a626b9653c4e80af9129480b346030becab2c5914aa39fae226",
+          "size": 31153,
+          "url": "https://luarocks.org/kong-jwt2header-raftx24-1.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-jwt2header.handler",
+        "kong.plugins.kong-jwt2header.schema"
+      ],
+      "origin": {
+        "commit": "bbf9cd1311237e23ff55eccc6f1c64300d5cf345",
+        "type": "git",
+        "url": "https://github.com/raftx24/kong-jwt2header.git"
+      },
+      "size": 3092,
+      "summary": "Converts JWT claims to Headers to allow for Routing by JWT Claim and/or upstream JWT Claim consumption by header",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.jwt.jwt_parser",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

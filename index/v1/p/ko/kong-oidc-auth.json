@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-auth",
+  "versions": {
+    "0.3-0": {
+      "bin": [],
+      "deps": [
+        "luaossl == 20220711-0"
+      ],
+      "files": {
+        "kong/plugins/kong-oidc-auth/access.lua": {
+          "sha256": "ad7b4497867bc6127b89a611d42275e6ff442d7be694dce7fbb6eaa520945273",
+          "size": 10363,
+          "url": "https://raw.githubusercontent.com/Optum/kong-oidc-auth/3c09ed8991b4bb1f0831fbfc41e4d21ff9cd20fd/src/access.lua"
+        },
+        "kong/plugins/kong-oidc-auth/handler.lua": {
+          "sha256": "659bf02de50a9af5e2dbac0e64586713a4cf57e5f9bc58e14164437e00b8cdbb",
+          "size": 164,
+          "url": "https://raw.githubusercontent.com/Optum/kong-oidc-auth/3c09ed8991b4bb1f0831fbfc41e4d21ff9cd20fd/src/handler.lua"
+        },
+        "kong/plugins/kong-oidc-auth/schema.lua": {
+          "sha256": "1bc356b340798208e4908664eec42ca6478174832b3fcc2b303a04e5267c52b8",
+          "size": 1992,
+          "url": "https://raw.githubusercontent.com/Optum/kong-oidc-auth/3c09ed8991b4bb1f0831fbfc41e4d21ff9cd20fd/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-oidc-auth",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 10 Aug 2023 02:32:35 GMT",
+        "rockspec": {
+          "date": "Thu, 10 Aug 2023 02:32:35 GMT",
+          "sha256": "bbf4a4877d825467acc4494b49f8fea7470a5756e4c16b8f8b0c29060db89f1f",
+          "size": 688
+        },
+        "src": {
+          "date": "Thu, 10 Aug 2023 02:32:36 GMT",
+          "sha256": "7b910d75502fe92fbff44fdaa2032c544a4fc8d88420c8318d19cfd79565080b",
+          "size": 34806,
+          "url": "https://luarocks.org/kong-oidc-auth-0.3-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-oidc-auth.access",
+        "kong.plugins.kong-oidc-auth.handler",
+        "kong.plugins.kong-oidc-auth.schema"
+      ],
+      "origin": {
+        "commit": "3c09ed8991b4bb1f0831fbfc41e4d21ff9cd20fd",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-oidc-auth.git"
+      },
+      "size": 12519,
+      "summary": "OpenID Connect authentication with Kong gateway",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "pl.stringx",
+        "resty.http",
+        "resty.string",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

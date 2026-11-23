@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "lua-cb0r",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "cbor_iter.lua": {
+          "sha256": "1bf13831effadd40cff02283e6bfe5a37c551b904ff8e16a358e68649a0f43fa",
+          "size": 2852,
+          "url": "blob:1bf13831effadd40cff02283e6bfe5a37c551b904ff8e16a358e68649a0f43fa"
+        }
+      },
+      "homepage": "https://github.com/Erutuon/lua-cb0r",
+      "license": "MIT",
+      "lua": ">= 5.1, <= 5.4",
+      "luarocks": {
+        "date": "Sun, 27 Jun 2021 04:43:34 GMT",
+        "rockspec": {
+          "date": "Sun, 27 Jun 2021 04:43:34 GMT",
+          "sha256": "df325a313fc78c74c600bef953aafbfd65952d5c6472ed979831d48c52674836",
+          "size": 916
+        },
+        "src": {
+          "date": "Sun, 27 Jun 2021 04:43:34 GMT",
+          "sha256": "82cab8fb56c8b1e962e7239e21888f70795d8d98aa872b3ac8522ef4772fd088",
+          "size": 24222,
+          "url": "https://luarocks.org/lua-cb0r-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "cb0r",
+        "cbor_iter"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "cb0r/src"
+              ],
+              "name": "cb0r",
+              "sources": [
+                "src/lua-cb0r.c",
+                "cb0r/src/cb0r.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 27 Jun 2021 04:43:34 GMT",
+        "sha256": "82cab8fb56c8b1e962e7239e21888f70795d8d98aa872b3ac8522ef4772fd088",
+        "size": 24222,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-cb0r-0.1.1-1.src.rock"
+      },
+      "size": 2852,
+      "summary": "Deserialize basic CBOR types using the cb0r library",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

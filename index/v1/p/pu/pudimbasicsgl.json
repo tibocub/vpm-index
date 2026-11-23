@@ -1,0 +1,129 @@
+{
+  "kind": "app",
+  "name": "pudimbasicsgl",
+  "versions": {
+    "1.0.0-19": {
+      "bin": {
+        "pbgl": "bin/pbgl"
+      },
+      "deps": [],
+      "files": {
+        "bin/pbgl": {
+          "sha256": "4f2833c6453eed427f48cef87ae78d48ff434802daca498fdc91be113378bc5b",
+          "size": 2262,
+          "url": "blob:4f2833c6453eed427f48cef87ae78d48ff434802daca498fdc91be113378bc5b"
+        }
+      },
+      "homepage": "https://github.com/pessoa736/PudimBasicsOpenGL",
+      "license": "MIT",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Thu, 05 Mar 2026 23:41:37 GMT",
+        "rockspec": {
+          "date": "Thu, 05 Mar 2026 23:41:37 GMT",
+          "sha256": "0284fd343ba775bf87d426df670de69d450f5295cad34de314fde036fea5dbf3",
+          "size": 2798
+        },
+        "src": {
+          "date": "Thu, 05 Mar 2026 23:41:41 GMT",
+          "sha256": "2db9217df693312ec35ca8c2dec8efc396921729b257fe6b05636280009fbcf8",
+          "size": 7135698,
+          "url": "https://luarocks.org/pudimbasicsgl-1.0.0-19.src.rock"
+        }
+      },
+      "modules": [
+        "PudimBasicsGl"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "GL",
+          "GLFW",
+          "platforms"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "GL": {
+              "header": "GL/gl.h",
+              "library": "GL"
+            },
+            "GLFW": {
+              "header": "GLFW/glfw3.h",
+              "library": "glfw"
+            },
+            "platforms": []
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "external/glad/include",
+                "external",
+                "src",
+                "$(GLFW_INCDIR)"
+              ],
+              "libdirs": [
+                "$(GLFW_LIBDIR)",
+                "$(GL_LIBDIR)"
+              ],
+              "libraries": [
+                "glfw",
+                "GL",
+                "m",
+                "dl",
+                "pthread"
+              ],
+              "name": "PudimBasicsGl",
+              "sources": [
+                "src/main.c",
+                "src/platform/window.c",
+                "src/render/renderer.c",
+                "src/render/texture.c",
+                "src/render/text.c",
+                "src/render/camera.c",
+                "src/render/shader.c",
+                "src/render/ui.c",
+                "src/audio/audio.c",
+                "src/core/lua_window.c",
+                "src/core/lua_renderer.c",
+                "src/core/lua_time.c",
+                "src/core/lua_texture.c",
+                "src/core/lua_input.c",
+                "src/core/lua_audio.c",
+                "src/core/lua_text.c",
+                "src/core/lua_camera.c",
+                "src/core/lua_shader.c",
+                "src/core/lua_math.c",
+                "src/core/lua_studio.c",
+                "src/core/lua_ui.c",
+                "external/glad/src/glad.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "PudimBasicsOpenGL-1.0.0-19"
+      },
+      "origin": {
+        "date": "Thu, 05 Mar 2026 23:41:41 GMT",
+        "sha256": "2db9217df693312ec35ca8c2dec8efc396921729b257fe6b05636280009fbcf8",
+        "size": 7135698,
+        "type": "luarocks",
+        "url": "https://luarocks.org/pudimbasicsgl-1.0.0-19.src.rock"
+      },
+      "size": 2262,
+      "summary": "PudimBasicsGl - Pudim Basics OpenGL",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

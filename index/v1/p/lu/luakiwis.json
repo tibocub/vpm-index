@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "luakiwis",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "helloworld/access.lua": {
+          "sha256": "54eede64588ea24ad203d507628c5779820047a25d9fba092fe569cc8c21e8e7",
+          "size": 326,
+          "url": "https://raw.githubusercontent.com/jmurillom/luarocksExample/639f1abb41173c759370b2b009c93672a44e4d3b/src/access.lua"
+        },
+        "helloworld/handler.lua": {
+          "sha256": "2ef0c1e0306442acb055d865b0f3878aeb2043cefa7832ffe47adc57aafd3201",
+          "size": 392,
+          "url": "https://raw.githubusercontent.com/jmurillom/luarocksExample/639f1abb41173c759370b2b009c93672a44e4d3b/src/handler.lua"
+        },
+        "helloworld/schema.lua": {
+          "sha256": "7ff1af7b4dab2adb1da32a94e7648172e627b7dab7715d60d7d05294624f3737",
+          "size": 108,
+          "url": "https://raw.githubusercontent.com/jmurillom/luarocksExample/639f1abb41173c759370b2b009c93672a44e4d3b/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/JMurilloM/luarocksExample",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 01 May 2019 00:04:07 GMT",
+        "rockspec": {
+          "date": "Wed, 01 May 2019 00:04:07 GMT",
+          "sha256": "a73618dbed3f58afa93e9267116e5f986adf7c519b7377b1d2c83b73940c827c",
+          "size": 503
+        },
+        "src": {
+          "date": "Wed, 01 May 2019 00:04:08 GMT",
+          "sha256": "ab3c0bf380595458e4bcb963470c581d780f01f1695b985d97ff841f5129e6bf",
+          "size": 2266,
+          "url": "https://luarocks.org/luakiwis-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "helloworld.access",
+        "helloworld.handler",
+        "helloworld.schema"
+      ],
+      "origin": {
+        "commit": "639f1abb41173c759370b2b009c93672a44e4d3b",
+        "type": "git",
+        "url": "https://github.com/jmurillom/luarocksExample"
+      },
+      "size": 826,
+      "summary": "A helloworld lua",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.helloworld.access"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

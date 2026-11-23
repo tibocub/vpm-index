@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "external-oauth3",
+  "versions": {
+    "1.1-5": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/external-oauth/access.lua": {
+          "sha256": "4f993d121bee988ef269d8550210334945d1003f3a1928128670c5a73efd17da",
+          "size": 1013,
+          "url": "https://raw.githubusercontent.com/kkbob/kong-external-oauth/4199023498d403be07615f825121f30843ea5542/src/access.lua"
+        },
+        "kong/plugins/external-oauth/handler.lua": {
+          "sha256": "abb8f23add39b96cb780afbe90d3072f7c32306aa4b1090dd5e0f4c71c0a4bda",
+          "size": 967,
+          "url": "https://raw.githubusercontent.com/kkbob/kong-external-oauth/4199023498d403be07615f825121f30843ea5542/src/handler.lua"
+        },
+        "kong/plugins/external-oauth/schema.lua": {
+          "sha256": "6efdd450679196e4f35891f0f448a38c2a43bab26d07b4b5fc4417714ff8ad72",
+          "size": 1022,
+          "url": "https://raw.githubusercontent.com/kkbob/kong-external-oauth/4199023498d403be07615f825121f30843ea5542/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 09 Mar 2018 11:19:20 GMT",
+        "rockspec": {
+          "date": "Fri, 09 Mar 2018 11:19:20 GMT",
+          "sha256": "afb079dd65de242c1359a635bbf370454a4519d8fca4f48708f24bd8d9ebd8cd",
+          "size": 595
+        },
+        "src": {
+          "date": "Fri, 09 Mar 2018 11:19:20 GMT",
+          "sha256": "8416d914d9ad9d43820dc5e6dbc253d8b8e0852ffee53e7d31699271352680e2",
+          "size": 2807,
+          "url": "https://luarocks.org/external-oauth3-1.1-5.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.external-oauth.access",
+        "kong.plugins.external-oauth.handler",
+        "kong.plugins.external-oauth.schema"
+      ],
+      "origin": {
+        "commit": "4199023498d403be07615f825121f30843ea5542",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/kkbob/kong-external-oauth"
+      },
+      "size": 3002,
+      "summary": "A Kong plugin, that let you use an external Oauth 2.0 provider to protect your API",
+      "undeclared_requires": [
+        "crypto",
+        "kong.plugins.base_plugin",
+        "pl.stringx",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.stringx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

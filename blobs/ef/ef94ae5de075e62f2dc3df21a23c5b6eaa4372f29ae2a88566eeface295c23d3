@@ -1,0 +1,155 @@
+local utils = require 'src.utils'
+local xpgsql = require 'xpgsql'
+
+local SQL_TESTDB = [[
+SELECT
+  datname
+FROM
+  pg_database
+WHERE
+  (NOT datistemplate) AND
+  datname LIKE '%s%%'
+]]
+
+local SQL_DROPDB = [[
+DROP DATABASE %s WITH (FORCE)
+]]
+
+local SQL_TESTUSER = [[
+SELECT
+  usename
+FROM
+  pg_user
+WHERE
+  (NOT usesuper) AND
+  usename LIKE '%s%%'
+]]
+
+local SQL_DROPUSER = [[
+DROP USER %s
+]]
+
+local SQL_CREATEDB = [[
+CREATE DATABASE %s
+]]
+
+local SQL_CREATECRON = [[
+CREATE EXTENSION pg_cron
+]]
+
+local SQL_CREATEPLLUA = [[
+CREATE EXTENSION pllua
+]]
+
+local function dbreset(args, opts, errf)
+  local _, _ = args, errf
+
+  local maindb = os.getenv('PGDATABASE')
+  local tempdb = 'test' .. maindb .. string.lower(utils.random_string(12))
+
+  utils.log([[
+> about to reset database %s, all data will be lost
+
+Press ENTER to start.
+]], maindb)
+  if not opts.yes then
+    io.read('l')
+  end
+
+  -- first, connect to the current maindb to create the temporary db
+  local conn = assert(xpgsql.connect())
+  assert(conn:with(true, function()
+    utils.log('> creating temporary database to connect to...')
+    assert(conn:exec(string.format(SQL_CREATEDB, tempdb)))
+    utils.log(' ok\n')
+
+    return true
+  end))
+
+  -- now connect to the tempdb and drop the main and re-create it
+  conn = assert(xpgsql.connect('dbname=' .. tempdb))
+  assert(conn:with(true, function()
+    utils.log('> re-creating database %s...', maindb)
+    assert(conn:exec(string.format(SQL_DROPDB, maindb)))
+    assert(conn:exec(string.format(SQL_CREATEDB, maindb)))
+    utils.log(' ok\n')
+    return true
+  end))
+
+  -- and finally, re-connect to the main and drop the temp
+  conn = assert(xpgsql.connect())
+  assert(conn:with(true, function()
+    utils.log('> dropping the temporary database...')
+    assert(conn:exec(string.format(SQL_DROPDB, tempdb)))
+    utils.log(' ok\n')
+
+    utils.log('> re-creating the extensions...')
+    assert(conn:exec(SQL_CREATECRON))
+    assert(conn:exec(SQL_CREATEPLLUA))
+    utils.log(' ok\n')
+    return true
+  end))
+  utils.log('> reset completed successfully.\n')
+end
+
+local function dbclean(args, opts, errf)
+  local _ = args
+
+  if not opts.prefix then
+    errf('the --prefix option is required')
+    return
+  end
+  local prefix = opts.prefix
+
+  local conn = assert(xpgsql.connect())
+  assert(conn:with(true, function()
+    local dbs = xpgsql.models(assert(conn:query(string.format(SQL_TESTDB, prefix))))
+
+    utils.log([[
+> about to delete %d matching databases
+
+Press ENTER to start.
+]], #dbs)
+    if not opts.yes then
+      io.read('l')
+    end
+
+    for _, db in ipairs(dbs) do
+      assert(conn:exec(string.format(SQL_DROPDB, db.datname)))
+    end
+    utils.log('> deleted %d databases\n', #dbs)
+
+    local users = xpgsql.models(assert(conn:query(string.format(SQL_TESTUSER, prefix))))
+    utils.log('> deleting %d users...', #users)
+    for _, user in ipairs(users) do
+      assert(conn:exec(string.format(SQL_DROPUSER, user.usename)))
+    end
+    utils.log(' ok\n')
+
+    return true
+  end))
+  utils.log('> clean completed successfully.\n')
+end
+
+local subcmds = {
+  clean = dbclean,
+  reset = dbreset,
+}
+
+return function(args, opts, errf)
+  if #args == 0 then
+    errf('the db sub-command is required')
+    return
+  elseif #args > 1 then
+    errf('unexpected argument starting at %q', args[2])
+    return
+  end
+
+  local subcmd = table.remove(args, 1)
+  local f = subcmds[subcmd]
+  if not f then
+    errf('unknown db sub-command %q', subcmd)
+    return
+  end
+  return f(args, opts, errf)
+end

@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "dms-c",
+  "versions": {
+    "0.5.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "dms_c.lua": {
+          "sha256": "60b90df859e10c2bc21dde0b064650f70200855bfd4cd5ca92a9f1b0d40aa164",
+          "size": 6534,
+          "url": "blob:60b90df859e10c2bc21dde0b064650f70200855bfd4cd5ca92a9f1b0d40aa164"
+        }
+      },
+      "homepage": "https://gitlab.com/flo-labs/pub/dms-lua",
+      "license": "MIT OR Apache-2.0",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Tue, 05 May 2026 20:19:40 GMT",
+        "rockspec": {
+          "date": "Tue, 05 May 2026 20:19:40 GMT",
+          "sha256": "41b7a5dd433acbec7dbbd0c7513e0149d21f8ef997cc5a1bb4cd80acb1c61aa3",
+          "size": 2635
+        },
+        "src": {
+          "date": "Tue, 05 May 2026 20:19:41 GMT",
+          "sha256": "798c4b782f40abfeb616c37dfbf705770cc4d3549dd9bad4eebfd13350eaf952",
+          "size": 796892,
+          "url": "https://luarocks.org/dms-c-0.5.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "dms_c",
+        "dms_c_native"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "UTF8PROC_STATIC"
+              ],
+              "incdirs": [
+                "dms-c",
+                "dms-c/vendor/utf8proc"
+              ],
+              "name": "dms_c_native",
+              "sources": [
+                "dms-c/dms_c.c",
+                "dms-c/dms.c",
+                "dms-c/vendor/utf8proc/utf8proc.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 05 May 2026 20:19:41 GMT",
+        "sha256": "798c4b782f40abfeb616c37dfbf705770cc4d3549dd9bad4eebfd13350eaf952",
+        "size": 796892,
+        "type": "luarocks",
+        "url": "https://luarocks.org/dms-c-0.5.0-1.src.rock"
+      },
+      "size": 6534,
+      "summary": "Native (C) DMS decoder for Lua — wraps the dms-c reference parser via a Lua C module.",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

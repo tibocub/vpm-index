@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "libdictenstein",
+  "versions": {
+    "4.0.0rc5-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "license": "Apache-2.0",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Fri, 28 Aug 2026 03:00:48 GMT",
+        "rockspec": {
+          "date": "Fri, 28 Aug 2026 03:00:48 GMT",
+          "sha256": "8d79b87f8b80efa70ad1e8e7411a14a9097312148827fe7d644bbea2bbcf1015",
+          "size": 707
+        },
+        "src": {
+          "date": "Fri, 28 Aug 2026 03:00:48 GMT",
+          "sha256": "77c0a80eb1edd05cd1b31f35be3ad0b949e04432bd62eb63c04d6f6894408b56",
+          "size": 8371597,
+          "url": "https://luarocks.org/libdictenstein-4.0.0rc5-1.src.rock"
+        }
+      },
+      "modules": [
+        "vinary_tree.libdictenstein"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBDICTENSTEIN"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBDICTENSTEIN": {
+              "header": "libdictenstein.h",
+              "library": "libdictenstein"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBDICTENSTEIN_INCDIR)",
+                "include",
+                "bindings/lua/include"
+              ],
+              "libdirs": [
+                "$(LIBDICTENSTEIN_LIBDIR)"
+              ],
+              "libraries": [
+                "libdictenstein"
+              ],
+              "name": "vinary_tree.libdictenstein",
+              "sources": [
+                "bindings/lua/src/libdictenstein_lua.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 28 Aug 2026 03:00:48 GMT",
+        "sha256": "77c0a80eb1edd05cd1b31f35be3ad0b949e04432bd62eb63c04d6f6894408b56",
+        "size": 8371597,
+        "type": "luarocks",
+        "url": "https://luarocks.org/libdictenstein-4.0.0rc5-1.src.rock"
+      },
+      "summary": "Lua bindings for Vinary Tree dictionaries",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

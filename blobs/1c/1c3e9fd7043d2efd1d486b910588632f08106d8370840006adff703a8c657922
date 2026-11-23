@@ -1,0 +1,700 @@
+local sdk = require "impart.sdk"
+
+local table_concat = table.concat
+
+-- Kong's get_headers() caps the returned header count and silently truncates
+-- beyond it (default 100); the nginx module captures every header. Use a
+-- generous bound so realistic request/response header sets are fully inspected,
+-- while still guarding against a pathological header flood.
+local MAX_HEADERS = 200
+
+-- A 101 Switching Protocols response is an accepted protocol upgrade (e.g. a
+-- WebSocket handshake): the connection becomes a frame tunnel the inspector
+-- cannot read. We never capture or inspect the tunnel body for a 101, but we DO
+-- inspect the handshake response headers once, at the header phase, with an empty
+-- body (see inspectHandshakeResponse) so the request-side audit/simulate sample
+-- is committed in-TTL. The upgrade is never buffered or stalled.
+local HTTP_SWITCHING_PROTOCOLS = 101
+
+-- If you're not sure your plugin is executing, uncomment the line below and restart Kong
+-- then it will throw an error which indicates the plugin is being loaded at least.
+
+---@class Plugin
+---@field client Client?
+---@field moduleInfo string?
+local plugin = {
+  PRIORITY = 1000, -- set the plugin priority, which determines plugin execution order
+  VERSION = "0.4.2", -- version in X.Y.Z format. Check hybrid-mode compatibility requirements.
+  KONG_IDENTIFIER = 19
+}
+
+local kong = kong
+
+-- Parse the raw HTTP/1.x request header block into an ordered list of
+-- { name, value } pairs (wire order, duplicates preserved). kong.request
+-- .get_headers() returns an unordered hash, which loses the header-order signal
+-- the nginx module preserves and rules like header-analysis depend on. Keys are
+-- lowercased to match the nginx module's headers_in and the Go SDK. The result is
+-- capped at MAX_HEADERS (same bound as req.get_headers(MAX_HEADERS)) so a header
+-- flood can't inflate the RPC payload or worker memory. Returns nil when the raw
+-- header block is unavailable (defensive; e.g. HTTP/2 edge cases) so the SDK falls
+-- back to the unordered hash rather than sending zero headers.
+---@return string[][]?
+local function orderedRequestHeaders()
+  local raw = ngx.req.raw_header(true) -- true = exclude the request line
+  if not raw or raw == "" then
+    return nil
+  end
+
+  local headers = {}
+  for line in raw:gmatch("[^\r\n]+") do
+    local name, value = line:match("^([^:]+):%s*(.*)$")
+    if name then
+      -- Trim OWS around the name (a malformed "Host :" must not yield a "host "
+      -- key) and lowercase to match nginx headers_in / the Go SDK.
+      name = name:match("^%s*(.-)%s*$"):lower()
+      if name ~= "" then
+        headers[#headers + 1] = { name, value }
+        if #headers >= MAX_HEADERS then
+          break
+        end
+      end
+    end
+  end
+
+  if #headers == 0 then
+    return nil
+  end
+
+  return headers
+end
+
+-- Read the request body, falling back to the on-disk temp file Kong uses when the
+-- body exceeds client_body_buffer_size (nginx default 8-16 KB).
+-- kong.request.get_raw_body() only returns the in-memory body; for a spooled body
+-- it returns nil (or raises on some Kong versions), which previously made the
+-- plugin inspect a large body as empty. Returns up to maxBodySize+1 bytes (bounded
+-- so a multi-MiB body never loads fully into worker memory; the +1 lets the SDK
+-- flag truncation), or nil when there is genuinely no body.
+---@param req kong.request
+---@param maxBodySize integer
+---@return string?
+local function readRequestBody(req, maxBodySize)
+  local ok, body = pcall(req.get_raw_body)
+  if ok and body ~= nil and body ~= "" then
+    -- Honor the maxBodySize+1 bound on this path too: an operator with a large
+    -- client_body_buffer_size could otherwise hand us a multi-MiB in-memory string.
+    -- Only copy when strictly over the bound (maxBodySize+1); bodies at or under it
+    -- pass through untouched.
+    if #body > maxBodySize + 1 then
+      return body:sub(1, maxBodySize + 1)
+    end
+
+    return body
+  end
+
+  ngx.req.read_body()
+  local path = ngx.req.get_body_file()
+  if not path then
+    return nil
+  end
+
+  local f, openErr = io.open(path, "rb")
+  if not f then
+    kong.log.debug("unable to open request body file ", path, ": ", openErr)
+    return nil
+  end
+
+  local data, readErr = f:read(maxBodySize + 1)
+  f:close()
+
+  -- f:read returns (nil, nil) at EOF (empty body — legitimate) but (nil, err) on
+  -- a real read failure; log the latter so a read error doesn't reintroduce the
+  -- "silently inspected as empty" symptom with no debug signal.
+  if data == nil and readErr ~= nil then
+    kong.log.debug("unable to read request body file ", path, ": ", readErr)
+  end
+
+  return data
+end
+
+---@param req kong.request
+---@param kongClient kong.client
+---@param maxBodySize integer max request body bytes to capture
+---@return HTTPRequestInterface
+local function wrapRequest(req, kongClient, maxBodySize)
+  local bodyReturned = false
+  local wrapper = {
+    get_headers = function() return req.get_headers(MAX_HEADERS) end,
+    get_ordered_headers = orderedRequestHeaders,
+    -- Return the whole (bounded) body once, then signal EOF. Falls back to the
+    -- spooled body file when Kong buffered the body to disk; see readRequestBody.
+    get_body_chunk = function()
+      if bodyReturned then
+        return nil, false
+      end
+      bodyReturned = true
+
+      return readRequestBody(req, maxBodySize), false
+    end,
+    get_host = req.get_host,
+    get_method = req.get_method,
+    get_path = req.get_path,
+    get_scheme = req.get_scheme,
+    get_raw_query = req.get_raw_query,
+    -- Pass Kong's resolved forwarded client IP (honors Kong's trusted_ips /
+    -- real_ip_recursive config), not the raw L4 peer. The Inspector uses this
+    -- only as the fallback when its hops/forwarded header resolution comes up
+    -- empty; landing on the real client (rather than the in-cluster connection
+    -- peer, e.g. an ingress/NLB pod IP) matches the nginx (realip) and Envoy
+    -- (x-envoy-external-address) plugins. With no trusted proxies configured,
+    -- get_forwarded_ip() returns the immediate peer, same as before.
+    get_remote_ip = kongClient.get_forwarded_ip
+  }
+
+  return sdk.extendHTTPRequestInterface(wrapper)
+end
+
+-- Build a response wrapper for InspectResponse from values captured across the
+-- streaming response phases — NOT from a live buffered response. The status and
+-- headers are snapshotted in header_filter; the body is the concatenation of
+-- the chunks observed in body_filter.
+---@param status integer
+---@param headers table
+---@param body string
+---@return HTTPResponseInterface
+local function wrapResponse(status, headers, body)
+  local wrapper = {
+    get_headers = function() return headers end,
+    get_body_chunk = function() return body, false end,
+    get_status = function() return status end
+  }
+
+  return sdk.extendHTTPResponseInterface(wrapper)
+end
+
+-- do initialization here, any module level code runs in the 'init_by_lua_block',
+-- before worker processes are forked. So anything you add here will run once,
+-- but be available in all workers.
+
+--- Get Kong version
+---@return string version
+local function getKongVersion()
+  if kong and kong.version then
+    return kong.version
+  end
+  return "unknown"
+end
+
+--- Lazily (re)create the inspector RPC client on the plugin instance.
+---@param self Plugin
+---@param plugin_conf PluginConfig
+local function ensureClient(self, plugin_conf)
+  if self.client then
+    return
+  end
+
+  kong.log.debug("plugin not initialized")
+  -- Generate module_info if not already set
+  if not self.moduleInfo then
+    local kong_version = getKongVersion()
+    self.moduleInfo = sdk.getModuleInfo("Kong", kong_version, self.VERSION)
+  end
+  local conn_factory = sdk.newConnFactory(plugin_conf.inspector_rpc_addr, plugin_conf.timeout_ms)
+  self.client = sdk.newClient(self.KONG_IDENTIFIER, 0, conn_factory, self.moduleInfo)
+end
+
+-- Per-worker inspection-profile cache + SettingsRPC poller. The cache is shared
+-- in-process between the background poller (writer) and the request handlers
+-- (readers); there is no lua_shared_dict (Kong plugins can't freely declare one,
+-- and the nginx module is per-worker too). With N workers the Inspector sees N
+-- conditional SettingsRPCs per interval -- negligible over the UDS sidecar link.
+local DEFAULT_SETTINGS_INTERVAL_MS = 30000 -- matches the schema default
+-- Tight, fixed timeout for the background SettingsRPC poll. The SDK uses BLOCKING
+-- posix sockets (like the request-path RPCs), so a poll can stall the worker for
+-- up to this long when the Inspector is slow/unreachable. Keep it small so the
+-- worst-case per-interval stall is tightly bounded, and never inherit the plugin's
+-- request timeout_ms (operators raise that for slow LLM/MCP inspection). A local
+-- UDS settings round-trip is sub-millisecond, so 500ms is ample headroom; on
+-- timeout the poll fails static (the last good profile set is kept). A non-blocking
+-- cosocket fetch would remove the stall entirely but is a cross-cutting SDK change
+-- (the request-path RPCs block too), tracked separately.
+local SETTINGS_FETCH_TIMEOUT_MS = 500
+local profileCache = sdk.newProfileCache()
+local settingsState = {
+  client = nil,                                  -- SDK client used to poll (most-recent configure wins)
+  interval_ms = DEFAULT_SETTINGS_INTERVAL_MS,    -- re-read each cycle so a config change takes effect
+  enabled = true,
+  epoch = 0,                                     -- bumped on every (re)configure; a stale-epoch tick bails
+}
+local settingsTimerStarted = false
+
+-- Invalidate any in-flight poll timer and allow a fresh one to be armed. Bumping
+-- the epoch makes the next tick of any previously-armed timer bail (so a quick
+-- disable->re-enable can't leave two poll loops running), and clearing the started
+-- flag lets ensureSettingsTimer() arm an immediate replacement. Called on every
+-- (re)configure.
+local function resetSettingsTimer()
+  settingsState.epoch = settingsState.epoch + 1
+  settingsTimerStarted = false
+end
+
+--- Background poller body: fetch the profile set (conditionally, by hash) and
+--- refresh the cache, then re-arm for the next cycle. Failures are non-fatal --
+--- the last good cache is kept (fail-static), so a transient inspector blip never
+--- changes request inspection behavior.
+---@param premature boolean
+---@param epoch integer the poller epoch this timer was armed under
+local pollSettings
+pollSettings = function(premature, epoch)
+  if premature then
+    return
+  end
+
+  local state = settingsState
+  -- A timer armed under an older configuration is stale (a reconfigure bumped the
+  -- epoch). Let it die so the timer armed by the newest configure is the only live
+  -- poll loop -- this is what makes a disable->re-enable safe.
+  if epoch ~= state.epoch then
+    return
+  end
+
+  if state.enabled and state.client then
+    local res, err = state.client:FetchSettings(profileCache:hash(), SETTINGS_FETCH_TIMEOUT_MS)
+    if err then
+      kong.log.debug("impart settings fetch failed: ", err)
+    elseif res and res.profiles then
+      -- profiles is present only when our hash differed (conditional fetch); an
+      -- absent profiles means "unchanged", so the current cache is kept.
+      profileCache:replace(res.profiles, res.profiles_hash)
+    end
+  end
+
+  -- Re-arm for the next cycle only while still enabled, configured, and not
+  -- shutting down. If polling was disabled or the plugin unconfigured since the
+  -- last tick, stop the loop and clear the started flag so a later configure()
+  -- can restart it, rather than spinning an idle timer forever.
+  if ngx.worker.exiting() or not state.enabled or not state.client then
+    settingsTimerStarted = false
+
+    return
+  end
+
+  local ok, terr = ngx.timer.at(state.interval_ms / 1000, pollSettings, epoch)
+  if not ok then
+    settingsTimerStarted = false
+    kong.log.err("impart: failed to re-arm settings timer: ", terr)
+  end
+end
+
+-- Start the per-worker settings poller once. The first tick fires immediately
+-- (delay 0) to populate the cache promptly; pollSettings re-arms itself at the
+-- configured interval thereafter.
+local function ensureSettingsTimer()
+  if settingsTimerStarted then
+    return
+  end
+
+  local ok, err = ngx.timer.at(0, pollSettings, settingsState.epoch)
+  if ok then
+    settingsTimerStarted = true
+  else
+    kong.log.err("impart: failed to start settings timer: ", err)
+  end
+end
+
+--- Executed every time the Kong plugin iterator is rebuilt (after changes to
+--  configure plugins).
+---@param plugin_conf PluginConfig|PluginConfig[]?
+function plugin:configure(plugin_conf)
+  -- Reject nil and the empty-array form, but allow a single-record config: a hash
+  -- table has #== 0 yet carries inspector_rpc_addr, and the normalization below
+  -- wraps it into a one-element list. Without the inspector_rpc_addr exception the
+  -- record form would clear the client and return early, never configuring.
+  if plugin_conf == nil or (#plugin_conf == 0 and not plugin_conf.inspector_rpc_addr) then
+    self.client = nil
+    settingsState.client = nil
+    settingsState.enabled = false
+    resetSettingsTimer()
+    -- Drop any cached profiles so a later re-enable starts from empty rather than
+    -- resolving stale profiles until the next poll.
+    profileCache:clear()
+    return
+  end
+
+  -- configure() receives the array of every config for this plugin (Kong passes a
+  -- single-record form on some paths -- normalize both to a list). The shared
+  -- per-worker poller reflects the UNION across configs: it runs if ANY config
+  -- enables settings (disabled routes are already gated per-request in access()),
+  -- at the SHORTEST enabled interval (so a route asking for a faster poll isn't
+  -- ignored just because it isn't first). The inspector client uses the first
+  -- configured socket -- the AI-gateway sidecar shares one inspector across routes.
+  local confs = plugin_conf.inspector_rpc_addr and { plugin_conf } or plugin_conf
+
+  local primary
+  local anyEnabled = false
+  local minInterval
+  for _, c in ipairs(confs) do
+    if c.inspector_rpc_addr then
+      primary = primary or c
+      if c.settings_enabled ~= false then
+        anyEnabled = true
+        -- A nil interval (older persisted config) means the schema default, not
+        -- "ignore me" -- otherwise interval_ms could silently keep a stale value.
+        local iv = c.settings_interval_ms or DEFAULT_SETTINGS_INTERVAL_MS
+        if not minInterval or iv < minInterval then
+          minInterval = iv
+        end
+      end
+    end
+  end
+
+  if not primary then
+    self.client = nil
+    settingsState.client = nil
+    settingsState.enabled = false
+    resetSettingsTimer()
+    -- Same as above: no usable config, so drop stale cached profiles.
+    profileCache:clear()
+    return
+  end
+
+  local kong_version = getKongVersion()
+  self.moduleInfo = sdk.getModuleInfo("Kong", kong_version, self.VERSION)
+
+  local conn_factory = sdk.newConnFactory(primary.inspector_rpc_addr, primary.timeout_ms)
+  self.client = sdk.newClient(self.KONG_IDENTIFIER, 0, conn_factory, self.moduleInfo)
+
+  -- Wire the background SettingsRPC poller (shared, per-worker).
+  settingsState.client = self.client
+  settingsState.enabled = anyEnabled
+  settingsState.interval_ms = minInterval or DEFAULT_SETTINGS_INTERVAL_MS
+  -- Invalidate any prior timer and arm a fresh immediate poll when enabled, so a
+  -- config change -- including a re-enable -- refreshes the cache promptly without
+  -- leaving a stale loop running. When disabled across all configs we still bump
+  -- the epoch (via reset) so any previously-armed timer bails on its next tick.
+  resetSettingsTimer()
+  if anyEnabled then
+    ensureSettingsTimer()
+  end
+end
+
+--- Executed for every request from a client and before it is being proxied to
+--  the upstream service. This is the only phase that can block: the request is
+--  inspected inline and rejected before it reaches the upstream.
+---@param plugin_conf PluginConfig
+function plugin:access(plugin_conf)
+  ensureClient(self, plugin_conf)
+
+  -- Resolve a per-route inspection profile (mode + body cap + timeout) from the
+  -- SettingsRPC-fed cache. Gated on settings_enabled so disabling it takes effect
+  -- immediately even if this worker's cache still holds previously-fetched
+  -- profiles. Falls back to the static plugin config when disabled, not yet
+  -- fetched, or no route matches.
+  local profile
+  -- nil means enabled, matching configure() (a pre-field persisted config must
+  -- behave identically on both paths).
+  if plugin_conf.settings_enabled ~= false then
+    profile = profileCache:resolve(
+      kong.request.get_host(),
+      tostring(kong.request.get_forwarded_port() or ""),
+      kong.request.get_path()
+    )
+  end
+
+  -- Default to this route's static config; a matched profile overrides below.
+  -- timeoutMs is threaded per request (not just left nil) so a route's
+  -- plugin_conf.timeout_ms isn't shadowed by the connection factory's default
+  -- (built from the primary config), mirroring how max_body_size is per-request.
+  local maxBodySize = plugin_conf.max_body_size
+  local timeoutMs = plugin_conf.timeout_ms
+  if profile then
+    -- A matched profile is the authority for this route, so its caps apply
+    -- as-is -- including a deliberate 0 ("capture nothing"), which the SDK
+    -- honors (chunk:sub(1, 0) == ""). Only fall back to the static config when
+    -- no profile matched.
+    maxBodySize = profile.request_max_body_size
+    timeoutMs = profile.request_timeout_ms
+    -- Stash the response-side body cap + timeout so header_filter/log don't
+    -- re-resolve. 0 is truthy in Lua, so a 0 cap is preserved by the `or` fallback.
+    kong.ctx.plugin["resp_max_body_override"] = profile.response_max_body_size
+    kong.ctx.plugin["resp_timeout_override"] = profile.response_timeout_ms
+  end
+
+  local wrappedReq = wrapRequest(kong.request, kong.client, maxBodySize)
+
+  local reqMsgResponse, err = self.client:InspectRequest(wrappedReq, maxBodySize, timeoutMs)
+  if err then
+    kong.log.debug("error inspecting request: ", err)
+    return
+  end
+
+  if reqMsgResponse.error then
+    kong.log.debug("error inspecting request: ", reqMsgResponse.error)
+    return
+  end
+
+  -- Apply an inline profile correction: the Inspector includes one when the mode
+  -- we claimed didn't match the resolved profile. Upsert it so later requests use
+  -- the right mode/caps; the upsert clears the cache hash so the next poll refetches.
+  if reqMsgResponse.inspection_profile then
+    profileCache:upsert(reqMsgResponse.inspection_profile)
+  end
+
+  if reqMsgResponse.block then
+    if not reqMsgResponse.status_code then
+      reqMsgResponse.status_code = 403
+    end
+
+    local headers = {}
+
+    -- Apply the verdict's header mutations to the block response, matching the
+    -- nginx module, which applies additional/deleted headers to the client
+    -- response on a block (headers_out). Without this, rule-driven block-response
+    -- headers are silently dropped on Kong. deleted_header_keys is effectively a
+    -- no-op here: kong.response.exit builds a fresh response from this table, so
+    -- there is nothing inherited to delete.
+    if reqMsgResponse.additional_header_keys and reqMsgResponse.additional_header_values then
+      for i, key in ipairs(reqMsgResponse.additional_header_keys) do
+        local value = reqMsgResponse.additional_header_values[i]
+        if value ~= nil then
+          local existing = headers[key]
+          if existing == nil then
+            headers[key] = value
+          elseif type(existing) == "table" then
+            existing[#existing + 1] = value
+          else
+            headers[key] = { existing, value }
+          end
+        end
+      end
+    end
+
+    if reqMsgResponse.redirect_url then
+      headers["Location"] = reqMsgResponse.redirect_url
+    end
+
+    --- TODO(ckaznocha): set the status text.
+    kong.response.exit(reqMsgResponse.status_code, reqMsgResponse.body, headers)
+
+    return
+  end
+
+  local additional_headers = {}
+  if reqMsgResponse.additional_header_keys and reqMsgResponse.additional_header_values then
+    for i, key in ipairs(reqMsgResponse.additional_header_keys) do
+      local value = reqMsgResponse.additional_header_values[i]
+      if value ~= nil then
+        if not additional_headers[key] then
+          additional_headers[key] = {}
+        end
+
+        table.insert(additional_headers[key], value)
+      end
+    end
+  end
+
+  for key, values in pairs(additional_headers) do
+    kong.service.request.clear_header(key)
+    for _, value in ipairs(values) do
+      kong.service.request.add_header(key, value)
+    end
+  end
+
+  if reqMsgResponse.deleted_header_keys then
+    for _, key in ipairs(reqMsgResponse.deleted_header_keys) do
+      kong.service.request.clear_header(key)
+    end
+  end
+
+  kong.ctx.plugin["request_id"] = reqMsgResponse.request_id
+end
+
+--- Inspect an accepted WebSocket upgrade (a `101` response) at the header phase,
+--  with an empty body, so the request-side audit/simulate sample for the
+--  handshake is committed while the inspector's request-state cache entry is
+--  still fresh.
+--
+--  This MUST run here, not in log(): for a WebSocket the log phase fires only at
+--  tunnel-close, which for a long-lived connection is past the inspector's
+--  request-state cache TTL -- a log-phase inspection would arrive too late and
+--  the handshake's detections (e.g. a simulate/audit CSWSH tag) would never be
+--  recorded. Inspecting at the `101` is the one place a blocking RPC is worth the
+--  small added latency: it is handshake-only, and the `101` is the last byte
+--  before a long-lived tunnel. The post-101 tunnel is never read (empty body).
+--  Detection-only: this plugin never applies a response verdict (it streams the
+--  response and inspects post-hoc -- see header_filter/log below), so the
+--  handshake verdict is recorded but not enforced; the request-phase block
+--  (block-before-101) is what gates a handshake. Mirrors the Envoy ext_proc
+--  handshake response inspection at the `101`.
+---@param self Plugin
+---@param plugin_conf PluginConfig
+local function inspectHandshakeResponse(self, plugin_conf)
+  ensureClient(self, plugin_conf)
+
+  local wrappedRes = wrapResponse(HTTP_SWITCHING_PROTOCOLS, kong.response.get_headers(MAX_HEADERS), "")
+
+  local resMsgResponse, err = self.client:InspectResponse(
+    wrappedRes, kong.ctx.plugin["request_id"],
+    kong.ctx.plugin["resp_max_body_override"] or plugin_conf.max_body_size,
+    kong.ctx.plugin["resp_timeout_override"] or plugin_conf.timeout_ms
+  )
+  if err then
+    kong.log.debug("error inspecting websocket handshake response: ", err)
+
+    return
+  end
+
+  -- Surface an application-level inspection error for debug parity with the
+  -- request path and log() response inspection.
+  if resMsgResponse.error then
+    kong.log.debug("error inspecting websocket handshake response: ", resMsgResponse.error)
+  end
+end
+
+--- Snapshot the response status + headers as they begin flowing to the client.
+--  We deliberately do NOT define the buffering `response` phase: defining it
+--  forces Kong to buffer the entire upstream response before sending any byte
+--  to the client, which breaks streaming (SSE / LLM completions). Instead we
+--  stream via header_filter + body_filter and inspect post-hoc in log(), so the
+--  response is detect-only — matching the nginx module (which compiles its
+--  response-block path out) and the Envoy ext_proc `Streamed` mode. We can't act
+--  on a verdict here regardless: the inspection verdict isn't available until
+--  log() (after the body is captured), and applying it would require buffering
+--  the response — exactly what this streaming design avoids.
+--
+--  Defined with `.` (not `:`), but Kong still passes the handler as the first
+--  argument: we capture it as `self` so an accepted upgrade (`101`) can inspect
+--  the handshake response here, via the instance's inspector client (see
+--  inspectHandshakeResponse). The non-101 path touches only request-scoped
+--  `kong.ctx.plugin` state.
+---@param self Plugin
+---@param plugin_conf PluginConfig
+function plugin.header_filter(self, plugin_conf)
+  -- Only set up response capture for requests we actually inspected (the
+  -- request_id is the correlation key for InspectResponse). Skipping otherwise
+  -- avoids any per-chunk accumulation overhead on uninspected traffic.
+  if not kong.ctx.plugin["request_id"] then
+    return
+  end
+
+  -- A 101 is an accepted upgrade: the bytes that follow are a frame tunnel the
+  -- inspector can't read, so we never capture a response body for it
+  -- (resp_body_chunks stays nil -> body_filter is a no-op and the tunnel streams
+  -- straight through). But we DO inspect the handshake response here, at the
+  -- `101`, so its request-side audit/simulate sample is committed in-TTL -- the
+  -- log phase fires only at tunnel-close, too late for a long-lived WebSocket.
+  if kong.response.get_status() == HTTP_SWITCHING_PROTOCOLS then
+    inspectHandshakeResponse(self, plugin_conf)
+
+    return
+  end
+
+  -- Capture the response as it will actually be sent to the client. Use
+  -- kong.response (the downstream/client-facing response), not
+  -- kong.service.response: the latter's status is nil when the response did not
+  -- come from the upstream service (e.g. another plugin short-circuited), and
+  -- for detection we want what the client received. Status/headers are final by
+  -- header_filter, so this matches the response as sent.
+  kong.ctx.plugin["resp_status"] = kong.response.get_status()
+  kong.ctx.plugin["resp_headers"] = kong.response.get_headers(MAX_HEADERS)
+  kong.ctx.plugin["resp_body_chunks"] = {}
+  kong.ctx.plugin["resp_body_len"] = 0
+  -- Honor the resolved profile's response body cap (stashed in access) over the
+  -- static config when a profile matched this route.
+  kong.ctx.plugin["resp_max_body"] = kong.ctx.plugin["resp_max_body_override"] or plugin_conf.max_body_size
+end
+
+--- Accumulate the response body for inspection WITHOUT modifying the chunk, so
+--  Kong streams each chunk straight to the client (no buffering). We capture at
+--  most `resp_max_body` + 1 bytes: the SDK truncates the body to resp_max_body
+--  and sets truncated_body, so one byte past the cap is all it needs to detect
+--  and flag an over-cap body. Capturing only that bound (rather than the whole
+--  boundary-crossing chunk, which could be multi-MiB) keeps per-request worker
+--  memory tightly bounded.
+function plugin.body_filter()
+  local chunks = kong.ctx.plugin["resp_body_chunks"]
+  if not chunks then
+    return
+  end
+
+  local len = kong.ctx.plugin["resp_body_len"]
+  -- Already captured the cap + 1 bytes the SDK needs to inspect + flag truncation.
+  if len > kong.ctx.plugin["resp_max_body"] then
+    return
+  end
+
+  local chunk = ngx.arg[1]
+  if chunk and #chunk > 0 then
+    -- Truncate the *accumulated copy* (not ngx.arg[1], which streams to the
+    -- client unchanged) so the captured body never exceeds resp_max_body + 1.
+    local allowed = kong.ctx.plugin["resp_max_body"] + 1 - len
+    if #chunk > allowed then
+      chunk = chunk:sub(1, allowed)
+    end
+    chunks[#chunks + 1] = chunk
+    kong.ctx.plugin["resp_body_len"] = len + #chunk
+    -- SSE/LLM streams can emit many small chunks; keep the entry count bounded
+    -- by compacting into a single string once the table grows large. Total
+    -- accumulated bytes are bounded by resp_max_body + 1, so this concat is cheap.
+    if #chunks >= 128 then
+      kong.ctx.plugin["resp_body_chunks"] = { table_concat(chunks) }
+    end
+  end
+end
+
+--- Inspect the response AFTER it has been fully sent to the client. This is
+--  detection / telemetry only — the verdict cannot block or mutate a response
+--  already on the wire, so the `block` / `redirect_url` / header-mutation fields
+--  are intentionally ignored (matching the nginx module and Envoy ext_proc).
+--  Running in the log phase means it adds zero client latency. The SDK uses
+--  blocking luaposix sockets (not ngx cosockets), so the RPC is valid here.
+---@param plugin_conf PluginConfig
+function plugin:log(plugin_conf)
+  local request_id = kong.ctx.plugin["request_id"]
+  if not request_id then
+    return
+  end
+
+  -- An accepted upgrade (101) is inspected at the header phase
+  -- (inspectHandshakeResponse), not here: the log phase fires only at
+  -- tunnel-close, past the inspector's request-state cache TTL for a long-lived
+  -- WebSocket. The handshake is already inspected, so there is nothing to do.
+  if kong.response.get_status() == HTTP_SWITCHING_PROTOCOLS then
+    return
+  end
+
+  ensureClient(self, plugin_conf)
+
+  local chunks = kong.ctx.plugin["resp_body_chunks"]
+  local body = chunks and table_concat(chunks) or ""
+
+  -- kong.service.response is not returning headers correctly as described in the
+  -- issue https://github.com/Kong/kong/issues/11546, so headers are snapshotted
+  -- from kong.response in header_filter above.
+  local wrappedRes = wrapResponse(
+    kong.ctx.plugin["resp_status"],
+    kong.ctx.plugin["resp_headers"] or {},
+    body
+  )
+
+  local resMsgResponse, err = self.client:InspectResponse(
+    wrappedRes, request_id,
+    kong.ctx.plugin["resp_max_body"] or plugin_conf.max_body_size,
+    kong.ctx.plugin["resp_timeout_override"] or plugin_conf.timeout_ms
+  )
+  if err then
+    kong.log.debug("error inspecting response: ", err)
+    return
+  end
+
+  -- Detection-only: the response is already on the wire, so the verdict's
+  -- block / redirect / header-mutation fields are intentionally not applied. We
+  -- still surface an application-level inspection error for debug parity with
+  -- the request path.
+  if resMsgResponse.error then
+    kong.log.debug("error inspecting response: ", resMsgResponse.error)
+  end
+end
+
+return plugin

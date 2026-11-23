@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-upstream-google-id-token",
+  "versions": {
+    "0.1.0-6": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/upstream-google-id-token/access.lua": {
+          "sha256": "46ca816f0b4f8787c51077c77ba6ee825dcb2a932ff42ae1e857140e950deafd",
+          "size": 4672,
+          "url": "https://raw.githubusercontent.com/geospin-de/kong-plugin-upstream-google-id-token/de984a7f3e96d4ef8f05f3d747caa14449264181/kong/plugins/upstream-google-id-token/access.lua"
+        },
+        "kong/plugins/upstream-google-id-token/handler.lua": {
+          "sha256": "87155197d08ed3a73ada9b745311c82331127640c42939ce6d40faa97a479690",
+          "size": 3514,
+          "url": "https://raw.githubusercontent.com/geospin-de/kong-plugin-upstream-google-id-token/de984a7f3e96d4ef8f05f3d747caa14449264181/kong/plugins/upstream-google-id-token/handler.lua"
+        },
+        "kong/plugins/upstream-google-id-token/schema.lua": {
+          "sha256": "46dfc2e09687c68dea0d43c7b004ef8f01c0eca2cf9d5fe0e8de03176fb8c767",
+          "size": 554,
+          "url": "https://raw.githubusercontent.com/geospin-de/kong-plugin-upstream-google-id-token/de984a7f3e96d4ef8f05f3d747caa14449264181/kong/plugins/upstream-google-id-token/schema.lua"
+        }
+      },
+      "homepage": "https://geospin.de",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 14 Sep 2022 14:18:44 GMT",
+        "rockspec": {
+          "date": "Wed, 14 Sep 2022 14:18:44 GMT",
+          "sha256": "89781ca1418dc3b78bafc2ad36efcebc8549268bc205836d8910435e830df092",
+          "size": 1301
+        },
+        "src": {
+          "date": "Wed, 14 Sep 2022 14:18:46 GMT",
+          "sha256": "43649f01cf5be024ebea3ce2b7db44c37edd473fd0311ccbf68833ff4ed42219",
+          "size": 24807,
+          "url": "https://luarocks.org/kong-plugin-upstream-google-id-token-0.1.0-6.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.upstream-google-id-token.access",
+        "kong.plugins.upstream-google-id-token.handler",
+        "kong.plugins.upstream-google-id-token.schema"
+      ],
+      "origin": {
+        "commit": "de984a7f3e96d4ef8f05f3d747caa14449264181",
+        "ref": "0.1.0-6",
+        "type": "git",
+        "url": "https://github.com/geospin-de/kong-plugin-upstream-google-id-token.git"
+      },
+      "size": 8740,
+      "summary": "Kong plugin to do service to service authentication with upstream services running in GCP.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http",
+        "resty.openssl.digest",
+        "resty.openssl.pkey"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.openssl.digest)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

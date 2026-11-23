@@ -1,0 +1,63 @@
+local M = {}
+
+local ok, cjson_safe = pcall(require, "cjson.safe")
+if ok and cjson_safe then
+  function M.encode(value)
+    local encoded, err = cjson_safe.encode(value)
+    if not encoded then
+      return nil, err or "json encode failed"
+    end
+    return encoded
+  end
+
+  function M.decode(value)
+    local decoded, err = cjson_safe.decode(value)
+    if decoded == nil and value ~= "null" then
+      return nil, err or "json decode failed"
+    end
+    return decoded
+  end
+
+  return M
+end
+
+local ok2, cjson = pcall(require, "cjson")
+if ok2 and cjson then
+  function M.encode(value)
+    local ok_encode, result = pcall(cjson.encode, value)
+    if not ok_encode then
+      return nil, result
+    end
+    return result
+  end
+
+  function M.decode(value)
+    local ok_decode, result = pcall(cjson.decode, value)
+    if not ok_decode then
+      return nil, result
+    end
+    return result
+  end
+
+  return M
+end
+
+local ok3, dkjson = pcall(require, "dkjson")
+if ok3 and dkjson then
+  function M.encode(value)
+    return dkjson.encode(value)
+  end
+
+  function M.decode(value)
+    local obj, pos, err = dkjson.decode(value, 1, nil)
+    if err then
+      return nil, err
+    end
+    return obj
+  end
+
+  return M
+end
+
+error("luacord.utils.JSON requires one of: cjson.safe, cjson, or dkjson")
+

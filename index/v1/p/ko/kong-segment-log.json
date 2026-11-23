@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "kong-segment-log",
+  "versions": {
+    "1.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/segment-log/handler.lua": {
+          "sha256": "1460571daa68da40cb5a7a7c9a602fa21f0ff78084a789dd4fd10447d93e7fce",
+          "size": 7205,
+          "url": "https://raw.githubusercontent.com/DigitalGlobe/kong-segment-log/dea5404a000b19147ea3a2d7fe6d90222b63e56d/segment-log/handler.lua"
+        },
+        "kong/plugins/segment-log/jwt_parser.lua": {
+          "sha256": "227958762de63a5b3ae1d5c348dd1a30e3df5f780a98fde68d11380f839d80c8",
+          "size": 6846,
+          "url": "https://raw.githubusercontent.com/DigitalGlobe/kong-segment-log/dea5404a000b19147ea3a2d7fe6d90222b63e56d/segment-log/jwt_parser.lua"
+        },
+        "kong/plugins/segment-log/schema.lua": {
+          "sha256": "7780974ddbb0aa95dfb22e2ff05dc0a1370924c9353b6e5c0d0335b51424914c",
+          "size": 542,
+          "url": "https://raw.githubusercontent.com/DigitalGlobe/kong-segment-log/dea5404a000b19147ea3a2d7fe6d90222b63e56d/segment-log/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Mon, 28 Nov 2016 22:40:25 GMT",
+        "rockspec": {
+          "date": "Mon, 28 Nov 2016 22:40:25 GMT",
+          "sha256": "cf77f7b8d9e13f7ee23d7adff6ff5a8dcb2a886a9610844076dcfa86661543f7",
+          "size": 622
+        },
+        "src": {
+          "date": "Mon, 28 Nov 2016 22:40:26 GMT",
+          "sha256": "d1772c0baa03afb63e6bd8cb1317d21913448366952f80156640d2464c7a4ebf",
+          "size": 9344,
+          "url": "https://luarocks.org/kong-segment-log-1.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.segment-log.handler",
+        "kong.plugins.segment-log.jwt_parser",
+        "kong.plugins.segment-log.schema"
+      ],
+      "origin": {
+        "commit": "dea5404a000b19147ea3a2d7fe6d90222b63e56d",
+        "ref": "v1.2.0-1",
+        "type": "git",
+        "url": "https://github.com/DigitalGlobe/kong-segment-log"
+      },
+      "size": 14593,
+      "summary": "A Kong plugin that sends request logs to Segment track() API to track user activity.",
+      "undeclared_requires": [
+        "base64",
+        "crypto",
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "kong.tools.utils",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.log-serializers.basic",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

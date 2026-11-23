@@ -1,0 +1,340 @@
+local _module_0 = nil
+local inspect = require('inspect')
+local timer = require('resty.timer')
+local M = require('moses')
+local result = require('elan.result')
+local MQ = require('elan.mq.client')
+local Cron = require('elan.mq.cron')
+local xtype = require('elan.xtype')
+local PostgresArray
+do
+	local _obj_0 = require('pgmoon.arrays')
+	PostgresArray = _obj_0.PostgresArray
+end
+local DEFAULT_MAX_SLEEP = 5
+local DEFAULT_MAX_RETRIES = 2
+local FAILURE_SLEEP = 5
+local ERR_ARCHIVE_NOW = setmetatable({ }, {
+	__tostring = "archive message immediately, do not retry"
+})
+local SETUP_PG_LOCK = 2025
+local obtain_setup_lock
+obtain_setup_lock = function(conn)
+	return conn:query('SELECT pg_advisory_xact_lock($1::bigint)', SETUP_PG_LOCK)
+end
+local collect_schedules_from_queues
+collect_schedules_from_queues = function(queues)
+	local all_scheds = { }
+	for _index_0 = 1, #queues do
+		local q = queues[_index_0]
+		local _continue_0 = false
+		repeat
+			local name, handler = q.queue, q.handler
+			if not xtype.isrunnable(handler) then
+				_continue_0 = true
+				break
+			end
+			local scheds
+			if handler.schedules then
+				scheds = handler.schedules
+			else
+				local sched = handler.schedule
+				scheds = {
+					sched
+				}
+			end
+			if not (scheds and #scheds > 0) then
+				_continue_0 = true
+				break
+			end
+			local default_retries
+			do
+				local _exp_0 = handler.retries
+				if _exp_0 ~= nil then
+					default_retries = _exp_0
+				else
+					default_retries = DEFAULT_MAX_RETRIES
+				end
+			end
+			for _index_1 = 1, #scheds do
+				local sched = scheds[_index_1]
+				local _exp_0 = type(sched)
+				if 'string' == _exp_0 then
+					all_scheds[#all_scheds + 1] = {
+						schedule = sched,
+						retries = default_retries,
+						payload = { },
+						queue = name
+					}
+				elseif 'table' == _exp_0 then
+					local schedule, retries, payload = sched.schedule, sched.retries, sched.payload
+					if retries == nil then
+						retries = default_retries
+					end
+					if payload == nil then
+						payload = { }
+					end
+					all_scheds[#all_scheds + 1] = {
+						schedule = schedule,
+						retries = retries,
+						payload = payload,
+						queue = name
+					}
+				end
+			end
+			_continue_0 = true
+		until true
+		if not _continue_0 then
+			break
+		end
+	end
+	return all_scheds
+end
+local extensions_exists
+extensions_exists = function(conn)
+	return result.unwrap_any(result.map_ok(result.to_result(conn:query('SELECT COUNT(*) FROM pg_available_extensions WHERE name = ANY($1::text[])\n		AND installed_version IS NOT NULL', PostgresArray({
+		'pgmq',
+		'pg_cron'
+	}))), function(res)
+		if #res == 0 or res[1].count ~= 2 then
+			return nil, 'required postgresql extension(s) missing: "pgmq" and "pg_cron" must be enabled'
+		end
+		return true
+	end))
+end
+local ensure_queues
+ensure_queues = function(conn, mqcli, queue_names)
+	return result.unwrap_any(result.map_ok(result.to_result(conn:query('SELECT queue_name FROM pgmq.list_queues()')), function(res)
+		local existing_names = M.pluck(res, 'queue_name')
+		local missing_names = M.difference(queue_names, existing_names)
+		local extra_names = M.difference(existing_names, queue_names)
+		for _index_0 = 1, #missing_names do
+			local name = missing_names[_index_0]
+			ngx.log(ngx.INFO, "creating missing queue: " .. tostring(name))
+			local ok, err = mqcli:create(name)
+			if not ok then
+				return nil, err
+			end
+		end
+		for _index_0 = 1, #extra_names do
+			local name = extra_names[_index_0]
+			ngx.log(ngx.WARN, "superfluous existing queue: " .. tostring(name))
+		end
+		return true
+	end))
+end
+local ensure_schedules
+ensure_schedules = function(conn, croncli, schedules)
+	local cjson = require('elan.built').cjson
+	local required_names
+	do
+		local _accum_0 = { }
+		local _len_0 = 1
+		for _index_0 = 1, #schedules do
+			local s = schedules[_index_0]
+			_accum_0[_len_0] = s.queue .. ' ' .. s.schedule
+			_len_0 = _len_0 + 1
+		end
+		required_names = _accum_0
+	end
+	return result.unwrap_any(result.map_ok(result.to_result(conn:query('SELECT jobname FROM cron.job')), function(res)
+		local existing_names = M.pluck(res, 'jobname')
+		local missing_names = M.difference(required_names, existing_names)
+		local extra_names = M.difference(existing_names, required_names)
+		for _index_0 = 1, #schedules do
+			local s = schedules[_index_0]
+			local name = s.queue .. ' ' .. s.schedule
+			local msg, err = cjson.encode(s.payload)
+			if not msg then
+				return nil, err
+			end
+			local hdrs
+			hdrs, err = cjson.encode({
+				max_retries = s.retries
+			})
+			if not hdrs then
+				return nil, err
+			end
+			local ok
+			ok, err = croncli:schedule(name, s.schedule, "\n				SELECT * FROM pgmq.send(\n					" .. tostring(conn:escape_literal(s.queue)) .. ",\n					" .. tostring(conn:escape_literal(msg)) .. "::jsonb,\n					" .. tostring(conn:escape_literal(hdrs)) .. "::jsonb\n				)\n			")
+			if not ok then
+				return nil, err
+			end
+		end
+		for _index_0 = 1, #extra_names do
+			local name = extra_names[_index_0]
+			ngx.log(ngx.WARN, "superfluous existing cron job: " .. tostring(name))
+		end
+		return true
+	end))
+end
+local process_queue
+process_queue = function(conn, mqcli, queue)
+	local qname = queue.queue
+	local msgs, err = mqcli:read(qname, queue.vt, queue.qty)
+	if not msgs then
+		return nil, "receive from queue " .. tostring(qname) .. " failed: " .. tostring(err)
+	end
+	for _index_0 = 1, #msgs do
+		local msg = msgs[_index_0]
+		local max_retries
+		do
+			local _exp_0 = msg.headers
+			if _exp_0 ~= nil then
+				max_retries = _exp_0.max_retries
+				if max_retries == nil then
+					max_retries = DEFAULT_MAX_RETRIES
+				end
+			else
+				do
+					local _obj_0 = { }
+					max_retries = _obj_0.max_retries
+				end
+				if max_retries == nil then
+					max_retries = DEFAULT_MAX_RETRIES
+				end
+			end
+		end
+		local ok
+		if msg.read_ct > (max_retries + 1) then
+			ok, err = nil, ERR_ARCHIVE_NOW
+		else
+			local handler = queue.handler
+			if xtype.isrunnable(handler) then
+				handler = handler.run
+			end
+			local handler_res = result.pcall_to_result(handler, conn, msg, queue)
+			ok, err = result.unwrap_any(handler_res)
+		end
+		if ok then
+			ok, err = mqcli:delete(qname, msg.msg_id)
+			if not ok then
+				return nil, "delete message " .. tostring(msg.msg_id) .. " from queue " .. tostring(qname) .. " failed: " .. tostring(err)
+			end
+			ngx.log(ngx.INFO, "deleted message " .. tostring(msg.msg_id) .. " from queue " .. tostring(qname) .. " at attempt " .. tostring(msg.read_ct))
+		else
+			if err == ERR_ARCHIVE_NOW then
+				ok, err = mqcli:archive(qname, msg.msg_id)
+				if not ok then
+					return nil, "archive message " .. tostring(msg.msg_id) .. " from queue " .. tostring(qname) .. " failed: " .. tostring(err)
+				end
+				ngx.log(ngx.WARN, "archived message " .. tostring(msg.msg_id) .. " from queue " .. tostring(qname) .. " at attempt " .. tostring(msg.read_ct))
+			end
+		end
+	end
+	return #msgs
+end
+local process_queues
+process_queues = function(newdb, queues, loops)
+	local queue_names = M.pluck(queues, 'queue')
+	local by_names
+	do
+		local _tbl_0 = { }
+		for _index_0 = 1, #queues do
+			local q = queues[_index_0]
+			_tbl_0[q.queue] = q
+		end
+		by_names = _tbl_0
+	end
+	local idle_sleep, num_loops = 0, 0
+	while true do
+		num_loops = num_loops + 1
+		if loops and num_loops > loops then
+			return true
+		end
+		local seen_msgs = 0
+		local conn = newdb()
+		local ok, err
+		do
+			ok, err = conn:with(function(conn)
+				local mqcli = MQ(conn)
+				queue_names = M.shuffle(queue_names)
+				for _index_0 = 1, #queue_names do
+					local qname = queue_names[_index_0]
+					local queue = by_names[qname]
+					local msgcount
+					msgcount, err = process_queue(conn, mqcli, queue)
+					if not msgcount then
+						return nil, err
+					end
+					seen_msgs = seen_msgs + msgcount
+				end
+				return true
+			end)
+		end
+		if not ok then
+			return nil, err
+		end
+		if ngx.worker.exiting() then
+			return true
+		end
+		if seen_msgs == 0 then
+			if idle_sleep < DEFAULT_MAX_SLEEP then
+				idle_sleep = idle_sleep + 1
+			end
+			ngx.sleep(idle_sleep)
+		else
+			idle_sleep = 0
+		end
+	end
+end
+local setup
+setup = function(conn, queues)
+	return conn:with(function(conn)
+		return conn:tx(function(conn)
+			local ok, err = obtain_setup_lock(conn)
+			if not ok then
+				return nil, err
+			end
+			ok, err = extensions_exists(conn)
+			if not ok then
+				return nil, err
+			end
+			local mqcli = MQ(conn)
+			local queue_names = M.pluck(queues, 'queue')
+			ok, err = ensure_queues(conn, mqcli, queue_names)
+			if not ok then
+				return nil, err
+			end
+			local croncli = Cron(conn)
+			local scheds = collect_schedules_from_queues(queues)
+			ok, err = ensure_schedules(conn, croncli, scheds)
+			if not ok then
+				return nil, err
+			end
+			return true
+		end)
+	end)
+end
+local mq_canceled
+mq_canceled = function(reason)
+	return ngx.log(ngx.WARN, "message queue worker timer canceled: " .. tostring(reason))
+end
+local mq_timer
+mq_timer = function(newdb, queues, loops)
+	local ok, err = setup(newdb(), queues)
+	if not ok then
+		return ngx.log(ngx.ERR, "failed to setup message queue worker: " .. tostring(err))
+	end
+	while not ngx.worker.exiting() do
+		ok, err = process_queues(newdb, queues, loops)
+		if ok then
+			return
+		end
+		ngx.log(ngx.ERR, "worker loop failed: " .. tostring(err))
+		ngx.sleep(FAILURE_SLEEP)
+	end
+end
+_module_0 = function(newdb, queues, loops)
+	local t, err = timer.new({
+		interval = 0,
+		recurring = false,
+		detached = true,
+		expire = mq_timer,
+		cancel = mq_canceled
+	}, newdb, queues, loops)
+	if not t then
+		return ngx.log(ngx.ERR, "failed to schedule message queue worker: " .. tostring(err))
+	end
+end
+return _module_0

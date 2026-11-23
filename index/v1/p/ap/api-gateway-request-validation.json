@@ -1,0 +1,162 @@
+{
+  "kind": "lib",
+  "name": "api-gateway-request-validation",
+  "versions": {
+    "1.3.12-1": {
+      "bin": [],
+      "deps": [
+        "lua-api-gateway-hmac >= 1.0.0"
+      ],
+      "files": {
+        "lua/api-gateway/dogstatsd/Dogstatsd.lua": {
+          "sha256": "1b4de022914b9dbb2c4178783059e6a023378d8397a4bebadcf8f98046729ffa",
+          "size": 3103,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/dogstatsd/Dogstatsd.lua"
+        },
+        "lua/api-gateway/redis/redisConnectionConfiguration.lua": {
+          "sha256": "acadf14a9b4118c7f34334844f1f49c14180710b069b6f5e6a2e8da7095dc662",
+          "size": 536,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/redis/redisConnectionConfiguration.lua"
+        },
+        "lua/api-gateway/redis/redisConnectionProvider.lua": {
+          "sha256": "d62fddd4748472fb647b0ec771030725d18aa4b3436d2f487d2594252df86c4f",
+          "size": 5573,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/redis/redisConnectionProvider.lua"
+        },
+        "lua/api-gateway/redis/redisHealthCheck.lua": {
+          "sha256": "166c494cb53afea1fba9abced0bd764b7bc22b8950627008cabfedd56b3f60e8",
+          "size": 7435,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/redis/redisHealthCheck.lua"
+        },
+        "lua/api-gateway/util/OauthClient.lua": {
+          "sha256": "0ed416bc4cd12aa059115f0c92e1eb10fc84005305237bea8c3197f3676e9044",
+          "size": 4881,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/util/OauthClient.lua"
+        },
+        "lua/api-gateway/util/hasher.lua": {
+          "sha256": "ca7b478a7d94931a6b88c5afac299f89974f42f626412f8a68340dafcd982649",
+          "size": 2515,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/util/hasher.lua"
+        },
+        "lua/api-gateway/util/logger.lua": {
+          "sha256": "526ede360ac8667747b1bb6cc3471ba2c1d262e5082786cab58db5dd9ff5608f",
+          "size": 2768,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/util/logger.lua"
+        },
+        "lua/api-gateway/validation/base.lua": {
+          "sha256": "6a3900bd700b4396302f840578b98dd129507d635790fd8d2ea0c7bdc5060af5",
+          "size": 1246,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/base.lua"
+        },
+        "lua/api-gateway/validation/factory.lua": {
+          "sha256": "898631391a189621182e4efc5f1c281ffafb3c0c2f9f2992531a2e04bfb716ee",
+          "size": 4924,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/factory.lua"
+        },
+        "lua/api-gateway/validation/key/redisApiKeyValidator.lua": {
+          "sha256": "07a636a5d94afd18dc125dab5a11502fd68c49cf8f5aaed83217ecc145775014",
+          "size": 7279,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/key/redisApiKeyValidator.lua"
+        },
+        "lua/api-gateway/validation/oauth2/oauthTokenValidator.lua": {
+          "sha256": "7fdc9e0b4db18a74bacaa626edca40ff22ba3ca655d0440ac6bffb6da34a6521",
+          "size": 10469,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/oauth2/oauthTokenValidator.lua"
+        },
+        "lua/api-gateway/validation/oauth2/userProfileValidator.lua": {
+          "sha256": "69f3fd3143472716d246ed646dda24b3b204aab27d98dcafb15e3589c7a07210",
+          "size": 10996,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/oauth2/userProfileValidator.lua"
+        },
+        "lua/api-gateway/validation/signing/hmacGenericSignatureValidator.lua": {
+          "sha256": "98c828d7d2e82eff0890ed1b944da4ceac8512b9d9ab3304617782cb0aaf78f9",
+          "size": 5020,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/signing/hmacGenericSignatureValidator.lua"
+        },
+        "lua/api-gateway/validation/validator.lua": {
+          "sha256": "dd2369949b63961dbcb9684c63e4ca38cba185ca7a5801e21d3eeec135c94908",
+          "size": 11628,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/validator.lua"
+        },
+        "lua/api-gateway/validation/validatorsHandler.lua": {
+          "sha256": "e9f1be875cb6e6c5684168f6994073d4fce63a3ffe360951227974c549e5b451",
+          "size": 11597,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/validatorsHandler.lua"
+        },
+        "lua/api-gateway/validation/validatorsHandlerErrorDecorator.lua": {
+          "sha256": "cb94a47cf827fc373e1008fa2939c0ef14a7ff0bd2513a106ce0aa35371849e2",
+          "size": 12194,
+          "url": "https://raw.githubusercontent.com/adobe-apiplatform/api-gateway-request-validation/b1192fd331a0bf04ae37fdd84314375a2c53e761/src/lua/api-gateway/validation/validatorsHandlerErrorDecorator.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 19 Oct 2018 11:41:47 GMT",
+        "rockspec": {
+          "date": "Fri, 19 Oct 2018 11:41:47 GMT",
+          "sha256": "53d772eab7c3e34bd07133420001f8ce930b085bd2e4ffde6ff60b80b98c82c0",
+          "size": 9282
+        }
+      },
+      "modules": [
+        "lua.api-gateway.dogstatsd.Dogstatsd",
+        "lua.api-gateway.redis.redisConnectionConfiguration",
+        "lua.api-gateway.redis.redisConnectionProvider",
+        "lua.api-gateway.redis.redisHealthCheck",
+        "lua.api-gateway.util.OauthClient",
+        "lua.api-gateway.util.hasher",
+        "lua.api-gateway.util.logger",
+        "lua.api-gateway.validation.base",
+        "lua.api-gateway.validation.factory",
+        "lua.api-gateway.validation.key.redisApiKeyValidator",
+        "lua.api-gateway.validation.oauth2.oauthTokenValidator",
+        "lua.api-gateway.validation.oauth2.userProfileValidator",
+        "lua.api-gateway.validation.signing.hmacGenericSignatureValidator",
+        "lua.api-gateway.validation.validator",
+        "lua.api-gateway.validation.validatorsHandler",
+        "lua.api-gateway.validation.validatorsHandlerErrorDecorator"
+      ],
+      "origin": {
+        "commit": "b1192fd331a0bf04ae37fdd84314375a2c53e761",
+        "ref": "api-gateway-request-validation-1.3.12",
+        "type": "git",
+        "url": "https://github.com/adobe-apiplatform/api-gateway-request-validation.git"
+      },
+      "size": 102164,
+      "summary": "Lua Module providing a request validation framework in the API Gateway.",
+      "undeclared_requires": [
+        "api-gateway.dogstatsd.Dogstatsd",
+        "api-gateway.redis.redisConnectionConfiguration",
+        "api-gateway.redis.redisConnectionProvider",
+        "api-gateway.redis.redisHealthCheck",
+        "api-gateway.util.OauthClient",
+        "api-gateway.util.hasher",
+        "api-gateway.util.logger",
+        "api-gateway.validation.base",
+        "api-gateway.validation.factory",
+        "api-gateway.validation.key.redisApiKeyValidator",
+        "api-gateway.validation.oauth2.oauthTokenValidator",
+        "api-gateway.validation.oauth2.userProfileValidator",
+        "api-gateway.validation.signing.hmacGenericSignatureValidator",
+        "api-gateway.validation.validator",
+        "api-gateway.validation.validatorsHandler",
+        "api-gateway.validation.validatorsHandlerErrorDecorator",
+        "resty.",
+        "resty.redis",
+        "resty.string",
+        "resty_dogstatsd"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.redis)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 5,
+        "status": "partial",
+        "total": 16
+      }
+    }
+  }
+}

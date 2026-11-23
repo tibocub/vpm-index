@@ -1,0 +1,342 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 08-11-2023 @author Swarg
+local M = {}
+--
+-- is string are object in lua-lang?
+M.NO_VALUE = ''
+
+
+function M.is_instanceof_cmd4lua(obj)
+  local o = obj
+
+  -- DEBUG
+  -- local o = parent
+  -- local b = type(o) == 'table'
+  -- local b1 = type(o.args) == 'table' or o.args == nil and type(o.ai) == 'number'
+  -- local b2 = (type(o.keys) == 'table' or o.keys == nil)
+  -- local b3 = (type(o.vars) == 'table' or o.vars == nil)
+  -- local b4 = type(o.new) == 'function'
+  -- dprint('parent:', b, 'args:', b1, 'keys:', b2, 'vars:', b3, 'new:', b4)
+
+  return o and type(o) == 'table' and
+      type(o.args) == 'table' and type(o.ai) == 'number' and
+      (type(o.keys) == 'table' or o.keys == nil) and
+      (type(o.vars) == 'table' or o.vars == nil) and
+      type(o.new) == 'function'
+end
+
+---@return boolean
+---@param arg string
+function M.is_optkey(arg)
+  -- TODO merge to one match-pattern
+  return arg ~= nil and type(arg) == 'string' and
+      arg:match('^%-[%-%w%_\\]+') ~= nil and
+      not arg:match('^%-[%-]?[%d]+.*')
+end
+
+function M.bool_or_def(s, def)
+  local t = type(s)
+  if t == 'boolean' then
+    return s
+  elseif t == 'string' and s ~= '' then
+    s = string.lower(s)
+    if (s == 'true' or s == 't' or s == '1') then
+      return true
+    elseif (s == 'false' or s == 'f' or s == '0') then
+      return false
+    end
+  elseif t == 'number' then
+    return s ~= 0
+  elseif t == 'table' then
+    return true
+  end
+  return def
+end
+
+-- the longes string first
+-- ensure the full name (swap to right order)
+function M.fullname_first(name, sn)
+  if name and sn and #sn > #name then
+    local tmp = name
+    name = sn
+    sn = tmp
+  end
+  return name, sn
+end
+
+---@param s string|nil
+function M.not_empty_or_nil(s)
+  if not s or s == '' or type(s) == 'function' then
+    return nil
+  end
+  return s
+end
+
+--
+---@param list table|nil  -- for self.thelp.opt
+---@param name string
+---@param sn string|nil
+function M.find_by_name(list, name, sn)
+  if list and name then
+    for _, d in pairs(list) do
+      if d.name == name or d.shortname == name
+          or sn and (d.name == sn or d.shortname == sn) then
+        return d
+      end
+    end
+  end
+  return nil
+end
+
+-- to check is a "list" or a "map"
+---@param t table
+function M.is_table_has_string_keys(t)
+  if type(t) == 'table' then
+    for k, _ in pairs(t) do
+      if type(k) == 'string' then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+---@param arg string? arg
+---@return boolean
+function M._is_helpcmd(arg)
+  return arg ~= nil and (arg == 'help' or arg == '--help' or arg == '?')
+end
+
+--
+-- length of the given value as string
+--
+---@return number
+---@param v any
+function M.len_as_str(v)
+  local vt = type(v)
+  if vt == 'string' then
+    return #v
+  elseif vt == 'nil' then
+    return 3
+  else
+    return #tostring(v)
+  end
+end
+
+-- find length of a longest string in the table with given key
+---@param entries table
+---@param key1 string
+---@param key2 string?
+---@param key3 string?
+---@return number, number, number
+function M.get_max_str_leng(entries, key1, key2, key3)
+  assert(type(entries) == 'table', 'entriies')
+  assert(type(key1) == 'string', 'key1')
+  assert(not key2 or type(key2) == 'string', 'key2')
+  assert(not key3 or type(key3) == 'string', 'key3')
+
+  local function max0(t, key, max)
+    if key and type(t) == 'table' and t[key] then
+      local len = M.len_as_str(t[key])
+      if len > max then
+        return len
+      end
+    end
+    return max
+  end
+
+  local max1, max2, max3, i = 0, 0, 0, 0
+  for _, e in pairs(entries) do
+    i = i + 1
+    max1 = max0(e, key1, max1)
+    max2 = max0(e, key2, max2)
+    max3 = max0(e, key3, max3)
+  end
+
+  return max1, max2, max3
+end
+
+--
+-- for debugging
+--
+---@param d table?{name, tag}
+---@return string
+function M.get_elm_name(d)
+  if d then
+    local s = ''
+    if d.name and d.name ~= '' then
+      s = '"' .. tostring(d.name) .. '"'
+    end
+    if d.tag and d.tag ~= '' then
+      if #s > 0 then s = s .. ' ' end
+      s = s .. 'tag:' .. tostring(d.tag)
+    end
+    if #s == 0 and d.ai then
+      s = 'arg#' .. tostring(d.ai)
+    end
+    return s
+  end
+  return '?'
+end
+
+--
+---@param d table{ai|tag}
+function M.get_arg_name(d)
+  if d and d.ai then
+    if not d.tag or d.tag == '' then
+      return '<Arg' .. tonumber(d.ai) .. '>'
+    else
+      return '<' .. tostring(d.tag) .. '>'
+    end
+  end
+  return '?'
+end
+
+-- generate the name of function (handler callback) for given command
+---@param tcmd table {name, tag}
+function M.get_cmdhandler_names(tcmd, method)
+  if tcmd then
+    local fname, exactly
+    if method then
+      fname = M.get_cmdhandler_methodname(tcmd.name)
+    else
+      fname = M.get_cmdhandler_funcname(tcmd.name)
+    end
+    if tcmd.tag then
+      exactly = tcmd.tag
+    end
+    return fname, exactly
+  end
+end
+
+---@return string|nil
+function M.get_cmdhandler_funcname(cmd_name)
+  if cmd_name then
+    assert(type(cmd_name) == 'string', 'cmd_name')
+    return 'cmd_' .. cmd_name:gsub('-', '_')
+  end
+end
+
+-- 'the-word-of-name'  -->  cmdTheWordOfName
+---@param cmd_name string?
+function M.get_cmdhandler_methodname(cmd_name)
+  if cmd_name then
+    assert(type(cmd_name) == 'string', 'cmd_name')
+
+    local m = 'cmd' .. string.upper(cmd_name:sub(1, 1))
+    local prev = 2
+    while prev < #cmd_name do
+      local i = cmd_name:find('-', prev)
+      if not i then
+        return m .. cmd_name:sub(prev)
+      end
+      m = m .. cmd_name:sub(prev, i - 1) .. cmd_name:sub(i + 1, i + 1):upper()
+      prev = i + 2
+    end
+    return m
+  end
+end
+
+---
+
+---@param opt table {name shortnam envar}
+function M.get_opt_name(opt, sep)
+  sep = sep or '|'
+  if opt and opt.name then
+    local name, envvar = '', opt.envvar_name
+    -- dprint('get-opt-name', name, envvar)
+
+    if envvar and envvar ~= '' then
+      name = '${' .. envvar .. '}' .. sep
+    end
+    if opt.shortname and opt.shortname ~= '' then
+      name = name .. opt.shortname .. sep
+    end
+    return name .. opt.name
+  end
+  return ''
+end
+
+function M.shallow_copy(val)
+  local orig_type = type(val)
+  local copy
+  if orig_type == 'table' then
+    copy = {}
+    for k, v in pairs(val) do
+      copy[k] = v
+    end
+  else -- number, string, boolean, etc
+    copy = val
+  end
+  return copy
+end
+
+--
+-- Assigning a value to a table field with the ability to create hierarchical
+-- records(with new subtable based on the given keyname)
+-- It derives from the key name a hierarchical path to a variable
+-- inside the table and assigns the specified value to it.
+-- You can prohibit the creation of new non-existing subtables via the flag
+-- mk_nodes = false. By default, subtables are created automatically
+--
+--  t = {}; set_value_to(t, 'root.subkey', 16) --> t.root.subkey = 16
+--
+---@param t table
+---@param keyname string
+---@param value any
+---@param mk_nodes boolean? default is true
+function M.set_value_to(t, keyname, value, mk_nodes)
+  assert(type(t) == 'table', 't table for vars')
+  assert(type(keyname) == 'string' and keyname ~= '', 'name (path in table)')
+  mk_nodes = mk_nodes == nil and true or mk_nodes
+
+  local prev, work, ot = 1, true, t
+  local path = {}
+
+  -- create the keys-path to value in the table
+  while work do
+    local i = keyname:find('.', prev, true)
+    if not i then
+      work = false
+      i = #keyname + 1
+    end
+    local key = keyname:sub(prev, i - 1)
+    if key ~= '' then
+      path[#path + 1] = key
+    end
+    prev = i + 1
+  end
+
+  -- get(with autocreate) subtable for assign the given value
+  for i = 1, #path - 1 do
+    local key = path[i]
+    if not mk_nodes and not t[key] then
+      return false
+    end
+    t[key] = t[key] or {}
+    t = t[key]
+  end
+
+  t[path[#path]] = value
+
+  return ot
+end
+
+return M

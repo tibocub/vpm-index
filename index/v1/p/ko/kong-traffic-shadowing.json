@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-traffic-shadowing",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/traffic-shadowing/handler.lua": {
+          "sha256": "eee2480dfb46a4f8d20b3a6b52e89fd01b8dfecfe251ea23a296f10ee920de3f",
+          "size": 2311,
+          "url": "blob:eee2480dfb46a4f8d20b3a6b52e89fd01b8dfecfe251ea23a296f10ee920de3f"
+        },
+        "kong/plugins/traffic-shadowing/schema.lua": {
+          "sha256": "dbb67194b314a88cb51efec42f8331a467dfb7e94a82e0793d7dcba53b92b7bd",
+          "size": 1060,
+          "url": "blob:dbb67194b314a88cb51efec42f8331a467dfb7e94a82e0793d7dcba53b92b7bd"
+        }
+      },
+      "host": "openresty",
+      "luarocks": {
+        "date": "Mon, 28 Oct 2024 14:10:00 GMT",
+        "rockspec": {
+          "date": "Mon, 28 Oct 2024 14:10:00 GMT",
+          "sha256": "7cd64867f7fc1dfcf4b72036ef82b26390721d93244e4c5f1fbe230ccfaeb0db",
+          "size": 547
+        },
+        "src": {
+          "date": "Mon, 28 Oct 2024 14:10:03 GMT",
+          "sha256": "c9e79b8c22cf80a615c135e3bab400b2ac1056f43a5a0c0f3083a7c07229b4c3",
+          "size": 16810,
+          "url": "https://luarocks.org/kong-traffic-shadowing-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.traffic-shadowing.handler",
+        "kong.plugins.traffic-shadowing.schema"
+      ],
+      "origin": {
+        "date": "Mon, 28 Oct 2024 14:10:03 GMT",
+        "sha256": "c9e79b8c22cf80a615c135e3bab400b2ac1056f43a5a0c0f3083a7c07229b4c3",
+        "size": 16810,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-traffic-shadowing-1.0.0-1.src.rock"
+      },
+      "size": 3371,
+      "summary": "Traffic Shadowing plugin for Kong API Gateway",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

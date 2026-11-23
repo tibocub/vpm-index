@@ -1,0 +1,171 @@
+--imports
+local SubParser = require("dogma.syn._.SubParser")
+local TokenType = require("dogma.lex.TokenType")
+local CoverageDirective = require("dogma.syn._.CoverageDirective")
+local IfDirective = require("dogma.syn._.IfDirective")
+local InsertDirective = require("dogma.syn._.InsertDirective")
+local RunWithDirective = require("dogma.syn._.RunWithDirective")
+local ReactDirective = require("dogma.syn._.ReactDirective")
+local EnvDirective = require("dogma.syn._.EnvDirective")
+
+--A directive parser.
+local DirectiveParser = {}
+DirectiveParser.__index = DirectiveParser
+setmetatable(DirectiveParser, {__index = SubParser})
+package.loaded[...] = DirectiveParser
+
+--Constructor.
+--
+--@param parser:Parser  Parser to use.
+function DirectiveParser.new(parser)
+  return setmetatable(SubParser.new(parser), DirectiveParser)
+end
+
+--Read a env directive.
+--
+--@return Directive
+function DirectiveParser:nextEnv()
+  local tok = self._.lexer:next(TokenType.DIRECTIVE)
+  return EnvDirective.new(tok.line, tok.col)
+end
+
+--Read a react directive.
+--
+--@return Directive
+function DirectiveParser:nextReact()
+  local tok = self._.lexer:next(TokenType.DIRECTIVE)
+  return ReactDirective.new(tok.line, tok.col)
+end
+
+--Read the coverage directive.
+--
+--@return Directive
+function DirectiveParser:nextCoverage()
+  local tok = self._.lexer:next(TokenType.DIRECTIVE)
+  return CoverageDirective.new(
+    tok.line,
+    tok.col,
+    tok.value == "coverage ignore" and "next" or tok.value:gsub("^coverage ignore ", "")
+  )
+end
+
+--Read the next insert directive.
+--
+--@return Directive
+function DirectiveParser:nextInsert()
+  local tok = self._.lexer:next(TokenType.DIRECTIVE)
+  return InsertDirective.new(tok.line, tok.col, tok.value:gsub("^insert ", ""))
+end
+
+--Read the next if directive.
+--
+--@return Directive
+function DirectiveParser:nextIf()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, cond, body, elif, el
+
+  --(1) read if
+  tok = lex:next(TokenType.DIRECTIVE)
+  ln, col = tok.line, tok.col
+
+  if tok.value:find("^if [a-zA-Z_0-9]+ then$") then
+    cond = {tok.value:match("^if ([a-zA-Z_0-9]+) then$")}
+  elseif tok.value:find("^if [a-zA-Z_0-9]+ or [a-zA-Z_0-9]+ then$") then
+    cond = {tok.value:match("^if ([a-zA-Z_0-9]+) or ([a-zA-Z_0-9]+) then$")}
+  else
+    cond = tok.value:match("^if (not [a-zA-Z_0-9]+) then$")
+  end
+
+  body = {}
+  while true do
+    tok = lex:advance()
+
+    if tok == nil then
+      break
+    elseif tok.type == TokenType.EOL then
+      lex:next()
+    else
+      if tok.type == TokenType.DIRECTIVE then
+        if tok.value:find("^else if ") or tok.value == "else" or tok.value == "end" then
+          break
+        else
+          self:_raise("'if' directive can't be nested.", tok)
+        end
+      end
+
+      table.insert(body, parser:next())
+    end
+  end
+
+  --(2) read else if
+  tok = lex:advance()
+
+  if tok and tok.type == TokenType.DIRECTIVE and tok.value:find("^else if ") then
+    lex:next()
+    elif = {cond = tok.value:match("^else if ([a-zA-Z_0-9]+) then$")}
+    elif.body = {}
+
+    while true do
+      tok = lex:advance()
+
+      if tok == nil then
+        break
+      elseif tok.type == TokenType.EOL then
+        lex:next()
+      else
+        if tok.type == TokenType.DIRECTIVE then
+          if tok.value == "else" or tok.value == "end" then
+            break
+          else
+            self:_raise("'else if' directive can't be nested.", tok)
+          end
+        end
+
+        table.insert(elif.body, parser:next())
+      end
+    end
+  end
+
+  --(3) read else
+  tok = lex:advance()
+
+  if tok and tok.type == TokenType.DIRECTIVE and tok.value == "else" then
+    lex:next()
+
+    el = {}
+    while true do
+      tok = lex:advance()
+
+      if tok.type == TokenType.EOL then
+        lex:next()
+      else
+        if tok.type == TokenType.DIRECTIVE then
+          if tok.value == "end" then
+            break
+          else
+            self:_raise("'else' directive can't be nested.", tok)
+          end
+        end
+
+        table.insert(el, parser:next())
+      end
+    end
+  end
+
+  --(4) read end
+  lex:next(TokenType.DIRECTIVE, "end")
+
+  --(5) return
+  return IfDirective.new(ln, col, cond, body, elif, el)
+end
+
+--Read the next #!/... directive.
+--
+--@return RunWithDirective
+function DirectiveParser:nextRunWith()
+  local lex = self._.lexer
+  local tok
+
+  tok = lex:next(TokenType.DIRECTIVE)
+  return RunWithDirective.new(tok.line, tok.col, tok.value)
+end

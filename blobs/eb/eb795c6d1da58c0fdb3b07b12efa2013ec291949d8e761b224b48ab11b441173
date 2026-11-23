@@ -1,0 +1,66 @@
+-- utils.lua
+local M = {}
+local uvx_paths = {}
+local uvx_deps = {}
+local messages_module
+
+--- Load the messages module only when needed
+local function load_messages_module()
+	if not messages_module then
+		messages_module = require("rockydocs.messages")
+	end
+	return messages_module
+end
+
+--- Set the paths and dependencies for uvx (called from setup)
+--- @param paths table List of paths to search for uvx
+--- @param deps table List of dependencies to install with uvx
+function M.set_uvx_paths(paths, deps)
+	uvx_paths = paths
+	uvx_deps = deps
+end
+
+--- Function to retrieve a message by key
+--- @param category string The category of the message (e.g., "server", "build")
+--- @param key string The key of the message within the category
+--- @return string The formatted message
+function M.get_msg(category, key)
+	local messages = load_messages_module()
+	if not messages.messages[category] then
+		error(string.format("Message category '%s' does not exist.", category))
+	end
+	if not messages.messages[category][key] then
+		error(string.format("Message key '%s' does not exist in category '%s'.", key, category))
+	end
+	return messages.messages[category][key]
+end
+
+--- Check if `uvx` is available in any of the configured paths
+--- @return string|boolean The path to `uvx` if found, otherwise `false`
+function M.is_uvx_available()
+	for _, path in ipairs(uvx_paths) do
+		local expanded_path = vim.fn.expand(path)
+		if vim.fn.executable(expanded_path) == 1 then
+			return expanded_path
+		end
+	end
+	return false
+end
+
+--- Build the uvx command with dependencies
+--- @param command string The base command to execute
+--- @return string The full uvx command with dependencies
+function M.build_uvx_command(command)
+	if not command or command == "" then
+		error("Command cannot be empty.")
+	end
+
+	local deps_str = ""
+	for _, dep in ipairs(uvx_deps) do
+		deps_str = deps_str .. " --with " .. dep
+	end
+
+	return string.format("uvx%s %s", deps_str, command)
+end
+
+return M

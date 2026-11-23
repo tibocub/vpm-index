@@ -1,0 +1,130 @@
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local string = _tl_compat and _tl_compat.string or string
+
+local ast_traversal = require("cerulean.ast_traversal")
+local block_doc = require("cerulean.block_doc")
+local options = require("cerulean.options")
+local parser = require("cerulean.parser")
+local require_sort = require("cerulean.require_sort")
+local source = require("cerulean.source")
+
+
+
+
+
+
+
+
+
+local rewriter = { Status = Status }
+
+local Rewrite = {}
+
+
+
+
+
+
+function Rewrite.new(
+   output,
+   status,
+   parse_errors,
+   failure_reason)
+
+   local self = setmetatable({}, { __index = Rewrite })
+   self.output = output
+   self.status = status
+   self.parse_errors = parse_errors
+   self.failure_reason = failure_reason or ""
+   return self
+end
+
+local FormatterContext = {}
+
+
+
+
+
+function FormatterContext.new(
+   ast, source_text, fmt_off_regions)
+
+   local self = setmetatable({}, { __index = FormatterContext })
+   self.ast = ast
+   self.source_text = source_text
+   self.fmt_off_regions = fmt_off_regions
+   return self
+end
+
+local function build_formatter_context(
+   source_code, ast)
+
+   local source_text = source.Text.new(source_code)
+   local source_blocks = ast_traversal.collect_block_ranges(ast)
+   local fmt_off_regions = source.collect_fmt_off_regions(source_text, source_blocks)
+
+   return FormatterContext.new(ast, source_text, fmt_off_regions)
+end
+
+local function render_with_ast(
+   source_, ast, opts)
+
+   local context = build_formatter_context(source_, ast)
+   local ctx = block_doc.make_context(
+   context.fmt_off_regions, context.source_text.lines)
+
+   if opts.sort_requires then
+      require_sort.sort_top_level_requires(context.ast, context.fmt_off_regions)
+   end
+   return block_doc.render_block(
+   ctx, context.ast, opts.max_line_width, opts.indent_width)
+
+end
+
+
+
+
+local function output_failure(
+   source_comments, output, filename)
+
+   local _, parse_errors, _, output_comments = parser.parse(output, filename)
+   if #parse_errors > 0 then
+      return "the formatter produced output that is not valid Teal"
+   end
+   if source_comments ~= output_comments then
+      return string.format(
+      "the formatter changed the number of comments (%d -> %d)",
+      source_comments,
+      output_comments)
+
+   end
+   return nil
+end
+
+function rewriter.rewrite(
+   source_, filename, opts)
+
+   local ast, parse_errors, _, source_comments = parser.parse(source_, filename)
+   if #parse_errors > 0 then
+      return Rewrite.new(source_, "unchanged", parse_errors)
+   end
+
+   local output = render_with_ast(source_, ast, opts)
+   if not output then
+      return Rewrite.new(
+      source_, "failed", {}, "the formatter could not render this file")
+
+   end
+
+
+
+   local failure = output_failure(source_comments, output, filename)
+   if failure then
+      return Rewrite.new(source_, "failed", {}, failure)
+   end
+
+   if output == source_ then
+      return Rewrite.new(output, "unchanged", {})
+   end
+   return Rewrite.new(output, "reformatted", {})
+end
+
+return rewriter

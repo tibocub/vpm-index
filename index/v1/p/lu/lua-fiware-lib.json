@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "lua-fiware-lib",
+  "versions": {
+    "0.0.13-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openssl >= 0.8.1",
+        "lua-resty-http == 0.16.1",
+        "lua-resty-jwt == 0.2.3"
+      ],
+      "files": {
+        "fiware/ishare/ishare_handler.lua": {
+          "sha256": "f9e99f9a9bcbcc24afb1789572be839bd627b2869bf5a33ad23100528c6e00c9",
+          "size": 12057,
+          "url": "https://raw.githubusercontent.com/fiware/lua-fiware-lib/a89f4c2b8d56ae582c38c259dd8a3ae881945e1e/lib/fiware/ishare/ishare_handler.lua"
+        },
+        "fiware/ishare/ishare_helper.lua": {
+          "sha256": "5c2f39399ea9d35e2658e983fe17741f838549f60caa4b4d51df1190f3316455",
+          "size": 20942,
+          "url": "https://raw.githubusercontent.com/fiware/lua-fiware-lib/a89f4c2b8d56ae582c38c259dd8a3ae881945e1e/lib/fiware/ishare/ishare_helper.lua"
+        },
+        "fiware/ishare/sp_auth_endpoint_handler.lua": {
+          "sha256": "51992ef522a3d3686211d1f178fa31c57f625d4572e62e78ec1cac5429879847",
+          "size": 7743,
+          "url": "https://raw.githubusercontent.com/fiware/lua-fiware-lib/a89f4c2b8d56ae582c38c259dd8a3ae881945e1e/lib/fiware/ishare/sp_auth_endpoint_handler.lua"
+        },
+        "fiware/ngsi/ngsi_helper.lua": {
+          "sha256": "f894167867b30ee39975b4f97921c3b5f67665fbd14426acc71fc1b8c7a9d081",
+          "size": 26292,
+          "url": "https://raw.githubusercontent.com/fiware/lua-fiware-lib/a89f4c2b8d56ae582c38c259dd8a3ae881945e1e/lib/fiware/ngsi/ngsi_helper.lua"
+        }
+      },
+      "homepage": "https://github.com/fiware/lua-fiware-lib",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 28 Aug 2023 14:55:01 GMT",
+        "rockspec": {
+          "date": "Mon, 28 Aug 2023 14:55:01 GMT",
+          "sha256": "3e3651208114d0a383e603e9f415fd958b6d70cd7789e5ce59bef3b5645bf2eb",
+          "size": 1033
+        },
+        "src": {
+          "date": "Mon, 28 Aug 2023 14:55:02 GMT",
+          "sha256": "4d7c6160b0f019c50bc7cbf9509af819f0e6c21ef54d72f40139567f2e7e0c4a",
+          "size": 84728,
+          "url": "https://luarocks.org/lua-fiware-lib-0.0.13-1.src.rock"
+        }
+      },
+      "modules": [
+        "fiware.ishare.ishare_handler",
+        "fiware.ishare.ishare_helper",
+        "fiware.ishare.sp_auth_endpoint_handler",
+        "fiware.ngsi.ngsi_helper"
+      ],
+      "origin": {
+        "commit": "a89f4c2b8d56ae582c38c259dd8a3ae881945e1e",
+        "ref": "0.0.13",
+        "type": "git",
+        "url": "https://github.com/fiware/lua-fiware-lib.git"
+      },
+      "size": 67034,
+      "summary": "Common FIWARE lua modules",
+      "undeclared_requires": [
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

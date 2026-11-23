@@ -1,0 +1,148 @@
+local User = require("luacord.structures.User")
+local Member = require("luacord.structures.Member")
+
+local Message = {}
+Message.__index = Message
+
+---Create a Message structure from Discord payload data.
+---@param data table
+---@param client table
+---@return table
+function Message.new(data, client)
+  assert(type(data) == "table", "Message.new expects a table payload")
+  local self = setmetatable({}, Message)
+  self._client = client
+  self:_patch(data)
+  return self
+end
+
+---Patch this message with fresh payload data.
+---@param data table
+function Message:_patch(data)
+  self.id = data.id or self.id
+  self.channel_id = data.channel_id or self.channel_id
+  self.guild_id = data.guild_id or self.guild_id
+  self.content = data.content or self.content
+  self.timestamp = data.timestamp or self.timestamp
+  self.edited_timestamp = data.edited_timestamp or self.edited_timestamp
+  self.tts = data.tts or false
+  self.mention_everyone = data.mention_everyone or false
+  self.mentions = data.mentions or self.mentions or {}
+  self.mention_roles = data.mention_roles or self.mention_roles or {}
+  self.attachments = data.attachments or self.attachments or {}
+  self.embeds = data.embeds or self.embeds or {}
+  self.reactions = data.reactions or self.reactions or {}
+  self.type = data.type or self.type
+  self.flags = data.flags or self.flags
+  self.poll = data.poll or self.poll
+
+  if data.author then
+    self.author = self.author and self.author or User.new(data.author, self._client)
+    if self.author then
+      self.author:_patch(data.author)
+    end
+  end
+  if data.member then
+    self.member = self.member and self.member or Member.new(data.member, self._client, self.guild_id)
+    self.member:_patch(data.member)
+  end
+end
+
+---Reply to this message.
+---@param content string|table
+---@param options? table
+---@return table|nil, table|nil
+function Message:reply(content, options)
+  local payload
+  if type(content) == "table" then
+    payload = content
+  else
+    payload = options or {}
+    payload.content = tostring(content)
+  end
+  payload.message_reference = payload.message_reference or {
+    message_id = self.id,
+    channel_id = self.channel_id,
+    guild_id = self.guild_id,
+  }
+  local data, err = self._client.rest:createMessage(self.channel_id, payload)
+  if not data then
+    return nil, err
+  end
+  return self._client:_makeMessage(data)
+end
+
+---Edit this message.
+---@param payload table|string
+---@return table|nil, table|nil
+function Message:edit(payload)
+  local body = payload
+  if type(payload) == "string" then
+    body = { content = payload }
+  end
+  local data, err = self._client.rest:editMessage(self.channel_id, self.id, body)
+  if not data then
+    return nil, err
+  end
+  self:_patch(data)
+  return self
+end
+
+---Delete this message.
+---@param reason? string
+---@return boolean, table|nil
+function Message:delete(reason)
+  local data, err = self._client.rest:deleteMessage(self.channel_id, self.id, reason)
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+---Add a reaction to this message.
+---@param emoji string
+---@return boolean, table|nil
+function Message:react(emoji)
+  local encoded = tostring(emoji):gsub("#", "%%23")
+  local data, err = self._client.rest:put(
+    "/channels/" .. tostring(self.channel_id) .. "/messages/" .. tostring(self.id) .. "/reactions/" .. encoded .. "/@me"
+  )
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+---Pin this message.
+---@param reason? string
+---@return boolean, table|nil
+function Message:pin(reason)
+  local data, err = self._client.rest:put(
+    "/channels/" .. tostring(self.channel_id) .. "/pins/" .. tostring(self.id),
+    nil,
+    nil,
+    reason
+  )
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+---Unpin this message.
+---@param reason? string
+---@return boolean, table|nil
+function Message:unpin(reason)
+  local data, err = self._client.rest:delete(
+    "/channels/" .. tostring(self.channel_id) .. "/pins/" .. tostring(self.id),
+    nil,
+    reason
+  )
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+return Message
+

@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-soap4kong",
+  "versions": {
+    "0.1.3-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "xml2lua >= 1.5-2",
+        "lua-cjson >= 2.1.0.6-1",
+        "lua-resty-template >= 2.0-1"
+      ],
+      "files": {
+        "kong/plugins/soap4kong/handler.lua": {
+          "sha256": "2d67fb1dde4fcdc6b5b06710b82c62ec1810c6f00e52fea855397114c74eceb6",
+          "size": 3781,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong/handler.lua"
+        },
+        "kong/plugins/soap4kong/schema.lua": {
+          "sha256": "52d87be79f849496622830c51dcfd0027d1479b6eb8048335b8dccf1a0ef658a",
+          "size": 2171,
+          "url": "https://raw.githubusercontent.com/MadeByMakers/kong-plugin-soap4kong/3f9861d58d07708bbb7e3ca443fb03421b13c709/kong/plugins/soap4kong/schema.lua"
+        }
+      },
+      "homepage": "https://madebymakers.github.io/kong-plugin-soap4kong/",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Sat, 02 Oct 2021 18:20:01 GMT",
+        "rockspec": {
+          "date": "Sat, 02 Oct 2021 18:20:01 GMT",
+          "sha256": "52196663ae5711d7b0dc8084898018ab0751aa62acd3c59e7d50f684bccb7720",
+          "size": 862
+        },
+        "src": {
+          "date": "Sat, 02 Oct 2021 18:20:03 GMT",
+          "sha256": "2e24795271f8827f023088df777d0098a2d03a6de0e0e81c661c8f7bdd097376",
+          "size": 92426,
+          "url": "https://luarocks.org/kong-plugin-soap4kong-0.1.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.soap4kong.handler",
+        "kong.plugins.soap4kong.schema"
+      ],
+      "origin": {
+        "commit": "3f9861d58d07708bbb7e3ca443fb03421b13c709",
+        "ref": "0.1.3",
+        "type": "git",
+        "url": "https://github.com/MadeByMakers/kong-plugin-soap4kong"
+      },
+      "size": 5952,
+      "summary": "A plugin for the Kong Microservice API Gateway to convert a REST API request to a SOAP request and convert the SOAP Response to json",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

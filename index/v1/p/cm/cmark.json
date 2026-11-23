@@ -1,0 +1,94 @@
+{
+  "kind": "lib",
+  "name": "cmark",
+  "versions": {
+    "0.31.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "cmark/builder.lua": {
+          "sha256": "74426addf5c25e353a918d8047dd8da5f7f823ab925b8fd6eb6fd1b420aea62e",
+          "size": 7169,
+          "url": "blob:74426addf5c25e353a918d8047dd8da5f7f823ab925b8fd6eb6fd1b420aea62e"
+        }
+      },
+      "homepage": "https://github.com/jgm/cmark-lua",
+      "license": "BSD2",
+      "luarocks": {
+        "date": "Sat, 03 Aug 2024 15:48:33 GMT",
+        "rockspec": {
+          "date": "Sat, 03 Aug 2024 15:48:33 GMT",
+          "sha256": "957f9828857ddc9871effffd6285482c1f64d4ddb328d1107007d637fa5e8d03",
+          "size": 1606
+        },
+        "src": {
+          "date": "Sat, 03 Aug 2024 15:48:34 GMT",
+          "sha256": "a9fbbdc3c31e8c8bdbe8c991e76e51eedcfa8e7663c3be7645657a491ffd2c1f",
+          "size": 244868,
+          "url": "https://luarocks.org/cmark-0.31.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "cmark",
+        "cmark.builder"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                ".",
+                "ext"
+              ],
+              "name": "cmark",
+              "sources": [
+                "cmark_wrap.c",
+                "ext/blocks.c",
+                "ext/houdini_html_u.c",
+                "ext/references.c",
+                "ext/buffer.c",
+                "ext/html.c",
+                "ext/render.c",
+                "ext/cmark.c",
+                "ext/inlines.c",
+                "ext/scanners.c",
+                "ext/cmark_ctype.c",
+                "ext/iterator.c",
+                "ext/utf8.c",
+                "ext/commonmark.c",
+                "ext/latex.c",
+                "ext/xml.c",
+                "ext/houdini_href_e.c",
+                "ext/man.c",
+                "ext/houdini_html_e.c",
+                "ext/node.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 03 Aug 2024 15:48:34 GMT",
+        "sha256": "a9fbbdc3c31e8c8bdbe8c991e76e51eedcfa8e7663c3be7645657a491ffd2c1f",
+        "size": 244868,
+        "type": "luarocks",
+        "url": "https://luarocks.org/cmark-0.31.1-1.src.rock"
+      },
+      "size": 7169,
+      "summary": "Lua wrapper for libcmark, CommonMark Markdown parsing\n      and rendering library",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

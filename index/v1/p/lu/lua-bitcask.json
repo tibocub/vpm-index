@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "lua-bitcask",
+  "versions": {
+    "0.3.20210928-1": {
+      "bin": [],
+      "deps": [
+        "lua-struct",
+        "luafilesystem >= 1.5"
+      ],
+      "files": {
+        "bitcask.lua": {
+          "sha256": "1fa55046081e59641eb9c7890bca0b02d96c4d6520fd2863b159ad58db3e623b",
+          "size": 15408,
+          "url": "blob:1fa55046081e59641eb9c7890bca0b02d96c4d6520fd2863b159ad58db3e623b"
+        }
+      },
+      "homepage": "https://github.com/lalawue/lua-bitcask",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 28 Sep 2021 14:05:10 GMT",
+        "rockspec": {
+          "date": "Tue, 28 Sep 2021 14:05:10 GMT",
+          "sha256": "5acb6698c294dff6411797b002ceaa5a87b1df5afcae0ce8fa0ef337cfeb6379",
+          "size": 628
+        },
+        "src": {
+          "date": "Tue, 28 Sep 2021 14:05:11 GMT",
+          "sha256": "3eb10b11c0ec99309eca9f363865e91c87fa0f956b88e2de359be6cde22211a8",
+          "size": 12039,
+          "url": "https://luarocks.org/lua-bitcask-0.3.20210928-1.src.rock"
+        }
+      },
+      "modules": [
+        "bitcask",
+        "bitcask.crc32"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "bitcask.crc32",
+              "sources": [
+                "crc32.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 28 Sep 2021 14:05:11 GMT",
+        "sha256": "3eb10b11c0ec99309eca9f363865e91c87fa0f956b88e2de359be6cde22211a8",
+        "size": 12039,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-bitcask-0.3.20210928-1.src.rock"
+      },
+      "size": 15408,
+      "summary": "Bitcask Key/Value store for Lua",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

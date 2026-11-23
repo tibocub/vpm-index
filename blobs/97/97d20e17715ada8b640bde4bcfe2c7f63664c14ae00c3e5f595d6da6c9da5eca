@@ -1,0 +1,104 @@
+
+--
+-- lua-Rotas : <https://fperrad.frama.io/lua-Rotas>
+--
+
+local assert = assert
+local error = error
+local rawset = rawset
+local require = require
+local setmetatable = setmetatable
+local type = type
+
+local _ENV = nil
+local m = {}
+
+m.http_methods = {
+    'DELETE',
+    'GET',
+    'HEAD',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'TRACE',
+}
+
+m.matcher = 'Silva.template'
+
+local function make_key (k)
+    if type(k) == 'string' then
+        return require(m.matcher)(k)
+    end
+    assert(type(k) == 'function', 'key not callable')
+    return k
+end
+
+local function build_single ()
+    local cache = {}
+    return setmetatable({}, {
+        __newindex = function (t, k, v)
+            k = make_key(k)
+            rawset(t, #t+1, k)
+            cache[k] = v
+        end,
+        __call = function (t, url)
+            for i = 1, #t do
+                local sme = t[i]
+                local capture = sme(url)
+                if capture then
+                    return cache[sme], capture
+                end
+            end
+        end,
+    })
+end
+
+local function build_all (all)
+    return setmetatable({}, {
+        __newindex = function (_, k, v)
+            k = make_key(k)
+            for i = 1, #all do
+                local t = all[i]
+                t[k] = v
+            end
+        end,
+        __call = function ()
+            error('allowed only for registration')
+        end,
+    })
+end
+
+local function new (p)
+    local o = {}
+    local all = {}
+    for i = 1, #m.http_methods do
+        local meth = m.http_methods[i]
+        local t = build_single()
+        o[meth] = t
+        all[#all+1] = t
+    end
+    o.ALL = build_all(all)
+    return setmetatable(o, {
+        __call = function (t, meth, url)
+            if t[meth] then
+                return t[meth](url)
+            end
+        end,
+        __index = p,
+    })
+end
+
+setmetatable(m, {
+    __call = function (_, t) return new(t) end
+})
+
+m._NAME = ...
+m._VERSION = "0.3.1"
+m._DESCRIPTION = "lua-Rotas : a web server router"
+m._COPYRIGHT = "Copyright (c) 2018-2023 Francois Perrad"
+return m
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

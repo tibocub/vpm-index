@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "lapis-systemd",
+  "versions": {
+    "2.1.0-1": {
+      "bin": [],
+      "deps": [
+        "lapis",
+        "inifile"
+      ],
+      "files": {
+        "lapis/cmd/actions/systemd.lua": {
+          "sha256": "e2917c2d1f59bc0868e98e81a24649f1acaded7116073a706096bc0b2cfcf24c",
+          "size": 2000,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-systemd/c8df8c9132519bcbc9a904c2573edc215bc570c3/lapis/cmd/actions/systemd.lua"
+        },
+        "lapis/systemd/journal.lua": {
+          "sha256": "729cdc0b0945a1bf3bffe31e3cdfd306a5d563448f91bf5b70225190651979a9",
+          "size": 4364,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-systemd/c8df8c9132519bcbc9a904c2573edc215bc570c3/lapis/systemd/journal.lua"
+        },
+        "lapis/systemd/service.lua": {
+          "sha256": "ee873869af76ea32614f6442981fbef2c411e184aa6dc40b42c08aaf041046e8",
+          "size": 5243,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-systemd/c8df8c9132519bcbc9a904c2573edc215bc570c3/lapis/systemd/service.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "== 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 11 Apr 2024 20:31:55 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Apr 2024 20:31:55 GMT",
+          "sha256": "6d6b626c49ff703ff6d7a8e4921494188cdeda3b230d3c504f938f71a40ee885",
+          "size": 567
+        },
+        "src": {
+          "date": "Thu, 11 Apr 2024 20:31:55 GMT",
+          "sha256": "71caae77458a94173c46524481d94b7322002459f57be38bab45ad0009ff79e5",
+          "size": 14427,
+          "url": "https://luarocks.org/lapis-systemd-2.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "lapis.cmd.actions.systemd",
+        "lapis.systemd.journal",
+        "lapis.systemd.service"
+      ],
+      "origin": {
+        "commit": "c8df8c9132519bcbc9a904c2573edc215bc570c3",
+        "ref": "v2.1.0",
+        "type": "git",
+        "url": "https://github.com/leafo/lapis-systemd.git"
+      },
+      "size": 11607,
+      "summary": "Integrate Lapis with systemd",
+      "undeclared_requires": [
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,680 @@
+local json = require('panto').ext.json
+local async = require('panto_mcp.async')
+local M = {}
+local Transport = {}; Transport.__index = Transport
+local MAX_BODY,MAX_ERROR_BODY,FIRE_TIMEOUT_MS=16*1024*1024,1024,10000
+local method_support=setmetatable({}, {__mode='k'})
+
+local function cancel_handle(handle)
+    if handle and type(handle.cancel)=='function' then pcall(handle.cancel,handle) end
+end
+local function newer_error()
+    return 'URL MCP servers require a newer panto with HTTP POST and streaming support'
+end
+M.newer_error=newer_error
+function M.methods_supported(request_fn)
+    if type(request_fn)~='function' then return false end
+    local cached=method_support[request_fn]
+    if cached~=nil then return cached end
+    -- A supported API rejects OPTIONS during parsing, before opening a socket.
+    local ok,handle,err=pcall(request_fn,{url='http://127.0.0.1:1/',method='OPTIONS',timeout_ms=1},function() end)
+    local supported=ok and not handle and type(err)=='string' and err:find('invalid HTTP request options',1,true)~=nil
+    if handle then cancel_handle(handle) end
+    method_support[request_fn]=not not supported
+    return not not supported
+end
+
+local function header_value(headers,name)
+    local value=headers and headers[name:lower()]
+    if type(value)=='table' then return value[1] end
+    return value
+end
+local function set_header(out,lower,name,value)
+    local key=name:lower()
+    if lower[key] then out[lower[key]]=nil end
+    lower[key]=name; out[name]=value
+end
+local function remove_header(out,lower,name)
+    local key=name:lower()
+    if lower[key] then out[lower[key]]=nil; lower[key]=nil end
+end
+local function b64(value)
+    local alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    local out={}
+    for i=1,#value,3 do
+        local a,b,c=value:byte(i,i+2); b=b or 0; c=c or 0
+        local n=(a<<16)|(b<<8)|c
+        out[#out+1]=alphabet:sub(((n>>18)&63)+1,((n>>18)&63)+1)
+        out[#out+1]=alphabet:sub(((n>>12)&63)+1,((n>>12)&63)+1)
+        out[#out+1]=i+1<=#value and alphabet:sub(((n>>6)&63)+1,((n>>6)&63)+1) or '='
+        out[#out+1]=i+2<=#value and alphabet:sub((n&63)+1,(n&63)+1) or '='
+    end
+    return table.concat(out)
+end
+local function encode_value(value)
+    local safe=not (value:match('^[ \t]') or value:match('[ \t]$') or
+        (value:sub(1,9)=='=?base64?' and value:sub(-2)=='?='))
+    if safe then
+        for i=1,#value do local b=value:byte(i); if not (b==9 or b==32 or (b>=33 and b<=126)) then safe=false; break end end
+    end
+    if safe then return value end
+    return '=?base64?'..b64(value)..'?='
+end
+M.encode_header_value=encode_value
+
+local tchar={}
+for c in ('!#$%&\'*+-.^_`|~'):gmatch('.') do tchar[c]=true end
+local function valid_token(value)
+    if type(value)~='string' or value=='' then return false end
+    for i=1,#value do
+        local b=value:byte(i)
+        if not ((b>=48 and b<=57) or (b>=65 and b<=90) or (b>=97 and b<=122) or tchar[value:sub(i,i)]) then return false end
+    end
+    return true
+end
+function M.validate_param_headers(schema)
+    local found,seen,reason={}, {}, nil
+    local total,reachable=0,0
+    local instance_data={enum=true,const=true,default=true,examples=true}
+    local function reject(text) reason=reason or text end
+    local function count(value)
+        if type(value)~='table' then return end
+        if value['x-mcp-header']~=nil then total=total+1 end
+        for key,child in pairs(value) do
+            if key=='properties' or key=='patternProperties' or key=='dependentSchemas' or key=='dependencies' or key=='$defs' or key=='definitions' then
+                if type(child)=='table' then for _,nested in pairs(child) do count(nested) end end
+            elseif not instance_data[key] then count(child) end
+        end
+    end
+    local function get_type(value)
+        local types={}
+        if type(value)=='string' then types[1]=value
+        elseif type(value)=='table' then
+            local n=0
+            for k,t in pairs(value) do
+                if type(k)~='number' or k<1 or k%1~=0 or type(t)~='string' then return nil end
+                n=n+1; types[#types+1]=t
+            end
+            if n~=#value then return nil end
+        else return nil end
+        local base
+        for _,t in ipairs(types) do
+            if t~='null' then
+                if base then return nil end
+                base=t
+            end
+        end
+        if base=='string' or base=='integer' or base=='boolean' then return base end
+        return nil
+    end
+    local function walk(node,path,reachable_path)
+        if type(node)~='table' then return end
+        local name=node['x-mcp-header']
+        if name~=nil and reachable_path then
+            reachable=reachable+1
+            local primitive=get_type(node.type)
+            if #path==0 then reject('x-mcp-header must annotate a parameter property')
+            elseif not valid_token(name) then reject('x-mcp-header must be an HTTP token')
+            elseif not primitive then reject('x-mcp-header requires string, integer, or boolean')
+            else
+                local key=name:lower()
+                if seen[key] then reject('x-mcp-header names must be case-insensitively unique')
+                else seen[key]=true; found[#found+1]={name=name,path=path,type=primitive} end
+            end
+        end
+        local properties=node.properties
+        if type(properties)=='table' then
+            for property,child in pairs(properties) do
+                if type(property)=='string' and type(child)=='table' then
+                    local nested={}; for i,v in ipairs(path) do nested[i]=v end; nested[#nested+1]=property
+                    walk(child,nested,reachable_path)
+                elseif type(child)=='table' then walk(child,path,false) end
+            end
+        end
+    end
+    count(schema); walk(schema,{},true)
+    if total~=reachable then reject('x-mcp-header is not statically reachable through properties') end
+    if reason then return nil,reason end
+    return found
+end
+function M.filter_tools(tools,server,quiet)
+    local filtered,headers=json.array({}),{}
+    for _,tool in ipairs(tools or {}) do
+        local annotations,why=M.validate_param_headers(type(tool)=='table' and tool.inputSchema or nil)
+        if annotations then
+            filtered[#filtered+1]=tool
+            if #annotations>0 and type(tool)=='table' and type(tool.name)=='string' then headers[tool.name]=annotations end
+        else
+            local name=type(tool)=='table' and tostring(tool.name or '?') or '?'
+            name=name:gsub('[%z\1-\31\127]','?'):sub(1,100)
+            if not quiet then io.stderr:write('panto-mcp: ',tostring(server),': excluded tool ',name,': invalid x-mcp-header (',why,')\n') end
+        end
+    end
+    return filtered,headers
+end
+local function param_value(spec,arguments)
+    local value=arguments
+    for _,key in ipairs(spec.path) do if type(value)~='table' then return nil end; value=value[key] end
+    if value==nil or value==json.null then return nil end
+    if spec.type=='string' then
+        if type(value)~='string' then return nil,'must be a string' end
+    elseif spec.type=='boolean' then
+        if type(value)~='boolean' then return nil,'must be a boolean' end
+        value=value and 'true' or 'false'
+    elseif spec.type=='integer' then
+        if type(value)~='number' or value%1~=0 or math.abs(value)>9007199254740991 then return nil,'must be a safe integer' end
+        value=string.format('%.0f',value)
+    else return nil,'has an unsupported annotated type' end
+    return encode_value(value)
+end
+M.parameter_value=param_value
+function M.headers(cfg,opts,session_id)
+    opts=opts or {}
+    local out,lower={},{}
+    for name,value in pairs(cfg.headers or {}) do set_header(out,lower,name,value) end
+    set_header(out,lower,'Accept','application/json, text/event-stream')
+    set_header(out,lower,'Content-Type','application/json')
+    if opts.era=='modern' then
+        remove_header(out,lower,'Mcp-Session-Id')
+        set_header(out,lower,'MCP-Protocol-Version',opts.protocol_version or '2026-07-28')
+        set_header(out,lower,'Mcp-Method',opts.method or '')
+        remove_header(out,lower,'Mcp-Name')
+        if opts.method=='tools/call' or opts.method=='resources/read' or opts.method=='prompts/get' then
+            if type(opts.name)~='string' then return nil,'Mcp-Name requires a string value' end
+            set_header(out,lower,'Mcp-Name',encode_value(opts.name))
+        end
+        if opts.method=='tools/call' then
+            for _,spec in ipairs(opts.param_headers or {}) do
+                local value,err=param_value(spec,opts.arguments)
+                if err then return nil,'annotated parameter '..table.concat(spec.path,'.')..' '..err end
+                if value~=nil then set_header(out,lower,'Mcp-Param-'..spec.name,value) end
+            end
+        end
+    elseif opts.initial then
+        remove_header(out,lower,'MCP-Protocol-Version'); remove_header(out,lower,'Mcp-Session-Id')
+        remove_header(out,lower,'Mcp-Method'); remove_header(out,lower,'Mcp-Name')
+    else
+        remove_header(out,lower,'Mcp-Method'); remove_header(out,lower,'Mcp-Name')
+        set_header(out,lower,'MCP-Protocol-Version',opts.protocol_version or '2025-11-25')
+        if session_id then set_header(out,lower,'Mcp-Session-Id',session_id) end
+    end
+    return out
+end
+
+-- Processes each input byte once; only the current line and event are retained.
+function M.sse_parser(on_event,max_bytes)
+    local line_parts,data_lines,line_bytes,event_bytes= {},{},0,0
+    local event_type,skip_lf,bom_started,bom_pending=nil,false,false,''
+    max_bytes=max_bytes or MAX_BODY
+    local function append_line(part)
+        if part~='' then line_parts[#line_parts+1]=part; line_bytes=line_bytes+#part end
+        if line_bytes>max_bytes then error('SSE line exceeds size limit',0) end
+    end
+    local function dispatch_event()
+        if #data_lines>0 then
+            local data=table.concat(data_lines,'\n')
+            if data~='' and (event_type==nil or event_type=='' or event_type=='message') then on_event(data,event_type) end
+        end
+        data_lines={}; event_type=nil; event_bytes=0
+    end
+    local function process_line()
+        local value=table.concat(line_parts); line_parts={}; line_bytes=0
+        if value=='' then dispatch_event(); return end
+        if value:sub(1,1)==':' then return end
+        local colon=value:find(':',1,true); local field,content
+        if colon then field,content=value:sub(1,colon-1),value:sub(colon+1); if content:sub(1,1)==' ' then content=content:sub(2) end
+        else field,content=value,'' end
+        if field=='data' then
+            event_bytes=event_bytes+#content+1
+            if event_bytes>max_bytes then error('SSE event exceeds size limit',0) end
+            data_lines[#data_lines+1]=content
+        elseif field=='event' then event_type=content end
+    end
+    local function process(chunk)
+        local i=1
+        if skip_lf then
+            if chunk=='' then return end
+            if chunk:sub(1,1)=='\n' then i=2 end
+            skip_lf=false
+        end
+        while i<=#chunk do
+            local at=chunk:find('[\r\n]',i)
+            if not at then append_line(chunk:sub(i)); break end
+            append_line(chunk:sub(i,at-1))
+            local is_cr=chunk:sub(at,at)=='\r'
+            if is_cr and chunk:sub(at+1,at+1)=='\n' then i=at+2
+            else i=at+1; if is_cr and i>#chunk then skip_lf=true end end
+            process_line()
+        end
+    end
+    local parser={}
+    function parser:feed(chunk)
+        if type(chunk)~='string' then return nil,'invalid SSE chunk' end
+        if not bom_started then
+            bom_pending=bom_pending..chunk
+            if #bom_pending<3 then return true end
+            if bom_pending:sub(1,3)=='\239\187\191' then bom_pending=bom_pending:sub(4) end
+            chunk=bom_pending; bom_pending=''; bom_started=true
+        end
+        local ok,err=pcall(process,chunk); if not ok then return nil,err end
+        return true
+    end
+    function parser:finish()
+        if not bom_started then
+            local chunk=bom_pending; bom_pending=''; bom_started=true
+            if chunk:sub(1,3)=='\239\187\191' then chunk=chunk:sub(4) end
+            local ok,err=pcall(process,chunk); if not ok then return nil,err end
+        end
+        if #line_parts>0 then local ok,err=pcall(process_line); if not ok then return nil,err end end
+        local ok,err=pcall(dispatch_event); if not ok then return nil,err end
+        return true
+    end
+    return parser
+end
+
+local function decode_message(body)
+    if not body or body=='' then return nil end
+    local ok,msg=pcall(json.decode,body)
+    if ok and type(msg)=='table' then return msg end
+    return nil
+end
+local function is_sse(headers)
+    local value=header_value(headers,'content-type')
+    return type(value)=='string' and value:lower():match('^%s*text/event%-stream')~=nil
+end
+local function escaped_pattern(value) return value:gsub('([^%w])','%%%1') end
+local function redact(text,headers)
+    text=text or ''
+    for name,value in pairs(headers or {}) do
+        if type(value)=='string' and value~='' then
+            text=text:gsub(escaped_pattern(value),'[redacted]')
+            if name:lower()=='authorization' then
+                local token=value:match('^%s*%S+%s+(%S+)%s*$')
+                if token and token~='' then text=text:gsub(escaped_pattern(token),'[redacted]') end
+            end
+        end
+    end
+    return text:sub(1,MAX_ERROR_BODY)
+end
+local function prefix_error(server,method,text)
+    return tostring(server)..' '..tostring(method or 'HTTP')..': '..tostring(text)
+end
+local function failure_kind(err)
+    local text=tostring(err or '')
+    if text:match('^on_head callback failed:') or text:match('^on_data callback failed:') then return 'callback' end
+    if text=='timeout' then return 'timeout' end
+    if text=='idle timeout' then return 'idle_timeout' end
+    return 'transport'
+end
+M.failure_kind=failure_kind
+function M.should_fallback(err)
+    if type(err)=='table' then
+        local data=type(err.data)=='table' and err.data or {}
+        if data.session_expired or data.auth_error or data.http_status==401 or data.http_status==403 then return false end
+        if err.code==-32020 or err.code==-32021 or err.code==-32022 or data.supported then return false end
+        if data.http_status then return data.transport_fallback==true end
+        if data.transport_error=='timeout' or data.transport_error=='idle_timeout' then return true end
+        return false
+    end
+    local kind=failure_kind(err)
+    return kind=='timeout' or kind=='idle_timeout' or (type(err)=='string' and
+        (err:match('^request timed out:')~=nil or err:match('^[^%s]+ [^:]+: request timed out:')~=nil))
+end
+function M.new(cfg,settings,opts)
+    opts=opts or {}; settings=settings or {}
+    local request_fn=opts.request_fn
+    if not request_fn then
+        local ext=require('panto').ext
+        request_fn=ext and ext.http_request
+        if type(request_fn)~='function' or not M.methods_supported(request_fn) then return nil,newer_error() end
+    end
+    return setmetatable({cfg=cfg,settings=settings,request_fn=request_fn,
+        timer_factory=opts.timer_factory or async.timer,active={},sequence=0,closed=false,
+        session_id=nil,protocol_version=nil,era=nil,session_generation=0,initialize_params=nil,
+        on_message=nil,on_error=nil,oauth=opts.oauth,
+        on_notification_stream_end=opts.on_notification_stream_end},Transport)
+end
+function Transport:set_callbacks(message,err) self.on_message=message; self.on_error=err end
+function Transport:auth_name()
+    if self.oauth then return self.oauth:request_auth() end
+    return self.cfg.auth
+end
+
+function Transport:_clear_state(state)
+    if state.done then return end
+    state.done=true; self.active[state.key]=nil
+    local op=state.op
+    if op then async.close(op.idle_timer); async.close(op.fire_timer) end
+end
+function Transport:_log_failure(text)
+    self.stderr_tail=((self.stderr_tail or '')..text..'\n'):sub(-8192)
+    io.stderr:write('panto-mcp: ',text,'\n')
+end
+function Transport:_finish_handshake(state,ok,err)
+    if state.handshake_future and not state.handshake_future.done then state.handshake_future:resolve(ok,err) end
+end
+function Transport:_emit_error(state,message,text,data)
+    if state.done or state.cancelled then return end
+    local method=(message and message.method) or state.opts.method
+    text=redact(prefix_error(self.cfg.name,method,text),self.cfg.headers)
+    self:_clear_state(state)
+    if state.fire_and_forget then
+        if state.handshake_notification then self:_finish_handshake(state,nil,text) else self:_log_failure(text) end
+    elseif message and message.id~=nil then
+        if self.on_message then self.on_message({jsonrpc='2.0',id=message.id,error={code=-32000,message=text,data=data}}) end
+    else self:_log_failure(text) end
+end
+function Transport:_deliver(state,message)
+    if type(message)~='table' or message.jsonrpc~='2.0' then
+        self:_emit_error(state,state.message,'invalid JSON-RPC message'); return
+    end
+    if type(message.error)=='table' and type(message.error.message)=='string' then
+        message.error.message=redact(message.error.message,self.cfg.headers)
+        if not state.fire_and_forget then message.error.message=prefix_error(self.cfg.name,state.opts.method,message.error.message) end
+    end
+    if state.fire_and_forget then
+        if message.error then self:_emit_error(state,state.message,message.error.message or 'JSON-RPC error on fire-and-forget POST') end
+        return
+    end
+    if message.method==nil and message.error~=nil and (message.id==nil or message.id==json.null) and state.message.id~=nil then
+        message.id=state.message.id
+    end
+    local is_response=message.method==nil and message.id~=nil and message.id==state.message.id
+    if is_response and message.result==nil and message.error==nil then
+        self:_emit_error(state,state.message,'malformed JSON-RPC response'); return
+    end
+    if is_response then state.got_response=true end
+    if self.on_message then self.on_message(message) end
+    if state.got_response then
+        local handle=state.op and state.op.handle
+        self:_clear_state(state); cancel_handle(handle)
+    end
+end
+function Transport:_delete_session(session_id)
+    if not session_id then return end
+    local headers=M.headers(self.cfg,{era='legacy',protocol_version=self.protocol_version or '2025-11-25'},session_id)
+    pcall(self.request_fn,{url=self.cfg.url,method='DELETE',auth=self:auth_name(),headers=headers,timeout_ms=1000,max_bytes=1024},function() end)
+end
+function Transport:_session_expired(state,message,session_id,generation)
+    if self.session_id==session_id then self.session_id=nil end
+    self:_emit_error(state,message,'session expired',{session_expired=true,http_status=404,session_generation=generation})
+end
+function Transport:_start_http(state,message,opts,on_done)
+    if state.cancelled or state.done or self.closed then return end
+    local initial=opts.era=='legacy' and message.method=='initialize'
+    local session_id=initial and nil or self.session_id
+    local headers,header_err=M.headers(self.cfg,{era=opts.era,protocol_version=opts.protocol_version,
+        method=message.method or opts.method,name=(message.params and (message.params.name or message.params.uri)) or opts.name,
+        param_headers=opts.param_headers,arguments=message.params and message.params.arguments,initial=initial},session_id)
+    if not headers then self:_emit_error(state,message,header_err); return end
+    local op={body_parts={},body_len=0,sse=false,parser=nil,handle=nil,headers={},status=0,
+        session_id=session_id,session_generation=self.session_generation or 0,idle_timer=nil,fire_timer=nil}
+    state.op=op
+    local request_options={url=self.cfg.url,method='POST',body=json.encode(message),auth=self:auth_name(),headers=headers,
+        timeout_ms=0,idle_timeout_ms=0,max_bytes=MAX_BODY}
+    op.auth_used=request_options.auth~=nil
+    local function reset_idle()
+        async.close(op.idle_timer); op.idle_timer=nil
+        local idle=self.settings.idle_timeout_ms or 60000
+        if idle>0 and op.sse and op.status>=200 and op.status<300 and not state.done and not state.cancelled then
+            op.idle_timer=self.timer_factory(idle,function()
+                cancel_handle(op.handle)
+                self:_emit_error(state,message,'idle timeout',{transport_error='idle_timeout',idle_timeout=true})
+            end)
+        end
+    end
+    request_options.on_head=function(head)
+        if state.cancelled or state.done or self.closed then cancel_handle(op.handle); return end
+        op.status=head.status or 0; op.headers=head.headers or {}; op.sse=is_sse(op.headers)
+        if opts.era=='legacy' and message.method=='initialize' then
+            self.session_id=header_value(op.headers,'mcp-session-id')
+            self.protocol_version=opts.protocol_version
+            self.session_generation=(self.session_generation or 0)+1
+        end
+        if op.sse then
+            op.parser=M.sse_parser(function(data)
+                local msg=decode_message(data)
+                if not msg then self:_emit_error(state,message,'invalid JSON in SSE event'); return end
+                self:_deliver(state,msg)
+            end,MAX_BODY)
+            reset_idle()
+        end
+    end
+    request_options.on_data=function(chunk)
+        if state.done or state.cancelled or self.closed then return end
+        if op.sse and op.parser and op.status>=200 and op.status<300 then
+            reset_idle()
+            local ok,err=op.parser:feed(chunk)
+            if not ok then self:_emit_error(state,message,err); cancel_handle(op.handle) end
+        else
+            if op.body_len+#chunk>MAX_BODY then
+                if op.status>=400 then self:_http_failure(state,message,op.status,table.concat(op.body_parts),nil,opts)
+                else self:_emit_error(state,message,'HTTP response exceeds size limit') end
+                cancel_handle(op.handle); return
+            end
+            op.body_parts[#op.body_parts+1]=chunk; op.body_len=op.body_len+#chunk
+        end
+    end
+    local function complete(response,request_error)
+        if state.done or state.cancelled or state.op~=op then return end
+        async.close(op.idle_timer); op.idle_timer=nil; async.close(op.fire_timer); op.fire_timer=nil
+        if request_error then on_done(nil,nil,tostring(request_error),op); return end
+        if response then
+            op.status=response.status or op.status; op.headers=response.headers or op.headers
+            if response.body and response.body~='' then op.body_parts[#op.body_parts+1]=response.body; op.body_len=op.body_len+#response.body end
+        end
+        if op.sse and op.parser then
+            local ok,err=op.parser:finish()
+            if not ok then op.parse_error=err end
+        end
+        local body=table.concat(op.body_parts)
+        local msg
+        if not op.sse or op.status<200 or op.status>=300 then msg=decode_message(body) end
+        if msg and not state.fire_and_forget and op.status>=200 and op.status<300 and msg.id==message.id then self:_deliver(state,msg) end
+        on_done({status=op.status,headers=op.headers,body=body},msg,op.parse_error,op)
+    end
+    local ok,handle,err=pcall(self.request_fn,request_options,complete)
+    if not ok then complete(nil,handle); return end
+    if not handle then complete(nil,err or 'HTTP request could not start'); return end
+    op.handle=handle
+    if state.op==op and not state.done and not state.cancelled then
+        if state.fire_and_forget then
+            op.fire_timer=self.timer_factory(FIRE_TIMEOUT_MS,function()
+                cancel_handle(op.handle); self:_emit_error(state,message,'request timed out',{transport_error='timeout'})
+            end)
+        end
+    else cancel_handle(handle) end
+end
+function Transport:_http_failure(state,message,status,body,jsonrpc_error,opts)
+    if status==401 or status==403 then
+        if self.oauth then
+            local op=state.op or {}
+            local text=status==403 and 'Forbidden (HTTP 403); check server permissions' or
+                (self.cfg.auth and self.oauth:configured_error() or self.oauth:login_error())
+            self:_emit_error(state,message,text,{http_status=status,auth_error=true,
+                challenge=require('panto_mcp.oauth').challenge(header_value(op.headers,'www-authenticate')),auth_used=op.auth_used})
+            return
+        end
+        local text=status==403 and 'Forbidden (HTTP 403); check server permissions' or
+            string.format('requires authentication (HTTP 401); configure auth = "<session>" in [mcp.servers.%s]',self.cfg.name)
+        self:_emit_error(state,message,text,{http_status=status,auth_error=true}); return
+    end
+    if status==404 and opts and opts.era=='legacy' and not state.fire_and_forget and message.method and state.op and state.op.session_id then
+        self:_session_expired(state,message,state.op.session_id,state.op.session_generation); return
+    end
+    if jsonrpc_error then
+        local error_text=state.op and state.op.auth_used and ('HTTP '..status..' JSON-RPC error') or jsonrpc_error.message
+        if state.fire_and_forget then self:_emit_error(state,message,error_text or 'HTTP JSON-RPC error',{http_status=status}); return end
+        local data=type(jsonrpc_error.data)=='table' and jsonrpc_error.data or {}
+        data.http_status=status
+        data.transport_fallback=(status==400 or status==404 or status==405) and
+            jsonrpc_error.code~=-32020 and jsonrpc_error.code~=-32021 and jsonrpc_error.code~=-32022 and
+            not (status==404 and jsonrpc_error.code==-32601 and message.method~='server/discover')
+        local text=redact(error_text or 'HTTP JSON-RPC error',self.cfg.headers)
+        self:_clear_state(state)
+        if self.on_message then self.on_message({jsonrpc='2.0',id=message.id,error={code=jsonrpc_error.code,message=prefix_error(self.cfg.name,message.method or state.opts.method,text),data=data}}) end
+        return
+    end
+    local body_text=state.op and state.op.auth_used and '' or redact(body,self.cfg.headers)
+    local text=string.format('HTTP %d%s',status,body_text~='' and ': '..body_text or '')
+    self:_emit_error(state,message,text,{http_status=status,transport_fallback=status==400 or status==404 or status==405})
+end
+function Transport:_main_complete(state,message,opts,response,msg,err,op)
+    if state.done or state.cancelled then return end
+    local status=response and response.status or (op and op.status) or 0
+    if err then
+        if status==404 and opts.era=='legacy' and not state.fire_and_forget and message.method and op and op.session_id then
+            self:_session_expired(state,message,op.session_id,op.session_generation); return
+        end
+        if status>=400 then self:_http_failure(state,message,status,op and table.concat(op.body_parts),nil,opts)
+        else
+            local kind=failure_kind(err)
+            self:_emit_error(state,message,err,{transport_error=kind,timeout=kind=='timeout',idle_timeout=kind=='idle_timeout'})
+        end
+        return
+    end
+    if status==404 and opts.era=='legacy' and not state.fire_and_forget and message.method and op and op.session_id then
+        self:_session_expired(state,message,op.session_id,op.session_generation); return
+    end
+    if status<200 or status>=300 then
+        local null_id=msg and (msg.id==nil or msg.id==json.null)
+        if msg and msg.error and (msg.id==message.id or null_id) then self:_http_failure(state,message,status,response.body,msg.error,opts)
+        else self:_http_failure(state,message,status,response and response.body,nil,opts) end
+        return
+    end
+    if state.fire_and_forget then
+        if msg and msg.error then
+            self:_emit_error(state,message,msg.error.message or 'JSON-RPC error on fire-and-forget POST')
+        else
+            self:_clear_state(state)
+            if state.handshake_notification then self:_finish_handshake(state,true) end
+        end
+        return
+    end
+    if op.sse then
+        if message.id~=nil and not state.got_response then self:_emit_error(state,message,'HTTP SSE stream ended without a response for this request',{http_status=status})
+        elseif not state.done then self:_clear_state(state) end
+        return
+    end
+    if message.id~=nil and not state.got_response then
+        self:_emit_error(state,message,'HTTP response did not contain this request\'s JSON-RPC response',{http_status=status})
+    elseif not state.done then self:_clear_state(state) end
+end
+function Transport:send(message,opts)
+    if self.closed then return nil,'HTTP transport closed' end
+    opts=opts or {}
+    local current_era=opts.era or self.era
+    if message.method==nil and current_era=='modern' then return {} end
+    self.sequence=self.sequence+1
+    local fire=message.method==nil or message.id==nil
+    local key=fire and ('fire:'..self.sequence) or ('id:'..tostring(message.id))
+    local effective={era=opts.era or self.era,protocol_version=opts.protocol_version or self.protocol_version,
+        method=opts.method or message.method,name=opts.name,param_headers=opts.param_headers,arguments=opts.arguments}
+    if opts.era then self.era=opts.era end
+    if opts.protocol_version then self.protocol_version=opts.protocol_version end
+    local handshake_notification=effective.era=='legacy' and message.method=='notifications/initialized'
+    local state={key=key,message=message,opts=effective,fire_and_forget=fire,handshake_notification=handshake_notification,cancelled=false,done=false,got_response=false}
+    if handshake_notification then
+        state.handshake_future=async.future()
+        function state:await() return self.handshake_future:await() end
+    end
+    self.active[key]=state
+    if effective.era=='legacy' and message.method=='initialize' then self.initialize_params=message.params or {} end
+    self:_start_http(state,message,effective,function(response,result,err,op)
+        self:_main_complete(state,message,effective,response,result,err,op)
+    end)
+    return state
+end
+local function cancel_state(self,id,handle,notify)
+    local state=self.active['id:'..tostring(id)] or handle
+    if not state then return end
+    local was_legacy=state.opts.era=='legacy'
+    local method=state.message and state.message.method
+    local version=state.opts.protocol_version or self.protocol_version
+    state.cancelled=true; self.active[state.key]=nil
+    local op=state.op; if op then async.close(op.idle_timer); async.close(op.fire_timer); cancel_handle(op.handle) end
+    if notify and was_legacy and state.op and state.op.session_generation==self.session_generation and
+        method and method~='initialize' and method~='notifications/cancelled' and not self.closed then
+        self:send({jsonrpc='2.0',method='notifications/cancelled',params={requestId=id,reason='request cancelled'}},
+            {era='legacy',protocol_version=version,method='notifications/cancelled'})
+    end
+end
+function Transport:open_notification_stream()
+    if self.closed or self.notification_stream then return false end
+    local headers=M.headers(self.cfg,{era='legacy',protocol_version=self.protocol_version or '2025-11-25'},self.session_id)
+    headers.Accept='text/event-stream'
+    headers['Content-Type']=nil
+    local stream={status=0,ignore=false,handle=nil,parser=nil}
+    self.notification_stream=stream
+    local function finish()
+        if self.notification_stream~=stream then return end
+        self.notification_stream=nil
+        if stream.status~=405 and not self.closed and self.on_notification_stream_end then
+            pcall(self.on_notification_stream_end,stream.status)
+        end
+    end
+    local options={url=self.cfg.url,method='GET',auth=self:auth_name(),headers=headers,
+        timeout_ms=0,idle_timeout_ms=0}
+    options.on_head=function(head)
+        if self.closed or self.notification_stream~=stream then return end
+        stream.status=head.status or 0
+        if stream.status<200 or stream.status>=300 then
+            stream.ignore=true
+            cancel_handle(stream.handle)
+            finish()
+            return
+        end
+        stream.opened=true
+        stream.parser=M.sse_parser(function(data)
+            local message=decode_message(data)
+            if message and self.on_message and not self.closed then self.on_message(message) end
+        end,MAX_BODY)
+    end
+    options.on_data=function(chunk)
+        if self.closed or stream.ignore or self.notification_stream~=stream or not stream.parser then return end
+        local ok=stream.parser:feed(chunk)
+        if not ok then stream.ignore=true; cancel_handle(stream.handle); finish() end
+    end
+    local ok,handle=pcall(self.request_fn,options,function()
+        if self.notification_stream~=stream then return end
+        if stream.parser and not stream.ignore then pcall(stream.parser.finish,stream.parser) end
+        finish()
+    end)
+    if not ok or not handle then finish(); return false end
+    stream.handle=handle
+    if self.closed or self.notification_stream~=stream or stream.ignore then cancel_handle(handle); return false end
+    return true
+end
+function Transport:close_notification_stream()
+    local stream=self.notification_stream
+    if not stream then return end
+    self.notification_stream=nil; stream.ignore=true
+    cancel_handle(stream.handle)
+end
+function Transport:cancel_request(id,handle) cancel_state(self,id,handle,false) end
+function Transport:cancel(id,handle) cancel_state(self,id,handle,true) end
+function Transport:fail(err)
+    if self.closed then return end
+    self.closed=true
+    if self.notification_stream then self:close_notification_stream() end
+    for _,state in pairs(self.active) do
+        state.cancelled=true
+        if state.handshake_future then self:_finish_handshake(state,nil,'HTTP transport closed') end
+        if state.op then async.close(state.op.idle_timer); async.close(state.op.fire_timer); cancel_handle(state.op.handle) end
+    end
+    self.active={}; if self.on_error then self.on_error(err) end
+end
+function Transport:close()
+    if self.did_close then return end
+    self.did_close=true
+    if self.notification_stream then self:close_notification_stream() end
+    local session=self.session_id
+    for _,state in pairs(self.active) do
+        state.cancelled=true
+        if state.handshake_future then self:_finish_handshake(state,nil,'HTTP transport closed') end
+        if state.op then async.close(state.op.idle_timer); async.close(state.op.fire_timer); cancel_handle(state.op.handle) end
+    end
+    self.active={}; self.closed=true
+    self:_delete_session(session)
+end
+return M

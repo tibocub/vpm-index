@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "log-request-with-body",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/log-request-with-body/handler.lua": {
+          "sha256": "a307e86e306f0b2e0b0739fcbf8f2a8562b40fd853808eba56e68369e8313ed4",
+          "size": 569,
+          "url": "blob:a307e86e306f0b2e0b0739fcbf8f2a8562b40fd853808eba56e68369e8313ed4"
+        },
+        "kong/plugins/log-request-with-body/schema.lua": {
+          "sha256": "b608960d67f7638b2a0228d3875e6b730ae7ee1c372819f1fac26fb5c71a58d5",
+          "size": 813,
+          "url": "blob:b608960d67f7638b2a0228d3875e6b730ae7ee1c372819f1fac26fb5c71a58d5"
+        }
+      },
+      "host": "openresty",
+      "luarocks": {
+        "date": "Wed, 17 Apr 2024 17:02:19 GMT",
+        "rockspec": {
+          "date": "Wed, 17 Apr 2024 17:02:19 GMT",
+          "sha256": "9bd1d1b19385c20abb784c71fdd806bb91b40f19d4390ae99cfd299c17c26944",
+          "size": 735
+        },
+        "src": {
+          "date": "Wed, 17 Apr 2024 17:02:21 GMT",
+          "sha256": "c48df10563c3d32aa46a2dc162b8c5d17f590a8d6ad7a82a648c9f671d500587",
+          "size": 4718,
+          "url": "https://luarocks.org/log-request-with-body-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.log-request-with-body.handler",
+        "kong.plugins.log-request-with-body.schema"
+      ],
+      "origin": {
+        "date": "Wed, 17 Apr 2024 17:02:21 GMT",
+        "sha256": "c48df10563c3d32aa46a2dc162b8c5d17f590a8d6ad7a82a648c9f671d500587",
+        "size": 4718,
+        "type": "luarocks",
+        "url": "https://luarocks.org/log-request-with-body-1.0.0-1.src.rock"
+      },
+      "size": 1382,
+      "summary": "This plugin was developed to log the request paths where body is being sent, any kind of HTTP request type can be used",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing global: RequestBodyLogHandler",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

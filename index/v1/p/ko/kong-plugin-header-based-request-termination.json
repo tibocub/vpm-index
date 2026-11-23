@@ -1,0 +1,137 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-header-based-request-termination",
+  "versions": {
+    "3.0.1-1": {
+      "bin": [],
+      "deps": [
+        "classic 0.1.0-1",
+        "kong-lib-logger >= 0.3.0-1"
+      ],
+      "files": {
+        "kong/plugins/header-based-request-termination/access.lua": {
+          "sha256": "703229bef59a57837cbdf2b63f50c0f5f5289fe1ac4afe0ebd2c53ed9a859ab9",
+          "size": 3060,
+          "url": "blob:703229bef59a57837cbdf2b63f50c0f5f5289fe1ac4afe0ebd2c53ed9a859ab9"
+        },
+        "kong/plugins/header-based-request-termination/api.lua": {
+          "sha256": "f2501ffd26ed0d9dac4b90d35eef4e327c42708106751fd87da687676e62c862",
+          "size": 1142,
+          "url": "blob:f2501ffd26ed0d9dac4b90d35eef4e327c42708106751fd87da687676e62c862"
+        },
+        "kong/plugins/header-based-request-termination/cache_warmer.lua": {
+          "sha256": "2e8ad57391c34bc2d65f81bbabbddd8a811102174796595a479df801b2d6b697",
+          "size": 563,
+          "url": "blob:2e8ad57391c34bc2d65f81bbabbddd8a811102174796595a479df801b2d6b697"
+        },
+        "kong/plugins/header-based-request-termination/daos.lua": {
+          "sha256": "50fb027753d873ba97e56256645599bf339fe5b07bd5723ea59272b02691232a",
+          "size": 1541,
+          "url": "blob:50fb027753d873ba97e56256645599bf339fe5b07bd5723ea59272b02691232a"
+        },
+        "kong/plugins/header-based-request-termination/handler.lua": {
+          "sha256": "62697d7ae5bbe69ea4fd1726d54a74084f541a2de810e5036a97687602eca79d",
+          "size": 1105,
+          "url": "blob:62697d7ae5bbe69ea4fd1726d54a74084f541a2de810e5036a97687602eca79d"
+        },
+        "kong/plugins/header-based-request-termination/init_worker.lua": {
+          "sha256": "dc183ca65c601cf1c596087c6e4a992523cc02212ff2cfe6c55bb05b609c956f",
+          "size": 535,
+          "url": "blob:dc183ca65c601cf1c596087c6e4a992523cc02212ff2cfe6c55bb05b609c956f"
+        },
+        "kong/plugins/header-based-request-termination/migrations/000_base_header_based_request_termiantion.lua": {
+          "sha256": "09a7f50a82c9c3a0ab8e4528b27dc5a9c43e8a66e99404cedfc22e10b645e7e9",
+          "size": 591,
+          "url": "blob:09a7f50a82c9c3a0ab8e4528b27dc5a9c43e8a66e99404cedfc22e10b645e7e9"
+        },
+        "kong/plugins/header-based-request-termination/migrations/001_120_to_200.lua": {
+          "sha256": "25cab850f0f72dc3d507a7831d0b6a9e2efef051420b5e127732b644eeee777d",
+          "size": 532,
+          "url": "blob:25cab850f0f72dc3d507a7831d0b6a9e2efef051420b5e127732b644eeee777d"
+        },
+        "kong/plugins/header-based-request-termination/migrations/002_300_to_301.lua": {
+          "sha256": "8cb6cd0bbf9828ce923c74740708d4648bb87bed7bdc5bb46ee3a0c5c088a34c",
+          "size": 543,
+          "url": "blob:8cb6cd0bbf9828ce923c74740708d4648bb87bed7bdc5bb46ee3a0c5c088a34c"
+        },
+        "kong/plugins/header-based-request-termination/migrations/cassandra.lua": {
+          "sha256": "b16f7af71e969ffc1df8e9c7ac17827c51b90918864cf66e26767a7df26c1d5a",
+          "size": 1597,
+          "url": "blob:b16f7af71e969ffc1df8e9c7ac17827c51b90918864cf66e26767a7df26c1d5a"
+        },
+        "kong/plugins/header-based-request-termination/migrations/init.lua": {
+          "sha256": "a09512ca550a5dfb876527abc7c45f8b3a1e68747ddda809bc301278d97599f0",
+          "size": 102,
+          "url": "blob:a09512ca550a5dfb876527abc7c45f8b3a1e68747ddda809bc301278d97599f0"
+        },
+        "kong/plugins/header-based-request-termination/migrations/postgres.lua": {
+          "sha256": "818631910a75011c8f51200fdc80b4321bcedb307ca18395c541870fe8a3c643",
+          "size": 1096,
+          "url": "blob:818631910a75011c8f51200fdc80b4321bcedb307ca18395c541870fe8a3c643"
+        },
+        "kong/plugins/header-based-request-termination/schema.lua": {
+          "sha256": "90692c61b3610cf88e8ece7258f3afb1f66614108ce7c955dfa2a547b0f7d647",
+          "size": 1469,
+          "url": "blob:90692c61b3610cf88e8ece7258f3afb1f66614108ce7c955dfa2a547b0f7d647"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-header-based-request-termination",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Wed, 29 Apr 2020 09:37:46 GMT",
+        "rockspec": {
+          "date": "Wed, 29 Apr 2020 09:37:46 GMT",
+          "sha256": "84cc18f0cb6a8a22fe2a0fbc2bbf313014cb97b906b0d7691b39f69150bf60b4",
+          "size": 2410
+        },
+        "src": {
+          "date": "Wed, 29 Apr 2020 09:37:47 GMT",
+          "sha256": "604c56d111ad211f83be3161cca860a1157eeec159a5842e9d46d66f55f1b39d",
+          "size": 22727,
+          "url": "https://luarocks.org/kong-plugin-header-based-request-termination-3.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.header-based-request-termination.access",
+        "kong.plugins.header-based-request-termination.api",
+        "kong.plugins.header-based-request-termination.cache_warmer",
+        "kong.plugins.header-based-request-termination.daos",
+        "kong.plugins.header-based-request-termination.handler",
+        "kong.plugins.header-based-request-termination.init_worker",
+        "kong.plugins.header-based-request-termination.migrations",
+        "kong.plugins.header-based-request-termination.migrations.000_base_header_based_request_termiantion",
+        "kong.plugins.header-based-request-termination.migrations.001_120_to_200",
+        "kong.plugins.header-based-request-termination.migrations.002_300_to_301",
+        "kong.plugins.header-based-request-termination.migrations.cassandra",
+        "kong.plugins.header-based-request-termination.migrations.postgres",
+        "kong.plugins.header-based-request-termination.schema"
+      ],
+      "origin": {
+        "date": "Wed, 29 Apr 2020 09:37:47 GMT",
+        "sha256": "604c56d111ad211f83be3161cca860a1157eeec159a5842e9d46d66f55f1b39d",
+        "size": 22727,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-header-based-request-termination-3.0.1-1.src.rock"
+      },
+      "size": 13876,
+      "summary": "Terminate requests based on its headers.",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.db.errors",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.api.endpoints",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 9,
+        "status": "partial",
+        "total": 13
+      }
+    }
+  }
+}

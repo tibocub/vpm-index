@@ -1,0 +1,793 @@
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table
+local fmt_logger = require("cerulean.fmt_logger")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+local doc = { Doc = Doc }
+
+local GroupRef = {}
+
+
+
+local next_group_id = 0
+
+local function new_group_id()
+   next_group_id = next_group_id + 1
+   return next_group_id
+end
+
+function GroupRef.new()
+   local self = setmetatable({}, { __index = GroupRef })
+   self.group_id = new_group_id()
+   return self
+end
+
+local RenderCommand = {}
+
+
+
+
+
+
+function RenderCommand.new(
+   node, indent, flat, current_group_id)
+
+   local self = setmetatable({}, { __index = RenderCommand })
+   self.node = node
+   self.indent = indent
+   self.flat = flat
+   self.current_group_id = current_group_id
+   return self
+end
+
+
+
+
+
+
+
+
+
+
+
+
+local function append_text(state, text)
+   state.current_line = state.current_line .. text
+   state.column = state.column + #text
+end
+
+local function rstrip_whitespace(text)
+   return (text:gsub("%s+$", ""))
+end
+
+local function break_line(state, indent)
+   table.insert(state.lines, rstrip_whitespace(state.current_line))
+   state.current_line = string.rep(" ", indent)
+   state.column = indent
+end
+
+local function clone_commands(commands)
+   local copied = {}
+   for _, command in ipairs(commands) do
+      table.insert(copied, command)
+   end
+   return copied
+end
+
+local function push_concat_parts(
+   commands,
+   parts,
+   indent,
+   flat,
+   current_group_id)
+
+   for index = #parts, 1, -1 do
+      table.insert(
+      commands, RenderCommand.new(parts[index], indent, flat, current_group_id))
+
+   end
+end
+
+local function should_take_break_branch(
+   target_group_id,
+   current_group_id,
+   flat,
+   broken_groups)
+
+   if target_group_id ~= nil then
+      return broken_groups[target_group_id] == true
+   end
+
+   if current_group_id ~= nil and broken_groups[current_group_id] == true then
+      return true
+   end
+
+   return not flat
+end
+
+
+local function propagate_breaks(node)
+   if node.kind == "break_parent" then
+      return true
+   elseif node.kind == "hardline" then
+
+
+
+
+      return true
+   elseif node.kind == "group" then
+      local child_propagate = propagate_breaks(node.child)
+      node.should_break = node.should_break or child_propagate
+      return false
+   elseif node.kind == "concat" then
+
+
+      local any_part_breaks = false
+      for _, part in ipairs(node.parts or {}) do
+         if propagate_breaks(part) then
+            any_part_breaks = true
+         end
+      end
+      return any_part_breaks
+   elseif node.kind == "indent" then
+      return propagate_breaks(node.child)
+   elseif node.kind == "if_break" then
+
+      local break_propagates = propagate_breaks(node.break_child)
+      local flat_propagates = propagate_breaks(node.flat_child)
+      return break_propagates or flat_propagates
+   end
+   return false
+end
+
+local function is_line(node)
+   return node.kind == "line" or node.kind == "hardline" or node.kind == "blankline"
+end
+
+local function has_line_break_opportunity(node)
+   if is_line(node) or node.kind == "close" or node.kind == "break_parent" then
+      return true
+   end
+   if node.kind == "raw" then
+      return false
+   end
+
+   if node.kind == "concat" then
+      for _, part in ipairs(node.parts or {}) do
+         if has_line_break_opportunity(part) then
+            return true
+         end
+      end
+      return false
+   end
+
+   if node.kind == "trim_end" then
+      return true
+   end
+
+   if node.kind == "indent" or node.kind == "group" then
+      if node.child == nil then
+         return false
+      end
+      return has_line_break_opportunity(node.child)
+   end
+
+   if node.kind == "if_break" then
+      if node.break_child ~= nil and has_line_break_opportunity(node.break_child) then
+         return true
+      end
+      if node.flat_child ~= nil and has_line_break_opportunity(node.flat_child) then
+         return true
+      end
+      return false
+   end
+
+   return false
+end
+
+local function push_pending_line_suffixes(
+   commands, state)
+
+   if #state.line_suffixes == 0 then
+      return 0
+   end
+
+   local suffix_count = #state.line_suffixes
+   for index = #state.line_suffixes, 1, -1 do
+      table.insert(commands, state.line_suffixes[index])
+   end
+   state.line_suffixes = {}
+   return suffix_count
+end
+
+local function write_raw_lines(state, raw_lines)
+   assert(
+   state.current_line:match("^%s*$"), "doc.raw must be emitted at line boundary")
+
+   for i, raw_line in ipairs(raw_lines) do
+      state.current_line = raw_line
+      state.column = #raw_line
+      if i < #raw_lines then
+         table.insert(state.lines, state.current_line)
+      end
+   end
+end
+
+local function fits(
+   remaining_width,
+   commands,
+   broken_groups,
+   indent_width)
+
+   if remaining_width < 0 then
+      return false
+   end
+
+   while #commands > 0 do
+      local command = table.remove(commands)
+      local node = command.node
+      local flat = command.flat
+      local current_group_id = command.current_group_id
+
+      if node.kind == "text" then
+         if node.text:find("\n") then
+            return false
+         end
+         remaining_width = remaining_width - #node.text
+      elseif node.kind == "raw" then
+         return false
+      elseif node.kind == "break_text" then
+         if flat then
+            remaining_width = remaining_width - #node.flat_text
+         else
+            remaining_width = remaining_width - #node.broken_text
+         end
+      elseif node.kind == "line" then
+         if flat then
+            remaining_width = remaining_width - #node.flat_text
+         else
+            return true
+         end
+      elseif node.kind == "trim_end" and not flat then
+         return true
+      elseif node.kind == "if_break" then
+         local take_break_branch = should_take_break_branch(
+         node.target_group_id, current_group_id, flat, broken_groups)
+
+         local chosen = take_break_branch and node.break_child or node.flat_child
+         table.insert(
+         commands,
+         RenderCommand.new(chosen, command.indent, flat, current_group_id))
+
+      elseif node.kind == "break_parent" then
+
+      elseif node.kind == "hardline" then
+         return true
+      elseif node.kind == "blankline" then
+         if not flat then
+            return true
+         end
+      elseif node.kind == "close" then
+         if flat then
+            remaining_width = remaining_width - #node.close_text - #node.close_flat_sep
+         else
+            return true
+         end
+      elseif node.kind == "concat" then
+         push_concat_parts(
+         commands, node.parts or {}, command.indent, flat, current_group_id)
+
+      elseif node.kind == "indent" then
+         table.insert(
+         commands,
+         RenderCommand.new(
+         node.child, command.indent + indent_width, flat, current_group_id))
+
+
+      elseif node.kind == "group" then
+         if flat and node.should_break then
+            return false
+         end
+         local group_id = node.group_id or current_group_id
+         table.insert(
+         commands, RenderCommand.new(node.child, command.indent, flat, group_id))
+
+      end
+
+      if remaining_width < 0 then
+         return false
+      end
+   end
+
+   return true
+end
+
+local function render_doc(root, state)
+   local commands = {
+      RenderCommand.new(root, 0, false, nil),
+   }
+
+   while #commands > 0 or #state.line_suffixes > 0 do
+      if #commands == 0 then
+         local suffix_count = push_pending_line_suffixes(commands, state)
+         if suffix_count == 0 then
+            break
+         end
+      end
+
+      local command = table.remove(commands)
+      local node = command.node
+      local indent = command.indent
+      local node_flat = command.flat
+      local current_group_id = command.current_group_id
+
+      if node.kind == "text" then
+         append_text(state, node.text or "")
+      elseif node.kind == "raw" then
+         write_raw_lines(state, node.raw_lines or {})
+      elseif node.kind == "close" then
+         if node_flat then
+            if
+string.sub(
+               state.current_line, -#node.close_flat_sep) ~=
+               node.close_flat_sep then
+
+               append_text(state, node.close_flat_sep)
+            end
+            append_text(state, node.close_text)
+         else
+            local indent_text = string.rep(" ", indent)
+            if state.current_line:match("^%s*$") ~= nil then
+               state.current_line = indent_text
+               state.column = indent
+            elseif state.current_line ~= indent_text then
+               local suffix_count = push_pending_line_suffixes(commands, state)
+               if suffix_count > 0 then
+                  table.insert(commands, #commands - suffix_count + 1, command)
+               else
+                  break_line(state, indent)
+               end
+            end
+            append_text(state, node.close_text)
+         end
+      elseif node.kind == "break_text" then
+         if node_flat then
+            append_text(state, node.flat_text or "")
+         else
+            append_text(state, node.broken_text or "")
+         end
+      elseif node.kind == "if_break" then
+         local take_break_branch = should_take_break_branch(
+         node.target_group_id, current_group_id, node_flat, state.broken_groups)
+
+         local chosen = take_break_branch and node.break_child or node.flat_child
+         table.insert(
+         commands, RenderCommand.new(chosen, indent, node_flat, current_group_id))
+
+      elseif node.kind == "break_parent" then
+         if current_group_id ~= nil then
+            state.broken_groups[current_group_id] = true
+         end
+      elseif node.kind == "line" then
+         if node_flat then
+            append_text(state, node.flat_text or "")
+         else
+            local suffix_count = push_pending_line_suffixes(commands, state)
+            if suffix_count > 0 then
+               table.insert(commands, #commands - suffix_count + 1, command)
+            else
+               break_line(state, indent)
+            end
+         end
+      elseif node.kind == "trim_start" then
+         state.marked_column = state.column
+      elseif node.kind == "trim_end" then
+         if state.column > state.marked_column then
+            if not node_flat then
+               local suffix_count = push_pending_line_suffixes(commands, state)
+               if suffix_count > 0 then
+                  table.insert(commands, #commands - suffix_count + 1, command)
+               else
+                  break_line(state, indent)
+               end
+            end
+         end
+      elseif node.kind == "hardline" then
+         local suffix_count = push_pending_line_suffixes(commands, state)
+         if suffix_count > 0 then
+            table.insert(commands, #commands - suffix_count + 1, command)
+         else
+            break_line(state, indent)
+         end
+      elseif node.kind == "blankline" then
+         if not node_flat then
+            local suffix_count = push_pending_line_suffixes(commands, state)
+            if suffix_count > 0 then
+               table.insert(commands, #commands - suffix_count + 1, command)
+            else
+               table.insert(state.lines, state.current_line)
+               table.insert(state.lines, "")
+               state.current_line = string.rep(" ", indent)
+               state.column = indent
+            end
+         end
+      elseif node.kind == "concat" then
+         push_concat_parts(
+         commands, node.parts or {}, indent, node_flat, current_group_id)
+
+      elseif node.kind == "indent" then
+         table.insert(
+         commands,
+         RenderCommand.new(
+         node.child, indent + state.indent_width, node_flat, current_group_id))
+
+
+      elseif node.kind == "group" then
+         local group_id = node.group_id or current_group_id
+         if node_flat then
+            table.insert(
+            commands, RenderCommand.new(node.child, indent, true, group_id))
+
+         elseif node.should_break then
+            if group_id ~= nil and has_line_break_opportunity(node.child) then
+               state.broken_groups[group_id] = true
+            end
+            table.insert(
+            commands, RenderCommand.new(node.child, indent, false, group_id))
+
+         else
+            local trial = clone_commands(commands)
+            table.insert(
+            trial, RenderCommand.new(node.child, indent, true, group_id))
+
+            local fits_flat = fits(
+            state.max_width - state.column,
+            trial,
+            state.broken_groups,
+            state.indent_width)
+
+            if
+group_id ~= nil and
+               not fits_flat and
+               has_line_break_opportunity(node.child) then
+
+               state.broken_groups[group_id] = true
+            end
+            table.insert(
+            commands, RenderCommand.new(node.child, indent, fits_flat, group_id))
+
+         end
+      end
+   end
+end
+
+local function render(to_render, max_width, indent_width)
+   propagate_breaks(to_render)
+   local state = {
+      lines = {},
+      current_line = "",
+      column = 0,
+      max_width = max_width,
+      indent_width = indent_width,
+      broken_groups = {},
+      line_suffixes = {},
+   }
+
+   render_doc(to_render, state)
+   table.insert(state.lines, rstrip_whitespace(state.current_line))
+   return table.concat(state.lines, "\n")
+end
+
+local function quote_literal(text)
+   return '"' .. text .. '"'
+end
+
+local function wrap_container(label, children)
+   return label .. "[ " .. table.concat(children, ", ") .. " ]"
+end
+
+local function group_ref(group_id)
+   if group_id ~= nil then
+      return "#" .. tostring(group_id)
+   end
+   return ""
+end
+
+local function group_label(node)
+   local label = node.should_break and "group!" or "group"
+   return label .. group_ref(node.group_id)
+end
+
+local function if_break_label(node)
+   return "if_break" .. group_ref(node.target_group_id)
+end
+
+local function line_keyword(node)
+   return "line(" .. quote_literal(node.flat_text or "") .. ")"
+end
+
+local function to_string_node(node, indent)
+   if node.kind == "text" then
+      return quote_literal(node.text or "")
+   elseif node.kind == "raw" then
+      local children = {}
+      for _, raw_line in ipairs(node.raw_lines or {}) do
+         table.insert(children, quote_literal(raw_line))
+      end
+      return wrap_container("raw", children)
+   elseif node.kind == "close" then
+      return string.format(
+      "close(text=%s, sep=%s)",
+      quote_literal(node.close_text or ""),
+      quote_literal(node.close_flat_sep or ""))
+
+   elseif node.kind == "break_text" then
+      return string.format(
+      "break_text(flat=%s, broken=%s)",
+      quote_literal(node.flat_text or ""),
+      quote_literal(node.broken_text or ""))
+
+   elseif node.kind == "line" then
+      return line_keyword(node)
+   elseif node.kind == "indent" then
+      local indent_step = "  "
+      local child = to_string_node(node.child, indent .. indent_step)
+      return wrap_container("indent", { child })
+   elseif node.kind == "if_break" then
+      local flat_child = to_string_node(node.flat_child, indent)
+      local break_child = to_string_node(node.break_child, indent)
+      local children = { "flat=" .. flat_child, "break=" .. break_child }
+      return wrap_container(if_break_label(node), children)
+   elseif node.kind == "group" then
+      local child = to_string_node(node.child, indent)
+      return wrap_container(group_label(node), { child })
+   elseif node.kind == "concat" then
+      local parts = {}
+      for index, part in ipairs(node.parts or {}) do
+         if index > 1 then
+            local prev = node.parts[index - 1]
+            if is_line(prev) or part.kind == "close" then
+               table.insert(parts, ",\n" .. indent)
+            else
+               table.insert(parts, ", ")
+            end
+         end
+
+         table.insert(parts, to_string_node(part, indent))
+      end
+      return "[ " .. table.concat(parts) .. " ]"
+   end
+   return node.kind
+end
+
+local function to_string(to_render)
+   return to_string_node(to_render, "")
+end
+
+local doc_mt = { __tostring = to_string }
+
+local function new_doc(kind)
+   return setmetatable({ kind = kind, render = render }, doc_mt)
+end
+
+function doc.text(text)
+   local result = new_doc("text")
+   result.text = text
+   return result
+end
+
+function doc.raw(lines)
+   local result = new_doc("raw")
+   result.raw_lines = lines
+   return result
+end
+
+function doc.close(text)
+   local result = new_doc("close")
+   result.close_text = text
+   result.close_flat_sep = " "
+   return result
+end
+
+function doc.softclose(text)
+   local result = new_doc("close")
+   result.close_text = text
+   result.close_flat_sep = ""
+   return result
+end
+
+local function new_doc_line(flat_text)
+   local result = new_doc("line")
+   result.flat_text = flat_text
+   return result
+end
+
+function doc.line()
+   return new_doc_line(" ")
+end
+
+
+
+function doc.stmt_sep_line()
+   return new_doc_line("; ")
+end
+
+function doc.softline()
+   return new_doc_line("")
+end
+
+function doc._break_text(broken_text, flat_text)
+   local result = new_doc("break_text")
+   result.broken_text = broken_text
+   result.flat_text = flat_text or ""
+   return result
+end
+
+function doc.hardline()
+   local result = new_doc("hardline")
+   return result
+end
+
+function doc.if_wrapped(text)
+   return doc._break_text(text, "")
+end
+
+local function build_if_break_doc(
+   break_child, flat_child, target_group_id)
+
+   local result = new_doc("if_break")
+   result.break_child = break_child
+   result.flat_child = flat_child or doc.text("")
+   result.target_group_id = target_group_id
+   return result
+end
+
+function GroupRef:if_break(break_child, flat_child)
+   return build_if_break_doc(break_child, flat_child, self.group_id)
+end
+
+function doc.break_parent()
+   local result = new_doc("break_parent")
+   return result
+end
+
+function doc.blankline()
+   local result = new_doc("blankline")
+   return result
+end
+
+function doc.concat(parts)
+   local flat_parts = {}
+   local function add_if_non_empyt(part)
+      if not (part.kind == "text" and part.text == "") then
+         table.insert(flat_parts, part)
+      end
+   end
+
+   for _, part in ipairs(parts) do
+      if part.kind == "concat" then
+         for _, nested in ipairs(part.parts) do
+            add_if_non_empyt(nested)
+         end
+      else
+         add_if_non_empyt(part)
+      end
+   end
+   local result = new_doc("concat")
+   result.parts = flat_parts
+   return result
+end
+
+function doc._trim_start()
+   local result = new_doc("trim_start")
+   return result
+end
+
+function doc._trim_end()
+   local result = new_doc("trim_end")
+   return result
+end
+
+function doc.trim_lines(child)
+   return doc.concat({ doc._trim_start(), child, doc._trim_end() })
+end
+
+function doc.indent(child)
+   local result = new_doc("indent")
+   result.child = child
+   return result
+end
+
+function doc.indent_line(child)
+   return doc.indent(doc.concat({ doc.line(), child }))
+end
+
+function doc.indent_softline(child)
+   return doc.indent(doc.concat({ doc.softline(), child }))
+end
+
+function doc.indent_hardline(child)
+   return doc.indent(doc.concat({ doc.hardline(), child }))
+end
+
+local function build_group_doc(child, group_id)
+   local result = new_doc("group")
+   result.child = child
+   result.group_id = group_id
+   result.should_break = false
+   return result
+end
+
+function doc.group(child)
+   return build_group_doc(child, nil)
+end
+
+function GroupRef:group(child)
+   return build_group_doc(child, self.group_id)
+end
+
+function doc.group_ref()
+   return GroupRef.new()
+end
+
+return doc

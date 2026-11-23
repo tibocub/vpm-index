@@ -1,0 +1,59 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-cookies-to-headers",
+  "versions": {
+    "1.1-4": {
+      "bin": [],
+      "deps": [
+        "lua-resty-cookie ~> 0.1.0"
+      ],
+      "files": {
+        "kong/plugins/cookies-to-headers/handler.lua": {
+          "sha256": "44d21f046db9848c2ad8652f9f3f417d06084975f48fa7eb5164ed1ef1f50a7b",
+          "size": 595,
+          "url": "https://raw.githubusercontent.com/pravin-raha/kong-plugin-cookies-to-headers/f7061b85bc3ed8891590a5a0332e58e6d6bdfef3/handler.lua"
+        },
+        "kong/plugins/cookies-to-headers/schema.lua": {
+          "sha256": "0419711d992e19ae8d60edbfd92bc61211d94650cf94994a087c108616dc61e6",
+          "size": 552,
+          "url": "https://raw.githubusercontent.com/pravin-raha/kong-plugin-cookies-to-headers/f7061b85bc3ed8891590a5a0332e58e6d6bdfef3/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 18 Oct 2022 18:53:38 GMT",
+        "rockspec": {
+          "date": "Tue, 18 Oct 2022 18:53:38 GMT",
+          "sha256": "d0afaa5edc30eba5fa6158adde7c02d801eca2c5cf78adaad20847c52c87d88b",
+          "size": 556
+        }
+      },
+      "modules": [
+        "kong.plugins.cookies-to-headers.handler",
+        "kong.plugins.cookies-to-headers.schema"
+      ],
+      "origin": {
+        "commit": "f7061b85bc3ed8891590a5a0332e58e6d6bdfef3",
+        "ref": "v1.1-4",
+        "type": "git",
+        "url": "https://github.com/pravin-raha/kong-plugin-cookies-to-headers"
+      },
+      "size": 1147,
+      "summary": "A Kong plugin that will convert cookies into headers",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

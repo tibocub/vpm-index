@@ -1,0 +1,102 @@
+{
+  "kind": "lib",
+  "name": "paseto",
+  "versions": {
+    "0.4.0-1": {
+      "bin": [],
+      "deps": [
+        "basexx >= 0.4.0",
+        "lua-struct >= 0.9.0",
+        "lua-cjson >= 2.1.0",
+        "date >= 2.1.2"
+      ],
+      "files": {
+        "paseto/v2.lua": {
+          "sha256": "97a8cb4bd5a6830967e557307eb762c7c25883a93313d9b24eb82d9b714d1aec",
+          "size": 7922,
+          "url": "blob:97a8cb4bd5a6830967e557307eb762c7c25883a93313d9b24eb82d9b714d1aec"
+        },
+        "paseto/v2/core.lua": {
+          "sha256": "eff2220e4ce91c45b6040426f824120aca9824c6f79fb080e5c1479dca77442a",
+          "size": 6303,
+          "url": "blob:eff2220e4ce91c45b6040426f824120aca9824c6f79fb080e5c1479dca77442a"
+        }
+      },
+      "homepage": "http://github.com/peter-evans/paseto-lua",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Wed, 04 Jul 2018 07:53:56 GMT",
+        "rockspec": {
+          "date": "Wed, 04 Jul 2018 07:53:56 GMT",
+          "sha256": "36274098ded89f080bd29a7abaa92fcf5f209c0850cb280c05aa57cc23eb65b2",
+          "size": 1041
+        },
+        "src": {
+          "date": "Wed, 04 Jul 2018 07:53:58 GMT",
+          "sha256": "8044c77ea93defb7e4b6739d628c8a2e0f27948b0cff90ba0ed78f139a569554",
+          "size": 17209,
+          "url": "https://luarocks.org/paseto-0.4.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasodium",
+        "paseto.v2",
+        "paseto.v2.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SODIUM"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SODIUM": {
+              "header": "sodium.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(SODIUM_INCDIR)"
+              ],
+              "libdirs": [
+                "$(SODIUM_LIBDIR)"
+              ],
+              "libraries": [
+                "sodium"
+              ],
+              "name": "luasodium",
+              "sources": [
+                "csrc/luasodium.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "paseto-lua-0.4.0"
+      },
+      "origin": {
+        "date": "Wed, 04 Jul 2018 07:53:58 GMT",
+        "sha256": "8044c77ea93defb7e4b6739d628c8a2e0f27948b0cff90ba0ed78f139a569554",
+        "size": 17209,
+        "type": "luarocks",
+        "url": "https://luarocks.org/paseto-0.4.0-1.src.rock"
+      },
+      "size": 14225,
+      "summary": "PASETO (Platform-Agnostic Security Tokens) for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

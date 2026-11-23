@@ -1,0 +1,10 @@
+if vim.g.loaded_pmd3 == 1 then
+	return
+end
+vim.g.loaded_pmd3 = 1
+
+vim.api.nvim_create_user_command("Pmd3view", function(_)
+	require 'nvim-pmd3'.live(vim.api.nvim_get_current_buf())
+end, {
+	nargs = "*",
+})

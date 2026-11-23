@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "kong-event-pub-plugin",
+  "versions": {
+    "1.0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-event-pub/handler.lua": {
+          "sha256": "56dd8f6ebef0eec0ad19022be50b37542bb38a0c35a5c0aa6f091f1658cc2f66",
+          "size": 8330,
+          "url": "https://raw.githubusercontent.com/avinashupadhya99/kong-event-pub/1.0.2/kong/plugins/kong-event-pub/handler.lua"
+        },
+        "kong/plugins/kong-event-pub/schema.lua": {
+          "sha256": "e47a84f5c79961f96129309da0e4ca44e657143f3a71d5f3b010659031717311",
+          "size": 4055,
+          "url": "https://raw.githubusercontent.com/avinashupadhya99/kong-event-pub/1.0.2/kong/plugins/kong-event-pub/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/avinashupadhya99/kong-event-pub",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 09 May 2023 03:23:40 GMT",
+        "rockspec": {
+          "date": "Tue, 09 May 2023 03:23:40 GMT",
+          "sha256": "2fe4b7d4cd54efa9ddf7ff9e238a127afc634c9c0ebe9a1ab6388fe4e05cbdc0",
+          "size": 578
+        },
+        "src": {
+          "date": "Tue, 09 May 2023 03:23:41 GMT",
+          "sha256": "2cbc3fa23436deef89a4006cf34bf4e5b0f44044c5a16ad20be26856ff6cbcca",
+          "size": 14843,
+          "url": "https://luarocks.org/kong-event-pub-plugin-1.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-event-pub.handler",
+        "kong.plugins.kong-event-pub.schema"
+      ],
+      "origin": {
+        "sha256": "9071ec3b2c4ae1700507f04e27998b3b57d62271894d03319c937790887bbd94",
+        "type": "archive",
+        "url": "https://github.com/avinashupadhya99/kong-event-pub/archive/1.0.2.zip"
+      },
+      "size": 12385,
+      "summary": "",
+      "undeclared_requires": [
+        "kong.tools.timestamp",
+        "resty.http",
+        "resty.jit-uuid",
+        "resty.kafka.client",
+        "resty.kafka.producer",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

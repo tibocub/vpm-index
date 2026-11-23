@@ -1,0 +1,251 @@
+-- ============================================================
+-- Shiva Tbl
+-- Table utility library.
+-- ============================================================
+
+local Tbl = {}
+
+--- Shallow copy a table
+---@param t table
+---@return table
+function Tbl.copy(t)
+    local copy = {}
+    for k, v in pairs(t) do copy[k] = v end
+    return copy
+end
+
+--- Deep copy a table (recursive)
+---@param t table
+---@return table
+function Tbl.deepCopy(t)
+    if type(t) ~= 'table' then return t end
+    local copy = {}
+    for k, v in pairs(t) do
+        copy[Tbl.deepCopy(k)] = Tbl.deepCopy(v)
+    end
+    return setmetatable(copy, getmetatable(t))
+end
+
+--- Merge tables (right values override left)
+---@param ... table
+---@return table
+function Tbl.merge(...)
+    local result = {}
+    for _, t in ipairs({...}) do
+        for k, v in pairs(t) do
+            result[k] = v
+        end
+    end
+    return result
+end
+
+--- Deep merge tables (recursive merge for nested tables)
+---@param base table
+---@param override table
+---@return table
+function Tbl.deepMerge(base, override)
+    local result = Tbl.deepCopy(base)
+    for k, v in pairs(override) do
+        if type(v) == 'table' and type(result[k]) == 'table' then
+            result[k] = Tbl.deepMerge(result[k], v)
+        else
+            result[k] = v
+        end
+    end
+    return result
+end
+
+--- Get a value by dot notation path
+---@param t table
+---@param path string Dot-separated path (e.g., 'a.b.c')
+---@param default? any Value to return if path doesn't exist
+---@return any
+function Tbl.get(t, path, default)
+    local current = t
+    for segment in path:gmatch('[^%.]+') do
+        if type(current) ~= 'table' then return default end
+        current = current[segment]
+        if current == nil then return default end
+    end
+    return current
+end
+
+--- Set a value by dot notation path (creates intermediate tables)
+---@param t table
+---@param path string
+---@param value any
+function Tbl.set(t, path, value)
+    local current = t
+    local segments = {}
+    for segment in path:gmatch('[^%.]+') do
+        segments[#segments + 1] = segment
+    end
+    for i = 1, #segments - 1 do
+        local seg = segments[i]
+        if type(current[seg]) ~= 'table' then
+            current[seg] = {}
+        end
+        current = current[seg]
+    end
+    current[segments[#segments]] = value
+end
+
+--- Check if table has a key
+---@param t table
+---@param key any
+---@return boolean
+function Tbl.has(t, key)
+    if type(key) == 'string' and key:find('%.') then
+        return Tbl.get(t, key) ~= nil
+    end
+    return t[key] ~= nil
+end
+
+--- Get all keys from a table
+---@param t table
+---@return any[]
+function Tbl.keys(t)
+    local keys = {}
+    for k, _ in pairs(t) do keys[#keys + 1] = k end
+    return keys
+end
+
+--- Get all values from a table
+---@param t table
+---@return any[]
+function Tbl.values(t)
+    local vals = {}
+    for _, v in pairs(t) do vals[#vals + 1] = v end
+    return vals
+end
+
+--- Count elements in a table (works for non-sequential tables)
+---@param t table
+---@return integer
+function Tbl.count(t)
+    local count = 0
+    for _ in pairs(t) do count = count + 1 end
+    return count
+end
+
+--- Check if table is empty
+---@param t table
+---@return boolean
+function Tbl.isEmpty(t)
+    return next(t) == nil
+end
+
+--- Check if table is a sequential array (no gaps, integer keys from 1..n)
+---@param t table
+---@return boolean
+function Tbl.isArray(t)
+    local count = 0
+    for _ in pairs(t) do count = count + 1 end
+    return count == #t
+end
+
+--- Flatten a nested array one level
+---@param t any[]
+---@return any[]
+function Tbl.flatten(t)
+    local result = {}
+    for _, v in ipairs(t) do
+        if type(v) == 'table' then
+            for _, inner in ipairs(v) do
+                result[#result + 1] = inner
+            end
+        else
+            result[#result + 1] = v
+        end
+    end
+    return result
+end
+
+--- Pick only specified keys from a table
+---@param t table
+---@param keys string[]
+---@return table
+function Tbl.pick(t, keys)
+    local result = {}
+    for _, k in ipairs(keys) do
+        result[k] = t[k]
+    end
+    return result
+end
+
+--- Omit specified keys from a table
+---@param t table
+---@param keys string[]
+---@return table
+function Tbl.omit(t, keys)
+    local lookup = {}
+    for _, k in ipairs(keys) do lookup[k] = true end
+    local result = {}
+    for k, v in pairs(t) do
+        if not lookup[k] then result[k] = v end
+    end
+    return result
+end
+
+--- Map over table values
+---@param t table
+---@param fn fun(value: any, key: any): any
+---@return table
+function Tbl.map(t, fn)
+    local result = {}
+    for k, v in pairs(t) do
+        result[k] = fn(v, k)
+    end
+    return result
+end
+
+--- Filter table entries
+---@param t table
+---@param fn fun(value: any, key: any): boolean
+---@return table
+function Tbl.filter(t, fn)
+    local result = {}
+    for k, v in pairs(t) do
+        if fn(v, k) then result[k] = v end
+    end
+    return result
+end
+
+--- Check if any entry matches predicate
+---@param t table
+---@param fn fun(value: any, key: any): boolean
+---@return boolean
+function Tbl.any(t, fn)
+    for k, v in pairs(t) do
+        if fn(v, k) then return true end
+    end
+    return false
+end
+
+--- Check if all entries match predicate
+---@param t table
+---@param fn fun(value: any, key: any): boolean
+---@return boolean
+function Tbl.all(t, fn)
+    for k, v in pairs(t) do
+        if not fn(v, k) then return false end
+    end
+    return true
+end
+
+--- Freeze a table (make read-only)
+---@param t table
+---@return table
+function Tbl.freeze(t)
+    return setmetatable({}, {
+        __index = t,
+        __newindex = function()
+            error('Cannot modify a frozen table')
+        end,
+        __pairs = function() return pairs(t) end,
+        __ipairs = function() return ipairs(t) end,
+        __len = function() return #t end,
+    })
+end
+
+return Tbl

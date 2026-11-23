@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-path-allow",
+  "versions": {
+    "0.2-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-path-allow/handler.lua": {
+          "sha256": "3cb76e9571830cc17d0d384b402e187da16ea19d1cc8b679c19f32edddc9e32b",
+          "size": 2208,
+          "url": "https://raw.githubusercontent.com/seifchen/kong-path-allow/131ff7e5a65b74c30bb4481c36458fa61e977462/src/handler.lua"
+        },
+        "kong/plugins/kong-path-allow/schema.lua": {
+          "sha256": "5dc7ebdad6af099e11ef1194f2af810f1917c17ebe9ebe84de16fd2fc4682049",
+          "size": 423,
+          "url": "https://raw.githubusercontent.com/seifchen/kong-path-allow/131ff7e5a65b74c30bb4481c36458fa61e977462/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/seifchen/kong-path-allow",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Sat, 15 Oct 2022 03:21:56 GMT",
+        "rockspec": {
+          "date": "Sat, 15 Oct 2022 03:21:56 GMT",
+          "sha256": "ed5e34e568c71188d54a4934e7c8c396a8e9f790b4c4d0263460af2e7a8abb89",
+          "size": 525
+        },
+        "src": {
+          "date": "Sat, 15 Oct 2022 03:21:57 GMT",
+          "sha256": "3c213d2d301fc4b020eb6740c46ea13404e7c93dd71800a710972b2e4a618379",
+          "size": 7743,
+          "url": "https://luarocks.org/kong-path-allow-0.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-path-allow.handler",
+        "kong.plugins.kong-path-allow.schema"
+      ],
+      "origin": {
+        "commit": "131ff7e5a65b74c30bb4481c36458fa61e977462",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/seifchen/kong-path-allow.git"
+      },
+      "size": 2631,
+      "summary": "This plugin enables allow path for route, support regex",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.meta"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.meta",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

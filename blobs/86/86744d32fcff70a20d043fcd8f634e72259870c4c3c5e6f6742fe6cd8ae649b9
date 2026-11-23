@@ -1,0 +1,108 @@
+local uv = require('luv')
+local json = require('panto').ext.json
+local async = require('panto_mcp.async')
+local M = {}; M.__index=M
+-- Exported small framer for deterministic checks. Protocol-sized bound prevents
+-- an untrusted/noisy server from accumulating an unbounded partial line.
+function M.framer(emit, max_bytes, on_bad_line)
+    local buf=''; max_bytes=max_bytes or 16*1024*1024
+    return function(chunk)
+        buf=buf .. chunk
+        while true do
+            local at=buf:find('\n',1,true)
+            if not at then if #buf>max_bytes then return nil,'stdio frame exceeds size limit' end; return true end
+            if at>max_bytes then return nil,'stdio frame exceeds size limit' end
+            local line=buf:sub(1,at-1):gsub('\r$',''); buf=buf:sub(at+1)
+            if line:match('%S') then
+                local ok,msg=pcall(json.decode,line)
+                if not ok then
+                    if on_bad_line then on_bad_line(line) end
+                elseif type(msg)~='table' then return nil,'malformed JSON on MCP stdout'
+                else emit(msg) end
+            end
+        end
+    end
+end
+function M.new(cfg)
+    local path,err=package.searchpath('panto_mcp.supervisor',package.path)
+    if not path then return nil,err end
+    local self=setmetatable({stderr_tail='',cfg=cfg},M)
+    self.stdin=uv.new_pipe(false); self.stdout=uv.new_pipe(false)
+    self.stderr=uv.new_pipe(false); self.lifeline=uv.new_pipe(false)
+    local function stop_orphan()
+        local server_pid=self.server_pid
+        if not server_pid then return end
+        pcall(uv.kill,-server_pid,'sigterm')
+        local escalation=uv.new_timer()
+        escalation:start(2000,0,function()
+            if uv.kill(-server_pid,0) then pcall(uv.kill,-server_pid,'sigkill') end
+            async.close(escalation)
+        end)
+    end
+    local proc,pid=uv.spawn(uv.exepath(),{
+        args={'lua',path,json.encode({command=cfg.command,args=json.array(cfg.args or {}),env=cfg.env or {}})},
+        cwd=cfg.cwd,detached=true,
+        stdio={self.stdin,self.stdout,self.stderr,self.lifeline},
+    },function(code,signal)
+        async.close(self.proc)
+        if not self.closed then
+            stop_orphan()
+            self:fail('supervisor exited (' .. code .. ', signal ' .. signal .. ')')
+        end
+    end)
+    if not proc then self:close(); return nil,pid end
+    self.proc=proc; self.supervisor_pid=pid
+    local function append_tail(data)
+        self.stderr_tail=(self.stderr_tail .. data):sub(-8192)
+    end
+    local feed=M.framer(function(msg) if self.on_message then self.on_message(msg) end end,nil,function(line)
+        append_tail(line .. '\n')
+    end)
+    self.stdout:read_start(function(e,data)
+        if self.closed then return end
+        if e or not data then self:fail(e or 'MCP stdout closed'); return end
+        local ok,why=feed(data); if not ok then self:fail(why) end
+    end)
+    local stderr_buf=''
+    self.stderr:read_start(function(_,data)
+        if not data then return end
+        stderr_buf=stderr_buf .. data
+        -- Marker can straddle chunks. Keep only a bounded diagnostic tail.
+        self.server_pid=tonumber(stderr_buf:match('PANTO_MCP_PID=(%d+)\n')) or self.server_pid
+        stderr_buf=stderr_buf:sub(-8192)
+        append_tail(data:gsub('PANTO_MCP_PID=%d+\r?\n',''))
+    end)
+    -- Pending request/startup timers keep the loop alive only while needed.
+    for _,h in ipairs({proc,self.stdin,self.stdout,self.stderr,self.lifeline}) do h:unref() end
+    return self
+end
+function M:set_callbacks(message,err) self.on_message=message; self.on_error=err end
+function M:fail(err)
+    if self.closed then return end
+    local tail=self.stderr_tail:sub(-500):gsub('[%z\1-\8\11\12\14-\31\127]',' ')
+    if tail~='' then err=tostring(err) .. ' (stderr: ' .. tail .. ')' end
+    self:close()
+    if self.on_error then self.on_error(tostring(err)) end
+end
+function M:send(msg, _opts)
+    if self.closed then return nil,'stdio transport closed' end
+    local ok,payload=pcall(json.encode,msg); if not ok then return nil,payload end
+    local wrote,handle,err=pcall(self.stdin.write,self.stdin,payload .. '\n',function(e)
+        if e then self:fail(e) end
+    end)
+    if not wrote then self:fail(handle); return nil,handle end
+    if not handle then self:fail(err); return nil,err end
+    return handle
+end
+function M:cancel(id)
+    self:send({jsonrpc='2.0',method='notifications/cancelled',params={requestId=id,reason='client cancelled'}})
+end
+function M:close()
+    if self.closed then return end
+    self.closed=true
+    -- Never signal/wait here: the detached supervisor owns escalation, even
+    -- after this runtime disappears. Closing stdin precedes lifeline EOF.
+    async.close(self.stdin); async.close(self.lifeline)
+    async.close(self.stdout); async.close(self.stderr)
+end
+return M

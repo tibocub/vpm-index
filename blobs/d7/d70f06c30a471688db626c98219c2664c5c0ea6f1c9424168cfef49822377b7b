@@ -1,0 +1,19 @@
+--imports
+local RoutineStmt = require("dogma.syn._.RoutineStmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--A proc statement.
+local ProcStmt = {}
+ProcStmt.__index = ProcStmt
+setmetatable(ProcStmt, {__index = RoutineStmt})
+package.loaded[...] = ProcStmt
+
+--Constructor.
+function ProcStmt.new(ln, col, annots, visib, static, async, itype, name, params, body, catch, fin)
+  return setmetatable(
+    RoutineStmt.new(
+      StmtType.PROC, ln, col, annots, visib, static, async, itype, name, params, body, catch, fin
+    ),
+    ProcStmt
+  )
+end

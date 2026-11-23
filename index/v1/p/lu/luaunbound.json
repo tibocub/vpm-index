@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "luaunbound",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://www.zash.se/luaunbound.html",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.6",
+      "luarocks": {
+        "date": "Mon, 23 Mar 2026 17:42:20 GMT",
+        "rockspec": {
+          "date": "Mon, 23 Mar 2026 17:42:20 GMT",
+          "sha256": "a8150e46f550d98c6518b4b35077e59613697d37b50c88a8c53e8141ddf21834",
+          "size": 615
+        },
+        "src": {
+          "date": "Mon, 23 Mar 2026 17:42:21 GMT",
+          "sha256": "99f4fb8695327f06d37013bfe09cad5103158d803941bbc3caed9328ecafd5bf",
+          "size": 8098,
+          "url": "https://luarocks.org/luaunbound-1.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "lunbound"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "libunbound"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "libunbound": {
+              "header": "unbound.h",
+              "library": "unbound"
+            }
+          },
+          "modules": [
+            {
+              "libraries": [
+                "unbound"
+              ],
+              "name": "lunbound",
+              "sources": [
+                "lunbound.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 23 Mar 2026 17:42:21 GMT",
+        "sha256": "99f4fb8695327f06d37013bfe09cad5103158d803941bbc3caed9328ecafd5bf",
+        "size": 8098,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaunbound-1.1.0-1.src.rock"
+      },
+      "summary": "A binding to libunbound",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

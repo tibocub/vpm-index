@@ -1,0 +1,307 @@
+--[[
+  Módulo utilitário para o plugin OIDC do Kong.
+
+  Este módulo lida com diversas funções auxiliares, incluindo:
+    - Configuração das opções de autenticação OIDC.
+    - Manipulação de sessões e consumidores.
+    - Injeção de tokens e cabeçalhos personalizados nas requisições.
+    - Verificação de tokens Bearer e validação de claims.
+
+  Funções principais:
+    - get_options: Retorna as opções configuradas para o plugin OIDC.
+    - injectAccessToken: Injeta o token de acesso no cabeçalho da requisição.
+    - injectIDToken: Injeta o token de ID no cabeçalho da requisição.
+    - setCredentials: Define as credenciais do usuário autenticado.
+    - injectUser: Injeta as informações do usuário autenticado no cabeçalho.
+    - injectGroups: Injeta os grupos do usuário autenticado.
+    - has_bearer_access_token: Verifica se o cabeçalho Authorization contém um token Bearer.
+    - has_common_item: Verifica se dois conjuntos têm pelo menos um item em comum.
+    - fetch_discovery_document: Obtém o documento de descoberta OIDC.
+    - get_client_credentials_token: Obtém o token de Client Credentials do OIDC.
+
+  Autor: [Maryucha M. Mariani]
+  Data: [13-09-24]
+  Versão: 1.1
+]]
+
+local cjson = require("cjson")
+local constants = require "kong.constants"
+local http = require("resty.http")
+
+local M = {}
+
+-- Função auxiliar para processar filtros a partir de uma lista CSV
+local function parseFilters(csvFilters)
+  local filters = {}
+  if csvFilters and csvFilters ~= "," then
+    for pattern in string.gmatch(csvFilters, "[^,]+") do
+      table.insert(filters, pattern)
+    end
+  end
+  return filters
+end
+
+-- Função para formatar um token de acesso no formato Bearer
+local function formatAsBearerToken(token)
+  return "Bearer " .. token
+end
+
+--[[
+  Função: get_redirect_uri
+  Descrição: Retorna o URI de redirecionamento removendo a query string e ajustando a barra final, se necessário.
+
+  Parâmetros:
+    - ngx: Contexto do NGINX.
+
+  Retorno:
+    - URI de redirecionamento ajustado.
+]]
+function M.get_redirect_uri(ngx)
+  local function drop_query()
+    local uri = ngx.var.request_uri
+    local x = uri:find("?")
+    if x then
+      return uri:sub(1, x - 1)
+    else
+      return uri
+    end
+  end
+
+  local function tackle_slash(path)
+    local args = ngx.req.get_uri_args()
+    if args and args.code then
+      return path
+    elseif path == "/" then
+      return "/cb"
+    elseif path:sub(-1) == "/" then
+      return path:sub(1, -2)
+    else
+      return path .. "/"
+    end
+  end
+
+  return tackle_slash(drop_query())
+end
+
+--[[
+  Função: get_options
+  Descrição: Retorna a configuração de opções para o plugin OIDC.
+
+  Parâmetros:
+    - config: Tabela de configuração do plugin.
+    - ngx: Contexto do NGINX.
+
+  Retorno:
+    - Tabela com as opções configuradas para o OIDC.
+]]
+function M.get_options(config, ngx)
+  return {
+    client_id = config.client_id,
+    client_secret = config.client_secret,
+    discovery = config.discovery,
+    introspection_endpoint = config.introspection_endpoint,
+    introspection_endpoint_auth_method = config.introspection_endpoint_auth_method,
+    introspection_cache_ignore = config.introspection_cache_ignore,
+    timeout = config.timeout,
+    bearer_only = config.bearer_only,
+    realm = config.realm,
+    redirect_uri = config.redirect_uri or M.get_redirect_uri(ngx),
+    scope = config.scope,
+    validate_scope = config.validate_scope,
+    response_type = config.response_type,
+    ssl_verify = config.ssl_verify,
+    use_jwks = config.use_jwks,
+    token_endpoint_auth_method = config.token_endpoint_auth_method,
+    recovery_page_path = config.recovery_page_path,
+    filters = parseFilters((config.filters or "") .. "," .. (config.ignore_auth_filters or "")),
+    logout_path = config.logout_path,
+    revoke_tokens_on_logout = config.revoke_tokens_on_logout == "yes",
+    redirect_after_logout_uri = config.redirect_after_logout_uri,
+    redirect_after_logout_with_id_token_hint = config.redirect_after_logout_with_id_token_hint == "yes",
+    post_logout_redirect_uri = config.post_logout_redirect_uri,
+    unauth_action = config.unauth_action,
+    userinfo_header_name = config.userinfo_header_name,
+    id_token_header_name = config.id_token_header_name,
+    access_token_header_name = config.access_token_header_name,
+    access_token_as_bearer = config.access_token_as_bearer == "yes",
+    disable_userinfo_header = config.disable_userinfo_header == "yes",
+    disable_id_token_header = config.disable_id_token_header == "yes",
+    disable_access_token_header = config.disable_access_token_header == "yes",
+    groups_claim = config.groups_claim,
+    skip_already_auth_requests = config.skip_already_auth_requests == "yes",
+    bearer_jwt_auth_enable = config.bearer_jwt_auth_enable == "yes",
+    bearer_jwt_auth_allowed_auds = config.bearer_jwt_auth_allowed_auds,
+    bearer_jwt_auth_signing_algs = config.bearer_jwt_auth_signing_algs,
+    header_names = config.header_names or {},
+    header_claims = config.header_claims or {},
+    use_client_credentials = config.use_client_credentials or false,
+    proxy_opts = {
+      http_proxy  = config.http_proxy,
+      https_proxy = config.https_proxy
+    }
+  }
+end
+
+-- Função para configurar e autenticar o cliente no Kong
+local function set_consumer(consumer, credential)
+  kong.client.authenticate(consumer, credential)
+
+  local set_header = kong.service.request.set_header
+  local clear_header = kong.service.request.clear_header
+
+  if consumer and consumer.id then
+    set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
+  else
+    clear_header(constants.HEADERS.CONSUMER_ID)
+  end
+
+  if consumer and consumer.custom_id then
+    set_header(constants.HEADERS.CONSUMER_CUSTOM_ID, consumer.custom_id)
+  else
+    clear_header(constants.HEADERS.CONSUMER_CUSTOM_ID)
+  end
+
+  if consumer and consumer.username then
+    set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
+  else
+    clear_header(constants.HEADERS.CONSUMER_USERNAME)
+  end
+
+  if credential and credential.username then
+    set_header(constants.HEADERS.CREDENTIAL_IDENTIFIER, credential.username)
+  else
+    clear_header(constants.HEADERS.CREDENTIAL_IDENTIFIER)
+  end
+
+  if credential then
+    clear_header(constants.HEADERS.ANONYMOUS)
+  else
+    set_header(constants.HEADERS.ANONYMOUS, true)
+  end
+end
+
+-- Função para injetar o token de acesso no cabeçalho da requisição
+function M.injectAccessToken(accessToken, headerName, bearerToken)
+  ngx.log(ngx.DEBUG, "Injetando o token de acesso no cabeçalho.")
+  local token = bearerToken and formatAsBearerToken(accessToken) or accessToken
+  kong.service.request.set_header(headerName, token)
+end
+
+-- Função para injetar o ID Token no cabeçalho da requisição
+function M.injectIDToken(idToken, headerName)
+  ngx.log(ngx.DEBUG, "Injetando o ID Token no cabeçalho.")
+  local tokenStr = cjson.encode(idToken)
+  kong.service.request.set_header(headerName, ngx.encode_base64(tokenStr))
+end
+
+-- Função para definir as credenciais do usuário autenticado
+function M.setCredentials(user)
+  local tmp_user = user
+  tmp_user.id = user.sub
+  tmp_user.username = user.preferred_username
+  set_consumer(nil, tmp_user)
+end
+
+-- Função para injetar as informações do usuário no cabeçalho
+function M.injectUser(user, headerName)
+  ngx.log(ngx.DEBUG, "Injetando informações do usuário no cabeçalho.")
+  local userinfo = cjson.encode(user)
+  kong.service.request.set_header(headerName, ngx.encode_base64(userinfo))
+end
+
+-- Função para injetar os grupos do usuário
+function M.injectGroups(user, claim)
+  if user[claim] then
+    kong.ctx.shared.authenticated_groups = user[claim]
+  end
+end
+
+-- Função para verificar se dois conjuntos possuem ao menos um item em comum
+function M.has_common_item(t1, t2)
+  if not t1 or not t2 then return false end
+  for _, i1 in pairs(t1) do
+    for _, i2 in pairs(t2) do
+      if i1 == i2 then return true end
+    end
+  end
+  return false
+end
+
+--[[
+  Função: fetch_discovery_document
+  Descrição: Realiza uma requisição para obter o documento de descoberta OpenID Connect (OIDC) de uma URL especificada.
+
+  Parâmetros:
+    - discovery_url (string): A URL onde o documento de descoberta OIDC pode ser obtido.
+
+  Retorno:
+    - discovery (table): O documento de descoberta OIDC decodificado em uma tabela Lua (se bem-sucedido).
+    - err (string): Uma mensagem de erro descrevendo o problema, caso ocorra.
+]]
+function M.fetch_discovery_document(discovery_url)
+  ngx.log(ngx.DEBUG, "Obtendo documento de descoberta OIDC.")
+
+  local httpc = http.new()
+  local res, err = httpc:request_uri(discovery_url, { method = "GET" })
+
+  if not res then
+    ngx.log(ngx.ERR, "Erro ao obter o documento de descoberta OIDC.")
+    return nil, err
+  end
+
+  return cjson.decode(res.body), nil
+end
+
+--[[
+  Função: get_client_credentials_token
+  Descrição: Obtém um token de Client Credentials do provedor OIDC.
+
+  Parâmetros:
+    - oidcConfig (table): A configuração OIDC que inclui `client_id`, `client_secret` e a URL de descoberta.
+
+  Retorno:
+    - token_response (table): A resposta contendo o token de Client Credentials.
+    - err (string): Uma mensagem de erro em caso de falha.
+]]
+function M.get_client_credentials_token(oidcConfig)
+  ngx.log(ngx.DEBUG, "Iniciando processo para obter token de Client Credentials.")
+
+  local discovery, err = M.fetch_discovery_document(oidcConfig.discovery)
+  if err or not discovery then
+    return nil, "Erro ao obter o documento de descoberta OIDC."
+  end
+
+  if not discovery.token_endpoint then
+    ngx.log(ngx.ERR, "Token endpoint não encontrado no documento de descoberta.")
+    return nil, "Token endpoint não encontrado"
+  end
+
+  local httpc = http.new()
+  local res, err = httpc:request_uri(discovery.token_endpoint, {
+    method = "POST",
+    body = ngx.encode_args({
+      grant_type = "client_credentials",
+      client_id = oidcConfig.client_id,
+      client_secret = oidcConfig.client_secret,
+      scope = oidcConfig.scope,
+    }),
+    headers = {
+      ["Content-Type"] = "application/x-www-form-urlencoded"
+    }
+  })
+
+  if not res then
+    ngx.log(ngx.ERR, "Erro ao obter token de Client Credentials.")
+    return nil, err
+  end
+
+  if res.status ~= 200 then
+    ngx.log(ngx.ERR, "Falha ao obter token de Client Credentials.")
+    return nil, res.body
+  end
+
+  ngx.log(ngx.DEBUG, "Token de Client Credentials obtido com sucesso.")
+  return cjson.decode(res.body), nil
+end
+
+return M

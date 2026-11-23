@@ -1,0 +1,198 @@
+-- ============================================================
+-- Shiva Errors
+-- Loud error system with structured context and suggestions.
+-- Inspired by Marko's "tell the developer what went wrong
+-- AND how to fix it" philosophy.
+-- ============================================================
+
+---@class ShivaError
+---@field code string
+---@field message string
+---@field context table<string, any>
+---@field suggestion string
+---@field level string
+---@field timestamp integer
+---@field trace string
+
+local Error = {}
+
+-- ========================
+-- Error Levels
+-- ========================
+
+Error.DEBUG    = 'debug'
+Error.INFO     = 'info'
+Error.WARNING  = 'warning'
+Error.ERROR    = 'error'
+Error.CRITICAL = 'critical'
+Error.FATAL    = 'fatal'
+
+-- ========================
+-- Constructor
+-- ========================
+
+--- Create a new structured error
+---@param code string Dot-notation error code (e.g., 'economy.insufficient')
+---@param message string Human-readable error message
+---@param context? table<string, any> Key-value pairs of relevant data
+---@param suggestion? string How to fix the error
+---@param level? string Error level (default: Error.ERROR)
+---@return ShivaError
+function Error.new(code, message, context, suggestion, level)
+    return {
+        code = code,
+        message = message,
+        context = context or {},
+        suggestion = suggestion or '',
+        level = level or Error.ERROR,
+        timestamp = os.time(),
+        trace = debug.traceback('', 2),
+    }
+end
+
+-- ========================
+-- Formatting
+-- ========================
+
+--- Format an error for display
+---@param err ShivaError
+---@param verbose? boolean Include stack trace
+---@return string
+function Error.format(err, verbose)
+    local lines = {}
+    lines[#lines + 1] = string.format('[%s] %s: %s',
+        string.upper(err.level), err.code, err.message)
+
+    if err.context and next(err.context) then
+        lines[#lines + 1] = '  Context:'
+        for k, v in pairs(err.context) do
+            lines[#lines + 1] = '    ' .. tostring(k) .. ' = ' .. tostring(v)
+        end
+    end
+
+    if err.suggestion and err.suggestion ~= '' then
+        lines[#lines + 1] = '  Suggestion: ' .. err.suggestion
+    end
+
+    if verbose and err.trace then
+        lines[#lines + 1] = '  Trace:'
+        lines[#lines + 1] = '    ' .. err.trace
+    end
+
+    return table.concat(lines, '\n')
+end
+
+-- ========================
+-- Safe Execution
+-- ========================
+
+--- Protected call that wraps errors into structured ShivaErrors.
+--- Lua 5.4 pcall preserves table errors, so structured errors survive.
+---@param fn function
+---@param errorContext? table<string, any> Context added if a raw error occurs
+---@return any|nil result
+---@return ShivaError|nil error
+function Error.safe(fn, errorContext)
+    local ok, result = pcall(fn)
+    if not ok then
+        if type(result) == 'table' and result.code then
+            return nil, result
+        end
+        return nil, Error.new(
+            'runtime.error',
+            tostring(result),
+            errorContext or {},
+            'Check the stack trace for the source of the error.'
+        )
+    end
+    return result, nil
+end
+
+--- Protected call with arguments
+---@param fn function
+---@param args? any[]
+---@param errorContext? table<string, any>
+---@return any|nil result
+---@return ShivaError|nil error
+function Error.safeCall(fn, args, errorContext)
+    local ok, result = pcall(fn, table.unpack(args or {}))
+    if not ok then
+        if type(result) == 'table' and result.code then
+            return nil, result
+        end
+        return nil, Error.new(
+            'runtime.error',
+            tostring(result),
+            errorContext or {},
+            'Check the stack trace for the source of the error.'
+        )
+    end
+    return result, nil
+end
+
+-- ========================
+-- Config Validation
+-- ========================
+
+--- Validate a config table against a schema.
+--- Returns (true, {}) on success or (false, ShivaError[]) on failure.
+---@param moduleName string
+---@param config table
+---@param schema table<string, {type: string, default?: any, min?: number, max?: number}>
+---@return boolean valid
+---@return ShivaError[] errors
+function Error.validateConfig(moduleName, config, schema)
+    local errors = {}
+
+    for key, rules in pairs(schema) do
+        local value = config[key]
+
+        if value == nil and rules.default == nil then
+            errors[#errors + 1] = Error.new(
+                'config.missing_key',
+                'Missing required config key "' .. key .. '" in module ' .. moduleName,
+                { module = moduleName, key = key, expectedType = rules.type },
+                'Add "' .. key .. '" to your config file with a ' .. rules.type .. ' value.'
+            )
+        elseif value ~= nil then
+            if rules.type and type(value) ~= rules.type then
+                errors[#errors + 1] = Error.new(
+                    'config.wrong_type',
+                    'Config key "' .. key .. '" in module ' .. moduleName .. ' has wrong type',
+                    { module = moduleName, key = key, expected = rules.type, got = type(value), value = tostring(value) },
+                    'Change "' .. key .. '" to a ' .. rules.type .. ' value.'
+                )
+            end
+
+            if rules.type == 'number' and type(value) == 'number' then
+                if rules.min and value < rules.min then
+                    errors[#errors + 1] = Error.new(
+                        'config.out_of_range',
+                        'Config key "' .. key .. '" is below minimum (' .. rules.min .. ')',
+                        { module = moduleName, key = key, value = value, min = rules.min },
+                        'Set "' .. key .. '" to at least ' .. rules.min .. '.'
+                    )
+                end
+                if rules.max and value > rules.max then
+                    errors[#errors + 1] = Error.new(
+                        'config.out_of_range',
+                        'Config key "' .. key .. '" is above maximum (' .. rules.max .. ')',
+                        { module = moduleName, key = key, value = value, max = rules.max },
+                        'Set "' .. key .. '" to at most ' .. rules.max .. '.'
+                    )
+                end
+            end
+        end
+    end
+
+    return #errors == 0, errors
+end
+
+--- Check if a value is a structured ShivaError
+---@param value any
+---@return boolean
+function Error.isError(value)
+    return type(value) == 'table' and type(value.code) == 'string' and type(value.message) == 'string'
+end
+
+return Error

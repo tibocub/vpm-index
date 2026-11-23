@@ -1,0 +1,158 @@
+local _module_0 = nil
+local inspect = require('inspect')
+local M = require('moses')
+local timetable = require('luatz.timetable')
+local result = require('elan.result')
+local exec_stmt
+do
+	local _obj_0 = require('elan.mq.utils')
+	exec_stmt = _obj_0.exec_stmt
+end
+local build_stmt
+build_stmt = function(fn_name, ...)
+	local typesn = select('#', ...)
+	local types = { }
+	local parts = {
+		"SELECT * FROM pgmq." .. tostring(fn_name) .. "("
+	}
+	for i = 1, typesn do
+		local typ = select(i, ...)
+		if typ == nil then
+			break
+		end
+		parts[#parts + 1] = M.operator.concat(i > 1 and ", " or "", "$" .. tostring(i) .. "::" .. tostring(typ))
+		types[#types + 1] = typ
+	end
+	parts[#parts + 1] = ")"
+	return table.concat(parts), types
+end
+local is_timestamp
+is_timestamp = function(v)
+	return getmetatable(v) == timetable.timetable_mt
+end
+local DEFAULT_VT = 30
+local DEFAULT_QTY = 1
+local MAX_POLL = 5
+local MAX_POLL_INTERVAL_MS = 100
+local MQ
+do
+	local _class_0
+	local _base_0 = {
+		send = function(self, queue_name, msgt, delay, headers)
+			if delay == nil then
+				delay = 0
+			end
+			local stmt, types = build_stmt('send', 'text', 'jsonb', 'jsonb', is_timestamp(delay) and 'timestamptz' or 'integer')
+			return exec_stmt(self.conn, stmt, types, queue_name, msgt, headers, delay)
+		end,
+		send_batch = function(self, queue_name, msgst, delay, headers)
+			if delay == nil then
+				delay = 0
+			end
+			local stmt, types = build_stmt('send_batch', 'text', 'jsonb[]', 'jsonb[]', is_timestamp(delay) and 'timestamptz' or 'integer')
+			return exec_stmt(self.conn, stmt, types, queue_name, msgst, headers, delay)
+		end,
+		read = function(self, queue_name, vt, qty)
+			if vt == nil then
+				vt = DEFAULT_VT
+			end
+			if qty == nil then
+				qty = DEFAULT_QTY
+			end
+			local stmt, types = build_stmt('read', 'text', 'integer', 'integer')
+			return exec_stmt(self.conn, stmt, types, queue_name, vt, qty)
+		end,
+		read_with_poll = function(self, queue_name, vt, qty, max_poll, poll_interval_ms)
+			if vt == nil then
+				vt = DEFAULT_VT
+			end
+			if qty == nil then
+				qty = DEFAULT_QTY
+			end
+			if max_poll == nil then
+				max_poll = MAX_POLL
+			end
+			if poll_interval_ms == nil then
+				poll_interval_ms = MAX_POLL_INTERVAL_MS
+			end
+			local stmt, types = build_stmt('read_with_poll', 'text', 'integer', 'integer', 'integer', 'integer')
+			return exec_stmt(self.conn, stmt, types, queue_name, vt, qty, max_poll, poll_interval_ms)
+		end,
+		pop = function(self, queue_name)
+			local stmt, types = build_stmt('pop', 'text')
+			return exec_stmt(self.conn, stmt, types, queue_name)
+		end,
+		delete = function(self, queue_name, msg_id_or_ids)
+			local stmt, types = build_stmt('delete', 'text', M.isArray(msg_id_or_ids) and 'bigint[]' or 'bigint')
+			return exec_stmt(self.conn, stmt, types, queue_name, msg_id_or_ids)
+		end,
+		archive = function(self, queue_name, msg_id_or_ids)
+			local stmt, types = build_stmt('archive', 'text', M.isArray(msg_id_or_ids) and 'bigint[]' or 'bigint')
+			return exec_stmt(self.conn, stmt, types, queue_name, msg_id_or_ids)
+		end,
+		purge_queue = function(self, queue_name)
+			local stmt, types = build_stmt('purge_queue', 'text')
+			return exec_stmt(self.conn, stmt, types, queue_name)
+		end,
+		create = function(self, queue_name)
+			local stmt, types = build_stmt('create', 'text')
+			return exec_stmt(self.conn, stmt, types, queue_name)
+		end,
+		detach_archive = function(self, queue_name)
+			local stmt, types = build_stmt('detach_archive', 'text')
+			return exec_stmt(self.conn, stmt, types, queue_name)
+		end,
+		drop_queue = function(self, queue_name)
+			local stmt, types = build_stmt('drop_queue', 'text')
+			return exec_stmt(self.conn, stmt, types, queue_name)
+		end,
+		set_vt = function(self, queue_name, msg_id, vt_offset)
+			local stmt, types = build_stmt('set_vt', 'text', 'bigint', 'integer')
+			return exec_stmt(self.conn, stmt, types, queue_name, msg_id, vt_offset)
+		end,
+		list_queues = function(self, queue_name_filter)
+			local stmt, types = build_stmt('list_queues')
+			if queue_name_filter and queue_name_filter ~= '' then
+				stmt = stmt .. " WHERE queue_name LIKE $1::text"
+				types[#types + 1] = 'text'
+			end
+			return exec_stmt(self.conn, stmt, types, queue_name_filter)
+		end,
+		metrics = function(self, queue_name)
+			local has_queue_name = queue_name and queue_name ~= ''
+			local stmt, types = build_stmt((has_queue_name and 'metrics' or 'metrics_all'), (has_queue_name and 'text' or nil))
+			return exec_stmt(self.conn, stmt, types, (has_queue_name and queue_name or nil))
+		end
+	}
+	if _base_0.__index == nil then
+		_base_0.__index = _base_0
+	end
+	_class_0 = setmetatable({
+		__init = function(self, conn)
+			self.conn = conn
+		end,
+		__base = _base_0,
+		__name = "MQ"
+	}, {
+		__index = _base_0,
+		__call = function(cls, ...)
+			local _self_0 = setmetatable({ }, _base_0)
+			cls.__init(_self_0, ...)
+			return _self_0
+		end
+	})
+	_base_0.__class = _class_0
+	local self = _class_0;
+	self.with = function(self, conn, fn, ...)
+		local args = {
+			...
+		}
+		return conn:with(function(conn)
+			local cli = self(conn)
+			return fn(cli, unpack(args))
+		end)
+	end
+	MQ = _class_0
+end
+_module_0 = MQ
+return _module_0

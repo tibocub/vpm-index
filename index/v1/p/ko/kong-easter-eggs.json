@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "kong-easter-eggs",
+  "versions": {
+    "1.0.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-easter-eggs/access.lua": {
+          "sha256": "eaa1014cf4893aede20c5764dace4304f436cc11355b331fb3c1bc670abfe2e4",
+          "size": 569,
+          "url": "https://raw.githubusercontent.com/maxipavlovic/kong-easter-eggs/a7087d1bdda03c23a5bfa9713f08412cff7b5eda/src/access.lua"
+        },
+        "kong/plugins/kong-easter-eggs/handler.lua": {
+          "sha256": "dc2862bb90671b98db0f4a01da2a2ccc88390967fe0f939bafaad162b69fa5bb",
+          "size": 619,
+          "url": "https://raw.githubusercontent.com/maxipavlovic/kong-easter-eggs/a7087d1bdda03c23a5bfa9713f08412cff7b5eda/src/handler.lua"
+        },
+        "kong/plugins/kong-easter-eggs/header_filter.lua": {
+          "sha256": "125c2fe165dbde5319b7c69a235cf2554345d4a9ed5faeee0ffa9f15e4bed04d",
+          "size": 572,
+          "url": "https://raw.githubusercontent.com/maxipavlovic/kong-easter-eggs/a7087d1bdda03c23a5bfa9713f08412cff7b5eda/src/header_filter.lua"
+        },
+        "kong/plugins/kong-easter-eggs/schema.lua": {
+          "sha256": "729c1501ee668f376b4cfe82876ff19e279fca001a8979d4d03fb6c747ff780b",
+          "size": 701,
+          "url": "https://raw.githubusercontent.com/maxipavlovic/kong-easter-eggs/a7087d1bdda03c23a5bfa9713f08412cff7b5eda/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 31 May 2020 18:22:47 GMT",
+        "rockspec": {
+          "date": "Sun, 31 May 2020 18:22:47 GMT",
+          "sha256": "8a922ea27a6e09a28904e0b239e30c65405c30e2ed30cd4655170b8e9eff4cc2",
+          "size": 690
+        },
+        "src": {
+          "date": "Sun, 31 May 2020 18:22:48 GMT",
+          "sha256": "9dc4584bce7adab9d4223f7e397357e1cbd34a28bd171de04b088f085ef9b626",
+          "size": 7046,
+          "url": "https://luarocks.org/kong-easter-eggs-1.0.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-easter-eggs.access",
+        "kong.plugins.kong-easter-eggs.handler",
+        "kong.plugins.kong-easter-eggs.header_filter",
+        "kong.plugins.kong-easter-eggs.schema"
+      ],
+      "origin": {
+        "commit": "a7087d1bdda03c23a5bfa9713f08412cff7b5eda",
+        "ref": "1.0.0",
+        "type": "git",
+        "url": "https://github.com/maxipavlovic/kong-easter-eggs"
+      },
+      "size": 2461,
+      "summary": "A Kong plugin for adding of Easter Eggs to your API",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

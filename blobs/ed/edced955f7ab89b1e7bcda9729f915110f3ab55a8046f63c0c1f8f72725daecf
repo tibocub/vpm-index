@@ -1,0 +1,242 @@
+#!/usr/bin/lua
+
+local cli = require "cli"
+local lfs = require "lfs"
+local file = require "pl.file"
+local path = require "pl.path"
+local posix = require "posix"
+local signal = require "posix.signal"
+local sllog = require "sllog"
+local unistd = require "posix.unistd"
+local inotify = require "inotify"
+local socket = require "socket"
+
+local pkar = require "pocket_archive"
+local logger = pkar.logger
+local fs = require "pocket_archive.fs"
+local model = require "pocket_archive.model"
+local pres = require "pocket_archive.presentation"
+local repo = require "pocket_archive.repo"
+local submission = require "pocket_archive.submission"
+
+
+local RSRC_PFX = model.RSRC_PFX
+local SIZE_POLL_TIME = .2  -- Poll interval to monitor file size changes
+
+local pid, pidfile
+
+local function shutdown()
+  logger:info("Shutting down Pocket Archive dropbox watcher...")
+  file.delete(pidfile)
+  logger:debug("PID file " .. pidfile .. " removed.")
+  os.exit()
+end
+
+signal.signal(signal.SIGINT, shutdown)
+signal.signal(signal.SIGTERM, shutdown)
+
+
+cli.locale "en_US"  -- TODO set with multilingual support.
+
+cli.program {
+    [[Run a laundry list watcher on a directory.
+
+    Laundry list files dropped on the indicated directory will be processed
+    for deposit.
+
+    NOTE: LL files MUST be dropped AFTER all files in the submission package
+    have been successfully uploaded.
+
+    A report with the same base name as the LL file is automatically generated
+    and dropped into the submission folder.
+
+    A PID file is generated at a location indicated in the output log. the PID
+    file has 3 space-separated fields: PID, user ID, and watched folder path.
+    There may be multiple instances of this program running concurrently on the
+    same system. The PID files are deleted on a clean exit, meaning that if the
+    program is forcefully terminated (SIGKILL or a crash), there may be stale
+    PID files lying about.
+    ]],
+
+    cli.positional "path" {"Local path of folder to watch."},
+
+    --[[
+    cli.flag "f,logfile" {
+        "Log file.",
+        type = cli.string,
+        default="/dev/stderr",
+    },
+
+    --]]
+    cli.flag "l,loglevel" {
+        "Log level: 1 = error, 2 = warning, 3 = info [default], 4 = debug.",
+        type = cli.number,
+        default = 3,
+    },
+
+    --[[
+    TODO remove. These options have been replaced by other means or hardcoded
+    as defaults.
+    cli.flag "g,gen-site" {
+        "(Re-)generate the website after each submission.",
+        type = cli.boolean,
+    },
+
+    cli.flag "r,rm-members" {
+        "Remove resource members recursively when a remove list is passed.",
+        type = cli.boolean,
+    },
+
+    cli.flag "c,cleanup" {
+        "Remove laundry list and SIP after successful submission.",
+        type = cli.boolean,
+    },
+    --]]
+
+    function(args)
+        local handle = inotify.init({ blocking = true })
+        logger:setlevel(args.loglevel or logger:getlevel())
+
+        pid = unistd.getpid()
+        pidfile = path.join(pkar.PID_DIR, "pkar_watch-" .. pid)
+        local fh = io.open(pidfile, "w")
+        fh:write(("%s %s %s %s"):format(
+                pid, unistd.getuid(), pkar.config_path, args.path))
+        fh:close()
+
+        logger:info("* * * * * * * * * *")
+        logger:info("Starting Pocket Archive dropbox watcher on ", args.path)
+        logger:info("PID file: ", pidfile)
+        logger:info("Config file: ", pkar.config_path)
+        logger:info("D-Res path: ", pkar.config.fs.dres_path)
+        logger:info("O-Res path: ", pkar.config.fs.ores_path)
+        logger:info("Website generated on demand at ", pres.OUT_DIR)
+        logger:info("* * * * * * * * * *\n")
+
+        local wd = assert(handle:addwatch(args.path, inotify.IN_CREATE))
+        while true do
+            for ev in handle:events() do
+                -- Workaround for odd nameless events TODO investigate
+                if not ev.name then goto skip end
+                logger:debug("Received new file: ", ev.name, " mask: ", ev.mask)
+
+                -- Submission file
+                if ev.name:find("pkar_submission.*%.csv") then
+                    logger:info("\n")
+                    logger:info("Detected new submission file: ", ev.name)
+                    -- FIXME this raises EAGAIN in Volksdata / LMDB if more than
+                    -- one submission is run in parallel.
+                    local cpid, err = unistd.fork()
+                    if cpid == nil then
+                        logger:error("Failed to fork submission process: " .. err)
+                    elseif cpid == 0 then
+                        local mypid = unistd.getpid()
+                        logger:info("Starting submission with pid: " .. mypid)
+                        local fpath = path.join(args.path, ev.name)
+
+                        local fsize = lfs.attributes(fpath, "size")
+                        while true do
+                            -- Cycle until file size stops growing.
+                            socket.sleep(SIZE_POLL_TIME)
+                            local new_fsize = lfs.attributes(fpath, "size")
+                            if new_fsize == fsize then break end
+                            fsize = new_fsize
+                        end
+
+                        local sub_rc, sub_ret = pcall(
+                            function(fpath, report_path)
+                                local sub = submission.Submission:new(
+                                    fpath, report_path)
+                                if not sub then
+                                    error("Submission failed. Check report.")
+                                end
+                                local report = sub:deposit(true)
+                            end,
+                            fpath,
+                            fpath:gsub("%.csv$", "-report.json")
+                        )
+                        if sub_rc then
+                            local report = sub_ret
+                        else
+                            logger:err("Submission process failed: " .. sub_ret)
+                            os.exit(1)
+                        end
+                        os.exit()
+                    end
+
+                -- Remove file
+                elseif ev.name:find("^pkar_remove.*") then
+                    local fpath = path.join(args.path, ev.name)
+                    local cpid, err = unistd.fork()
+                    if cpid == nil then
+                        logger:error("Failed to fork delete process: " .. err)
+                    elseif cpid == 0 then
+                        logger:info("Detected new remove list file: ", ev.name)
+                        local recursive =
+                                ev.name:find("^pkar_remove_recursive.*") ~= nil
+                        if recursive then
+                            logger:info("Removing resources with their members.")
+                        end
+
+                        local fsize = lfs.attributes(fpath, "size")
+                        while true do
+                            -- Cycle until file size stops growing.
+                            socket.sleep(SIZE_POLL_TIME)
+                            local new_fsize = lfs.attributes(fpath, "size")
+                            if new_fsize == fsize then break end
+                            fsize = new_fsize
+                        end
+
+                        for id in io.lines(fpath) do
+                            if #id > 0 then
+                                -- Normalize URI.
+                                local uri = RSRC_PFX .. id:gsub(
+                                        "^" .. RSRC_PFX, "")
+                                logger:info("Removing: " .. uri)
+                                local del_rc, ret = pcall(
+                                    repo.remove,
+                                    uri, recursive
+                                )
+                                if not del_rc then
+                                    logger:err(
+                                        "Error processing removal list: "
+                                        .. ret
+                                    )
+                                    os.exit(1)
+                                end
+                            end
+                        end
+                        file.delete(fpath)
+                        os.exit()
+                    end
+
+                -- Generate site
+                elseif ev.name:find("pkar_gen_site.*") then
+                    local cpid, err = unistd.fork()
+                    if cpid == nil then
+                        logger:error("Failed to fork delete process: " .. err)
+                    elseif cpid == 0 then
+                        logger:info("Regenerating website upon client request.")
+                        local fpath = path.join(args.path, ev.name)
+                        local gen_rc, gen_ret = pcall(pres.generate_site)
+                        if not gen_rc then
+                            logger:err(
+                                "Site generation process failed: " .. gen_ret)
+                            os.exit(1)
+                        end
+                        file.delete(fpath)
+                        os.exit()
+                    end
+                end
+
+            -- Else: main process keeps on running.
+            end
+            ::skip::
+        end
+
+        ---[[
+        handle:rmwatch(wd)
+        handle:close()
+        --]]
+    end,
+}

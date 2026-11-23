@@ -1,0 +1,120 @@
+{
+  "kind": "lib",
+  "name": "bkopenssl",
+  "versions": {
+    "0.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/bakpakin/lua-openssl",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Sat, 25 Jun 2016 14:41:41 GMT",
+        "rockspec": {
+          "date": "Sat, 25 Jun 2016 14:41:41 GMT",
+          "sha256": "cd0d6ff9a4068eea6aa67bed9acdf1f11bb8193ea3c4f5fd42fa30957d8e55f2",
+          "size": 1608
+        },
+        "src": {
+          "date": "Sat, 25 Jun 2016 14:41:43 GMT",
+          "sha256": "024ea2a4181a18699b4b92815868639344b734e46998788f5f5be4449ea1d0e3",
+          "size": 484371,
+          "url": "https://luarocks.org/bkopenssl-0.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "openssl"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "OPENSSL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "OPENSSL": {
+              "header": "openssl/evp.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "PTHREADS"
+              ],
+              "incdirs": [
+                "$(OPENSSL_INCDIR)",
+                "deps"
+              ],
+              "libdirs": [
+                "$(OPENSSL_LIBDIR)"
+              ],
+              "libraries": [
+                "ssl",
+                "crypto"
+              ],
+              "name": "openssl",
+              "sources": [
+                "src/asn1.c",
+                "src/auxiliar.c",
+                "src/bio.c",
+                "src/callback.c",
+                "src/cipher.c",
+                "src/cms.c",
+                "src/compat.c",
+                "src/crl.c",
+                "src/csr.c",
+                "src/dh.c",
+                "src/digest.c",
+                "src/dsa.c",
+                "src/ec.c",
+                "src/engine.c",
+                "src/hmac.c",
+                "src/lbn.c",
+                "src/lhash.c",
+                "src/misc.c",
+                "src/ocsp.c",
+                "src/openssl.c",
+                "src/ots.c",
+                "src/pkcs7.c",
+                "src/pkcs12.c",
+                "src/pkey.c",
+                "src/rsa.c",
+                "src/ssl.c",
+                "src/th-lock.c",
+                "src/util.c",
+                "src/x509.c",
+                "src/xattrs.c",
+                "src/xexts.c",
+                "src/xname.c",
+                "src/xalgor.c",
+                "src/xstore.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 25 Jun 2016 14:41:43 GMT",
+        "sha256": "024ea2a4181a18699b4b92815868639344b734e46998788f5f5be4449ea1d0e3",
+        "size": 484371,
+        "type": "luarocks",
+        "url": "https://luarocks.org/bkopenssl-0.0.0-1.src.rock"
+      },
+      "summary": "Openssl binding for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

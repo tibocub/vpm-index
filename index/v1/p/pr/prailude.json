@@ -1,0 +1,210 @@
+{
+  "kind": "app",
+  "name": "prailude",
+  "versions": {
+    "0.0.0-3": {
+      "bin": {
+        "prailude": "bin/prailude"
+      },
+      "deps": [
+        "luabc >= 1.1-1",
+        "luv >= 1.9.1-1",
+        "lua-cjson",
+        "alt-getopt",
+        "lualogging",
+        "lightningmdb",
+        "lsqlite3",
+        "mm"
+      ],
+      "files": {
+        "bin/prailude": {
+          "sha256": "28e1227d0a553810fd8e01826d15f3c4b23368205ffa5e2f9cc8790b8bfb4388",
+          "size": 15,
+          "url": "blob:28e1227d0a553810fd8e01826d15f3c4b23368205ffa5e2f9cc8790b8bfb4388"
+        },
+        "prailude.lua": {
+          "sha256": "b7e2122334f70174c483a66d4feb57cc080845a512359c7a32538e92d09d3af5",
+          "size": 666,
+          "url": "blob:b7e2122334f70174c483a66d4feb57cc080845a512359c7a32538e92d09d3af5"
+        },
+        "prailude/account.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "blob:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "prailude/block.lua": {
+          "sha256": "92a626e40d32baf8f95260e1b867f9a737a836e47690b8a85baf4749f3c6200c",
+          "size": 1743,
+          "url": "blob:92a626e40d32baf8f95260e1b867f9a737a836e47690b8a85baf4749f3c6200c"
+        },
+        "prailude/bus.lua": {
+          "sha256": "8fd082e24c5e03984d8be146a7e900e328ea79cc4ef237c543c4400c21f1e62d",
+          "size": 4313,
+          "url": "blob:8fd082e24c5e03984d8be146a7e900e328ea79cc4ef237c543c4400c21f1e62d"
+        },
+        "prailude/config.lua": {
+          "sha256": "142a657362c7e7baeb3f7e1a7eee455ab144ff0bae030373538c186482ad1d2b",
+          "size": 128,
+          "url": "blob:142a657362c7e7baeb3f7e1a7eee455ab144ff0bae030373538c186482ad1d2b"
+        },
+        "prailude/control.lua": {
+          "sha256": "052058e5529a8c2fce3a5d82bea222b6fd1897890227865f83247094377ae5d1",
+          "size": 562,
+          "url": "blob:052058e5529a8c2fce3a5d82bea222b6fd1897890227865f83247094377ae5d1"
+        },
+        "prailude/log.lua": {
+          "sha256": "27924b3a20963227d22380a1e915203a570b3ba096b950d0137abf1c509f304f",
+          "size": 210,
+          "url": "blob:27924b3a20963227d22380a1e915203a570b3ba096b950d0137abf1c509f304f"
+        },
+        "prailude/message.lua": {
+          "sha256": "65f1139e3be999d8deed22d72ec68ce80a7895669bfd2687ba7ff3019ec82618",
+          "size": 2729,
+          "url": "blob:65f1139e3be999d8deed22d72ec68ce80a7895669bfd2687ba7ff3019ec82618"
+        },
+        "prailude/peer.lua": {
+          "sha256": "e5e56d9987935a09f4cfb8fba4f5a99a2302f83c422914cc7e856e551da4da2c",
+          "size": 4662,
+          "url": "blob:e5e56d9987935a09f4cfb8fba4f5a99a2302f83c422914cc7e856e551da4da2c"
+        },
+        "prailude/rainet.lua": {
+          "sha256": "e1a248b049d5f16506d7c984bc880df70be3a37f9c74f79687b8bf676b179b9d",
+          "size": 3379,
+          "url": "blob:e1a248b049d5f16506d7c984bc880df70be3a37f9c74f79687b8bf676b179b9d"
+        },
+        "prailude/server.lua": {
+          "sha256": "9cd5b10d10aad20438e74ec36ece8ca178bcc47794e5eb51396a6b19a1bf3ad0",
+          "size": 2469,
+          "url": "blob:9cd5b10d10aad20438e74ec36ece8ca178bcc47794e5eb51396a6b19a1bf3ad0"
+        },
+        "prailude/transaction.lua": {
+          "sha256": "fdb4b8f92343f46086faba355e43ad6f6ac79cd31095d1ab10abe44735e09ac1",
+          "size": 131,
+          "url": "blob:fdb4b8f92343f46086faba355e43ad6f6ac79cd31095d1ab10abe44735e09ac1"
+        },
+        "prailude/util.lua": {
+          "sha256": "7fafcf5490bd6587465c287810050ef32d30f1d3f1f71d0c23668cb3a0f372bd",
+          "size": 3178,
+          "url": "blob:7fafcf5490bd6587465c287810050ef32d30f1d3f1f71d0c23668cb3a0f372bd"
+        },
+        "prailude/util/timer.lua": {
+          "sha256": "3513dee0d8872193fd2ec7ab12a4c2aba56f76bf2a18ceab86a9fc382edef1cb",
+          "size": 1082,
+          "url": "blob:3513dee0d8872193fd2ec7ab12a4c2aba56f76bf2a18ceab86a9fc382edef1cb"
+        }
+      },
+      "homepage": "https://github.com/slact/prailude",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Thu, 11 Jan 2018 18:24:59 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Jan 2018 18:24:59 GMT",
+          "sha256": "d67ea385b7c2de84bbf038556af4029d2336953ad239eb59414f82ce12ae00b1",
+          "size": 2591
+        },
+        "src": {
+          "date": "Thu, 11 Jan 2018 18:25:03 GMT",
+          "sha256": "334093716590116fbf11f392053395332306c1522eb424dc957fd1f7bffdca2c",
+          "size": 1192407,
+          "url": "https://luarocks.org/prailude-0.0.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "prailude",
+        "prailude.account",
+        "prailude.block",
+        "prailude.bus",
+        "prailude.config",
+        "prailude.control",
+        "prailude.log",
+        "prailude.message",
+        "prailude.message.parser",
+        "prailude.peer",
+        "prailude.rainet",
+        "prailude.server",
+        "prailude.transaction",
+        "prailude.util",
+        "prailude.util.crypto",
+        "prailude.util.lowlevel",
+        "prailude.util.timer"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src"
+              ],
+              "name": "prailude.message.parser",
+              "sources": [
+                "src/models/message/prailude_parser.c",
+                "src/util/net.c"
+              ]
+            },
+            {
+              "defines": [
+                "ED25519_CUSTOMHASH",
+                "ED25519_CUSTOMRNG",
+                "ARGON2_NO_THREADS"
+              ],
+              "incdirs": [
+                "src/util/crypto/argon2/include",
+                "src/util/crypto/blake2",
+                "src/util/crypto",
+                "src"
+              ],
+              "name": "prailude.util.crypto",
+              "sources": [
+                "src/util/crypto/blake2/blake2b.c",
+                "src/util/crypto/argon2/src/argon2.c",
+                "src/util/crypto/argon2/src/core.c",
+                "src/util/crypto/argon2/src/encoding.c",
+                "src/util/crypto/argon2/src/ref.c",
+                "src/util/crypto/argon2/src/thread.c",
+                "src/util/crypto/ed25519-donna/ed25519.c",
+                "src/util/prailude_crypto.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "src"
+              ],
+              "name": "prailude.util.lowlevel",
+              "sources": [
+                "src/util/prailude_util.c",
+                "src/util/uint256.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 11 Jan 2018 18:25:03 GMT",
+        "sha256": "334093716590116fbf11f392053395332306c1522eb424dc957fd1f7bffdca2c",
+        "size": 1192407,
+        "type": "luarocks",
+        "url": "https://luarocks.org/prailude-0.0.0-3.src.rock"
+      },
+      "size": 25267,
+      "summary": "RaiBlocks cryptocurrency node",
+      "undeclared_requires": [
+        "luv"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

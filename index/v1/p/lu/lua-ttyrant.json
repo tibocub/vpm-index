@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "lua-ttyrant",
+  "versions": {
+    "1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/valeriupalos/lua-ttyrant",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 01 Mar 2014 21:28:55 GMT",
+        "rockspec": {
+          "date": "Sat, 01 Mar 2014 21:28:55 GMT",
+          "sha256": "85499a69bd1cfdd640555e357d582c1c076da785760cd08645e0507577133374",
+          "size": 971
+        },
+        "src": {
+          "date": "Sat, 01 Mar 2014 21:28:55 GMT",
+          "sha256": "91cc3f72b9862315fa06f80cc36bd1b68c31b6e5aaae2d0352a38ad3c3d30f56",
+          "size": 17101,
+          "url": "https://luarocks.org/lua-ttyrant-1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "ttyrant"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBTOKYOTYRANT"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBTOKYOTYRANT": {
+              "header": "tcrdb.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBTOKYOTYRANT_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LIBTOKYOTYRANT_LIBDIR)"
+              ],
+              "libraries": [
+                "tokyotyrant"
+              ],
+              "name": "ttyrant",
+              "sources": [
+                "src/ttyrant.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 01 Mar 2014 21:28:55 GMT",
+        "sha256": "91cc3f72b9862315fa06f80cc36bd1b68c31b6e5aaae2d0352a38ad3c3d30f56",
+        "size": 17101,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-ttyrant-1.1-1.src.rock"
+      },
+      "summary": "TokyoTyrant API for Lua.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

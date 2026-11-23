@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-serverless-functions",
+  "versions": {
+    "2.1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/post-function/handler.lua": {
+          "sha256": "ded4ccea5ae6d37e7623e778144b7747a0bae456607b0af025f8f8d00ef1d2fa",
+          "size": 60,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-serverless-functions/114dad462791a7ba0233112474f998e4aa33e2c8/kong/plugins/post-function/handler.lua"
+        },
+        "kong/plugins/post-function/schema.lua": {
+          "sha256": "53d0e2c6aab50f8bebe0a4044cba880e9b5d1c2d8ad5304bfbb162ad2b55500f",
+          "size": 69,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-serverless-functions/114dad462791a7ba0233112474f998e4aa33e2c8/kong/plugins/post-function/schema.lua"
+        },
+        "kong/plugins/pre-function/_handler.lua": {
+          "sha256": "c9973c9b235b24b407a3194295e2f40189599cffbb68ceed56131c606106d43e",
+          "size": 4003,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-serverless-functions/114dad462791a7ba0233112474f998e4aa33e2c8/kong/plugins/pre-function/_handler.lua"
+        },
+        "kong/plugins/pre-function/_schema.lua": {
+          "sha256": "52bbff9d24546b49633b63eb22474754f4ed1f953bf919e83c98cac16ae493bb",
+          "size": 1984,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-serverless-functions/114dad462791a7ba0233112474f998e4aa33e2c8/kong/plugins/pre-function/_schema.lua"
+        },
+        "kong/plugins/pre-function/handler.lua": {
+          "sha256": "f3efb57aa9caaff8ea3d225cbf6452fc328a0f587b835741e2b983f4125cf4e4",
+          "size": 64,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-serverless-functions/114dad462791a7ba0233112474f998e4aa33e2c8/kong/plugins/pre-function/handler.lua"
+        },
+        "kong/plugins/pre-function/schema.lua": {
+          "sha256": "29b9f45122be034fe20813cdbd5fdbd9db1fcd00edeca00e504ca16706cce684",
+          "size": 68,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-serverless-functions/114dad462791a7ba0233112474f998e4aa33e2c8/kong/plugins/pre-function/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 08 Jan 2021 18:32:12 GMT",
+        "rockspec": {
+          "date": "Fri, 08 Jan 2021 18:32:12 GMT",
+          "sha256": "a84deb3f88b3779b2b74828962d6261da1720486bbd5eb16ca45d68aed0f9b0f",
+          "size": 873
+        },
+        "src": {
+          "date": "Fri, 08 Jan 2021 18:32:14 GMT",
+          "sha256": "38424ef2380b55667d4e06f389b5951cf94063d90aec8e5f54076146398841e0",
+          "size": 20938,
+          "url": "https://luarocks.org/kong-plugin-serverless-functions-2.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.post-function.handler",
+        "kong.plugins.post-function.schema",
+        "kong.plugins.pre-function._handler",
+        "kong.plugins.pre-function._schema",
+        "kong.plugins.pre-function.handler",
+        "kong.plugins.pre-function.schema"
+      ],
+      "origin": {
+        "commit": "114dad462791a7ba0233112474f998e4aa33e2c8",
+        "ref": "2.1.0",
+        "type": "git",
+        "url": "https://github.com/kong/kong-plugin-serverless-functions"
+      },
+      "size": 6248,
+      "summary": "Dynamically run Lua code from Kong during plugin phases.",
+      "undeclared_requires": [
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.tools.sandbox"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.sandbox",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 6
+      }
+    }
+  }
+}

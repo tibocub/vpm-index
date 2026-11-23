@@ -1,0 +1,174 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-wsse",
+  "versions": {
+    "5.0.0-1": {
+      "bin": [],
+      "deps": [
+        "date 2.1.2-1",
+        "lbase64 20120820-1",
+        "fly-bgcrypto-sha == 0.0.1-1",
+        "classic 0.1.0-1",
+        "kong-lib-logger >= 0.3.0-1"
+      ],
+      "files": {
+        "kong/plugins/wsse/access.lua": {
+          "sha256": "28f28d37b327140cad9b667e21e96d3d34b01aec578da2bd9b06d8cb3579d2a0",
+          "size": 3717,
+          "url": "blob:28f28d37b327140cad9b667e21e96d3d34b01aec578da2bd9b06d8cb3579d2a0"
+        },
+        "kong/plugins/wsse/api.lua": {
+          "sha256": "5ba536735325d72104743fb799cd90ae6bb2a48980994220caf11eb8efec8c34",
+          "size": 2673,
+          "url": "blob:5ba536735325d72104743fb799cd90ae6bb2a48980994220caf11eb8efec8c34"
+        },
+        "kong/plugins/wsse/cache_warmer.lua": {
+          "sha256": "2e8ad57391c34bc2d65f81bbabbddd8a811102174796595a479df801b2d6b697",
+          "size": 563,
+          "url": "blob:2e8ad57391c34bc2d65f81bbabbddd8a811102174796595a479df801b2d6b697"
+        },
+        "kong/plugins/wsse/consumer_db.lua": {
+          "sha256": "25a11f902244ae243f253ba8d46227263c7eed2b35853a272055c591f8b1a469",
+          "size": 1044,
+          "url": "blob:25a11f902244ae243f253ba8d46227263c7eed2b35853a272055c591f8b1a469"
+        },
+        "kong/plugins/wsse/crypt.lua": {
+          "sha256": "f3d87f855af5defc0b4a32ab784b090c6edc163dbec15306cd232aebe460ceba",
+          "size": 1400,
+          "url": "blob:f3d87f855af5defc0b4a32ab784b090c6edc163dbec15306cd232aebe460ceba"
+        },
+        "kong/plugins/wsse/daos.lua": {
+          "sha256": "cd825a528b90f554e2c027703af8707caa94eda8c4d3b90ec537bb3b907e7594",
+          "size": 766,
+          "url": "blob:cd825a528b90f554e2c027703af8707caa94eda8c4d3b90ec537bb3b907e7594"
+        },
+        "kong/plugins/wsse/encryption_key_path_retriever.lua": {
+          "sha256": "01e7fade9ea637ea855da73bed0950bccb53fe3ecc49f2435ca23bd759460a99",
+          "size": 629,
+          "url": "blob:01e7fade9ea637ea855da73bed0950bccb53fe3ecc49f2435ca23bd759460a99"
+        },
+        "kong/plugins/wsse/handler.lua": {
+          "sha256": "9b3c458d9682eec74dfaa09830d36a7644c23b207526d4205e48f5cd8b714167",
+          "size": 1400,
+          "url": "blob:9b3c458d9682eec74dfaa09830d36a7644c23b207526d4205e48f5cd8b714167"
+        },
+        "kong/plugins/wsse/init_worker.lua": {
+          "sha256": "deb53ccbd94754a0a722989b345e0fd989e651bc2deb8891fc12e381dc4ac695",
+          "size": 558,
+          "url": "blob:deb53ccbd94754a0a722989b345e0fd989e651bc2deb8891fc12e381dc4ac695"
+        },
+        "kong/plugins/wsse/key_db.lua": {
+          "sha256": "2a9562d3ce30754e7a9cca0a314884375222d2e450bced49cb39a959fbd48307",
+          "size": 1821,
+          "url": "blob:2a9562d3ce30754e7a9cca0a314884375222d2e450bced49cb39a959fbd48307"
+        },
+        "kong/plugins/wsse/migrations/000_base_wsse.lua": {
+          "sha256": "3a4553a1f23a73fb0f37d514a8dd2b204dcafee5c6e857eb8dc2026d22aa7e8e",
+          "size": 1236,
+          "url": "blob:3a4553a1f23a73fb0f37d514a8dd2b204dcafee5c6e857eb8dc2026d22aa7e8e"
+        },
+        "kong/plugins/wsse/migrations/001_add_encrypted_secret.lua": {
+          "sha256": "4fd842beaf77c365200729808eaec9b9ef6f45527628a518555fd4089c1946c6",
+          "size": 422,
+          "url": "blob:4fd842beaf77c365200729808eaec9b9ef6f45527628a518555fd4089c1946c6"
+        },
+        "kong/plugins/wsse/migrations/002_drop_encrypted_secret.lua": {
+          "sha256": "06b7c2d820ff3760594a8a1754d2220526b842d47ad6187b379a9f037c2d8617",
+          "size": 269,
+          "url": "blob:06b7c2d820ff3760594a8a1754d2220526b842d47ad6187b379a9f037c2d8617"
+        },
+        "kong/plugins/wsse/migrations/init.lua": {
+          "sha256": "fa8e854d46013e696a1c76a2fd48d0bb11160c4b737b51dbd26487834b63b7d4",
+          "size": 95,
+          "url": "blob:fa8e854d46013e696a1c76a2fd48d0bb11160c4b737b51dbd26487834b63b7d4"
+        },
+        "kong/plugins/wsse/plugin_config.lua": {
+          "sha256": "2e97b9040ed5fe7d2f7b9e0b8d7fe62f8a8c68b70c2ec0000f47c4e882b125a5",
+          "size": 903,
+          "url": "blob:2e97b9040ed5fe7d2f7b9e0b8d7fe62f8a8c68b70c2ec0000f47c4e882b125a5"
+        },
+        "kong/plugins/wsse/schema.lua": {
+          "sha256": "c7164ac7c10a471716d4f9a14b5e0b7925446e8f22896ba9d4e912f45857a678",
+          "size": 3571,
+          "url": "blob:c7164ac7c10a471716d4f9a14b5e0b7925446e8f22896ba9d4e912f45857a678"
+        },
+        "kong/plugins/wsse/timeframe_validator.lua": {
+          "sha256": "0c0227cffbf0a862e8bb7a117d15b4f68121056d8a9f993f8d9df81416bf9789",
+          "size": 2030,
+          "url": "blob:0c0227cffbf0a862e8bb7a117d15b4f68121056d8a9f993f8d9df81416bf9789"
+        },
+        "kong/plugins/wsse/wsse_lib.lua": {
+          "sha256": "166a4acd8e97ad304759d33c8db1d5e07179e218253095f462ef1af17aa5f5e5",
+          "size": 4934,
+          "url": "blob:166a4acd8e97ad304759d33c8db1d5e07179e218253095f462ef1af17aa5f5e5"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-wsse",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 31 Mar 2021 11:27:35 GMT",
+        "rockspec": {
+          "date": "Wed, 31 Mar 2021 11:27:35 GMT",
+          "sha256": "8eaa9f7aec0fc93bf668133ccc9035b3e4c39f71be6f5e6d37b8e7a80583e1a4",
+          "size": 2037
+        },
+        "src": {
+          "date": "Wed, 31 Mar 2021 11:27:37 GMT",
+          "sha256": "2868490bd143ed04acc664e0c4876d9f894f9f77a1bbdc862f61337183ca8331",
+          "size": 35462,
+          "url": "https://luarocks.org/kong-plugin-wsse-5.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.wsse.access",
+        "kong.plugins.wsse.api",
+        "kong.plugins.wsse.cache_warmer",
+        "kong.plugins.wsse.consumer_db",
+        "kong.plugins.wsse.crypt",
+        "kong.plugins.wsse.daos",
+        "kong.plugins.wsse.encryption_key_path_retriever",
+        "kong.plugins.wsse.handler",
+        "kong.plugins.wsse.init_worker",
+        "kong.plugins.wsse.key_db",
+        "kong.plugins.wsse.migrations",
+        "kong.plugins.wsse.migrations.000_base_wsse",
+        "kong.plugins.wsse.migrations.001_add_encrypted_secret",
+        "kong.plugins.wsse.migrations.002_drop_encrypted_secret",
+        "kong.plugins.wsse.plugin_config",
+        "kong.plugins.wsse.schema",
+        "kong.plugins.wsse.timeframe_validator",
+        "kong.plugins.wsse.wsse_lib"
+      ],
+      "origin": {
+        "date": "Wed, 31 Mar 2021 11:27:37 GMT",
+        "sha256": "2868490bd143ed04acc664e0c4876d9f894f9f77a1bbdc862f61337183ca8331",
+        "size": 35462,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-wsse-5.0.0-1.src.rock"
+      },
+      "size": 28031,
+      "summary": "WSSE auth plugin for Kong API gateway.",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.constants",
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.utils",
+        "resty.easy-crypto"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

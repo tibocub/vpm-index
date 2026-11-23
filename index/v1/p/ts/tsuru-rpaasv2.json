@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "tsuru-rpaasv2",
+  "versions": {
+    "0.9.0-1": {
+      "bin": [],
+      "deps": [
+        "inotify ~> 0.5"
+      ],
+      "files": {
+        "tsuru/rpaasv2/tls/session_ticket.lua": {
+          "sha256": "a8ce0955439ede8a6327dcff29b35b7e2c34c29a70c058166d87f4c9e8f17754",
+          "size": 2129,
+          "url": "https://raw.githubusercontent.com/tsuru/rpaas-operator/04a547d7232f8e9eddeaada61857ea1062cc5de7/lualib/tsuru/rpaasv2/tls/session_ticket.lua"
+        },
+        "tsuru/rpaasv2/tls/session_ticket_reloader.lua": {
+          "sha256": "a0010dc39df406eb9e0fa142228cf51c92945efe1abdc5505141658360b61c34",
+          "size": 4046,
+          "url": "https://raw.githubusercontent.com/tsuru/rpaas-operator/04a547d7232f8e9eddeaada61857ea1062cc5de7/lualib/tsuru/rpaasv2/tls/session_ticket_reloader.lua"
+        }
+      },
+      "homepage": "https://github.com/tsuru/rpaas-operator",
+      "host": "luajit",
+      "license": "3-clause BSD",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Fri, 05 Jun 2020 19:38:20 GMT",
+        "rockspec": {
+          "date": "Fri, 05 Jun 2020 19:38:20 GMT",
+          "sha256": "642436c3e23890f7001435072b3a82ffd0f88e110b44f086109457a3b8063f55",
+          "size": 680
+        },
+        "src": {
+          "date": "Fri, 05 Jun 2020 19:38:22 GMT",
+          "sha256": "1305886b5acfa1368b83cbbd471d16c9c51d8dfd59cadb3ded9b12b7e84a4674",
+          "size": 220570,
+          "url": "https://luarocks.org/tsuru-rpaasv2-0.9.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "tsuru.rpaasv2.tls.session_ticket",
+        "tsuru.rpaasv2.tls.session_ticket_reloader"
+      ],
+      "origin": {
+        "commit": "04a547d7232f8e9eddeaada61857ea1062cc5de7",
+        "ref": "v0.9.0",
+        "type": "git",
+        "url": "https://github.com/tsuru/rpaas-operator.git"
+      },
+      "size": 6175,
+      "summary": "Lua helpers to extend Nginx (OpenResty or just ngx_lua) features on RPaaS v2.",
+      "undeclared_requires": [
+        "ngx",
+        "resty.core.base"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

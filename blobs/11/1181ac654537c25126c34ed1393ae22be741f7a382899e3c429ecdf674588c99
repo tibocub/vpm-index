@@ -1,0 +1,63 @@
+--[[
+  Módulo responsável por verificar se a requisição deve ser processada ou ignorada
+  com base nos padrões definidos no campo `filters` da configuração do plugin.
+
+  Autor: [Maryucha M. Mariani]
+  Data: [13-09-24]
+  Versão: 1.0
+]]
+
+local M = {}
+
+--[[
+  Função auxiliar que verifica se a URI da requisição corresponde a um dos padrões fornecidos.
+
+  @param patterns (tabela) - Uma lista de padrões de URI que devem ser ignorados.
+  @return boolean - Retorna `true` se a URI corresponder a algum dos padrões; caso contrário, `false`.
+]]
+local function shouldIgnoreRequest(patterns)
+  if (patterns) then
+    ngx.log(ngx.DEBUG, "Verificando padrões para ignorar a requisição: ", table.concat(patterns, ", "))
+    for _, pattern in ipairs(patterns) do
+      local isMatching = not (string.find(ngx.var.uri, pattern) == nil)
+      if (isMatching) then
+        ngx.log(ngx.INFO, "Requisição ignorada. A URI '", ngx.var.uri, "' corresponde ao padrão: ", pattern)
+        return true
+      end
+    end
+    ngx.log(ngx.DEBUG, "Nenhum padrão correspondeu à URI: ", ngx.var.uri)
+  else
+    ngx.log(ngx.DEBUG, "Nenhum padrão de 'filters' fornecido para verificação.")
+  end
+  return false
+end
+
+--[[
+  Função principal para verificar se a requisição deve ser processada pelo plugin.
+
+  A requisição será processada se não houver correspondência com os padrões de `filters`
+  configurados no plugin.
+
+  @param config (tabela) - A configuração do plugin que contém o campo `filters`.
+  @return boolean - Retorna `true` se a requisição deve ser processada, `false` se deve ser ignorada.
+]]
+function M.shouldProcessRequest(config)
+  if not config.filters then
+    ngx.log(ngx.DEBUG, "Nenhum filtro configurado. Processando a requisição normalmente.")
+    return true
+  end
+
+  ngx.log(ngx.DEBUG, "Verificando se a requisição deve ser processada com base nos filtros.")
+  local shouldIgnore = shouldIgnoreRequest(config.filters)
+
+  if shouldIgnore then
+    ngx.log(ngx.INFO, "A requisição será ignorada com base nos filtros.")
+  else
+    ngx.log(ngx.INFO, "A requisição será processada.")
+  end
+
+  return not shouldIgnore
+end
+
+-- Retorna o módulo
+return M

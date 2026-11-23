@@ -1,0 +1,38 @@
+local M = {}
+M.BASE = "https://wan3video.art"
+M.BRAND = "WAN 3.0 Video"
+M.DESCRIPTION = "AI text-to-video and image-to-video studio."
+
+local function page_url(path)
+  local value = path or "/"
+  if value == "" then value = "/" end
+  if value:sub(1, 1) ~= "/" then value = "/" .. value end
+  local clean = value == "/" and "/" or value:gsub("/+$", "") .. "/"
+  return M.BASE .. clean
+end
+
+function M.localized_url(locale, path)
+  if locale == "en" then return page_url(path) end
+  if locale == "zh" or locale == "zh-CN" then
+    local value = path or "/"
+    if value == "" then value = "/" end
+    if value:sub(1, 1) ~= "/" then value = "/" .. value end
+    return page_url("/zh" .. (value == "/" and "" or value))
+  end
+  error("unsupported locale: " .. tostring(locale))
+end
+
+function M.metadata()
+  return {
+    name = M.BRAND, homepage = M.BASE, description = M.DESCRIPTION,
+    tags = { "wan3video", "ai-video", "url-helpers" }
+  }
+end
+
+function M.home_url() return page_url("/") end
+function M.studio_url() return M.BASE .. "/#app-section" end
+function M.pricing_url() return page_url("/pricing") end
+function M.about_url() return page_url("/about") end
+function M.zh_home_url() return M.localized_url("zh", "/") end
+
+return M

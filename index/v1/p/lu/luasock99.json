@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "luasock99",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://git.sr.ht/~mna/luasock99",
+      "license": "BSD",
+      "lua": ">= 5.3, < 5.5",
+      "luarocks": {
+        "date": "Tue, 28 Jul 2020 18:57:50 GMT",
+        "rockspec": {
+          "date": "Tue, 28 Jul 2020 18:57:50 GMT",
+          "sha256": "b1a7bccdc438d5662b1224fd8f95e107a31f26f768a766eb7fa9db22d816c8ee",
+          "size": 600
+        },
+        "src": {
+          "date": "Tue, 28 Jul 2020 18:57:51 GMT",
+          "sha256": "647f444afb546038cae07762e8d8bf54494de2ee41a40bc90c34be0eb0dbd302",
+          "size": 11873,
+          "url": "https://luarocks.org/luasock99-0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "sock99"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "_POSIX_C_SOURCE=200809L"
+              ],
+              "incdirs": [
+                "deps"
+              ],
+              "name": "sock99",
+              "sources": [
+                "src/sock99.c",
+                "deps/socket99/socket99.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 28 Jul 2020 18:57:51 GMT",
+        "sha256": "647f444afb546038cae07762e8d8bf54494de2ee41a40bc90c34be0eb0dbd302",
+        "size": 11873,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasock99-0.1-1.src.rock"
+      },
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

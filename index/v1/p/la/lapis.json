@@ -1,0 +1,602 @@
+{
+  "kind": "app",
+  "name": "lapis",
+  "versions": {
+    "1.20.0-1": {
+      "bin": {
+        "lapis": "bin/lapis"
+      },
+      "deps": [
+        "ansicolors",
+        "argparse",
+        "date",
+        "etlua",
+        "loadkit",
+        "lpeg",
+        "lua-cjson",
+        "luaossl",
+        "luasocket",
+        "pgmoon"
+      ],
+      "files": {
+        "bin/lapis": {
+          "sha256": "ca487079f147ddb627adb0ebc6b69debe9254b3d64ce78817c019b559f38fff0",
+          "size": 104,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/bin/lapis"
+        },
+        "lapis/application.lua": {
+          "sha256": "98f7c7523b78d61f59034a219d1b7ad11a3c0a2100e79e4174e2261248646558",
+          "size": 15384,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/application.lua"
+        },
+        "lapis/application/route_group.lua": {
+          "sha256": "7d806fcf1571b75c64c8a779468ca77744b6276896265c8d6d5173842ddeb6bf",
+          "size": 3812,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/application/route_group.lua"
+        },
+        "lapis/cache.lua": {
+          "sha256": "1d16fd47af9018abee1345973b400fa8c7faf70e217b36b3c73ead2a7516bea2",
+          "size": 36,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cache.lua"
+        },
+        "lapis/cmd/actions.lua": {
+          "sha256": "cd9868dfca7282db15e0ed0d32a1bdb63fc7df8d4d2603d28662e8b55f45a83c",
+          "size": 29945,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/actions.lua"
+        },
+        "lapis/cmd/attached_server.lua": {
+          "sha256": "0971f3fa3d020b1207b6ea6b55aaf1a4dd5795c555eaf3490f1817c635773bc4",
+          "size": 1932,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/attached_server.lua"
+        },
+        "lapis/cmd/cqueues.lua": {
+          "sha256": "6dc66089bd719c91c00debae6f6e0649c6d8fcbccfce09d72a5bc68d66014bc6",
+          "size": 5026,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/cqueues.lua"
+        },
+        "lapis/cmd/cqueues/actions.lua": {
+          "sha256": "050f6d3070fdd3a3f345da47fe96000b29e93bb350097013f8bb48b49aac23c2",
+          "size": 968,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/cqueues/actions.lua"
+        },
+        "lapis/cmd/cqueues/attached_server.lua": {
+          "sha256": "1cb311fb7437593f3bdf2b16dbdd33cfe30a97f45841b079b9eea282e9f10a35",
+          "size": 2270,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/cqueues/attached_server.lua"
+        },
+        "lapis/cmd/nginx.lua": {
+          "sha256": "9ecad9626122305cee2d4499bc28a54fa752dc7071e317ecd396bbaed374c97e",
+          "size": 9097,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/nginx.lua"
+        },
+        "lapis/cmd/nginx/actions.lua": {
+          "sha256": "0b4712d3513c0130bf353e4289eca185e45fb55d8e9d655f204bf9b8aadc3bd5",
+          "size": 1415,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/nginx/actions.lua"
+        },
+        "lapis/cmd/nginx/attached_server.lua": {
+          "sha256": "83d5099d0a0694f9a48d363545c57df6c3448913fb6f2bed1821b4e86c76a9c4",
+          "size": 5052,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/nginx/attached_server.lua"
+        },
+        "lapis/cmd/nginx/config.lua": {
+          "sha256": "06f4545b1f30dcb7febfea5d073f011aeb71a2c4fc0a3db80c8e50db0c872d84",
+          "size": 3562,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/nginx/config.lua"
+        },
+        "lapis/cmd/path.lua": {
+          "sha256": "7adba4b287feb3c6801a8df71d39f44a2e20db10f5f1a7bc0a4d826a430188a3",
+          "size": 3113,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/path.lua"
+        },
+        "lapis/cmd/templates/application.lua": {
+          "sha256": "b89ccac745cb54a988c4f759c05849a7f2a1c580ae58fc31a3f83ff23d03ee51",
+          "size": 1552,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/application.lua"
+        },
+        "lapis/cmd/templates/config.lua": {
+          "sha256": "62dac132e5a88a725e8e148f022f5e9d0a10e797cdc3b968a28f2a1cc3cadb1a",
+          "size": 2158,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/config.lua"
+        },
+        "lapis/cmd/templates/flow.lua": {
+          "sha256": "346378958a2386c8a1098c542611b58ca27b53510c6edd80f429fbc84db9eb29",
+          "size": 2036,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/flow.lua"
+        },
+        "lapis/cmd/templates/gitignore.lua": {
+          "sha256": "81fd2a5899e866759d1e3b2675ace8686b435cc52cc2ab51917486bd0b16be29",
+          "size": 853,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/gitignore.lua"
+        },
+        "lapis/cmd/templates/migration.lua": {
+          "sha256": "847307a8948131d4794919d3ac961e0eab379cfcef8bb5b5dea9af37314578d8",
+          "size": 4067,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/migration.lua"
+        },
+        "lapis/cmd/templates/model.lua": {
+          "sha256": "dad9ef6e60f7954357b98923ca6afddd55b1b8cc6d7b3ae3d0d5fab26f20f738",
+          "size": 1968,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/model.lua"
+        },
+        "lapis/cmd/templates/models.lua": {
+          "sha256": "51c36f637e8dda3eb8189628a3240db838e13a2386fcd832b5967bf65d501ddb",
+          "size": 1401,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/models.lua"
+        },
+        "lapis/cmd/templates/nginx/config.lua": {
+          "sha256": "56e26c3a323a59cd1416e17492ede064b6736cf4ac10d8e3cb24971fd06ef019",
+          "size": 1604,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/nginx/config.lua"
+        },
+        "lapis/cmd/templates/nginx/mime_types.lua": {
+          "sha256": "9ddd47360d1304d988b94f80a7df27b0b053b309de5e8139a4854c196f964160",
+          "size": 3644,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/nginx/mime_types.lua"
+        },
+        "lapis/cmd/templates/rockspec.lua": {
+          "sha256": "7193952c43197d8fb382f70c3421ac850a429d997c6e8ff3b0a65bdce4879faf",
+          "size": 2939,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/rockspec.lua"
+        },
+        "lapis/cmd/templates/spec.lua": {
+          "sha256": "152c3dec579fe8cd4c3615d5f751782c14bab612f17ec346f46e0517eacf31a4",
+          "size": 3769,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/spec.lua"
+        },
+        "lapis/cmd/templates/tupfile.lua": {
+          "sha256": "2a35e02908313f1f8f06cab6e07d9aead318380376ebfe121d500f62fa8bcc28",
+          "size": 490,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/templates/tupfile.lua"
+        },
+        "lapis/cmd/util.lua": {
+          "sha256": "f1ad9770d287114d1252d8c796d5989b3de95a20ba248a2edf4a9ff78471928c",
+          "size": 4085,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cmd/util.lua"
+        },
+        "lapis/config.lua": {
+          "sha256": "230a3f7623ad2c27140a0eda55636aa41c5ccccd6e620f915eec951125ef431c",
+          "size": 5439,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/config.lua"
+        },
+        "lapis/coroutine.lua": {
+          "sha256": "b1592293909bc1aa08ba1f1c4d3f441ab60b462390003ce369c5171f05d308e8",
+          "size": 85,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/coroutine.lua"
+        },
+        "lapis/cqueues.lua": {
+          "sha256": "87b04d5da93294f0bb0faa7caa7310820fec7177b321958876fb027549133ac2",
+          "size": 4097,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/cqueues.lua"
+        },
+        "lapis/csrf.lua": {
+          "sha256": "08e123cd2166e7f3f727ab82ce268ff3a6c57f505d6c25285fabe3e0deba1454",
+          "size": 1645,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/csrf.lua"
+        },
+        "lapis/db.lua": {
+          "sha256": "b27a42a4fb024bafc031870e4b293136896419cfff70a36368ccecbb951924f7",
+          "size": 339,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db.lua"
+        },
+        "lapis/db/base.lua": {
+          "sha256": "1b297434b1f517f5ee2c617c83463e2b8afbe4f3a4d2b8b00b0a2ad06d167dc7",
+          "size": 11060,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/base.lua"
+        },
+        "lapis/db/base_model.lua": {
+          "sha256": "eeb1a8f595551dbae0d202ebd29029e5276d3e6e0171eeb5556fb52cda326aba",
+          "size": 37875,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/base_model.lua"
+        },
+        "lapis/db/migrations.lua": {
+          "sha256": "e4dc90bfef6d4b02913b991d9c033870409cb05dd2367b379578722460127160",
+          "size": 5687,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/migrations.lua"
+        },
+        "lapis/db/model.lua": {
+          "sha256": "af327d8a0aeea80aaa03af2ca9a9e0bf3a563a950f7bb6750e73ec4319be1438",
+          "size": 357,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/model.lua"
+        },
+        "lapis/db/model/relations.lua": {
+          "sha256": "0f8630d858aeeeb12ee2eb50d92180c9e93148e23143b943fd631a2d8d7c25dd",
+          "size": 23994,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/model/relations.lua"
+        },
+        "lapis/db/mysql.lua": {
+          "sha256": "15ded80ab172f059c94954323a8dd33a3437af2f62e7fd3a1bbc96f4ceb9f5d3",
+          "size": 9591,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/mysql.lua"
+        },
+        "lapis/db/mysql/model.lua": {
+          "sha256": "7d15d7442dddd6ce55f1648aa9accfd8dd31851828df171fdc26bad0667d9823",
+          "size": 5935,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/mysql/model.lua"
+        },
+        "lapis/db/mysql/schema.lua": {
+          "sha256": "809fc7e4eed817da3388195bafc02a6f40311ef5968fd8c64789c17e945a9d91",
+          "size": 7685,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/mysql/schema.lua"
+        },
+        "lapis/db/pagination.lua": {
+          "sha256": "f49f665df9755900bace324d18cc62f4db39da74df218951af75a6c21560e164",
+          "size": 12136,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/pagination.lua"
+        },
+        "lapis/db/postgres.lua": {
+          "sha256": "8aee39b49a6e5e8da80f180c8013e3921cedaab852b3a50725e1b7445bb2c245",
+          "size": 13246,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/postgres.lua"
+        },
+        "lapis/db/postgres/model.lua": {
+          "sha256": "76909c1756a1fcd967d3487769dd5b15b46a7bc2339f1c70a13e24a331f01164",
+          "size": 1739,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/postgres/model.lua"
+        },
+        "lapis/db/postgres/parse_clause.lua": {
+          "sha256": "108616203aaa91ef2206fa2d6d165272a268dbf4f0f3ac1b486cdedc9766b029",
+          "size": 2752,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/postgres/parse_clause.lua"
+        },
+        "lapis/db/postgres/schema.lua": {
+          "sha256": "c674d0ce91b24c5b666297c1f71da97e9fc6c2d3ee698b8039afa547a3fb667f",
+          "size": 10790,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/postgres/schema.lua"
+        },
+        "lapis/db/schema.lua": {
+          "sha256": "a9b8c05db8e3f2685b8c954573b9b88662963364ff89e00a88778bbba8a81856",
+          "size": 360,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/schema.lua"
+        },
+        "lapis/db/sqlite.lua": {
+          "sha256": "f97f04ae33c56ac23a9e3a06c0fea5187eb86a9bc2fd60cd28b5aebf01fdd8f0",
+          "size": 7040,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/sqlite.lua"
+        },
+        "lapis/db/sqlite/model.lua": {
+          "sha256": "91ace8abf0d800e0ea96bdd3aec13571fbbe907643c13c89d2dae75dc51ef3ed",
+          "size": 1459,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/sqlite/model.lua"
+        },
+        "lapis/db/sqlite/schema.lua": {
+          "sha256": "a8b91703697c3a44ae0eb7786a2a2ad5ce47d3e9a421c694f511dff08e875493",
+          "size": 6727,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/db/sqlite/schema.lua"
+        },
+        "lapis/environment.lua": {
+          "sha256": "370d507ffc714a4d72103ab4b1ddb240c416afe84a43c04fcc6fa8a70a6d5bf4",
+          "size": 2326,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/environment.lua"
+        },
+        "lapis/etlua.lua": {
+          "sha256": "5ea535656d0090070bb0693367ee16660fb9906e29d755439d0e79f19a6d3117",
+          "size": 7579,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/etlua.lua"
+        },
+        "lapis/features/etlua.lua": {
+          "sha256": "dca5ff10698b3f241fbb630a1644705c20f024692567321abf302401c6285e17",
+          "size": 318,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/features/etlua.lua"
+        },
+        "lapis/flow.lua": {
+          "sha256": "5279b345b14cb251c505f25c67958af380672cf454a9ad4674d4a48072310efe",
+          "size": 3208,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/flow.lua"
+        },
+        "lapis/html.lua": {
+          "sha256": "7a838806cbea56aabcffce270493f3679944d1a49e0f86c3262894368f4c887f",
+          "size": 20566,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/html.lua"
+        },
+        "lapis/http.lua": {
+          "sha256": "f0c1d5bae7368cc52e96f49ddbf1742aa804baff2487d57bd0d14a3314f7cace",
+          "size": 193,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/http.lua"
+        },
+        "lapis/init.lua": {
+          "sha256": "804f98300af0f45aba7aaf29d9221ea03d32e7c326aa9466b1ab04e3e02d6fb3",
+          "size": 910,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/init.lua"
+        },
+        "lapis/logging.lua": {
+          "sha256": "c498a3e7154b61cfa9d7bbd1af71299417fd6664b1e2b19182683a3b661db27c",
+          "size": 4016,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/logging.lua"
+        },
+        "lapis/lua.lua": {
+          "sha256": "6f1bafd358a662b1837e9ceca9ca1498d7ee8f0178ffec1b95c71abcb3f48ea0",
+          "size": 2276,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/lua.lua"
+        },
+        "lapis/moonscript/widget_optimizer.lua": {
+          "sha256": "2704f9a7aad52c49a273fa01320c29d63a94d03f8687a8749202031993c7ff2e",
+          "size": 6210,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/moonscript/widget_optimizer.lua"
+        },
+        "lapis/nginx.lua": {
+          "sha256": "af674a01b3ae074c1790adee97bbb31ee720d7fd687b7f845a915be7f024433b",
+          "size": 6264,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/nginx.lua"
+        },
+        "lapis/nginx/cache.lua": {
+          "sha256": "02be066137f5154697c387d14d62502844d581e1272844e7d9be26cb2afda518",
+          "size": 3603,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/nginx/cache.lua"
+        },
+        "lapis/nginx/context.lua": {
+          "sha256": "1a8c71324269abe4d2891fbc3e4030b967a7f0fd7a0d44066c51837117395878",
+          "size": 2219,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/nginx/context.lua"
+        },
+        "lapis/nginx/http.lua": {
+          "sha256": "1fa5633efa93d94dca0b1805b92963734fa72c610afe84a30a4215d9c8e4fabc",
+          "size": 3611,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/nginx/http.lua"
+        },
+        "lapis/nginx/postgres.lua": {
+          "sha256": "889887a8309e24859440b2565562f8cee41c316e008f99bd91ac16de19ffbd68",
+          "size": 162,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/nginx/postgres.lua"
+        },
+        "lapis/nginx/resty_http.lua": {
+          "sha256": "c6d4ab9756c27019fc4a19797dab611475bf5356587cdbd64ab8f718fda52c3c",
+          "size": 1704,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/nginx/resty_http.lua"
+        },
+        "lapis/request.lua": {
+          "sha256": "dfde50d10a2b673e1da70cae2284eb0b496a2066712dcb0601b4f7d0ec1b5c23",
+          "size": 10939,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/request.lua"
+        },
+        "lapis/router.lua": {
+          "sha256": "94d1bacd5264da8245103ecfeb0b3dbf3ae27b016d114d1a5b3c288dd0c77bac",
+          "size": 13522,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/router.lua"
+        },
+        "lapis/server.lua": {
+          "sha256": "b2aa610b1f0be9dbce2f8b8a687dabf3095a86e629f302fa866d2cc8a35765c8",
+          "size": 142,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/server.lua"
+        },
+        "lapis/session.lua": {
+          "sha256": "67e98d3f0d2921b58203dad87e8e81246ca77249deca50569fc4210b600549a9",
+          "size": 3514,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/session.lua"
+        },
+        "lapis/spec.lua": {
+          "sha256": "7e8306e4c8f204eaaec844a070dcc448efa329099840955cb07cda65e45314e9",
+          "size": 1174,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/spec.lua"
+        },
+        "lapis/spec/db.lua": {
+          "sha256": "2227100a4667e60104f162dfd28d43712eec230a393903d5ada732505ffcc4bc",
+          "size": 1613,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/spec/db.lua"
+        },
+        "lapis/spec/request.lua": {
+          "sha256": "8f90b8c2eeb1dccbe4d19f267815613d011858f134746d9d7cdee89023eca3cd",
+          "size": 11790,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/spec/request.lua"
+        },
+        "lapis/spec/server.lua": {
+          "sha256": "dcaa2139146ade86ed79646f43f79e6232c0beaa6727f9ecdf5bd82cf074d4f2",
+          "size": 5688,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/spec/server.lua"
+        },
+        "lapis/spec/shared.lua": {
+          "sha256": "a9b9bd638ef5c1468faafca48dc36a9121b13530d71ccb531e6383896dab448a",
+          "size": 2065,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/spec/shared.lua"
+        },
+        "lapis/spec/stack.lua": {
+          "sha256": "e2219b75664d4fc051c88675bf6337e9c0692911472661b0c84f5d6a2b918540",
+          "size": 523,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/spec/stack.lua"
+        },
+        "lapis/time.lua": {
+          "sha256": "f21b11cf5b85fadf2c63c21343cee9d05fc7f392804a4971349aa473688f4407",
+          "size": 294,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/time.lua"
+        },
+        "lapis/util.lua": {
+          "sha256": "77447511c2fbaaee21d34ea23e5ff4d25ab3db29aabd08b34d972ec816436eac",
+          "size": 13604,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/util.lua"
+        },
+        "lapis/util/encoding.lua": {
+          "sha256": "0566b06c04f8cef9ba3d067378dc1c59e51d9b18536cbff0907cdeb1d192c5dc",
+          "size": 2066,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/util/encoding.lua"
+        },
+        "lapis/util/fenv.lua": {
+          "sha256": "e613184e415176a741b039aa371143a73d90f2fe34742d52bdaba9f756726a60",
+          "size": 610,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/util/fenv.lua"
+        },
+        "lapis/util/functions.lua": {
+          "sha256": "5477121c784e3cd368857405cde51486aedd8daa01a8b3aa9b4c877dd61c69f6",
+          "size": 1613,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/util/functions.lua"
+        },
+        "lapis/util/utf8.lua": {
+          "sha256": "d2d42574b8a6ba8ab702a940d80f0f278693d3cf8b20f228523b4a0e621f121d",
+          "size": 1445,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/util/utf8.lua"
+        },
+        "lapis/validate.lua": {
+          "sha256": "2995af85c5733cebf3b5618b548979534b7f0d762981ade980e4bdae33cfd9ad",
+          "size": 5146,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/validate.lua"
+        },
+        "lapis/validate/types.lua": {
+          "sha256": "4f74e027004d3197dfb9e70977c5e9148e93934341c622975b914df45f3ed21a",
+          "size": 21963,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/validate/types.lua"
+        },
+        "lapis/version.lua": {
+          "sha256": "f7d468b49254d9ef20a66fc00c849727b8f5ac5be1a9beb674accc47f7030476",
+          "size": 16,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/version.lua"
+        },
+        "lapis/views/error.lua": {
+          "sha256": "4a16fa03148df785e6d27bd7b3bff318d7f0302f19dca1205ab3e76086b6ff46",
+          "size": 3292,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/views/error.lua"
+        },
+        "lapis/views/layout.lua": {
+          "sha256": "5cfffd3543a0a17018c4744c86ceeedb7b83f4af4794ca7c6c11d70c48558385",
+          "size": 1208,
+          "url": "https://raw.githubusercontent.com/leafo/lapis/3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022/lapis/views/layout.lua"
+        }
+      },
+      "homepage": "http://leafo.net/lapis",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "",
+      "luarocks": {
+        "date": "Tue, 29 Sep 2026 22:52:40 GMT",
+        "rockspec": {
+          "date": "Tue, 29 Sep 2026 22:52:40 GMT",
+          "sha256": "60c035bcca6fe191a217d263ebfe35e2cfdb33a42421159f1fd4f680b29ff973",
+          "size": 5393
+        },
+        "src": {
+          "date": "Tue, 29 Sep 2026 22:52:41 GMT",
+          "sha256": "4101f63019e8ebaeb0b588b7b91895c8c2d2f4aac2c5684581753d734585adde",
+          "size": 514327,
+          "url": "https://luarocks.org/lapis-1.20.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "lapis",
+        "lapis.application",
+        "lapis.application.route_group",
+        "lapis.cache",
+        "lapis.cmd.actions",
+        "lapis.cmd.attached_server",
+        "lapis.cmd.cqueues",
+        "lapis.cmd.cqueues.actions",
+        "lapis.cmd.cqueues.attached_server",
+        "lapis.cmd.nginx",
+        "lapis.cmd.nginx.actions",
+        "lapis.cmd.nginx.attached_server",
+        "lapis.cmd.nginx.config",
+        "lapis.cmd.path",
+        "lapis.cmd.templates.application",
+        "lapis.cmd.templates.config",
+        "lapis.cmd.templates.flow",
+        "lapis.cmd.templates.gitignore",
+        "lapis.cmd.templates.migration",
+        "lapis.cmd.templates.model",
+        "lapis.cmd.templates.models",
+        "lapis.cmd.templates.nginx.config",
+        "lapis.cmd.templates.nginx.mime_types",
+        "lapis.cmd.templates.rockspec",
+        "lapis.cmd.templates.spec",
+        "lapis.cmd.templates.tupfile",
+        "lapis.cmd.util",
+        "lapis.config",
+        "lapis.coroutine",
+        "lapis.cqueues",
+        "lapis.csrf",
+        "lapis.db",
+        "lapis.db.base",
+        "lapis.db.base_model",
+        "lapis.db.migrations",
+        "lapis.db.model",
+        "lapis.db.model.relations",
+        "lapis.db.mysql",
+        "lapis.db.mysql.model",
+        "lapis.db.mysql.schema",
+        "lapis.db.pagination",
+        "lapis.db.postgres",
+        "lapis.db.postgres.model",
+        "lapis.db.postgres.parse_clause",
+        "lapis.db.postgres.schema",
+        "lapis.db.schema",
+        "lapis.db.sqlite",
+        "lapis.db.sqlite.model",
+        "lapis.db.sqlite.schema",
+        "lapis.environment",
+        "lapis.etlua",
+        "lapis.features.etlua",
+        "lapis.flow",
+        "lapis.html",
+        "lapis.http",
+        "lapis.logging",
+        "lapis.lua",
+        "lapis.moonscript.widget_optimizer",
+        "lapis.nginx",
+        "lapis.nginx.cache",
+        "lapis.nginx.context",
+        "lapis.nginx.http",
+        "lapis.nginx.postgres",
+        "lapis.nginx.resty_http",
+        "lapis.request",
+        "lapis.router",
+        "lapis.server",
+        "lapis.session",
+        "lapis.spec",
+        "lapis.spec.db",
+        "lapis.spec.request",
+        "lapis.spec.server",
+        "lapis.spec.shared",
+        "lapis.spec.stack",
+        "lapis.time",
+        "lapis.util",
+        "lapis.util.encoding",
+        "lapis.util.fenv",
+        "lapis.util.functions",
+        "lapis.util.utf8",
+        "lapis.validate",
+        "lapis.validate.types",
+        "lapis.version",
+        "lapis.views.error",
+        "lapis.views.layout"
+      ],
+      "origin": {
+        "commit": "3c8c76f5b89038e55ffb4e83d2e0eb06e8b81022",
+        "ref": "v1.20.0",
+        "type": "git",
+        "url": "https://github.com/leafo/lapis.git"
+      },
+      "size": 449712,
+      "summary": "A web framework for MoonScript & Lua",
+      "undeclared_requires": [
+        "busted",
+        "cqueues",
+        "cqueues.thread",
+        "http.compat.socket",
+        "http.headers",
+        "http.server",
+        "http.version",
+        "lapis_environment",
+        "lsqlite3",
+        "ltn12",
+        "luasql.mysql",
+        "mime",
+        "models",
+        "moon",
+        "moonscript.compile",
+        "resty.http",
+        "resty.mysql",
+        "resty.upload",
+        "socket",
+        "socket.http",
+        "socket.url",
+        "tableshape",
+        "tableshape.moonscript"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

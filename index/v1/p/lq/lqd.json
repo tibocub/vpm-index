@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "lqd",
+  "versions": {
+    "20120430-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lqd",
+      "license": "Public domain",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Sat, 01 Mar 2014 21:28:42 GMT",
+        "rockspec": {
+          "date": "Sat, 01 Mar 2014 21:28:42 GMT",
+          "sha256": "5b01c933019dd96b9e21d9d9745b4aaf1535b10c7afffc89378d7b32c9e5bff2",
+          "size": 863
+        },
+        "src": {
+          "date": "Sat, 01 Mar 2014 21:28:44 GMT",
+          "sha256": "b233d28e471bf2cfd3c87663365f0b9becd1a769ecdd072df8db323ef834bf87",
+          "size": 4969,
+          "url": "https://luarocks.org/lqd-20120430-1.src.rock"
+        }
+      },
+      "modules": [
+        "qd"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "QD"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "QD": {
+              "header": "qd/c_qd.h",
+              "library": "libqd.a"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$QD_INCDIR"
+              ],
+              "libdirs": [
+                "$QD_LIBDIR"
+              ],
+              "libraries": [
+                "qd"
+              ],
+              "name": "qd",
+              "sources": [
+                "lqd.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "qd"
+      },
+      "origin": {
+        "date": "Sat, 01 Mar 2014 21:28:44 GMT",
+        "sha256": "b233d28e471bf2cfd3c87663365f0b9becd1a769ecdd072df8db323ef834bf87",
+        "size": 4969,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lqd-20120430-1.src.rock"
+      },
+      "summary": "a high-precision mathematical library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

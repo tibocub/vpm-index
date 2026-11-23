@@ -1,0 +1,60 @@
+-- OpenCode Go defaults for panto. No login, networking, or session activation.
+local auth_defaults = {
+    type = "api_key",
+    key = "${env:OPENCODE_API_KEY}",
+}
+
+local provider_defaults = {
+    style = "openai_chat",
+    model_catalog_name = "opencode-go",
+    extra_headers = {
+        ["User-Agent"] = "panto",
+        ["x-opencode-session"] = "${session:id}",
+    },
+}
+
+local endpoint_defaults = {
+    openai_chat = { base_url = "https://opencode.ai/zen/go/v1" },
+    openai_responses = { base_url = "https://opencode.ai/zen/go/v1" },
+    anthropic_messages = { base_url = "https://opencode.ai/zen/go" },
+}
+
+-- Fill only missing values; HTTP header names are case-insensitive.
+local function fill_missing(target, defaults, headers)
+    for key, value in pairs(defaults) do
+        local target_key = key
+        if headers then
+            for existing in pairs(target) do
+                if type(existing) == "string" and existing:lower() == key:lower() then
+                    target_key = existing
+                    break
+                end
+            end
+        end
+        if target[target_key] == nil then
+            target[target_key] = type(value) == "table" and {} or value
+        end
+        if type(value) == "table" and type(target[target_key]) == "table" then
+            fill_missing(target[target_key], value, key == "extra_headers")
+        end
+    end
+end
+
+return {
+    name = "opencode-go",
+    configure = function(config)
+        for _, auth in pairs(config.auth or {}) do
+            if type(auth) == "table" and auth.panto_opencode_go_extension == true then
+                fill_missing(auth, auth_defaults)
+            end
+        end
+        for _, provider in pairs(config.providers or {}) do
+            if type(provider) == "table" and provider.panto_opencode_go_extension == true then
+                fill_missing(provider, provider_defaults)
+                if provider.base_url == nil then
+                    fill_missing(provider, { endpoints = endpoint_defaults })
+                end
+            end
+        end
+    end,
+}

@@ -1,0 +1,526 @@
+{
+  "kind": "lib",
+  "name": "mongodb",
+  "versions": {
+    "0.10.6-1": {
+      "bin": [],
+      "deps": [
+        "copas >= 4.11, < 4.13",
+        "getpid == 0.1.0-1",
+        "lua-cryptorandom >= 0.0.6, < 0.1",
+        "lua-zlib >= 1.4, < 1.5",
+        "luasocket >= 3.1, < 4",
+        "luasec >= 1.3, < 1.4",
+        "md5 >= 1.3, < 1.4",
+        "sha1 >= 0.5, < 0.6"
+      ],
+      "files": {
+        "mongodb/admin.lua": {
+          "sha256": "d3e80f9f9405faf8bc2993129c816f91a8965d0d1ad3cb315ff3ead8b1d9ce48",
+          "size": 37089,
+          "url": "blob:d3e80f9f9405faf8bc2993129c816f91a8965d0d1ad3cb315ff3ead8b1d9ce48"
+        },
+        "mongodb/api.lua": {
+          "sha256": "b316cfce100194ceab1a85f2ddae0961bfa2950d06a01849f30ce19f50049271",
+          "size": 33955,
+          "url": "blob:b316cfce100194ceab1a85f2ddae0961bfa2950d06a01849f30ce19f50049271"
+        },
+        "mongodb/auth/aws.lua": {
+          "sha256": "53219191e10595401b691efce7196c8267676c8a1a423fb4dcc2654920e0400a",
+          "size": 11555,
+          "url": "blob:53219191e10595401b691efce7196c8267676c8a1a423fb4dcc2654920e0400a"
+        },
+        "mongodb/auth/aws_credentials.lua": {
+          "sha256": "9891f09f0432a903eebd796d1d8bf7e903aa6b2ce55b620ad1fba236c7f508e3",
+          "size": 5366,
+          "url": "blob:9891f09f0432a903eebd796d1d8bf7e903aa6b2ce55b620ad1fba236c7f508e3"
+        },
+        "mongodb/auth/aws_ec2.lua": {
+          "sha256": "8c7d56b9f76a0ca755f8c122d36f2cafa306dce3799bc3981880b304f9553437",
+          "size": 7108,
+          "url": "blob:8c7d56b9f76a0ca755f8c122d36f2cafa306dce3799bc3981880b304f9553437"
+        },
+        "mongodb/auth/aws_ecs.lua": {
+          "sha256": "8afeb1ee00ad6e63433c2c0bcc70a469881d3a0cfa1c197687cfe0a3623bdbf1",
+          "size": 12605,
+          "url": "blob:8afeb1ee00ad6e63433c2c0bcc70a469881d3a0cfa1c197687cfe0a3623bdbf1"
+        },
+        "mongodb/auth/aws_web_identity.lua": {
+          "sha256": "d5e4d50cbebefdd87e3e6c0c8c37260ed0cb95c503f4584566967327177c4640",
+          "size": 6843,
+          "url": "blob:d5e4d50cbebefdd87e3e6c0c8c37260ed0cb95c503f4584566967327177c4640"
+        },
+        "mongodb/auth/gssapi.lua": {
+          "sha256": "9affccc54803c7c428164878ac057822d829e07248685c90515108d6b87b209e",
+          "size": 10983,
+          "url": "blob:9affccc54803c7c428164878ac057822d829e07248685c90515108d6b87b209e"
+        },
+        "mongodb/auth/init.lua": {
+          "sha256": "f0d5d7c0352af685c210947eeee73eab65085a0833c42ba95c8848b3f1f78fb0",
+          "size": 3161,
+          "url": "blob:f0d5d7c0352af685c210947eeee73eab65085a0833c42ba95c8848b3f1f78fb0"
+        },
+        "mongodb/auth/oidc.lua": {
+          "sha256": "dc5dc0ce0b1047ea5572972027770e797c4a552f7f56d67ac9bb3bf48f618383",
+          "size": 25005,
+          "url": "blob:dc5dc0ce0b1047ea5572972027770e797c4a552f7f56d67ac9bb3bf48f618383"
+        },
+        "mongodb/auth/oidc_providers.lua": {
+          "sha256": "345f6f33a5626d00d7f72e7ca491c177f1a9521cb842ffc0abbff5466f531bdf",
+          "size": 6457,
+          "url": "blob:345f6f33a5626d00d7f72e7ca491c177f1a9521cb842ffc0abbff5466f531bdf"
+        },
+        "mongodb/auth/plain.lua": {
+          "sha256": "6429b43a6b9badb93ff02125c647649b835b7ac18be3e56489e842e6766f3ed2",
+          "size": 2564,
+          "url": "blob:6429b43a6b9badb93ff02125c647649b835b7ac18be3e56489e842e6766f3ed2"
+        },
+        "mongodb/auth/saslprep.lua": {
+          "sha256": "01a871c958a8b11b1d1935dcf31cd037a4841913e60970bae998f2b66e52666f",
+          "size": 5478,
+          "url": "blob:01a871c958a8b11b1d1935dcf31cd037a4841913e60970bae998f2b66e52666f"
+        },
+        "mongodb/auth/scram.lua": {
+          "sha256": "61348b744f361c20a62a26544ec5074cbbf506f4265faf64d8c698ccf4a3ccbc",
+          "size": 10623,
+          "url": "blob:61348b744f361c20a62a26544ec5074cbbf506f4265faf64d8c698ccf4a3ccbc"
+        },
+        "mongodb/auth/stringprep_tables.lua": {
+          "sha256": "c0a486abdb0903f950b0c73f576cfb010e5ebb9c993ca7640ac9c7d4fc3514df",
+          "size": 186081,
+          "url": "blob:c0a486abdb0903f950b0c73f576cfb010e5ebb9c993ca7640ac9c7d4fc3514df"
+        },
+        "mongodb/auth/x509.lua": {
+          "sha256": "6fc06172d64a0cdfb6485b5bb71a40735e0f65649000e18dd48ee332d2a40a82",
+          "size": 2270,
+          "url": "blob:6fc06172d64a0cdfb6485b5bb71a40735e0f65649000e18dd48ee332d2a40a82"
+        },
+        "mongodb/bson/base64.lua": {
+          "sha256": "73d9abd229bf57b487d52bf59ac57efa4a3f87c722513bbe18bd6eece84d921e",
+          "size": 2279,
+          "url": "blob:73d9abd229bf57b487d52bf59ac57efa4a3f87c722513bbe18bd6eece84d921e"
+        },
+        "mongodb/bson/codec.lua": {
+          "sha256": "d7bb1f0a74fce543f260a6970e4dad62365b586532d74291a30053233765b40e",
+          "size": 25937,
+          "url": "blob:d7bb1f0a74fce543f260a6970e4dad62365b586532d74291a30053233765b40e"
+        },
+        "mongodb/bson/exact.lua": {
+          "sha256": "7d86383c03c9baa65190d1380cfe802854ca94a137fffd67960da7a1ef45353b",
+          "size": 10984,
+          "url": "blob:7d86383c03c9baa65190d1380cfe802854ca94a137fffd67960da7a1ef45353b"
+        },
+        "mongodb/bson/init.lua": {
+          "sha256": "7db662ef4fb450ce21bf8b1d39e0fbbb267c3624f44e0f8ef35371d96f065dd2",
+          "size": 1158,
+          "url": "blob:7db662ef4fb450ce21bf8b1d39e0fbbb267c3624f44e0f8ef35371d96f065dd2"
+        },
+        "mongodb/bson/json.lua": {
+          "sha256": "1ea610a026398397c43041f73ff38450f09f8ff47b9a54f9746d4559b1454f8e",
+          "size": 32696,
+          "url": "blob:1ea610a026398397c43041f73ff38450f09f8ff47b9a54f9746d4559b1454f8e"
+        },
+        "mongodb/bson/tagged.lua": {
+          "sha256": "2d4bc862f6b814ec5b72bdb507d949f5b493bf0a6bac9663e8234a5ab3c57907",
+          "size": 11819,
+          "url": "blob:2d4bc862f6b814ec5b72bdb507d949f5b493bf0a6bac9663e8234a5ab3c57907"
+        },
+        "mongodb/bson/value.lua": {
+          "sha256": "c294b8770684251b199c7377389621cd91a3165f74369cc669eba6be45942e79",
+          "size": 6491,
+          "url": "blob:c294b8770684251b199c7377389621cd91a3165f74369cc669eba6be45942e79"
+        },
+        "mongodb/bson/vector.lua": {
+          "sha256": "6f07112b935bf19ab0b2567f59e89bd094bfe4fc90bf9f76c696f4257f21a742",
+          "size": 4339,
+          "url": "blob:6f07112b935bf19ab0b2567f59e89bd094bfe4fc90bf9f76c696f4257f21a742"
+        },
+        "mongodb/bulk.lua": {
+          "sha256": "6814c85e005c1dc9cf0293b2f3c101fa83dccb533d97a0f257575a1b5fab3348",
+          "size": 29441,
+          "url": "blob:6814c85e005c1dc9cf0293b2f3c101fa83dccb533d97a0f257575a1b5fab3348"
+        },
+        "mongodb/change_stream.lua": {
+          "sha256": "247c3a02c9938e934bd0a44cfc4fc858255942b8a2a77fdc2763d5bc735ff993",
+          "size": 7423,
+          "url": "blob:247c3a02c9938e934bd0a44cfc4fc858255942b8a2a77fdc2763d5bc735ff993"
+        },
+        "mongodb/client.lua": {
+          "sha256": "39d5a8a1d179a14fc102fc6b868313eab6a799ba2bf14a9bb26704cf940d3c7c",
+          "size": 26953,
+          "url": "blob:39d5a8a1d179a14fc102fc6b868313eab6a799ba2bf14a9bb26704cf940d3c7c"
+        },
+        "mongodb/client_bulk.lua": {
+          "sha256": "4731a587ab203b380b27f46ee8b39f1e36bb572f960aa3e5610218212a21b935",
+          "size": 36850,
+          "url": "blob:4731a587ab203b380b27f46ee8b39f1e36bb572f960aa3e5610218212a21b935"
+        },
+        "mongodb/command/executor.lua": {
+          "sha256": "b54c46c0e9a39e29326fa37eaa5897bc88404d73ac6f33b4930b937dca5b4c08",
+          "size": 19032,
+          "url": "blob:b54c46c0e9a39e29326fa37eaa5897bc88404d73ac6f33b4930b937dca5b4c08"
+        },
+        "mongodb/command/hello.lua": {
+          "sha256": "7e703e01c22083a4f49b2394ffdba451a32998c1ffecb4b46e9c52a4df557bdc",
+          "size": 5268,
+          "url": "blob:7e703e01c22083a4f49b2394ffdba451a32998c1ffecb4b46e9c52a4df557bdc"
+        },
+        "mongodb/command/security.lua": {
+          "sha256": "a73c286eb0340ae1cd750191e17a2d3f4a7a21641243ae9315aa05095706f428",
+          "size": 1182,
+          "url": "blob:a73c286eb0340ae1cd750191e17a2d3f4a7a21641243ae9315aa05095706f428"
+        },
+        "mongodb/config/credentials.lua": {
+          "sha256": "138a1ba68e88a2ea8070e1a4ad33fdf5ff2263501093ee57669c767713c962ac",
+          "size": 7736,
+          "url": "blob:138a1ba68e88a2ea8070e1a4ad33fdf5ff2263501093ee57669c767713c962ac"
+        },
+        "mongodb/config/options.lua": {
+          "sha256": "5591a4cc5753b330460c73ae2f87b9c1a6c689edcb10a12e107a7879d8e209f8",
+          "size": 29217,
+          "url": "blob:5591a4cc5753b330460c73ae2f87b9c1a6c689edcb10a12e107a7879d8e209f8"
+        },
+        "mongodb/config/uri.lua": {
+          "sha256": "ac01f16388472b9efab8a2a52336574c674c752414c318d6292311dfedf81bcd",
+          "size": 9232,
+          "url": "blob:ac01f16388472b9efab8a2a52336574c674c752414c318d6292311dfedf81bcd"
+        },
+        "mongodb/crud.lua": {
+          "sha256": "314e0897db8a0c4fb4866ead23004310488d24979efbfefa5ff17283f649b812",
+          "size": 45585,
+          "url": "blob:314e0897db8a0c4fb4866ead23004310488d24979efbfefa5ff17283f649b812"
+        },
+        "mongodb/cursor.lua": {
+          "sha256": "bccd14fd6ce4e453cf7806f2e631116714b63b75d8373c39f22321bb28f102c2",
+          "size": 13815,
+          "url": "blob:bccd14fd6ce4e453cf7806f2e631116714b63b75d8373c39f22321bb28f102c2"
+        },
+        "mongodb/discovery/dns.lua": {
+          "sha256": "f1fbff406203797a23e83d658bf6b2925f29bc42761eb0f0eb5a9bf2c98a83c2",
+          "size": 10460,
+          "url": "blob:f1fbff406203797a23e83d658bf6b2925f29bc42761eb0f0eb5a9bf2c98a83c2"
+        },
+        "mongodb/error.lua": {
+          "sha256": "3dee914287f2cfe17637aaf250fdd7bd677d1af7ba4237f4390d2a59283333f4",
+          "size": 8132,
+          "url": "blob:3dee914287f2cfe17637aaf250fdd7bd677d1af7ba4237f4390d2a59283333f4"
+        },
+        "mongodb/gridfs.lua": {
+          "sha256": "64baa45f97819db455b1398b1492d59e2e79a297ad5eedec802dff86e098eb63",
+          "size": 36595,
+          "url": "blob:64baa45f97819db455b1398b1492d59e2e79a297ad5eedec802dff86e098eb63"
+        },
+        "mongodb/handshake/metadata.lua": {
+          "sha256": "f0e3011e8a59663b9adb5594e0e8ffebb9546bdc6c553187c7bc14969633af10",
+          "size": 11686,
+          "url": "blob:f0e3011e8a59663b9adb5594e0e8ffebb9546bdc6c553187c7bc14969633af10"
+        },
+        "mongodb/init.lua": {
+          "sha256": "99d575012ad92d306dd42538a33c0888a3d645ef3b49504f720fdc5710459d28",
+          "size": 879,
+          "url": "blob:99d575012ad92d306dd42538a33c0888a3d645ef3b49504f720fdc5710459d28"
+        },
+        "mongodb/logging.lua": {
+          "sha256": "8b3778a548a62035c73e6621d33711f26b1ebcd42f170da854f9360287619094",
+          "size": 11752,
+          "url": "blob:8b3778a548a62035c73e6621d33711f26b1ebcd42f170da854f9360287619094"
+        },
+        "mongodb/monitoring.lua": {
+          "sha256": "c258c7e74e5ae96b8d90d99a60aa800b8996b5bf55100b8f1244e8f294f4a1d0",
+          "size": 9092,
+          "url": "blob:c258c7e74e5ae96b8d90d99a60aa800b8996b5bf55100b8f1244e8f294f4a1d0"
+        },
+        "mongodb/network/transport.lua": {
+          "sha256": "2cbb771dfc203d34edf37458287335515f5f033767183f287ec4177c6b26526c",
+          "size": 5325,
+          "url": "blob:2cbb771dfc203d34edf37458287335515f5f033767183f287ec4177c6b26526c"
+        },
+        "mongodb/operation_id.lua": {
+          "sha256": "119fa51728e62e35b56e514920c408a732bce987103f078a4a5fcbf66f637b90",
+          "size": 950,
+          "url": "blob:119fa51728e62e35b56e514920c408a732bce987103f078a4a5fcbf66f637b90"
+        },
+        "mongodb/operation_timeout.lua": {
+          "sha256": "a12e9f3ecf47e268c306e3afd153d6a43a5d146f9329975161b279dfb2a80d61",
+          "size": 7119,
+          "url": "blob:a12e9f3ecf47e268c306e3afd153d6a43a5d146f9329975161b279dfb2a80d61"
+        },
+        "mongodb/pool.lua": {
+          "sha256": "9cb04fb5ff2eccb145f0faf98a9be3a179a3cf7d25a05b1cc3e5c6170b237213",
+          "size": 38423,
+          "url": "blob:9cb04fb5ff2eccb145f0faf98a9be3a179a3cf7d25a05b1cc3e5c6170b237213"
+        },
+        "mongodb/retry_executor.lua": {
+          "sha256": "39072c0b3e8acec1a734ec71dcb66dfb6c185d338dd02fd9e6478b87e31e42ab",
+          "size": 7903,
+          "url": "blob:39072c0b3e8acec1a734ec71dcb66dfb6c185d338dd02fd9e6478b87e31e42ab"
+        },
+        "mongodb/runtime/cancellation.lua": {
+          "sha256": "df14062026edc82baf08fde521992bae3dd7e9de586fceabbd78d456a79409da",
+          "size": 1209,
+          "url": "blob:df14062026edc82baf08fde521992bae3dd7e9de586fceabbd78d456a79409da"
+        },
+        "mongodb/runtime/contract.lua": {
+          "sha256": "4acb6635a83390540518b16c4c52b77aba8c2c456358932c01d1fbc34928b6c0",
+          "size": 4714,
+          "url": "blob:4acb6635a83390540518b16c4c52b77aba8c2c456358932c01d1fbc34928b6c0"
+        },
+        "mongodb/runtime/copas.lua": {
+          "sha256": "f518358bcec343891716ecf319c96151ab28ade517b590f6f80d37ab2052a82c",
+          "size": 14044,
+          "url": "blob:f518358bcec343891716ecf319c96151ab28ade517b590f6f80d37ab2052a82c"
+        },
+        "mongodb/runtime/copas_dns.lua": {
+          "sha256": "b173257ef5934f7514a547d33ddbd23614aafecfb87f5e47254a796fff0b778b",
+          "size": 19586,
+          "url": "blob:b173257ef5934f7514a547d33ddbd23614aafecfb87f5e47254a796fff0b778b"
+        },
+        "mongodb/runtime/copas_socket.lua": {
+          "sha256": "95a93c442ec90adc2b6958291b566e222291d796bf276459f62f7ca0695ea519",
+          "size": 10739,
+          "url": "blob:95a93c442ec90adc2b6958291b566e222291d796bf276459f62f7ca0695ea519"
+        },
+        "mongodb/runtime/fake.lua": {
+          "sha256": "7cdba135b601adf10d3f5f5ffde910ef178605b8e6c1c9f0460a014638f6480e",
+          "size": 21319,
+          "url": "blob:7cdba135b601adf10d3f5f5ffde910ef178605b8e6c1c9f0460a014638f6480e"
+        },
+        "mongodb/runtime/gssapi.lua": {
+          "sha256": "122722c7f0b386cf1073d0b375a70cebb0087294bbb5e6df63463b5dd60833f4",
+          "size": 8426,
+          "url": "blob:122722c7f0b386cf1073d0b375a70cebb0087294bbb5e6df63463b5dd60833f4"
+        },
+        "mongodb/runtime/http.lua": {
+          "sha256": "2bdefe26e9abab9715ba4da915f9829711e09d538b57160aa0c9a62236097f1c",
+          "size": 12634,
+          "url": "blob:2bdefe26e9abab9715ba4da915f9829711e09d538b57160aa0c9a62236097f1c"
+        },
+        "mongodb/runtime/init.lua": {
+          "sha256": "b965ec2eb8685e48511630cac1b5b28eac0f771031c4bb4634c2456e5f81ef7e",
+          "size": 446,
+          "url": "blob:b965ec2eb8685e48511630cac1b5b28eac0f771031c4bb4634c2456e5f81ef7e"
+        },
+        "mongodb/runtime/luasec.lua": {
+          "sha256": "26349ea5b5e227035a6665becfa1f7083a58d902e6537fa3f01d722baa77b5e1",
+          "size": 6185,
+          "url": "blob:26349ea5b5e227035a6665becfa1f7083a58d902e6537fa3f01d722baa77b5e1"
+        },
+        "mongodb/runtime/openssl.lua": {
+          "sha256": "bc90671a3e577a41185a2453ca7b4668e64bf9ecefbb2330172d30c99d452d4a",
+          "size": 4954,
+          "url": "blob:bc90671a3e577a41185a2453ca7b4668e64bf9ecefbb2330172d30c99d452d4a"
+        },
+        "mongodb/runtime/sha256.lua": {
+          "sha256": "9982026f3c9846aacd89fb98dfa9b84d7179fe46944f971167c8109aafa0d7a9",
+          "size": 3298,
+          "url": "blob:9982026f3c9846aacd89fb98dfa9b84d7179fe46944f971167c8109aafa0d7a9"
+        },
+        "mongodb/runtime/snappy.lua": {
+          "sha256": "8044010061b84ccc4db00775955eb0836c4dd0907a17a4cf576efaa971da556d",
+          "size": 1794,
+          "url": "blob:8044010061b84ccc4db00775955eb0836c4dd0907a17a4cf576efaa971da556d"
+        },
+        "mongodb/runtime/zlib.lua": {
+          "sha256": "32f38665f97164488e57330c6512951787b0ce6017bca60cd480ab1484e9de4d",
+          "size": 2844,
+          "url": "blob:32f38665f97164488e57330c6512951787b0ce6017bca60cd480ab1484e9de4d"
+        },
+        "mongodb/runtime/zstandard.lua": {
+          "sha256": "12c393fbeb7dad70ea9183c4f004b099bb656f87f9fcd57dafb61499212a3750",
+          "size": 1802,
+          "url": "blob:12c393fbeb7dad70ea9183c4f004b099bb656f87f9fcd57dafb61499212a3750"
+        },
+        "mongodb/runtime_guard.lua": {
+          "sha256": "5417ec0a2024a1059a96efe6f9205395294f4544fa9c25ebf94245cb57d101a8",
+          "size": 458,
+          "url": "blob:5417ec0a2024a1059a96efe6f9205395294f4544fa9c25ebf94245cb57d101a8"
+        },
+        "mongodb/sdam.lua": {
+          "sha256": "359fbffc6d48360030644f219430f0569f87cee1410eb7a3010c00c679d4a844",
+          "size": 36217,
+          "url": "blob:359fbffc6d48360030644f219430f0569f87cee1410eb7a3010c00c679d4a844"
+        },
+        "mongodb/selection.lua": {
+          "sha256": "e9c38cf535f216690404c556a2c708fe98ba5d23f09a20da952582e07d1d4e32",
+          "size": 23076,
+          "url": "blob:e9c38cf535f216690404c556a2c708fe98ba5d23f09a20da952582e07d1d4e32"
+        },
+        "mongodb/session.lua": {
+          "sha256": "e4de8890434238eb38190a2bdfb1f4425518f8c37f8590747dd95a20a7e4d1e8",
+          "size": 33721,
+          "url": "blob:e4de8890434238eb38190a2bdfb1f4425518f8c37f8590747dd95a20a7e4d1e8"
+        },
+        "mongodb/session_executor.lua": {
+          "sha256": "93f0a2664b20a86b677bda03bcb5073fbc083d81ef5c683bd984ab9f732d0f30",
+          "size": 8857,
+          "url": "blob:93f0a2664b20a86b677bda03bcb5073fbc083d81ef5c683bd984ab9f732d0f30"
+        },
+        "mongodb/socket_timeout_executor.lua": {
+          "sha256": "0cd3c81435bcbb57c4a0d2d939861e68804b0dd809725db59a5ac352b47f4360",
+          "size": 1849,
+          "url": "blob:0cd3c81435bcbb57c4a0d2d939861e68804b0dd809725db59a5ac352b47f4360"
+        },
+        "mongodb/standalone_executor.lua": {
+          "sha256": "1d7e3bf745ea323393c1b1c0bbb98b89be8e34e50f531186f2f77393e06e4b55",
+          "size": 2500,
+          "url": "blob:1d7e3bf745ea323393c1b1c0bbb98b89be8e34e50f531186f2f77393e06e4b55"
+        },
+        "mongodb/topology.lua": {
+          "sha256": "1f200785816579c6bd89ec0d13bc5e15560bdcf01d9a50e8376cf29e5ec81717",
+          "size": 47863,
+          "url": "blob:1f200785816579c6bd89ec0d13bc5e15560bdcf01d9a50e8376cf29e5ec81717"
+        },
+        "mongodb/topology_executor.lua": {
+          "sha256": "d70ecc3a6d3d7d3a62ed035206a34fd4d321f64f62b786a8732b49ad9399859e",
+          "size": 13034,
+          "url": "blob:d70ecc3a6d3d7d3a62ed035206a34fd4d321f64f62b786a8732b49ad9399859e"
+        },
+        "mongodb/wire/op_compressed.lua": {
+          "sha256": "22692e698068383abcb4ae1313491d6c20bf700c104cb28978de613cb4d66d11",
+          "size": 5251,
+          "url": "blob:22692e698068383abcb4ae1313491d6c20bf700c104cb28978de613cb4d66d11"
+        },
+        "mongodb/wire/op_msg.lua": {
+          "sha256": "b8422001202fe536d25066592184703a3a2ef6b612a35f8c36584bec57ac969d",
+          "size": 13936,
+          "url": "blob:b8422001202fe536d25066592184703a3a2ef6b612a35f8c36584bec57ac969d"
+        }
+      },
+      "homepage": "https://github.com/alexbevi/lua-mongodb",
+      "license": "Apache-2.0",
+      "lua": ">= 5.4, < 5.6",
+      "luarocks": {
+        "date": "Mon, 31 Aug 2026 18:23:33 GMT",
+        "rockspec": {
+          "date": "Mon, 31 Aug 2026 18:23:33 GMT",
+          "sha256": "e94af1bcf6ebc5c8667e44f4431c107516b941e67e557c1fc0e22320e49f932a",
+          "size": 5809
+        },
+        "src": {
+          "date": "Mon, 31 Aug 2026 18:23:34 GMT",
+          "sha256": "5d2e992cb32e3da8c48dbf5993b7192d238c4c59e7aa3470c9b1aa5bc290d9bc",
+          "size": 1835934,
+          "url": "https://luarocks.org/mongodb-0.10.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "mongodb",
+        "mongodb.admin",
+        "mongodb.api",
+        "mongodb.auth",
+        "mongodb.auth.aws",
+        "mongodb.auth.aws_credentials",
+        "mongodb.auth.aws_ec2",
+        "mongodb.auth.aws_ecs",
+        "mongodb.auth.aws_web_identity",
+        "mongodb.auth.gssapi",
+        "mongodb.auth.oidc",
+        "mongodb.auth.oidc_providers",
+        "mongodb.auth.plain",
+        "mongodb.auth.saslprep",
+        "mongodb.auth.scram",
+        "mongodb.auth.stringprep_tables",
+        "mongodb.auth.x509",
+        "mongodb.bson",
+        "mongodb.bson.base64",
+        "mongodb.bson.codec",
+        "mongodb.bson.exact",
+        "mongodb.bson.json",
+        "mongodb.bson.tagged",
+        "mongodb.bson.value",
+        "mongodb.bson.vector",
+        "mongodb.bulk",
+        "mongodb.change_stream",
+        "mongodb.client",
+        "mongodb.client_bulk",
+        "mongodb.command.executor",
+        "mongodb.command.hello",
+        "mongodb.command.security",
+        "mongodb.config.credentials",
+        "mongodb.config.options",
+        "mongodb.config.uri",
+        "mongodb.crud",
+        "mongodb.cursor",
+        "mongodb.discovery.dns",
+        "mongodb.error",
+        "mongodb.gridfs",
+        "mongodb.handshake.metadata",
+        "mongodb.logging",
+        "mongodb.monitoring",
+        "mongodb.network.transport",
+        "mongodb.operation_id",
+        "mongodb.operation_timeout",
+        "mongodb.pool",
+        "mongodb.retry_executor",
+        "mongodb.runtime",
+        "mongodb.runtime._gssapi",
+        "mongodb.runtime.cancellation",
+        "mongodb.runtime.contract",
+        "mongodb.runtime.copas",
+        "mongodb.runtime.copas_dns",
+        "mongodb.runtime.copas_socket",
+        "mongodb.runtime.fake",
+        "mongodb.runtime.gssapi",
+        "mongodb.runtime.http",
+        "mongodb.runtime.luasec",
+        "mongodb.runtime.openssl",
+        "mongodb.runtime.sha256",
+        "mongodb.runtime.snappy",
+        "mongodb.runtime.zlib",
+        "mongodb.runtime.zstandard",
+        "mongodb.runtime_guard",
+        "mongodb.sdam",
+        "mongodb.selection",
+        "mongodb.session",
+        "mongodb.session_executor",
+        "mongodb.socket_timeout_executor",
+        "mongodb.standalone_executor",
+        "mongodb.topology",
+        "mongodb.topology_executor",
+        "mongodb.wire.op_compressed",
+        "mongodb.wire.op_msg"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "mongodb.runtime._gssapi",
+              "sources": [
+                "src/mongodb/runtime/_gssapi.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 31 Aug 2026 18:23:34 GMT",
+        "sha256": "5d2e992cb32e3da8c48dbf5993b7192d238c4c59e7aa3470c9b1aa5bc290d9bc",
+        "size": 1835934,
+        "type": "luarocks",
+        "url": "https://luarocks.org/mongodb-0.10.6-1.src.rock"
+      },
+      "size": 1143652,
+      "summary": "Pure-Lua MongoDB driver",
+      "undeclared_requires": [
+        "getpid",
+        "lua-cryptorandom",
+        "socket",
+        "ssl"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

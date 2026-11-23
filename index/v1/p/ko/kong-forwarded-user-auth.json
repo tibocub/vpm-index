@@ -1,0 +1,61 @@
+{
+  "kind": "lib",
+  "name": "kong-forwarded-user-auth",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/forwarded-user-auth/handler.lua": {
+          "sha256": "88b7c605f2d638658f5031de88e5d1d10d699413856d51003322a2bb8244b022",
+          "size": 2988,
+          "url": "https://raw.githubusercontent.com/upyun/kong-forwarded-user-auth/ab6258bcb1ba369218587765d79d513ec6d67614/kong/plugins/forwarded-user-auth/handler.lua"
+        },
+        "kong/plugins/forwarded-user-auth/schema.lua": {
+          "sha256": "7bd169a5476a974c40acee43c404fce3fac609051c2ae6e8b74bb0c7ac3e64e7",
+          "size": 379,
+          "url": "https://raw.githubusercontent.com/upyun/kong-forwarded-user-auth/ab6258bcb1ba369218587765d79d513ec6d67614/kong/plugins/forwarded-user-auth/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 30 Jul 2019 02:44:59 GMT",
+        "rockspec": {
+          "date": "Tue, 30 Jul 2019 02:44:59 GMT",
+          "sha256": "3c4333ba64fb6e66112fd49ea7898571e64d264c757db0a3278dbcc64a0ffbb4",
+          "size": 574
+        }
+      },
+      "modules": [
+        "kong.plugins.forwarded-user-auth.handler",
+        "kong.plugins.forwarded-user-auth.schema"
+      ],
+      "origin": {
+        "commit": "ab6258bcb1ba369218587765d79d513ec6d67614",
+        "ref": "0.1.0",
+        "type": "git",
+        "url": "https://github.com/upyun/kong-forwarded-user-auth"
+      },
+      "size": 3367,
+      "summary": "Access Control with X-Forwarded-User header",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

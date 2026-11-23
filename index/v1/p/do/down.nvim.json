@@ -1,0 +1,825 @@
+{
+  "kind": "lib",
+  "name": "down.nvim",
+  "versions": {
+    "master-1": {
+      "bin": [],
+      "deps": [
+        "plenary.nvim == 0.1.4",
+        "pathlib.nvim ~> 2.2",
+        "nvim-nio ~> 1.7",
+        "nui.nvim == 0.3.0"
+      ],
+      "files": {
+        "down.lua": {
+          "sha256": "d05f2b146883a154d5d5902d404586c91b98037684fa876b79d84e41ba2e29dc",
+          "size": 3283,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down.lua"
+        },
+        "down/config.lua": {
+          "sha256": "b4af1337b4c3859c826abdc99ceb41e7cfec6c84c51b81e49b52317025279dbd",
+          "size": 3037,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/config.lua"
+        },
+        "down/event/init.lua": {
+          "sha256": "154a225c7664410cc7d6d4eb96154932a0d3a64b677c880f9a1f59aae56a8c4d",
+          "size": 6524,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/event/init.lua"
+        },
+        "down/health.lua": {
+          "sha256": "ac823114e9f73bc95115e2ea4e26abede5e959713b562bf105f0410f6a877897",
+          "size": 2005,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/health.lua"
+        },
+        "down/mod.lua": {
+          "sha256": "eba398028429ea1ce092649e2971fde76c0063cba124eeaeec5b83b8967b2ef4",
+          "size": 13199,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod.lua"
+        },
+        "down/mod/cmd/init.lua": {
+          "sha256": "2ef47092c1ada5d50db1067913cc23a1b0689cf27873106eec826bd817008d5e",
+          "size": 9342,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/cmd/init.lua"
+        },
+        "down/mod/cmd/mod/init.lua": {
+          "sha256": "e081a70fa2bc1ee6a0a6fc8ee3570a3bb0f9de5712724735000a25b04c68d4d6",
+          "size": 2625,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/cmd/mod/init.lua"
+        },
+        "down/mod/code/init.lua": {
+          "sha256": "dc768f438bac06a73d288c925dc09e370059332637b1c59085358a6e83683a64",
+          "size": 1374,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/code/init.lua"
+        },
+        "down/mod/code/run/init.lua": {
+          "sha256": "a26e5acb8473effb5ad37373183f884270efe53a9a36ef869ebe5d0570e30e5d",
+          "size": 262,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/code/run/init.lua"
+        },
+        "down/mod/code/snippet/init.lua": {
+          "sha256": "d8f1ef2f6c48b974c20cb5bc7bc94ebc2018d1ce50c181971a8dceaa551dbc27",
+          "size": 1276,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/code/snippet/init.lua"
+        },
+        "down/mod/data/bookmark/init.lua": {
+          "sha256": "a03950ac5146545fa731d681e52392b14339937ad8c655e7fa120e731889f5f7",
+          "size": 1193,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/bookmark/init.lua"
+        },
+        "down/mod/data/dirs.lua": {
+          "sha256": "b17734b53562778c8d7142ebfc86ee390175c41bf4158cf81d2a0c4b8b66d87b",
+          "size": 773,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/dirs.lua"
+        },
+        "down/mod/data/history/init.lua": {
+          "sha256": "118850a912a5cde0c6f61b9446cd0c8686232f8796e15c03648c51815097945c",
+          "size": 2541,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/history/init.lua"
+        },
+        "down/mod/data/init.lua": {
+          "sha256": "341db95812d7e7c3c24e602886dd56a6a9c59c9127c64f65f5b316f4b94bf76f",
+          "size": 4377,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/init.lua"
+        },
+        "down/mod/data/store/init.lua": {
+          "sha256": "31d1e2cdfb49e5aa1da802b53726661abb68e57387d33cac677efdb7f3811ce8",
+          "size": 373,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/store/init.lua"
+        },
+        "down/mod/data/time/init.lua": {
+          "sha256": "cb47ec0b67444b44203703935630ae0033dc2d75034747f0f275d798984d02db",
+          "size": 7803,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/time/init.lua"
+        },
+        "down/mod/data/time/util.lua": {
+          "sha256": "580a94811a41a29b4ad63d247ff2df7b134f8c439d2ff20bcd1a502614d5722c",
+          "size": 1864,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/time/util.lua"
+        },
+        "down/mod/data/util.lua": {
+          "sha256": "d892e94f64285fe842789309f9709213ece97c4308ef09adda91bf0e7dcd92ab",
+          "size": 23,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/data/util.lua"
+        },
+        "down/mod/edit/cursor/init.lua": {
+          "sha256": "7357855f55efd0fc875ef74c5eb7aeef4566a72f101cd72920513ae3968322ab",
+          "size": 2433,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/edit/cursor/init.lua"
+        },
+        "down/mod/edit/indent/init.lua": {
+          "sha256": "60c31b09d6d24e46f97bf09d647e7cb5a7321a99f0de9b12644c541e51ffe471",
+          "size": 3423,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/edit/indent/init.lua"
+        },
+        "down/mod/edit/init.lua": {
+          "sha256": "648987f7dc8da0119319c52a629a6ceacc4de6be3a75b6c65129da4ee892e66a",
+          "size": 9244,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/edit/init.lua"
+        },
+        "down/mod/edit/inline/init.lua": {
+          "sha256": "75ec7b94158ef26b1f5ccbc3cf77f9d15acf60cace1fab862460ed4a0a6f6b64",
+          "size": 228,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/edit/inline/init.lua"
+        },
+        "down/mod/export/init.lua": {
+          "sha256": "504bdceb10dcb5ff71e90144b805add71e34e0ccab87b2ee978c529de46368ce",
+          "size": 325,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/export/init.lua"
+        },
+        "down/mod/keymap/init.lua": {
+          "sha256": "ed2c7fd805995cc600ab3881b5d54dbb9f0c327d7e8c2f5f1453c5614d435131",
+          "size": 355,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/keymap/init.lua"
+        },
+        "down/mod/link/init.lua": {
+          "sha256": "1a0d8fc15dfef70fc1df559424e549ff85c0f60f23678d03732b8535b98d8ca2",
+          "size": 9045,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/link/init.lua"
+        },
+        "down/mod/log/cmd.lua": {
+          "sha256": "17456d784d3155065e314ed2b61cb21f4f4694f0ef98b98ec559b9f1308b1948",
+          "size": 953,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/log/cmd.lua"
+        },
+        "down/mod/log/init.lua": {
+          "sha256": "ba0d33fb712ca31a3cde9da71f9bba860df0c921e39183f528f143227c11c956",
+          "size": 12722,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/log/init.lua"
+        },
+        "down/mod/lsp/cmd.lua": {
+          "sha256": "efa068b9649db10eaa2ea275c44bb4c59f164cc1445d4778ad47c595db870c3f",
+          "size": 2298,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/lsp/cmd.lua"
+        },
+        "down/mod/lsp/init.lua": {
+          "sha256": "8b683fdc65ee96a45a77ed55a7501a4ec56e08c1f16e8db59e68d20df84ca22b",
+          "size": 4218,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/lsp/init.lua"
+        },
+        "down/mod/lsp/settings.lua": {
+          "sha256": "59b71d3a61ef1c1a5f7d4fb12f47bd60cd73edeff5b08c669b768073d10af16b",
+          "size": 411,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/lsp/settings.lua"
+        },
+        "down/mod/note/capture/init.lua": {
+          "sha256": "f40a3d4c8e601ce4153d97f39f4464771d28f3630516eb4a7d5b017f5cfc845c",
+          "size": 537,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/note/capture/init.lua"
+        },
+        "down/mod/note/cmd.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/note/cmd.lua"
+        },
+        "down/mod/note/init.lua": {
+          "sha256": "570ab76cf85f83f33bffec381ed6ff7eaeb69cd36dbb69c796aef38759fc835d",
+          "size": 22595,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/note/init.lua"
+        },
+        "down/mod/note/util.lua": {
+          "sha256": "e293b3ef6d42aeb9a9716a3d48cc89a57ec8a11064e721cd7202394e12ed2ae6",
+          "size": 802,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/note/util.lua"
+        },
+        "down/mod/parse/init.lua": {
+          "sha256": "26aa29b25b46e22793f7c245bc931e7eb3518394ff3caa3461e673aa961e415c",
+          "size": 303,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/parse/init.lua"
+        },
+        "down/mod/tag/init.lua": {
+          "sha256": "7a2fa0e68b2d4cc5e9399f45e678d27b2f6a9d9dcd1b5e10101e5b1bf702a584",
+          "size": 3990,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tag/init.lua"
+        },
+        "down/mod/tag/tag.lua": {
+          "sha256": "1e5e349226ab1b750d8e52de8fb6d6936995d79f905a8acf53fe188d862b19c2",
+          "size": 574,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tag/tag.lua"
+        },
+        "down/mod/task/agenda/agenda.lua": {
+          "sha256": "aa99429785f22ce50399711c1da7d25000499d4c139152eb6e64332af078c891",
+          "size": 64,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/task/agenda/agenda.lua"
+        },
+        "down/mod/task/agenda/init.lua": {
+          "sha256": "4dfc03ba412c09f13ecff6fa04b8bec32e266a873b7887bbad23fc5b4b815131",
+          "size": 595,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/task/agenda/init.lua"
+        },
+        "down/mod/task/init.lua": {
+          "sha256": "2f8f8ab12fa0ede1b458788373eb9fb8661c773045701236732fbd80b326494c",
+          "size": 2750,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/task/init.lua"
+        },
+        "down/mod/task/task.lua": {
+          "sha256": "14486aae136886520d0a241c9c215e2d936596949504759bb4028f277dfb57a4",
+          "size": 178,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/task/task.lua"
+        },
+        "down/mod/template/init.lua": {
+          "sha256": "8b9e8b57bcde640f2a8b1b613b4b6bbc71d10a2e3303fc43c6023f47ccba9b6d",
+          "size": 5353,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/template/init.lua"
+        },
+        "down/mod/time/date/init.lua": {
+          "sha256": "0047751c4366f7973bdd7961074970e17b34db9dd19712f166821ad8f07b15d0",
+          "size": 92,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/time/date/init.lua"
+        },
+        "down/mod/time/init.lua": {
+          "sha256": "9b06c38f1b48a17e00db8f639751d270bc8a935e1eafee75debceb79635803a4",
+          "size": 92,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/time/init.lua"
+        },
+        "down/mod/tool/blink/format.lua": {
+          "sha256": "a3ac17eb5704e8bab4b462df8d5e59ecf2facf6597becf651557a5e807cffc9f",
+          "size": 23,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/blink/format.lua"
+        },
+        "down/mod/tool/blink/init.lua": {
+          "sha256": "a576486949cd6196494b2d7a933c60af189b79fea04627bd279eb01b757efb85",
+          "size": 324,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/blink/init.lua"
+        },
+        "down/mod/tool/blink/source/file.lua": {
+          "sha256": "fb2d5f2066fe2c18c03a79717a1b21d0ac45c4f49d4509a86b64ea22d79c4372",
+          "size": 1171,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/blink/source/file.lua"
+        },
+        "down/mod/tool/blink/source/init.lua": {
+          "sha256": "4a99401334e962edc77dd4141a2d515c2ba9e973f50309d02b93d413ccf5db4e",
+          "size": 1786,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/blink/source/init.lua"
+        },
+        "down/mod/tool/cmp/init.lua": {
+          "sha256": "8773e9204b8413f1417d65a4a050cf7ac78cbb3b48371ee14885acce258039b6",
+          "size": 1853,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/cmp/init.lua"
+        },
+        "down/mod/tool/init.lua": {
+          "sha256": "813fa866fdc54bab9c088736768f8169a88588a01d08b839603f3eb6f6a06915",
+          "size": 1414,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/init.lua"
+        },
+        "down/mod/tool/telescope/init.lua": {
+          "sha256": "3416f03f39d95baf10859dd5ec0247e105b702c68be1be2ab55bb3726b8ac2f2",
+          "size": 2978,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/telescope/init.lua"
+        },
+        "down/mod/tool/telescope/util.lua": {
+          "sha256": "ea75f8479a16b25e87e1d1a0ad5dfaaf4bcc1ea16e7e532f0c7cfa1fae6773d4",
+          "size": 322,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/telescope/util.lua"
+        },
+        "down/mod/tool/treesitter/init.lua": {
+          "sha256": "65db1453d16bb1deb40532f217f306fe02e2275a1d0acb8ed4be87af51d45348",
+          "size": 32929,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/tool/treesitter/init.lua"
+        },
+        "down/mod/ui/calendar/day/init.lua": {
+          "sha256": "154e57d1d898b3184bffe88792c742bfbcbb4f86241aab4843f46863ffe11a30",
+          "size": 349,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/calendar/day/init.lua"
+        },
+        "down/mod/ui/calendar/init.lua": {
+          "sha256": "4eb81c38bbe1f409ade980ae30f7d481a3103062e4f16c57951f3f4b0ce1c485",
+          "size": 4207,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/calendar/init.lua"
+        },
+        "down/mod/ui/calendar/month//init.lua": {
+          "sha256": "16d086de606c528c076e12e25e033484f8e085c5f63baf1e1d031e3cb99cf612",
+          "size": 29147,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/calendar/month/.init.lua"
+        },
+        "down/mod/ui/calendar/month/init.lua": {
+          "sha256": "7a7952e0d0c17a7e32d43769ce91a01b2a6b45f2e1c8ba12cb84332985cdea4b",
+          "size": 33166,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/calendar/month/init.lua"
+        },
+        "down/mod/ui/calendar/month/util.lua": {
+          "sha256": "3592d9236c6b5b8a9cc7e76965ef9531aab845dfaf971e4b3206ba46f49b0d59",
+          "size": 3156,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/calendar/month/util.lua"
+        },
+        "down/mod/ui/calendar/month/view.lua": {
+          "sha256": "8a079ff15f7222daa9af6d425e17092b608325fd8077a6a4eca61938630dd599",
+          "size": 23,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/calendar/month/view.lua"
+        },
+        "down/mod/ui/conceal/border.lua": {
+          "sha256": "c5c5dc30cd8aed0cc2638e457faa580e139b0bbc7edb4afb765603042e56afd2",
+          "size": 301,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/conceal/border.lua"
+        },
+        "down/mod/ui/conceal/chars.lua": {
+          "sha256": "9adb6c05d8c1c9912d012e1cebade03025e5b81007350d3ad399454f9a72ad71",
+          "size": 2342,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/conceal/chars.lua"
+        },
+        "down/mod/ui/conceal/init.lua": {
+          "sha256": "3c7afd0061ebc2e88322c8bd5b98878985f58fddbac2171f1f8f3a60497d5f59",
+          "size": 2633,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/conceal/init.lua"
+        },
+        "down/mod/ui/conceal/math.lua": {
+          "sha256": "9a6cb5b6a9b9c73e339a39621c6d0fbfabb0642bd5ac4f2165c2a4561371ac69",
+          "size": 2380,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/conceal/math.lua"
+        },
+        "down/mod/ui/dashboard/init.lua": {
+          "sha256": "59320558c23338bf01e72ce2b3f4af0b06505353d2c469b36a6799a45409fb47",
+          "size": 193,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/dashboard/init.lua"
+        },
+        "down/mod/ui/fold/init.lua": {
+          "sha256": "d91dc2692a730334b951291fa4aea14107b4a30ce5ed50132e9b75a1206b5dd6",
+          "size": 177,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/fold/init.lua"
+        },
+        "down/mod/ui/hl/init.lua": {
+          "sha256": "7d84752616746fb9fe14ab2ff29339ba3bea71fdb4c88a56ce59737b4bd99b4d",
+          "size": 17318,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/hl/init.lua"
+        },
+        "down/mod/ui/icon/basic/init.lua": {
+          "sha256": "1ab00845612db5176b4f63d48a134489735639d05e0188f14c980bdc8488f0b6",
+          "size": 6047,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/icon/basic/init.lua"
+        },
+        "down/mod/ui/icon/complex/init.lua": {
+          "sha256": "2cddf25024bfbc1e0ff9d045c385e62b69fcb324a0ed81a13c058871dbaee704",
+          "size": 442,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/icon/complex/init.lua"
+        },
+        "down/mod/ui/icon/diamond/init.lua": {
+          "sha256": "2cddf25024bfbc1e0ff9d045c385e62b69fcb324a0ed81a13c058871dbaee704",
+          "size": 442,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/icon/diamond/init.lua"
+        },
+        "down/mod/ui/icon/init.lua": {
+          "sha256": "f5a008b9578d3159b9443acc6be76b3b0ff5400dabc9265b1d4a7f1103411e2a",
+          "size": 38569,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/icon/init.lua"
+        },
+        "down/mod/ui/icon/util.lua": {
+          "sha256": "cbf93c6855ba7570b6e4db26bcbd86872a997b09f690d5db2c620a317126067c",
+          "size": 1323,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/icon/util.lua"
+        },
+        "down/mod/ui/init.lua": {
+          "sha256": "c7db15aa99a7219ede57e17713d65325c425f869f2f27d397b5548514fceaaf0",
+          "size": 11387,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/init.lua"
+        },
+        "down/mod/ui/mark/init.lua": {
+          "sha256": "ad29eb1fe739fc8d31396389a4a8d31459af11888729f062dc83acd7c47e1a3d",
+          "size": 1259,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/mark/init.lua"
+        },
+        "down/mod/ui/popup/init.lua": {
+          "sha256": "ee460dda8182ed940722c300f791fcba621eb17e51517639ace86cd455770124",
+          "size": 19249,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/popup/init.lua"
+        },
+        "down/mod/ui/progress/init.lua": {
+          "sha256": "fd8d759aa4b4687552c010c2b3fde9d30ee9e6fe1102c8b7c798f35116a9a19b",
+          "size": 1116,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/progress/init.lua"
+        },
+        "down/mod/ui/prompt/init.lua": {
+          "sha256": "b8ecd6421d49d6bfa2e48e4134907fe69de72a033242a07bef9e9d83f66f5545",
+          "size": 204,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/prompt/init.lua"
+        },
+        "down/mod/ui/sidebar/init.lua": {
+          "sha256": "47faa5a460d948cbb261574d02d92e76cab164f6a2a15512c6b039b9d1078f43",
+          "size": 196,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/sidebar/init.lua"
+        },
+        "down/mod/ui/win/init.lua": {
+          "sha256": "ab155fa170ed58b8eda120cb9aaaf83d3bd839150d4616fd20108d4ef0d637c6",
+          "size": 3029,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/ui/win/init.lua"
+        },
+        "down/mod/workspace/init.lua": {
+          "sha256": "4464434d64a14493c6d875e7d8ce2bf8005d0012895da80e3dfc02f27f8251bf",
+          "size": 18187,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/workspace/init.lua"
+        },
+        "down/mod/workspace/util.lua": {
+          "sha256": "73133ccc01c60d5031bfb183243af5baea56118288bc8c4478d4438246f8678e",
+          "size": 339,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/mod/workspace/util.lua"
+        },
+        "down/types/config.lua": {
+          "sha256": "183640e0752d59a2be1e16a34afc17ab585592d50cb38696fec868b1ce6dd2fb",
+          "size": 2330,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/config.lua"
+        },
+        "down/types/context.lua": {
+          "sha256": "8e97d45063d4e242600999ccadd71fe9aaa227cd4f96a8b849007e7ed068344d",
+          "size": 992,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/context.lua"
+        },
+        "down/types/date.lua": {
+          "sha256": "6928c21160860f9a2f1d5f9c8fcb82f20c0584e858157557cac74e4d1fbeb180",
+          "size": 1490,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/date.lua"
+        },
+        "down/types/entity.lua": {
+          "sha256": "f4d21b7ca81b0073f11adb4ec59460e2e9ce2bfcf3379fe82de4069e9fdaa89e",
+          "size": 3240,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/entity.lua"
+        },
+        "down/types/enum.lua": {
+          "sha256": "85a65fe37d69bd7512cb47d43d58760fca565050525d39e6ca0154594c44bf75",
+          "size": 2348,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/enum.lua"
+        },
+        "down/types/event.lua": {
+          "sha256": "c7f42629081e2392a8f35569b576ba3a023c6b6160448e3a0714382738ee1c82",
+          "size": 1919,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/event.lua"
+        },
+        "down/types/file.lua": {
+          "sha256": "13d85402d1649b8a197cc146e60a781e0d8220db0f22ee55b0ffe739447444f2",
+          "size": 320,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/file.lua"
+        },
+        "down/types/init.lua": {
+          "sha256": "0b0482374eddc6b66b1994bf255d369913d29eeb53f58368db100b85b382df2c",
+          "size": 7804,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/init.lua"
+        },
+        "down/types/mod.lua": {
+          "sha256": "fa8e5485d376f46621c7009f80a83c9295b02be68eefb678c8dfec022892ec36",
+          "size": 4977,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/mod.lua"
+        },
+        "down/types/store.lua": {
+          "sha256": "6f1f2232ce28e0f81f3c1c0e1cd4fcd0fb621b68e8449dbc44c3eddcf7d8d809",
+          "size": 4622,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/store.lua"
+        },
+        "down/types/util.lua": {
+          "sha256": "efd239f84b8ab03abcc26fc2f6a7308b7bcb1bd481fc8b4ec0c4ce0a512bfb9b",
+          "size": 2164,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/util.lua"
+        },
+        "down/types/workspace.lua": {
+          "sha256": "4f7d8ef6825da7a2089b8317961cee85692d39b340d49adcbe5363390691d238",
+          "size": 239,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/types/workspace.lua"
+        },
+        "down/util/buf.lua": {
+          "sha256": "b948ee479fd5b11eb856af4bc31269a99166383331fb96388abc45da00cedfea",
+          "size": 3433,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/buf.lua"
+        },
+        "down/util/fs/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/fs/init.lua"
+        },
+        "down/util/fs/slug.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/fs/slug.lua"
+        },
+        "down/util/ft/html.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/ft/html.lua"
+        },
+        "down/util/ft/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/ft/init.lua"
+        },
+        "down/util/ft/js.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/ft/js.lua"
+        },
+        "down/util/ft/katex.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/ft/katex.lua"
+        },
+        "down/util/ft/latex.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/ft/latex.lua"
+        },
+        "down/util/ft/mermaid.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/ft/mermaid.lua"
+        },
+        "down/util/init.lua": {
+          "sha256": "8a85090283ee2a6da65668ed954add325184c7c191e78f383999de34fc1c581e",
+          "size": 9166,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/init.lua"
+        },
+        "down/util/lib.lua": {
+          "sha256": "55d8562cdfc88af9037e8d8bea7718ba9e136d56a6cf8e7af48564a3c4620abd",
+          "size": 14114,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/lib.lua"
+        },
+        "down/util/log/init.lua": {
+          "sha256": "4172cba0a58a283cced2cbe37566cfb88bba07edc4acd40b114f755bbabb9edf",
+          "size": 5389,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/log/init.lua"
+        },
+        "down/util/maps.lua": {
+          "sha256": "c2737398bc956436eafda977d1fb42929e47f961d0e2729ab84b6b4693f8ff43",
+          "size": 1353,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/maps.lua"
+        },
+        "down/util/parse/init.lua": {
+          "sha256": "bc557780ecd62e41d1e373ea4e2de48958edeff052e9696c70b1c3d51797fa72",
+          "size": 2937,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/parse/init.lua"
+        },
+        "down/util/print.lua": {
+          "sha256": "94b724f849c695bcb49b1bc48bee3852091ac89cdb0ce388cf42bb0a0df0bfc0",
+          "size": 1343,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/print.lua"
+        },
+        "down/util/string.lua": {
+          "sha256": "7d1532dc60ce0db7ed7b1be3b2e727e4fa3b1042b2c7748f281c7752cdedb44f",
+          "size": 1330,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/string.lua"
+        },
+        "down/util/style.lua": {
+          "sha256": "cc366a3978dc7b360c10bb4d870739043cf622ab013f076071db4ac01c21c485",
+          "size": 1575,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/down/util/style.lua"
+        },
+        "telescope/_extensions/down.lua": {
+          "sha256": "a5779b5e0a0af4f308066ed83d9b79fdc6b0e940b6558a4f62d035f798871c75",
+          "size": 2372,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down.lua"
+        },
+        "telescope/_extensions/down/action/init.lua": {
+          "sha256": "6fa389cf14c3bed6d7940d173948d4e555f272fbc69618953378827bdddb68b3",
+          "size": 22,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/action/init.lua"
+        },
+        "telescope/_extensions/down/init.lua": {
+          "sha256": "9c9c43d76fbe7835ca065199f19f4a628095d525bc7c837467053f90497aa0eb",
+          "size": 2654,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/init.lua"
+        },
+        "telescope/_extensions/down/picker/actions/init.lua": {
+          "sha256": "7ff69e402e6695def8cd1294382ea34bea11927511619e2b8d4ba8df0a647542",
+          "size": 1118,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/actions/init.lua"
+        },
+        "telescope/_extensions/down/picker/files/init.lua": {
+          "sha256": "4b2f742aee85de03f497f4d3774767dface0daeefa684aa5a166e2a50fa426cf",
+          "size": 1118,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/files/init.lua"
+        },
+        "telescope/_extensions/down/picker/init.lua": {
+          "sha256": "f66f732115a1114b777a835ed83bc8b2105c119c0b957de2467d8a8926fd1a64",
+          "size": 975,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/init.lua"
+        },
+        "telescope/_extensions/down/picker/linkable.lua": {
+          "sha256": "f1793a4ccfa3c6e061b3a120341fddb4fb27caa6c72b827c70ed07a63a435d90",
+          "size": 426,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/linkable.lua"
+        },
+        "telescope/_extensions/down/picker/links/init.lua": {
+          "sha256": "3b43f7fe3cc2d8add9eb3410674987c1836cb4c994480a197024ed9c9c952c84",
+          "size": 1095,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/links/init.lua"
+        },
+        "telescope/_extensions/down/picker/lsp/init.lua": {
+          "sha256": "c2e841d18ab92a2c282d84321ff56079d47dd45295243c3ee6261c7543b6e39d",
+          "size": 1095,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/lsp/init.lua"
+        },
+        "telescope/_extensions/down/picker/note/init.lua": {
+          "sha256": "c2e841d18ab92a2c282d84321ff56079d47dd45295243c3ee6261c7543b6e39d",
+          "size": 1095,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/note/init.lua"
+        },
+        "telescope/_extensions/down/picker/tags/init.lua": {
+          "sha256": "1949ae41bba5c85cb838a5021bc842bccefadefe73bc0baa7ff63b0cdee412e1",
+          "size": 2962,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/tags/init.lua"
+        },
+        "telescope/_extensions/down/picker/todo/init.lua": {
+          "sha256": "c2e841d18ab92a2c282d84321ff56079d47dd45295243c3ee6261c7543b6e39d",
+          "size": 1095,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/todo/init.lua"
+        },
+        "telescope/_extensions/down/picker/workspace/init.lua": {
+          "sha256": "c6da3b16cd0ec945c0443e29953ee701d31e006d63a090d3ea7d02f8c0b553bf",
+          "size": 2864,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/picker/workspace/init.lua"
+        },
+        "telescope/_extensions/down/util/init.lua": {
+          "sha256": "0b6f9abffc337c57af4813a905797e842d5d640d4944a25958a89a19b9307028",
+          "size": 785,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/telescope/_extensions/down/util/init.lua"
+        },
+        "trouble/providers/down.lua": {
+          "sha256": "9faf4eb98ed1d5d6aea867e26e6c6cdbae074fcde5040f7643041e68789dabb8",
+          "size": 659,
+          "url": "https://raw.githubusercontent.com/clpi/down.nvim/367371075dcf3feabf9659f064569ff06313672b/lua/trouble/providers/down.lua"
+        }
+      },
+      "homepage": "http://down.cli.st/",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Sat, 18 Jan 2025 00:21:02 GMT",
+        "rockspec": {
+          "date": "Sat, 18 Jan 2025 00:21:02 GMT",
+          "sha256": "07b9764a211c699bd52494fa39e59dabf05e049711f0b9e18513742be0502479",
+          "size": 1193
+        },
+        "src": {
+          "date": "Sat, 18 Jan 2025 00:21:03 GMT",
+          "sha256": "c8c4b847f5bfe91417441a44c9b4419c9d41403e22283601ad41f622163a6713",
+          "size": 276581,
+          "url": "https://luarocks.org/down.nvim-master-1.src.rock"
+        }
+      },
+      "modules": [
+        "down",
+        "down.config",
+        "down.event",
+        "down.health",
+        "down.mod",
+        "down.mod.cmd",
+        "down.mod.cmd.mod",
+        "down.mod.code",
+        "down.mod.code.run",
+        "down.mod.code.snippet",
+        "down.mod.data",
+        "down.mod.data.bookmark",
+        "down.mod.data.dirs",
+        "down.mod.data.history",
+        "down.mod.data.store",
+        "down.mod.data.time",
+        "down.mod.data.time.util",
+        "down.mod.data.util",
+        "down.mod.edit",
+        "down.mod.edit.cursor",
+        "down.mod.edit.indent",
+        "down.mod.edit.inline",
+        "down.mod.export",
+        "down.mod.keymap",
+        "down.mod.link",
+        "down.mod.log",
+        "down.mod.log.cmd",
+        "down.mod.lsp",
+        "down.mod.lsp.cmd",
+        "down.mod.lsp.settings",
+        "down.mod.note",
+        "down.mod.note.capture",
+        "down.mod.note.cmd",
+        "down.mod.note.util",
+        "down.mod.parse",
+        "down.mod.tag",
+        "down.mod.tag.tag",
+        "down.mod.task",
+        "down.mod.task.agenda",
+        "down.mod.task.agenda.agenda",
+        "down.mod.task.task",
+        "down.mod.template",
+        "down.mod.time",
+        "down.mod.time.date",
+        "down.mod.tool",
+        "down.mod.tool.blink",
+        "down.mod.tool.blink.format",
+        "down.mod.tool.blink.source",
+        "down.mod.tool.blink.source.file",
+        "down.mod.tool.cmp",
+        "down.mod.tool.telescope",
+        "down.mod.tool.telescope.util",
+        "down.mod.tool.treesitter",
+        "down.mod.ui",
+        "down.mod.ui.calendar",
+        "down.mod.ui.calendar.day",
+        "down.mod.ui.calendar.month",
+        "down.mod.ui.calendar.month.",
+        "down.mod.ui.calendar.month.util",
+        "down.mod.ui.calendar.month.view",
+        "down.mod.ui.conceal",
+        "down.mod.ui.conceal.border",
+        "down.mod.ui.conceal.chars",
+        "down.mod.ui.conceal.math",
+        "down.mod.ui.dashboard",
+        "down.mod.ui.fold",
+        "down.mod.ui.hl",
+        "down.mod.ui.icon",
+        "down.mod.ui.icon.basic",
+        "down.mod.ui.icon.complex",
+        "down.mod.ui.icon.diamond",
+        "down.mod.ui.icon.util",
+        "down.mod.ui.mark",
+        "down.mod.ui.popup",
+        "down.mod.ui.progress",
+        "down.mod.ui.prompt",
+        "down.mod.ui.sidebar",
+        "down.mod.ui.win",
+        "down.mod.workspace",
+        "down.mod.workspace.util",
+        "down.types",
+        "down.types.config",
+        "down.types.context",
+        "down.types.date",
+        "down.types.entity",
+        "down.types.enum",
+        "down.types.event",
+        "down.types.file",
+        "down.types.mod",
+        "down.types.store",
+        "down.types.util",
+        "down.types.workspace",
+        "down.util",
+        "down.util.buf",
+        "down.util.fs",
+        "down.util.fs.slug",
+        "down.util.ft",
+        "down.util.ft.html",
+        "down.util.ft.js",
+        "down.util.ft.katex",
+        "down.util.ft.latex",
+        "down.util.ft.mermaid",
+        "down.util.lib",
+        "down.util.log",
+        "down.util.maps",
+        "down.util.parse",
+        "down.util.print",
+        "down.util.string",
+        "down.util.style",
+        "telescope._extensions.down",
+        "telescope._extensions.down",
+        "telescope._extensions.down.action",
+        "telescope._extensions.down.picker",
+        "telescope._extensions.down.picker.actions",
+        "telescope._extensions.down.picker.files",
+        "telescope._extensions.down.picker.linkable",
+        "telescope._extensions.down.picker.links",
+        "telescope._extensions.down.picker.lsp",
+        "telescope._extensions.down.picker.note",
+        "telescope._extensions.down.picker.tags",
+        "telescope._extensions.down.picker.todo",
+        "telescope._extensions.down.picker.workspace",
+        "telescope._extensions.down.util",
+        "trouble.providers.down"
+      ],
+      "origin": {
+        "sha256": "8101b94f5006c55688249b1941410c6ccdb7d3253ccb5e8966bd64b232e2c964",
+        "type": "archive",
+        "url": "https://github.com/clpi/down.nvim/archive/367371075dcf3feabf9659f064569ff06313672b.zip"
+      },
+      "size": 478855,
+      "summary": "the (eventually) infinitely extensible markdown note-taking work environment that you can have in Neovim without having to ever leave the comfort of markdown.",
+      "undeclared_requires": [
+        "bcp.format",
+        "blink.cmp.ids",
+        "lua.telescope._extensions.down.picker.todo",
+        "nvim-treesitter.highighlightight",
+        "nvim-treesitter.install",
+        "nvim-treesitter.locals",
+        "nvim-treesitter.parsers",
+        "nvim-treesitter.query",
+        "nvim-treesitter.shell_command_selectors",
+        "nvim-treesitter.utils",
+        "telescope._extensions.down.picker.",
+        "telescope._extensions.down.picker.link",
+        "telescope.actions",
+        "telescope.actions.set",
+        "telescope.actions.state",
+        "telescope.builtin",
+        "telescope.config",
+        "telescope.finders",
+        "telescope.make_entry",
+        "telescope.pickers",
+        "telescope.pickers.entry_display",
+        "telescope.pickers.window",
+        "telescope.previewers",
+        "telescope.themes",
+        "vim"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

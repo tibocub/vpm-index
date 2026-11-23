@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-file-log-exclusion",
+  "versions": {
+    "0.0.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/file-log-exclusion/attribute-remover.lua": {
+          "sha256": "7a73f34d26335c6a4fe772d1aaae3d34ecc296e8650a7431cafc416f3a338e80",
+          "size": 1138,
+          "url": "https://raw.githubusercontent.com/PayMaya/kong-file-log-exclusion/c0b2def7596e50d1f6429b6e6d0f3b24e73899d4/attribute-remover.lua"
+        },
+        "kong/plugins/file-log-exclusion/handler.lua": {
+          "sha256": "d7b650fb7966cdb27be31aa1403c3397839fb26d4a4658ab4879634958d8089a",
+          "size": 2579,
+          "url": "https://raw.githubusercontent.com/PayMaya/kong-file-log-exclusion/c0b2def7596e50d1f6429b6e6d0f3b24e73899d4/handler.lua"
+        },
+        "kong/plugins/file-log-exclusion/schema.lua": {
+          "sha256": "91488d5ff9817b6481c982954b0647ef77f48b18222d6cff99eb4e5d1a3d66c7",
+          "size": 417,
+          "url": "https://raw.githubusercontent.com/PayMaya/kong-file-log-exclusion/c0b2def7596e50d1f6429b6e6d0f3b24e73899d4/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "lua": "~> 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Tue, 31 Jan 2017 05:08:57 GMT",
+        "rockspec": {
+          "date": "Tue, 31 Jan 2017 05:08:57 GMT",
+          "sha256": "896dd4ad86dfdc45fea5b8a9698c8b03b8b948b244c57ee676f748f55376c602",
+          "size": 524
+        },
+        "src": {
+          "date": "Tue, 31 Jan 2017 05:08:59 GMT",
+          "sha256": "1676b619c9e02b8cab672c248a896244a12493e0a0b021f80f7bddb09fcb86f6",
+          "size": 6374,
+          "url": "https://luarocks.org/kong-file-log-exclusion-0.0.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.file-log-exclusion.attribute-remover",
+        "kong.plugins.file-log-exclusion.handler",
+        "kong.plugins.file-log-exclusion.schema"
+      ],
+      "origin": {
+        "commit": "c0b2def7596e50d1f6429b6e6d0f3b24e73899d4",
+        "type": "git",
+        "url": "https://github.com/PayMaya/kong-file-log-exclusion"
+      },
+      "size": 4134,
+      "summary": "Kong file logging plugin with options to exclude logged attributes.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "lua_system_constants",
+        "pl.utils"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

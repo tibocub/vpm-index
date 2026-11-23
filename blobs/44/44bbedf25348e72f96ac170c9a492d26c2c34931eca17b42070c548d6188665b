@@ -1,0 +1,94 @@
+--- Notifications module
+-- @module notify
+
+local notify = {}
+
+-- Libraries
+local s = require("say")
+
+-- Modules
+local bennu = require("bennu")
+local sys = require("bennu.sys")
+
+local notify_icon = "/usr/share/icons/Adwaita/16x16/mimetypes/audio-x-generic.png"
+local notify_app = "notify-send"
+
+-- helpers
+local function notifier(severity, message)
+   if sys.execute_OS_command_as_user(true, "string", ("hash %s"):format(notify_app)) then
+      sys.execute_OS_command_as_user(
+         true,
+         "string",
+         ("%s -u %s -i '%s' '%s'"):format(notify_app, severity, notify_icon, message)
+      )
+      -- TODO. FIXME. Notification won't work if the following line uncommented
+      -- sys.execute_OS("play " .. bennu.config_dir .. "/multimedia/sounds/notification.mp3")
+   end
+end
+
+local function pacman_update()
+   -- TODO: Use sys.execute
+   local command = "checkupdates 2>/dev/null | wc -l"
+   local result = sys.execute_OS_command_as_user(false, "string", command)
+   result = result:sub(1, -2)
+   return result
+end
+
+-- dispatchers
+local function notify_hello()
+   notifier("low", "Hello world!")
+end
+
+local function notify_message(args)
+   notifier("low", table.concat(args, " "))
+end
+
+local function notify_pacman_updates()
+   local updates
+   local number_of_updates = tonumber(pacman_update())
+   if number_of_updates == 0 then
+      updates = "✅"
+   else
+      local severity
+      local message
+      if number_of_updates <= 10 then
+         severity = "low"
+         message = s("notify.number.of.updates.low")
+      elseif number_of_updates <= 30 then
+         severity = "normal"
+         message = s("notify.number.of.updates.normal")
+      else
+         severity = "critical"
+         message = s("notify.number.of.updates.critical")
+      end
+      notifier(severity, message)
+      updates = ("%s ❌"):format(number_of_updates)
+   end
+   print(('{ "text": "%s" }'):format(updates))
+end
+
+-- TODO: Don't use table. Use functional.findfunction
+local dispatcher_table = {
+   hello = notify_hello,
+   message = notify_message,
+   pacmanupdates = notify_pacman_updates,
+}
+
+function notify.notify(command, ...)
+   local args = { ... }
+   bennu.logdebug("Command: %s. args: %s", command, args)
+   if not command then
+      for k, _ in pairs(dispatcher_table) do
+         print(k)
+      end
+   else
+      local dispatcher = dispatcher_table[command]
+      if not dispatcher then
+         print(("Invalid command: %s"):format(command))
+      else
+         dispatcher(args)
+      end
+   end
+end
+
+return notify

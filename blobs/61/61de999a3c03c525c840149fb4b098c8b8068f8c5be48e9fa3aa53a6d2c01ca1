@@ -1,0 +1,191 @@
+-- panto-warming: session warming for pantograph.
+--
+-- Keeps the provider-side prompt cache warm while the user pauses between
+-- prompts: once per `interval` of inactivity (within a `duration` window
+-- from the latest real request), it sends a minimal transient prompt on top
+-- of the session's current context, discards the response, and never adds
+-- either one to the context window. Modeled on opencode's warming feature;
+-- configured through a `[warming]` section in config.toml (warming/config).
+--
+-- Activation runs once per panto session (a new session, `/new`, or
+-- `/resume` rebuilds the Lua state and runs this again). It reads the
+-- layered settings, subscribes to the turn lifecycle that drives the timing
+-- policy, and owns one luv timer that ticks while the warming window is
+-- open. The eval below is side-effect-free -- pantograph evaluates every
+-- candidate extension but only activates the ones its policy permits --
+-- so every registration lives inside `activate`.
+
+local config = require("warming.config")
+local policy_mod = require("warming.policy")
+local warm = require("warming.warm")
+
+-- A tick only inspects extension-owned terminal state and starts a callback
+-- turn when due; it never polls or advances a native operation.
+local TICK_MAX_MS = 30000
+
+local function host()
+    return require("panto").ext
+end
+
+-- Events are optional: a host without the bus simply never calls back, and
+-- warming then stays idle instead of breaking the session.
+local function subscribe(ext, name, handler)
+    if type(ext.on) == "function" then
+        pcall(ext.on, name, handler)
+    end
+end
+
+local function human_ms(ms)
+    if ms % 3600000 == 0 then
+        return (ms / 3600000) .. "h"
+    elseif ms % 60000 == 0 then
+        return (ms / 60000) .. "m"
+    end
+    return math.floor(ms / 1000) .. "s"
+end
+
+-- One status line in the session header, so warming -- which spends real
+-- money -- is visible whenever it is on. The line re-renders with live
+-- status on the next repaint.
+local function install_header(ext, summary)
+    subscribe(ext, "render_header", function(event)
+        local inner = event:get_component()
+        event:set_component({
+            render = function(_, width)
+                local lines = inner:render(width)
+                local style = ext.style()
+                local at = (#lines > 0 and lines[#lines] == "") and #lines or (#lines + 1)
+                table.insert(lines, at, style.dim .. " " .. summary() .. style.reset)
+                return lines
+            end,
+        })
+    end)
+end
+
+local function activate()
+    local panto = require("panto")
+    local ext = host()
+    if type(ext.resolve_model) ~= "function" or type(panto.agent) ~= "function" then
+        error("panto-warming: this pantograph is too old for warming (panto.ext.resolve_model is missing)")
+    end
+
+    local settings, err = config.read(ext, config.default_io())
+    if settings == nil then
+        error("panto-warming: " .. err)
+    end
+    if not settings.enabled then
+        return
+    end
+
+    local summary = string.format(
+        "warming: every %s for %s after activity",
+        human_ms(settings.interval_ms),
+        human_ms(settings.duration_ms)
+    )
+
+    local ok_uv, uv = pcall(require, "luv")
+    if not ok_uv then
+        -- No loop handles means no schedule. Say so in the header instead of
+        -- failing activation: the session is perfectly usable without us.
+        install_header(ext, function()
+            return "warming: unavailable (the 'luv' rock is not installed)"
+        end)
+        return
+    end
+
+    local policy = policy_mod.new(settings.interval_ms, settings.duration_ms)
+    local current = nil -- in-flight warm handle
+    local timer = nil
+    local done = false
+
+    local function stop_timer()
+        if timer and not timer:is_closing() and timer:is_active() then
+            timer:stop()
+        end
+    end
+
+    local tick -- assigned below; the timer callback closes over it
+
+    local function ensure_timer()
+        if done then
+            return
+        end
+        if timer == nil then
+            timer = uv.new_timer()
+        end
+        if not timer:is_active() then
+            local period = math.max(1000, math.min(settings.interval_ms, TICK_MAX_MS))
+            timer:start(0, period, function()
+                -- Containment: a tick must never take the process down
+                -- through luv's default error behavior.
+                pcall(tick)
+            end)
+        end
+    end
+
+    tick = function()
+        local now = uv.now()
+        if current then
+            local handle = current
+            local result = warm.poll(handle)
+            if result then
+                current = nil
+                policy:attempted(now)
+            end
+            return
+        end
+        if policy:expired(now) then
+            stop_timer()
+            return
+        end
+        if policy:due(now) then
+            local handle = warm.start(settings.prompt)
+            if handle then
+                current = handle
+            else
+                -- Failed attempt (model resolution, store, ...): the next
+                -- try waits out the same interval, window still running.
+                policy:attempted(now)
+            end
+        end
+    end
+
+    subscribe(ext, "session_ready", function()
+        policy:activity(uv.now())
+        ensure_timer()
+    end)
+    subscribe(ext, "turn_start", function()
+        policy:turn_started(uv.now())
+        ensure_timer()
+    end)
+    subscribe(ext, "turn_end", function()
+        policy:turn_ended(uv.now())
+        ensure_timer()
+    end)
+    subscribe(ext, "turn_interrupt", function()
+        policy:turn_ended(uv.now())
+        ensure_timer()
+    end)
+    subscribe(ext, "session_end", function()
+        done = true
+        stop_timer()
+        if timer then
+            pcall(timer.close, timer)
+            timer = nil
+        end
+        if current then
+            -- Keep the wrapper references through Lua-state teardown; close is
+            -- nonjoining and the binding manager owns native retirement.
+            warm.abandon(current)
+        end
+    end)
+
+    install_header(ext, function()
+        return summary
+    end)
+end
+
+return {
+    name = "warming",
+    activate = activate,
+}

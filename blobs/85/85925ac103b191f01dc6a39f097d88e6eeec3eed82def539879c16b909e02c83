@@ -1,0 +1,107 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+
+local PLUGIN_NAME = "uoa-soap-to-rest"
+
+local schema = {
+  name = PLUGIN_NAME,
+  fields = {
+    {
+      -- this plugin will only be applied to Services or Routes
+      consumer = typedefs.no_consumer
+    },
+    {
+      -- this plugin will only run within Nginx HTTP module
+      protocols = typedefs.protocols_http
+    },
+    {
+      config = {
+        -- The 'config' record is the custom part of the plugin schema
+        type = "record",
+        fields = {
+          {
+            -- The path through the XML body to the security block. Each array element should be the next nested XML block name
+            security_block_path = {
+              type = "array",
+              required = false,
+              default = { "env:Envelope", "env:Header", "wsse:Security" },
+              elements = {
+                type = "string",
+              }
+            }
+          },
+          {
+            -- Whether the specified security block should be removed from the headers before passing the request on to the upstream service
+            remove_security_block = {
+              type = "boolean",
+              default = true,
+            }
+          },
+          {
+            -- The name of the basic authentication block (inside the security block specified by security_block_path)
+            basic_auth_block = {
+              type = "string",
+              required = false,
+              --default = "wsse:UsernameToken"
+              --default = ""
+            }
+          },
+          {
+            -- The name of the basic authentication username block (inside the basic auth block specified by basic_auth_block)
+            basic_auth_username_block = {
+              type = "string",
+              required = false,
+              --default = "wsse:Username"
+            }
+          },
+          {
+            -- The name of the basic authentication password block (inside the basic auth block specified by basic_auth_block)
+            basic_auth_password_block = {
+              type = "string",
+              required = false,
+              --default = "wsse:Password"
+            }
+          },
+          {
+            -- The name of the OAuth authentication block (inside the security block specified by security_block_path)
+            oauth_token_block = {
+              type = "string",
+              required = false,
+              --default = "wsse:OAuthToken"
+            }
+          },
+          {
+            -- Whether the JSON response body should be transformed to XML before being returned to the downstream service
+            transform_json_response_to_xml = {
+              type = "boolean",
+              default = false,
+            }
+          },
+          {
+            -- Name of the root object to be returned when transforming the response body
+            xml_response_root_block_name = {
+              type = "string",
+              --default = "env:Envelope",
+            }
+          },
+        },
+        entity_checks = {
+          {
+            conditional = {
+              if_field = "transform_json_response_to_xml", if_match = { eq = true },
+              then_field = "xml_response_root_block_name", then_match = { required = true }
+            }
+          },
+          {
+            mutually_exclusive = {
+              -- Only one or none of these fields must be set
+              "basic_auth_block", "oauth_token_block"
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
+return schema

@@ -1,0 +1,334 @@
+local rpc = require('panto_mcp.jsonrpc')
+local async = require('panto_mcp.async')
+local json = require('panto').ext.json
+local M = {}; M.__index=M
+M.MODERN='2026-07-28'; M.LEGACY='2025-11-25'; M.VERSION='0.1.0'
+local supported={['2025-11-25']=true,['2025-06-18']=true,['2025-03-26']=true,['2024-11-05']=true}
+local info={name='panto-mcp',version=M.VERSION}
+local function failure(err)
+    if type(err)=='table' then return tostring(err.message or 'RPC error') .. ' (' .. tostring(err.code) .. ')' end
+    return tostring(err)
+end
+local function context(self,method,text)
+    if self.cfg.transport=='http' then return self.cfg.name..' '..method..': '..tostring(text) end
+    return text
+end
+M.error_text=failure
+function M.new(cfg,settings,opts)
+    opts=opts or {}
+    return setmetatable({cfg=cfg,settings=settings,opts=opts,catalog={tools=json.array({}),prompts=json.array({}),resources=json.array({}),templates=json.array({})}},M)
+end
+local function filter_http_tools(self,items)
+    if self.cfg.transport=='http' then return require('panto_mcp.http').filter_tools(items,self.cfg.name) end
+    return items,{}
+end
+function M:open()
+    if self.closed then return nil,'connection closed' end
+    async.close(self.notification_retry_timer); self.notification_retry_timer=nil
+    if self.rpc then self.replacing=true; self.rpc:close(); self.replacing=false end
+    local factory=self.opts.transport_factory or function(cfg,settings)
+        if cfg.transport=='stdio' then return require('panto_mcp.stdio').new(cfg) end
+        if cfg.transport=='http' then
+            local transport,why
+            transport,why=require('panto_mcp.http').new(cfg,settings,{timer_factory=self.opts.timer_factory,
+                oauth=self.opts.oauth,request_fn=self.opts.request_fn,on_notification_stream_end=function(status)
+                    if self.transport==transport then self:schedule_notification_stream_retry(status) end
+                end})
+            return transport,why
+        end
+        return nil,'unknown MCP transport'
+    end
+    local transport,err=factory(self.cfg,self.settings)
+    if not transport then
+        if self.cfg.transport=='http' then return nil,self.cfg.name..' connect: '..tostring(err) end
+        return nil,err
+    end
+    self.transport=transport
+    self.rpc=rpc.new(transport,{timeout_ms=self.settings.call_timeout_ms,timer_factory=self.opts.timer_factory,
+        on_notification=function(method) self:notification(method) end,
+        on_error=function(e) if not self.replacing and self.opts.on_error then self.opts.on_error(e) end end})
+    return true
+end
+function M:request(method,params,timeout_ms)
+    params=params or {}
+    local oauth=self.opts.oauth
+    if oauth then
+        local ok,err=oauth:before_request(); if not ok then return nil,err end
+    end
+    if self.era=='legacy' and self.transport and self.transport.protocol_version then self.version=self.transport.protocol_version end
+    if self.legacy_reinit and method~='initialize' then
+        local ok,err=self.legacy_reinit:await(); if not ok then return nil,err end
+    end
+    if self.era=='modern' then
+        params._meta=params._meta or {}
+        params._meta['io.modelcontextprotocol/protocolVersion']=self.version
+        params._meta['io.modelcontextprotocol/clientCapabilities']={}
+        params._meta['io.modelcontextprotocol/clientInfo']=info
+    end
+    local opts={era=self.era,protocol_version=self.version,method=method,
+        name=params.name or params.uri,timeout_ms=timeout_ms,cancel_protocol=method~='initialize'}
+    if method=='tools/call' and self.tool_headers then opts.param_headers=self.tool_headers[params.name] end
+    local function request_once()
+        local value,request_error=self.rpc:request(method,params,opts)
+        if type(request_error)=='string' and request_error:match('^request timed out:') then request_error=context(self,method,request_error) end
+        return value,request_error
+    end
+    local result,err=request_once()
+    local data=type(err)=='table' and type(err.data)=='table' and err.data or nil
+    if oauth and data and data.auth_error then
+        local retry,why=oauth:recover(data)
+        if not retry then return nil,why end
+        result,err=request_once()
+        data=type(err)=='table' and type(err.data)=='table' and err.data or nil
+        if data and data.auth_error then
+            if data.http_status==403 then
+                local _,why=oauth:recover(data)
+                return nil,why
+            end
+            oauth.login_required=not oauth:usable() or nil
+            return nil,oauth.cfg.auth and oauth:configured_error() or oauth:login_error()
+        end
+    end
+    if self.cfg.transport=='http' and self.era=='legacy' and method~='initialize' and data and data.session_expired then
+        if data.session_generation~=nil and self.transport and self.transport.session_generation~=data.session_generation then
+            if self.legacy_reinit then local ok,why=self.legacy_reinit:await(); if not ok then return nil,why end end
+            opts.protocol_version=self.transport.protocol_version or self.version
+            return request_once()
+        end
+        local ok,why=self:reinitialize_legacy(); if not ok then return nil,why end
+        opts.protocol_version=self.version
+        return request_once()
+    end
+    if self.cfg.transport=='http' and self.era=='modern' and method=='tools/call' and type(err)=='table' and err.code==-32020 then
+        local original_error=err
+        local catalog,refresh_err=self:refresh()
+        if not catalog then return nil,refresh_err end
+        local definition
+        for _,tool in ipairs(catalog.tools) do if tool.name==params.name then definition=tool; break end end
+        if not definition then return nil,original_error end
+        local input=params.arguments or {}
+        local valid,validation_errors=require('panto_mcp.validate').check(input,definition.inputSchema)
+        if not valid then
+            return nil,{code=-32602,message=context(self,'tools/call','input validation failed after schema refresh: '..table.concat(validation_errors,'; ')),
+                data={validation_errors=validation_errors,schema=definition.inputSchema}}
+        end
+        opts.param_headers=self.tool_headers[params.name]
+        return request_once()
+    end
+    return result,err
+end
+function M:reinitialize_legacy()
+    local future=self.legacy_reinit
+    if not future then
+        future=async.future(); self.legacy_reinit=future
+        local function failed(err)
+            local why=failure(err)
+            if self.rpc and not self.rpc.closed then self.rpc:fail(why) end
+            future:resolve(nil,why)
+            if self.legacy_reinit==future then self.legacy_reinit=nil end
+        end
+        async.run(function()
+            local result,err=self:handshake('legacy',self.version or M.LEGACY,self.settings.startup_timeout_ms)
+            if result then
+                future:resolve(true); if self.legacy_reinit==future then self.legacy_reinit=nil end
+            else failed(err) end
+        end,function(err) failed(err) end)
+    end
+    return future:await()
+end
+function M:schedule_notification_stream_retry(status)
+    if status==401 then
+        self.notification_retry_stopped=true
+        self.notification_warning='Notification stream rejected (HTTP 401); '..(self.cfg.auth and 'check configured auth' or ('run /mcp-login '..self.cfg.name))
+        async.close(self.notification_retry_timer); self.notification_retry_timer=nil
+        return
+    end
+    if self.notification_retry_stopped then return end
+    if self.closed or self.cfg.expose~='eager' or self.cfg.transport~='http' or self.era~='legacy'
+        or self.version~=M.LEGACY or type(self.capabilities)~='table'
+        or type(self.capabilities.tools)~='table' or self.capabilities.tools.listChanged~=true then return end
+    async.close(self.notification_retry_timer)
+    local timer_factory=self.opts.timer_factory or async.timer
+    self.notification_retry_delay=math.min((self.notification_retry_delay or 500)*2,60000)
+    self.notification_retry_timer=timer_factory(self.notification_retry_delay,function()
+        self.notification_retry_timer=nil
+        if not self.closed and self.transport and self.transport.open_notification_stream then
+            self.transport:open_notification_stream()
+        end
+    end)
+end
+function M:handshake(era,version,timeout)
+    if era=='legacy' and self.cfg.transport=='http' and self.transport and self.transport.close_notification_stream then
+        self.transport:close_notification_stream()
+        self.notification_retry_stopped=nil; self.notification_warning=nil; self.notification_retry_delay=nil
+        async.close(self.notification_retry_timer); self.notification_retry_timer=nil
+    end
+    self.era=era; self.version=version or (era=='modern' and M.MODERN or M.LEGACY)
+    local result,err
+    if era=='modern' then result,err=self:request('server/discover',{},timeout)
+    else
+        result,err=self:request('initialize',{protocolVersion=self.version,capabilities={},clientInfo=info},timeout)
+        if result then
+            if not supported[result.protocolVersion] then return nil,context(self,'initialize','unsupported initialize version: '..tostring(result.protocolVersion)) end
+            self.version=result.protocolVersion
+            local sent,why=self.rpc:notify('notifications/initialized',{}, {era='legacy',protocol_version=self.version})
+            if not sent then return nil,why end
+            if type(sent)=='table' and type(sent.await)=='function' then
+                local accepted,notify_err=sent:await(); if not accepted then return nil,notify_err end
+            end
+        end
+    end
+    if not result then return nil,err end
+    if type(result)~='table' then return nil,context(self,era=='modern' and 'server/discover' or 'initialize','invalid discovery response') end
+    if result.resultType=='input_required' then return nil,context(self,era=='modern' and 'server/discover' or 'initialize','discovery requested unsupported user input') end
+    if era=='legacy' and self.transport and self.transport.protocol_version then self.transport.protocol_version=self.version end
+    self.capabilities=type(result.capabilities)=='table' and result.capabilities or {}
+    self.info=result.serverInfo or (type(result._meta)=='table' and result._meta['io.modelcontextprotocol/serverInfo']) or {}
+    self.instructions=result.instructions
+    if self.cfg.expose=='eager' and self.cfg.transport=='http' and era=='legacy'
+        and self.version==M.LEGACY and type(self.capabilities.tools)=='table'
+        and self.capabilities.tools.listChanged==true and self.transport.open_notification_stream then
+        self.transport:open_notification_stream()
+    end
+    return result
+end
+function M:refresh_stable()
+    local catalog,err
+    repeat
+        self.dirty=false
+        catalog,err=self:refresh()
+        if not catalog then return nil,err end
+    until not self.dirty or self.closed
+    return catalog
+end
+local function real_rejection(err)
+    return type(err)=='table' or (type(err)=='string' and err:find('unsupported initialize version',1,true)~=nil)
+end
+function M:connect(cached)
+    self.closed=false; self.connecting=true
+    local ok,err=self:open(); if not ok then return nil,err end
+    local result
+    if cached then
+        local version=cached.era=='legacy' and M.LEGACY or cached.version
+        result,err=self:handshake(cached.era,version,self.settings.startup_timeout_ms)
+        if result then
+            local catalog; catalog,err=self:refresh_stable()
+            if catalog then self.connecting=false; return true end
+            return nil,err
+        end
+        if self.cfg.transport=='http' then
+            if not require('panto_mcp.http').should_fallback(err) and not (type(err)=='table' and err.code==-32022) then return nil,failure(err) end
+        elseif not real_rejection(err) then return nil,failure(err) end
+        ok,err=self:open(); if not ok then return nil,err end
+    end
+    result,err=self:handshake('modern',M.MODERN,math.min(1500,self.settings.startup_timeout_ms))
+    local modern_probe_error=err
+    if not result and type(err)=='table' and err.code==-32022 then
+        local versions=(type(err.data)=='table' and err.data.supported) or err.supported or {}
+        if type(versions)~='table' then versions={} end
+        local choice
+        for _,v in ipairs(versions) do
+            if v==M.MODERN or supported[v] then choice=v; break end
+        end
+        if choice and choice~=M.MODERN then
+            result,err=self:handshake('legacy',choice,self.settings.startup_timeout_ms)
+            if not result then return nil,failure(err) end
+        elseif self.cfg.transport=='http' then
+            return nil,failure(err)
+        end
+    end
+    if not result and self.cfg.transport=='http' and self.transport and not require('panto_mcp.http').should_fallback(modern_probe_error) then
+        return nil,failure(modern_probe_error)
+    end
+    if not result then
+        -- Some legacy stdio implementations close on a pre-initialize probe.
+        -- Always give initialize a fresh process, with no probe history.
+        ok,err=self:open(); if not ok then return nil,err end
+        result,err=self:handshake('legacy',M.LEGACY,self.settings.startup_timeout_ms)
+        if not result and not self.closed then
+            local initialize_error=err
+            if self.cfg.transport=='stdio' then
+                if self.rpc.closed then ok,err=self:open(); if not ok then return nil,err end end
+                result,err=self:handshake('modern',M.MODERN,self.settings.startup_timeout_ms)
+                if not result then err=initialize_error end
+            end
+        end
+    end
+    if not result then return nil,failure(err) end
+    local catalog; catalog,err=self:refresh_stable()
+    if not catalog then return nil,err end
+    self.connecting=false
+    return true
+end
+function M:list(method,key)
+    local items,cursor,seen=json.array({}),nil,{}
+    local pages=0
+    repeat
+        pages=pages+1
+        if pages>1000 then return nil,context(self,method,'pagination exceeds 1000 pages') end
+        local result,err=self:request(method,{cursor=cursor})
+        if not result then
+            if type(err)=='table' and err.code==-32601 then return items end
+            return nil,failure(err)
+        end
+        if type(result)~='table' or type(result[key])~='table' then return nil,context(self,method,'invalid '..method..' result') end
+        for _,item in ipairs(result[key]) do items[#items+1]=item end
+        if #items>100000 then return nil,context(self,method,'catalog exceeds 100000 entries') end
+        cursor=result.nextCursor
+        if cursor==json.null then cursor=nil end
+        if cursor~=nil then
+            if type(cursor)~='string' or seen[cursor] then return nil,context(self,method,'invalid/repeated pagination cursor') end
+            seen[cursor]=true
+        end
+    until not cursor
+    return items
+end
+function M:refresh()
+    local catalog={tools=json.array({}),prompts=json.array({}),resources=json.array({}),templates=json.array({})}
+    local tool_headers={}
+    for _,entry in ipairs({{'tools','tools/list','tools','tools'}, {'prompts','prompts/list','prompts','prompts'},
+        {'resources','resources/list','resources','resources'}, {'resources','resources/templates/list','resourceTemplates','templates'}}) do
+        if type(self.capabilities[entry[1]])=='table' then
+            local items,err=self:list(entry[2],entry[3]); if not items then return nil,err end
+            if entry[4]=='tools' then items,tool_headers=filter_http_tools(self,items) end
+            catalog[entry[4]]=items
+        end
+    end
+    catalog=require('panto_mcp.cache').normalize_catalog(catalog)
+    if not catalog then return nil,context(self,'catalog','invalid catalog metadata') end
+    self.catalog=catalog
+    self.tool_headers=tool_headers
+    if self.opts.on_catalog then self.opts.on_catalog(self) end
+    return catalog
+end
+function M:notification(method)
+    self.notification_retry_delay=nil
+    if not method:match('^notifications/[a-z]+/list_changed$') then return end
+    if self.closed then return end
+    self.dirty=true
+    if self.connecting or self.refreshing then return end
+    self.refreshing=true
+    async.run(function()
+        repeat
+            self.dirty=false
+            local _,err=self:refresh()
+            if err and self.opts.on_error then self.opts.on_error(err); break end
+        until not self.dirty or self.closed
+        self.refreshing=false
+    end,function(err) self.refreshing=false; if self.opts.on_error then self.opts.on_error(err) end end)
+end
+function M:call(name,input) return self:request('tools/call',{name=name,arguments=input or {}}) end
+function M:read_resource(uri) return self:request('resources/read',{uri=uri}) end
+function M:prompt(name,args) return self:request('prompts/get',{name=name,arguments=args or {}}) end
+function M:metadata()
+    return {era=self.era,version=self.version,info=self.info,instructions=self.instructions,
+        capabilities=self.capabilities,catalog=self.catalog}
+end
+function M:close(abandon)
+    self.closed=true
+    async.close(self.notification_retry_timer); self.notification_retry_timer=nil
+    self.replacing=true
+    if self.rpc then self.rpc:close(abandon) end
+    self.replacing=false
+end
+return M

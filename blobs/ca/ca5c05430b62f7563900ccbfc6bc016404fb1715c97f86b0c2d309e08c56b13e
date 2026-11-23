@@ -1,0 +1,122 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+local PLUGIN_NAME = "jwt-redis-authz"
+
+local schema = {
+  name = PLUGIN_NAME,
+  fields = {
+    { consumer = typedefs.no_consumer },
+    { protocols = typedefs.protocols_http },
+    { config = {
+        type = "record",
+        fields = {
+          -- Header Kong's own `jwt` plugin already read the Bearer token from.
+          -- This plugin does NOT verify the signature; it assumes `jwt` already
+          -- ran earlier in the `access` phase (see handler.lua PRIORITY note).
+          {
+            authorization = typedefs.header_name {
+              required = true,
+              default = "Authorization"
+            }
+          },
+          -- Base URL of the jurnal-authz service.
+          {
+            jurnal_authz_endpoint = typedefs.url {
+              required = true
+            }
+          },
+          -- Path (relative to jurnal_authz_endpoint) of the Redis-existence-check
+          -- endpoint. Kept configurable (rather than hardcoded) because the exact
+          -- path is still being reconciled with the concurrent jurnal-authz task
+          -- -- see PR description for the assumption this plugin was built
+          -- against. Default matches that task's currently-proposed path.
+          {
+            jwt_exists_path = {
+              type = "string",
+              required = true,
+              default = "/api/v1/jwt/exists"
+            }
+          },
+          -- Basic-auth credentials for the service-to-service call to
+          -- jurnal-authz, same credential-handling pattern as the existing
+          -- `authz` plugin (kernel.rb / ENV['BASE_USER'] / ENV['BASE_PASSWORD']).
+          {
+            username = {
+              type = "string",
+              required = true,
+              unique = true
+            },
+          },
+          {
+            password = {
+              type = "string",
+              required = true
+            },
+          },
+          -- Explicit, short timeout (ms) for the jurnal-authz call. The existing
+          -- `authz` plugin sets no timeout and silently inherits lua-resty-http's
+          -- 60s default -- deliberately not repeated here.
+          {
+            timeout_ms = {
+              type = "number",
+              required = true,
+              default = 3000,
+              between = { 100, 10000 },
+            },
+          },
+          -- Whether to verify jurnal-authz's TLS certificate chain on the
+          -- service-to-service call. Defaults to FALSE, matching the existing
+          -- `authz` plugin -- Kong's own trust store / verify depth currently
+          -- rejects that chain (OpenSSL error 20), and because the plugin
+          -- fails closed, every request 401s even with a valid JWT. Flip to
+          -- true once the gateway's lua_ssl_trusted_certificate and
+          -- lua_ssl_verify_depth are configured for jurnal-authz's issuer;
+          -- that request body carries the basic-auth credential and the raw
+          -- JWT, so this should not stay false permanently.
+          {
+            ssl_verify = {
+              type = "boolean",
+              required = true,
+              default = false,
+            },
+          },
+          -- Whether to forward resolved identity (kong/company/user/manage id)
+          -- as headers to the upstream service on allow. This is the mechanism
+          -- that lets downstream services (Caffeine, scm-core, etc.) trust
+          -- Kong's resolved identity instead of decoding the JWT themselves --
+          -- defaults to true since that's the point of this plugin existing.
+          -- Regardless of this setting, any client-supplied header with the
+          -- same name is ALWAYS stripped before the request reaches the
+          -- upstream (see handler.lua strip_identity_headers()) -- setting
+          -- this to false means the headers are removed, not that a client's
+          -- own value is allowed to pass through.
+          {
+            forward_identity_headers = {
+              type = "boolean",
+              required = true,
+              default = true,
+            },
+          },
+          -- Whether to also forward the resolved role list as
+          -- X-Consumer-Roles. Separate from forward_identity_headers because
+          -- twelve of the 29 covered jurnal routes have no `authz` plugin and
+          -- so receive no roles today -- they can adopt this plugin for
+          -- identity without a roles header appearing on them for the first
+          -- time. Defaults to true, which reproduces the previous behaviour
+          -- exactly, so an existing binding that does not set it is unchanged.
+          -- X-Consumer-Roles is stripped from the client request regardless
+          -- (see handler.lua strip_identity_headers()).
+          {
+            forward_roles = {
+              type = "boolean",
+              required = true,
+              default = true,
+            },
+          },
+        },
+      },
+    },
+  }
+}
+
+return schema

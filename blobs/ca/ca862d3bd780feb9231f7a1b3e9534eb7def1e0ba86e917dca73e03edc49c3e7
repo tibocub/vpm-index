@@ -1,0 +1,38 @@
+--- miscellaneous funciond
+-- @module misc
+-- @author José María Alonso
+
+local misc = {}
+
+local bennu = require("bennu")
+
+local sys = require("bennu.sys")
+
+-- Module functions
+--- displays a fortune
+-- @function say_fortune
+---@þaram first word of the fortune
+function misc.say_fortune(command, ...)
+   local args = { ... }
+   local fortune
+   local cow
+   if not command then
+      fortune = sys.execute_OS_command_as_user(true, "string", "fortune -s")
+   else
+      fortune = ("%s %s"):format(command, table.concat(args, " "))
+   end
+   bennu.logdebug("Call say_fortune. fortune is %s", fortune)
+   fortune = fortune:gsub('"', "'")
+   local session_type = bennu.session_type
+   if session_type == "wayland" or session_type == "x11" then
+      cow = "xcowsay"
+   else
+      cow = "cowsay"
+   end
+   local cowcommand = ('%s "%s" &'):format(cow, fortune)
+   bennu.logdebug("Command: %s", cowcommand)
+   -- TODO: dry-run
+   sys.execute_OS_command_as_user(false, "string", cowcommand)
+end
+
+return misc

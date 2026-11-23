@@ -1,0 +1,61 @@
+{
+  "kind": "lib",
+  "name": "kong-startbid-oidc-acl",
+  "versions": {
+    "1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/startbid-oidc-acl/handler.lua": {
+          "sha256": "97c07cc66cae797f4358fbd3f99c9e005d1057139c47abd384f337043d64605e",
+          "size": 2621,
+          "url": "https://raw.githubusercontent.com/LucasCCS/kong-startbid-oidc-acl/f4187575b0cd4cf285dc591caef624b369dd9ce7/handler.lua"
+        },
+        "kong/plugins/startbid-oidc-acl/schema.lua": {
+          "sha256": "9502dc3bd6c3cb036600620f475d59dff99eef183aae2d381c96b68b0cc7a2c3",
+          "size": 658,
+          "url": "https://raw.githubusercontent.com/LucasCCS/kong-startbid-oidc-acl/f4187575b0cd4cf285dc591caef624b369dd9ce7/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Thu, 28 Dec 2023 19:34:22 GMT",
+        "rockspec": {
+          "date": "Thu, 28 Dec 2023 19:34:22 GMT",
+          "sha256": "e31daa0de951a092fbeef8baa42cf049f27a70510cfabb4e2347640bbbd9afef",
+          "size": 483
+        }
+      },
+      "modules": [
+        "kong.plugins.startbid-oidc-acl.handler",
+        "kong.plugins.startbid-oidc-acl.schema"
+      ],
+      "origin": {
+        "commit": "f4187575b0cd4cf285dc591caef624b369dd9ce7",
+        "ref": "v1.2-1",
+        "type": "git",
+        "url": "https://github.com/LucasCCS/kong-startbid-oidc-acl"
+      },
+      "size": 3279,
+      "summary": "A Kong ACL plugin for oidc plugin",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.meta",
+        "kong.plugins.acl.groups",
+        "pl.tablex"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

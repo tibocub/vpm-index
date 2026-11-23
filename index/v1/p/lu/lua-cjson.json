@@ -1,0 +1,88 @@
+{
+  "kind": "app",
+  "name": "lua-cjson",
+  "versions": {
+    "2.1.0.10-1": {
+      "bin": {
+        "json2lua": "bin/json2lua",
+        "lua2json": "bin/lua2json"
+      },
+      "deps": [],
+      "files": {
+        "bin/json2lua": {
+          "sha256": "0a7830dca64d95336c0c4e06865ddad412517c3d685f30265b075941d65aa591",
+          "size": 304,
+          "url": "blob:0a7830dca64d95336c0c4e06865ddad412517c3d685f30265b075941d65aa591"
+        },
+        "bin/lua2json": {
+          "sha256": "8b2fb6a36753079ff5b49d7e737468215668f0ce075bf285923f004ad0dbeda2",
+          "size": 387,
+          "url": "blob:8b2fb6a36753079ff5b49d7e737468215668f0ce075bf285923f004ad0dbeda2"
+        },
+        "cjson/util.lua": {
+          "sha256": "fd6bacd4f139ed90410ba4f4e1c8288e261276103d58a386151590f836dc284c",
+          "size": 7647,
+          "url": "blob:fd6bacd4f139ed90410ba4f4e1c8288e261276103d58a386151590f836dc284c"
+        }
+      },
+      "homepage": "http://www.kyne.com.au/~mark/software/lua-cjson.php",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 17 Oct 2022 20:00:23 GMT",
+        "rockspec": {
+          "date": "Mon, 17 Oct 2022 20:00:23 GMT",
+          "sha256": "afe5862c82e36bcdbb9150b482262f5173a6bd07908516fd6c937471703e5717",
+          "size": 1574
+        },
+        "src": {
+          "date": "Mon, 17 Oct 2022 20:00:23 GMT",
+          "sha256": "02dea368d07753647c75bd9e6660dd4d06ff7d09956d90d5afc4c3f5b78ed187",
+          "size": 94831,
+          "url": "https://luarocks.org/lua-cjson-2.1.0.10-1.src.rock"
+        }
+      },
+      "modules": [
+        "cjson",
+        "cjson.util"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "cjson",
+              "sources": [
+                "lua_cjson.c",
+                "strbuf.c",
+                "fpconv.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 17 Oct 2022 20:00:23 GMT",
+        "sha256": "02dea368d07753647c75bd9e6660dd4d06ff7d09956d90d5afc4c3f5b78ed187",
+        "size": 94831,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-cjson-2.1.0.10-1.src.rock"
+      },
+      "size": 8338,
+      "summary": "A fast JSON encoding/parsing module",
+      "vlr": {
+        "cause": "missing module: cjson.util",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "kind": "lib",
+  "name": "lua-mongo",
+  "versions": {
+    "1.2.3-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/neoxic/lua-mongo",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 03 Oct 2022 17:40:04 GMT",
+        "rockspec": {
+          "date": "Mon, 03 Oct 2022 17:40:04 GMT",
+          "sha256": "b8066288468955238d4c2e71657aa3a54f71f77a4b2334b8f51b8ec0bedc92e6",
+          "size": 1668
+        },
+        "src": {
+          "date": "Mon, 03 Oct 2022 17:40:05 GMT",
+          "sha256": "36a8cb30f8ff42e0f1557503b8077ce81a0bd32caa9946a37894edb8577fc5ed",
+          "size": 55137,
+          "url": "https://luarocks.org/lua-mongo-1.2.3-2.src.rock"
+        }
+      },
+      "modules": [
+        "mongo"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBBSON",
+          "LIBMONGOC"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBBSON": {
+              "header": "libbson-1.0/bson/bson.h",
+              "library": "bson-1.0"
+            },
+            "LIBMONGOC": {
+              "header": "libmongoc-1.0/mongoc/mongoc.h",
+              "library": "mongoc-1.0"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBMONGOC_INCDIR)/libmongoc-1.0",
+                "$(LIBBSON_INCDIR)/libbson-1.0"
+              ],
+              "libdirs": [
+                "$(LIBMONGOC_LIBDIR)",
+                "$(LIBBSON_LIBDIR)"
+              ],
+              "libraries": [
+                "mongoc-1.0",
+                "bson-1.0"
+              ],
+              "name": "mongo",
+              "sources": [
+                "src/bson.c",
+                "src/bsontype.c",
+                "src/bulkoperation.c",
+                "src/client.c",
+                "src/collection.c",
+                "src/cursor.c",
+                "src/database.c",
+                "src/flags.c",
+                "src/gridfs.c",
+                "src/gridfsfile.c",
+                "src/gridfsfilelist.c",
+                "src/main.c",
+                "src/objectid.c",
+                "src/readprefs.c",
+                "src/util.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 03 Oct 2022 17:40:05 GMT",
+        "sha256": "36a8cb30f8ff42e0f1557503b8077ce81a0bd32caa9946a37894edb8577fc5ed",
+        "size": 55137,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-mongo-1.2.3-2.src.rock"
+      },
+      "summary": "MongoDB Driver for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

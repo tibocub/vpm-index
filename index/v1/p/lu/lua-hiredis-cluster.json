@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "lua-hiredis-cluster",
+  "versions": {
+    "1.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "redis_cluster.lua": {
+          "sha256": "76a557c2d0e1f91e3f85316615c2f6734bacba9e0d180730eb8ce50dd947589d",
+          "size": 10557,
+          "url": "blob:76a557c2d0e1f91e3f85316615c2f6734bacba9e0d180730eb8ce50dd947589d"
+        }
+      },
+      "homepage": "https://github.com/zs-soft/lua-hiredis-cluster",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 18 Apr 2019 02:45:23 GMT",
+        "rockspec": {
+          "date": "Thu, 18 Apr 2019 02:45:23 GMT",
+          "sha256": "c7944ace2066c6b9b156bbcbc85b3ee0719b137274bd47894e49fb6dfe8b9395",
+          "size": 997
+        },
+        "src": {
+          "date": "Thu, 18 Apr 2019 02:45:25 GMT",
+          "sha256": "7706e23ba474a8bdc35512c2fd5d9f93d7e1518bf9b4ec9d5177c28ab60706cf",
+          "size": 72943,
+          "url": "https://luarocks.org/lua-hiredis-cluster-1.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "hiredis",
+        "redis_cluster"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src/",
+                "lib/",
+                "lib/hiredis/"
+              ],
+              "name": "hiredis",
+              "sources": [
+                "src/lua-hiredis.c",
+                "lib/hiredis/net.c",
+                "lib/hiredis/async.c",
+                "lib/hiredis/dict.c",
+                "lib/hiredis/hiredis.c",
+                "lib/hiredis/sds.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 18 Apr 2019 02:45:25 GMT",
+        "sha256": "7706e23ba474a8bdc35512c2fd5d9f93d7e1518bf9b4ec9d5177c28ab60706cf",
+        "size": 72943,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-hiredis-cluster-1.0-2.src.rock"
+      },
+      "size": 10557,
+      "summary": "Bindings for hiredis Redis-client library support redis cluster",
+      "undeclared_requires": [
+        "bit"
+      ],
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

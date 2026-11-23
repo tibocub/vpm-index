@@ -1,0 +1,109 @@
+--- mohitkhare - Lua text analysis and content utilities.
+-- Provides token estimation for LLM context windows, word counting,
+-- reading time calculation, and URL slug generation.
+--
+-- @module mohitkhare
+-- @author Mohit Khare
+-- @license MIT
+-- @see https://mohitkhare.me
+
+local mohitkhare = {}
+
+mohitkhare._VERSION = "0.1.0"
+
+--- Average characters per token for common LLM tokenizers.
+-- GPT/Claude models average roughly 4 characters per token for English text.
+local CHARS_PER_TOKEN = 4
+
+--- Average reading speed in words per minute for an adult reader.
+local WORDS_PER_MINUTE = 238
+
+--- Estimate the number of tokens in a text string.
+-- Uses a character-based heuristic (approximately 4 characters per token)
+-- that closely matches the behavior of BPE tokenizers used in GPT and
+-- Claude models. Suitable for estimating context window usage.
+-- @tparam string text The input text.
+-- @treturn number Estimated token count (integer).
+function mohitkhare.estimate_tokens(text)
+  if type(text) ~= "string" or text == "" then
+    return 0
+  end
+  local char_count = #text
+  return math.ceil(char_count / CHARS_PER_TOKEN)
+end
+
+--- Count the number of words in a text string.
+-- Words are defined as sequences of non-whitespace characters separated
+-- by whitespace. Handles multiple spaces, tabs, and newlines.
+-- @tparam string text The input text.
+-- @treturn number The word count.
+function mohitkhare.word_count(text)
+  if type(text) ~= "string" or text == "" then
+    return 0
+  end
+  local count = 0
+  for _ in text:gmatch("%S+") do
+    count = count + 1
+  end
+  return count
+end
+
+--- Calculate estimated reading time for a text.
+-- Based on an average adult reading speed of 238 words per minute.
+-- Returns both the raw minutes value and a formatted display string.
+-- @tparam string text The input text.
+-- @treturn number Reading time in minutes (rounded up).
+-- @treturn string Formatted string (e.g. "3 min read").
+function mohitkhare.reading_time(text)
+  local words = mohitkhare.word_count(text)
+  if words == 0 then
+    return 0, "0 min read"
+  end
+  local minutes = math.ceil(words / WORDS_PER_MINUTE)
+  local label
+  if minutes == 1 then
+    label = "1 min read"
+  else
+    label = string.format("%d min read", minutes)
+  end
+  return minutes, label
+end
+
+--- Convert a string into a URL-safe slug.
+-- Lowercases the input, replaces spaces and non-alphanumeric characters
+-- with hyphens, collapses consecutive hyphens, and trims edges.
+-- @tparam string text The input string.
+-- @treturn string The URL-safe slug.
+function mohitkhare.slugify(text)
+  if type(text) ~= "string" or text == "" then
+    return ""
+  end
+  local slug = text:lower()
+  slug = slug:gsub("[^%w%s%-]", "")
+  slug = slug:gsub("[%s]+", "-")
+  slug = slug:gsub("%-+", "-")
+  slug = slug:gsub("^%-+", "")
+  slug = slug:gsub("%-+$", "")
+  return slug
+end
+
+--- Analyze a text string and return a summary table.
+-- Combines word count, token estimate, reading time, and character count
+-- into a single result table for convenience.
+-- @tparam string text The input text.
+-- @treturn table A table with fields: words, tokens, minutes, label, chars.
+function mohitkhare.analyze(text)
+  if type(text) ~= "string" then
+    text = ""
+  end
+  local minutes, label = mohitkhare.reading_time(text)
+  return {
+    words   = mohitkhare.word_count(text),
+    tokens  = mohitkhare.estimate_tokens(text),
+    minutes = minutes,
+    label   = label,
+    chars   = #text,
+  }
+end
+
+return mohitkhare

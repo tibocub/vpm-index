@@ -1,0 +1,107 @@
+local enums = require("luacord.enums")
+local Member = require("luacord.structures.Member")
+local User = require("luacord.structures.User")
+
+local Interaction = {}
+Interaction.__index = Interaction
+
+---Create an Interaction structure from Discord payload data.
+---@param data table
+---@param client table
+---@return table
+function Interaction.new(data, client)
+  assert(type(data) == "table", "Interaction.new expects a table payload")
+  local self = setmetatable({}, Interaction)
+  self._client = client
+  self:_patch(data)
+  return self
+end
+
+---Patch this interaction with fresh payload data.
+---@param data table
+function Interaction:_patch(data)
+  self.id = data.id or self.id
+  self.application_id = data.application_id or self.application_id
+  self.type = data.type or self.type
+  self.data = data.data or self.data
+  self.guild_id = data.guild_id or self.guild_id
+  self.channel_id = data.channel_id or self.channel_id
+  self.token = data.token or self.token
+  self.version = data.version or self.version
+  self.locale = data.locale or self.locale
+  self.guild_locale = data.guild_locale or self.guild_locale
+  self.app_permissions = data.app_permissions or self.app_permissions
+  self.context = data.context or self.context
+
+  if data.member then
+    self.member = self.member or Member.new(data.member, self._client, self.guild_id)
+    self.member:_patch(data.member)
+    self.user = self.member.user
+  elseif data.user then
+    self.user = self.user or User.new(data.user, self._client)
+    self.user:_patch(data.user)
+  end
+end
+
+---Respond to this interaction.
+---@param payload table|string
+---@param responseType? integer
+---@return boolean, table|nil
+function Interaction:reply(payload, responseType)
+  local data = payload
+  if type(payload) == "string" then
+    data = { content = payload }
+  end
+  local response = {
+    type = responseType or enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data = data,
+  }
+  local ok, err = self._client.rest:createInteractionResponse(self.id, self.token, response)
+  if not ok then
+    return false, err
+  end
+  return true
+end
+
+---Defer this interaction reply.
+---@param ephemeral? boolean
+---@return boolean, table|nil
+function Interaction:deferReply(ephemeral)
+  local flags = ephemeral and 64 or nil
+  return self:reply({ flags = flags }, enums.InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE)
+end
+
+---Edit the original interaction response.
+---@param payload table|string
+---@return table|nil, table|nil
+function Interaction:editReply(payload)
+  local body = payload
+  if type(payload) == "string" then
+    body = { content = payload }
+  end
+  return self._client.rest:editOriginalInteractionResponse(self.application_id, self.token, body)
+end
+
+---Send a follow-up message for this interaction.
+---@param payload table|string
+---@return table|nil, table|nil
+function Interaction:followUp(payload)
+  local body = payload
+  if type(payload) == "string" then
+    body = { content = payload }
+  end
+  return self._client.rest:createFollowupMessage(self.application_id, self.token, body)
+end
+
+---Delete the original interaction response.
+---@return boolean, table|nil
+function Interaction:deleteReply()
+  local data, err = self._client.rest:deleteOriginalInteractionResponse(self.application_id, self.token)
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+return Interaction
+

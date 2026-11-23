@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "pwquality",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/lkpot/lua-pwquality",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 11 Mar 2026 15:07:18 GMT",
+        "rockspec": {
+          "date": "Wed, 11 Mar 2026 15:07:18 GMT",
+          "sha256": "ec439d7d3b3269429495f7fdbf5fd0b0e9ce1e0c6de01e54c8ae2edd62947775",
+          "size": 767
+        },
+        "src": {
+          "date": "Wed, 11 Mar 2026 15:07:19 GMT",
+          "sha256": "1285f416a8eb4b36ca58a80dbd22a8d09ba9ec1f4b40fd88d0376e100189cb9a",
+          "size": 7976,
+          "url": "https://luarocks.org/pwquality-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "pwquality"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBPWQUALITY"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBPWQUALITY": {
+              "header": "pwquality.h"
+            }
+          },
+          "modules": [
+            {
+              "libraries": [
+                "pwquality"
+              ],
+              "name": "pwquality",
+              "sources": [
+                "lua_pwquality.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 11 Mar 2026 15:07:19 GMT",
+        "sha256": "1285f416a8eb4b36ca58a80dbd22a8d09ba9ec1f4b40fd88d0376e100189cb9a",
+        "size": 7976,
+        "type": "luarocks",
+        "url": "https://luarocks.org/pwquality-1.0.1-1.src.rock"
+      },
+      "summary": "Lua bindings to libpwquality",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

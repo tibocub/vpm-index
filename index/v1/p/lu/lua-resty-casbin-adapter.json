@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-casbin-adapter",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "casbin >= 1.29.0",
+        "pgmoon >= 1.14.0-1",
+        "lua-resty-mysql >= 0.15-0"
+      ],
+      "files": {
+        "Adapter.lua": {
+          "sha256": "2386f01c3a543287707d22208f2bf6898c84b1b6de97e8a0847e8f111eab0021",
+          "size": 8607,
+          "url": "https://raw.githubusercontent.com/tom2nonames/lua-resty-casbin-adapter/135836e44fbd4f3fab939e996c353ead08ec5a52/lib/resty/casbin/adapter.lua"
+        },
+        "casbin/mysql.lua": {
+          "sha256": "324d7b378994b00573cdc578465ac91f4bb4490787c013292e96b841a3d84741",
+          "size": 1517,
+          "url": "https://raw.githubusercontent.com/tom2nonames/lua-resty-casbin-adapter/135836e44fbd4f3fab939e996c353ead08ec5a52/lib/resty/casbin/mysql.lua"
+        },
+        "casbin/postgres.lua": {
+          "sha256": "e2bdd6db73018f9347e6c3a4e3aa8e4afe4d1dee3bd5263b5cb5d45d99f773e2",
+          "size": 1492,
+          "url": "https://raw.githubusercontent.com/tom2nonames/lua-resty-casbin-adapter/135836e44fbd4f3fab939e996c353ead08ec5a52/lib/resty/casbin/postgres.lua"
+        }
+      },
+      "homepage": "https://github.com/tom2nonames/lua-resty-casbin-adapter",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Fri, 14 Apr 2023 15:18:33 GMT",
+        "rockspec": {
+          "date": "Fri, 14 Apr 2023 15:18:33 GMT",
+          "sha256": "a79be3394a622ef3c8d3b419ed7b5081a342eb7470df6c11640c3fb20344908e",
+          "size": 926
+        },
+        "src": {
+          "date": "Fri, 14 Apr 2023 15:18:34 GMT",
+          "sha256": "82b845f282be2c82e68d2ba90759a3954713a1568378656122242f2a51a223e5",
+          "size": 21679,
+          "url": "https://luarocks.org/lua-resty-casbin-adapter-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "Adapter",
+        "casbin.mysql",
+        "casbin.postgres"
+      ],
+      "origin": {
+        "commit": "135836e44fbd4f3fab939e996c353ead08ec5a52",
+        "type": "git",
+        "url": "https://github.com/tom2nonames/lua-resty-casbin-adapter"
+      },
+      "size": 11616,
+      "summary": "OpenResty based adapter for Casbin",
+      "undeclared_requires": [
+        "lib.utils.mysql",
+        "lib.utils.postgres"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-mtls-validate",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/mtls-validate/handler.lua": {
+          "sha256": "ba78eae86dabb03ddf8dcc635e1a763d98e64759dcb9d1cb12efa834a9df907b",
+          "size": 1020,
+          "url": "https://raw.githubusercontent.com/emersonqueiroz/kong-plugin-mtls-validate/68308a11bdbae149d701ed085f0125dd850d8d6d/kong/plugins/mtls-validate/handler.lua"
+        },
+        "kong/plugins/mtls-validate/schema.lua": {
+          "sha256": "d220554e57ab27a47a691680916527bc42b15d5d25497e2da9880265982c2199",
+          "size": 845,
+          "url": "https://raw.githubusercontent.com/emersonqueiroz/kong-plugin-mtls-validate/68308a11bdbae149d701ed085f0125dd850d8d6d/kong/plugins/mtls-validate/schema.lua"
+        }
+      },
+      "homepage": "https://emersonqueiroz.github.io/kong-plugin-mtls-validate",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 21 Oct 2021 14:58:56 GMT",
+        "rockspec": {
+          "date": "Thu, 21 Oct 2021 14:58:56 GMT",
+          "sha256": "4263c8b1e6d2b4c30e5acad0280e12320063bed4457518e3456a33c737c54d23",
+          "size": 1072
+        }
+      },
+      "modules": [
+        "kong.plugins.mtls-validate.handler",
+        "kong.plugins.mtls-validate.schema"
+      ],
+      "origin": {
+        "commit": "68308a11bdbae149d701ed085f0125dd850d8d6d",
+        "ref": "0.2.0",
+        "type": "git",
+        "url": "https://github.com/emersonqueiroz/kong-plugin-mtls-validate.git"
+      },
+      "size": 1865,
+      "summary": "Plugin used to validate mTLS handshake.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

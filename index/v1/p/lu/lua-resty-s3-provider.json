@@ -1,0 +1,91 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-s3-provider",
+  "versions": {
+    "0.4-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "resty/s3.lua": {
+          "sha256": "b827c46a1d3768449c80a0baa789aa2411bd1dd50f8d4c9805a856a6262249af",
+          "size": 15301,
+          "url": "https://raw.githubusercontent.com/dodolboks/lua-resty-s3-provider/a3be0e214bc58e2af4a6fa1d60854471fe7acc5f/lib/resty/s3_provider.lua"
+        },
+        "resty/s3_auth.lua": {
+          "sha256": "9ce5c17c923209c95a07fc29b061858593abc10470011ed3a838ee83a48576da",
+          "size": 15434,
+          "url": "https://raw.githubusercontent.com/dodolboks/lua-resty-s3-provider/a3be0e214bc58e2af4a6fa1d60854471fe7acc5f/lib/resty/s3_provider_auth.lua"
+        },
+        "resty/s3_multi_upload.lua": {
+          "sha256": "29cc9fe19cb0e31de828db308c07e6b5366ac2d5e71b230ed464293b590b9a40",
+          "size": 4828,
+          "url": "https://raw.githubusercontent.com/dodolboks/lua-resty-s3-provider/a3be0e214bc58e2af4a6fa1d60854471fe7acc5f/lib/resty/s3_provider_multi_upload.lua"
+        },
+        "resty/s3_sha2.lua": {
+          "sha256": "2c09d907b44ec0cb39170ec8e30af480ca87fbf1f2752845ae2e695d7f0d362d",
+          "size": 389,
+          "url": "https://raw.githubusercontent.com/dodolboks/lua-resty-s3-provider/a3be0e214bc58e2af4a6fa1d60854471fe7acc5f/lib/resty/s3_provider_sha2.lua"
+        },
+        "resty/s3_util.lua": {
+          "sha256": "4004bd17fd893f575aaaee0450c08d7d75bf8f7f0dcbe2c95c9bfd3f3b5d96f2",
+          "size": 23738,
+          "url": "https://raw.githubusercontent.com/dodolboks/lua-resty-s3-provider/a3be0e214bc58e2af4a6fa1d60854471fe7acc5f/lib/resty/s3_provider_util.lua"
+        },
+        "resty/s3_xml.lua": {
+          "sha256": "7f06649368ca25a70bdafd4329c8745bad9014380e424b16b9ad571909307693",
+          "size": 4240,
+          "url": "https://raw.githubusercontent.com/dodolboks/lua-resty-s3-provider/a3be0e214bc58e2af4a6fa1d60854471fe7acc5f/lib/resty/s3_provider_xml.lua"
+        }
+      },
+      "homepage": "https://github.com/dodolboks/lua-resty-s3-provider",
+      "host": "openresty",
+      "license": "BSD",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Thu, 26 Jun 2025 01:52:54 GMT",
+        "rockspec": {
+          "date": "Thu, 26 Jun 2025 01:52:54 GMT",
+          "sha256": "e6d881e2a90fa7fd0a09d78307442ea170a3e9d897b7aba6557cc5f635efc510",
+          "size": 813
+        }
+      },
+      "modules": [
+        "resty.s3",
+        "resty.s3_auth",
+        "resty.s3_multi_upload",
+        "resty.s3_sha2",
+        "resty.s3_util",
+        "resty.s3_xml"
+      ],
+      "origin": {
+        "commit": "a3be0e214bc58e2af4a6fa1d60854471fe7acc5f",
+        "type": "git",
+        "url": "https://github.com/dodolboks/lua-resty-s3-provider.git"
+      },
+      "size": 63930,
+      "summary": "a aws s3 client for ngx_lua with support for other s3 compitable provider, like r2, linodeobject & other",
+      "undeclared_requires": [
+        "resty.dns.resolver",
+        "resty.hmac",
+        "resty.http",
+        "resty.s3_provider_auth",
+        "resty.s3_provider_multi_upload",
+        "resty.s3_provider_sha2",
+        "resty.s3_provider_util",
+        "resty.s3_provider_xml",
+        "resty.sha256",
+        "resty.string",
+        "slaxdom"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.s3_provider_util)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 6
+      }
+    }
+  }
+}

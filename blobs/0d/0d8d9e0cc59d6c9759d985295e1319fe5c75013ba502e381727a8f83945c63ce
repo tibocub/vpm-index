@@ -1,0 +1,91 @@
+--- reelwise-dotenv: a dependency-free .env reader for Lua.
+-- Parses KEY=VALUE lines from a .env file into a table (and optionally into
+-- the process environment via os.getenv fallback lookups). No dependencies,
+-- pure Lua 5.1+/LuaJIT. Handles quotes, comments, `export ` prefixes, and
+-- escaped characters inside double quotes.
+--
+-- Usage:
+--   local dotenv = require("dotenv")
+--   local env = dotenv.load(".env")        -- returns a table {KEY=value,...}
+--   local port = dotenv.get("PORT", "8080") -- lookup with default, falls back to os.getenv
+--
+-- Apache-2.0. Part of the Reelwise studio's small-tools set.
+
+local dotenv = { _VERSION = "0.1" }
+
+local function trim(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+-- Unescape a double-quoted value: \n \t \r \\ \" and \x are honoured.
+local function unquote(v)
+  local q = v:sub(1, 1)
+  if (q == '"' or q == "'") and v:sub(-1) == q and #v >= 2 then
+    local inner = v:sub(2, -2)
+    if q == '"' then
+      inner = inner:gsub("\\(.)", function(c)
+        if c == "n" then return "\n"
+        elseif c == "t" then return "\t"
+        elseif c == "r" then return "\r"
+        else return c end
+      end)
+    end
+    return inner
+  end
+  -- unquoted: strip trailing inline comment ( value # comment )
+  local hash = v:find("%s#")
+  if hash then v = trim(v:sub(1, hash - 1)) end
+  return v
+end
+
+--- Parse .env text into a table. Does not touch the filesystem.
+-- @param text string  the raw file contents
+-- @return table  mapping of KEY -> value (in-file order preserved via #keys)
+function dotenv.parse(text)
+  local out = {}
+  for line in (text .. "\n"):gmatch("(.-)\n") do
+    local l = trim(line)
+    if l ~= "" and l:sub(1, 1) ~= "#" then
+      if l:sub(1, 7) == "export " then l = trim(l:sub(8)) end
+      local key, val = l:match("^([%w_%.]+)%s*=%s*(.*)$")
+      if key then
+        out[key] = unquote(trim(val))
+      end
+    end
+  end
+  return out
+end
+
+--- Load and parse a .env file. Missing file returns an empty table (no error)
+-- unless `strict` is true.
+-- @param path string|nil  defaults to ".env"
+-- @param strict boolean|nil  raise on a missing/unreadable file
+-- @return table
+function dotenv.load(path, strict)
+  path = path or ".env"
+  local f, err = io.open(path, "r")
+  if not f then
+    if strict then error("dotenv: cannot open " .. path .. ": " .. tostring(err)) end
+    dotenv._last = {}
+    return {}
+  end
+  local text = f:read("*a")
+  f:close()
+  local t = dotenv.parse(text)
+  dotenv._last = t
+  return t
+end
+
+--- Lookup a key from the last-loaded .env, falling back to os.getenv, then default.
+-- @param key string
+-- @param default any|nil
+-- @return any
+function dotenv.get(key, default)
+  local last = dotenv._last
+  if last and last[key] ~= nil then return last[key] end
+  local v = os.getenv(key)
+  if v ~= nil then return v end
+  return default
+end
+
+return dotenv

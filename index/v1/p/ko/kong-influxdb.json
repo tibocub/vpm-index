@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "kong-influxdb",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/influxdb/buffer.lua": {
+          "sha256": "739d049d9b3103a5472835b4aaf5481f10afa8ac18e423ce127b5aa4957614c4",
+          "size": 1010,
+          "url": "https://raw.githubusercontent.com/gumtreeuk/kong-influxdb/e462c04dd3cbba54cc97035178682e6b19741928/src/buffer.lua"
+        },
+        "kong/plugins/influxdb/handler.lua": {
+          "sha256": "78566ad8f13ea680b2cba6f4d05c3c78076c879997831cc8abc1af94441fbdd6",
+          "size": 2661,
+          "url": "https://raw.githubusercontent.com/gumtreeuk/kong-influxdb/e462c04dd3cbba54cc97035178682e6b19741928/src/handler.lua"
+        },
+        "kong/plugins/influxdb/http.lua": {
+          "sha256": "e08283ec46d8b8896ee0bc532e9171116ca0efb0a001c9d4500f74ba44642d49",
+          "size": 992,
+          "url": "https://raw.githubusercontent.com/gumtreeuk/kong-influxdb/e462c04dd3cbba54cc97035178682e6b19741928/src/http.lua"
+        },
+        "kong/plugins/influxdb/schema.lua": {
+          "sha256": "6bcb37204e15d6b9d8d409100b5b148ba38d882e8dbff67d0e9ff6520a160dcb",
+          "size": 867,
+          "url": "https://raw.githubusercontent.com/gumtreeuk/kong-influxdb/e462c04dd3cbba54cc97035178682e6b19741928/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/gumtreeuk/kong-influxdb",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Thu, 01 Feb 2018 14:21:20 GMT",
+        "rockspec": {
+          "date": "Thu, 01 Feb 2018 14:21:20 GMT",
+          "sha256": "7e5920b089fb1589b658c407567ee2d11008690a8b607adeccd41832a585dcbb",
+          "size": 599
+        },
+        "src": {
+          "date": "Thu, 01 Feb 2018 14:21:21 GMT",
+          "sha256": "99eac1efb46237cebca169fdb1a2011c5facb0618d3bc45fe242f39d0ba3379f",
+          "size": 14269,
+          "url": "https://luarocks.org/kong-influxdb-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.influxdb.buffer",
+        "kong.plugins.influxdb.handler",
+        "kong.plugins.influxdb.http",
+        "kong.plugins.influxdb.schema"
+      ],
+      "origin": {
+        "commit": "e462c04dd3cbba54cc97035178682e6b19741928",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/gumtreeuk/kong-influxdb"
+      },
+      "size": 5530,
+      "summary": "A plugin for Kong to push metrics to InfluxDB",
+      "undeclared_requires": [
+        "kong.dao.errors",
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 4
+      }
+    }
+  }
+}

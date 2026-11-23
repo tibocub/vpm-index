@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-concurrent-connections-quota",
+  "versions": {
+    "0.1.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/concurrent-connections-quota/handler.lua": {
+          "sha256": "a923370c8b96b037f7f12a9bb31f839e50b45acfa9784f82f9940bee358cc32e",
+          "size": 3197,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-concurrent-connections-quota/7b99ad3adceedb8bbd2d7e3a72fc64f7f6efd2e6/kong/plugins/concurrent-connections-quota/handler.lua"
+        },
+        "kong/plugins/concurrent-connections-quota/policies/init.lua": {
+          "sha256": "031807238419cbfaa3bd21023cf1347c62afc6a455e187777c09a540335f6e73",
+          "size": 5740,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-concurrent-connections-quota/7b99ad3adceedb8bbd2d7e3a72fc64f7f6efd2e6/kong/plugins/concurrent-connections-quota/policies/init.lua"
+        },
+        "kong/plugins/concurrent-connections-quota/schema.lua": {
+          "sha256": "b3bbc08d276af7ed3d8d35c27a7fe0cd21d6eb657add26c19592c07dad35877d",
+          "size": 1659,
+          "url": "https://raw.githubusercontent.com/figment-networks/kong-plugin-concurrent-connections-quota/7b99ad3adceedb8bbd2d7e3a72fc64f7f6efd2e6/kong/plugins/concurrent-connections-quota/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/figment-networks/kong-plugin-concurrent-connections-quota",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Wed, 02 Jun 2021 11:31:32 GMT",
+        "rockspec": {
+          "date": "Wed, 02 Jun 2021 11:31:32 GMT",
+          "sha256": "3a20310daf784e9ec8ae59f2d30c5a6328d553f17fab14eb016df1e9c370a76a",
+          "size": 1593
+        },
+        "src": {
+          "date": "Wed, 02 Jun 2021 11:31:33 GMT",
+          "sha256": "464ab2dd733ed6f21c9ecbc9c7c3a8eb0240a5278421d3868b931161a17075d2",
+          "size": 18735,
+          "url": "https://luarocks.org/kong-plugin-concurrent-connections-quota-0.1.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.concurrent-connections-quota.handler",
+        "kong.plugins.concurrent-connections-quota.policies",
+        "kong.plugins.concurrent-connections-quota.schema"
+      ],
+      "origin": {
+        "commit": "7b99ad3adceedb8bbd2d7e3a72fc64f7f6efd2e6",
+        "ref": "0.1.6",
+        "type": "git",
+        "url": "https://github.com/figment-networks/kong-plugin-concurrent-connections-quota"
+      },
+      "size": 10596,
+      "summary": "Kong plugin to make sure user can have a limited number of WebSocket connections at a time..",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.reports",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.reports",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

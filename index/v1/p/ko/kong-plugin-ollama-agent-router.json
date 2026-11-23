@@ -1,0 +1,99 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-ollama-agent-router",
+  "versions": {
+    "0.1.4-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "kong",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "kong >= 3.8",
+        "lua-resty-http >= 0.17",
+        "lua-cjson >= 2.1"
+      ],
+      "files": {
+        "kong/plugins/kong-ollama-agent-router/classifier.lua": {
+          "sha256": "1c0cc25d2c92b8a3c01af0cea26147264ab5d13adda167faf56fa67848cb9804",
+          "size": 4748,
+          "url": "https://raw.githubusercontent.com/ExeconOne/kong-ollama-agent-router/bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60/kong-plugin/kong/plugins/kong-ollama-agent-router/classifier.lua"
+        },
+        "kong/plugins/kong-ollama-agent-router/handler.lua": {
+          "sha256": "462fd0aa86743eb26ffb667ba0ac4e9cb0fa0a08a9e151f16ef511086fbfb9ac",
+          "size": 5441,
+          "url": "https://raw.githubusercontent.com/ExeconOne/kong-ollama-agent-router/bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60/kong-plugin/kong/plugins/kong-ollama-agent-router/handler.lua"
+        },
+        "kong/plugins/kong-ollama-agent-router/metrics.lua": {
+          "sha256": "5d69e1d7925369be120b000913670c7bcb2c41dd8c9f77bba27997d6fac06797",
+          "size": 403,
+          "url": "https://raw.githubusercontent.com/ExeconOne/kong-ollama-agent-router/bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60/kong-plugin/kong/plugins/kong-ollama-agent-router/metrics.lua"
+        },
+        "kong/plugins/kong-ollama-agent-router/node_router_client.lua": {
+          "sha256": "0fc8271e7078735cdbed8b275da7f01db8655a672994f389dee2d4985b289a79",
+          "size": 10133,
+          "url": "https://raw.githubusercontent.com/ExeconOne/kong-ollama-agent-router/bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60/kong-plugin/kong/plugins/kong-ollama-agent-router/node_router_client.lua"
+        },
+        "kong/plugins/kong-ollama-agent-router/response.lua": {
+          "sha256": "ac0a0befe61ca44497ba7a5451cec66e7f9bbf69276dc490550962f29f0aaa8b",
+          "size": 1428,
+          "url": "https://raw.githubusercontent.com/ExeconOne/kong-ollama-agent-router/bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60/kong-plugin/kong/plugins/kong-ollama-agent-router/response.lua"
+        },
+        "kong/plugins/kong-ollama-agent-router/router_engine.lua": {
+          "sha256": "d6443069c7dbdeb7788d5c9334d444c54ec4a9303784b5b99c526fdd95c2ab69",
+          "size": 13490,
+          "url": "https://raw.githubusercontent.com/ExeconOne/kong-ollama-agent-router/bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60/kong-plugin/kong/plugins/kong-ollama-agent-router/router_engine.lua"
+        },
+        "kong/plugins/kong-ollama-agent-router/schema.lua": {
+          "sha256": "d83b54817b3264d747c14ab586504961a1dd3ac347c6be220b1b55fc3d76e6b0",
+          "size": 6824,
+          "url": "https://raw.githubusercontent.com/ExeconOne/kong-ollama-agent-router/bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60/kong-plugin/kong/plugins/kong-ollama-agent-router/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/ExeconOne/kong-ollama-agent-router",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 11 May 2026 06:29:42 GMT",
+        "rockspec": {
+          "date": "Mon, 11 May 2026 06:29:42 GMT",
+          "sha256": "ed955c46f73bd7be18b4d5da978d02aa5e66cb123343ab4227f7db97cef12dae",
+          "size": 1748
+        },
+        "src": {
+          "date": "Mon, 11 May 2026 06:29:43 GMT",
+          "sha256": "f64e99b49712ed1be0ec5cc4bd76246e1a2bb17c69dbe2ff58e0cb6d6b6bdd85",
+          "size": 54515,
+          "url": "https://luarocks.org/kong-plugin-ollama-agent-router-0.1.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-ollama-agent-router.classifier",
+        "kong.plugins.kong-ollama-agent-router.handler",
+        "kong.plugins.kong-ollama-agent-router.metrics",
+        "kong.plugins.kong-ollama-agent-router.node_router_client",
+        "kong.plugins.kong-ollama-agent-router.response",
+        "kong.plugins.kong-ollama-agent-router.router_engine",
+        "kong.plugins.kong-ollama-agent-router.schema"
+      ],
+      "origin": {
+        "commit": "bb5d0c15f4ec71426f6b6b748d5ff24b63fbdd60",
+        "ref": "v0.1.4",
+        "type": "git",
+        "url": "https://github.com/ExeconOne/kong-ollama-agent-router.git"
+      },
+      "size": 42467,
+      "summary": "Kong Gateway plugin for routing OpenAI-compatible requests to ollama-agent-router nodes",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

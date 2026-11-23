@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "dr.msgpuck",
+  "versions": {
+    "0.1-4": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/dr-co/lua-msgpuck",
+      "license": "BSD",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 25 Mar 2022 13:40:44 GMT",
+        "rockspec": {
+          "date": "Fri, 25 Mar 2022 13:40:44 GMT",
+          "sha256": "f378b6ad6054d27e3d017fa7c8accaf8a7b884dd92047c1793be5bbdf4f8a995",
+          "size": 611
+        },
+        "src": {
+          "date": "Fri, 25 Mar 2022 13:40:45 GMT",
+          "sha256": "04df7dd538d9ec74b7337bcd08ca14822d2410303c59757d50607632f4212f00",
+          "size": 94296,
+          "url": "https://luarocks.org/dr.msgpuck-0.1-4.src.rock"
+        }
+      },
+      "modules": [
+        "dr.msgpuck"
+      ],
+      "native": {
+        "build": "builtin",
+        "build_deps": [
+          "luabenchmark",
+          "lua-messagepack",
+          "dr.tap"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "dr.msgpuck",
+              "sources": [
+                "src/dr-msgpuck.c",
+                "src/hints.c",
+                "src/msgpuck.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 25 Mar 2022 13:40:45 GMT",
+        "sha256": "04df7dd538d9ec74b7337bcd08ca14822d2410303c59757d50607632f4212f00",
+        "size": 94296,
+        "type": "luarocks",
+        "url": "https://luarocks.org/dr.msgpuck-0.1-4.src.rock"
+      },
+      "summary": "LuaC bindings for rtsisyk/msgpuck",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

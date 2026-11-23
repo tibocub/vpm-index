@@ -1,0 +1,60 @@
+{
+  "kind": "lib",
+  "name": "tcp-body-log",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/tcp-body-log/handler.lua": {
+          "sha256": "c5a03fd5d110bf7c0b3af5a945d5d42c34766b88e97bf0a78aa0fcb599d1c8ac",
+          "size": 1839,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-tcp-body-log/523f7523a0d54b616b76c9cbd879b3269e81b86a/kong/plugins/tcp-body-log/handler.lua"
+        },
+        "kong/plugins/tcp-body-log/schema.lua": {
+          "sha256": "c3702802064af37fb606dbad7aee9dd5325d5cdebe104c4045ce14380c7d88bb",
+          "size": 225,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-tcp-body-log/523f7523a0d54b616b76c9cbd879b3269e81b86a/kong/plugins/tcp-body-log/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/msangameshwar/kong-plugin-tcp-body-log",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 19 Oct 2023 05:43:15 GMT",
+        "rockspec": {
+          "date": "Thu, 19 Oct 2023 05:43:15 GMT",
+          "sha256": "bb4d3b69e3e90746988b56cd6c7a925ce1bac52d90b4a4dcbcd5ced8a24522df",
+          "size": 1041
+        }
+      },
+      "modules": [
+        "kong.plugins.tcp-body-log.handler",
+        "kong.plugins.tcp-body-log.schema"
+      ],
+      "origin": {
+        "commit": "523f7523a0d54b616b76c9cbd879b3269e81b86a",
+        "ref": "dev",
+        "type": "git",
+        "url": "https://github.com/msangameshwar/kong-plugin-tcp-body-log.git"
+      },
+      "size": 2064,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.runscope",
+        "kong.plugins.tcp-body-log.log",
+        "kong.tools.public"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.log-serializers.runscope",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

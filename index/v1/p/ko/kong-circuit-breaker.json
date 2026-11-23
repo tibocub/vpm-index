@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-circuit-breaker",
+  "versions": {
+    "2.2.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-circuit-breaker == 1.0.2"
+      ],
+      "files": {
+        "kong/plugins/circuit-breaker/handler.lua": {
+          "sha256": "6316e49ebfd6c025340897ba7b726531fe476a2c4c320569515ff504e81a1d4b",
+          "size": 5149,
+          "url": "https://raw.githubusercontent.com/dream11/kong-circuit-breaker/b01af3a40d28510b6f7f07c10f52f157200c9841/kong/plugins/circuit-breaker/handler.lua"
+        },
+        "kong/plugins/circuit-breaker/helpers.lua": {
+          "sha256": "7e74152d0d89a47161e5ebfc179f9889418ca55291044a9a53d835a29348a2f4",
+          "size": 1529,
+          "url": "https://raw.githubusercontent.com/dream11/kong-circuit-breaker/b01af3a40d28510b6f7f07c10f52f157200c9841/kong/plugins/circuit-breaker/helpers.lua"
+        },
+        "kong/plugins/circuit-breaker/schema.lua": {
+          "sha256": "e7571aaa5dce1e0312e3a7b40fc0d0f9aaa5ce0b11cc2ed8c05044dc46ae6618",
+          "size": 4148,
+          "url": "https://raw.githubusercontent.com/dream11/kong-circuit-breaker/b01af3a40d28510b6f7f07c10f52f157200c9841/kong/plugins/circuit-breaker/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/dream11/kong-circuit-breaker",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 13 Aug 2025 12:21:05 GMT",
+        "rockspec": {
+          "date": "Wed, 13 Aug 2025 12:21:05 GMT",
+          "sha256": "100e308ac92b2e804d80a788565ba35fb9cf40c126ebd8008582d93384fe3208",
+          "size": 829
+        },
+        "src": {
+          "date": "Wed, 13 Aug 2025 12:21:06 GMT",
+          "sha256": "a8fdece0f17730b95f02bd7841e38c4c41ee9c7582e730180a358179da07788d",
+          "size": 69985,
+          "url": "https://luarocks.org/kong-circuit-breaker-2.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.circuit-breaker.handler",
+        "kong.plugins.circuit-breaker.helpers",
+        "kong.plugins.circuit-breaker.schema"
+      ],
+      "origin": {
+        "commit": "b01af3a40d28510b6f7f07c10f52f157200c9841",
+        "ref": "v2.2.0",
+        "type": "git",
+        "url": "https://github.com/dream11/kong-circuit-breaker"
+      },
+      "size": 10826,
+      "summary": "Kong plugin to wrap each API call with a circuit breaker",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "pl.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.utils",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

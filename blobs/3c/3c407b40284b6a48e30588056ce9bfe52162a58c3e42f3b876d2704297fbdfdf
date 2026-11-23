@@ -1,0 +1,134 @@
+-- Cheap JSON Schema 2020-12 checks, not a full dialect implementation.
+-- Unknown keywords (notably pattern/format) are intentionally ignored.
+local json = require('panto').ext.json
+local array_mt=getmetatable(json.array({}))
+local M = {}
+local function array(v)
+    if type(v)~='table' then return false end
+    local n=0
+    for k in pairs(v) do if type(k)~='number' or k<1 or k%1~=0 then return false end; n=n+1 end
+    return n==#v
+end
+local function matches(v,t)
+    if t=='null' then return v==json.null end
+    if v==json.null then return false end
+    if t=='array' then return array(v) end
+    if t=='object' then return type(v)=='table' and getmetatable(v)~=array_mt and (not array(v) or next(v)==nil) end
+    if t=='integer' then return type(v)=='number' and v%1==0 end
+    if t=='number' or t=='string' or t=='boolean' then return type(v)==t end
+    return true
+end
+local function equal(a,b)
+    if type(a)~=type(b) then return false end
+    if type(a)~='table' then return a==b end
+    for k,v in pairs(a) do if not equal(v,b[k]) then return false end end
+    for k in pairs(b) do if a[k]==nil then return false end end
+    -- Empty arrays and objects decoded by the host have distinct encodings.
+    if next(a)==nil and next(b)==nil then return json.encode(a)==json.encode(b) end
+    return true
+end
+M.equal=equal
+local function pointer(path,k) return path .. '/' .. tostring(k):gsub('~','~0'):gsub('/','~1') end
+local function ref(root,s)
+    if s=='#' then return root end
+    if s:sub(1,2)~='#/' then return nil end
+    local v,rest=root,s:sub(3)
+    while true do
+        local at=rest:find('/',1,true)
+        local part=at and rest:sub(1,at-1) or rest
+        part=part:gsub('~1','/'):gsub('~0','~')
+        if type(v)~='table' then return nil end
+        local key=part
+        if array(v) and (next(v)~=nil or getmetatable(v)==array_mt) then
+            if not part:match('^%d+$') then return nil end
+            key=tonumber(part)+1 -- JSON pointers use zero-based array indices.
+        end
+        v=v[key]
+        if not at then return v end
+        rest=rest:sub(at+1)
+    end
+end
+local check
+check=function(v,s,path,errors,root,depth)
+    if #errors>=100 then return end
+    local function add(message) errors[#errors+1]=(path=='' and '/' or path) .. ': ' .. message end
+    if s==false then add('value is forbidden'); return end
+    if type(s)~='table' then return end
+    if depth>64 then return end -- recursive schemas must not exhaust the Lua stack
+    if type(s['$ref'])=='string' then
+        local target=ref(root,s['$ref'])
+        if target~=nil then check(v,target,path,errors,root,depth+1) end
+    end
+    if s.type then
+        local ok=false
+        if type(s.type)=='string' then ok=matches(v,s.type)
+        elseif type(s.type)=='table' then for _,t in ipairs(s.type) do if matches(v,t) then ok=true end end end
+        if not ok then add('expected ' .. json.encode(s.type)); return end
+    end
+    if s.const~=nil and not equal(v,s.const) then add('does not equal const') end
+    if type(s.enum)=='table' then
+        local found=false; for _,x in ipairs(s.enum) do if equal(v,x) then found=true; break end end
+        if not found then add('not in enum') end
+    end
+    for _,kind in ipairs({'anyOf','oneOf','allOf'}) do
+        if type(s[kind])=='table' then
+            local passed=0
+            for _,sub in ipairs(s[kind]) do
+                local e={}; check(v,sub,path,e,root,depth+1)
+                if #e==0 then passed=passed+1 end
+                if kind=='allOf' then for _,message in ipairs(e) do errors[#errors+1]=message end end
+            end
+            if (kind=='anyOf' or kind=='oneOf') and passed==0 then add('no ' .. kind .. ' branch matched') end
+        end
+    end
+    -- `not` and patternProperties are intentionally ignored: this partial
+    -- validator must not reject inputs valid under unsupported constraints.
+    if type(v)=='string' then
+        local n=utf8.len(v) or #v
+        if type(s.minLength)=='number' and n<s.minLength then add('shorter than minLength') end
+        if type(s.maxLength)=='number' and n>s.maxLength then add('longer than maxLength') end
+    elseif type(v)=='number' then
+        for _,b in ipairs({{'minimum',function(a,b) return a<b end},{'maximum',function(a,b) return a>b end},
+            {'exclusiveMinimum',function(a,b) return a<=b end},{'exclusiveMaximum',function(a,b) return a>=b end}}) do
+            if type(s[b[1]])=='number' and b[2](v,s[b[1]]) then add('outside ' .. b[1] .. ' ' .. s[b[1]]) end
+        end
+        if type(s.multipleOf)=='number' and s.multipleOf>0 then
+            local q=v/s.multipleOf
+            if math.abs(q-math.floor(q+0.5))>1e-9*math.max(1,math.abs(q)) then add('not a multipleOf ' .. s.multipleOf) end
+        end
+    elseif type(v)=='table' then
+        local isarray=array(v)
+        -- An unmarked empty Lua table can stand for either shape. Apply the
+        -- relevant keywords rather than inventing a type the host did not keep.
+        if not isarray or next(v)==nil then
+            local props=type(s.properties)=='table' and s.properties or {}
+            for _,k in ipairs(type(s.required)=='table' and s.required or {}) do
+                if v[k]==nil then errors[#errors+1]=pointer(path,k) .. ': required property missing' end
+            end
+            local n=0
+            for k,x in pairs(v) do
+                n=n+1
+                if props[k]~=nil then check(x,props[k],pointer(path,k),errors,root,depth+1)
+                elseif s.additionalProperties~=nil and s.patternProperties==nil then check(x,s.additionalProperties,pointer(path,k),errors,root,depth+1) end
+            end
+            if type(s.minProperties)=='number' and n<s.minProperties then add('fewer than minProperties') end
+            if type(s.maxProperties)=='number' and n>s.maxProperties then add('more than maxProperties') end
+        end
+        if isarray then
+            if type(s.minItems)=='number' and #v<s.minItems then add('fewer than minItems') end
+            if type(s.maxItems)=='number' and #v>s.maxItems then add('more than maxItems') end
+            local prefix=type(s.prefixItems)=='table' and s.prefixItems or {}
+            for i,x in ipairs(v) do
+                local sub=prefix[i]
+                if sub==nil then sub=s.items end
+                if sub~=nil then check(x,sub,pointer(path,i-1),errors,root,depth+1) end
+                if s.uniqueItems then for j=1,i-1 do if equal(x,v[j]) then errors[#errors+1]=pointer(path,i-1) .. ': duplicate array item'; break end end end
+            end
+        end
+    end
+end
+function M.check(value,schema)
+    local errors={}; check(value,schema,'',errors,schema,0)
+    return #errors==0, errors
+end
+return M

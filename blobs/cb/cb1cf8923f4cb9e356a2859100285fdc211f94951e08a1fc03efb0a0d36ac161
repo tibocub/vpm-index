@@ -1,0 +1,90 @@
+local brightness = {}
+local where = "/sys/class/backlight"
+
+function brightness.driver()
+  local drivers = {}
+  local dirs = io.popen('ls "'..where..'"/')
+  for dir in dirs:lines() do
+    drivers = { dir }
+  end
+  dirs:close()
+  return drivers
+end
+
+function brightness.init(backlight)
+  if type(backlight) ~= "string" then
+    print("brightness.lua error: string expected, got "..type(backlight))
+    return
+  end
+
+  -- Show the current brightness and control the brightness.
+  -- File: /sys/class/backlight/<backlight>/brightness
+  local function current()
+    local file = where.."/"..backlight.."/brightness"
+    local opened_file = io.open(file, "r")
+    local read_file = opened_file:read("*l")
+    opened_file:close()
+    return read_file
+  end
+
+  -- Show the actual brightness by querying the hardware.
+  -- File: /sys/class/backlight/<backlight>/actual_brightness
+  local function actual()
+    local file = where.."/"..backlight.."/actual_brightness"
+    local opened_file = io.open(file, "r")
+    local read_file = opened_file:read("*l")
+    opened_file:close()
+    return read_file
+  end
+
+  -- Maximum brightness for <backlight>.
+  -- File: /sys/class/backlight/<backlight>/max_brightness
+  local function max()
+    local file = where.."/"..backlight.."/max_brightness"
+    local opened_file = io.open(file, "r")
+    local read_file = opened_file:read("*l")
+    opened_file:close()
+    return read_file
+  end
+
+  -- Minimum brightness for <backlight>.
+  -- File:
+  local function min()
+    return "0"
+  end
+
+  -- The type of interface controlled by <backlight>.
+  -- File: /sys/class/backlight/<backlight>/type
+  local function bl_type()
+    local file = where.."/"..backlight.."/type"
+    local opened_file = io.open(file, "r")
+    local read_file = opened_file:read("*l")
+    opened_file:close()
+    return read_file
+  end
+
+  -- Control BACKLIGHT power.
+  -- 0 mean power on.
+  -- 4 mean power off.
+  -- File: /sys/class/backlight/<backlight>/bl_power
+  local function bl_power()
+    local file = where.."/"..backlight.."/bl_power"
+    local opened_file = io.open(file, "r")
+    local read_file = opened_file:read("*l")
+    opened_file:close()
+    return read_file
+  end
+
+  local ret = {}
+
+  ret["current"]   = current
+  ret["actual"]    = actual
+  ret["max"]       = max
+  ret["min"]       = min
+  ret["bl_type"]   = bl_type
+  ret["bl_power"]  = bl_power
+
+  return ret
+end
+
+return brightness

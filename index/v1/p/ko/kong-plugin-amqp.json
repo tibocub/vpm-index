@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-amqp",
+  "versions": {
+    "1.0.0-6": {
+      "bin": [],
+      "deps": [
+        "amqp-client ~> 1.3.0",
+        "lua-cjson ~> 2.1.0",
+        "lua-resty-uuid ~> 1.1"
+      ],
+      "files": {
+        "kong/plugins/amqp/handler.lua": {
+          "sha256": "d34842acf627bfd952d52ab616b9c6560c8c1420a5a6e431002681fc26840af9",
+          "size": 3289,
+          "url": "https://raw.githubusercontent.com/gsdenys/kong-plugin-amqp/e6333b7c0d250663b796815e37bcb2e5776f2cf0/kong/plugins/amqp/handler.lua"
+        },
+        "kong/plugins/amqp/prepare.lua": {
+          "sha256": "23cc4ece29aed57f58e49b79e626a4ae8155923e0b62f6c52ffd8102a0a0b1ce",
+          "size": 1288,
+          "url": "https://raw.githubusercontent.com/gsdenys/kong-plugin-amqp/e6333b7c0d250663b796815e37bcb2e5776f2cf0/kong/plugins/amqp/prepare.lua"
+        },
+        "kong/plugins/amqp/schema.lua": {
+          "sha256": "90074abb6d289b1851fdee75344bcbedcc2e354a0c9468d9c2d46a027f1de392",
+          "size": 444,
+          "url": "https://raw.githubusercontent.com/gsdenys/kong-plugin-amqp/e6333b7c0d250663b796815e37bcb2e5776f2cf0/kong/plugins/amqp/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/gsdenys/kong-plugin-amqp",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 19 May 2020 13:15:45 GMT",
+        "rockspec": {
+          "date": "Tue, 19 May 2020 13:15:45 GMT",
+          "sha256": "c7f8ed757af52ca333907a4a5086b069925f9d4a60a9f8e1ee7956b7e6ad153f",
+          "size": 1003
+        }
+      },
+      "modules": [
+        "kong.plugins.amqp.handler",
+        "kong.plugins.amqp.prepare",
+        "kong.plugins.amqp.schema"
+      ],
+      "origin": {
+        "commit": "e6333b7c0d250663b796815e37bcb2e5776f2cf0",
+        "ref": "1.0.0-RC1",
+        "type": "git",
+        "url": "https://github.com/gsdenys/kong-plugin-amqp.git"
+      },
+      "size": 5021,
+      "summary": "Kong Plungin to act as an AMQP 0.9.1 client",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

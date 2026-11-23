@@ -1,0 +1,98 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-mitm",
+  "versions": {
+    "0.11.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/mitm/basic_body.lua": {
+          "sha256": "fb886773f02b000b46eb92519d69bd7421a70adf0560f1a6455953caf3c5e04a",
+          "size": 3761,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-mitm/0a8e4db3ffb4866834312d11a24fe44aebeabbc9/kong/plugins/mitm/basic_body.lua"
+        },
+        "kong/plugins/mitm/handler.lua": {
+          "sha256": "e951b5d324284094ce58aff90f2392a0975e46cdc63ebc8dc46d6e951d9db5b9",
+          "size": 6469,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-mitm/0a8e4db3ffb4866834312d11a24fe44aebeabbc9/kong/plugins/mitm/handler.lua"
+        },
+        "kong/plugins/mitm/handler_bak.lua": {
+          "sha256": "f8950d4baf2b4fe8329aae265458598b1d893c898d85ec6a7bb6c574d6afbe54",
+          "size": 1874,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-mitm/0a8e4db3ffb4866834312d11a24fe44aebeabbc9/kong/plugins/mitm/handler_bak.lua"
+        },
+        "kong/plugins/mitm/http_log.lua": {
+          "sha256": "338a12613e752b26e48f2f1d456cb041da830ec28f794217aeec6816e1a5cd4e",
+          "size": 5717,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-mitm/0a8e4db3ffb4866834312d11a24fe44aebeabbc9/kong/plugins/mitm/http_log.lua"
+        },
+        "kong/plugins/mitm/http_post.lua": {
+          "sha256": "e0eabc0ff921b51a8f343b5a5313af3505f9d8a449b3f1dbac135ca4f5454e8b",
+          "size": 2860,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-mitm/0a8e4db3ffb4866834312d11a24fe44aebeabbc9/kong/plugins/mitm/http_post.lua"
+        },
+        "kong/plugins/mitm/schema.lua": {
+          "sha256": "6dfffbe20d0668e5d25232f245eec84f7a27f5330f01cdcf27b3781b0a450321",
+          "size": 993,
+          "url": "https://raw.githubusercontent.com/koreniac/kong-plugin-mitm/0a8e4db3ffb4866834312d11a24fe44aebeabbc9/kong/plugins/mitm/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/koreniac/kong-plugin-mitm",
+      "host": "openresty",
+      "license": "*** please specify a license ***",
+      "luarocks": {
+        "date": "Mon, 16 Dec 2019 04:56:21 GMT",
+        "rockspec": {
+          "date": "Mon, 16 Dec 2019 04:56:21 GMT",
+          "sha256": "54f650444aceda8c40980fa7b75ec770e2f529a7a7e960f9e67f0a757f09267a",
+          "size": 751
+        },
+        "src": {
+          "date": "Mon, 16 Dec 2019 04:56:25 GMT",
+          "sha256": "4f71b65eac19c7237ccb7fa75e86abb51b40a68b2816aa4f200d14f8a4afaf61",
+          "size": 261700,
+          "url": "https://luarocks.org/kong-plugin-mitm-0.11.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.mitm.basic_body",
+        "kong.plugins.mitm.handler",
+        "kong.plugins.mitm.handler_bak",
+        "kong.plugins.mitm.http_log",
+        "kong.plugins.mitm.http_post",
+        "kong.plugins.mitm.schema"
+      ],
+      "origin": {
+        "commit": "0a8e4db3ffb4866834312d11a24fe44aebeabbc9",
+        "type": "git",
+        "url": "https://github.com/koreniac/kong-plugin-mitm.git"
+      },
+      "size": 21674,
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.meta",
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "kong.plugins.response-transformer.body_transformer",
+        "kong.plugins.response-transformer.header_transformer",
+        "kong.singletons",
+        "kong.tools.batch_queue",
+        "ngx.ssl",
+        "pl.pretty",
+        "pl.tablex",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.tablex",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 6
+      }
+    }
+  }
+}

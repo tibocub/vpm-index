@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "lua-mosquitto-v5",
+  "versions": {
+    "0.5.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/niecore/lua-mosquitto-v5",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 01 Apr 2022 06:41:30 GMT",
+        "rockspec": {
+          "date": "Fri, 01 Apr 2022 06:41:30 GMT",
+          "sha256": "b0addfee24e3bd22d47f259906a64990ffc7ac60e399f4dd940b89b116592721",
+          "size": 876
+        },
+        "src": {
+          "date": "Fri, 01 Apr 2022 06:41:32 GMT",
+          "sha256": "212049340a7490afa215cb68a24d20d4ac8e9a5b127db14519f3a078cf88f67f",
+          "size": 29289,
+          "url": "https://luarocks.org/lua-mosquitto-v5-0.5.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "mosquitto"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBMOSQUITTO"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBMOSQUITTO": {
+              "header": "mosquitto.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "LUA_COMPAT_APIINTCASTS"
+              ],
+              "incdirs": [
+                "$LIBMOSQUITTO_INCDIR"
+              ],
+              "libdirs": [
+                "$LIBMOSQUITTO_LIBDIR"
+              ],
+              "libraries": [
+                "mosquitto"
+              ],
+              "name": "mosquitto",
+              "sources": [
+                "lua-mosquitto.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 01 Apr 2022 06:41:32 GMT",
+        "sha256": "212049340a7490afa215cb68a24d20d4ac8e9a5b127db14519f3a078cf88f67f",
+        "size": 29289,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-mosquitto-v5-0.5.0-1.src.rock"
+      },
+      "summary": "Lua bindings to libmosquitto",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

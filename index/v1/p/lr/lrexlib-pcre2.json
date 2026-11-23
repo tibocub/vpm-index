@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "lrexlib-pcre2",
+  "versions": {
+    "2.9.4-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/rrthomas/lrexlib",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 17 Aug 2026 16:55:11 GMT",
+        "rockspec": {
+          "date": "Mon, 17 Aug 2026 16:55:11 GMT",
+          "sha256": "85156588dd70480dc02b99d6fdc1a4cbf8b8b0a9f9a3febf524e3b193094756b",
+          "size": 1060
+        },
+        "src": {
+          "date": "Mon, 17 Aug 2026 16:55:13 GMT",
+          "sha256": "d41d736a309b14fed859ed4d3a49de89ef8f6565a7143570ed0cf1ccdbaebf29",
+          "size": 94974,
+          "url": "https://luarocks.org/lrexlib-pcre2-2.9.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "rex_pcre2"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "PCRE2"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "PCRE2": {
+              "header": "pcre2.h",
+              "library": "pcre2-8"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "VERSION=\"2.9.4\"",
+                "LUA_LIB=",
+                "PCRE2_CODE_UNIT_WIDTH=8"
+              ],
+              "incdirs": [
+                "$(PCRE2_INCDIR)"
+              ],
+              "libdirs": [
+                "$(PCRE2_LIBDIR)"
+              ],
+              "libraries": [
+                "pcre2-8"
+              ],
+              "name": "rex_pcre2",
+              "sources": [
+                "src/common.c",
+                "src/pcre2/lpcre2.c",
+                "src/pcre2/lpcre2_f.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 17 Aug 2026 16:55:13 GMT",
+        "sha256": "d41d736a309b14fed859ed4d3a49de89ef8f6565a7143570ed0cf1ccdbaebf29",
+        "size": 94974,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lrexlib-pcre2-2.9.4-1.src.rock"
+      },
+      "summary": "Regular expression library binding (PCRE2 flavour).",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

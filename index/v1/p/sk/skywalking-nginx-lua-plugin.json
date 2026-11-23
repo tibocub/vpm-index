@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "skywalking-nginx-lua-plugin",
+  "versions": {
+    "1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "skywalking/register.lua": {
+          "sha256": "0bf13594a0cf0147ffdbc2b1fc14c56145c6883ed15896abb5fa00d814b254f1",
+          "size": 2048,
+          "url": "https://raw.githubusercontent.com/api7/skywalking-nginx-lua/f10b1ea5166ad8be82b04c96ae88b31ad9907aac/lib/skywalking/register.lua"
+        },
+        "skywalking/segment.lua": {
+          "sha256": "f06800e39e0758462620490921dcb2a19191b64a67e429a267a25fa320232093",
+          "size": 2249,
+          "url": "https://raw.githubusercontent.com/api7/skywalking-nginx-lua/f10b1ea5166ad8be82b04c96ae88b31ad9907aac/lib/skywalking/segment.lua"
+        },
+        "skywalking/segment_ref.lua": {
+          "sha256": "e87191744b8bf711701005c437e161431fd2da8979decfd5a4d0707c56dc97d8",
+          "size": 5554,
+          "url": "https://raw.githubusercontent.com/api7/skywalking-nginx-lua/f10b1ea5166ad8be82b04c96ae88b31ad9907aac/lib/skywalking/segment_ref.lua"
+        },
+        "skywalking/span.lua": {
+          "sha256": "3f6fdfeeccde5b324de9e4554bdc3717e86e1b8cb0bbe6e94488ca2817723202",
+          "size": 9310,
+          "url": "https://raw.githubusercontent.com/api7/skywalking-nginx-lua/f10b1ea5166ad8be82b04c96ae88b31ad9907aac/lib/skywalking/span.lua"
+        },
+        "skywalking/span_layer.lua": {
+          "sha256": "e6163cdc8acc056ed5e4e3765f7520175d6cd6b19599ef5dac5de5bf29f634d8",
+          "size": 1070,
+          "url": "https://raw.githubusercontent.com/api7/skywalking-nginx-lua/f10b1ea5166ad8be82b04c96ae88b31ad9907aac/lib/skywalking/span_layer.lua"
+        },
+        "skywalking/tracing_context.lua": {
+          "sha256": "2de81812ee62637b47096f01327aa28151811f0c055b5ca1a21ef660edae9cc9",
+          "size": 5548,
+          "url": "https://raw.githubusercontent.com/api7/skywalking-nginx-lua/f10b1ea5166ad8be82b04c96ae88b31ad9907aac/lib/skywalking/tracing_context.lua"
+        },
+        "skywalking/util.lua": {
+          "sha256": "879300310e5aed28759682d09c81f4c8dce0ccb3b07ded0bae2ce01a9e5362dd",
+          "size": 1459,
+          "url": "https://raw.githubusercontent.com/api7/skywalking-nginx-lua/f10b1ea5166ad8be82b04c96ae88b31ad9907aac/lib/skywalking/util.lua"
+        }
+      },
+      "homepage": "https://github.com/api7/skywalking-nginx-lua",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Thu, 14 May 2020 09:48:42 GMT",
+        "rockspec": {
+          "date": "Thu, 14 May 2020 09:48:42 GMT",
+          "sha256": "01893a7533fad5395f6ba82cf4da68a1941312204e50aa84f1545999bdc335f9",
+          "size": 805
+        }
+      },
+      "modules": [
+        "skywalking.register",
+        "skywalking.segment",
+        "skywalking.segment_ref",
+        "skywalking.span",
+        "skywalking.span_layer",
+        "skywalking.tracing_context",
+        "skywalking.util"
+      ],
+      "origin": {
+        "commit": "f10b1ea5166ad8be82b04c96ae88b31ad9907aac",
+        "ref": "1.0",
+        "type": "git",
+        "url": "https://github.com/api7/skywalking-nginx-lua"
+      },
+      "size": 27238,
+      "summary": "The Nginx Lua agent for Apache SkyWalking",
+      "undeclared_requires": [
+        "ngx.re"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (ngx.re)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 7
+      }
+    }
+  }
+}

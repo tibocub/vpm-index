@@ -1,0 +1,518 @@
+{
+  "kind": "lib",
+  "name": "render-markdown.nvim",
+  "versions": {
+    "8.14.0-1": {
+      "bin": [],
+      "deps": [
+        "tree-sitter-markdown",
+        "tree-sitter-latex",
+        "nvim-web-devicons"
+      ],
+      "files": {
+        "render-markdown/api.lua": {
+          "sha256": "78e9f923b106e4499b53bf055c3fccaff2047b299f6a2cf2ac1b340f59beaac9",
+          "size": 2037,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/api.lua"
+        },
+        "render-markdown/core/colors.lua": {
+          "sha256": "b8dd1374f8ac44618ef87d40f903432d6763c4c3e4e580ba40ff3d344889016a",
+          "size": 4485,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/colors.lua"
+        },
+        "render-markdown/core/command.lua": {
+          "sha256": "b738b8cd9f0d595fd5eb831174cca4039baacde977c82daddec9fcc72b0f1e03",
+          "size": 2858,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/command.lua"
+        },
+        "render-markdown/core/handlers.lua": {
+          "sha256": "08efc83782d259ebcdea3940e6ecf38ee0f3f70df1a57ea507861d6faef6c4ca",
+          "size": 3080,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/handlers.lua"
+        },
+        "render-markdown/core/log.lua": {
+          "sha256": "ac11ae2c5e747b0b28eccd564bc7fce703144dff683ee2854d91de6b45df4029",
+          "size": 4095,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/log.lua"
+        },
+        "render-markdown/core/manager.lua": {
+          "sha256": "c81dcfb1fa397c5ed7aede7f1d7f1949ecced3c3eae5a4d6cd437b2dd5b9a636",
+          "size": 4638,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/manager.lua"
+        },
+        "render-markdown/core/preview.lua": {
+          "sha256": "dfc333e34f6a20cd4e51f340d2f5434f9ebccafbe875a853ed76b768b65d7848",
+          "size": 4167,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/preview.lua"
+        },
+        "render-markdown/core/ts.lua": {
+          "sha256": "9905b42350179e14ed52f82c77165a0e842b9b731fcfe2709683d334e491cc69",
+          "size": 2896,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/ts.lua"
+        },
+        "render-markdown/core/ui.lua": {
+          "sha256": "78de36aa878e9c9d6f6409b27da958396296524732b90122965a0a3cc24179f5",
+          "size": 6958,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/core/ui.lua"
+        },
+        "render-markdown/debug/diff.lua": {
+          "sha256": "63ca90c8b6eebd9e794d4899523de5fcffc659eb4617f3f058a6c5cead933bef",
+          "size": 959,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/debug/diff.lua"
+        },
+        "render-markdown/debug/marks.lua": {
+          "sha256": "5cdcc02ad380a808a42a81c65d5ba312d501a773a46b5b08c2d5cbb8dffc9c33",
+          "size": 5331,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/debug/marks.lua"
+        },
+        "render-markdown/debug/schema.lua": {
+          "sha256": "4c63329ae83ed9a8f5e39c9502b1550c1960ffd28b1ee33c4ab8ebac37be62e9",
+          "size": 5036,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/debug/schema.lua"
+        },
+        "render-markdown/handler/html.lua": {
+          "sha256": "626f88b10c4ff9f77d041c50e6abca8987b2eaa7db57fa4e17a67403bc3a3bf6",
+          "size": 1048,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/handler/html.lua"
+        },
+        "render-markdown/handler/latex.lua": {
+          "sha256": "c2ae1ed4e69af64b74f844212924a68890aaac2f87609e3e457c45bdb488290c",
+          "size": 9647,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/handler/latex.lua"
+        },
+        "render-markdown/handler/markdown.lua": {
+          "sha256": "928ace2233007393e02337fbebaf452593e9749135c89a39042d62061bb9544c",
+          "size": 1975,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/handler/markdown.lua"
+        },
+        "render-markdown/handler/markdown_inline.lua": {
+          "sha256": "10a3b84b75229d6b17f257ecd705cce7c4d500e2022b10d65477990f6ef440ff",
+          "size": 1397,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/handler/markdown_inline.lua"
+        },
+        "render-markdown/handler/yaml.lua": {
+          "sha256": "42fb0a2073acfd1751cf03a7271c6c96b1610aa4911322ddf055c7cba453639f",
+          "size": 1128,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/handler/yaml.lua"
+        },
+        "render-markdown/health.lua": {
+          "sha256": "bfe3c11c440333400b6d9a7d0c84c7fe6cf767c787a9affa2ec09b0aa8aa4078",
+          "size": 6398,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/health.lua"
+        },
+        "render-markdown/init.lua": {
+          "sha256": "82824ad5a3ff2874391802ec1e1e5e1b5a9bdc7a09afe66ad2344a139139b22e",
+          "size": 7214,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/init.lua"
+        },
+        "render-markdown/integ/blink.lua": {
+          "sha256": "77e6ee965616ea022af3ab1a5d1a0b2e487d33d54218677935639dd21660f0b1",
+          "size": 1586,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/integ/blink.lua"
+        },
+        "render-markdown/integ/cmp.lua": {
+          "sha256": "3dae5ee5226237bdc43336cd2880307ebd1266f0361aeb73a8731c422a63aa84",
+          "size": 1195,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/integ/cmp.lua"
+        },
+        "render-markdown/integ/coq.lua": {
+          "sha256": "9e4be275ec1ded7ea7d334c473ea31aaaae6da09696f02227a2b6cb5d6cf21d8",
+          "size": 1565,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/integ/coq.lua"
+        },
+        "render-markdown/integ/lsp.lua": {
+          "sha256": "b37321957f53c7dbab27535831a61e397c99e8b2ee90864ff5766371c79c98a2",
+          "size": 2031,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/integ/lsp.lua"
+        },
+        "render-markdown/integ/source.lua": {
+          "sha256": "a8269752e8743c98af6e6d0739e663a0aa5c20a7d8d992a9e1c3334fe3d06689",
+          "size": 4339,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/integ/source.lua"
+        },
+        "render-markdown/lib/compat.lua": {
+          "sha256": "696dd6f5e8ce6fc28d15b11ca157c612502611a65c423d8a2863a2fff7a4575d",
+          "size": 1941,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/compat.lua"
+        },
+        "render-markdown/lib/config.lua": {
+          "sha256": "7130b14f6257bf8b6d880813f2354f37c38fceb62cfbc02c3d3433f27502c601",
+          "size": 4545,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/config.lua"
+        },
+        "render-markdown/lib/converter.lua": {
+          "sha256": "797f32141a8c2703cd73e2e3d014ddbb0d2929d19195ebdf85495ddb31acdf29",
+          "size": 1565,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/converter.lua"
+        },
+        "render-markdown/lib/decorator.lua": {
+          "sha256": "0f68234bbd9ec4260d6ce887622c3553c3afb6424efef664c3e44d1dbd72e5a7",
+          "size": 3115,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/decorator.lua"
+        },
+        "render-markdown/lib/display.lua": {
+          "sha256": "6d541a068db8abdd6df6a866e828e24bed9372fa2b85157c1dab7b4a6547c60f",
+          "size": 3667,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/display.lua"
+        },
+        "render-markdown/lib/env.lua": {
+          "sha256": "e23fa7f23585cf18b802aae46f070a9b349672a89a7da4cd8755de50089f8a06",
+          "size": 7023,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/env.lua"
+        },
+        "render-markdown/lib/extmark.lua": {
+          "sha256": "366f9ce2a22617a4a77c122562e2c6f719a29d7dd8d15f8bfae005ed3c972c73",
+          "size": 1649,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/extmark.lua"
+        },
+        "render-markdown/lib/icons.lua": {
+          "sha256": "0b1bf591fb0ee1eb8c9eacb50ca0a6d6ecf13cfd3a897d422c94544bdf0cba98",
+          "size": 2194,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/icons.lua"
+        },
+        "render-markdown/lib/indent.lua": {
+          "sha256": "ef8a6f0e602db496bc1286e7adc31dfa20d10521d2a0018ae8ab68b413a17339",
+          "size": 1985,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/indent.lua"
+        },
+        "render-markdown/lib/interval.lua": {
+          "sha256": "68e0d5d4d92b3cbada533536726b8dff6c57e7bea7f87f7b5d53137573affbc0",
+          "size": 1567,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/interval.lua"
+        },
+        "render-markdown/lib/iter.lua": {
+          "sha256": "6bc71d8a4fd8846df1db9b5ba84be2f06521056962a99dfd1400a3586972bd98",
+          "size": 856,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/iter.lua"
+        },
+        "render-markdown/lib/line.lua": {
+          "sha256": "97c80459c9289dc637a1fe3efa9b4218ad66ccdcbfd033e4b60feedc62956a32",
+          "size": 2642,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/line.lua"
+        },
+        "render-markdown/lib/list.lua": {
+          "sha256": "88418b8dff673ce8a87bb36cd554d24c38e1ec60d648a421cc39897a7e7e19cc",
+          "size": 682,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/list.lua"
+        },
+        "render-markdown/lib/marks.lua": {
+          "sha256": "dfbb3c8306c0165933cb0df5d63e5573a8cdcd610ee9fa48825629707ce520be",
+          "size": 5212,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/marks.lua"
+        },
+        "render-markdown/lib/node.lua": {
+          "sha256": "dc492495c498852a270388f6a52ca8b94df911d8894953c2d2da6fac7229dd7f",
+          "size": 7522,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/node.lua"
+        },
+        "render-markdown/lib/presets.lua": {
+          "sha256": "a289098e25eff059a8ef83542b57c797e1b3f376dd33b496ebc41080aeff0807",
+          "size": 4762,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/presets.lua"
+        },
+        "render-markdown/lib/replacements.lua": {
+          "sha256": "75def37e4b09859f601f17f9cf651dbc4c046c06505df4f21893a3dc15a47554",
+          "size": 1757,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/replacements.lua"
+        },
+        "render-markdown/lib/resolved.lua": {
+          "sha256": "7cc6504352ee6d2a2d29828a01daca3e2e7df5868c668a9d007542506686e70a",
+          "size": 1736,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/resolved.lua"
+        },
+        "render-markdown/lib/str.lua": {
+          "sha256": "f2508e798aad25c0ed99bf0fe8bee11686f443617a3ea3d7e20c3e562be7f2e7",
+          "size": 1771,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/lib/str.lua"
+        },
+        "render-markdown/parser/table.lua": {
+          "sha256": "e055903b044695551052a188984185f13241099c0927e9bc010633d4bba3d6ec",
+          "size": 14318,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/parser/table.lua"
+        },
+        "render-markdown/render/base.lua": {
+          "sha256": "0e1e6faa81308b5690042f8842f04bbd5876a458f908bfa2d94faa8a24ef2866",
+          "size": 1716,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/base.lua"
+        },
+        "render-markdown/render/common/footnote.lua": {
+          "sha256": "119732d6ada44a895906ecac095602420b17c4b339c16075117bb21ad5d9da7a",
+          "size": 1100,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/common/footnote.lua"
+        },
+        "render-markdown/render/common/wiki.lua": {
+          "sha256": "6dad0a7c8871a93edc4438fdf3afa54781c391b78f18214c30a6e45aec10f397",
+          "size": 2843,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/common/wiki.lua"
+        },
+        "render-markdown/render/html/comment.lua": {
+          "sha256": "8938cafd838d2d350fea0d24860d28002fcf642e5772e50df90df0078a933eb9",
+          "size": 1134,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/html/comment.lua"
+        },
+        "render-markdown/render/html/tag.lua": {
+          "sha256": "eae9386f35a32055304ab6ad0486f27db018e18e75ec493ded56284136096723",
+          "size": 1603,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/html/tag.lua"
+        },
+        "render-markdown/render/inline/code.lua": {
+          "sha256": "d0a881b6192444e5ce45be6361aa73f2ea905bf36b0daa953814a91a58b0f6e7",
+          "size": 2863,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/inline/code.lua"
+        },
+        "render-markdown/render/inline/highlight.lua": {
+          "sha256": "6cfe7fa19eaab4da8f812facf720320a104c0bdfc2f0d3ff545aa6a8dec12813",
+          "size": 2536,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/inline/highlight.lua"
+        },
+        "render-markdown/render/inline/link.lua": {
+          "sha256": "3d6397994392e36f6919f967129525ba728ee113b03b8cee770b6b7f20bf8f38",
+          "size": 2677,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/inline/link.lua"
+        },
+        "render-markdown/render/inline/shortcut.lua": {
+          "sha256": "ef27ef8d98ebd721bc29158bd0da6c00da08f50c70910108331698d93aa34a48",
+          "size": 1197,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/inline/shortcut.lua"
+        },
+        "render-markdown/render/markdown/bullet.lua": {
+          "sha256": "350e76ae55779a27cf46d0386ce7ee0eba4839eef17f4d83f7514b39397721a1",
+          "size": 4861,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/bullet.lua"
+        },
+        "render-markdown/render/markdown/checkbox.lua": {
+          "sha256": "c5b7d24e6376f3970ae002515d51714657d0d8697ac0ed9b46bfec7bcccdc912",
+          "size": 3867,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/checkbox.lua"
+        },
+        "render-markdown/render/markdown/code.lua": {
+          "sha256": "51f7fb2ce24d119ce7896ba9d72f00450659a7e442f530943bfbf801952f8280",
+          "size": 9336,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/code.lua"
+        },
+        "render-markdown/render/markdown/dash.lua": {
+          "sha256": "558048aeeb8c53aec635758593c172126b2661d881a26397b8068e3cd0f1f4fd",
+          "size": 1789,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/dash.lua"
+        },
+        "render-markdown/render/markdown/document.lua": {
+          "sha256": "88f716c34db55a5a15bc66465b370c338f14c11a436f9652ac2fd74202619c9c",
+          "size": 1070,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/document.lua"
+        },
+        "render-markdown/render/markdown/heading.lua": {
+          "sha256": "ea554c5009e90f7ec052744d1544cda9c517f35dd6b8570bbf057768cb05e9e5",
+          "size": 9859,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/heading.lua"
+        },
+        "render-markdown/render/markdown/list.lua": {
+          "sha256": "233663eb88fa56457518fe32d484fb43449212f24d0f742fb3c2c6cb669510b7",
+          "size": 571,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/list.lua"
+        },
+        "render-markdown/render/markdown/paragraph.lua": {
+          "sha256": "b3bbdab99108047c2e5dfd41295999f881864a2f98e3874ec56e68ca06f1cd88",
+          "size": 1966,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/paragraph.lua"
+        },
+        "render-markdown/render/markdown/quote.lua": {
+          "sha256": "1b78538e1c578b6d59e9c5db8a245e43f2ecd964ef5ea74398a9976f7c24b084",
+          "size": 3916,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/quote.lua"
+        },
+        "render-markdown/render/markdown/section.lua": {
+          "sha256": "c686f007cf9630b328c27b3d06f8900c95116023d22b5696a66cb9b0a21176a2",
+          "size": 2762,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/section.lua"
+        },
+        "render-markdown/render/markdown/table.lua": {
+          "sha256": "e792111fd47a3dca8f1c9165a156dbb05b4db829d15f81164a0b19ca5d442c52",
+          "size": 11447,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/markdown/table.lua"
+        },
+        "render-markdown/render/yaml/bullet.lua": {
+          "sha256": "8d0404f9c1f824ec88803aba3fa2fa4892980d191230d1fdf7f307754669d6c8",
+          "size": 1421,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/render/yaml/bullet.lua"
+        },
+        "render-markdown/request/callout.lua": {
+          "sha256": "9882978a157bd9f54ce70da678e5ef5e9a85a551c9136ffaeeabd2fcec3ec84c",
+          "size": 754,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/callout.lua"
+        },
+        "render-markdown/request/checkbox.lua": {
+          "sha256": "00463815b87a55eff2f1439150d3d0acbf7351bc517742582b2e95d4dc52640c",
+          "size": 944,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/checkbox.lua"
+        },
+        "render-markdown/request/conceal.lua": {
+          "sha256": "305a5a5c39b6185440e6b7e129da9f2602f3002085a3425b7cadd0c90ddf48a0",
+          "size": 2390,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/conceal.lua"
+        },
+        "render-markdown/request/context.lua": {
+          "sha256": "fbb0710a63215028fc540e7aebc9d40f443e61a82391104b58d0eae23ecb8889",
+          "size": 2434,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/context.lua"
+        },
+        "render-markdown/request/highlights.lua": {
+          "sha256": "91b4cb3b20b5a995ef3722bbdb9d1eb499e7fdcd09f56c0bf239f3655de7f459",
+          "size": 5549,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/highlights.lua"
+        },
+        "render-markdown/request/inline.lua": {
+          "sha256": "b98431d45e7fb3e9d7c83de4285461f47fd4fc3cdb28e1a96c538bffe0c7a0af",
+          "size": 1504,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/inline.lua"
+        },
+        "render-markdown/request/latex.lua": {
+          "sha256": "22eef0a23953570e45da2425b11d818d0561b3485200c0c53a7b34c69f231412",
+          "size": 441,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/latex.lua"
+        },
+        "render-markdown/request/used.lua": {
+          "sha256": "93b551d639d97a2ac9fdc18a8c78308e0c58c8377a99437ed55c7a95f122c5e1",
+          "size": 439,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/used.lua"
+        },
+        "render-markdown/request/view.lua": {
+          "sha256": "d09afc03f1473b27fc44d1d3a3f07bd864cb9b44c28b42b6d6bc2bd6d9b58ac9",
+          "size": 2625,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/request/view.lua"
+        },
+        "render-markdown/settings.lua": {
+          "sha256": "fe742d4e5cadb83507e244e9c206ba6c8a23dd6effe1b0db12263c6695b5008a",
+          "size": 67497,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/settings.lua"
+        },
+        "render-markdown/state.lua": {
+          "sha256": "39cb562f2ec69ba4c3cfbc5a88451b9ff4943987b87de8643bce5e6e6fa7010a",
+          "size": 3395,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/state.lua"
+        },
+        "render-markdown/types.lua": {
+          "sha256": "0dd8eeeb1e3e397b858b55370d89dccf76c7673ce9cba79149cb46c446c26003",
+          "size": 11495,
+          "url": "https://raw.githubusercontent.com/MeanderingProgrammer/render-markdown.nvim/v8.14.0/lua/render-markdown/types.lua"
+        }
+      },
+      "homepage": "https://github.com/MeanderingProgrammer/render-markdown.nvim",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 15 Sep 2026 06:02:27 GMT",
+        "rockspec": {
+          "date": "Tue, 15 Sep 2026 06:02:27 GMT",
+          "sha256": "3b0b34d834e15292926d7750eaad8e8f198d2a38af22c89eda2a850313c91eb8",
+          "size": 927
+        },
+        "src": {
+          "date": "Tue, 15 Sep 2026 06:02:27 GMT",
+          "sha256": "e8ecf76fbff3b59d51006fa24cefe3c3eacaa8341f6d4a95131f8e2dc0d1a236",
+          "size": 235195,
+          "url": "https://luarocks.org/render-markdown.nvim-8.14.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "render-markdown",
+        "render-markdown.api",
+        "render-markdown.core.colors",
+        "render-markdown.core.command",
+        "render-markdown.core.handlers",
+        "render-markdown.core.log",
+        "render-markdown.core.manager",
+        "render-markdown.core.preview",
+        "render-markdown.core.ts",
+        "render-markdown.core.ui",
+        "render-markdown.debug.diff",
+        "render-markdown.debug.marks",
+        "render-markdown.debug.schema",
+        "render-markdown.handler.html",
+        "render-markdown.handler.latex",
+        "render-markdown.handler.markdown",
+        "render-markdown.handler.markdown_inline",
+        "render-markdown.handler.yaml",
+        "render-markdown.health",
+        "render-markdown.integ.blink",
+        "render-markdown.integ.cmp",
+        "render-markdown.integ.coq",
+        "render-markdown.integ.lsp",
+        "render-markdown.integ.source",
+        "render-markdown.lib.compat",
+        "render-markdown.lib.config",
+        "render-markdown.lib.converter",
+        "render-markdown.lib.decorator",
+        "render-markdown.lib.display",
+        "render-markdown.lib.env",
+        "render-markdown.lib.extmark",
+        "render-markdown.lib.icons",
+        "render-markdown.lib.indent",
+        "render-markdown.lib.interval",
+        "render-markdown.lib.iter",
+        "render-markdown.lib.line",
+        "render-markdown.lib.list",
+        "render-markdown.lib.marks",
+        "render-markdown.lib.node",
+        "render-markdown.lib.presets",
+        "render-markdown.lib.replacements",
+        "render-markdown.lib.resolved",
+        "render-markdown.lib.str",
+        "render-markdown.parser.table",
+        "render-markdown.render.base",
+        "render-markdown.render.common.footnote",
+        "render-markdown.render.common.wiki",
+        "render-markdown.render.html.comment",
+        "render-markdown.render.html.tag",
+        "render-markdown.render.inline.code",
+        "render-markdown.render.inline.highlight",
+        "render-markdown.render.inline.link",
+        "render-markdown.render.inline.shortcut",
+        "render-markdown.render.markdown.bullet",
+        "render-markdown.render.markdown.checkbox",
+        "render-markdown.render.markdown.code",
+        "render-markdown.render.markdown.dash",
+        "render-markdown.render.markdown.document",
+        "render-markdown.render.markdown.heading",
+        "render-markdown.render.markdown.list",
+        "render-markdown.render.markdown.paragraph",
+        "render-markdown.render.markdown.quote",
+        "render-markdown.render.markdown.section",
+        "render-markdown.render.markdown.table",
+        "render-markdown.render.yaml.bullet",
+        "render-markdown.request.callout",
+        "render-markdown.request.checkbox",
+        "render-markdown.request.conceal",
+        "render-markdown.request.context",
+        "render-markdown.request.highlights",
+        "render-markdown.request.inline",
+        "render-markdown.request.latex",
+        "render-markdown.request.used",
+        "render-markdown.request.view",
+        "render-markdown.settings",
+        "render-markdown.state",
+        "render-markdown.types"
+      ],
+      "origin": {
+        "sha256": "04ca5595a092020d99ad87ba7e7890059c0dc68cc2098c4906a3145b73445348",
+        "type": "archive",
+        "url": "https://github.com/MeanderingProgrammer/render-markdown.nvim/archive/v8.14.0.zip"
+      },
+      "size": 326573,
+      "summary": "Improve viewing Markdown in Neovim",
+      "undeclared_requires": [
+        "obsidian",
+        "snacks"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

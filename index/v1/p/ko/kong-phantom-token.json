@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-phantom-token",
+  "versions": {
+    "2.0.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-http >= 0.16.1-0",
+        "lua-resty-jwt >= 0.2.3-0"
+      ],
+      "files": {
+        "kong/plugins/phantom-token/access.lua": {
+          "sha256": "5ecc966d5edefdf0c58e3e497a7f2cbc7bc1ee68e013f6c06ba1e6b36624d388",
+          "size": 7994,
+          "url": "https://raw.githubusercontent.com/curityio/nginx-lua-phantom-token-plugin/f38fa5613832856de1400df510f7566d0c4f6098/plugin/access.lua"
+        },
+        "kong/plugins/phantom-token/handler.lua": {
+          "sha256": "ed58cd2a949cd653985b171a034a6b8bc0109b5fc87202eca417e1860e8c4409",
+          "size": 337,
+          "url": "https://raw.githubusercontent.com/curityio/nginx-lua-phantom-token-plugin/f38fa5613832856de1400df510f7566d0c4f6098/plugin/handler.lua"
+        },
+        "kong/plugins/phantom-token/schema.lua": {
+          "sha256": "a8e0cd31bf1202c54565b12571699692366f50a44e171f27720e78246063e840",
+          "size": 633,
+          "url": "https://raw.githubusercontent.com/curityio/nginx-lua-phantom-token-plugin/f38fa5613832856de1400df510f7566d0c4f6098/plugin/schema.lua"
+        }
+      },
+      "homepage": "https://curity.io/product/token-service/?=tabgroup=1?tab=microservices",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 06 Jun 2024 07:56:12 GMT",
+        "rockspec": {
+          "date": "Thu, 06 Jun 2024 07:56:12 GMT",
+          "sha256": "1c7e6b93e375648cf7f92cb78a30afb1b152fe7963dafc550825acdfafb88ca7",
+          "size": 1542
+        }
+      },
+      "modules": [
+        "kong.plugins.phantom-token.access",
+        "kong.plugins.phantom-token.handler",
+        "kong.plugins.phantom-token.schema"
+      ],
+      "origin": {
+        "commit": "f38fa5613832856de1400df510f7566d0c4f6098",
+        "ref": "v2.0.1",
+        "type": "git",
+        "url": "https://github.com/curityio/nginx-lua-phantom-token-plugin"
+      },
+      "size": 8964,
+      "summary": "A Lua plugin to receive incoming opaque tokens and forward JWT access tokens to APIs",
+      "undeclared_requires": [
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

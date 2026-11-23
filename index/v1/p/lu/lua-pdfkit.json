@@ -1,0 +1,875 @@
+{
+  "kind": "lib",
+  "name": "lua-pdfkit",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "pdfkit/base64.lua": {
+          "sha256": "637e5ed7a53a5d916e7a57ce95fc01ad45e94d2158435449183d32172243a07a",
+          "size": 1841,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/base64.lua"
+        },
+        "pdfkit/collate.lua": {
+          "sha256": "15b8ff074862c97aa3f2dad42914c7e6174e955eda38edaee4a5bac762c9e367",
+          "size": 4009,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/collate.lua"
+        },
+        "pdfkit/document.lua": {
+          "sha256": "641e183513c9c2ea4c4932b9060811da030abf313c5ebde7e7a297b741a0f751",
+          "size": 19793,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/document.lua"
+        },
+        "pdfkit/flate.lua": {
+          "sha256": "4c46079a9ead4b31ee350df9a543ab9a02d4ef95913bd3f124cf4f51ba0e72d0",
+          "size": 16770,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/flate.lua"
+        },
+        "pdfkit/font.lua": {
+          "sha256": "8ed3138215a69d3bfcdbd37a59ef4415bea272e0efab7e77e8785498508ace0e",
+          "size": 1900,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font.lua"
+        },
+        "pdfkit/font/afm.lua": {
+          "sha256": "abf85f55294a4d9375a3dbebb0d5169f808cf5cb06ab4d8aff8c49af46cf5ba4",
+          "size": 11522,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/afm.lua"
+        },
+        "pdfkit/font/embedded.lua": {
+          "sha256": "3e4993cf11d405bcdcbdfc130b0ad5d5b8f19c152d72ee206b211b7baced7952",
+          "size": 20973,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/embedded.lua"
+        },
+        "pdfkit/font/generated/Courier.lua": {
+          "sha256": "6f5a38556faa4eaa48c03eb1f6ff311b41d4631779d7939a7a5c48aaa666fd2e",
+          "size": 2333,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/Courier.lua"
+        },
+        "pdfkit/font/generated/CourierBold.lua": {
+          "sha256": "4c8749ee566cbdd72a8aac732b0f497b8894dbda6c15b0e29be0eacd08c2451c",
+          "size": 2342,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/CourierBold.lua"
+        },
+        "pdfkit/font/generated/CourierBoldOblique.lua": {
+          "sha256": "3354b5944f3e0a26d06cd5d5da3c06d79fb7190587364dedc1d2d4bb7597aaa9",
+          "size": 2362,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/CourierBoldOblique.lua"
+        },
+        "pdfkit/font/generated/CourierOblique.lua": {
+          "sha256": "8eb2153decb5bb3390839d1a9b0bf43580bff7ccd4811227913c17cd58d5c833",
+          "size": 2356,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/CourierOblique.lua"
+        },
+        "pdfkit/font/generated/Helvetica.lua": {
+          "sha256": "d82b502ed0b4e54d530dcfd1e80979bd8c8d72890f810f25cbd84e7b9a5eaf0b",
+          "size": 8670,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/Helvetica.lua"
+        },
+        "pdfkit/font/generated/HelveticaBold.lua": {
+          "sha256": "ef90cf192aea588e4a8558474cb2ed67c18ec1abf5fe46d56e9997398a068552",
+          "size": 8045,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/HelveticaBold.lua"
+        },
+        "pdfkit/font/generated/HelveticaBoldOblique.lua": {
+          "sha256": "c91447ced6b9256e8a981c4ae5a89dbefb2781198720f4c535ba48f90157d49a",
+          "size": 8066,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/HelveticaBoldOblique.lua"
+        },
+        "pdfkit/font/generated/HelveticaOblique.lua": {
+          "sha256": "204a569e9ef7469124056321524d05875ab0b4c4d077992b9af662b6f6e699c9",
+          "size": 8693,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/HelveticaOblique.lua"
+        },
+        "pdfkit/font/generated/Symbol.lua": {
+          "sha256": "623f74e838c3a24a1362d4ac74a0059c4323c48f048e61996835048561779e92",
+          "size": 1637,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/Symbol.lua"
+        },
+        "pdfkit/font/generated/TimesBold.lua": {
+          "sha256": "3c4fa0c8037923ee8fa5290e6282a0ad2a57f7d40da90cdbbbbbd1fb631ecf18",
+          "size": 7960,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/TimesBold.lua"
+        },
+        "pdfkit/font/generated/TimesBoldItalic.lua": {
+          "sha256": "184c02f0d868e131d2106cf4d65932eb67507f501d89b7f0ffed4108fc3f82b9",
+          "size": 7421,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/TimesBoldItalic.lua"
+        },
+        "pdfkit/font/generated/TimesItalic.lua": {
+          "sha256": "16e5003f34efdc3903f51ce4fc5c3ea40e5e1fb824d7917cb797b7bcc742a172",
+          "size": 7666,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/TimesItalic.lua"
+        },
+        "pdfkit/font/generated/TimesRoman.lua": {
+          "sha256": "83e0d3e78b66821cec185d285aa1b66a24462a814cf4def17637becbbe696a2c",
+          "size": 7709,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/TimesRoman.lua"
+        },
+        "pdfkit/font/generated/ZapfDingbats.lua": {
+          "sha256": "f9a797b95ebcdfca5c587e068822c6449268e12e0afa509e64211f3cdb72dceb",
+          "size": 1182,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/ZapfDingbats.lua"
+        },
+        "pdfkit/font/generated/standardGlyphNames.lua": {
+          "sha256": "6808b7ed2516dd591b3f44b61fd38192ce0a64438515a35341de78d8a514bac8",
+          "size": 1729,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/generated/standardGlyphNames.lua"
+        },
+        "pdfkit/font/standard.lua": {
+          "sha256": "c858dc6f3f8e8374a61303e2ab1e3086953f9f337d39444b42c54cde21add676",
+          "size": 4878,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font/standard.lua"
+        },
+        "pdfkit/font_factory.lua": {
+          "sha256": "df1f1cc65159e90abf40b25455e3da45e6e8e8c1df52682ab3373d2dbe7fef49",
+          "size": 1802,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/font_factory.lua"
+        },
+        "pdfkit/fontkit/CmapProcessor.lua": {
+          "sha256": "d654855dd7277791c9dd522ea64beed90c5c3f55a981071840eae007ba11b6e9",
+          "size": 13646,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/CmapProcessor.lua"
+        },
+        "pdfkit/fontkit/TTFFont.lua": {
+          "sha256": "3c031524bedc2477fddc08fc01c3d81a55e7caf36533950fc45a30729333cd4f",
+          "size": 19954,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/TTFFont.lua"
+        },
+        "pdfkit/fontkit/TrueTypeCollection.lua": {
+          "sha256": "0ec411cbff8befe95c34bd2925f0d92c02de52c6212f4940a9c44bf50a6de103",
+          "size": 3719,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/TrueTypeCollection.lua"
+        },
+        "pdfkit/fontkit/WOFFFont.lua": {
+          "sha256": "bc7c8eeddb39f8691d137ba075ed9f72a8151be0a0615131e06d067090f373bf",
+          "size": 3061,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/WOFFFont.lua"
+        },
+        "pdfkit/fontkit/base.lua": {
+          "sha256": "bd32e4acf5b18fcff1c7e609c982377da2eb86f50994bb4de2a71d5252e8237d",
+          "size": 964,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/base.lua"
+        },
+        "pdfkit/fontkit/cff/font.lua": {
+          "sha256": "c36d126e8d9864fd220455880de3087c38fbdfcb2fb6c9b9ab4679f3364f6f53",
+          "size": 17694,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/cff/font.lua"
+        },
+        "pdfkit/fontkit/cff/operand.lua": {
+          "sha256": "22c9cce17a46ced8fafdb55772b2a58f75484792b6a273e89446e2e9fa583cd8",
+          "size": 4027,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/cff/operand.lua"
+        },
+        "pdfkit/fontkit/cff/standard_strings.lua": {
+          "sha256": "8b3192ba1a05b7b85c67c7714be95474ff0b05b538cee74797d1bd1fc909fe95",
+          "size": 4562,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/cff/standard_strings.lua"
+        },
+        "pdfkit/fontkit/encodings.lua": {
+          "sha256": "14b403d14fa1496186f004a99725b6cfc8312af9e5cb9b4d166ab317acf6362f",
+          "size": 31211,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/encodings.lua"
+        },
+        "pdfkit/fontkit/glyph/BBox.lua": {
+          "sha256": "e7e15ef84c9450b70f2069fe2394923c83b13c999d786623c9fd33447714a584",
+          "size": 1629,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/glyph/BBox.lua"
+        },
+        "pdfkit/fontkit/glyph/CFFGlyph.lua": {
+          "sha256": "3ed48df30de41092a4a31af06a9f65ea84e0ac4d943891b27291e6f53717f4aa",
+          "size": 18868,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/glyph/CFFGlyph.lua"
+        },
+        "pdfkit/fontkit/glyph/Glyph.lua": {
+          "sha256": "f4b28accdee733475612747c8da9b201f7a4e0364980f99b14a08b9a7fa5b2e8",
+          "size": 8631,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/glyph/Glyph.lua"
+        },
+        "pdfkit/fontkit/glyph/Path.lua": {
+          "sha256": "f48ed2b992b19381f2c53e137f07f597f6ad8322e4b287398345ed6596358e40",
+          "size": 9064,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/glyph/Path.lua"
+        },
+        "pdfkit/fontkit/glyph/StandardNames.lua": {
+          "sha256": "7959d8afa0fa0508cb6decd30343dcb64cd61417087425b86039cebf7f950fa7",
+          "size": 3161,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/glyph/StandardNames.lua"
+        },
+        "pdfkit/fontkit/glyph/TTFGlyph.lua": {
+          "sha256": "f94a595349fcefb97b9131ad633607857ff12fde81afa925e829551e92e32d3b",
+          "size": 18340,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/glyph/TTFGlyph.lua"
+        },
+        "pdfkit/fontkit/glyph/TTFGlyphEncoder.lua": {
+          "sha256": "d7491dc77255338c2ae57f5a32596348d85d61349288a4c7fc806d97fcf62072",
+          "size": 8007,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/glyph/TTFGlyphEncoder.lua"
+        },
+        "pdfkit/fontkit/init.lua": {
+          "sha256": "f704f37e4d92d610ff226b0e7e482b26b2ec233edd9c0f57d98c0fb90af35c1d",
+          "size": 4113,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/init.lua"
+        },
+        "pdfkit/fontkit/layout/GlyphPosition.lua": {
+          "sha256": "28a73c0db60f38786823cda4cb41a5f82ce279bd84281117054db170ed12cbe5",
+          "size": 1050,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/layout/GlyphPosition.lua"
+        },
+        "pdfkit/fontkit/layout/GlyphRun.lua": {
+          "sha256": "ae27c0fbda40166450b9ee0dea23994d14f3f7e1bec952297a51fba852077962",
+          "size": 3242,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/layout/GlyphRun.lua"
+        },
+        "pdfkit/fontkit/layout/KernProcessor.lua": {
+          "sha256": "9e11a4bcb7639d8242b5dab32c577ae6c8df797cf822eabcb6269549d663c1a0",
+          "size": 6101,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/layout/KernProcessor.lua"
+        },
+        "pdfkit/fontkit/layout/LayoutEngine.lua": {
+          "sha256": "84a4ca7a72f90be55f7a30808d1aaaef48c1f13f4247e8901192adacf948a803",
+          "size": 12427,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/layout/LayoutEngine.lua"
+        },
+        "pdfkit/fontkit/layout/Script.lua": {
+          "sha256": "526d0e229c6fa18f5b6ab079a6fbca866fd14ef9bfca3e5891b5424ba94a8c2e",
+          "size": 7483,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/layout/Script.lua"
+        },
+        "pdfkit/fontkit/layout/UnicodeLayoutEngine.lua": {
+          "sha256": "5461f10f36be0fd985b9cf87a8d74e9fda5551795f981270929af7d49076f817",
+          "size": 11269,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/layout/UnicodeLayoutEngine.lua"
+        },
+        "pdfkit/fontkit/opentype/GPOSProcessor.lua": {
+          "sha256": "c7f5e169f744a778c8feb04ec399d90f93ddd65cd8cd0c35ea33a653193b6ca2",
+          "size": 15469,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/GPOSProcessor.lua"
+        },
+        "pdfkit/fontkit/opentype/GSUBProcessor.lua": {
+          "sha256": "b4460465149fc327f9abea4753356ff898aa3b494afb7531ec6fc5280e9317e9",
+          "size": 11410,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/GSUBProcessor.lua"
+        },
+        "pdfkit/fontkit/opentype/GlyphInfo.lua": {
+          "sha256": "d4048809faf74af2ca9b05c7f7c6f32038d939afa8fdfcfadbf863d801d0f89f",
+          "size": 4940,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/GlyphInfo.lua"
+        },
+        "pdfkit/fontkit/opentype/GlyphIterator.lua": {
+          "sha256": "2c4d79c12465f0032aaa115ab8134bd2b0cc8f73a003b05ab9f5844972edf270",
+          "size": 4122,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/GlyphIterator.lua"
+        },
+        "pdfkit/fontkit/opentype/OTLayoutEngine.lua": {
+          "sha256": "4315f06dd0336888f5023ee0241c462625d280a53a22d2b4b6b5219116e390e6",
+          "size": 7086,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/OTLayoutEngine.lua"
+        },
+        "pdfkit/fontkit/opentype/OTProcessor.lua": {
+          "sha256": "9d5727b2adff2d3c89de63e8306365881d82c54d81aa292814a59256f600e23d",
+          "size": 21372,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/OTProcessor.lua"
+        },
+        "pdfkit/fontkit/opentype/ShapingPlan.lua": {
+          "sha256": "f6d7fe85ef817976c2417ed0605fab67e555fb2eb99ea53ba6df14f57cb27aef",
+          "size": 6213,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/ShapingPlan.lua"
+        },
+        "pdfkit/fontkit/opentype/shapers/ArabicShaper.lua": {
+          "sha256": "1e09fca5a3755c8903f7806aa1192fead93c2ef67fb2ad229136e58c162c5cd8",
+          "size": 3879,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/shapers/ArabicShaper.lua"
+        },
+        "pdfkit/fontkit/opentype/shapers/DefaultShaper.lua": {
+          "sha256": "dcfd4d3a17f8a0f4c1e3cbbf56bea4b9bb9c58a16c27a30619f0e5ee70bae065",
+          "size": 5789,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/shapers/DefaultShaper.lua"
+        },
+        "pdfkit/fontkit/opentype/shapers/arabic_data.lua": {
+          "sha256": "bf7fe8dbe9197cf7d161025ab795d513e5287dcea6b99d692556adfc5bd7fac5",
+          "size": 20084,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/shapers/arabic_data.lua"
+        },
+        "pdfkit/fontkit/opentype/shapers/init.lua": {
+          "sha256": "f901de848658c73517b624ffc9f91fd6ddb7931a50a1e606ce91bf6e2ed967c3",
+          "size": 6034,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/opentype/shapers/init.lua"
+        },
+        "pdfkit/fontkit/reader.lua": {
+          "sha256": "49a5e3fbb290387efa9c78ba2d7290354d4dce8ce4b581c2275f3e161b73ff2d",
+          "size": 8069,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/reader.lua"
+        },
+        "pdfkit/fontkit/subset/CFFSubset.lua": {
+          "sha256": "aa566c81838c7f6e0913e7301f923a36d1f974cf25057f696bba89f5e6b62ca8",
+          "size": 10198,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/subset/CFFSubset.lua"
+        },
+        "pdfkit/fontkit/subset/Subset.lua": {
+          "sha256": "68ef9566649ea880e1c23efddc1a789b83ddaf0d6ed941847435fbaba27b04d0",
+          "size": 2118,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/subset/Subset.lua"
+        },
+        "pdfkit/fontkit/subset/TTFSubset.lua": {
+          "sha256": "87dba7615b7037d545e16c6b9e723855e2bd9be03534f9ea94bb3e4a59bcc3ba",
+          "size": 7157,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/subset/TTFSubset.lua"
+        },
+        "pdfkit/fontkit/tables/GDEF.lua": {
+          "sha256": "0c847f0486e5b8532a073ba84a0af895923685e66d494ba7c70e40336bb944f3",
+          "size": 4973,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/GDEF.lua"
+        },
+        "pdfkit/fontkit/tables/GPOS.lua": {
+          "sha256": "597f1bff1616a340cea3a0826eafac290cf5d7131c9bc6381688a1786e9f1d35",
+          "size": 13765,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/GPOS.lua"
+        },
+        "pdfkit/fontkit/tables/GSUB.lua": {
+          "sha256": "a61f605f5e95d860eb7be7ba59a969f9b2e0fbca324e076379cbfbb23bccf1ff",
+          "size": 6775,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/GSUB.lua"
+        },
+        "pdfkit/fontkit/tables/OS2.lua": {
+          "sha256": "dbda81de4ab2df3901ffa3761c9c3090c61fac3347f65d0ab233b7988f283a30",
+          "size": 3567,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/OS2.lua"
+        },
+        "pdfkit/fontkit/tables/cmap.lua": {
+          "sha256": "a251925f6dd74799a7752600b26fb0fa0dfb7efe2eed224479f28194af3e95ed",
+          "size": 9085,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/cmap.lua"
+        },
+        "pdfkit/fontkit/tables/cvt.lua": {
+          "sha256": "09a5a345ba3e6412aecf8e62fa594b706136b53fc8ea57447d6081065c66610c",
+          "size": 891,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/cvt.lua"
+        },
+        "pdfkit/fontkit/tables/directory.lua": {
+          "sha256": "81ca70c7c66c23fd2d01c378ff3b78bd7b284859a10c1ea27e8493697d996ff2",
+          "size": 4395,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/directory.lua"
+        },
+        "pdfkit/fontkit/tables/fpgm.lua": {
+          "sha256": "deef5e391053db527ba518c4e19482cd71f8c3773ab0cc489e34fde361f5ddc1",
+          "size": 765,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/fpgm.lua"
+        },
+        "pdfkit/fontkit/tables/glyf.lua": {
+          "sha256": "480197a848323db487e5d9ef25f7e899759f33bccf3a5185535d8b4426d7ae1c",
+          "size": 1154,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/glyf.lua"
+        },
+        "pdfkit/fontkit/tables/head.lua": {
+          "sha256": "56c4db161055dddae28d91b1bb739d83ca720845fb172731cb170181636d7c19",
+          "size": 2984,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/head.lua"
+        },
+        "pdfkit/fontkit/tables/hhea.lua": {
+          "sha256": "fc762db1aa1406d70556dd4f069d20cfa102eec4107d9a8760d5cf6b461f525d",
+          "size": 2021,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/hhea.lua"
+        },
+        "pdfkit/fontkit/tables/hmtx.lua": {
+          "sha256": "8c6215f04184ee3f665e0ef735664bafe059ba8f921ca146449901c0400463f0",
+          "size": 1942,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/hmtx.lua"
+        },
+        "pdfkit/fontkit/tables/init.lua": {
+          "sha256": "e799bf98bc808bff00bda066af2ccb3eecab193e9d61af614030bddd7ce8d612",
+          "size": 2845,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/init.lua"
+        },
+        "pdfkit/fontkit/tables/kern.lua": {
+          "sha256": "44cae6b001ed82f90aebca26212dddd1329702e13998534c7ec3d1551284aa76",
+          "size": 9251,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/kern.lua"
+        },
+        "pdfkit/fontkit/tables/loca.lua": {
+          "sha256": "7586795f1dd7b8b0f37bf11bffbddd43ac6acfd4ce10041519fd755a151ec858",
+          "size": 2611,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/loca.lua"
+        },
+        "pdfkit/fontkit/tables/maxp.lua": {
+          "sha256": "bc7409c3cc674d942729073e9253616c28118df68a5142646144f57e2fe79dfd",
+          "size": 2487,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/maxp.lua"
+        },
+        "pdfkit/fontkit/tables/name.lua": {
+          "sha256": "b00f295f8b84914741f3d4ac64ac4180be5b8612e542f0b9b95cad7f11a08d73",
+          "size": 6229,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/name.lua"
+        },
+        "pdfkit/fontkit/tables/opentype.lua": {
+          "sha256": "5053fe23e1a0dfe573ae616dbb1fc9a6d1286dcb06a55c06b6ee97f4cac41368",
+          "size": 18958,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/opentype.lua"
+        },
+        "pdfkit/fontkit/tables/post.lua": {
+          "sha256": "538782d8585a47fec6ecc08afd63fa0fe5520aa36fbc14ddc9f90e8cb0a2203c",
+          "size": 2763,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/post.lua"
+        },
+        "pdfkit/fontkit/tables/prep.lua": {
+          "sha256": "5c0d0109451919761a08663777a2c24348c798da62bd6e3a62eb7e7f4343b677",
+          "size": 722,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/tables/prep.lua"
+        },
+        "pdfkit/fontkit/unicode.lua": {
+          "sha256": "48d97ecf356615734423476468a8e5f1d1328dc030248e55ca5e094f483af7dc",
+          "size": 51984,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/unicode.lua"
+        },
+        "pdfkit/fontkit/utils.lua": {
+          "sha256": "744fb820b4b02f97da48cc12d693f25bf9df930190a0b7bd45371839ecf53e73",
+          "size": 3922,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/utils.lua"
+        },
+        "pdfkit/fontkit/writer.lua": {
+          "sha256": "a7445ee92430e407b21ad5beda0437908fea5dcf0188d9594bc9388082b64bfa",
+          "size": 3668,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/fontkit/writer.lua"
+        },
+        "pdfkit/gradient.lua": {
+          "sha256": "b7e8e31f9ce2c61ea226c7b2c8a6c401c913382d84b48c5124dbac18012ff1cf",
+          "size": 14606,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/gradient.lua"
+        },
+        "pdfkit/image.lua": {
+          "sha256": "d52a1b09e1b678cd53245356d650c0cd9896f7fb283994352ae380a375b0a38f",
+          "size": 2234,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/image.lua"
+        },
+        "pdfkit/image/jpeg.lua": {
+          "sha256": "395591dbbbe5ea1e3ef82d9fc226abfcf6c2afb54729fb38c711d31237357d02",
+          "size": 7193,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/image/jpeg.lua"
+        },
+        "pdfkit/image/png.lua": {
+          "sha256": "bd0acd9a5923ddf5ec05226f90804278c45431f542059396919a159900eead05",
+          "size": 9905,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/image/png.lua"
+        },
+        "pdfkit/init.lua": {
+          "sha256": "b2b48383f78b2e5cb2d43e0d103485d7e51af8d4008a774e22a1dc8b320d181b",
+          "size": 1873,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/init.lua"
+        },
+        "pdfkit/jsmath.lua": {
+          "sha256": "ec65220db778ebb3e1e5ab5d40fe7148b63fc5257c7f229d38af9c2212992f98",
+          "size": 16873,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/jsmath.lua"
+        },
+        "pdfkit/jsstring.lua": {
+          "sha256": "9290197da12df5e7bc7b134246ae2fa71642856e0c7e66c9e3e2355d10398fdc",
+          "size": 10601,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/jsstring.lua"
+        },
+        "pdfkit/line_breaker.lua": {
+          "sha256": "c2018265d3ccabe7c464f6a71fb75985877cc8f478b3808f68c87d7ba102cb6f",
+          "size": 10810,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/line_breaker.lua"
+        },
+        "pdfkit/line_wrapper.lua": {
+          "sha256": "28fbfa50cf1f511eff4a293aaf8e4de79442a0c906e9e755e3c430c4400eda80",
+          "size": 18937,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/line_wrapper.lua"
+        },
+        "pdfkit/linebreak/classes.lua": {
+          "sha256": "664359544aafa66f332e1cbb417e83b5bd178c01e1d2f76cc916a2c5e4505d6d",
+          "size": 905,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/linebreak/classes.lua"
+        },
+        "pdfkit/linebreak/data.lua": {
+          "sha256": "7cd804bc185c338a19ad4529739224ab43adf4cd993f7962397a6dbff476af8e",
+          "size": 30820,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/linebreak/data.lua"
+        },
+        "pdfkit/linebreak/pairs.lua": {
+          "sha256": "55922e0b3dcf5ad73db573e4f33d03b5040692649e068deda385947fb82f0744",
+          "size": 4103,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/linebreak/pairs.lua"
+        },
+        "pdfkit/md5.lua": {
+          "sha256": "1817b9303afbe0211bf335d1501bf79505b6d77967a81e0589de371391f990d7",
+          "size": 3116,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/md5.lua"
+        },
+        "pdfkit/metadata.lua": {
+          "sha256": "f00fa29e540cd9cc35bd302e39ccdcf4e3b1de108d2fdb775d91c2a75fe5aaab",
+          "size": 2359,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/metadata.lua"
+        },
+        "pdfkit/mixins/acroform.lua": {
+          "sha256": "0b6e6e810740191d0a3831919d00b27bd081cd00f09bbd9870773ab90ee80341",
+          "size": 23433,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/acroform.lua"
+        },
+        "pdfkit/mixins/annotations.lua": {
+          "sha256": "aafeb7537b45ceee8d0a51e8408b9bf4052b8bad7be7fc057d3dafb2d81794f8",
+          "size": 8795,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/annotations.lua"
+        },
+        "pdfkit/mixins/attachments.lua": {
+          "sha256": "60f294cecd9c110137458f3d3beb5600819e9749a0a6276a61ebe3bd601ed4bc",
+          "size": 5603,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/attachments.lua"
+        },
+        "pdfkit/mixins/color.lua": {
+          "sha256": "6b0d4775b7a6ec21f3ef625b75f733b2c5788ec9a6d7822cc6496acd50a68335",
+          "size": 12224,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/color.lua"
+        },
+        "pdfkit/mixins/fonts.lua": {
+          "sha256": "b8f4584a5d7d2e0cf864a6953b720d7a9a60305068c26dc19fbd0cf233f04333",
+          "size": 7423,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/fonts.lua"
+        },
+        "pdfkit/mixins/images.lua": {
+          "sha256": "fdb2b23bb9061d8ca04374ea4607134b43ba272548446f8880357703fde65ea2",
+          "size": 8256,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/images.lua"
+        },
+        "pdfkit/mixins/markings.lua": {
+          "sha256": "4ec53dc8e1fe3dff6644a92ad8f3401204059e835de66c03798d3ee294b29dd5",
+          "size": 7629,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/markings.lua"
+        },
+        "pdfkit/mixins/metadata.lua": {
+          "sha256": "a9782e34cf8ae11ef3a94a9fcba6663283fcabf3af9848e3cb73580fe4eab072",
+          "size": 5340,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/metadata.lua"
+        },
+        "pdfkit/mixins/outline.lua": {
+          "sha256": "52bccea41ffd7b88645eee4f9010b6589a51960e201d1d9578ed109e7465f725",
+          "size": 827,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/outline.lua"
+        },
+        "pdfkit/mixins/pdfa.lua": {
+          "sha256": "7884cb21589baf4cd124bde62bf51799f919ef843fa1a34b2b98b2c953f62e36",
+          "size": 2742,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/pdfa.lua"
+        },
+        "pdfkit/mixins/pdfua.lua": {
+          "sha256": "332607b395bf0734a609dc8b27b19f8b61e1f2724bea0cb9c9b29b6dc1910243",
+          "size": 796,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/pdfua.lua"
+        },
+        "pdfkit/mixins/srgb_profile.lua": {
+          "sha256": "6367d4f3c6b009885ebf89bb258e5850e0848ae7f8ee7e0d83d342752353817f",
+          "size": 12440,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/srgb_profile.lua"
+        },
+        "pdfkit/mixins/subsets.lua": {
+          "sha256": "3a2ec9a0e968ff63fa66b6bdbc4c9d2a8dd04a6abc4a280ce57a679184a330b4",
+          "size": 1200,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/subsets.lua"
+        },
+        "pdfkit/mixins/table.lua": {
+          "sha256": "64fa7770d13d136e6e73086515b107e3078ff1c6a00f3618fa91e2705fbd439a",
+          "size": 942,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/table.lua"
+        },
+        "pdfkit/mixins/text.lua": {
+          "sha256": "4288c616c295a63b2fac92bca7ecf96d7032b7d0ec2d8208cb41e0a075e19773",
+          "size": 28954,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/text.lua"
+        },
+        "pdfkit/mixins/vector.lua": {
+          "sha256": "c1ca81017c0d813f0dbcc19adca4a8f0fd2afbc0c67603f7c7fbb5266f765c3f",
+          "size": 11855,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/mixins/vector.lua"
+        },
+        "pdfkit/name_tree.lua": {
+          "sha256": "9ca35a7403a245fef170f109a81cfb09802fa783264ef9061119aadbee806451",
+          "size": 821,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/name_tree.lua"
+        },
+        "pdfkit/number_tree.lua": {
+          "sha256": "1b1d772296d6010130f517f426972b3d6544ab736b505a92e4c928aeaf8eccf8",
+          "size": 895,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/number_tree.lua"
+        },
+        "pdfkit/object.lua": {
+          "sha256": "d9540edb44d2e1097b5250488c23de8cdae63ebb513f933e2711856367db967d",
+          "size": 12578,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/object.lua"
+        },
+        "pdfkit/outline.lua": {
+          "sha256": "c79c7c60211cb2e29b4fb4c3d5b1de7c64291555cedbd62d0f2987c539e5d8d1",
+          "size": 3594,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/outline.lua"
+        },
+        "pdfkit/page.lua": {
+          "sha256": "27dfb59a60ae7b0e0a8825f99750c666d9de67823b13a2bca54ca9556cbeddc1",
+          "size": 8453,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/page.lua"
+        },
+        "pdfkit/path.lua": {
+          "sha256": "6853896c6e8a2d7ee22917728e50f89ea692e3cb11cb100039d4f2ec3312518e",
+          "size": 19869,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/path.lua"
+        },
+        "pdfkit/pattern.lua": {
+          "sha256": "283a971ef8cc045596c5319ca9de670478d22b9b33d85294065850196bf14131",
+          "size": 5734,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/pattern.lua"
+        },
+        "pdfkit/png_reader.lua": {
+          "sha256": "4c6c6a5078bed4fa1cd1905ff2a8f6508311e4d9d08faa0bde56f9382b5e6df6",
+          "size": 17598,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/png_reader.lua"
+        },
+        "pdfkit/reference.lua": {
+          "sha256": "53701539331a362a5882d28ccc6c844f64da6efedaeb5de77fb8022e6e1c43dc",
+          "size": 3721,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/reference.lua"
+        },
+        "pdfkit/spotcolor.lua": {
+          "sha256": "f9ff712b88640f5bf5f996bc9460d78311cac10998cef407fd991266c640357a",
+          "size": 1925,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/spotcolor.lua"
+        },
+        "pdfkit/structure_annotation.lua": {
+          "sha256": "5e8350a6de46b66416ef94d5d937957f379d8fdb8bbd0b979bcb10d38e3a819f",
+          "size": 761,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/structure_annotation.lua"
+        },
+        "pdfkit/structure_content.lua": {
+          "sha256": "c9864519b984c3dc01a2131a55ba7d102694cf5e8f19e96f914d002be885a5a4",
+          "size": 995,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/structure_content.lua"
+        },
+        "pdfkit/structure_element.lua": {
+          "sha256": "024e779b6350e9d9913312d20ab9d3134c48d5e726a07a7999b2a042693c1dbb",
+          "size": 10167,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/structure_element.lua"
+        },
+        "pdfkit/table/accessibility.lua": {
+          "sha256": "5e58b9e89d872bad44bf217a4abae1c9245f4f4f8ffa57d62166f8658689add4",
+          "size": 7560,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/table/accessibility.lua"
+        },
+        "pdfkit/table/index.lua": {
+          "sha256": "db17f4f47c56bd3c8abda85193f2a09d62c30b6c32eb58dff2eccb56bad8fdf1",
+          "size": 3760,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/table/index.lua"
+        },
+        "pdfkit/table/normalize.lua": {
+          "sha256": "ccd772afef54050c13a0e13561f9218967b84eb531975ed860466aee4c72f428",
+          "size": 11377,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/table/normalize.lua"
+        },
+        "pdfkit/table/render.lua": {
+          "sha256": "a21ab6ed39caec687efd9a7cda76f3e95c9b0e8408c9bc3c73e2e368be8b4fe2",
+          "size": 7498,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/table/render.lua"
+        },
+        "pdfkit/table/size.lua": {
+          "sha256": "19dc8af4684fee76f6b0bbf38272c9471ba61aaedf54a0563129f5ff770ed9e7",
+          "size": 14318,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/table/size.lua"
+        },
+        "pdfkit/table/style.lua": {
+          "sha256": "a0e6e94af2b3d2e928d21fa3966d4dc540af14e00199d13feecc2cbc2624a908",
+          "size": 5626,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/table/style.lua"
+        },
+        "pdfkit/table/utils.lua": {
+          "sha256": "ce442a90b0b272e7c39f6409103d374c3136ba1217839c66dd0f572ed83741eb",
+          "size": 8002,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/table/utils.lua"
+        },
+        "pdfkit/tree.lua": {
+          "sha256": "c1f4fd27689e4c97e22eb53ea713b08c1bc9286b9f0f4e3d452a91f9f902da02",
+          "size": 2919,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/tree.lua"
+        },
+        "pdfkit/utils.lua": {
+          "sha256": "b13579bcce69465daa295720b8de7c4615353f1b6033f39bc3129eb75cb1152f",
+          "size": 13118,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/utils.lua"
+        },
+        "pdfkit/zlib/deflate.lua": {
+          "sha256": "b906112e0557a4d1fee3fa45217563e0c2d28ee6e1dbc601c35c40c1dea178f8",
+          "size": 49282,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/zlib/deflate.lua"
+        },
+        "pdfkit/zlib/trees.lua": {
+          "sha256": "a8dfa7491219b9d0b18f8caaea7143e18fb647003a69de8856e7edd7cd53a6a4",
+          "size": 32736,
+          "url": "https://raw.githubusercontent.com/500Foods/lua-pdfkit/3361d37f190b2f141a54345570aaf22350166e06/src/pdfkit/zlib/trees.lua"
+        }
+      },
+      "homepage": "https://github.com/500Foods/lua-pdfkit",
+      "license": "MIT",
+      "lua": ">= 5.5",
+      "luarocks": {
+        "date": "Fri, 06 Nov 2026 05:53:03 GMT",
+        "rockspec": {
+          "date": "Fri, 06 Nov 2026 05:53:03 GMT",
+          "sha256": "5faa42f57db1ad94b4cf8f3426d0d2eff2fa40662b147a98389b063c3a4cc4dc",
+          "size": 12115
+        }
+      },
+      "modules": [
+        "pdfkit",
+        "pdfkit.base64",
+        "pdfkit.collate",
+        "pdfkit.document",
+        "pdfkit.flate",
+        "pdfkit.font",
+        "pdfkit.font.afm",
+        "pdfkit.font.embedded",
+        "pdfkit.font.generated.Courier",
+        "pdfkit.font.generated.CourierBold",
+        "pdfkit.font.generated.CourierBoldOblique",
+        "pdfkit.font.generated.CourierOblique",
+        "pdfkit.font.generated.Helvetica",
+        "pdfkit.font.generated.HelveticaBold",
+        "pdfkit.font.generated.HelveticaBoldOblique",
+        "pdfkit.font.generated.HelveticaOblique",
+        "pdfkit.font.generated.Symbol",
+        "pdfkit.font.generated.TimesBold",
+        "pdfkit.font.generated.TimesBoldItalic",
+        "pdfkit.font.generated.TimesItalic",
+        "pdfkit.font.generated.TimesRoman",
+        "pdfkit.font.generated.ZapfDingbats",
+        "pdfkit.font.generated.standardGlyphNames",
+        "pdfkit.font.standard",
+        "pdfkit.font_factory",
+        "pdfkit.fontkit",
+        "pdfkit.fontkit.CmapProcessor",
+        "pdfkit.fontkit.TTFFont",
+        "pdfkit.fontkit.TrueTypeCollection",
+        "pdfkit.fontkit.WOFFFont",
+        "pdfkit.fontkit.base",
+        "pdfkit.fontkit.cff.font",
+        "pdfkit.fontkit.cff.operand",
+        "pdfkit.fontkit.cff.standard_strings",
+        "pdfkit.fontkit.encodings",
+        "pdfkit.fontkit.glyph.BBox",
+        "pdfkit.fontkit.glyph.CFFGlyph",
+        "pdfkit.fontkit.glyph.Glyph",
+        "pdfkit.fontkit.glyph.Path",
+        "pdfkit.fontkit.glyph.StandardNames",
+        "pdfkit.fontkit.glyph.TTFGlyph",
+        "pdfkit.fontkit.glyph.TTFGlyphEncoder",
+        "pdfkit.fontkit.layout.GlyphPosition",
+        "pdfkit.fontkit.layout.GlyphRun",
+        "pdfkit.fontkit.layout.KernProcessor",
+        "pdfkit.fontkit.layout.LayoutEngine",
+        "pdfkit.fontkit.layout.Script",
+        "pdfkit.fontkit.layout.UnicodeLayoutEngine",
+        "pdfkit.fontkit.opentype.GPOSProcessor",
+        "pdfkit.fontkit.opentype.GSUBProcessor",
+        "pdfkit.fontkit.opentype.GlyphInfo",
+        "pdfkit.fontkit.opentype.GlyphIterator",
+        "pdfkit.fontkit.opentype.OTLayoutEngine",
+        "pdfkit.fontkit.opentype.OTProcessor",
+        "pdfkit.fontkit.opentype.ShapingPlan",
+        "pdfkit.fontkit.opentype.shapers",
+        "pdfkit.fontkit.opentype.shapers.ArabicShaper",
+        "pdfkit.fontkit.opentype.shapers.DefaultShaper",
+        "pdfkit.fontkit.opentype.shapers.arabic_data",
+        "pdfkit.fontkit.reader",
+        "pdfkit.fontkit.subset.CFFSubset",
+        "pdfkit.fontkit.subset.Subset",
+        "pdfkit.fontkit.subset.TTFSubset",
+        "pdfkit.fontkit.tables",
+        "pdfkit.fontkit.tables.GDEF",
+        "pdfkit.fontkit.tables.GPOS",
+        "pdfkit.fontkit.tables.GSUB",
+        "pdfkit.fontkit.tables.OS2",
+        "pdfkit.fontkit.tables.cmap",
+        "pdfkit.fontkit.tables.cvt",
+        "pdfkit.fontkit.tables.directory",
+        "pdfkit.fontkit.tables.fpgm",
+        "pdfkit.fontkit.tables.glyf",
+        "pdfkit.fontkit.tables.head",
+        "pdfkit.fontkit.tables.hhea",
+        "pdfkit.fontkit.tables.hmtx",
+        "pdfkit.fontkit.tables.kern",
+        "pdfkit.fontkit.tables.loca",
+        "pdfkit.fontkit.tables.maxp",
+        "pdfkit.fontkit.tables.name",
+        "pdfkit.fontkit.tables.opentype",
+        "pdfkit.fontkit.tables.post",
+        "pdfkit.fontkit.tables.prep",
+        "pdfkit.fontkit.unicode",
+        "pdfkit.fontkit.utils",
+        "pdfkit.fontkit.writer",
+        "pdfkit.gradient",
+        "pdfkit.image",
+        "pdfkit.image.jpeg",
+        "pdfkit.image.png",
+        "pdfkit.jsmath",
+        "pdfkit.jsstring",
+        "pdfkit.line_breaker",
+        "pdfkit.line_wrapper",
+        "pdfkit.linebreak.classes",
+        "pdfkit.linebreak.data",
+        "pdfkit.linebreak.pairs",
+        "pdfkit.md5",
+        "pdfkit.metadata",
+        "pdfkit.mixins.acroform",
+        "pdfkit.mixins.annotations",
+        "pdfkit.mixins.attachments",
+        "pdfkit.mixins.color",
+        "pdfkit.mixins.fonts",
+        "pdfkit.mixins.images",
+        "pdfkit.mixins.markings",
+        "pdfkit.mixins.metadata",
+        "pdfkit.mixins.outline",
+        "pdfkit.mixins.pdfa",
+        "pdfkit.mixins.pdfua",
+        "pdfkit.mixins.srgb_profile",
+        "pdfkit.mixins.subsets",
+        "pdfkit.mixins.table",
+        "pdfkit.mixins.text",
+        "pdfkit.mixins.vector",
+        "pdfkit.name_tree",
+        "pdfkit.number_tree",
+        "pdfkit.object",
+        "pdfkit.outline",
+        "pdfkit.page",
+        "pdfkit.path",
+        "pdfkit.pattern",
+        "pdfkit.png_reader",
+        "pdfkit.reference",
+        "pdfkit.spotcolor",
+        "pdfkit.structure_annotation",
+        "pdfkit.structure_content",
+        "pdfkit.structure_element",
+        "pdfkit.table.accessibility",
+        "pdfkit.table.index",
+        "pdfkit.table.normalize",
+        "pdfkit.table.render",
+        "pdfkit.table.size",
+        "pdfkit.table.style",
+        "pdfkit.table.utils",
+        "pdfkit.tree",
+        "pdfkit.utils",
+        "pdfkit.zlib.deflate",
+        "pdfkit.zlib.trees"
+      ],
+      "origin": {
+        "commit": "3361d37f190b2f141a54345570aaf22350166e06",
+        "ref": "v1.0.1",
+        "type": "git",
+        "url": "https://github.com/500Foods/lua-pdfkit.git"
+      },
+      "size": 1181680,
+      "summary": "Pure Lua PDF writer, a port of PDFKit 0.20.2",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-23",
+        "loaded": 139,
+        "status": "ok",
+        "total": 139
+      }
+    }
+  }
+}

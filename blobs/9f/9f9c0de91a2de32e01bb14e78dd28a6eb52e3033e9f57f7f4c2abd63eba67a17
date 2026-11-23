@@ -1,0 +1,139 @@
+-- ============================================================
+-- Shiva Test — Native Mock Registry
+-- Provides sensible defaults for common FiveM natives and
+-- installs a _G metatable catchall so any undefined
+-- UPPERCASE-starting global returns a no-op function instead
+-- of raising a nil-call error.
+-- ============================================================
+
+local Natives = {}
+
+local _mocks    = {}  -- { [name] = fn }
+local _defaults = {}  -- { [name] = returnValue }
+
+-- ========================
+-- Sensible defaults for common natives
+-- ========================
+
+local NATIVE_DEFAULTS = {
+    -- Entity / Player
+    GetPlayerPed              = function(_source) return (_source or 0) + 100 end,
+    GetEntityCoords           = function(_entity) return { x = 0.0, y = 0.0, z = 0.0 } end,
+    GetEntityHeading          = function(_entity) return 0.0 end,
+    DoesEntityExist           = function(_entity) return true end,
+    GetEntityModel            = function(_entity) return 0 end,
+    IsEntityInWater           = function(_entity) return false end,
+    IsEntityDead              = function(_entity) return false end,
+    GetEntityHealth           = function(_entity) return 200 end,
+    GetEntityMaxHealth        = function(_entity) return 200 end,
+    NetworkGetNetworkIdFromEntity = function(_entity) return 1 end,
+    NetworkGetEntityFromNetworkId = function(netId) return netId end,
+    NetworkGetEntityOwner     = function(_entity) return 0 end,
+    GetEntityVelocity         = function(_entity) return { x = 0.0, y = 0.0, z = 0.0 } end,
+
+    -- Player identifiers
+    GetPlayerName             = function(_source) return 'TestPlayer' end,
+    GetPlayerPing             = function(_source) return 50 end,
+    GetNumPlayerIdentifiers   = function(_source) return 1 end,
+    GetPlayerIdentifier       = function(_source, _idx) return 'license:abc123' end,
+    GetPlayerIdentifierByType = function(_source, _type) return 'abc123' end,
+    GetPlayerIdentifiers      = function(_source) return { 'license:abc123' } end,
+    GetPlayerServerId         = function(_source) return _source or 1 end,
+    GetPlayerGroup            = function(_source) return 'user' end,
+    IsPlayerAceAllowed        = function(_source, _ace) return false end,
+
+    -- Resource
+    GetCurrentResourceName    = function() return 'test' end,
+    GetResourceState          = function(_name) return 'started' end,
+    GetConvar                 = function(_name, default) return default or '' end,
+    GetConvarInt              = function(_name, default) return default or 0 end,
+    GetGameTimer              = function() return math.floor(os.clock() * 1000) end,
+
+    -- Math / hashing
+    GetHashKey                = function(name) return #name end,
+
+    -- Booleans that should default false
+    HasModelLoaded            = function(_model) return true end,
+    IsPlayerConnected         = function(_source) return true end,
+    IsPedInAnyVehicle         = function(_ped, _atGetIn) return false end,
+    IsEntityInVehicle         = function(_entity, _vehicle) return false end,
+}
+
+-- ========================
+-- Install _G catchall
+-- ========================
+
+---@param G table  The global environment (_G)
+function Natives.install(G)
+    -- Pre-install all defaults into the mock table
+    for name, fn in pairs(NATIVE_DEFAULTS) do
+        if not _mocks[name] then
+            _mocks[name] = fn
+        end
+    end
+
+    local existing_mt = getmetatable(G) or {}
+    local old_index   = existing_mt.__index
+
+    existing_mt.__index = function(t, k)
+        -- 1. Honour existing real globals
+        if old_index then
+            local v = type(old_index) == 'function' and old_index(t, k) or old_index[k]
+            if v ~= nil then return v end
+        end
+
+        -- 2. Check mock registry
+        if _mocks[k] then return _mocks[k] end
+
+        -- 3. Native-like name (uppercase start or N_0x... hash natives)
+        if type(k) == 'string' and (k:match('^[A-Z][a-zA-Z0-9_]+$') or k:match('^N_0x')) then
+            return function(...)
+                local def = _defaults[k]
+                if def ~= nil then return def end
+                return nil
+            end
+        end
+
+        return nil
+    end
+
+    setmetatable(G, existing_mt)
+end
+
+-- ========================
+-- Mock API
+-- ========================
+
+---@param name string  Native function name (e.g. 'GetEntityCoords')
+---@param fn   function
+function Natives.mock(name, fn)
+    _mocks[name] = fn
+end
+
+---@param name  string  Native function name
+---@param value any     Value the native will return
+function Natives.setReturn(name, value)
+    _defaults[name] = value
+    _mocks[name] = function(...) return value end --luacheck: ignore 212
+end
+
+---@param name string
+---@return function|nil
+function Natives.get(name)
+    return _mocks[name]
+end
+
+-- ========================
+-- Lifecycle
+-- ========================
+
+function Natives.reset()
+    _mocks    = {}
+    _defaults = {}
+    -- Re-install defaults
+    for name, fn in pairs(NATIVE_DEFAULTS) do
+        _mocks[name] = fn
+    end
+end
+
+return Natives

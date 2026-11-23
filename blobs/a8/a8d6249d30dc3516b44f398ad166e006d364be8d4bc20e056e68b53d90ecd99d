@@ -1,0 +1,15 @@
+local bit = bit or require "bit32"
+
+return {
+  HealthRPC = 0,
+  ReqMsgRPC = 1,
+  ResMsgRPC = 2,
+  SettingsRPC = 3,
+
+  JSONrpcEncoding = 1,
+  CBORrpcEncoding = 2,
+  LocalRPCEncoding = 3,
+  NoRPCCompression = 0,
+
+  AdvancedFlagCloseConnection = bit.lshift(1, 0),
+}

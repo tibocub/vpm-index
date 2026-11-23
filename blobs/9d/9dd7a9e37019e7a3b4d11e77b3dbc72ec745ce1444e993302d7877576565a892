@@ -1,0 +1,33 @@
+local _module_0 = { }
+local io = require('io')
+local result = require('elan.result')
+local load_file_constrained
+load_file_constrained = function(file, lang, ...)
+	local v, err = lang.loader(file, true)
+	if not v then
+		return nil, err
+	end
+	local n = select('#', ...)
+	for i = 1, n do
+		local pred = select(i, ...)
+		if pred(v) then
+			return v, i
+		end
+	end
+	return nil, "invalid value type " .. tostring(type(v)) .. " returned by yue file " .. tostring(file)
+end
+_module_0["load_file_constrained"] = load_file_constrained
+local load_content
+load_content = function(file)
+	local f, err = io.open(file)
+	if not f then
+		return nil, err
+	end
+	return result.defer(function()
+		return f:close()
+	end, function()
+		return f:read("*a")
+	end)
+end
+_module_0["load_content"] = load_content
+return _module_0

@@ -1,0 +1,56 @@
+---@meta
+---@diagnostic disable: unused-local
+
+---@class lrocket.Toolchain
+---@field EXT_BIN string
+---@field EXT_OBJECT string
+---@field EXT_SHARED string
+---@field EXT_ARCHIVE string
+---@field ENV table<string, string>
+---@field HOST string|lrocket.TargetTripple
+local toolchain = {}
+
+---@return boolean, string?
+function toolchain.testtools() end
+
+--- Configure the toolchain
+---@param cfg lrocket.FinalConf
+---@param userargs lrocket.TargetSpec
+---@return boolean
+---@return string
+function toolchain.configure(cfg, userargs) return false, "dummy toolchain" end
+
+--- Returns the dependant libraries of a shared object
+---@param shared_lib string # path to shared library
+---@return string[]? deps
+---@return string? error
+function toolchain.libdeps(shared_lib) return nil, "dummy toolchain" end
+
+--- Returns symbols of an object
+---@param obj string
+---@return string[]? symbols
+---@return string? error
+function toolchain.symbols(obj) return nil, "dummy toolchain" end
+
+--- Tries to determine if library is static or dynamic
+---@param library string
+---@return 'static'|'dynamic'? type
+---@return string? error
+function toolchain.libtype(library) return nil, "dummy toolchain" end
+
+--- Run the compiler using the info build in conf
+---@param conf lrocket.CompilerConf
+---@return boolean success
+---@return string? error
+function toolchain.compile(conf) return false, "dummy toolchain" end
+
+---@return string?, string?
+function toolchain.defaultdefs() end
+
+---@param mode 'l'|'c'|'o'|string
+---@param conf lrocket.CompilerConf
+---@return string[]
+function toolchain.bakeargs(mode, conf) return {} end
+
+return toolchain
+

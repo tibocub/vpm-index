@@ -1,0 +1,551 @@
+local resty_http = require 'resty.http'
+local cjson = require "cjson"
+local utility = require "kong.plugins.traceable.utility"
+local cloud_metadata = require "kong.plugins.traceable.cloud_metadata"
+local ai_firewall = require "kong.plugins.traceable.ai_firewall"
+
+local TraceableHandler = {
+  VERSION = "2.3.0",
+  -- Kong mutates the VERSION string to match X.Y.Z, for rc candidates we need the dev build version as well
+  MODULE_VERSION = "2.3.0",
+  PRIORITY = 99998,
+}
+
+-- Initialize cloud metadata asynchronously using timer (cosockets allowed in timers)
+function TraceableHandler:init_worker()
+  local function fetch_metadata_async(premature)
+    if premature then
+      return
+    end
+
+    local ok, err = pcall(function()
+      cloud_metadata.get_metadata()
+    end)
+    if not ok then
+      ngx.log(ngx.WARN, "Failed to initialize cloud metadata: ", err)
+    end
+  end
+
+  -- Schedule async fetch with 0 delay
+  local ok, err = ngx.timer.at(0, fetch_metadata_async)
+  if not ok then
+    ngx.log(ngx.WARN, "Failed to schedule cloud metadata fetch: ", err)
+  end
+end
+
+local CaptureContentTypes = { "json", "xml", "x-www-form-urlencoded", "text/event-stream" }
+
+local function bufferRequestBody(config)
+  if config.buffer_request_body
+  then
+    local body = kong.request.get_raw_body()
+    if body and #body > config.max_body_size_bytes then
+      ngx.ctx.traceableai_request_body = body:sub(1, config.max_body_size_bytes)
+      ngx.ctx.traceableai_request_truncated = true
+    else
+      ngx.ctx.traceableai_request_body = body
+    end
+  end
+end
+
+local function shouldCaptureBody(processedHeaders)
+  if not processedHeaders["content-type"] then
+    return false
+  end
+
+  for _, contentTypeSubstring in ipairs(CaptureContentTypes) do
+    if string.find(processedHeaders["content-type"], contentTypeSubstring, 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+local function getRequestBody(config)
+  -- Prefer the buffered copy; get_raw_body() is unavailable in log phase.
+  if ngx.ctx.traceableai_request_body ~= nil then
+    return ngx.ctx.traceableai_request_body
+  end
+  if config.mode == "sync" then
+    return kong.request.get_raw_body() or ""
+  end
+  return ""
+end
+
+local function onExtCapFailure(config)
+  if config.allow_on_failure then
+    return
+  else
+    return kong.response.error(403)
+  end
+end
+
+local function makeReqCapRequestBody(reqHeaders, config)
+  local body = ""
+  local truncated = false
+  if shouldCaptureBody(reqHeaders) then
+    body = getRequestBody(config)
+    if config.mode == "async" then
+      truncated = ngx.ctx.traceableai_request_truncated or false
+    elseif body and #body > config.max_body_size_bytes then
+      body = body:sub(1, config.max_body_size_bytes)
+      truncated = true
+    end
+  end
+
+  -- Collect cloud metadata attributes (cached)
+  local attributes = cloud_metadata.get_attributes()
+
+  local request_body = {
+    request = {
+      timestamp = utility.toProtoTimestamp(ngx.req.start_time()),
+      method = kong.request.get_method(),
+      headers = reqHeaders,
+      scheme = kong.request.get_scheme(),
+      path = kong.request.get_path_with_query(),
+      host = kong.request.get_host(),
+      body = ngx.encode_base64(body),
+      source_address = kong.client.get_ip(),
+      source_port = kong.client.get_port(),
+      truncated = truncated,
+    }
+  }
+
+  -- Only add attributes if we have any
+  if next(attributes) ~= nil then
+    request_body.attributes = attributes
+  end
+
+  return request_body
+end
+
+local function makeResCapRequestBody(resHeaders, config)
+  local responseTable = utility.getResponseTable()
+  local url = utility.buildUrl()
+  local status_code = kong.response.get_status()
+
+  local is_sse = false
+  if resHeaders and resHeaders["content-type"] then
+    is_sse = utility.isSSE(resHeaders["content-type"]) or false
+  end
+
+  local body_b64 = ""
+  local streaming_events = nil
+  local truncated = false
+
+  if is_sse then
+    streaming_events = utility.getStreamingEventsTable()
+  else
+    local body = table.concat(responseTable, "")
+    truncated = ngx.ctx.traceableai_response_truncated or false
+    body_b64 = ngx.encode_base64(body)
+  end
+
+  local result = {
+    response = {
+      headers = resHeaders,
+      body = body_b64,
+      request_url = url,
+      status_code = status_code,
+      streaming_events = streaming_events,
+      truncated = truncated,
+    }
+  }
+
+  -- Fold stashed /eval attributes onto the span via TPA's ResCap handler.
+  local attrs = {}
+  ai_firewall.merge_stashed_eval_attributes(attrs)
+  if next(attrs) ~= nil then
+    result.attributes = attrs
+  end
+
+  return result
+end
+
+local function makeReqResCapRequestBody(reqHeaders, resHeaders, config)
+  local req_body = makeReqCapRequestBody(reqHeaders, config)
+  local result = {
+    request = req_body.request,
+    response = makeResCapRequestBody(resHeaders, config).response,
+    request_timestamp_in_ms = utility.toProtoTimestampInMs(ngx.req.start_time())
+  }
+
+  -- Include attributes from request body if present
+  if req_body.attributes then
+    result.attributes = req_body.attributes
+  end
+
+  -- Fold stashed /eval attributes onto the span.
+  result.attributes = result.attributes or {}
+  ai_firewall.merge_stashed_eval_attributes(result.attributes)
+  if next(result.attributes) == nil then
+    result.attributes = nil
+  end
+
+  return result
+end
+
+local function sendTpaRequest(premature, config, request, use_req_res_cap)
+  if premature then
+    return
+  end
+  local client = resty_http.new()
+  local url
+  if use_req_res_cap then
+    ngx.log(ngx.DEBUG, "Sending tpa req_res_cap request")
+    url = config.ext_cap_endpoint .. "/ext_cap/v1/req_res_cap"
+  else
+    ngx.log(ngx.DEBUG, "Sending tpa res_cap request")
+    url = config.ext_cap_endpoint .. "/ext_cap/v1/res_cap"
+  end
+
+  client:set_timeout(config.timeout or 500)
+  local res, err = client:request_uri(url, request)
+
+  if not res then
+    ngx.log(ngx.ERR, "Failed to send request to ", url, ": ", err)
+    return
+  end
+  ngx.log(ngx.DEBUG, "Received response from: ", url, " with status: ", res.status)
+  if res.status >= 400 then
+    ngx.log(ngx.ERR, "Unexpected response status: ", res.status, " from URL: ", url)
+  end
+
+end
+
+-- Client-propagated W3C traceparent; forwarded to TPA on entry calls so the
+-- span roots under the client's trace. Absent → TPA mints a fresh one.
+local function getClientTraceparent()
+  local headers = kong.request.get_headers()
+  local tp = headers and headers["traceparent"]
+  if type(tp) == "table" then
+    tp = tp[1]
+  end
+  if tp == "" then
+    return nil
+  end
+  return tp
+end
+
+local function createResCapHeaders(config, use_req_res_cap)
+  local serviceName = utility.getServiceName(config)
+
+  local headers = {
+    ["content-type"] = "application/json",
+    ["traceableai.module.name"] = "kong",
+    ["traceableai.service.name"] = serviceName,
+    ["traceableai.module.version"] = TraceableHandler.MODULE_VERSION,
+    ["traceableai-environment-name"] = config.environment_name
+  }
+
+  if config.token then
+    headers["traceableai-agent-token"] = config.token
+  end
+
+  local duration_nanos = utility.getTotalDurationNanos()
+  headers["traceableai-total-duration-nanos"] = string.format("%.0f", duration_nanos)
+  if use_req_res_cap then
+    -- Self-contained entry call: forward the client's traceparent.
+    local client_tp = getClientTraceparent()
+    if client_tp then
+      headers["traceparent"] = client_tp
+    end
+  elseif config.mode == "sync" then
+    -- /res_cap traceparent is TPA's correlation token from /req_cap, not the client's.
+    headers["traceableai.skip_n_parents"] = "0"
+    headers["traceableai.merge_n_root"] = "1"
+    headers["traceparent"] = ngx.ctx.traceparent
+    local spanType = utility.getSpanType()
+    if spanType then
+      headers["traceableai.span_type"] = spanType
+    end
+  end
+
+  return headers
+end
+
+local function createReqCapHeaders(config)
+  local serviceName = utility.getServiceName(config)
+
+  local headers = {
+    ["content-type"] = "application/json",
+    ["traceableai.module.name"] = "kong",
+    ["traceableai.module.version"] = TraceableHandler.MODULE_VERSION,
+    ["traceableai.service.name"] = serviceName,
+    ["traceableai.skip_merge_data_flag"] = "yes",
+    ["traceableai-environment-name"] = config.environment_name
+  }
+
+  if config.token then
+    headers["traceableai-agent-token"] = config.token
+  end
+
+  local client_tp = getClientTraceparent()
+  if client_tp then
+    headers["traceparent"] = client_tp
+  end
+
+  return headers
+end
+
+local function setSpanType(spanType)
+  kong.ctx.plugin.traceableai_span_type = spanType
+end
+
+local function setSkip(shouldSkip)
+  kong.ctx.plugin.skip_request = shouldSkip
+end
+
+local function shouldSkip()
+  return kong.ctx.plugin.skip_request
+end
+
+local function setExported()
+  ngx.ctx.traceableai_response_phase_exported = true
+end
+
+local function alreadyExported()
+  return ngx.ctx.traceableai_response_phase_exported
+end
+
+local static_extensions = {
+  ".css", ".js", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".ico",
+  ".woff", ".woff2", ".eot", ".ttf", ".otf", ".webp", ".avif", ".mp4", ".webm"
+}
+
+local function isStatic()
+  local path = kong.request.get_path()
+
+  for _, ext in ipairs(static_extensions) do
+    if path:sub(-#ext) == ext then
+      return true
+    end
+  end
+
+  return false
+end
+
+-- Publish config (minus token) to ngx.ctx.shared for sibling plugins.
+local function publishSharedConfig(config)
+  local shared_cfg = {}
+  for k, v in pairs(config) do
+    if k ~= "token" then
+      shared_cfg[k] = v
+    end
+  end
+  ngx.ctx.shared = ngx.ctx.shared or {}
+  ngx.ctx.shared.traceable_config = shared_cfg
+end
+
+function TraceableHandler:access(config)
+  local isStaticContent = isStatic()
+  setSkip(isStaticContent)
+  if isStaticContent then
+    return
+  end
+
+  publishSharedConfig(config)
+
+  local reqHeaders = utility.processHeaders(kong.request.get_headers())
+
+  if config.mode == "async"
+  then
+    if shouldCaptureBody(reqHeaders) then
+      bufferRequestBody(config)
+    end
+    return
+  end
+
+  local headers = createReqCapHeaders(config)
+
+  -- Presence of sibling `traceable-ai-extension` (access published
+  -- ngx.ctx.shared.traceable_ai_config) enables request-phase /eval.
+  -- Timeouts / allow_on_failure come from request_config; EDS decides
+  -- redact/block/passthrough. Log-phase export uses /req_res_cap.
+  local ai_config = ngx.ctx.shared and ngx.ctx.shared.traceable_ai_config
+  local request_config = ai_config and ai_config.request_config
+  if request_config then
+    -- Stash the (unredacted) body now so the log-phase /req_res_cap export
+    -- has something to ship. apply_redacted_request_body will overwrite this
+    -- with the decoded redacted body when TPA returns one.
+    if shouldCaptureBody(reqHeaders) then
+      ngx.ctx.traceableai_request_body = kong.request.get_raw_body() or ""
+    end
+
+    local timeout_ms = request_config.timeout or config.timeout or 500
+    local request_body = makeReqCapRequestBody(reqHeaders, config)
+    request_body.attributes = request_body.attributes or {}
+    local timeout_attrs = ai_firewall.apply_eval_timeout(timeout_ms, "request")
+    for k, v in pairs(timeout_attrs) do
+      request_body.attributes[k] = v
+    end
+
+    local eval_cfg = {
+      ext_cap_endpoint = config.ext_cap_endpoint,
+      timeout = timeout_ms,
+    }
+    local body = cjson.encode(request_body)
+    ngx.ctx.traceableai_request_eval = true
+    if ai_firewall.evaluate_request(eval_cfg, headers, body) == "failed" then
+      return onExtCapFailure({
+        allow_on_failure = request_config.allow_on_failure,
+      })
+    end
+    return
+  end
+
+  local body = cjson.encode(makeReqCapRequestBody(reqHeaders, config))
+
+  local client = resty_http.new()
+  client:set_timeout(config.timeout or 500)
+
+  local res, err = client:request_uri(
+    config.ext_cap_endpoint .. "/ext_cap/v1/req_cap",
+    {
+      method = "POST",
+      headers = headers,
+      body = body
+    }
+  )
+  if not res then
+    ngx.log(ngx.ERR, "ext_cap: req_cap failed: ", err)
+    return onExtCapFailure(config)
+  end
+  if res.status ~= 200 then
+    ngx.log(ngx.ERR, "ext_cap: req_cap failed: ", res.status)
+    return onExtCapFailure(config)
+  end
+  local ok, authorization = pcall(cjson.decode, res.body)
+  if not ok or type(authorization) ~= "table" then
+    ngx.log(ngx.ERR, "ext_cap: req_cap failed: could not decode response body")
+    return onExtCapFailure(config)
+  end
+  local spanType = authorization.spanType
+  if spanType ~= nil and spanType ~= "" then
+    setSpanType(spanType)
+    if spanType == "nospan" then
+      setSkip(true)
+    end
+  end
+  if authorization.allowRequest == false then
+    -- EDS sends statusOnDeny=0 (unset); 0 is truthy in Lua so check it explicitly.
+    local status = authorization.statusOnDeny
+    return kong.response.error(status ~= 0 and status or 403, authorization.messageOnDeny)
+  elseif authorization.allowRequest ~= true then
+    ngx.log(ngx.ERR, "ext_cap: req_cap failed: missing or invalid allowRequest")
+    return onExtCapFailure(config)
+  end
+
+  if authorization.traceContext == nil then
+    ngx.log(ngx.ERR, "ext_cap: req_cap failed: invalid parent trace id")
+    return onExtCapFailure(config)
+  end
+  ngx.ctx.traceparent = authorization.traceContext.traceparent
+end
+
+local function exportDuringResponse(config)
+  -- /res_cap relies on a parent traceparent stashed by /req_cap in access.
+  -- /eval (AI request path) does not return a traceparent, so when the
+  -- sibling AI plugin ran we promote to /req_res_cap which is self-contained
+  -- (TPA builds the span from the request+response payload in one POST).
+  -- Async mode already uses /req_res_cap unconditionally.
+  local use_req_res_cap = config.mode == "async" or ngx.ctx.traceableai_request_eval == true
+
+  local headers = createResCapHeaders(config, use_req_res_cap)
+
+  local resHeaders = utility.processHeaders(kong.response.get_headers())
+  local body
+  if use_req_res_cap then
+    local reqHeaders = utility.processHeaders(kong.request.get_headers())
+    body = cjson.encode(makeReqResCapRequestBody(reqHeaders, resHeaders, config))
+  else
+    body = cjson.encode(makeResCapRequestBody(resHeaders, config))
+  end
+
+  local request = {
+    method = "POST",
+    headers = headers,
+    body = body
+  }
+  -- We use ngx.timer.at to work around the limitation of sockets not being available in the log
+  -- phase.
+  --
+  -- See https://github.com/openresty/lua-nginx-module#cosockets-not-available-everywhere
+  ngx.timer.at(0, sendTpaRequest, config, request, use_req_res_cap)
+end
+
+-- Kong 1.4 doesn't support accessing the response body through its plugin api, so
+-- we add this body filter to capture it.
+function TraceableHandler:body_filter(config)
+  -- Apply traceable-ai-extension's redacted body (it can't call set_raw_body itself
+  -- from `response`). Send once, blank out later chunks. Runs even if skipped/
+  -- already-exported below, so the client always sees the redaction.
+  local redacted = ngx.ctx.traceableai_redacted_response_body
+  if redacted then
+    if ngx.ctx.traceableai_redacted_response_sent then
+      ngx.arg[1] = ""
+    else
+      ngx.arg[1] = redacted
+      ngx.ctx.traceableai_redacted_response_sent = true
+    end
+  end
+
+  if shouldSkip() or alreadyExported() then
+    return
+  end
+
+  if ngx.ctx.traceableai_is_sse == nil then
+    local contentTypeValue = kong.response.get_header("content-type")
+    if utility.isSSE(contentTypeValue) then
+      ngx.ctx.traceableai_is_sse = true
+    else
+      ngx.ctx.traceableai_is_sse = false
+    end
+  end
+
+  local chunk = ngx.arg[1]
+  if chunk then
+    if ngx.ctx.traceableai_is_sse then
+      local events = utility.getStreamingEventsTable()
+      local next_index = #events
+      events[next_index + 1] = {
+        index = next_index,
+        content = ngx.encode_base64(chunk or ""),
+        phase = "STREAMING_EVENT_PHASE_RESPONSE",
+        type = "STREAMING_EVENT_TYPE_SSE",
+      }
+      ngx.ctx.recorded_size = (ngx.ctx.recorded_size or 0) + #chunk
+    else
+      local recorded_size = ngx.ctx.recorded_size or 0
+      if recorded_size < config.max_body_size_bytes then
+        local remaining = config.max_body_size_bytes - recorded_size
+        if #chunk > remaining then
+          chunk = chunk:sub(1, remaining)
+          ngx.ctx.traceableai_response_truncated = true
+        end
+        local responseTable = utility.getResponseTable()
+        table.insert(responseTable, chunk)
+        ngx.ctx.recorded_size = recorded_size + #chunk
+      else
+        ngx.ctx.traceableai_response_truncated = true
+      end
+    end
+  end
+
+  local sseRequiresExport =  ngx.ctx.traceableai_is_sse and (utility.isSSEBeyondTimeWindow(config) or utility.isSSEBeyondSizeWindow(config))
+
+  if sseRequiresExport then
+    setExported()
+    exportDuringResponse(config)
+  end
+end
+
+function TraceableHandler:log(config)
+  if shouldSkip() or alreadyExported() then
+    return
+  end
+
+  exportDuringResponse(config)
+end
+
+return TraceableHandler

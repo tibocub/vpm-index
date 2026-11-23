@@ -1,0 +1,217 @@
+-- AI-firewall helpers for the /ext_cap/v1/eval integration.
+-- Older TPAs 404 on /eval → falls through to onExtCapFailure (allow_on_failure).
+
+local resty_http = require "resty.http"
+local cjson = require "cjson"
+local utility = require "kong.plugins.traceable.utility"
+
+-- Sent bare on the /eval payload for libtraceable; stashed as
+-- request./response.<key> onto the final span (not in UNPREFIXED set).
+local EVAL_TIMEOUT_MS_ATTR = "traceableai.eval_timeout_ms"
+
+-- Identity / overall-outcome attrs that are the same across both /eval calls
+-- (or should be a single last-writer-wins signal). Kept unprefixed so the
+-- final span is not duplicated as request.* / response.*.
+local UNPREFIXED_EVAL_ATTRS = {
+  ["traceableai.blocked"] = true,
+  ["enduser.id"] = true,
+  ["traceableai.eds.module.name"] = true,
+  ["traceableai.eds.module.version"] = true,
+  ["traceableai.eds.service.instance.id"] = true,
+}
+
+local function apply_response_header_injections(decorations)
+  if type(decorations) ~= "table" then
+    return
+  end
+  if type(decorations.responseHeaderInjections) ~= "table" then
+    return
+  end
+  for _, kv in ipairs(decorations.responseHeaderInjections) do
+    -- content-length is recomputed by the caller after redaction/blocking; skip it here.
+    -- EDS sends the header name as "Content-Length" (mixed case), so compare case-insensitively.
+    if type(kv) == "table" and kv.key and kv.value and string.lower(kv.key) ~= "content-length" then
+      kong.response.set_header(kv.key, kv.value)
+    end
+  end
+end
+
+local function apply_request_header_injections(decorations)
+  if type(decorations) ~= "table" then
+    return
+  end
+  if type(decorations.requestHeaderInjections) ~= "table" then
+    return
+  end
+  for _, kv in ipairs(decorations.requestHeaderInjections) do
+    if type(kv) == "table" and kv.key and kv.value then
+      kong.service.request.set_header(kv.key, kv.value)
+    end
+  end
+end
+
+local function apply_redacted_request_body(decorations)
+  if type(decorations) ~= "table" then
+    return
+  end
+  local redacted_b64 = decorations.redactedRequestBody
+  if not redacted_b64 or redacted_b64 == "" then
+    return
+  end
+  local decoded = ngx.decode_base64(redacted_b64)
+  if not decoded then
+    ngx.log(ngx.WARN, "ext_cap: failed to decode redactedRequestBody base64")
+    return
+  end
+  kong.service.request.set_raw_body(decoded)
+  kong.service.request.set_header("content-length", tostring(#decoded))
+end
+
+-- Stash /eval attributes for the log-phase exporter to merge onto the span.
+-- Keys are prefixed with `<scope>.` (scope is "request" or "response") so the
+-- two /eval calls don't clobber each other on shared keys like
+-- `traceableai.decision` or `traceableai.process_time_us`.
+-- UNPREFIXED_EVAL_ATTRS stay bare (last writer wins across request/response).
+local function stash_eval_attributes(attrs, scope)
+  if type(attrs) ~= "table" then
+    return
+  end
+  local prefix = scope and (scope .. ".") or ""
+  local stash = ngx.ctx.traceableai_eval_attributes
+  if not stash then
+    stash = {}
+    ngx.ctx.traceableai_eval_attributes = stash
+  end
+  for k, v in pairs(attrs) do
+    if UNPREFIXED_EVAL_ATTRS[k] then
+      stash[k] = v
+    else
+      stash[prefix .. k] = v
+    end
+  end
+end
+
+local function merge_stashed_eval_attributes(dest)
+  local stash = ngx.ctx.traceableai_eval_attributes
+  if type(stash) ~= "table" or type(dest) ~= "table" then
+    return
+  end
+  for k, v in pairs(stash) do
+    dest[k] = v
+  end
+end
+
+local function decode_redacted_response_body(decorations)
+  if type(decorations) ~= "table" then
+    return nil
+  end
+  local redacted_b64 = decorations.redactedResponseBody
+  if not redacted_b64 or redacted_b64 == "" then
+    return nil
+  end
+  local decoded = ngx.decode_base64(redacted_b64)
+  if not decoded then
+    ngx.log(ngx.WARN, "ext_cap: failed to decode redactedResponseBody base64")
+    return nil
+  end
+  return decoded
+end
+
+-- Request-phase /eval. Returns "blocked" (response.error already sent),
+-- "allowed" (decorations applied), or "failed" (caller runs onExtCapFailure).
+local function evaluate_request(config, headers, body)
+  headers = headers or {}
+  headers["traceableai-ai-evaluate-request"] = "true"
+
+  local client = resty_http.new()
+  client:set_timeout(config.timeout or 500)
+
+  local res, err = client:request_uri(
+    config.ext_cap_endpoint .. "/ext_cap/v1/eval",
+    {
+      method = "POST",
+      headers = headers,
+      body = body,
+    }
+  )
+  if not res then
+    ngx.log(ngx.ERR, "ext_cap: /eval request-phase failed: ", err)
+    return "failed"
+  end
+  if res.status ~= 200 then
+    ngx.log(ngx.ERR, "ext_cap: /eval request-phase failed: ", res.status)
+    return "failed"
+  end
+
+  local ok, authorization = pcall(cjson.decode, res.body)
+  if not ok or type(authorization) ~= "table" then
+    ngx.log(ngx.ERR, "ext_cap: /eval request-phase failed: could not decode response body")
+    return "failed"
+  end
+  stash_eval_attributes(authorization.attributes, "request")
+
+  if authorization.allowRequest == false then
+    -- Signal sibling plugins (e.g. traceable-ai-extension) to skip response /eval.
+    ngx.ctx.traceableai_request_blocked = true
+    apply_response_header_injections(authorization.decorations)
+    -- EDS sends statusOnDeny=0 (unset); 0 is truthy in Lua so check it explicitly.
+    local status = authorization.statusOnDeny
+    kong.response.error(status ~= 0 and status or 403, authorization.messageOnDeny)
+    return "blocked"
+  elseif authorization.allowRequest ~= true then
+    ngx.log(ngx.ERR, "ext_cap: /eval request-phase failed: missing or invalid allowRequest")
+    return "failed"
+  end
+
+  apply_request_header_injections(authorization.decorations)
+  apply_redacted_request_body(authorization.decorations)
+  apply_response_header_injections(authorization.decorations)
+  return "allowed"
+end
+
+-- Attach timeout for libtraceable (/eval payload, bare key) and for the
+-- final span (scoped stash). Returns the attrs table for the payload.
+local function apply_eval_timeout(timeout_ms, scope)
+  local attrs = { [EVAL_TIMEOUT_MS_ATTR] = tostring(timeout_ms) }
+  stash_eval_attributes(attrs, scope)
+  return attrs
+end
+
+-- Response-phase /eval payload. Request body is omitted (already evaluated
+-- upstream); caller must drop content-length from reqHeaders to satisfy EDS.
+-- Optional `attributes` (e.g. bare eval_timeout_ms) are for TPA/libtraceable.
+local function build_eval_response_payload(reqHeaders, resHeaders, responseBody, attributes)
+  local payload = {
+    request = {
+      timestamp = utility.toProtoTimestamp(ngx.req.start_time()),
+      method = kong.request.get_method(),
+      headers = reqHeaders,
+      scheme = kong.request.get_scheme(),
+      path = kong.request.get_path_with_query(),
+      host = kong.request.get_host(),
+      source_address = kong.client.get_ip(),
+      source_port = kong.client.get_port(),
+    },
+    response = {
+      headers = resHeaders,
+      body = ngx.encode_base64(responseBody or ""),
+      request_url = utility.buildUrl(),
+      status_code = kong.response.get_status(),
+    },
+  }
+  if type(attributes) == "table" and next(attributes) ~= nil then
+    payload.attributes = attributes
+  end
+  return payload
+end
+
+return {
+  EVAL_TIMEOUT_MS_ATTR = EVAL_TIMEOUT_MS_ATTR,
+  apply_eval_timeout = apply_eval_timeout,
+  apply_response_header_injections = apply_response_header_injections,
+  decode_redacted_response_body = decode_redacted_response_body,
+  evaluate_request = evaluate_request,
+  build_eval_response_payload = build_eval_response_payload,
+  stash_eval_attributes = stash_eval_attributes,
+  merge_stashed_eval_attributes = merge_stashed_eval_attributes,
+}

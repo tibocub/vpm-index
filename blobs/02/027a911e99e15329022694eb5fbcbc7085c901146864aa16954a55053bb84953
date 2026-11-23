@@ -1,0 +1,1796 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 18-05-2023 @author Swarg
+--
+
+local base = require('cmd4lua.base')
+local parser = require("cmd4lua.parser")
+local builtin = require('cmd4lua.builtin')
+local hb = require('cmd4lua.help.builder')
+local Collector = require('cmd4lua.help.collector')
+local conf = require('cmd4lua.settings')
+
+local dprint = conf.dprint
+local _is_helpcmd = base._is_helpcmd
+local bool_or_def = base.bool_or_def
+
+---
+--- public methods:
+---
+--- of             -- static factory to build Cmd4Lua from string or table
+--                    (with parsing and apply implementations)
+--- new            -- only create a new instance without parsing
+--- parse
+--- is_help        -- is a help request (help|h|?|--help|-h)
+--- has_args
+--- pop_arg
+--- arg
+--- argb
+--- argn
+--- argl
+--- args_count
+--- is_cmd
+--- has_opts
+--- has_opt
+--- opt
+--- optn           -- number value
+--- optb           -- boolean value
+--- optl           -- list(table) value (simple types autowraps into table)
+--- optp           -- call a value provider when a opt-key passed
+--- opt_env
+--- opt_override   -- apply opts to override values from a luatable
+--
+--- handlers       -- define handlers for commands
+--- cmd            -- register command
+--- userdata       -- a userdata for passing to the handler
+--- run            -- resolve cmd and run callback|handler
+--- pre_work       -- validate condguard before run jon inside command handler
+--- set_var        -- assign a value by name to a variable stored in internal
+---                   storage - called "vars".
+---                   By default support nested names(the path splited by a dot)
+--- var | get_var  -- get variable by name (do not split varname by dot)
+--
+--- v_arg, v_argn, v_argb, v_argl -- put value to the "vars"
+--                    used value of the tag as varname or argN
+--- v_opt, v_optn, v_optb, v_optl, v_opt, v_optp -- put value from optkey to the "vars"
+--                    as the variable name used a tag or keyname without dashes
+---
+---
+-- "annotations"   -- used to build help by in-code descriptions
+--- root           -- set name of the root cmd
+--- about          -- the descriptions of the level of current command
+--- usage          -- add the usage example lines
+--- group          -- to place elements to the named group
+--- desc           -- to add description for cmd, arg, opt
+--- tag            -- to add tagged name for cmd, arg, opt
+--                    tag used by v_arg, v_opt as variable name to assign value
+--                    to the inner "vars"-table
+--- type           -- default is string
+--- def            -- to add default value for optional elm
+--                    (this value will be used when element is not specified)
+--  def4ex         -- default value for exist optkeys without value
+--- env            -- to take value from envvar if opt not defined
+--- ch|validate    -- bind callback to validate value from a input
+--- required       -- mark options as required(trigger usage)
+--- optional       -- mark element as optional(for arg)
+--- many           -- allow to define many args more than one
+--- pop            -- mark arg to auto pop from args line (ai++)
+--
+--- has_input_errors       -- only checks if a user input with error
+--- is_input_valid         -- check and print help if needs
+--- build_help             -- build a help based an annotation from code
+--- build_input_error_msg  -- shows what's wrong in a user input
+--- get_usage_examples     -- getter for "usage" annotation
+--- set_print_callback     -- _G.print is a default
+--- show_help_or_errors    -- alias for is_input_valid
+--- clear_level_help       -- clear all collected data(annotations) in the current
+--                            subcommand level
+
+---@class Cmd4Lua
+---       private fileds:
+---@field ai          number
+---@field args        table
+---@field keys        table
+---@field errors      table?    -- list of errors
+---@field only_help   boolean|nil
+---@field help_showed boolean|nil
+---@field interface   table     -- default function which can be overridden by
+--                                 own implementation
+---@field collector   Cmd4LuaHelpCollector --
+local Cmd4Lua = {}
+Cmd4Lua._classname = 'Cmd4Lua'
+
+Cmd4Lua._VERSION = 'cmd4lua 0.9.2'
+Cmd4Lua._URL = 'https://gitlab.com/lua_rocks/cmd4lua'
+
+--------------------------------------------------------------------------------
+--                               Class
+--------------------------------------------------------------------------------
+
+--
+-- factory to instantiate an Cmd4Lua object with all the necessary dependencies
+--
+---@param args string|table
+---@param ... table|nil -- "dependencies" own implementations of builtin funcs
+---@return Cmd4Lua
+function Cmd4Lua.of(args, ...)
+  assert(type(args) == 'string' or type(args) == 'table', 'args')
+
+  return Cmd4Lua:new()
+      :apply_implementations(...) -- override builtin by own for this instance
+      :parse(args)
+end
+
+--
+---@return Cmd4Lua
+---@param o table|nil -- state
+function Cmd4Lua:new(o)
+  assert(not o or type(o) == 'table', 'state can be nil or table')
+
+  o = o or {} -- state of the created Cmd4Lua instance(object)
+  -- fields
+  o.ai = o.ai or 1
+  o.args = o.args or {}
+  o.keys = o.keys or {}
+  o.vars = o.vars or {}
+  o.errors = nil
+
+  -- prevents attempts to re-show help in a hierarchy of nested commands
+  o.help_showed = o.help_showed or false
+
+  -- Request to build help without actually doing the work
+  -- This is intended to be used as a way to collect help on the hierarchical
+  -- tree of subcommands. So that no extra work is performed, but only metadata
+  -- are collected from the annotations
+  o.only_help = o.only_help or false
+
+  -- dev-helpers -- received value of key -_generate for pass cmd to a handler
+  o.dev_generate_cmd = o.dev_generate_cmd or false
+
+  setmetatable(o, self)
+  self.__index = self
+
+  o:_setup_interfaces()
+
+  -- a state data(annotations) collector for build a help
+  o.collector = o.collector or Collector:new(o) -- checks instanceof
+
+  return o
+end
+
+--
+-- parse cli input (string or table) split words into args and optkeys
+-- triggers a built-in commands
+--
+---@param args string|table|nil
+function Cmd4Lua:parse(args)
+  dprint("parse")
+  args = args or self.args   -- if not args but was given in Cmd4Lua:new({args=...})
+
+  self.original_input = args -- used for fix_input_on_fly
+
+  args = parser.update_cli_input(args)
+
+  if type(args) == 'string' then
+    dprint(1, "\n -------- parse args from the string --------")
+    args = self.interface.parse_line(args)
+  end
+  dprint(1, "parse: args type: ", type(args), ':inspect:', args)
+
+  assert(type(args) == 'table', 'expected table<string>')
+  self.args = args
+
+  parser.parse_args_and_keys(self)
+
+  builtin.apply_builtin_commands(self)
+
+  return self
+end
+
+--
+-- setup default functions for those functions that can be overridden
+-- by your own implementation
+--
+---@param self Cmd4Lua
+function Cmd4Lua:_setup_interfaces()
+  self.interface = self.interface or {}
+  local I = self.interface
+
+  I.parse_line = I.parse_line or parser.parse_line
+  I.generate_handle = I.generate_handle or builtin.generate_handle
+  -- see builtin.fix_input_callback
+  I.fix_input_callback = I.fix_input_callback or false
+
+  I.print_callback = I.print_callback or _G.print -- by default print to stdout
+  I.print_callback_userdata = I.print_callback_userdata or nil
+end
+
+--
+-- Override builtin functions(Interfaces) by given implementations
+-- See M.apply_implementions, M.Interfaces
+--
+--- param ... -- list of tables -- with functions to override the interfaces
+---@return self
+function Cmd4Lua:apply_implementations(...)
+  local cnt = select('#', ...)
+  dprint("apply_implementations", cnt)
+
+  for i = 1, cnt do
+    local val = select(i, ...)
+    if type(val) == 'table' then
+      builtin.apply_implementations(self, val)
+    else
+      dprint("[WARN] table expected has:", type(val), ' at i:', i)
+    end
+  end
+
+  return self
+end
+
+--
+-----------------------------------------------------------------------------
+--                          private methods
+-----------------------------------------------------------------------------
+
+--
+-- Get the value of the current argument
+-- (like top of the stack, where stack is line with args from cli)
+-- (without touches the argument itself)
+--
+---@param offset number|nil
+function Cmd4Lua:_arg(offset)
+  offset = offset or 0
+  assert(type(offset) == 'number', 'Expected number')
+
+  if offset >= 0 and (self.ai + offset <= #self.args) then
+    return self.args[self.ai + offset]
+  end
+  return nil
+end
+
+--
+-- Find in parsed optkeys opt by names and return it value
+--
+-- Note: for optkeys without value it will returns a nil.
+--
+-- Although an empty string are used for a value of such optkeys
+-- as a stub in the table itself (Cannot store keys with nil values)
+--
+---@param name string
+---@param sn string? short key name
+---@return boolean, string|nil
+function Cmd4Lua:__opt(name, sn)
+  local has, val = false, nil
+  if self.keys then
+    if name and self.keys[name] then
+      has, val = true, self.keys[name]
+    elseif sn and self.keys[sn] then
+      has, val = true, self.keys[sn]
+    end
+    -- Empty values are assigned to optkeys because
+    -- in Lua you cannot have a keys(records) in tables with nil values
+    -- assigning nil - removes a record from the table
+    -- There is a correction going on here because in fact the key had no value
+    if has then
+      if val == base.NO_VALUE then
+        val = nil
+      end
+    end
+  end
+  return has, val
+end
+
+--
+-- Check is the current element (top of the stack of all remains args)
+-- match to given command name
+--
+-- (not touched argument)
+--
+-- TODO implements support an optional command prefix ':'
+--
+---@param name string
+---@param shortname string?|nil
+---@param name3 string?|nil
+--
+---@return boolean
+function Cmd4Lua:_is_cmd(arg, name, shortname, name3)
+  local matched = false
+
+  local function match(arg0)
+    return arg0 and (arg0 == name or arg0 == shortname or arg0 == name3)
+  end
+
+  if (arg == nil or arg == '') and self.collector.cmd_default then
+    if match(self.collector.cmd_default) then -- and not self:get_help_opt() then
+      dprint('default_cmd matched for', name)
+      return true
+    end
+  end
+
+  matched = match(arg)
+
+  -- find the next, not accessed arguments
+  if not matched and arg and arg ~= '' then
+    local offset = self.collector:find_next_untouched_arg()
+    if offset and offset > 0 then
+      for i = offset, 1, -1 do -- 0 already checked
+        arg = self:_arg(i)
+        dprint('check is_cmd off:', i, 'arg:', arg)
+
+        matched = arg ~= nil and match(arg)
+        if matched then
+          offset = i
+          break
+        end
+      end
+
+      dprint('ai', self.ai, 'next not touched offset:', offset, 'arg:', arg)
+      if matched then
+        self.ai = self.ai + offset -- to fix auto inc ai in is_cmd
+      end
+    end
+  end
+  return matched
+end
+
+--
+-----------------------------------------------------------------------------
+--                          public methods
+-----------------------------------------------------------------------------
+
+--
+-- return the value of the current argumnet
+-- (touches the argument)
+--
+---@param offset number|nil
+function Cmd4Lua:arg(offset)
+  offset = offset or 0
+  dprint(1, 'arg', offset)
+  self.collector:def_type('string')
+  self.collector:add_arg_description(offset) -- nil type - any value
+  local has, ovalue, value
+  ovalue = self:_arg(offset)
+  has = ovalue ~= nil
+  value = self.collector:validate_value(has, ovalue)
+  return value
+end
+
+--
+-- return arg as number of default value
+-- (touches the argument)
+--
+---@param offset number|nil
+function Cmd4Lua:argn(offset)
+  offset = offset or 0
+  dprint(1, 'argn', offset)
+  self:type('number')
+  self.collector:add_arg_description(offset)
+  local has, ovalue, value
+  ovalue = self:_arg(offset)
+  has = ovalue ~= nil
+  if has then
+    value = tonumber(ovalue)
+    if type(ovalue) == 'string' and value == nil then
+      self.collector:set_invalid("Cannot convert string to number", value, ovalue)
+      -- not change "has" here because otherwise the value will be taken
+      -- from "def" or "env".
+      -- By design, if an argument is specified but it cannot be parsed,
+      -- a warning about invalid input should be shown
+    end
+  else
+  end
+  value = self.collector:validate_value(has, value)
+  return value
+end
+
+--
+-- Get boolean value of the current argument or triggers the input error
+-- (touches the argument)
+-- strict is either a boolean value or rise error
+--
+-- true: true,t,1
+-- false: false,f,0
+--
+---@param offset number|nil
+---@return boolean (can be nil if def = nil)
+function Cmd4Lua:argb(offset)
+  offset = offset or 0
+  dprint(1, 'argb', offset)
+
+  self:type('boolean')
+  self.collector:add_arg_description(offset)
+  local has, value, ovalue
+  ovalue = self:_arg(offset)
+  has = ovalue ~= nil
+  if has then
+    value = bool_or_def(ovalue, nil)
+    if type(ovalue) == 'string' and value == nil then
+      self.collector:set_invalid("Cannot convert string to boolean", value, ovalue)
+      -- still has == true.  see explanation of why in the argn method
+    end
+  end
+  value = self.collector:validate_value(has, value)
+  ---@cast value boolean  -- ??? todo check
+  return value
+end
+
+--
+-- return the list(table)-value of the current argumnet
+-- (touches the argument)
+--
+---@param offset number|nil
+---@return table?
+function Cmd4Lua:argl(offset)
+  offset = offset or 0
+  dprint(1, 'argl', offset)
+  self:type('list')
+  self.collector:add_arg_description(offset)
+  local has, ovalue, value
+  ovalue = self:_arg(offset)
+  has = ovalue ~= nil
+  value = self.collector:validate_value(has, ovalue)
+  assert(not value or type(value) == 'table', 'expected table got' .. type(value))
+  return value
+end
+
+--
+-- join all args from the current arg index to the end of the args
+-- extract all remaining arguments as a list of strings
+---@param off number?
+function Cmd4Lua:rest_args(off)
+  off = off or 0
+  dprint(1, 'rest_args', off)
+  self:type('table') -- list
+  self.collector:add_arg_description(off)
+
+  local has_pop = self.collector:has_pop()
+  if has_pop then self.collector:remove_pop() end
+
+  local t = {}
+  for i = self.ai + off, #self.args, 1 do
+    if self.args[i] then
+      t[#t + 1] = tostring(self.args[i])
+      --
+      -- self:type('string')
+      self.collector:annotation_type('table')
+      self.collector:add_arg_description(i - (self.ai + off))
+
+      -- if not self.__d.description then
+      --   self.__d.description = 'list of all args to the end of the current cmd'
+      -- end
+    end
+  end
+
+  local value = self.collector:validate_value(#t > 0, t)
+  if has_pop then -- mark all args as touched
+    self.ai = #self.args + 1
+  end
+  return value
+end
+
+--
+---@param off number?
+function Cmd4Lua:args_count(off)
+  if self.args and #self.args > off then
+    return #self.args - off
+  end
+  return 0
+end
+
+--
+-- return then value of the current argument and move to a next one (ai++)
+-- works like pop an element from a stack
+--
+---@param validate_callback function? callback to validate input value
+---@param userdata table? -- data passed to the validate callback
+function Cmd4Lua:pop_arg(validate_callback, userdata)
+  assert(not validate_callback or type(validate_callback) == 'function')
+  return self:pop(validate_callback, userdata):arg(0)
+end
+
+-----------------------------------------------------------------------------
+
+
+--
+-- Checks that the current argument is equal to one of the given command names
+--
+-- UsageExample:
+--   func-style:
+--     if w:is_cmd('do-stuff', 'ds') then
+--         M.cmd_do_stuff(w, userdata)
+--     elseif w:is_cmd('another-one', 'ao') then
+--         ...
+--
+--- return true if current arg equals one of the given cmd name
+--- increment inner current arg index on success
+--
+---@param name string
+---@param shortname string?|nil
+---@param name3 string?|nil
+---@return boolean
+function Cmd4Lua:is_cmd(name, shortname, name3)
+  local arg = self:_arg(0) or ''
+
+  if self:_is_cmd(arg, name, shortname, name3) then
+    return self.collector:move_deeper_to_subcommand(name, shortname)
+  end
+  -- for build help
+  self.collector.cmd_expected = true
+  self.collector:add_cmd_description(name, shortname, name3)
+  return false
+end
+
+---@return boolean
+function Cmd4Lua:is_help()
+  return (self.only_help == true) or _is_helpcmd(self:_arg(0))
+end
+
+--
+-- to check input data for correctness befor work
+-- can be used to cond before actual work
+--
+---@return boolean
+function Cmd4Lua:has_input_errors()
+  return self.collector:has_unresolved_cmd()
+      -- or arg_expected == true
+      or self.collector:has_unexpected_args()
+      or self.collector:has_unchecked_opts()
+      or self.collector:has_missing_required_args()
+      or self.collector:has_missing_required_opts()
+      or self.collector:has_invalid_arg_values()
+      or self.collector:has_invalid_opt_values()
+      or self.collector:has_invalid_group()
+end
+
+---@return boolean
+function Cmd4Lua:is_helpcmd_or_has_errors()
+  return self:is_help() or self:has_input_errors()
+end
+
+-- ?
+function Cmd4Lua:has_unresolved_cmd()
+  return self.collector:has_unresolved_cmd()
+end
+
+function Cmd4Lua:has_unexpected_args()
+  return self.collector:has_unexpected_args()
+end
+
+function Cmd4Lua:has_unchecked_opts()
+  return self.collector:has_unchecked_opts()
+end
+
+function Cmd4Lua:has_missing_required_args()
+  return self.collector:has_missing_required_args()
+end
+
+function Cmd4Lua:has_missing_required_opts()
+  return self.collector:has_missing_required_opts()
+end
+
+function Cmd4Lua:has_invalid_arg_values()
+  return self.collector:has_invalid_arg_values()
+end
+
+function Cmd4Lua:has_invalid_opt_values()
+  return self.collector:has_invalid_opt_values()
+end
+
+function Cmd4Lua:has_invalid_group()
+  return self.collector:has_invalid_group()
+end
+
+--
+-- Checks that the user input is correct and does not contain errors or
+-- unexpected unrecognized elements such as commands, arguments, options
+--
+-- If errors are detected, a help is generated to shown by passing to
+-- the given or configured callback (defualt is _G.print (StdOut)
+-- See :set_print_callback()
+--
+-- aliases: ready to work | can_work
+--
+-- UsageExample:
+--
+-- local v = w:def():opt('--key', '-k')
+-- if w:is_input_valid(print) then  -- if input has error in this point
+--   do_work(v)                     -- will be showed help, usage end error
+-- end
+--
+---@return boolean true then all input is valid and state ready to work
+function Cmd4Lua:is_input_valid()
+  local ready_to_work = true
+
+  if builtin.dev_generate(self) then return false end
+
+  -- subscriberst to cancel work
+  if not self.collector:pre_work_subscribers() then return false end
+
+  local help_query = self:is_help()
+  if help_query or self:has_input_errors() then
+    self:show_help()
+    ready_to_work = false
+    if not help_query then
+      -- trick to make the has_error return true
+      -- the reason for the input error will still be shown in the output
+      self:error('', conf.EXITCODE_INPUT_ERRORS)
+    end
+  end
+
+  dprint(1, 'is_input_valid-and-no-help:', ready_to_work,
+    'only_help:', self.only_help)
+
+  return ready_to_work
+end
+
+function Cmd4Lua:show_help()
+  if not self.help_showed then
+    self:print(self:build_help())
+  end
+end
+
+--
+-- If a help command is detected or input errors are detected, then
+-- output help to the given callback and return true otherwise return false
+-- aliase for is_input_valid
+-- Used self.interface.print_callback see :set_print_callback
+--
+---@return boolean true then all input is valid and state ready to work
+function Cmd4Lua:show_help_or_errors()
+  dprint(1, 'show_help_or_errors')
+  return not self:is_input_valid()
+end
+
+--
+---@param n number? Default is 1
+---@return self
+function Cmd4Lua:inc(n)
+  n = n or 1
+  assert(type(n) == 'number' and n >= 0, 'Expected number great th Zero')
+  self.ai = self.ai + n
+  return self
+end
+
+function Cmd4Lua:has_args()
+  local f = self.args and self.ai <= #self.args -- <= in lua index in tabl fr 1
+  return f
+end
+
+function Cmd4Lua:has_opts()
+  return self.keys and next(self.keys) ~= nil
+end
+
+function Cmd4Lua:opts_count()
+  local c = 0
+  if self.keys then
+    for _, _ in pairs(self.keys) do c = c + 1 end
+  end
+  return c
+end
+
+--
+-- has_opt aliace for "has flag"
+-- works as "is has flag" with abitily to say "here has no this flag": -k false
+-- if value of options is false or 0 then return false
+--
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return boolean
+function Cmd4Lua:has_opt(name, sn, description)
+  dprint(1, 'has_opt', name, sn)
+  self.collector:add_opt_description(name, sn or '', description)
+  local has, value
+  has, value = self:__opt(name, sn)
+  value = has and (value == nil or bool_or_def(value, true))
+  dprint('has_opt has:', has, 'value:', value)
+  -- local has = false
+  -- if self.keys and (name and self.keys[name] or sn and self.keys[sn]) then
+  --   has = true
+  -- end
+  value = self.collector:validate_value(has, value)
+  return bool_or_def(value, false) -- has
+end
+
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return string|any -- based on type()  default is string
+function Cmd4Lua:opt(name, sn, description)
+  dprint(1, 'opt', name, sn)
+  self.collector:def_type('string')
+  self.collector:add_opt_description(name, sn, description)
+  local has, value
+  has, value = self:__opt(name, sn)
+  value = self.collector:validate_value(has, value)
+  return value
+end
+
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return number|nil
+function Cmd4Lua:optn(name, sn, description)
+  dprint(1, 'optn', name, sn)
+  self:type('number')
+  self.collector:add_opt_description(name, sn, description)
+  local has, ovalue, value
+  has, ovalue = self:__opt(name, sn)
+  if has then
+    value = tonumber(ovalue)
+    if type(ovalue) == 'string' and value == nil then
+      self.collector:set_invalid("Cannot convert string to number", value)
+    end
+  end
+  value = self.collector:validate_value(has, value)
+  ---@cast value number|nil
+  return value
+end
+
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return boolean
+function Cmd4Lua:optb(name, sn, description)
+  dprint(1, 'optb', name, sn)
+  self:type('boolean')
+  self.collector:add_opt_description(name, sn, description)
+  local has, value, ovalue
+  has, ovalue = self:__opt(name, sn)
+  if has then
+    value = bool_or_def(ovalue, nil)
+    if type(ovalue) == 'string' and value == nil then
+      self.collector:set_invalid("Cannot convert string to boolean", value)
+    end
+  end
+  value = self.collector:validate_value(has, value)
+  ---@cast value boolean
+  return value
+end
+
+--
+-- find a list(lua-table) value of the given optkey name
+-- if value is a simple type(string) then wrap to a list(table)
+--
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return table|nil
+function Cmd4Lua:optl(name, sn, description)
+  dprint(1, 'optl', name, sn)
+  self:type('list') -- list to autoconvert prim-value to list(table)
+  self.collector:add_opt_description(name, sn, description)
+  local has, value
+  has, value = self:__opt(name, sn)
+  value = self.collector:validate_value(has, value)
+  ---@cast value table|nil
+  return value
+end
+
+-- fill table by value from specified optkey or
+-- Goal: To override key values in table via values of the optional keys
+---@param name string
+---@param sn string|nil
+---@param t table
+---@param tkey string
+---@param description string|nil
+---@return self
+function Cmd4Lua:opt_override(name, sn, t, tkey, description)
+  assert(type(t) == 'table', 't')
+
+  -- define default value from table to show it in built help
+  if not self.collector:has_def() and tkey and t[tkey] then
+    self:def(t[tkey])
+    self.collector:def_type(type(t[tkey]))
+    dprint('a default value is taken from overriden table')
+  else
+    self.collector:def_type('string')
+  end
+  -- define "tag" - the keyname in the overridden table to show in help
+  if not self.collector:has_tag() and tkey then
+    self:tag(tkey)
+  end
+
+  self.collector:add_opt_description(name, sn, description)
+  if tkey then
+    local has, value
+    has, value = self:__opt(name, sn)
+    value, has = self.collector:validate_value(has, value)
+    dprint('opt_override tkey:', tkey, name, has, 'value:', value)
+    if has then
+      t[tkey] = value
+    end
+  end
+  return self
+end
+
+--
+-- "optp" -- options with a value-provider (call callback "when-opt-passed")
+-- if opts is given fires suppluer callback to supply the passed value from
+-- given options and return a new one
+--
+-- call callback if has opts (passed in the input)
+-- Usecase:
+-- Receive the actual value through the value-suppluer before validating all input.
+-- until all input data is validated - that is, before entering the work mode
+-- In order for the value to be automatically checked before the work itself.
+-- The suppluer is called only when the optional key is passed through the
+-- input data
+--
+-- Example:
+--
+--   w:group('A', 1):tag('classname'):pop():v_arg()
+--   w:group('A', 1):desc('Take a ClassName from a current line')
+--       :tag('classname')                -- the name of variable in the w.vars
+--       :v_optp('--from-use', '-u', LangGen.getClassNameFromLine, gen)
+--
+--  if w:is_input_valid() then   --  ensure_all_parsed
+--    gen:addCoversToDocblock(w.vars.classname)
+--  end
+--
+---@param name string
+---@param sn string? short key name
+---@param provider_callback function
+---@param userdata any
+function Cmd4Lua:optp(name, sn, provider_callback, userdata)
+  dprint(1, 'optp', name, sn)
+  -- "move" params
+  if type(sn) == 'function' then
+    provider_callback, userdata = sn, provider_callback
+    sn = nil
+  end
+  self.collector:add_opt_description(name, sn)
+  local has, value = self:__opt(name, sn)
+  if has then
+    assert(type(provider_callback) == 'function', 'provider_callback')
+    value = provider_callback(userdata, value)
+  end
+  return self.collector:validate_value(has, value)
+end
+
+--
+-- Defile the value from a optkey or from the EnvVar
+-- same that :env('VARNAME'):opt('--key')
+--
+---@param envvar string
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+function Cmd4Lua:opt_env(envvar, name, sn, description)
+  return self:env(envvar):opt(name, sn, description)
+end
+
+--
+-----------------------------------------------------------------------------
+--          For writing Commands Handlers in the framework style
+-----------------------------------------------------------------------------
+--
+-- UsageExample: (the same thins in different ways)
+--
+--   func-style:
+--     if w:is_cmd('do-stuff') then
+--       M.cmd_do_stuff(w, userdata)
+--     elseif w:is_cmd('another-one') then ...
+--
+--   chain: (explicit definition of command handler functions)
+--     w:cmd('do-stuff', M.cmd_do_stuff, userdata)
+--     w:cmd('another-one', ...)
+--     w:run()
+--
+--   framework style:
+--     w:handlers(M)                 -- M is a module with functions-handlers
+--      :cmd('do-stuff'):userdata(userdata)   -- M.cmd_do_stuff
+--      :cmd('another-one')
+--      :run()
+--
+--   framework style:
+--     w:handlers(MyClass, self)      -- OOP: MyClass - table with methods
+--      :cmd('do-stuff')              -- MyClass:cmdDoStuff(w) or
+--      :cmd('another-one')           -- MyClass.cmdAnotherOne(self, w)
+--      :run()
+--
+
+-- Define table with map of name = function from which find a cmd handler
+--
+---@param mapping table - of the handlers functions or methods of instance
+---@param instance table|nil then mappings contains method of the instance
+function Cmd4Lua:handlers(mapping, instance)
+  return self.collector:annotation_handlers(mapping, instance)
+end
+
+--
+-- Register command to handle via :run()
+--
+---@param name string
+---@param ... ... -- [shortname], [name3], (function)callback, [userdata])
+---@return self
+function Cmd4Lua:cmd(name, ...)
+  return self.collector:annotation_cmd(name, ...)
+end
+
+--
+-- find command by word of the current arg in the args line
+-- and run already registered handler (callback)
+--
+---@return Cmd4Lua
+function Cmd4Lua:run()
+  self.collector.cmd_expected = true
+  local is_help = self:is_help()
+
+  dprint(1, 'run: is_help ', is_help, ' only_help:', self.only_help,
+    ' help_showed:', self.help_showed)
+
+  if builtin.dev_generate(self) then return self end
+
+  if is_help then
+    if not self.help_showed then
+      self:print(self:build_help())
+    end
+    return self
+  end
+
+  if not self.collector:get_thelp_cmds() then
+    dprint(1, 'No registerd commands')
+    if conf.devmode then error('no registerd commands') end
+    -- do need to somehow notify the user here??
+    return self
+  end
+
+  dprint(1, 'run: find command')
+
+  local tcmd = self.collector:find_command_for_arg()
+
+  tcmd = self:fix_input_on_fly(tcmd)
+
+  if tcmd then
+    --
+    dprint('prepare to run cmdhandler callback')
+    local callback = self.collector:get_command_handler(tcmd)
+    self.collector:move_deeper_to_subcommand(tcmd.name, tcmd.shortname)
+    --
+    self.collector:run_pre_cmd_subscriber()
+
+    dprint('run command-handler callback ', callback)
+
+    local handler_instance = self.collector:getHandlerInstance()
+    if handler_instance then
+      -- run method of the instance
+      callback(handler_instance, self, tcmd.userdata)
+    else
+      -- run function
+      callback(self, tcmd.userdata)
+    end
+
+    self.collector:run_post_cmd_subscriber()
+  else
+    dprint(1, 'run: command for arg not found')
+  end
+
+  if self:is_help() or self:has_input_errors() then
+    self:show_help()
+  end
+
+  return self
+end
+
+--
+-- Offer to correct the command immediately on the fly (i.g. for pickup in UI)
+--
+-- Designed to provide the ability to correct an incorrect command "on the fly".
+-- For example, to suggest choosing one of the correct (known) ones after an
+-- incorrect input.
+--
+-- for applications with UI that have a built-in ability to call their own
+-- cli commands
+--
+---@param tcmd table|nil
+---@return table|nil
+function Cmd4Lua:fix_input_on_fly(tcmd)
+  if not tcmd and self.interface.fix_input_callback then
+    dprint(1, 'no cmd - call fix_input_callback')
+    -- choice command via ui
+    local new_input = self.interface.fix_input_callback(self)
+    if new_input then
+      dprint('parse new input:', new_input, ' set ai: 1')
+      self:parse(new_input)
+      self.ai = 1
+      self.lvl_deep = 1
+      self.help_showed = false
+      tcmd = self.collector:find_command_for_arg()
+      dprint('now cmd is ', (tcmd or {}).name)
+    end
+  end
+  return tcmd
+end
+
+function Cmd4Lua:get_cmd_path()
+  return self.collector:get_cmd_path()
+end
+
+--
+------------------------------------------------------------------------------
+--                   Annotations for build help
+------------------------------------------------------------------------------
+--
+-- Set the name of the root command
+-- Can be usefull for cli apps
+--
+---@param cmd_name string
+---@return self
+function Cmd4Lua:root(cmd_name)
+  return self.collector:annotation_root(cmd_name)
+end
+
+--
+-- Add description for current command level for help
+--
+---@param cmd_lvl_description string|nil
+---@return self
+function Cmd4Lua:about(cmd_lvl_description)
+  return self.collector:annotation_about(cmd_lvl_description)
+end
+
+--
+-- Can only be used in commands without arguments
+-- Since the first argument will be recognized as the command name
+--
+-- UsageExample:
+-- input ''
+--   w:default_cmd('all')
+--   w:cmd('all', function()...end)    << will be passed as default cmd
+--   w:cmd('part', function()...end)
+--
+---@param name string
+---@return self
+function Cmd4Lua:default_cmd(name)
+  return self.collector:annotation_default_cmd(name)
+end
+
+--
+-- group open
+-- Mark element such as commands, arguments and options as belonging to the
+-- specified named group.
+--
+-- Can be used for cmds, opts, args
+--
+-- Group Types:
+-- type - impacts how input verification will occurs
+--  0 -- none of the elements included in the group should be in the user input
+--  1 -- "one of" like a radio buttons -- only one element of a group
+--  8 -- "many" -- one and more elemnts from a group (defaul)
+--
+-- UseCase:
+-- Opts:
+--    Mark the option key(and arg) as belonging to named group
+--    in with at least one element of this group must be specified
+--
+--    If no option from a given group is specified, this will trigger a input
+--    error to showing the help and used by "show_help_or_errors()" and
+--    Example:
+--       local a = w:group('A', 1):required():opt('--key-a', '-a')
+--       local b = w:group('A',1):required():opt('--key-b', '-b')
+--
+---@param name string|table{name, type}
+---@param gtype number|nil -- 0 - none, 1 - one, 8-more_than_zero(many) (def)
+---@return self
+function Cmd4Lua:group(name, gtype)
+  return self.collector:annotation_group(name, gtype)
+end
+
+--
+-- Add description for a element (subcmd, arg or opt) at the current cmd level
+-- This description will be used for build help and show the usage.
+--
+-- Usage Example:
+--
+-- Add the description of the Command:
+--   local w = M:new(line)
+--   it w:desc(CMD1_DESCRIPTION):is_cmd('do-something', 'ds') then ...
+--
+-- Add the description of the Argument:
+--   local w = M:new(line)
+--   local e_name = w:desc('varname', 'the name of entity'):pop_arg()
+--   local e_name = w:tag('varname'):desc('the name of entity'):pop_arg()
+--
+---@param description string|nil
+---@param tag string|nil  then defined two strings first will be tag (varname)
+--                        and the second will be a description of the element
+---@return self
+function Cmd4Lua:desc(description, tag)
+  return self.collector:annotation_desc(description, tag)
+end
+
+--
+-- mark a tag name to the next element(cmd, arg or opt)
+-- This tag name will be showed in builded help on missing or wrong input.
+-- The same name of tag is also used to automatically create variables in the
+-- "vars" table
+-- Usefull for args, and opts to show the varname in help, and creating vars
+--
+-- UsageExample:
+--   local myvarname = w:tag('myvarname'):arg()
+--
+-- Note: tag without any not empty string name has no effect
+--
+---@param name string
+---@return self
+function Cmd4Lua:tag(name)
+  return self.collector:annotation_tag(name)
+end
+
+--
+-- type of expected value
+--  :type('table'):opt('-t')
+--  :type('any'):opt('-t')
+--
+---@param atype string|nil
+---@return self
+function Cmd4Lua:type(atype)
+  return self.collector:annotation_type(atype)
+end
+
+--
+-- default value for the current(in next method) element(arg or opt)
+-- This value will be applyed when element(arg or opt) has no specified
+--
+-- UsageExample:
+--  local a1 = w:def('def-value-1'):arg()
+--  local o1 = w:def('def-value-2'):opt('--key', '-k')
+--
+-- in this case even where no -k|--key option o1 will be 'def-value-2'
+-- if you specify key without value(not a '-k override' - it rise error)
+--
+---@return self
+function Cmd4Lua:def(value)
+  return self.collector:annotation_def(value)
+end
+
+--
+-- Provide default value for given OptKeys without specified value
+-- This value will be applyed then option is specified, but without value (nil)
+--
+-- UsageExample:
+--  local v = w:defOptVal(8):opt('--verbose', '-v')
+--
+-- in this case even has -v|--verbose option without value variable v
+-- will be a number 8
+--
+---@return self
+function Cmd4Lua:defOptVal(value)
+  return self.collector:annotation_def_val_exopt(value)
+end
+
+--
+-- Mark to take a envvar
+-- If the current optional element is not specified, take the value from the
+-- System EnvVariable
+--
+-- UsageExample:
+--  local o1 = w:env('KEY2'):opt('--key', '-k')
+--  local n  = w:def('Default'):env('NAME'):opt('--name', '-n')
+--  local a1 = w:env('KEY1'):optional():arg()  TODO
+--
+-- in this case even where no -k|--key option o1 will be 'def-value-2'
+-- if you specify key without value(not a '-k override' - it rise error)
+--
+---@return self
+function Cmd4Lua:env(envvar_name)
+  return self.collector:annotation_env(envvar_name)
+end
+
+--
+-- Schedule automatic "pulling" of the argument with automatic increment
+-- the arg-index(selt.ai) to move to the next argument.
+-- Like pop an element from a stack.
+-- Can only be used with a zero offset otherwise an error will be thrown.
+--
+-- UsageExample:
+--     w:pop():arg()      ==  w:arg(0); w:inc(1)    self.ai++
+--     w:pop():arg(0) -- OK
+--     w:pop():arg(1) -- Error can move only from a curent self.ai
+--
+-- if there is no argument in the user input, it triggers error to show
+-- help with a correct usage
+--
+---@param validate_value_callback function?
+---@param userdata table?  for validate_value_callback
+--@return self
+function Cmd4Lua:pop(validate_value_callback, userdata)
+  return self.collector:annotation_pop(validate_value_callback, userdata)
+end
+
+-- more than one - many args mark
+---@return self
+function Cmd4Lua:many()
+  return self.collector:annotation_many()
+end
+
+--
+-- Append a line to "UsageExample" in-help section
+-- all lines concatenate via new line and the prefix "UsageExample:" is added
+--
+-- By design, this is a way to add examples of using the current command context
+--
+-- This will be used when automatically generating help
+--
+---@param examples string
+---@return self
+function Cmd4Lua:usage(examples)
+  return self.collector:annotation_usage(examples)
+end
+
+--
+-- Set callback to validate fetched value from opt or arg
+--
+-- UsageExample:
+--
+--   w = M:new(...)
+--
+--   local validator = function(val)
+--     local valid, errmsg = false, nil
+--     valid = is_file_exists(val)
+--     if not valid then
+--       errmag = 'File Not Exists'
+--     end
+--     return valid, errmsg
+--   end
+--
+--   w:ch(validator):opt_env('FILE', '--file', '-f')
+--   w:ch(validator):arg()
+--
+--   if w:is_input_valid() then doWork ... end
+--           ^inside check is needs to show help and if need print it
+--
+--   validate_value_callback signature:
+--   ---@param userdata any? - any
+--   ---@param value any
+--   ---@return boolean, string?  -- valid, errmsg
+--   function validate(vobj, value)
+--
+---@param validate_value_callback function?
+---@param userdata table?
+---@return self
+function Cmd4Lua:ch(validate_value_callback, userdata)
+  return self.collector:annotation_validate(validate_value_callback, userdata)
+end
+
+--
+-- Set callback to validate fetched value from opt or arg
+-- see details at docblock of the Cmd4Lua:ch() method
+--
+---@param validate_value_callback function?
+---@param userdata table?
+---@return self
+function Cmd4Lua:validate(validate_value_callback, userdata)
+  return self.collector:annotation_validate(validate_value_callback, userdata)
+end
+
+--
+-- Mark the optional key as strictly required(necessary).
+--
+-- this will trigger the usage showing on has_input_errors
+--
+---@param validate_value_callback function?
+---@param userdata table?
+---@return self
+function Cmd4Lua:required(validate_value_callback, userdata)
+  return self.collector:annotation_required(validate_value_callback, userdata)
+end
+
+-- Intended to mark the only possible argument as optional
+--
+-- by defaul all args without :def() and :optional() "annotations"
+-- automatically marked as required
+--
+-- TODO:
+--  throw an error when trying to use another argument after an optional
+--  argument in one command. Since this may violate the expected logic and
+--  the value will not go where expected:
+--
+--   a1 = w:optional():arg(0)
+--   a2 = w:arg(1)
+--
+---@param validate_value_callback function?
+---@param userdata table?
+---@return self
+function Cmd4Lua:optional(validate_value_callback, userdata)
+  return self.collector:annotation_optional(validate_value_callback, userdata)
+end
+
+--
+-- add userdata to the current registered command via :cmd()
+-- passed to the command handler(callback) when a commands fires
+--
+-- UsageExample:
+--   framework style:
+--     w:handlers(M)
+--      :desc('desc'):cmd('do-stuff'):userdata(userdata)
+--      :run()
+--
+---@return self
+function Cmd4Lua:userdata(value)
+  return self.collector:annotation_userdata(value)
+end
+
+--
+---@param callback function
+---@return self
+function Cmd4Lua:pre_cmd(callback)
+  return self.collector:annotation_pre_cmd(callback)
+end
+
+--
+---@param callback function
+---@return self
+function Cmd4Lua:post_cmd(callback)
+  return self.collector:annotation_post_cmd(callback)
+end
+
+--
+-- Register(add) a condguard that capable of stopping a command from running
+-- at the input validation stage.
+--
+-- Task: automatic validation of a certain condition either
+-- by a given boolean value either by a function callback
+--
+-- In general it looks like :validate()|:ch() whose task is to bind the
+-- callback function to validate the value of a specific argument or option.
+-- But this "annotation" is aimed to support external conditions that
+-- do not depend of any arguments or options
+---@return self
+function Cmd4Lua:pre_work(subscriber, errmsg)
+  return self.collector:annotation_pre_work_condguard(subscriber, errmsg)
+end
+
+-----------------------------------------------------------------------------
+--                           Variables
+-----------------------------------------------------------------------------
+
+-- aliase for has flag
+-- but can eat next arg as self value
+--
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return self
+function Cmd4Lua:v_has_opt(name, sn, description)
+  self.collector:annotation_set_valiable(true)
+  -- collector:annotation_def_val_exopt(true) -- not use to avoid boolen type
+  self:has_opt(name, sn, description)
+  return self
+end
+
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return self
+function Cmd4Lua:v_opt(name, sn, description)
+  self.collector:annotation_set_valiable(true)
+  self:opt(name, sn, description)
+  return self
+end
+
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return self
+function Cmd4Lua:v_optn(name, sn, description)
+  self.collector:annotation_set_valiable(true)
+  self:optn(name, sn, description)
+  return self
+end
+
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return self
+function Cmd4Lua:v_optb(name, sn, description)
+  self.collector:annotation_set_valiable(true)
+  self:optb(name, sn, description)
+  return self
+end
+
+---@param name string
+---@param sn string? short key name
+---@param description string|nil
+---@return self
+function Cmd4Lua:v_optl(name, sn, description)
+  self.collector:annotation_set_valiable(true)
+  self:optl(name, sn, description)
+  return self
+end
+
+--
+-- "option with handler" -- call given callback when has opt
+-- owerthis return nil or default-value
+--
+-- Usecase:
+--   To call a handler whose task is to obtain the value before validating the
+-- input and proceeding to work. In order for the value to be automatically
+-- checked before the work itself.
+--
+---@return self
+function Cmd4Lua:v_optp(name, sn, callback, userdata)
+  self.collector:annotation_set_valiable(true)
+  self:optp(name, sn, callback, userdata)
+  return self
+end
+
+-----------------------------------------------
+
+---@param offset number?
+---@return self
+function Cmd4Lua:v_arg(offset)
+  self.collector:annotation_set_valiable(true)
+  self:arg(offset)
+  return self
+end
+
+---@param offset number?
+---@return self
+function Cmd4Lua:v_argn(offset)
+  self.collector:annotation_set_valiable(true)
+  self:argn(offset)
+  return self
+end
+
+---@param offset number?
+---@return self
+function Cmd4Lua:v_argb(offset)
+  self.collector:annotation_set_valiable(true)
+  self:argb(offset)
+  return self
+end
+
+---@param offset number?
+---@return self
+function Cmd4Lua:v_argl(offset)
+  self.collector:annotation_set_valiable(true)
+  self:argl(offset)
+  return self
+end
+
+-------------------------------------------------------------------------------
+
+-- container for variables
+---@param opts table|nil
+---@return self
+function Cmd4Lua:set_vars(opts)
+  assert(not opts or type(opts) == 'table', 'opts')
+
+  self.vars = opts or {}
+  return self
+end
+
+--
+-- return value from the inner "vars" storage
+-- used by v_opt, v_arg ans so on
+--
+-- aliase for get_var
+---@param name string
+function Cmd4Lua:var(name)
+  assert(type(name) == 'string', 'name')
+  assert(self ~= nil and type(self) == 'table', 'w:vars not w.vars')
+
+  return self.vars[name]
+end
+
+-- aliase for var
+function Cmd4Lua:get_var(name)
+  return self:var(name)
+end
+
+--
+-- assing the given value to a variable name
+-- :new(line):handlers(M):set_var('name', value):desc(..):cmd()
+--
+-- supported nested subtables.
+-- See cmd4lua.settings.VARS_SPLIT_VARNAME_TO_PATHS
+--
+-- set_vars('opts.key') -->  vars.opts.key  not  vars['opts.key']
+--
+---@param name string
+---@param value any
+---@return self
+function Cmd4Lua:set_var(name, value)
+  assert(type(name) == 'string', 'name')
+  assert(self ~= nil and type(self) == 'table', 'w:vars not w.vars')
+
+  if conf.VARS_SPLIT_VARNAME_TO_PATHS then
+    base.set_value_to(self.vars, name, value,
+      conf.VARS_AUTO_CREATE_NEW_SUBTABLES)
+  else
+    self.vars[name] = value
+  end
+
+  return self
+end
+
+---
+--- self.vars
+---@return table
+function Cmd4Lua:get_vars()
+  self.vars = self.vars or {}
+  return self.vars
+end
+
+--
+-- clears vars.
+---@return self
+function Cmd4Lua:clear_vars()
+  dprint(1, 'clear_vars')
+  self.vars = {}
+  return self
+end
+
+--------------------------------------------------------------------------------
+
+--
+-- use print_callback & print_callback_userdata
+-- ( by default print to stdout (_G.print) )
+--
+function Cmd4Lua:print(text)
+  local print_callback = self.interface.print_callback
+  local userdata = self.interface.print_callback_userdata
+  dprint(1, 'print', print_callback, 'userdata:', userdata, 'has text:', text ~= nil)
+
+  if type(print_callback) == 'function' then -- table that has a "__call"-field?
+    if userdata and print_callback ~= _G.print then
+      print_callback(userdata, text)         -- instance:method(help)
+    else
+      print_callback(text)
+    end
+  else
+    dprint('cannot call print_callback is ' .. type(print_callback))
+  end
+end
+
+-- if shortname is false - pass nil (no shortname)
+-- if shortname is nil - pass defname
+local function shortname_or_def(shortname, defname)
+  if shortname ~= false then
+    return shortname or defname
+  end
+  return nil
+end
+
+--
+-- shortcut for defOptVal(1):v_optn('--verbose', '-v')
+-- if opt key given without value default level will be 1
+--
+-- used by self:verbose()
+--
+---@param shortname string? defualt is conf.verbose_opt[2] (use false to set empty)
+---@return self
+function Cmd4Lua:v_opt_verbose(shortname)
+  self:defOptVal(1)
+  shortname = shortname_or_def(shortname, conf.opt_verbose[2])
+  self:tag('verbose')
+  self:v_optn(conf.opt_verbose[1], shortname, conf.opt_verbose_desc)
+  return self
+end
+
+-- shortcut for defOptVal(true):tag('dry_run'):v_optb('--dry-run')
+-- design to work with "w:dry_vn()"
+-- --dry-run
+---@return self
+function Cmd4Lua:v_opt_dry_run(shortname)
+  self:defOptVal(true)
+  shortname = shortname_or_def(shortname, conf.opt_dry_run[2])
+  self:tag('dry_run')
+  self:v_optb(conf.opt_dry_run[1], shortname, conf.opt_dry_run_desc)
+  return self
+end
+
+---@return self
+function Cmd4Lua:v_opt_quiet(shortname)
+  self:defOptVal(true)
+  shortname = shortname_or_def(shortname, conf.opt_quiet[2])
+  self:tag('quiet')
+  self:v_optb(conf.opt_quiet[1], shortname, conf.opt_quiet_desc)
+  return self
+end
+
+function Cmd4Lua:is_verbose()
+  return self.vars.verbose ~= nil
+end
+
+function Cmd4Lua:is_dry_run()
+  return self.vars.dry_run == true
+end
+
+function Cmd4Lua:is_quiet()
+  return self.vars.quiet == true
+end
+
+function Cmd4Lua:is_not_quiet()
+  return self.vars.quiet ~= true
+end
+
+--
+-- verbose print
+-- print given data if has self.vars._opts.verbose
+--
+-- first arg can be a number of verbose level.
+-- so if the current verbose level is 1 and level for mehtod is 2 like:
+--   self:verbose(2, 'message')
+-- then no output happends.
+--
+-- UsageExample:
+--    w:v_has_opt('--verbose', '-v')
+--    w:verbose(1, 'Verbose info')
+--
+---@vararg any
+function Cmd4Lua:verbose(...)
+  if self:is_verbose() then
+    local lvl = self.vars.verbose
+    local line, first = '', 1
+    local arg_cnt = select('#', ...)
+
+    if arg_cnt > 0 and type(lvl) == 'number'
+        and type(select(1, ...)) == 'number' then
+      local curr_lv = select(1, ...)
+      if curr_lv > lvl then
+        return false
+      end
+      first = 2
+    end
+
+    for i = first, arg_cnt do
+      if i > first then line = line .. ' ' end
+      line = line .. tostring(select(i, ...))
+    end
+
+    self:print(line)
+    return line
+  end
+  return false
+end
+
+--
+-- say via self:print() is not quiet mode
+--
+-- all args(...) joined into string with space
+---@return string?
+function Cmd4Lua:say(...)
+  if not self:is_quiet() then
+    local line = ''
+
+    for i = 1, select('#', ...) do
+      if i > 1 then line = line .. ' ' end
+      line = line .. tostring(select(i, ...))
+    end
+
+    self:print(line)
+    return line
+  end
+  return nil
+end
+
+-- say via self:print() is not quiet mode
+--
+-- all args(...) joined into string with space
+---@return string?
+function Cmd4Lua:fsay(fmt, ...)
+  if not self:is_quiet() then
+    local line = string.format(fmt, ...)
+
+    self:print(line)
+    return line
+  end
+  return nil
+end
+
+--
+-- Set callback to print output, show help and errors
+--
+---@param print_callback function -- callback to print
+---@param userdata any|nil -- can be the instance for call method as callback
+---@return self
+function Cmd4Lua:set_print_callback(print_callback, userdata)
+  assert(type(print_callback) == 'function', 'show_help_callback')
+
+  self.interface.print_callback = print_callback
+  self.interface.print_callback_userdata = userdata
+
+  return self
+end
+
+-- set self to self.print_callback_userdata (fix_input_callback)
+---@return self
+function Cmd4Lua:self_print_callback_userdata()
+  self.interface.print_callback_userdata = self
+  return self
+end
+
+--------------------------------------------------------------------------------
+
+function Cmd4Lua:build_input_error_msg()
+  return hb.build_input_error_msg(self)
+end
+
+---@param prefix string|nil
+function Cmd4Lua:build_usage_line(prefix)
+  return hb.build_usage_line(self, prefix)
+end
+
+---@return string
+function Cmd4Lua:build_help()
+  return hb.build_help(self)
+end
+
+function Cmd4Lua:get_usage_examples()
+  return hb.get_usage_examples(self)
+end
+
+-- to manual switching in a complex command handler logic
+-- for example, at the junction of old and new code
+-- clear all collected data about commands(is_cmd) in this level.
+-- aka move_deeper_to_subcommand without ai++
+function Cmd4Lua:clear_level_help()
+  self.collector:clear_level_data()
+  self.collector:pop_next()
+end
+
+--- add error_message to list of errors occured while performing the action
+-- add error to list
+---@param err_message string?
+---@param code number?
+function Cmd4Lua:error(err_message, code)
+  self.errors = self.errors or {}
+  self.errors[#self.errors + 1] = err_message
+  self.exitcode_value = code or 1
+end
+
+---@return boolean
+function Cmd4Lua:has_error()
+  local has = self.errors ~= nil and next(self.errors) ~= nil
+  return has
+end
+
+---@return number
+function Cmd4Lua:exitcode(quiet)
+  local exitcode = self.exitcode_value
+  if not exitcode then
+    exitcode = self:has_error() and 1 or 0
+  end
+
+  if not quiet and self:has_error() and not self.errors_shown then
+    self.errors_shown = true
+    local output = ""
+
+    for _, errmsg in ipairs(self.errors) do
+      if #output > 0 then output = output .. "\n" end
+      output = output .. tostring(errmsg)
+    end
+    -- for testing: catching input errors via self:has_error()
+    -- See conf.EXITCODE_INPUT_ERRORS
+    if #output > 0 then
+      self:print(output)
+    end
+  end
+
+  return tonumber(exitcode) or 0
+end
+
+function Cmd4Lua:set_exitcode(code)
+  self.exitcode_value = code
+end
+
+return Cmd4Lua

@@ -1,0 +1,104 @@
+{
+  "kind": "lib",
+  "name": "nginx-lua-exporter",
+  "versions": {
+    "0.5-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "nginx-lua-exporter/config/config.lua": {
+          "sha256": "bdf4f8250468dd2b61c2d4cfdf1c54c0f82496a0c113e13b0b39fd0753430d49",
+          "size": 772,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/config/config.lua"
+        },
+        "nginx-lua-exporter/helper/operations.lua": {
+          "sha256": "8360515d3720cd44f8ba604e15b23d11fe95e4cd908cfaebaad98975bcd5b5ee",
+          "size": 1562,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/helper/operations.lua"
+        },
+        "nginx-lua-exporter/lib/calculators.lua": {
+          "sha256": "ec5efb895e1bd811b1cd404f6bf6582baa6b0fca76309338f717a302b23baa42",
+          "size": 4584,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/lib/calculators.lua"
+        },
+        "nginx-lua-exporter/lib/collectors.lua": {
+          "sha256": "42cc40e0d79f33c4e7989e369498b56f069900cfa8d473e3f4698d49e6771dd4",
+          "size": 1421,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/lib/collectors.lua"
+        },
+        "nginx-lua-exporter/lib/exporters.lua": {
+          "sha256": "dce87ae530afa77a769177a3ed8998f8f453773a7d52e05e3cf63e6d71f0edfc",
+          "size": 4895,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/lib/exporters.lua"
+        },
+        "nginx-lua-exporter/lib/initialization.lua": {
+          "sha256": "ad9cf7129d3891b152ffd919785158bbfbda1343a2b8096a1908cb74f43994ed",
+          "size": 455,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/lib/initialization.lua"
+        },
+        "nginx-lua-exporter/nginx-lua-exporter.lua": {
+          "sha256": "b29a51e82f90b772a7a3ff88975b15fcef0367020468bac2a73b30b881d336b0",
+          "size": 411,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/nginx-lua-exporter.lua"
+        },
+        "nginx-lua-exporter/var/keys.lua": {
+          "sha256": "61b0990d8702793b9f8f6a7819420bdd02198bb763655d9169c62b5964ebf3ce",
+          "size": 534,
+          "url": "https://raw.githubusercontent.com/mohsenmottaghi/nginx-lua-exporter/c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5/src/var/keys.lua"
+        }
+      },
+      "homepage": "https://github.com/mohsenmottaghi/nginx-lua-exporter",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 28 Mar 2022 13:05:50 GMT",
+        "rockspec": {
+          "date": "Mon, 28 Mar 2022 13:05:50 GMT",
+          "sha256": "519edf209e549dce309ee13f4a36ba65f4752c63f01822c18b7abefb3b9dbe5a",
+          "size": 992
+        },
+        "src": {
+          "date": "Mon, 28 Mar 2022 13:05:50 GMT",
+          "sha256": "cd81c061a6f01a45238d80e0796cf48fbf55f76ed9a46faa5d168b3fdba6090a",
+          "size": 30701,
+          "url": "https://luarocks.org/nginx-lua-exporter-0.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "nginx-lua-exporter.config.config",
+        "nginx-lua-exporter.helper.operations",
+        "nginx-lua-exporter.lib.calculators",
+        "nginx-lua-exporter.lib.collectors",
+        "nginx-lua-exporter.lib.exporters",
+        "nginx-lua-exporter.lib.initialization",
+        "nginx-lua-exporter.nginx-lua-exporter",
+        "nginx-lua-exporter.var.keys"
+      ],
+      "origin": {
+        "commit": "c0c3d16f198a1fcea3094b4bb3e6ebf1b750a3d5",
+        "ref": "v0.5.1",
+        "type": "git",
+        "url": "https://github.com/mohsenmottaghi/nginx-lua-exporter"
+      },
+      "size": 14634,
+      "summary": "NGINX lua exporter for Prometheus",
+      "undeclared_requires": [
+        "config.config",
+        "helper.operations",
+        "lib.calculators",
+        "lib.exporters",
+        "lib.initialization",
+        "var.keys"
+      ],
+      "vlr": {
+        "cause": "missing module: var.keys",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

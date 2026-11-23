@@ -1,0 +1,121 @@
+{
+  "kind": "app",
+  "name": "lua-jet",
+  "versions": {
+    "v0.10-1": {
+      "bin": {
+        "jetd.lua": "bin/jetd.lua"
+      },
+      "deps": [
+        "lua-cjson >= 1.0",
+        "lua-websockets",
+        "luasocket",
+        "lua-ev",
+        "lpack"
+      ],
+      "files": {
+        "bin/jetd.lua": {
+          "sha256": "52eeb19292f482144e5275198aff3833c4899cd424d42f77b15bb049d23c7649",
+          "size": 1106,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/bin/jetd.lua"
+        },
+        "jet.lua": {
+          "sha256": "85893e1e589e20c1d8bf75beb092c4112c383ae13a2481f9e11a7c2531590aa2",
+          "size": 146,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet.lua"
+        },
+        "jet/daemon.lua": {
+          "sha256": "c518d51bd9268d48c586cc50540ee4c5a2869b5ee0e32920bd5a0b38ed598b28",
+          "size": 19668,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/daemon.lua"
+        },
+        "jet/daemon/fetcher.lua": {
+          "sha256": "8808b66531771c0fcc150067e27cc27cdef98eb324e5add7e94243199e918029",
+          "size": 2967,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/daemon/fetcher.lua"
+        },
+        "jet/daemon/path_matcher.lua": {
+          "sha256": "1fe9616b1e2d0ef6bcd9026881d7d647e1facbf033b0ce970ff54040e67b5ca3",
+          "size": 3544,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/daemon/path_matcher.lua"
+        },
+        "jet/daemon/radix.lua": {
+          "sha256": "c86312042be731b6605543c7bf7e97d2c76ae3dd3e1eb00f96733c23b2cbd341",
+          "size": 6129,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/daemon/radix.lua"
+        },
+        "jet/daemon/sorter.lua": {
+          "sha256": "c3d0c10dcb4ab575fee6c0de013dfe00bd95d83f67d8e17d7dc31a0c1afc83bf",
+          "size": 4919,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/daemon/sorter.lua"
+        },
+        "jet/daemon/value_matcher.lua": {
+          "sha256": "4df208f7efb297db490baa650d88a8c4554f1dc9c89ead4358b2fb78562fac17",
+          "size": 3019,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/daemon/value_matcher.lua"
+        },
+        "jet/peer.lua": {
+          "sha256": "255b79fc86ca4e4fe039e0aed14ce2aa7f60b8b0b933348ee65333595a523211",
+          "size": 17353,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/peer.lua"
+        },
+        "jet/socket.lua": {
+          "sha256": "3f39590ac3110a0bace88221e42dcce16571c3156d3c6f3aab007ef5d2262e8e",
+          "size": 8032,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/socket.lua"
+        },
+        "jet/utils.lua": {
+          "sha256": "807a4b064a26d1f8e0120cc990de5e513e19815c8c1c0ac09451d544cb66c5cc",
+          "size": 3419,
+          "url": "https://raw.githubusercontent.com/lipp/lua-jet/a481f1197ad26d3406b846539e7a4c894442acd8/src/jet/utils.lua"
+        }
+      },
+      "homepage": "http://jetbus.io",
+      "host": "luajit",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Wed, 25 Jun 2014 06:50:43 GMT",
+        "rockspec": {
+          "date": "Wed, 25 Jun 2014 06:50:43 GMT",
+          "sha256": "6c9b4926573f17468f6bb56d9d7539fa5a20b3b460bb8f144352ccc00b998e70",
+          "size": 1007
+        }
+      },
+      "modules": [
+        "jet",
+        "jet.daemon",
+        "jet.daemon.fetcher",
+        "jet.daemon.path_matcher",
+        "jet.daemon.radix",
+        "jet.daemon.sorter",
+        "jet.daemon.value_matcher",
+        "jet.peer",
+        "jet.socket",
+        "jet.utils"
+      ],
+      "origin": {
+        "commit": "a481f1197ad26d3406b846539e7a4c894442acd8",
+        "ref": "v0.10",
+        "type": "git",
+        "url": "https://github.com/lipp/lua-jet.git"
+      },
+      "size": 70302,
+      "summary": "The JSON Bus. Daemon and Peer implementations for Lua.",
+      "undeclared_requires": [
+        "cmsgpack",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

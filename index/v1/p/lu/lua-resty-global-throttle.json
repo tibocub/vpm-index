@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-global-throttle",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "resty/global_throttle.lua": {
+          "sha256": "7b817edc5f67b5b985a6228954767618ea1c47103c747c3165658ee63bad1cfb",
+          "size": 1357,
+          "url": "https://raw.githubusercontent.com/ElvinEfendi/lua-resty-global-throttle/18f1e58083211ef1eaa5fd77f796fd67d9437285/lib/resty/global_throttle.lua"
+        },
+        "resty/global_throttle/sliding_window.lua": {
+          "sha256": "929eb4b907eee7054dd8f4888c86252821a536ca752074162b3be80f964d7073",
+          "size": 6393,
+          "url": "https://raw.githubusercontent.com/ElvinEfendi/lua-resty-global-throttle/18f1e58083211ef1eaa5fd77f796fd67d9437285/lib/resty/global_throttle/sliding_window.lua"
+        },
+        "resty/global_throttle/store.lua": {
+          "sha256": "aa516b4b8e55d76106964add9199f2b82d127aaea517a21546f2f69cd262937f",
+          "size": 1252,
+          "url": "https://raw.githubusercontent.com/ElvinEfendi/lua-resty-global-throttle/18f1e58083211ef1eaa5fd77f796fd67d9437285/lib/resty/global_throttle/store.lua"
+        },
+        "resty/global_throttle/store/memcached.lua": {
+          "sha256": "c03d226efd4e04c30b051167a2cc9d0b105572a6b0ee66a6c168e130a2afa99b",
+          "size": 2666,
+          "url": "https://raw.githubusercontent.com/ElvinEfendi/lua-resty-global-throttle/18f1e58083211ef1eaa5fd77f796fd67d9437285/lib/resty/global_throttle/store/memcached.lua"
+        },
+        "resty/global_throttle/store/shared_dict.lua": {
+          "sha256": "c4a5003cc9ca68fa72f01056a897ffe7d189db7c08cb82e6abd97e06df8b41e0",
+          "size": 1004,
+          "url": "https://raw.githubusercontent.com/ElvinEfendi/lua-resty-global-throttle/18f1e58083211ef1eaa5fd77f796fd67d9437285/lib/resty/global_throttle/store/shared_dict.lua"
+        }
+      },
+      "homepage": "https://github.com/ElvinEfendi/lua-resty-global-throttle",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 09 Feb 2023 01:33:17 GMT",
+        "rockspec": {
+          "date": "Thu, 09 Feb 2023 01:33:17 GMT",
+          "sha256": "d07b1ee79a82fb090989e0716d39813c3b1fe258a2bff16bedd80377871daf12",
+          "size": 1041
+        }
+      },
+      "modules": [
+        "resty.global_throttle",
+        "resty.global_throttle.sliding_window",
+        "resty.global_throttle.store",
+        "resty.global_throttle.store.memcached",
+        "resty.global_throttle.store.shared_dict"
+      ],
+      "origin": {
+        "commit": "18f1e58083211ef1eaa5fd77f796fd67d9437285",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/ElvinEfendi/lua-resty-global-throttle"
+      },
+      "size": 12672,
+      "summary": "Distributed flow control middleware for Openresty.",
+      "undeclared_requires": [
+        "resty.memcached"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

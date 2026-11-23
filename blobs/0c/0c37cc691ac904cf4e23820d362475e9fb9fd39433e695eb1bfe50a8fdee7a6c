@@ -1,0 +1,694 @@
+-- Turn a delegation request into a child agent, and start its turn.
+--
+-- Every path that starts a child — the subagents.run tool, `ctx:agent` in the
+-- Lua workflow API, and the workflow profile lowering — goes through here, so the
+-- validation rules and the model/reasoning precedence exist exactly once:
+--
+--     model     = call.model     or profile.model     or (inherited)
+--     reasoning = call.reasoning or profile.reasoning or (inherited)
+--
+-- "Inherited" means the field is absent from the spec, and the primary's live
+-- values from `session_info()` apply. A resumed child reads its own last
+-- effective values from the stored conversation instead of a profile, so a
+-- continuation without overrides keeps running on what it ran on before. The
+-- two fields resolve independently: a call may override reasoning while
+-- inheriting the model.
+--
+-- A new child's conversation starts with the fixed child-role instruction,
+-- then — when the profile has a body — the profile prompt as a further system
+-- message. Named children also stamp their initial name and optional profile
+-- into the session header as a fallback for older turns. Each turn records its
+-- invocation's name so live and replayed cards match the registry. The primary's
+-- system messages and dialogue are never copied: the
+-- profile defines the child's system context rather than augmenting the
+-- primary agent's prompt. That profile message carries the manifest
+-- metadata (owning primary session id + profile name); workflow-local profiles
+-- also carry an inline marker so the progress replay path can expose only
+-- prompts the caller explicitly supplied.
+-- The per-turn user metadata records the effective model/reasoning, the
+-- per-outer-call card sequence, terminal presentation status, and — when the
+-- spawn happened inside a bound extension tool — that outer tool call id.
+-- The parent dialogue is never copied, which is why the child-role text tells
+-- the child its final message is the whole of what the delegator sees.
+--
+-- Edge cases: a profile with an empty body contributes no manifest system
+-- message; dynamic children still retain their identity in the session header.
+-- Resume opens the stored conversation as canonical, so profile edits never
+-- reach an existing child. Errors are returned as plain
+-- lowercase messages without an "Error: " prefix; the tool layer decides how to
+-- present them. Nothing here raises: the binding reports its failures by
+-- raising, and every such call goes through `try` so a caller sees one shape.
+
+local jobs = require("subagents.jobs")
+local paths = require("subagents.paths")
+local profiles_mod = require("subagents.profiles")
+local progress = require("subagents.progress")
+
+-- A child never gets the delegation tools themselves: no recursion.
+local TOOL_PREFIX = "subagents."
+
+local M = {}
+
+M.CHILD_ROLE = table.concat({
+    "You are a subagent working inside another agent's session.",
+    "Complete the task you are given directly and end with a clear,",
+    "self-contained report; your final message is returned to the",
+    "delegating agent verbatim. You cannot ask the user questions.",
+}, " ")
+
+local discovered = nil
+
+local function host()
+    return require("panto").ext
+end
+
+local function binding()
+    return require("panto")
+end
+
+-- The binding reports every failure by raising. Route those through one place
+-- so a host error becomes the `nil, message` shape the callers already handle.
+local function try(fn, ...)
+    local ok, value = pcall(fn, ...)
+    if not ok then
+        return false, tostring(value)
+    end
+    return true, value
+end
+
+local function nonempty(value)
+    if type(value) == "string" and value ~= "" then
+        return value
+    end
+    return nil
+end
+
+local function decode_session_metadata(value)
+    if type(value) == "table" then return value end
+    if type(value) ~= "string" or value == "" then return nil end
+    local json = host().json
+    if type(json) == "table" and type(json.decode) == "function" then
+        local ok, decoded = pcall(json.decode, value)
+        if ok and type(decoded) == "table" then return decoded end
+    end
+    local ok, dkjson = pcall(require, "dkjson")
+    if ok and type(dkjson) == "table" and type(dkjson.decode) == "function" then
+        local decoded = dkjson.decode(value)
+        if type(decoded) == "table" then return decoded end
+    end
+    return nil
+end
+
+local function session_metadata(spec)
+    if not spec.subagent_name then return nil end
+    local value = {
+        subagent_name = spec.subagent_name,
+        subagent_profile = spec.subagent_profile,
+    }
+    local json = host().json
+    if type(json) == "table" and type(json.encode) == "function" then
+        local ok, encoded = pcall(json.encode, value)
+        if ok and type(encoded) == "string" then return encoded end
+    end
+    local ok, dkjson = pcall(require, "dkjson")
+    if ok and type(dkjson) == "table" and type(dkjson.encode) == "function" then
+        local encoded_ok, encoded = pcall(dkjson.encode, value)
+        if encoded_ok and type(encoded) == "string" then return encoded end
+    end
+    return nil, "could not encode subagent session metadata"
+end
+
+-- Discovery is cached: activation discovers once, and callers that omit the
+-- profile set (a workflow calling build_spec with one argument) reuse it.
+function M.profiles(given)
+    if given ~= nil then
+        return given
+    end
+    if discovered == nil then
+        discovered = profiles_mod.discover()
+    end
+    return discovered
+end
+
+-- The profile set with workflow-local profiles (`extra`, by name) layered over
+-- it; the local ones win. The base set is never mutated.
+function M.overlay_profiles(base, extra)
+    base = M.profiles(base)
+    if extra == nil then return base end
+    local by_name = {}
+    for name, profile in pairs(base.by_name or {}) do by_name[name] = profile end
+    for name, profile in pairs(extra) do by_name[name] = profile end
+    local list = {}
+    for _, profile in pairs(by_name) do list[#list + 1] = profile end
+    table.sort(list, function(a, b) return a.name < b.name end)
+    return { list = list, by_name = by_name, warnings = base.warnings or {} }
+end
+
+-- Comma-joined sorted profile names, for "unknown profile" messages.
+function M.profile_names(profiles)
+    profiles = M.profiles(profiles)
+    local names = {}
+    for name in pairs(profiles.by_name or {}) do
+        names[#names + 1] = name
+    end
+    if #names == 0 then
+        return "(no profiles found)"
+    end
+    table.sort(names)
+    return table.concat(names, ", ")
+end
+
+local function optional_string(value, field)
+    -- Providers may fill unused optional fields with empty strings.
+    if value == nil or value == "" then
+        return nil, nil
+    end
+    if type(value) ~= "string" then
+        return nil, string.format("`%s` must be a non-empty string when given", field)
+    end
+    return value, nil
+end
+
+local function build_output(output)
+    if type(output) ~= "table" then
+        return nil, "`output` must be a table"
+    end
+    if type(output.schema) ~= "table" then
+        return nil, "`output.schema` must be a JSON-Schema table"
+    end
+    return {
+        name = output.name or "emit_result",
+        description = output.description,
+        schema = output.schema,
+    }, nil
+end
+
+-- build_spec(input, profiles) -> spec | nil, err
+--
+-- input = { profile | system_prompt | id, prompt, model?, reasoning?, output? }
+function M.build_spec(input, profiles)
+    if type(input) ~= "table" then
+        return nil, "expected a table of arguments"
+    end
+    if type(input.prompt) ~= "string" or input.prompt:match("^%s*$") then
+        return nil, "`prompt` must be a non-empty string"
+    end
+
+    if input.agent ~= nil then
+        return nil, "`agent` was renamed to `profile`"
+    end
+    local profile_name, err = optional_string(input.profile, "profile")
+    if err then
+        return nil, err
+    end
+    local id
+    id, err = optional_string(input.id, "id")
+    if err then
+        return nil, err
+    end
+    local system_prompt
+    system_prompt, err = optional_string(input.system_prompt, "system_prompt")
+    if err then
+        return nil, err
+    end
+    local selectors = (profile_name and 1 or 0) + (system_prompt and 1 or 0) + (id and 1 or 0)
+    if selectors ~= 1 then
+        return nil, "pass exactly one of `profile` (start from a profile), `system_prompt` (start without a profile), or `id` (continue one)"
+    end
+
+    local model
+    model, err = optional_string(input.model, "model")
+    if err then
+        return nil, err
+    end
+    local reasoning
+    reasoning, err = optional_string(input.reasoning, "reasoning")
+    if err then
+        return nil, err
+    end
+
+    local output
+    if input.output ~= nil then
+        output, err = build_output(input.output)
+        if err then
+            return nil, err
+        end
+    end
+
+    -- The profile is resolved before the store is opened so an unknown profile
+    -- name reports itself instead of a session-directory failure.
+    local profile
+    if profile_name then
+        profile = (M.profiles(profiles).by_name or {})[profile_name]
+        if not profile then
+            return nil, string.format("unknown profile '%s'; known: %s", profile_name, M.profile_names(profiles))
+        end
+    elseif system_prompt then
+        profile = {
+            name = "subagent",
+            body = system_prompt,
+            inline = true,
+        }
+    end
+
+    -- child_store_dir returns the session info alongside the directory on
+    -- success, and the failure message in that same slot on failure.
+    local store_dir, info_or_err = paths.child_store_dir()
+    if not store_dir then
+        return nil, tostring(info_or_err)
+    end
+
+    local spec = {
+        store_dir = store_dir,
+        prompt = input.prompt,
+        model = model,
+        reasoning = reasoning,
+        output = output,
+    }
+
+    if id then
+        spec.session_id = id
+        return spec
+    end
+
+    spec.label = profile.name
+    spec.model = model or profile.model
+    spec.reasoning = reasoning or profile.reasoning
+
+    local inline = profile.inline == true or profile.layer == "workflow"
+    local system_messages = { { text = M.CHILD_ROLE } }
+    if profile.body and profile.body:match("%S") then
+        local manifest = { owner = info_or_err.session_id, agent = profile.name }
+        if inline then manifest.inline = true end
+        system_messages[#system_messages + 1] = {
+            text = profile.body,
+            metadata = { subagents = manifest },
+        }
+    end
+    spec.system_messages = system_messages
+    if inline then
+        spec.presentation_system_prompt = profile.body
+    end
+
+    return spec
+end
+
+-- The stored conversation is the only record a resumed child has of itself: the
+-- first system message carrying metadata holds the manifest, and the last user
+-- message whose metadata names this extension holds the model and reasoning its
+-- previous turn resolved to. A message whose metadata is malformed is skipped,
+-- not treated as an error.
+local function read_stored(conv)
+    local ok, messages = try(conv.messages, conv)
+    if not ok or type(messages) ~= "table" then
+        return {}, nil
+    end
+
+    local manifest
+    for index = 1, #messages do
+        if messages[index].role == "system" then
+            local got, metadata = try(conv.message_metadata, conv, index)
+            if got and type(metadata) == "table" then
+                manifest = metadata
+                break
+            end
+        end
+    end
+
+    local defaults = {}
+    for index = #messages, 1, -1 do
+        if messages[index].role == "user" then
+            local got, metadata = try(conv.message_metadata, conv, index)
+            local mine = got and type(metadata) == "table" and metadata.subagents or nil
+            if type(mine) == "table" then
+                defaults.model = nonempty(mine.model)
+                defaults.reasoning = nonempty(mine.reasoning)
+                break
+            end
+        end
+    end
+    return defaults, manifest
+end
+
+-- Child spend is invisible to the host's own accounting (children live in
+-- their own store), so it is reported into the primary's session totals: each
+-- settled turn's assistant usage as it lands, and every stored child's again
+-- when a session opens (`report_stored_usage`), because the host zeroes
+-- reported usage then. A turn is priced against the model its user message's
+-- metadata records (every turn has recorded one). One-shot structured workers have no stored file, so a
+-- reopened session no longer counts them. A host without the seam, or one
+-- keeping no totals, makes every report a no-op.
+local USAGE_FIELDS = { "input", "output", "cache_read", "cache_write", "reasoning" }
+
+local function report_usage(conv, first, model)
+    local report = host().report_session_usage
+    if type(report) ~= "function" then return end
+    local ok, messages = try(conv.messages, conv)
+    if not ok or type(messages) ~= "table" then return end
+    local sums, order = {}, {}
+    for index = first or 1, #messages do
+        local message = messages[index]
+        if message.role == "user" then
+            local got, metadata = try(conv.message_metadata, conv, index)
+            local mine = got and type(metadata) == "table" and metadata.subagents or nil
+            model = type(mine) == "table" and nonempty(mine.model) or model
+        elseif message.role == "assistant" and model and type(message.usage) == "table" then
+            local key = model
+            if not sums[key] then
+                sums[key] = {}
+                for _, field in ipairs(USAGE_FIELDS) do sums[key][field] = 0 end
+                order[#order + 1] = key
+            end
+            for _, field in ipairs(USAGE_FIELDS) do
+                sums[key][field] = sums[key][field] + (math.tointeger(message.usage[field]) or 0)
+            end
+        end
+    end
+    for _, key in ipairs(order) do
+        pcall(report, { model = key, usage = sums[key] })
+    end
+end
+
+function M.report_stored_usage()
+    local store_dir = paths.child_store_dir()
+    if not store_dir then return end
+    local opened, store = try(binding().file_system_jsonl_store, { dir = store_dir })
+    if not opened or store == nil then return end
+    local listed, infos = try(store.list, store)
+    if not listed or type(infos) ~= "table" then return end
+    for _, info in ipairs(infos) do
+        local loaded, conv = try(store.load, store, info.id)
+        if loaded and conv ~= nil then report_usage(conv) end
+    end
+end
+
+-- Everything the primary can call except the delegation tools themselves. The
+-- decls carry opaque source tags, so a child registering them reaches the same
+-- handlers on the same runtime. A child keeps std.lua, but the `subagents`
+-- namespace withholds itself outside the primary's lane (namespace.lua).
+local function inherited_tools()
+    local primary = host().agent
+    if primary == nil then
+        return {}
+    end
+    local ok, decls = try(primary.tools, primary)
+    if not ok or type(decls) ~= "table" then
+        return {}
+    end
+    local kept = {}
+    for _, decl in ipairs(decls) do
+        if type(decl.name) ~= "string" or decl.name:sub(1, #TOOL_PREFIX) ~= TOOL_PREFIX then
+            kept[#kept + 1] = decl
+        end
+    end
+    return kept
+end
+
+local function seed_conversation(agent, spec)
+    local conv = agent:conversation()
+    for _, message in ipairs(spec.system_messages or {}) do
+        if message.metadata ~= nil then
+            conv:add_system_message(message.text, { metadata = message.metadata })
+        else
+            conv:add_system_message(message.text)
+        end
+    end
+    return true
+end
+
+-- spawn(spec) -> handle | nil, err
+--
+-- Resolve the model, open the child's store, build the agent, seed or reopen
+-- its conversation, hand it the primary's tools, and start one turn under the
+-- session-wide bound. Everything that can fail before the turn starts (an
+-- unknown id, an id already busy, an unknown model, a store that cannot be
+-- opened) fails here, so a caller either has a running child or a message.
+local function spawn_impl(spec, made)
+    if type(spec) ~= "table" then
+        return nil, "expected a spawn spec"
+    end
+    local one_shot = type(spec.output) == "table"
+    if one_shot and spec.session_id then
+        return nil, "a structured-output child cannot be resumed"
+    end
+    if spec.session_id and jobs.active(spec.session_id) then
+        return nil, string.format("subagent '%s' already has a turn in flight", spec.session_id)
+    end
+
+    local ext = host()
+    local panto = binding()
+    local _, info = try(ext.session_info)
+    info = type(info) == "table" and info or {}
+
+    -- A structured worker is ephemeral by contract: no durable file to resume,
+    -- so it never touches the child catalog.
+    local opened, store
+    if one_shot then
+        opened, store = try(panto.null_store)
+    else
+        local made, dir_err = paths.ensure_dir(spec.store_dir)
+        if not made then
+            return nil, dir_err
+        end
+        local metadata, metadata_err = session_metadata(spec)
+        if metadata_err then return nil, metadata_err end
+        opened, store = try(panto.file_system_jsonl_store, {
+            dir = spec.store_dir,
+            metadata = metadata,
+        })
+    end
+    if not opened then
+        return nil, tostring(store)
+    end
+    if store == nil then
+        return nil, "the child session store could not be opened"
+    end
+
+    local conv, defaults, manifest, stored_name, stored_profile
+    if spec.session_id then
+        -- The ownership boundary is the primary's own catalog directory: an id
+        -- from another session simply is not in this store.
+        local unknown = string.format("unknown subagent id '%s' for this session", spec.session_id)
+        local asked, found = try(store.resolve, store, spec.session_id)
+        if not asked then
+            return nil, tostring(found)
+        end
+        if found == nil then
+            return nil, unknown
+        end
+        local stored = decode_session_metadata(found.metadata)
+        stored_name = stored and nonempty(stored.subagent_name) or nil
+        stored_profile = stored and nonempty(stored.subagent_profile) or nil
+        local loaded
+        loaded, conv = try(store.load, store, spec.session_id)
+        if not loaded then
+            return nil, tostring(conv)
+        end
+        if conv == nil then
+            return nil, unknown
+        end
+        defaults, manifest = read_stored(conv)
+    end
+    defaults = defaults or {}
+
+    local model = spec.model or defaults.model or nonempty(info.model)
+    local reasoning = spec.reasoning or defaults.reasoning or nonempty(info.reasoning)
+
+    local asked, cfg, resolve_err = pcall(ext.resolve_model, {
+        model = model,
+        reasoning = reasoning,
+        tool_choice = one_shot and { name = spec.output.name } or nil,
+    })
+    if not asked then
+        return nil, tostring(cfg)
+    end
+    if cfg == nil then
+        return nil, resolve_err and tostring(resolve_err) or "the child model could not be resolved"
+    end
+    -- The labels the host actually resolved to are what the turn records, so a
+    -- continuation reads back the same spelling.
+    local model_label = nonempty(cfg.model) or model
+    local reasoning_label = nonempty(cfg.reasoning) or reasoning
+
+    local built, agent = try(panto.agent, {
+        config = cfg,
+        store = store,
+        session_id = spec.session_id,
+        conversation = conv,
+    })
+    if not built or agent == nil then
+        return nil, built and "the subagent could not be created" or tostring(agent)
+    end
+
+    if not spec.session_id then
+        local seeded, seed_err = try(seed_conversation, agent, spec)
+        if not seeded then
+            return nil, seed_err
+        end
+    end
+
+    local decls = inherited_tools()
+    if one_shot then
+        decls = { {
+            name = spec.output.name,
+            description = spec.output.description or "",
+            schema = spec.output.schema,
+        } }
+    end
+    local armed, tools_err = try(agent.set_tools, agent, decls)
+    if not armed then
+        return nil, tools_err
+    end
+
+    -- A one-shot worker reports no id: it has no durable session to name.
+    local named, session_id = try(agent.session_id, agent)
+    local id = (not one_shot) and named and nonempty(session_id) or nil
+
+    local turn_index
+    local got_conv, child_conv = try(agent.conversation, agent)
+    if got_conv and child_conv and type(child_conv.len) == "function" then
+        local got_len, length = try(child_conv.len, child_conv)
+        if got_len and type(length) == "number" then turn_index = length + 1 end
+    end
+
+    local card_detail = model_label
+    if card_detail and reasoning_label then card_detail = card_detail .. " (" .. reasoning_label .. ")" end
+    local profile_label = spec.label or
+        (type(manifest) == "table" and type(manifest.subagents) == "table" and manifest.subagents.agent) or
+        "subagent"
+    local card_label = profile_label
+    local subagent_name = spec.subagent_name or stored_name
+    local subagent_profile = spec.subagent_profile or stored_profile
+    if subagent_name then
+        card_label = subagent_name
+        if subagent_profile then
+            card_label = card_label .. " (" .. subagent_profile .. ")"
+        end
+    end
+    local card = progress.card(card_label, id, card_detail, {
+        prompt = spec.prompt,
+        system_prompt = spec.presentation_system_prompt,
+        model = model_label,
+    })
+    made.card = card
+
+    local owner_tool_call_id = progress.tool_call_id()
+    local turn_metadata = {
+        subagents = {
+            name = subagent_name,
+            agent = subagent_profile,
+            model = model_label,
+            reasoning = reasoning_label,
+        },
+    }
+    local sequence = card.sequence
+    if type(sequence) == "number" then turn_metadata.subagents.sequence = sequence end
+    if type(owner_tool_call_id) == "string" and owner_tool_call_id ~= "" then
+        turn_metadata.subagents.tool_call_id = owner_tool_call_id
+    end
+
+    -- The event consumer's completed-message summary becomes the result table
+    -- that run.lua and workflow callers already shape.
+    local function shape(raw)
+        raw = type(raw) == "table" and raw or {}
+        local result = {
+            id = id,
+            status = raw.status or "failed",
+            output = raw.text,
+            error = raw.error,
+            resumable = false,
+            model = model_label,
+            reasoning = reasoning_label,
+            manifest = manifest,
+        }
+        if one_shot then
+            local wanted = spec.output.name
+            for _, call in ipairs(raw.tool_calls or {}) do
+                if call.name == wanted then
+                    result.structured_json = call.input
+                    break
+                end
+            end
+            if result.structured_json == nil and result.status == "completed" then
+                result.status = "failed"
+                result.output = nil
+                result.error = string.format("the child did not call the required '%s' output tool", wanted)
+            end
+        elseif id then
+            -- Durable resumability is a fact about the store, not about the
+            -- status: a turn that died before its first assistant message left
+            -- nothing to continue from. Ask again now that it has settled.
+            local ok, found = try(store.resolve, store, id)
+            result.resumable = ok and found ~= nil
+        end
+        turn_metadata.subagents.status = result.status
+        -- Terminal dispatch already releases the native mutation guard, so
+        -- post-terminal inspection and annotation need no stream close.
+        if turn_index then
+            local got, settled_conv = try(agent.conversation, agent)
+            if got and settled_conv then report_usage(settled_conv, turn_index, model_label) end
+        end
+        if turn_index and type(agent.set_message_metadata) == "function" then
+            -- The binding's annotation seam updates the already-written user
+            -- record, so cancellation has a durable presentation status even
+            -- though the stream correctly rolls its assistant messages back.
+            pcall(agent.set_message_metadata, agent, turn_index, turn_metadata)
+        end
+        card:done(result.status, result.error)
+        if type(spec.on_settle) == "function" then
+            pcall(spec.on_settle, result)
+        end
+        return result
+    end
+
+    local handle, start_err = jobs.start {
+        id = id,
+        survives_interrupt = spec.survives_interrupt,
+        build = function()
+            local stream, err = ext.async.run(agent, {
+                prompt = spec.prompt,
+                metadata = turn_metadata,
+                dispatch_tools = not one_shot,
+            })
+            if not stream then
+                return nil, err or "the host could not start the subagent"
+            end
+            return stream
+        end,
+        on_event = function(event)
+            card:event(event)
+        end,
+        shape = shape,
+        on_start = function() card:start() end,
+    }
+    if not handle then
+        card:done("failed", start_err)
+        return nil, start_err
+    end
+
+    -- The event consumer borrows the agent and store; anchor both on the
+    -- extension handle until terminal dispatch and post-terminal inspection.
+    handle.agent = agent
+    handle.store = store
+    return handle
+end
+
+-- A spawn that fails before its card exists would otherwise leave the tool
+-- block with nothing to render; give it a failed card.
+function M.spawn(spec)
+    local made = {}
+    local handle, err = spawn_impl(spec, made)
+    if not handle and not made.card and type(spec) == "table" then
+        local label = spec.label or "subagent"
+        if spec.subagent_name then
+            label = spec.subagent_name .. (spec.subagent_profile and (" (" .. spec.subagent_profile .. ")") or "")
+        end
+        progress.card(label, spec.session_id, nil, {
+            prompt = spec.prompt,
+            system_prompt = spec.presentation_system_prompt,
+        }):done("failed", tostring(err))
+    end
+    return handle, err
+end
+
+return M

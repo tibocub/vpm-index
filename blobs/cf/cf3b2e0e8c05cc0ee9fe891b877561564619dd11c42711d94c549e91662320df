@@ -1,0 +1,21 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+return {
+  name = "wib-kong",
+  fields = {
+    { consumer = typedefs.no_consumer },
+    {
+      config = {
+        type = "record",
+        fields = {
+          { monitorUrl = typedefs.url { required = true } },
+          { bearerToken = { type = "string", required = true } },
+          { host = { type = "string" } },
+          { batchSize = { type = "number", default = 1000 } },
+          { maxBodySize = { type = "number", default = 10*1024 } },
+        },
+      },
+    },
+  },
+}
+

@@ -1,0 +1,123 @@
+local constants = require 'netacea_constants'
+local ingest = require 'ingest'
+local util = require 'netacea_util'
+local session_mod = require 'netacea_session'
+local protector = require 'netacea_protector'
+local ingest_record = require 'netacea_ingest_record'
+local netacea_txn = require 'netacea_txn'
+local netacea_headers = require 'netacea_headers'
+local netacea_mitigation = require 'netacea_mitigation'
+local netacea_config = require 'netacea_config'
+
+local netacea = {}
+local config = netacea_config.load()
+
+local function enqueue_ingest_record(txn, session)
+    if not ingest.enabled then
+        return
+    end
+
+    ingest.enqueue(ingest_record.build(session, {
+        status = tostring(util.safe_call(function() return txn.f:status() end) or ""),
+        bytes_sent = netacea_txn.bytes_sent(txn),
+        request_id = session.request_id or netacea_txn.request_id(txn),
+        bytes_received = util.safe_call(function() return txn.f:req_len() end) or 0,
+        request_time = string.format("%.3f", util.now() - (session.start_time or util.now())),
+    }))
+end
+
+local function log_handler_error(handler_name, err)
+    if core and core.Alert then
+        core.Alert("netacea lua module: " .. handler_name .. " failed: " .. tostring(err))
+    end
+end
+
+local function handle_request_impl(txn, mode)
+    local request_config = netacea_config.get(mode)
+    mode = request_config.protection_mode
+    local disposition = netacea_config.resolve_disposition(mode, request_config)
+
+    if disposition == "bypass" then
+        txn:set_priv({ bypass = true })
+        return
+    end
+
+    netacea_headers.strip_netacea_headers(txn)
+
+    -- Handle fail-open caused by config failure
+    if disposition == "error_open" then
+        if ingest.enabled then
+            local session = session_mod.parse(txn, request_config, mode)
+            session.request_id = netacea_txn.request_id(txn)
+            session.config_error = true
+            txn:set_priv(session)
+        end
+        return
+    end
+
+    local session = session_mod.parse(txn, request_config, mode)
+    session.request_id = netacea_txn.request_id(txn)
+    protector.fetch_verdict(session, request_config)
+
+    if mode == "INJECT" then
+        netacea_headers.inject_verdict_headers(txn, session)
+    elseif mode == "MITIGATE" then
+        if session.mitigate == constants.mitigationTypes.HARDBLOCKED then
+            netacea_mitigation.mitigate(txn, request_config, session)
+        elseif session.mitigate == constants.mitigationTypes.MONETISED then
+            netacea_mitigation.monetise(txn, request_config, session)
+        elseif session.mitigate == constants.mitigationTypes.FLAGGED then
+            netacea_headers.inject_verdict_headers(txn, session)
+        end
+    end
+
+    txn:set_priv(session)
+end
+
+local function handle_response_impl(txn)
+    local session = txn:get_priv() or {}
+
+    -- Handle an explicit bypass set by handle_request
+    if session.bypass then
+        return
+    end
+
+    if netacea_config.resolve_disposition(nil, config) == "error_open" then
+        if session.config_error then
+            enqueue_ingest_record(txn, session)
+        end
+        return
+    end
+
+    if session.should_revalidate then
+        local set_cookie = session_mod.build_set_cookie(session, config)
+        if set_cookie then
+            txn.http:res_add_header("set-cookie", set_cookie)
+        end
+    end
+
+    enqueue_ingest_record(txn, session)
+end
+
+function netacea.handle_request(txn, mode)
+    local ok, err = pcall(handle_request_impl, txn, mode)
+    if not ok then
+        log_handler_error("handle_request", err)
+    end
+end
+
+function netacea.handle_response(txn)
+    local ok, err = pcall(handle_response_impl, txn)
+    if not ok then
+        log_handler_error("handle_response", err)
+    end
+end
+
+function netacea.register()
+    core.register_action("netacea_request_handler", { "http-req" }, netacea.handle_request, 1)
+    core.register_action("netacea_response_handler", { "http-res" }, netacea.handle_response)
+end
+
+netacea.register()
+
+return netacea

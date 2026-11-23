@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-keycloak-auth-request",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/keycloak-auth-request/access.lua": {
+          "sha256": "358465abaa81d7b49d81fd56e2f0622f90c80364a4057bd660ae330e485fd5e4",
+          "size": 3894,
+          "url": "https://raw.githubusercontent.com/yoophi/kong-plugin-keycloak-auth-request/78cf865ebbac0c62c76ccd930423e65feb5b7570/src/access.lua"
+        },
+        "kong/plugins/keycloak-auth-request/handler.lua": {
+          "sha256": "fd50a9fd6f7c2ee75ca979badbd2d0972c208b06bd1696cd1f7e6e7ee1bc8249",
+          "size": 497,
+          "url": "https://raw.githubusercontent.com/yoophi/kong-plugin-keycloak-auth-request/78cf865ebbac0c62c76ccd930423e65feb5b7570/src/handler.lua"
+        },
+        "kong/plugins/keycloak-auth-request/schema.lua": {
+          "sha256": "d014e70a226b5121999d27f1709725d553e41c3e66118a0b59fcf8a90916af63",
+          "size": 443,
+          "url": "https://raw.githubusercontent.com/yoophi/kong-plugin-keycloak-auth-request/78cf865ebbac0c62c76ccd930423e65feb5b7570/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 30 Jul 2020 11:23:10 GMT",
+        "rockspec": {
+          "date": "Thu, 30 Jul 2020 11:23:10 GMT",
+          "sha256": "d29b0597bb2d56fb3f187844bbc0772f6874722909ec7420d0cb9162361eeba8",
+          "size": 646
+        },
+        "src": {
+          "date": "Thu, 30 Jul 2020 11:23:11 GMT",
+          "sha256": "e9bf0ae743246a8383d028bc1baa1ace5e3a3807082b556134c68b3aea561c6c",
+          "size": 5039,
+          "url": "https://luarocks.org/kong-plugin-keycloak-auth-request-0.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.keycloak-auth-request.access",
+        "kong.plugins.keycloak-auth-request.handler",
+        "kong.plugins.keycloak-auth-request.schema"
+      ],
+      "origin": {
+        "commit": "78cf865ebbac0c62c76ccd930423e65feb5b7570",
+        "ref": "0.1.0-0",
+        "type": "git",
+        "url": "https://github.com/yoophi/kong-plugin-keycloak-auth-request"
+      },
+      "size": 4834,
+      "summary": "A Kong plugin that make POST keycloak token introspect request before proxying the original request.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

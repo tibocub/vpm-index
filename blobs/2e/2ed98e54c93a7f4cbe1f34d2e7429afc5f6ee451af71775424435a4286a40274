@@ -1,0 +1,45 @@
+local next = {}
+local sfs = require 'sfs'
+local lrocket = require 'luarocks.build.lrocket'
+
+_G.LUA = nil
+_G.OUTPUT = nil
+
+local _sfs_exec = sfs.exec
+function sfs.exec(program, ...)
+    if program:match '[/\\]lrc$' then
+        local tree = debug.getinfo(1, 'S').source:sub(2):match '(.*)/luarocks/build/.*$'
+        local ok, err = _sfs_exec(
+            { LUA_INIT = 'LRN_LUA = [[' .. _G.LUA .. ']]; dofile [[' .. tree .. '/lrocket-next/init.lua]]' },
+            program, ...)
+
+        -- add attac chunk
+        if ok then
+            local bin = io.open('_LRN_attac-chunk.bin', 'rb')
+            if bin then
+                for target in sfs.glob(OUTPUT .. '{,.exe,.dll,.so,.dylib}') do
+                    local out = assert(io.open(target, 'ab'))
+                    out:write(bin:read('*a'))
+                    bin:close()
+                    out:close()
+                end
+
+                os.remove('_LRN_attac-chunk.bin')
+                os.remove('_LRN_attac-map.lua')
+            end
+        end
+
+        return ok, err
+    end
+    return _sfs_exec(program, ...)
+end
+
+function next.run(rockspec, no_install)
+    lrocket.plugin_type = 'bin'
+    _G.LUA = rockspec.variables.LUA
+    _G.OUTPUT = rockspec.build.output
+
+    return lrocket.run(rockspec, no_install)
+end
+
+return next

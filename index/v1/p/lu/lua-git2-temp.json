@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "lua-git2-temp",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://libgit2.github.com",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 25 Aug 2026 15:44:21 GMT",
+        "rockspec": {
+          "date": "Tue, 25 Aug 2026 15:44:21 GMT",
+          "sha256": "fb065f7f2c7de3751b1b16c6586fc331f49cf75a06bdc2a9cae343bd17d3626b",
+          "size": 1071
+        },
+        "src": {
+          "date": "Tue, 25 Aug 2026 15:44:22 GMT",
+          "sha256": "0433beb34109530148796486a406c0fdee8b83fbc004890241ef65b4f08d3101",
+          "size": 222123,
+          "url": "https://luarocks.org/lua-git2-temp-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "git2"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "GIT2"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "GIT2": {
+              "header": "git2.h",
+              "library": "git2"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(GIT2_INCDIR)"
+              ],
+              "libdirs": [
+                "$(GIT2_LIBDIR)"
+              ],
+              "libraries": [
+                "git2"
+              ],
+              "name": "git2",
+              "sources": [
+                "src/pre_generated-git2.nobj.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-git2-temp-0.1.1"
+      },
+      "origin": {
+        "date": "Tue, 25 Aug 2026 15:44:22 GMT",
+        "sha256": "0433beb34109530148796486a406c0fdee8b83fbc004890241ef65b4f08d3101",
+        "size": 222123,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-git2-temp-0.1.1-1.src.rock"
+      },
+      "summary": "Lua bindings for libgit2",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

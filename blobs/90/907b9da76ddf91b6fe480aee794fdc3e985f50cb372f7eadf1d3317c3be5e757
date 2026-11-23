@@ -1,0 +1,115 @@
+--- base Module
+-- @module base
+
+local base = {}
+
+local fun = require("fun")
+local ansicolors = require("ansicolors")
+local path = require("pl.path")
+local inspect = require("inspect")
+local s = require("say")
+
+-- Module functions
+--- say hello to sc
+-- @function funname
+---@tparam type param
+function base.hello()
+   local name = io.read("*a")
+   print("Hello ", name)
+end
+
+function base.split(pathname)
+   assert(pathname)
+   local directory, full_filename = path.splitpath(pathname)
+   local filename, extension = path.splitext(full_filename)
+   return directory, filename, extension
+end
+
+--- exports functions of a module
+-- @function use
+-- @tparam table module
+function base.use(module)
+   fun.each(function(k, v)
+      if _G[k] then
+         -- TODO: Use this module error fun
+         io.stderr:write("use: skipping duplicate symbol ", k, "\n")
+      else
+         _G[k] = v
+         -- _G[k] = module[k]
+      end
+   end, module)
+end
+
+local function msg_factory(prefix)
+   assert(prefix)
+   return function(color, ...)
+      assert(color)
+      local args = { ... }
+      print(ansicolors(("%%{%s}"):format(prefix) .. color:format(table.unpack(args)) .. "%{reset}"))
+   end
+end
+
+base.inspect = inspect
+base.okmsg = msg_factory("green")
+base.komsg = msg_factory("red")
+base.bluemsg = msg_factory("blue")
+base.brightmsg = msg_factory("bright")
+base.donemsg = msg_factory("bright green")
+base.failmsg = msg_factory("bright red")
+
+--- handle OS signals
+-- @function handle_signal
+-- @tparam number signum number of the signal to handle
+-- @return nil
+function base.handle_signal(signum)
+   print()
+   print("received signal " .. signum)
+   os.exit(0)
+end
+
+--- Prints out the name of the global functions
+local function invalid_action(message, ...)
+   base.komsg(s(message, { ... }))
+   for k, v in pairs(_G) do
+      if type(v) == "function" then
+         print("Function: " .. k .. ". Type: " .. type(v))
+      else
+      end
+   end
+end
+
+--- call this on error
+-- @function handle_error_
+-- @param arguments to error
+function base.handle_error(template, ...)
+   base.komsg(s("base.error.raised"))
+   print(template:format(...))
+   os.exit()
+end
+
+-- args.command command to be run
+-- args.rest arguments to command
+function base.call_function(args)
+   -- print("COMMAND IS", args.command)
+   -- print(inspect(args.rest))
+   -- os.exit()
+   if not args.command then
+      invalid_action("base.no.action.given")
+   else
+      if _G[args.command] then
+         local status, out = pcall(_G[args.command], table.unpack(args.rest))
+         if not status then
+            base.handle_error(out)
+         else
+            if out ~= nil then
+               print(out)
+            else
+            end
+         end
+      else
+         invalid_action("base.invalid.action", args.command)
+      end
+   end
+end
+
+return base

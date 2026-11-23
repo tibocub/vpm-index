@@ -1,0 +1,126 @@
+local _module_0 = { }
+local inspect = require('inspect')
+local path = require('path')
+local package = require('package')
+local table = require('table')
+local result = require('elan.result')
+local SUPPORTED_LANGUAGES = {
+	{
+		name = 'lua',
+		ext = '.lua',
+		loader = function(filepath, default)
+			if default == nil then
+				default = { }
+			end
+			local fn, err = loadfile(filepath)
+			if not fn then
+				return nil, "failed to load lua file " .. tostring(filepath) .. ": " .. tostring(err)
+			end
+			local _exp_0 = fn()
+			if _exp_0 ~= nil then
+				return _exp_0
+			else
+				return default
+			end
+		end
+	},
+	{
+		name = 'yuescript',
+		ext = '.yue',
+		loader = function(filepath, default)
+			if default == nil then
+				default = { }
+			end
+			local yue = require('yue')
+			local fn, err = yue.loadfile(filepath)
+			if not fn then
+				return nil, "failed to load yuescript file " .. tostring(filepath) .. ": " .. tostring(err)
+			end
+			local _exp_0 = fn()
+			if _exp_0 ~= nil then
+				return _exp_0
+			else
+				return default
+			end
+		end
+	},
+	{
+		name = 'moonscript',
+		ext = '.moon',
+		loader = function(filepath, default)
+			if default == nil then
+				default = { }
+			end
+			local moon = require('moonscript.base')
+			local fn, err = moon.loadfile(filepath)
+			if not fn then
+				return nil, "failed to load moonscript file " .. tostring(filepath) .. ": " .. tostring(err)
+			end
+			local _exp_0 = fn()
+			if _exp_0 ~= nil then
+				return _exp_0
+			else
+				return default
+			end
+		end
+	}
+}
+_module_0["SUPPORTED_LANGUAGES"] = SUPPORTED_LANGUAGES
+local locate_config
+locate_config = function(dir)
+	local files, lang = { }, nil
+	do
+		local _accum_0 = { }
+		local _len_0 = 1
+		for _index_0 = 1, #SUPPORTED_LANGUAGES do
+			local l = SUPPORTED_LANGUAGES[_index_0]
+			local _continue_0 = false
+			repeat
+				local filepath = path(dir, 'config' .. l.ext)
+				if not path.isfile(filepath) then
+					_continue_0 = true
+					break
+				end
+				lang = l
+				_accum_0[_len_0] = filepath
+				_len_0 = _len_0 + 1
+				_continue_0 = true
+			until true
+			if not _continue_0 then
+				break
+			end
+		end
+		files = _accum_0
+	end
+	local _exp_0 = #files
+	if 0 == _exp_0 then
+		return nil, 'configuration file is missing'
+	elseif 1 == _exp_0 then
+		return files[1], lang
+	else
+		table.sort(files)
+		return nil, "found conflicting configuration files: " .. tostring(table.concat(files, ', '))
+	end
+end
+local load_config
+load_config = function(file, lang)
+	return result.unwrap_any(result.map_ok(result.to_result(lang.loader(file)), function(cfg)
+		cfg.lang = lang
+		return cfg
+	end))
+end
+local build_config
+build_config = function(dir)
+	return result.unwrap_any(result.map_ok(result.to_result(locate_config(dir)), load_config))
+end
+local build
+build = function(elandir)
+	local rootdir = path(elandir, 'modules')
+	local cfg, err = build_config(rootdir)
+	if cfg then
+		package.loaded['_.config'] = cfg
+	end
+	return cfg, err
+end
+_module_0["build"] = build
+return _module_0

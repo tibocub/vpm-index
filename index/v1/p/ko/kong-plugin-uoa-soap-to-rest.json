@@ -1,0 +1,91 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-uoa-soap-to-rest",
+  "versions": {
+    "1.0.0-5": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "xml2lua = 1.5-2",
+        "lua-cjson = 2.1.0.10-1"
+      ],
+      "files": {
+        "kong/plugins/uoa-soap-to-rest/handler.lua": {
+          "sha256": "3398b328a4e7273936465bbb9806381e67712a4042821e7f74769013da0f262b",
+          "size": 2518,
+          "url": "blob:3398b328a4e7273936465bbb9806381e67712a4042821e7f74769013da0f262b"
+        },
+        "kong/plugins/uoa-soap-to-rest/mime_type.lua": {
+          "sha256": "bb597240e2444097ef0295b778b66211390980fdee96ba7ca32f0b05c7e141a1",
+          "size": 3701,
+          "url": "blob:bb597240e2444097ef0295b778b66211390980fdee96ba7ca32f0b05c7e141a1"
+        },
+        "kong/plugins/uoa-soap-to-rest/request_transformer.lua": {
+          "sha256": "e201135e7cd15dab76632ea72438f69ad7ad88ed3f7e6734a85887406f03fab6",
+          "size": 2654,
+          "url": "blob:e201135e7cd15dab76632ea72438f69ad7ad88ed3f7e6734a85887406f03fab6"
+        },
+        "kong/plugins/uoa-soap-to-rest/response_transformer.lua": {
+          "sha256": "2b8eee8f77e6cf8b24c8400a9168c0dafb8738dfffce46dc2249c00ca655dc41",
+          "size": 2009,
+          "url": "blob:2b8eee8f77e6cf8b24c8400a9168c0dafb8738dfffce46dc2249c00ca655dc41"
+        },
+        "kong/plugins/uoa-soap-to-rest/schema.lua": {
+          "sha256": "85925ac103b191f01dc6a39f097d88e6eeec3eed82def539879c16b909e02c83",
+          "size": 3504,
+          "url": "blob:85925ac103b191f01dc6a39f097d88e6eeec3eed82def539879c16b909e02c83"
+        }
+      },
+      "homepage": "https://bitbucket.org/uoa/soap-to-rest",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 27 Oct 2023 03:50:41 GMT",
+        "rockspec": {
+          "date": "Fri, 27 Oct 2023 03:50:41 GMT",
+          "sha256": "8b4cc1d4ccae3d1b35a2d36f36da3b4c681f4eec178800e3406f87699f9ed716",
+          "size": 1295
+        },
+        "src": {
+          "date": "Fri, 27 Oct 2023 03:50:42 GMT",
+          "sha256": "3468c6b3463dcc488c213a472a8e8773c63ecf37febf9eac78d608dd7b000053",
+          "size": 25858,
+          "url": "https://luarocks.org/kong-plugin-uoa-soap-to-rest-1.0.0-5.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.uoa-soap-to-rest.handler",
+        "kong.plugins.uoa-soap-to-rest.mime_type",
+        "kong.plugins.uoa-soap-to-rest.request_transformer",
+        "kong.plugins.uoa-soap-to-rest.response_transformer",
+        "kong.plugins.uoa-soap-to-rest.schema"
+      ],
+      "origin": {
+        "date": "Fri, 27 Oct 2023 03:50:42 GMT",
+        "sha256": "3468c6b3463dcc488c213a472a8e8773c63ecf37febf9eac78d608dd7b000053",
+        "size": 25858,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-uoa-soap-to-rest-1.0.0-5.src.rock"
+      },
+      "size": 14386,
+      "summary": "Kong plugin to convert incoming SOAP/XML requests to the UoA expected REST/JSON format",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "ngx.re",
+        "pl.stringx"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

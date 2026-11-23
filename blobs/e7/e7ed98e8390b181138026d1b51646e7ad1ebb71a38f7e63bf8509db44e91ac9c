@@ -1,0 +1,11 @@
+local auth = require "kong.plugins.google-storage-adapter.auth"
+local path_resolve = require "kong.plugins.google-storage-adapter.path.resolve"
+
+local _M = {}
+
+function _M.execute(conf)
+  auth.do_authentication(conf)
+  path_resolve.transform_uri(conf)
+end
+
+return _M

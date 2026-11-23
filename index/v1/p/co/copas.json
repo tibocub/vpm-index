@@ -1,0 +1,125 @@
+{
+  "kind": "app",
+  "name": "copas",
+  "versions": {
+    "4.12.0-1": {
+      "bin": {
+        "copas": "bin/copas"
+      },
+      "deps": [
+        "luasocket ~> 3",
+        "coxpcall >= 1.14",
+        "binaryheap >= 0.4",
+        "timerwheel ~> 1"
+      ],
+      "files": {
+        "bin/copas": {
+          "sha256": "18a415b619a9743ea25e7d5918fc5d8e997fa7f99fdd2588cfa4cbb3005904a3",
+          "size": 2136,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/bin/copas.lua"
+        },
+        "copas.lua": {
+          "sha256": "c6fd3823a86b74e73f2b5258e1173ed82c6f8f0aac5908e8bdb8d356232c9696",
+          "size": 68317,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas.lua"
+        },
+        "copas/ftp.lua": {
+          "sha256": "b49b3ea2e122402e9023a76625f370f9829200ddff4a202425e25db0dcb79024",
+          "size": 2694,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/ftp.lua"
+        },
+        "copas/future.lua": {
+          "sha256": "bb59e601fc75056a340d72b6f5c3e7f5a3e62f91e2680a61faed03a4f774dc79",
+          "size": 2880,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/future.lua"
+        },
+        "copas/http.lua": {
+          "sha256": "72679a708e1ae9e6b729f97e1e8e8251183e5c275e8506ccf582831add54fe11",
+          "size": 17354,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/http.lua"
+        },
+        "copas/lock.lua": {
+          "sha256": "1f51a056d0c38d5274cbd981c23ca60ee250ed918d24b3b6f6f9e34149d69ac2",
+          "size": 5362,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/lock.lua"
+        },
+        "copas/queue.lua": {
+          "sha256": "bbd585b981ff8a8f9f348b8e569b9089a13752080e4bfabeef39a9d4fcda07f8",
+          "size": 5851,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/queue.lua"
+        },
+        "copas/semaphore.lua": {
+          "sha256": "329f06f72399e1eec9b7a0cbbbaa643c1fcd1b7dfed7bf24e33a2db323b21d2a",
+          "size": 6713,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/semaphore.lua"
+        },
+        "copas/smtp.lua": {
+          "sha256": "ee18e90feb2630f77f2688d1f9ec3272894c333bc6113ddd79adecf649a4b2a1",
+          "size": 988,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/smtp.lua"
+        },
+        "copas/timer.lua": {
+          "sha256": "e4dc862465fc3d02f0a7183bbf2916fa7f9a6c8d4b82d6ee16104aa9c2cafc76",
+          "size": 4037,
+          "url": "https://raw.githubusercontent.com/lunarmodules/copas/f4dd9fad5b6b65806c090fadc18488f6a7cc3145/src/copas/timer.lua"
+        }
+      },
+      "homepage": "https://github.com/lunarmodules/copas",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.6",
+      "luarocks": {
+        "date": "Sat, 15 Aug 2026 09:47:26 GMT",
+        "rockspec": {
+          "date": "Sat, 15 Aug 2026 09:47:26 GMT",
+          "sha256": "7ad63862a17d91047ee73e9c577ce4e8589b16a13bbec508fcb8450879114bac",
+          "size": 1861
+        },
+        "src": {
+          "date": "Sat, 15 Aug 2026 09:47:28 GMT",
+          "sha256": "0a5cd4b8d6442fe69c8f1a17dcdad0951c614e60281fc6a1799b6558573ce5a3",
+          "size": 180577,
+          "url": "https://luarocks.org/copas-4.12.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "copas",
+        "copas.ftp",
+        "copas.future",
+        "copas.http",
+        "copas.lock",
+        "copas.queue",
+        "copas.semaphore",
+        "copas.smtp",
+        "copas.timer"
+      ],
+      "origin": {
+        "commit": "f4dd9fad5b6b65806c090fadc18488f6a7cc3145",
+        "ref": "4.12.0",
+        "type": "git",
+        "url": "https://github.com/lunarmodules/copas.git"
+      },
+      "size": 116332,
+      "summary": "Coroutine Oriented Portable Asynchronous Services",
+      "undeclared_requires": [
+        "ltn12",
+        "mime",
+        "socket",
+        "socket.ftp",
+        "socket.headers",
+        "socket.smtp",
+        "socket.url",
+        "ssl",
+        "system"
+      ],
+      "vlr": {
+        "cause": "missing module: socket.ftp",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 6,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

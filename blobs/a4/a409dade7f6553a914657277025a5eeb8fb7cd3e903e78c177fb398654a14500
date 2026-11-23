@@ -1,0 +1,686 @@
+-- Auto-generate a configuration for the default gateway interface.
+--
+-- Detects the gateway NIC, measures (or accepts) real speeds, and emits a
+-- ready-to-use TOML config (CAKE-based, with an IFB for download shaping).
+--
+-- Speed measurement tries, in order: an explicit override, `speedtest-cli`
+-- (real down + up), a built-in `curl` download test (real down, estimated
+-- up), and finally the negotiated link speed from sysfs.
+
+local errors = require("htb.errors")
+
+local M = {}
+
+local DOWNLOAD_TEST_BASE = "https://speed.cloudflare.com/__down?bytes="
+-- Candidate download sizes (bytes), tried largest-first. The server rejects
+-- very large allocations with HTTP 403, so start at a size it accepts and
+-- fall back to smaller ones if a request fails.
+local DOWNLOAD_TEST_SIZES = { 50000000, 25000000, 10000000 }
+local FALLBACK_UPLOAD_RATIO = 0.10
+local LINK_EFFICIENCY_DOWN = 0.95
+local LINK_EFFICIENCY_UP = 0.10
+local DEFAULT_LINK_MBPS = 1000
+local MIN_MBPS = 1
+-- Fraction of the nominal line rate used as the effective shaping rate. The
+-- nominal rate is the line rate, not the payload rate (Ethernet overhead), so
+-- we shape against ~95% to leave headroom and avoid a perpetually-saturated
+-- shaper. The LAN class is guaranteed the remainder (linkEff - measured) and
+-- may burst up to linkEff when internet traffic is low.
+local LINK_SHAPE_FRACTION = 0.95
+-- HTB derives each class's DRR quantum as rate_bytes / r2q and warns when the
+-- result exceeds ~200000 bytes ("quantum ... is big"). r2q defaults to 10,
+-- which is far too small for high-rate classes. Sizing r2q per qdisc from its
+-- fastest class rate keeps every quantum at/under the threshold. The divisor
+-- is 200000 bytes * 8 bits = 1.6e6 bits/s of rate per unit of r2q.
+local HTB_QUANTUM_MAX_BYTES = 200000
+local HTB_R2Q_DIVISOR = HTB_QUANTUM_MAX_BYTES * 8
+
+-- Compute an r2q for an HTB qdisc whose fastest class runs at `maxMbps`, so the
+-- largest quantum stays under the kernel warning threshold. Floored at HTB's
+-- default of 10 so low-rate qdiscs keep sane behaviour.
+local function htbR2q(maxMbps)
+    local r2q = math.ceil(maxMbps * 1000000 / HTB_R2Q_DIVISOR)
+    if r2q < 10 then
+        return 10
+    end
+    return r2q
+end
+
+local function warn(msg)
+    io.stderr:write("htb: warning: " .. msg .. "\n")
+end
+
+local function bitsToMbps(bits)
+    return math.max(MIN_MBPS, math.floor(bits / 1000000 + 0.5))
+end
+
+-- Read the negotiated link speed from sysfs, with a sane fallback.
+local function readLinkMbps(nic)
+    local f = io.open("/sys/class/net/" .. nic .. "/speed", "r")
+    if f then
+        local v = tonumber((f:read("*l") or ""):match("%d+"))
+        f:close()
+        if v and v > 0 then
+            return v
+        end
+    end
+    return DEFAULT_LINK_MBPS
+end
+
+-- Convert a prefix length (number or "N"/"/N") to a dotted IPv4 netmask.
+-- Pure arithmetic (no bit ops) so it works on Lua 5.1 / LuaJIT.
+local function prefixToMask(prefix)
+    local p = tonumber(tostring(prefix):match("^/?(%d+)$")) or 0
+    if p < 0 then
+        p = 0
+    end
+    if p > 32 then
+        p = 32
+    end
+    if p == 0 then
+        return "0.0.0.0"
+    end
+    local mask = 0
+    for i = 0, p - 1 do
+        mask = mask + 2 ^ (31 - i)
+    end
+    local function byte(n)
+        return math.floor(mask / (2 ^ (n * 8))) % 256
+    end
+    return string.format("%d.%d.%d.%d", byte(3), byte(2), byte(1), byte(0))
+end
+
+-- Convert a CIDR ("192.168.1.0/24") to the u32 ip-match value "addr/prefix".
+-- tc's u32 ip selector requires the mask slash-joined into a single token.
+-- A bare IP is treated as /32.
+local function cidrToU32(cidr)
+    local addr, prefix = cidr:match("^(%S+)%/(%d+)$")
+    if not addr then
+        addr = cidr:match("^%S+") or cidr
+        prefix = "32"
+    end
+    return addr .. "/" .. prefix
+end
+
+-- Parse `ip -4 route` output and return the prefixes that are directly
+-- connected on `nic` (have "dev <nic>" and no gateway). Pure (no I/O).
+local function subnetsFromRouteText(text, nic)
+    local out = {}
+    for line in tostring(text):gmatch("[^\n]+") do
+        if line:match("^%S") then
+            local prefix = line:match("^(%S+) dev%s+([%w%.]+)%s")
+            local dev = line:match("dev%s+([%w%.]+)")
+            local via = line:find(" via ", 1, true)
+            if prefix and dev == nic and not via then
+                out[#out + 1] = prefix
+            end
+        end
+    end
+    return out
+end
+
+-- True if `ip` is an IPv4 address in an RFC1918 private range.
+local function isRfc1918(ip)
+    local a, b = ip:match("^(%d+)%.(%d+)%.")
+    a, b = tonumber(a), tonumber(b)
+    if not a or not b then
+        return false
+    end
+    if a == 10 then
+        return true
+    end
+    if a == 172 and b >= 16 and b <= 31 then
+        return true
+    end
+    if a == 192 and b == 168 then
+        return true
+    end
+    return false
+end
+
+-- Bitwise AND of two 0-255 octets using pure arithmetic (no bit operators,
+-- so it works on Lua 5.1 / LuaJIT).
+local function andOctet(a, m)
+    local r = 0
+    for bit = 0, 7 do
+        if math.floor(a / 2 ^ bit) % 2 == 1 and math.floor(m / 2 ^ bit) % 2 == 1 then
+            r = r + 2 ^ bit
+        end
+    end
+    return r
+end
+
+-- Compute the network address ("a.b.c.d") for "a.b.c.d/prefix".
+local function ipNetwork(addr, prefix)
+    local p = tonumber(tostring(prefix):match("%d+")) or 0
+    local maskDots = prefixToMask(p)
+    local a, b, c, d = addr:match("^(%d+)%.(%d+)%.(%d+)%.(%d+)$")
+    local ma, mb, mc, md = maskDots:match("^(%d+)%.(%d+)%.(%d+)%.(%d+)$")
+    if not a or not ma then
+        return nil
+    end
+    return string.format("%d.%d.%d.%d",
+        andOctet(tonumber(a), tonumber(ma)),
+        andOctet(tonumber(b), tonumber(mb)),
+        andOctet(tonumber(c), tonumber(mc)),
+        andOctet(tonumber(d), tonumber(md)))
+end
+
+-- Discover the local (LAN) subnets for a NIC: directly-connected routes plus
+-- the NIC's own IPv4 addresses. Falls back to RFC1918 ranges when nothing
+-- concrete is found. Returns a deduplicated list of CIDRs.
+local function detectLanSubnets(nic)
+    local seen = {}
+    local out = {}
+    local function add(cidr)
+        if cidr and not seen[cidr] then
+            seen[cidr] = true
+            out[#out + 1] = cidr
+        end
+    end
+
+    -- Directly-connected routes are the authoritative source for local
+    -- subnets (e.g. "192.168.1.0/24 dev enp12s0").
+    local rpipe = io.popen("ip -4 route show 2>/dev/null")
+    if rpipe then
+        local rtext = rpipe:read("*a") or ""
+        rpipe:close()
+        for _, prefix in ipairs(subnetsFromRouteText(rtext, nic)) do
+            add(prefix)
+        end
+    end
+
+    -- The NIC's own IPv4 addresses (covers subnets absent from the route table).
+    local apipe = io.popen(string.format("ip -4 -o addr show dev %s 2>/dev/null", nic))
+    if apipe then
+        local atext = apipe:read("*a") or ""
+        apipe:close()
+        for addr, prefix in atext:gmatch("inet%s+([%d%.]+)/(%d+)") do
+            local net = ipNetwork(addr, prefix)
+            if net then
+                add(net .. "/" .. prefix)
+            end
+        end
+    end
+
+    -- Fallback: RFC1918 private ranges.
+    if #out == 0 then
+        for _, cidr in ipairs({ "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16" }) do
+            add(cidr)
+        end
+    end
+    return out
+end
+
+-- Return the interface used by the default route, or nil.
+local function findDefaultGatewayNic()
+    local f = io.open("/proc/net/route", "r")
+    if f then
+        local content = f:read("*a")
+        f:close()
+        local bestMetric, bestIface = nil, nil
+        local first = true
+        for line in content:gmatch("[^\n]+") do
+            if first then
+                first = false
+            else
+                local parts = {}
+                for p in line:gmatch("%S+") do
+                    parts[#parts + 1] = p
+                end
+                if #parts >= 8 and parts[2] == "00000000" then
+                    local metric = tonumber(parts[7]) or 0
+                    if bestMetric == nil or metric < bestMetric then
+                        bestMetric = metric
+                        bestIface = parts[1]
+                    end
+                end
+            end
+        end
+        if bestIface then
+            return bestIface
+        end
+    end
+
+    local pipe = io.popen("ip route show default 2>/dev/null")
+    if pipe then
+        local out = pipe:read("*a") or ""
+        pipe:close()
+        for line in out:gmatch("[^\n]+") do
+            local dev = line:match("dev%s+([^%s]+)")
+            if dev then
+                return dev
+            end
+        end
+    end
+    return nil
+end
+
+-- Run `speedtest-cli --json` and parse the result. Returns nil on failure.
+local function speedtestCli(timeout)
+    local pipe = io.popen("command -v speedtest-cli 2>/dev/null || command -v speedtest 2>/dev/null")
+    local exe = pipe and (pipe:read("*l") or "")
+    if pipe then
+        pipe:close()
+    end
+    exe = exe:match("^%S+")
+    if not exe or exe == "" then
+        return nil
+    end
+    local proc = io.popen(string.format("%s --json 2>/dev/null", exe))
+    if not proc then
+        return nil
+    end
+    local out = proc:read("*a") or ""
+    proc:close()
+    local start = out:find("{")
+    -- Find the LAST closing brace (the JSON may be followed by a newline).
+    local finish, pos = nil, 1
+    while true do
+        local p = out:find("}", pos, true)
+        if not p then
+            break
+        end
+        finish, pos = p, p + 1
+    end
+    if not start or not finish or finish < start then
+        return nil
+    end
+    local json = out:sub(start, finish)
+    local download = tonumber(json:match('"download"[^%d]*([%d]+)'))
+    local upload = tonumber(json:match('"upload"[^%d]*([%d]+)'))
+    if not download or not upload or download <= 0 or upload <= 0 then
+        return nil
+    end
+    return {
+        download = bitsToMbps(download),
+        upload = bitsToMbps(upload),
+        source = "speedtest-cli",
+    }
+end
+
+-- Run a single curl download and return (sizeBytes, elapsedSeconds). Returns
+-- nil when curl is missing or the response is not a usable download (e.g. an
+-- HTTP 403 that yields only a byte or two).
+local function curlDownload(url, timeout)
+    local pipe = io.popen(
+        string.format(
+            "curl -s -o /dev/null -w '%%{size_download} %%{time_total}' " ..
+            "--max-time %d '%s' 2>/dev/null",
+            timeout, url
+        )
+    )
+    if not pipe then
+        return nil
+    end
+    local out = pipe:read("*a") or ""
+    pipe:close()
+    local size, elapsed = out:match("^(%d+)%s+([%d%.]+)")
+    size = tonumber(size)
+    elapsed = tonumber(elapsed)
+    if not size or not elapsed or elapsed <= 0 or size < 1024 * 1024 then
+        return nil
+    end
+    return size, elapsed
+end
+
+-- Measure download speed by fetching a file with curl, trying several sizes
+-- (largest first) so a server-side size limit (HTTP 403) does not break the
+-- test. Upload is estimated as a fraction of the download speed. Returns nil
+-- on failure.
+local function downloadTest(timeout)
+    for _, bytes in ipairs(DOWNLOAD_TEST_SIZES) do
+        local size, elapsed = curlDownload(DOWNLOAD_TEST_BASE .. tostring(bytes), timeout)
+        if size then
+            local download = math.max(MIN_MBPS, math.floor((size * 8) / elapsed / 1000000 + 0.5))
+            local upload = math.max(MIN_MBPS, math.floor(download * FALLBACK_UPLOAD_RATIO + 0.5))
+            return { download = download, upload = upload, source = "download-test" }
+        end
+    end
+    return nil
+end
+
+-- Determine the real download/upload speeds for a NIC.
+local function measureSpeeds(nic, timeout, override)
+    if override then
+        return {
+            download = math.max(MIN_MBPS, override.down),
+            upload = math.max(MIN_MBPS, override.up),
+            source = "override",
+        }
+    end
+
+    local result = speedtestCli(timeout)
+    if result then
+        return result
+    end
+    warn("speedtest-cli unavailable or failed; trying built-in download test")
+    result = downloadTest(timeout)
+    if result then
+        warn("upload speed estimated (10% of measured download)")
+        return result
+    end
+    local link = readLinkMbps(nic)
+    warn("no real speed test possible for '" .. nic .. "'; estimating from link speed (" .. link .. "mbit)")
+    return {
+        download = math.max(MIN_MBPS, math.floor(link * LINK_EFFICIENCY_DOWN + 0.5)),
+        upload = math.max(MIN_MBPS, math.floor(link * LINK_EFFICIENCY_UP + 0.5)),
+        source = "link-speed",
+    }
+end
+
+-- Render the simple internet-only configuration as TOML (used when LAN
+-- awareness is disabled or no local subnets were detected).
+local function generateSimpleToml(nic, download, upload, source)
+    return string.format(
+        [[# Auto-generated by `htb --auto`
+# Interface: %s (default gateway)
+# Speeds: %dmbit down / %dmbit up (%s)
+
+[devices.main]
+dev = "%s"
+
+[devices.ifb0]
+dev = "ifb0"
+virtual = true
+type = "ifb"
+
+[shaper.ingress]
+dev = "main"
+type = "ingress"
+handle = "ffff:"
+
+[match.redirect_to_ifb]
+dev = "main"
+parent = "ingress"
+type = "matchall"
+
+[match.redirect_to_ifb.action]
+type = "mirred"
+direction = "egress"
+mode = "redirect"
+target = "ifb0"
+
+[shaper.download_shaping]
+dev = "ifb0"
+type = "cake"
+bandwidth = "%dmbit"
+diffserv4 = true
+wash = true
+
+[shaper.upload_shaping]
+dev = "main"
+type = "cake"
+bandwidth = "%dmbit"
+diffserv4 = true
+]],
+        nic, download, upload, source, nic, download, upload
+    )
+end
+
+-- Render a LAN-aware configuration: internet traffic is shaped to the
+-- measured ISP speed while traffic to/from the given local subnets runs at
+-- full link speed.
+local function generateLanToml(nic, download, upload, source, link, subnets)
+    local lines = {}
+    local function add(text)
+        lines[#lines + 1] = text
+    end
+
+    -- Effective shaping rate (~95% of nominal). The config expresses the
+    -- relationship directly with arithmetic tokens (e.g. {link * 0.95}) so the
+    -- [vars] block stays minimal. The internet class is hard-capped at the
+    -- measured ISP speed (ceil == rate): the ISP link is the true bottleneck,
+    -- so it must not burst.
+    local linkEff = math.max(MIN_MBPS, math.floor(link * LINK_SHAPE_FRACTION + 0.5))
+    local eff = string.format("{link * %s}", LINK_SHAPE_FRACTION)
+    -- A measured speed above the effective link is physically impossible (a
+    -- misdetected link speed, a typo, or a bad measurement); clamp it so the
+    -- generated classes can't exceed the link, and warn.
+    if download > linkEff or upload > linkEff then
+        io.stderr:write(string.format(
+            "Warning: measured speed (%d/%d mbit) exceeds effective link (%d mbit); clamping\n",
+            download, upload, linkEff))
+        download = math.min(download, linkEff)
+        upload = math.min(upload, linkEff)
+    end
+    -- Egress LAN (internet->LAN, matched by ip dst) shares the NIC egress with
+    -- the upload, so it is guaranteed the remainder after the measured upload
+    -- and may burst to fill the link.
+    local lanUpRate = math.max(MIN_MBPS, linkEff - upload)
+    -- Ingress LAN (LAN->internet, matched by ip src) is LAN upload. Its real
+    -- demand is bounded by the ISP upload -- NOT by linkEff - download, which
+    -- collapses to ~0 when the download is near line rate. Floor it at the
+    -- upload so a LAN host's upload keeps its full plan under download load.
+    local lanDownRate = math.min(linkEff, math.max(MIN_MBPS, upload))
+
+    -- r2q for each HTB qdisc, sized from its fastest class rate (HTB derives
+    -- quantum from rate, not ceil). Egress: internet_up (upload) vs lan_up
+    -- (lanUpRate). Download: internet_down (download) vs lan_down (lanDownRate).
+    local egressR2q = htbR2q(math.max(upload, lanUpRate))
+    local downloadR2q = htbR2q(math.max(download, lanDownRate))
+
+    add("# Auto-generated by `htb --auto`")
+    add("# Interface: " .. nic .. " (default gateway)")
+    add(string.format("# Speeds: %dmbit down / %dmbit up (%s)", download, upload, source))
+    add(string.format("# Link: %dmbit nominal / %dmbit effective (shaped at %d%%)",
+        link, linkEff, LINK_SHAPE_FRACTION * 100))
+    add("# LAN subnets: " .. table.concat(subnets, ", "))
+    add("#")
+    add("# Internet traffic is shaped to the measured ISP speed. LAN traffic is")
+    add("# guaranteed the remaining effective capacity and may burst to fill the")
+    add("# link when internet traffic is low.")
+    add("")
+    add("[vars]")
+    add('iface = "' .. nic .. '"')
+    add(string.format('download = "%dmbit"', download))
+    add(string.format('upload = "%dmbit"', upload))
+    add(string.format('link = "%dmbit"', link))
+    add("")
+    add("[devices.main]")
+    add('dev = "{iface}"')
+    add("")
+    add("[devices.ifb0]")
+    add('dev = "ifb0"')
+    add("virtual = true")
+    add('type = "ifb"')
+    add("")
+
+    -- Egress: internet (upload) shaped to ISP speed; LAN gets the remainder
+    -- and bursts to fill the effective link.
+    add("# Egress: internet (upload) + LAN (remainder, bursts to fill)")
+    add("[shaper.egress]")
+    add('dev = "main"')
+    add('type = "htb"')
+    add('default = "internet_up"')
+    add(string.format("r2q = %d", egressR2q))
+    add("")
+    add("[class.internet_up]")
+    add('parent = "egress"')
+    add('rate = "{upload}"')
+    add('ceil = "{upload}"')
+    add("")
+    add("[class.lan_up]")
+    add('parent = "egress"')
+    add(string.format('rate = "%dmbit"', lanUpRate))
+    add("ceil = \"" .. eff .. "\"")
+    add("")
+    add("[shaper.internet_up_cake]")
+    add('parent = "internet_up"')
+    add('type = "cake"')
+    add('bandwidth = "{upload}"')
+    add("diffserv4 = true")
+    add("wash = true")
+    add("")
+    add("[shaper.lan_up_pfifo]")
+    add('parent = "lan_up"')
+    add('type = "pfifo_fast"')
+    add("")
+    for i, cidr in ipairs(subnets) do
+        add(string.format("[match.lan_up_%d]", i))
+        add('dev = "main"')
+        add('parent = "egress"')
+        add('protocol = "ip"')
+        add('sendTo = "lan_up"')
+        add('ip = { dst = "' .. cidrToU32(cidr) .. '" }')
+        add("")
+    end
+
+    -- Ingress: download (internet) shaped to ISP speed; LAN gets the remainder
+    -- and bursts to fill the effective link. Traffic is mirrored to IFB.
+    add("# Ingress: download (internet) + LAN (remainder, bursts to fill), via IFB")
+    add("[shaper.ingress]")
+    add('dev = "main"')
+    add('type = "ingress"')
+    add('handle = "ffff:"')
+    add("")
+    add("[match.redirect_to_ifb]")
+    add('dev = "main"')
+    add('parent = "ingress"')
+    add('type = "matchall"')
+    add("")
+    add("[match.redirect_to_ifb.action]")
+    add('type = "mirred"')
+    add('direction = "egress"')
+    add('mode = "redirect"')
+    add('target = "ifb0"')
+    add("")
+    add("[shaper.download]")
+    add('dev = "ifb0"')
+    add('type = "htb"')
+    add('default = "internet_down"')
+    add(string.format("r2q = %d", downloadR2q))
+    add("")
+    add("[class.internet_down]")
+    add('parent = "download"')
+    add('rate = "{download}"')
+    add('ceil = "{download}"')
+    add("")
+    add("[class.lan_down]")
+    add('parent = "download"')
+    add(string.format('rate = "%dmbit"', lanDownRate))
+    add("ceil = \"" .. eff .. "\"")
+    add("")
+    add("[shaper.internet_down_cake]")
+    add('parent = "internet_down"')
+    add('type = "cake"')
+    add('bandwidth = "{download}"')
+    add("diffserv4 = true")
+    add("")
+    add("[shaper.lan_down_pfifo]")
+    add('parent = "lan_down"')
+    add('type = "pfifo_fast"')
+    add("")
+    for i, cidr in ipairs(subnets) do
+        add(string.format("[match.lan_down_%d]", i))
+        add('dev = "ifb0"')
+        add('parent = "download"')
+        add('protocol = "ip"')
+        add('sendTo = "lan_down"')
+        add('ip = { src = "' .. cidrToU32(cidr) .. '" }')
+        add("")
+    end
+
+    return table.concat(lines, "\n")
+end
+
+-- Render a single-interface shaping configuration as TOML.
+local function generateToml(nic, speeds, link, subnets, opts)
+    opts = opts or {}
+    if opts.noLan or #subnets == 0 then
+        return generateSimpleToml(nic, speeds.download, speeds.upload, speeds.source)
+    end
+    return generateLanToml(nic, speeds.download, speeds.upload, speeds.source, link, subnets)
+end
+
+-- Detect the gateway NIC, measure real speeds, and build the TOML.
+-- opts: { timeout = number, speed = {down=, up=} | nil, noLan = bool,
+--         lanSubnet = "cidr[,cidr...]" | nil }
+-- Returns the generated TOML text (and the detected NIC name).
+function M.build_auto_config(opts)
+    opts = opts or {}
+    local timeout = opts.timeout or 60
+    local nic = findDefaultGatewayNic()
+    if not nic then
+        errors.newAutoError("could not determine the default gateway interface"):raise()
+    end
+    local speeds = measureSpeeds(nic, timeout, opts.speed)
+    local link = readLinkMbps(nic)
+    local subnets
+    if opts.lanSubnet and opts.lanSubnet ~= "" then
+        subnets = {}
+        for cidr in tostring(opts.lanSubnet):gmatch("[^,]+") do
+            local trimmed = cidr:match("^%s*(.-)%s*$")
+            if trimmed ~= "" then
+                subnets[#subnets + 1] = trimmed
+            end
+        end
+    else
+        subnets = detectLanSubnets(nic)
+    end
+    return generateToml(nic, speeds, link, subnets, opts), nic
+end
+
+-- Execute a generated tc script, escalating with sudo when not root.
+function M.apply(scriptText)
+    local function isRoot()
+        local pipe = io.popen("id -u 2>/dev/null")
+        if not pipe then
+            return false
+        end
+        local uid = tonumber((pipe:read("*l") or ""))
+        pipe:close()
+        return uid == 0
+    end
+
+    local tmp = os.tmpname()
+    local f = assert(io.open(tmp, "w"))
+    f:write(scriptText)
+    f:close()
+    os.execute("chmod +x " .. tmp .. " 2>/dev/null")
+
+    local cmd
+    if isRoot() then
+        cmd = "sh " .. tmp
+    else
+        local sp = io.popen("command -v sudo >/dev/null 2>&1 && echo yes")
+        local hasSudo = sp and sp:read("*l") == "yes"
+        if sp then
+            sp:close()
+        end
+        if not hasSudo then
+            os.remove(tmp)
+            io.stderr:write("Error: not running as root and sudo not found; cannot apply\n")
+            os.exit(1)
+        end
+        cmd = "sudo sh " .. tmp
+    end
+
+    local results = { os.execute(cmd) }
+    os.remove(tmp)
+
+    -- os.execute's return shape differs between Lua 5.1 (bool, reason, code)
+    -- and Lua 5.3+ (reason, code).
+    local code
+    if type(results[1]) == "boolean" then
+        code = results[3]
+    elseif type(results[1]) == "string" then
+        code = results[2]
+    end
+    if code and code ~= 0 then
+        os.exit(code)
+    end
+end
+
+-- Expose the pure helpers for testing and embedding.
+M.prefix_to_mask = prefixToMask
+M.cidr_to_u32 = cidrToU32
+M.subnets_from_route_text = subnetsFromRouteText
+M.is_rfc1918 = isRfc1918
+M.ip_network = ipNetwork
+M.detect_lan_subnets = detectLanSubnets
+M.generate_simple_toml = generateSimpleToml
+M.generate_lan_toml = generateLanToml
+M.generate_toml = generateToml
+
+return M

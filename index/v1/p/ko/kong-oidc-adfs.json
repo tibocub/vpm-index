@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-adfs",
+  "versions": {
+    "0.4-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.7.2"
+      ],
+      "files": {
+        "kong/plugins/oidc-adfs/filter.lua": {
+          "sha256": "241e91944b66c7938b3b5da83dbd02a2b8403761804057994b8dd7a6fab002fc",
+          "size": 553,
+          "url": "https://raw.githubusercontent.com/philbarr/kong-oidc-adfs/7b48b224a62b3480e2e5a189795d43851e2e9539/kong/plugins/oidc-adfs/filter.lua"
+        },
+        "kong/plugins/oidc-adfs/handler.lua": {
+          "sha256": "a458f61b29fbbf300936de930724d86b1f1af878634ebf877714cc87b2fca536",
+          "size": 3026,
+          "url": "https://raw.githubusercontent.com/philbarr/kong-oidc-adfs/7b48b224a62b3480e2e5a189795d43851e2e9539/kong/plugins/oidc-adfs/handler.lua"
+        },
+        "kong/plugins/oidc-adfs/schema.lua": {
+          "sha256": "9b5046deb9de80ad6d0ad33b3c00e6b7540fa232ed3ab8208d0d8d90aef1f262",
+          "size": 1539,
+          "url": "https://raw.githubusercontent.com/philbarr/kong-oidc-adfs/7b48b224a62b3480e2e5a189795d43851e2e9539/kong/plugins/oidc-adfs/schema.lua"
+        },
+        "kong/plugins/oidc-adfs/session.lua": {
+          "sha256": "f5a5bccbdc51c1b0c5bd2067071586897c3cbd4be0939bf5b8d8883659be7c9d",
+          "size": 463,
+          "url": "https://raw.githubusercontent.com/philbarr/kong-oidc-adfs/7b48b224a62b3480e2e5a189795d43851e2e9539/kong/plugins/oidc-adfs/session.lua"
+        },
+        "kong/plugins/oidc-adfs/utils.lua": {
+          "sha256": "e05ce7e213245f05fa48cd12d2cf8b7dc1788850077903369f9c13b40a2e46fe",
+          "size": 2461,
+          "url": "https://raw.githubusercontent.com/philbarr/kong-oidc-adfs/7b48b224a62b3480e2e5a189795d43851e2e9539/kong/plugins/oidc-adfs/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/philbarr/kong-oidc-adfs",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 31 Oct 2019 10:43:32 GMT",
+        "rockspec": {
+          "date": "Thu, 31 Oct 2019 10:43:32 GMT",
+          "sha256": "c6e44115bcb1b694a650f8778bf3abb52f43b7e5fab61646022c433dbad12754",
+          "size": 1906
+        },
+        "src": {
+          "date": "Thu, 31 Oct 2019 10:43:35 GMT",
+          "sha256": "7443108a9cde32bccd54f863acb17956bf921eb59719582894ae2fea8faaab2b",
+          "size": 150903,
+          "url": "https://luarocks.org/kong-oidc-adfs-0.4-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc-adfs.filter",
+        "kong.plugins.oidc-adfs.handler",
+        "kong.plugins.oidc-adfs.schema",
+        "kong.plugins.oidc-adfs.session",
+        "kong.plugins.oidc-adfs.utils"
+      ],
+      "origin": {
+        "commit": "7b48b224a62b3480e2e5a189795d43851e2e9539",
+        "ref": "v0.4",
+        "type": "git",
+        "url": "https://github.com/philbarr/kong-oidc-adfs"
+      },
+      "size": 8042,
+      "summary": "A Kong plugin for implementing the OpenID Connect Relying Party (RP) functionality, with additional functionality for ADFS",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

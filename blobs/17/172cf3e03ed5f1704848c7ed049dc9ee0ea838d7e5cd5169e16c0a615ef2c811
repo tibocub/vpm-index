@@ -1,0 +1,399 @@
+local http = { VERSION = 100 }
+
+local SERVER_NAME = "quinku" .. http.VERSION
+
+local STATUS_NAMES = {
+	[100] = "Continue",
+	[101] = "Switching Protocols",
+	[102] = "Processing",
+	[103] = "Early Hints",
+	[200] = "OK",
+	[201] = "Created",
+	[202] = "Accepted",
+	[203] = "Non-Authoritative Information",
+	[204] = "No Content",
+	[205] = "Reset Content",
+	[206] = "Partial Content",
+	[207] = "Multi-Status",
+	[208] = "Already Reported",
+	[218] = "This is fine",
+	[226] = "IM Used",
+	[300] = "Multiple Choices",
+	[301] = "Moved Permanently",
+	[302] = "Found",
+	[303] = "See Other",
+	[304] = "Not Modified",
+	[306] = "Switch Proxy",
+	[307] = "Temporary Redirect",
+	[308] = "Resume Incomplete",
+	[400] = "Bad Request",
+	[401] = "Unauthorized",
+	[402] = "Payment Required",
+	[403] = "Forbidden",
+	[404] = "Not Found",
+	[405] = "Method Not Allowed",
+	[406] = "Not Acceptable",
+	[407] = "Proxy Authentication Required",
+	[408] = "Request Timeout",
+	[409] = "Conflict",
+	[410] = "Gone",
+	[411] = "Length Required",
+	[412] = "Precondition Failed",
+	[413] = "Request Entity Too Large",
+	[414] = "Request-URI Too Long",
+	[415] = "Unsupported Media Type",
+	[416] = "Requested Range Not Satisfiable",
+	[417] = "Expectation Failed",
+	[418] = "I'm a teapot",
+	[419] = "Page Expired",
+	[420] = "Method Failure",
+	[421] = "Misdirected Request",
+	[422] = "Unprocessable Entity",
+	[423] = "Locked",
+	[424] = "Failed Dependency",
+	[426] = "Upgrade Required",
+	[428] = "Precondition Required",
+	[429] = "Too Many Requests",
+	[431] = "Request Header Fields Too Large",
+	[440] = "Login Time-out",
+	[444] = "Connection Closed Without Response",
+	[449] = "Retry With",
+	[450] = "Blocked by Windows Parental Controls",
+	[451] = "Unavailable For Legal Reasons",
+	[494] = "Request Header Too Large",
+	[495] = "SSL Certificate Error",
+	[496] = "SSL Certificate Required",
+	[497] = "HTTP Request Sent to HTTPS Port",
+	[498] = "Invalid Token",
+	[499] = "Client Closed Request",
+	[500] = "Internal Server Error",
+	[501] = "Not Implemented",
+	[502] = "Bad Gateway",
+	[503] = "Service Unavailable",
+	[504] = "Gateway Timeout",
+	[505] = "HTTP Version Not Supported",
+	[506] = "Variant Also Negotiates",
+	[507] = "Insufficient Storage",
+	[508] = "Loop Detected",
+	[509] = "Bandwidth Limit Exceeded",
+	[510] = "Not Extended",
+	[511] = "Network Authentication Required",
+	[520] = "Unknown Error",
+	[521] = "Web Server Is Down",
+	[522] = "Connection Timed Out",
+	[523] = "Origin Is Unreachable",
+	[524] = "A Timeout Occurred",
+	[525] = "SSL Handshake Failed",
+	[526] = "Invalid SSL Certificate",
+	[527] = "Railgun Listener to Origin Error",
+	[530] = "Origin DNS Error",
+	[598] = "Network Read Timeout Error",
+}
+
+function http.normalize_path(path)
+	while true do
+		local pos = path:find"/%.%."
+		
+		if not pos then break end
+		
+		local pos2 = path:sub(1, pos - 1):match(".*()/")
+		
+		if not pos2 then
+			path = path:sub(1, pos2 - 1) .. path:sub(pos + 2)
+		else
+			path = path:gsub("/%.%.", "", 1)
+		end
+	end
+	
+	path = path:gsub("/%./", "/")
+	path = path:gsub("/%.", "")
+	path = path:gsub("/+", "/")
+	
+	return path
+end
+
+function http.parse_get(path)
+	local tbl = {}
+	
+	for key, value in path:gmatch"([^=]+)=([^&]+)" do
+		tbl[key] = http.uri_unescape(value)
+	end
+	
+	return tbl
+end
+
+function http.parse_multipart(data, boundary)
+	local tbl = {}
+	
+	boundary = "--" .. boundary
+	
+	while true do
+		local b1pos = data:find(boundary, 1, true)
+		
+		if not b1pos then
+			break
+		end
+		
+		local b2pos = data:find(boundary, b1pos + #boundary, true) or (#data + 1)
+		
+		if not b2pos then
+			break
+		end
+		
+		local part = data:sub(b1pos + #boundary, b2pos - 1)
+		
+		local sep = part:find("\r\n\r\n", 1, true)
+		
+		if sep then
+			local headers = part:sub(1, sep + 1)
+			
+			local name, filename
+			
+			for hk, hv in headers:gmatch"([^:%s]+):%s+([^\r]+)\r\n" do
+				if hk == "Content-Disposition" then
+					local semicolon = hv:find";"
+					
+					if semicolon then
+						for dk, dv in hv:gmatch"([^=%s]+)=([^;%s]+)" do
+							if dv:sub(1, 1) == "\"" and dv:sub(#dv) == "\"" then
+								dv = dv:sub(2, #dv - 1)
+							end
+							
+							if dk == "name" then
+								name = dv
+							elseif dk == "filename" then
+								filename = dv
+							end
+						end
+					end
+				end
+			end
+			
+			if name then
+				local value = part:sub(sep + 4, #part - 2)
+				
+				tbl[name] = filename and {filename = filename, value = value} or value
+			end
+		end
+		
+		data = data:sub(b2pos)
+	end
+	
+	return tbl
+end
+
+function http.uri_escape(str)
+	return (str:gsub("[^a-zA-Z0-9%-%_%.%!%~%*%'%(%)]", function(frag)
+		return string.format("%%%02x", string.byte(frag))
+	end))
+end
+
+function http.uri_unescape(str)
+	return (str:gsub("%%..", function(frag)
+		local n = tonumber(frag:sub(2), 16)
+		return n and string.char(n) or ""
+	end))
+end
+
+local function responder_thread(handler, client)
+	return function()
+		local buf = ""
+		
+		-- Wait until headers are received
+		while buf:find"\r\n\r\n" == nil do
+			local nbuf, nerr, npartial = client:receive(2048)
+			buf = buf .. (nbuf or npartial)
+			
+			if not nbuf and #npartial == 0 then
+				coroutine.yield()
+			end
+		end
+		
+		local method, path, ver = buf:match"(%S+)%s+(%S+)%s+HTTP/(%S+)\r\n"
+		
+		buf = buf:sub(buf:find"\r\n" + 2)
+		
+		method = method:upper()
+		
+		local headers = {}
+		while buf:sub(1, 2) ~= "\r\n" do
+			local key, val = buf:match"([^:]+):%s+([^\r]+)\r\n"
+			
+			headers[key] = val
+			
+			buf = buf:sub(buf:find"\r\n" + 2)
+		end
+		
+		buf = buf:sub(buf:find"\r\n" + 2)
+		
+		if headers["Content-Length"] then
+			-- Wait until full content is received
+			local len = tonumber(headers["Content-Length"])
+			while #buf < len do
+				local nbuf, nerr, npartial = client:receive(2048)
+				buf = buf .. (nbuf or npartial)
+				
+				if not nbuf and #npartial == 0 then
+					coroutine.yield()
+				end
+			end
+		end
+		
+		local get, post
+		
+		local qsep = path:find"?"
+		if qsep then
+			local query = path:sub(qsep + 1)
+			path = path:sub(1, qsep - 1)
+			
+			get = http.parse_get(query)
+		end
+		
+		path = http.normalize_path(path)
+		
+		if method == "POST" then
+			if headers["Content-Type"]:sub(1, 20) == "multipart/form-data;" then
+				local boundary = headers["Content-Type"]:match"boundary=([^;]+)"
+				
+				if boundary:sub(1, 1) == "\"" and boundary:sub(#boundary) == "\"" then
+					boundary = boundary:sub(2, #boundary - 1)
+				end
+				
+				post = http.parse_multipart(buf, boundary)
+			elseif headers["Content-Type"] == "application/x-www-form-urlencoded" then
+				post = http.parse_get(buf)
+			end
+		end
+		
+		local resp = handler{
+			method = method,
+			path = path,
+			version = ver,
+			body = buf,
+			headers = headers,
+			get = get or {},
+			post = post or {},
+		}
+		
+		if resp.status then
+			assert(STATUS_NAMES[resp.status])
+		else
+			resp.status = 200
+		end
+		
+		if not resp.headers then
+			resp.headers = {}
+		end
+		
+		if resp.body then
+			if resp.headers["Content-Length"] then
+				assert(resp.headers["Content-Length"] == #resp.body)
+			else
+				resp.headers["Content-Length"] = #resp.body
+			end
+		else
+			assert(resp.headers["Content-Length"] == nil or resp.headers["Content-Length"] == 0)
+			
+			resp.headers["Content-Length"] = 0
+		end
+		
+		if not resp.headers["Content-Type"] then
+			resp.headers["Content-Type"] = "text/plain; charset=UTF-8"
+		end
+		
+		if not resp.headers["Server"] then
+			resp.headers["Server"] = SERVER_NAME
+		end
+		
+		client:send(string.format("HTTP/1.1 %s %s\r\n", resp.status, STATUS_NAMES[resp.status]))
+		
+		for k, v in pairs(resp.headers) do
+			v = tostring(v)
+			
+			assert(type(k) == "string")
+			assert(k:match"[\r\n]" == nil and v:match"[\r\n]" == nil, "Headers may not contain line breaks")
+			
+			client:send(string.format("%s: %s\r\n", k, v))
+		end
+		
+		client:send("\r\n")
+		
+		if resp.body then
+			client:send(resp.body)
+		end
+	end
+end
+
+function http.run(settings)
+	local ip, port, handler, sec = settings.ip, settings.port, settings.handler, settings.sec
+	
+	local SockExists, Sock = pcall(require, "socket")
+	local SecExists, Sec = pcall(require, "ssl")
+	
+	assert(SockExists, "LuaSocket missing")
+	assert(not sec or LuaSec, "LuaSec missing")
+	
+	if sec then
+		sec = {
+			mode = "server",
+			protocol = "tlsv1_2",
+			key = sec.key_file,
+			certificate = sec.cert_file,
+			cafile = sec.ca_file,
+			verify = {"peer"},
+			options = "all"
+		}
+	end
+	
+	local server = assert(Sock.bind(ip, port))
+	server:settimeout(0)
+	
+	local socks = {}
+	local coros = {}
+	
+	while true do
+		local readyToRead = Sock.select(socks, nil, 0)
+		
+		for k, sock in ipairs(readyToRead) do
+			local status, err
+			
+			if coros[sock] then
+				status, err = coroutine.resume(coros[sock])
+				
+				if not status then
+					print("Error:", err)
+					print(debug.traceback(coros[sock]))
+				end
+			end
+			
+			if not coros[sock] or not status or coroutine.status(coros[sock]) ~= "suspended" then
+				local si
+				for k, s in pairs(socks) do
+					if s == sock then si = k end
+				end
+				
+				table.remove(socks, k)
+				
+				coros[sock] = nil
+			end
+		end
+		
+		local client = server:accept()
+		
+		if client then
+			client:settimeout(0)
+			
+			if sec then
+				client = Sec.wrap(client, sec)
+				client:dohandshake()
+			end
+			
+			local coro = coroutine.create(responder_thread(handler, client))
+			
+			table.insert(socks, client)
+			coros[client] = coro
+		end
+	end
+end
+
+return http

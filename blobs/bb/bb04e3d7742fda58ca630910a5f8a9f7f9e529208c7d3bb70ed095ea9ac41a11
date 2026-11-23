@@ -1,0 +1,46 @@
+--- Response handler for Azure SDK requests.
+-- @module resty.azure.api.response.handle
+
+local cjson = require("cjson.safe")
+local log_error = require("resty.azure.utils").log_error
+
+--- Handles the response from an Azure SDK request.
+-- If the response is not valid, logs an error and returns nil, nil, and an error message.
+-- If the response contains an error attribute, logs an error and returns nil, nil, and the error message.
+-- Otherwise, returns the JSON body of the response.
+-- @tparam table response The response object from the Azure SDK request.
+-- @tparam[opt] string req_err The error message from the Azure SDK request, if any.
+-- @treturn[1] number The status of the request
+-- @treturn[1] table The JSON body of the response
+-- @treturn[2] nil
+-- @treturn[2] nil
+-- @treturn[2] string error message.
+local function handle_response(response, req_err)
+  if not response then
+    return log_error("making sdk request to azure failed: " .. req_err)
+  end
+
+  if req_err then
+    return log_error("making sdk request to azure failed: " .. req_err)
+  end
+
+  local body = response.body
+  if not body then
+    return log_error("azure sdk response body is empty")
+  end
+
+  local res_body = body
+  local content_type = response.headers["Content-Type"]
+  if content_type and content_type:find("application/json", 1, true) then
+    local json_err
+    res_body, json_err = cjson.decode(body)
+    if not res_body then
+      return log_error("azure sdk response body is not valid json: " .. json_err)
+    end
+  end
+
+  return response.status, res_body
+end
+
+
+return handle_response

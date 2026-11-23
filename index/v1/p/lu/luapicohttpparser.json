@@ -1,0 +1,95 @@
+{
+  "kind": "lib",
+  "name": "luapicohttpparser",
+  "versions": {
+    "0.2-1": {
+      "bin": [],
+      "deps": [
+        "strbuffer 1.0-1"
+      ],
+      "files": {
+        "lphr.lua": {
+          "sha256": "84d2bcf3f2deac1706b77dfd65beae4ece78af70800531b01b2fefd195bb6a71",
+          "size": 2252,
+          "url": "blob:84d2bcf3f2deac1706b77dfd65beae4ece78af70800531b01b2fefd195bb6a71"
+        },
+        "lphr/c/r2.lua": {
+          "sha256": "278f64bcc1feb2886741af3ef2d610e3a54a37085231fd046605b86320ad4340",
+          "size": 852,
+          "url": "blob:278f64bcc1feb2886741af3ef2d610e3a54a37085231fd046605b86320ad4340"
+        },
+        "lphr/r2.lua": {
+          "sha256": "15486232e089f0a69869a6659173467b2deeca73c466048d4aee7bd806a928e7",
+          "size": 2106,
+          "url": "blob:15486232e089f0a69869a6659173467b2deeca73c466048d4aee7bd806a928e7"
+        }
+      },
+      "homepage": "https://github.com/thislight/luapicohttpparser",
+      "license": "LGPL-3",
+      "lua": ">=5.3, <=5.4",
+      "luarocks": {
+        "date": "Mon, 19 Oct 2020 00:34:41 GMT",
+        "rockspec": {
+          "date": "Mon, 19 Oct 2020 00:34:41 GMT",
+          "sha256": "29718401c54d57724414cbe09d1676b53a1c60b40afe831779457d0f7123d6b4",
+          "size": 930
+        },
+        "src": {
+          "date": "Mon, 19 Oct 2020 00:34:43 GMT",
+          "sha256": "d86f6ee109c8eeef69bb3ba8292d68ed5203c44c8d0589915ab3a770fcc6b8c8",
+          "size": 41190,
+          "url": "https://luarocks.org/luapicohttpparser-0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "lphr",
+        "lphr.c",
+        "lphr.c.r2",
+        "lphr.r2"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src/",
+                "picohttpparser/"
+              ],
+              "libdirs": [
+                "picohttpparser/"
+              ],
+              "name": "lphr.c",
+              "sources": [
+                "src/luapicohttpparser.c",
+                "picohttpparser/picohttpparser.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 19 Oct 2020 00:34:43 GMT",
+        "sha256": "d86f6ee109c8eeef69bb3ba8292d68ed5203c44c8d0589915ab3a770fcc6b8c8",
+        "size": 41190,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luapicohttpparser-0.2-1.src.rock"
+      },
+      "size": 5210,
+      "summary": "lua binding for picohttpparser",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

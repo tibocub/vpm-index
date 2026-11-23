@@ -1,0 +1,27 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A literal set node.
+local LiteralSet = {}
+LiteralSet.__index = LiteralSet
+setmetatable(LiteralSet, {__index = Terminal})
+package.loaded[...] = LiteralSet
+
+--Constructor.
+function LiteralSet.new(ln, col, items)
+  return setmetatable(Terminal.new(TerminalType.SET, {line = ln, col = col, value = items}), LiteralSet)
+end
+
+--@override
+function LiteralSet:__tostring()
+  local desc
+
+  desc = "[|"
+  for i, v in ipairs(self.data) do
+    desc = desc .. (i == 1 and "" or ", ") .. tostring(v)
+  end
+  desc = desc .. "|]"
+
+  return desc
+end

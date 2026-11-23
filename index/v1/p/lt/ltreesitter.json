@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "ltreesitter",
+  "versions": {
+    "0.3.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "ltreesitter.tl": {
+          "sha256": "af8e698315925da1d52b29e31824f54733d985e2d3a7368e2116f411eceae77c",
+          "size": 6718,
+          "url": "blob:af8e698315925da1d52b29e31824f54733d985e2d3a7368e2116f411eceae77c"
+        }
+      },
+      "homepage": "https://github.com/euclidianAce/ltreesitter",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sat, 18 Apr 2026 09:20:38 GMT",
+        "rockspec": {
+          "date": "Sat, 18 Apr 2026 09:20:38 GMT",
+          "sha256": "9bd43801236a276d41d76476c8662a380be2b1e61a4b4d5ac55e9b41db9268ed",
+          "size": 1031
+        },
+        "src": {
+          "date": "Sat, 18 Apr 2026 09:20:41 GMT",
+          "sha256": "9939683630839ac9347280621dedb6c6e0330b550cd0652e2cb938f34ab4ba5b",
+          "size": 1215852,
+          "url": "https://luarocks.org/ltreesitter-0.3.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "ltreesitter"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "tree-sitter/lib/include",
+                "tree-sitter/lib/src"
+              ],
+              "name": "ltreesitter",
+              "sources": [
+                "csrc/dynamiclib.c",
+                "csrc/language.c",
+                "csrc/ltreesitter.c",
+                "csrc/luautils.c",
+                "csrc/node.c",
+                "csrc/object.c",
+                "csrc/parser.c",
+                "csrc/query.c",
+                "csrc/query_cursor.c",
+                "csrc/tree.c",
+                "csrc/tree_cursor.c",
+                "csrc/types.c",
+                "tree-sitter/lib/src/lib.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 18 Apr 2026 09:20:41 GMT",
+        "sha256": "9939683630839ac9347280621dedb6c6e0330b550cd0652e2cb938f34ab4ba5b",
+        "size": 1215852,
+        "type": "luarocks",
+        "url": "https://luarocks.org/ltreesitter-0.3.0-1.src.rock"
+      },
+      "size": 6718,
+      "summary": "Treesitter bindings to Lua",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

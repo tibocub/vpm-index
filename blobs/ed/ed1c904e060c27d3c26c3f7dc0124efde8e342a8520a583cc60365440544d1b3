@@ -1,0 +1,1926 @@
+--imports
+local tablex = require("pl.tablex")
+local TokenType = require("dogma.lex.TokenType")
+local LiteralType = require("dogma.lex.LiteralType")
+local Keyword = require("dogma.lex._.Keyword")
+local SubParser = require("dogma.syn._.SubParser")
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+local SubExp = require("dogma.syn._.SubExp")
+local IfSubExp = require("dogma.syn._.IfSubExp")
+local WithDoSubExp = require("dogma.syn._.WithDoSubExp")
+local UnaryOp = require("dogma.syn._.UnaryOp")
+local BinOp = require("dogma.syn._.BinOp")
+local SliceOp = require("dogma.syn._.SliceOp")
+local CallOp = require("dogma.syn._.CallOp")
+local Arg = require("dogma.syn._.Arg")
+local CastFn = require("dogma.syn._.CastFn")
+local CatchFn = require("dogma.syn._.CatchFn")
+local Exp = require("dogma.syn._.Exp")
+local ExpSeq = require("dogma.syn._.ExpSeq")
+local XmlExp = require("dogma.syn._.XmlExp")
+local LiteralList = require("dogma.syn._.LiteralList")
+local LiteralForList = require("dogma.syn._.LiteralForList")
+local LiteralSet = require("dogma.syn._.LiteralSet")
+local LiteralMap = require("dogma.syn._.LiteralMap")
+local LiteralFn = require("dogma.syn._.LiteralFn")
+local LiteralProc = require("dogma.syn._.LiteralProc")
+local LiteralXml = require("dogma.syn._.LiteralXml")
+local PevalFn = require("dogma.syn._.PevalFn")
+local EmitFn = require("dogma.syn._.EmitFn")
+local ExpectFn = require("dogma.syn._.ExpectFn")
+local NativeFn = require("dogma.syn._.NativeFn")
+local ThrowFn = require("dogma.syn._.ThrowFn")
+local ReturnStmt = require("dogma.syn._.ReturnStmt")
+local PackOp = require("dogma.syn._.PackOp")
+local PackLOp = require("dogma.syn._.PackLOp")
+local AwaitFn = require("dogma.syn._.AwaitFn")
+local MawaitFn = require("dogma.syn._.MawaitFn")
+local CwaitFn = require("dogma.syn._.CwaitFn")
+local NewFn = require("dogma.syn._.NewFn")
+local ConstFn = require("dogma.syn._.ConstFn")
+local PawaitFn = require("dogma.syn._.PawaitFn")
+local MpawaitFn = require("dogma.syn._.MpawaitFn")
+local PcwaitFn = require("dogma.syn._.PcwaitFn")
+local PwaitFn = require("dogma.syn._.PwaitFn")
+local UseFn = require("dogma.syn._.UseFn")
+local UpdateOp = require("dogma.syn._.UpdateOp")
+local SentType = require("dogma.syn.SentType")
+local OverloadFn = require("dogma.syn._.OverloadFn")
+local OverloadParam = require("dogma.syn._.OverloadParam")
+local CopyFn = require("dogma.syn._.CopyFn")
+local SelfDeferFn = require("dogma.syn._.SelfDeferFn")
+local SelfDeferredFn = require("dogma.syn._.SelfDeferredFn")
+local JsonDecodeFn = require("dogma.syn._.JsonDecodeFn")
+
+--An expression parser.
+local ExpParser = {}
+ExpParser.__index = ExpParser
+setmetatable(ExpParser, {__index = SubParser})
+package.loaded[...] = ExpParser
+
+--Constructor.
+--
+--@param parser:Parser  Parser to use.
+function ExpParser.new(parser)
+  local self
+
+  --(1) create
+  self = setmetatable(SubParser.new(parser), ExpParser)
+  self._.stmtParser = parser._.stmtParser
+
+  --(2) return
+  return self
+end
+
+--Read an expression.
+--
+--@return Exp
+function ExpParser:next()
+  local lex = self._.lexer
+
+  if lex:advance():isSymbol("<") or (lex:advance(1):isSymbol("(") and lex:advance(2):isSymbol("<")) then
+    return self:_readXmlExp()
+  else
+    return self:_readExp()
+  end
+end
+
+--Read a regular expression.
+--
+--@return Exp
+function ExpParser:_readExp()
+  local lex = self._.lexer
+  local tok, node, exp
+
+  --(1) init expression
+  tok = lex:advance()
+  exp = Exp.new(tok.line, tok.col)
+
+  --(2) read
+  while true do
+    tok = lex:next()
+
+    if tok == nil or tok:isSymbol("</") then
+      lex:unshift()
+
+      if exp.tree:isWellFormed() then
+        break
+      else
+        self:_raise("incomplete expression.", exp)
+      end
+    end
+
+    if tok:isEol() then
+      if exp.tree:isWellFormed() then
+        lex:unshift()
+        break
+      end
+    elseif tok:isSymbol("(") then
+      lex:unshift()
+
+      if exp.tree:isWellFormed() then
+        self:_readCallArgs(exp)
+      else
+        exp:insert(self:_readSubExp())
+      end
+    elseif tok:isSymbol("[") then
+      lex:unshift()
+
+      if exp.tree:isWellFormed() then
+        if lex:advance(2):isSymbol("*") then
+          self:_readPackLOp(exp)
+        else
+          self:_readIndexOp(exp)
+        end
+      elseif lex:advance(2):isKeyword("for") then
+        exp:insert(self:_readLiteralForList())
+      elseif lex:advance(2):isEol() and lex:advance(3):isKeyword("for") then
+        exp:insert(self:_readLiteralForList())
+      else
+        exp:insert(self:_readLiteralList())
+      end
+    elseif tok:isSymbol("[|") then
+      lex:unshift()
+      exp:insert(self:_readLiteralSet())
+    elseif tok:isSymbol("?[") then
+      lex:unshift()
+      self:_readOptionalIndexOp(exp)
+    elseif tok:isSymbol("{") then
+      lex:unshift()
+
+      if exp.tree:isWellFormed() then
+        self:_readMPackOp(exp)
+      else
+        exp:insert(self:_readLiteralMapWithBrackets())
+      end
+    elseif tok.type == TokenType.SYMBOL and tablex.find({".", ":", "!"}, tok.value) and lex:advance().type == TokenType.SYMBOL and lex:advance().value == "{" then
+      lex:unshift() --the dot
+
+      if exp.tree:isWellFormed() then
+        self:_readUpdateOp(exp)
+      else
+        self:_raise("'.{', ':{' and '!{' are not unary ops.", tok)
+      end
+    elseif tok:isKeyword("cast") then
+      lex:unshift()
+      exp:insert(self:_readCast())
+    elseif tok:isKeyword("catch") then
+      lex:unshift()
+      exp:insert(self:_readCatch())
+    elseif tok:isKeyword("await") then
+      lex:unshift()
+      exp:insert(self:_readAwait())
+    elseif tok:isKeyword("cwait") then
+      lex:unshift()
+      exp:insert(self:_readCwait())
+    elseif tok:isKeyword("const") then
+      lex:unshift()
+      exp:insert(self:_readConst())
+    elseif tok:isKeyword("copy") then
+      lex:unshift()
+      exp:insert(self:_readCopy())
+    elseif tok:isKeyword("async") then
+      tok = lex:next()
+
+      if tok:isKeyword("fn") then
+        lex:unshift()
+        lex:unshift()
+        exp:insert(self:_readFn())
+      elseif tok:isKeyword("pr") or tok:isKeyword("proc") then
+        lex:unshift()
+        lex:unshift()
+        exp:insert(self:_readProc())
+      else
+        self:_raise("'fn' or 'proc' expected.", tok)
+      end
+    elseif tok:isKeyword("emit") then
+      lex:unshift()
+      exp:insert(self:_readEmitFn())
+    elseif tok:isKeyword("expect") then
+      lex:unshift()
+      exp:insert(self:_readExpectFn())
+    elseif tok:isKeyword("fn") then
+      lex:unshift()
+      exp:insert(self:_readFn())
+    elseif tok:isKeyword("pr") or tok:isKeyword("proc") then
+      lex:unshift()
+      exp:insert(self:_readProc())
+    elseif tok:isKeyword("if") then
+      lex:unshift()
+      exp:insert(self:_readIfSubExp())
+    elseif tok:isKeyword("with") then
+      lex:unshift()
+      exp:insert(self:_readWithDoSubExp())
+    elseif tok:isKeyword("overload") then
+      lex:unshift()
+      exp:insert(self:_readOverload())
+    elseif tok:isKeyword("native") then
+      lex:unshift()
+      exp:insert(self:_readNative())
+    elseif tok:isKeyword("new") then
+      lex:unshift()
+      exp:insert(self:_readNew())
+    elseif tok:isKeyword("pawait") then
+      lex:unshift()
+      exp:insert(self:_readPawait())
+    elseif tok:isKeyword("pcwait") then
+      lex:unshift()
+      exp:insert(self:_readPcwait())
+    elseif tok:isKeyword("peval") then
+      lex:unshift()
+      exp:insert(self:_readPeval())
+    elseif tok:isKeyword("pwait") then
+      lex:unshift()
+      exp:insert(self:_readPwait())
+    elseif tok:isKeyword("throw") then
+      lex:unshift()
+      exp:insert(self:_readThrow())
+    elseif tok:isKeyword("use") then
+      lex:unshift()
+      exp:insert(self:_readUse())
+    elseif tok:isKeyword("self") and lex:advance(1):isSymbol(".") and lex:advance(2):isName("defer") then
+      lex:unshift()
+      exp:insert(self:_readSelfDefer())
+    elseif tok:isKeyword("self") and lex:advance(1):isSymbol(".") and lex:advance(2):isName("deferred") then
+      lex:unshift()
+      exp:insert(self:_readSelfDeferred())
+    elseif tok:isName("json") and lex:advance(1):isSymbol(".") and lex:advance(2):isName("decode") and lex:advance(3):isSymbol("<") then
+      lex:unshift()
+      exp:insert(self:_readJsonDecode())
+    else
+      if tok.type == TokenType.KEYWORD and tok.value == "not" then
+        local aux = lex:advance()
+
+        if aux.type == TokenType.KEYWORD and aux.value == "in" then
+          lex:next()
+          node = BinOp.new(Keyword.new(tok.line, tok.col, "notin"))
+        elseif aux.type == TokenType.KEYWORD and aux.value == "like" then
+          lex:next()
+          node = BinOp.new(Keyword.new(tok.line, tok.col, "notlike"))
+        else
+          node = UnaryOp.new(tok)
+        end
+      elseif tok.type == TokenType.KEYWORD and tok.value == "is" then
+        local aux = lex:advance()
+
+        if aux.type == TokenType.KEYWORD and aux.value == "not" then
+          lex:next()
+          node = BinOp.new(Keyword.new(tok.line, tok.col, "isnot"))
+        else
+          node = self:_getNodeOf(tok)
+        end
+      elseif tok.type == TokenType.SYMBOL and tablex.find({"+", "-", "<<<", ">>>"}, tok.value) then
+        if exp.tree:isWellFormed() then
+          node = BinOp.new(tok)
+        else
+          node = UnaryOp.new(tok)
+        end
+      elseif tok.type == TokenType.SYMBOL and tablex.find({":", ".", "!"}, tok.value) then
+        if exp.tree:isWellFormed() then
+          node = BinOp.new(tok)
+        else
+          node = UnaryOp.new(tok)
+        end
+      elseif tok:isSymbol("$") then
+        node = UnaryOp.new(tok)
+      else
+        node = self:_getNodeOf(tok)
+      end
+
+      if node == nil then
+        if exp.tree:isWellFormed() then
+          lex:unshift()
+          break
+        else
+          self:_raise("invalid expression node.", tok)
+        end
+      else
+        exp:insert(node)
+      end
+    end
+  end
+
+  --(3) return
+  return exp
+end
+
+--Return a node for a given token.
+--
+--@param tok:Token  The token.
+--@return Node
+function ExpParser:_getNodeOf(tok)
+  local node
+
+  --(1) create node
+  if tok.type == TokenType.NAME then
+    node = Terminal.new(TerminalType.NAME, tok)
+  elseif tok:isRe() then
+    node = Terminal.new(TerminalType.RE, tok)
+  elseif tok.type == TokenType.LITERAL then
+    if tok.subtype == LiteralType.NUMBER then
+      node = Terminal.new(TerminalType.NUM, tok)
+    elseif tok.subtype == LiteralType.STRING then
+      node = Terminal.new(TerminalType.TEXT, tok)
+    elseif tok.subtype == LiteralType.TMPL_STRING then
+      node = Terminal.new(TerminalType.TMPL_TEXT, tok)
+    end
+  elseif tok.type == TokenType.KEYWORD then
+    local kw = tok.value
+
+    if kw == "nop" then
+      node = Terminal.new(TerminalType.NOP, tok)
+    elseif kw == "false" then
+      node = Terminal.new(TerminalType.FALSE, tok)
+    elseif kw == "nil" then
+      node = Terminal.new(TerminalType.NIL, tok)
+    elseif kw == "self" then
+      node = Terminal.new(TerminalType.SELF, tok)
+    elseif kw == "super" then
+      node = Terminal.new(TerminalType.SUPER, tok)
+    elseif kw == "true" then
+      node = Terminal.new(TerminalType.TRUE, tok)
+    elseif tablex.find({"and", "in", "is", "like", "or"}, kw) then
+      node = BinOp.new(tok)
+    end
+  elseif tok.type == TokenType.SYMBOL then
+    local sym = tok.value
+
+    if tablex.find({"~", "..."}, sym) then
+      node = UnaryOp.new(tok)
+    elseif tablex.find({"+=", "-=", "*", "*=", "**", "**=", "/", "/=", "%", "%=",
+                        "=", ".=", "=~", ":=", "::=", "?=",
+                        "==", "!=", "===", "!==", "==~", "!=~", "==^", "!=^",
+                        "<", "<<", "<<<", "<<=", "<=", ">", ">>", ">>>", ">>=", ">=",
+                        "^", "^=", ".", "?", "??", ":", "!", "&", "&=", "&&", "|", "|=", "||"}, sym) then
+      node = BinOp.new(tok)
+    end
+  end
+
+  --(2) return
+  return node
+end
+
+--Read (exp) or (exp, exp, exp...).
+--
+--@return Exp or ExpSeq
+function ExpParser:_readSubExp()
+  local lex = self._.lexer
+  local term, tok, ln, col
+
+  --(1) read
+  tok = lex:nextSymbol("(")
+  ln, col = tok.line, tok.col
+
+  if lex:advance():isEol() then
+    term = ExpSeq.new(ln, col)
+
+    while true do
+      lex:nextEol()
+      lex:skipEol()
+
+      tok = lex:advance()
+      if tok == nil or tok:isSymbol(")") then
+        break
+      end
+
+      term:insert(self:_readExp())
+    end
+  else
+    term = SubExp.new(ln, col, self:_readExp())
+  end
+
+  lex:nextSymbol(")")
+
+  --(2) return
+  return term
+end
+
+--Read if then else end.
+--
+--@return IfSubExp
+function ExpParser:_readIfSubExp()
+  local lex = self._.lexer
+  local tok, ln, col, cond, tcase, fcase
+
+  --(1) read
+  tok = lex:nextKeyword("if")
+  ln, col = tok.line, tok.col
+  cond = self:_readExp()
+  lex:nextKeyword("then")
+  lex:skipEol()
+  tcase = self:_readExp()
+  lex:skipEol()
+
+  if lex:skipKeyword("else") then
+    fcase = self:_readExp()
+    lex:skipEol()
+  end
+
+  if (fcase == nil and tcase.tree.root.exps == nil) or (fcase ~= nil and fcase.tree.root.exps == nil) then
+    lex:nextKeyword("end")
+  end
+
+  --(2) return
+  return IfSubExp.new(ln, col, cond, tcase, fcase)
+end
+
+--Read with..do subexpression.
+--
+--@return WithDoSubExp
+function ExpParser:_readWithDoSubExp()
+  local lex = self._.lexer
+  local tok, ln, col, value, ifs, els
+
+  --(1) read with clause
+  tok = lex:nextKeyword("with")
+  ln, col = tok.line, tok.col
+  value = self:_readExp()
+  lex:nextKeyword("do")
+
+  --(2) read ifs and else clauses
+  ifs = {}
+
+  while true do
+    lex:skipEol()
+
+    if lex:skipKeyword("if") then
+      local clause = {
+        cond = self:_readExp()
+      }
+
+      lex:nextKeyword("then")
+      lex:skipEol()
+      clause.value = self:_readExp()
+      table.insert(ifs, clause)
+    elseif lex:skipKeyword("else") then
+      lex:skipEol()
+      els = self:_readExp()
+      break
+    else
+      break
+    end
+  end
+
+  lex:skipEol()
+  lex:nextKeyword("end")
+
+  --(3) return
+  return WithDoSubExp.new(ln, col, value, ifs, els)
+end
+
+--Read a native(code) terminal.
+--
+--@return NativeFn
+function ExpParser:_readNative()
+  local lex = self._.lexer
+  local tok, ln, col, code
+
+  --(1) read
+  tok = lex:next(TokenType.KEYWORD, "native")
+  ln, col = tok.line, tok.col
+  lex:next(TokenType.SYMBOL, "(")
+  code = lex:next(TokenType.LITERAL).value
+  lex:next(TokenType.SYMBOL, ")")
+
+  --(2) return
+  return NativeFn.new(ln, col, code)
+end
+
+--Read a cast<Exp>(Exp) terminal.
+--
+--@return CastFn
+function ExpParser:_readCast()
+  local lex = self._.lexer
+  local tok, ln, col, to, exp
+
+  --(1) read
+  tok = lex:nextKeyword("cast")
+  ln, col = tok.line, tok.col
+
+  --(2) type
+  lex:nextSymbol("<")
+  to = lex:nextName().value
+  lex:nextSymbol(">")
+
+  --(3) value
+  lex:nextSymbol("(")
+  self:_skipEols()
+  exp = self:_readExp()
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(4) return
+  return CastFn.new(ln, col, to, exp)
+end
+
+--Read a catch(Exp) terminal.
+--
+--@return CatchFn
+function ExpParser:_readCatch()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:nextKeyword("catch")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+  exp = self:_readExp()
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return CatchFn.new(ln, col, exp)
+end
+
+--Read an await() terminal:
+--await(exp1), await(exp1, exp2, ...) or await(...exp).
+--
+--@return AwaitFn when only one argument passed; MawaitFn when multiple.
+function ExpParser:_readAwait()
+  local lex = self._.lexer
+  local tok, ln, col, call
+
+  --(1) read
+  tok = lex:nextKeyword("await")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+
+  tok = lex:advance()
+  if tok:isSymbol("...") then
+    lex:nextSymbol("...")
+    call = MawaitFn.new(ln, col, {self:_readExp()})
+  else
+    local args = self:_readPositionalArgs(1)
+
+    if #args == 1 then
+      call = AwaitFn.new(ln, col, args[1])
+    else
+      call = MawaitFn.new(ln, col, args)
+    end
+  end
+
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return call
+end
+
+--Read an pawait() terminal:
+--pawait(exp1), pawait(exp1, exp2, ...) or pawait(...exp).
+--
+--@return PawaitFn when only one argument passed; MpawaitFn when multiple.
+function ExpParser:_readPawait()
+  local lex = self._.lexer
+  local tok, ln, col, call
+
+  --(1) read
+  tok = lex:nextKeyword("pawait")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+
+  tok = lex:advance()
+  if tok:isSymbol("...") then
+    lex:nextSymbol("...")
+    call = MpawaitFn.new(ln, col, {self:_readExp()})
+  else
+    local args = self:_readPositionalArgs(1)
+
+    if #args == 1 then
+      call = PawaitFn.new(ln, col, args[1])
+    else
+      call = MpawaitFn.new(ln, col, args)
+    end
+  end
+
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return call
+end
+
+
+--Read the function call arguments.
+--
+--@param atLeast:number Minimum number of arguments expected.
+--@return a list with the argument expressions.
+function ExpParser:_readPositionalArgs(atLeast)
+  local lex = self._.lexer
+  local args = {}
+
+  --(1) read arguments
+  self:_skipEols()
+
+  while true do
+    if lex:advance():isSymbol(")") then
+      break
+    end
+
+    table.insert(args, self:_readExp())
+
+    if not (lex:skipSymbol(",") or lex:skipEol()) then
+      break
+    end
+
+    self:_skipEols()
+  end
+
+  if atLeast > #args then
+    self:_raise(
+      string.format("%s argument(s) expected. Received: %s.", atLeast, #args),
+      lex:advance()
+    )
+  end
+
+  --(2) return
+  return args
+end
+
+--Read a copy(Exp) terminal.
+--
+--@return CopyFn
+function ExpParser:_readCopy()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:nextKeyword("copy")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+  exp = self:_readExp()
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return CopyFn.new(ln, col, exp)
+end
+
+--Read a const(Exp) terminal.
+--
+--@return ConstFn
+function ExpParser:_readConst()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:nextKeyword("const")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+  exp = self:_readExp()
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return ConstFn.new(ln, col, exp)
+end
+
+--Read a cwait(Exp) terminal.
+--
+--@return CwaitFn
+function ExpParser:_readCwait()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:nextKeyword("cwait")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+  exp = self:_readExp()
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return CwaitFn.new(ln, col, exp)
+end
+
+--Read a new(Exp) terminal.
+--
+--@return NewFn
+function ExpParser:_readNew()
+  local lex = self._.lexer
+  local tok, ln, col, arg
+
+  --(1) read
+  tok = lex:nextKeyword("new")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+  arg = self:_readExp()
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return NewFn.new(ln, col, arg)
+end
+
+--Read an overload() terminal.
+--
+--@return OverloadFn
+function ExpParser:_readOverload()
+  local lex = self._.lexer
+  local tok, ln, col, params
+
+  --(1) read
+  tok = lex:nextKeyword("overload")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+
+  --(2) read parameters
+  params = {}
+
+  tok = lex:advance()
+  if not tok:isSymbol(")") then
+    while true do
+      table.insert(params, self:_readOverloadParam())
+
+      if not lex:skipSymbol(",") then
+        break
+      end
+    end
+  end
+
+  --(3) read end of call
+  lex:nextSymbol(")")
+
+  --(4) return
+  return OverloadFn.new(ln, col, params)
+end
+
+function ExpParser:_readOverloadParam()
+  local lex = self._.lexer
+  local kind, type
+
+  --(1) read
+  if lex:skipSymbol("...") then
+    kind = "..."
+  else
+    kind = not not lex:skipSymbol("?") and "optional"  or "mandatory"
+    type = self:_readDataType()
+  end
+
+  --(2) return
+  return OverloadParam.new(kind, type)
+end
+
+--Read a pcwait(Exp) terminal.
+--
+--@return PcwaitFn
+function ExpParser:_readPcwait()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:nextKeyword("pcwait")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+  exp = self:_readExp()
+  self:_skipEols()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return PcwaitFn.new(ln, col, exp)
+end
+
+--Read a pwait(Exp) terminal.
+--
+--@return PwaitFn
+function ExpParser:_readPwait()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:nextKeyword("pwait")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  self:_skipEols()
+  exp = self:_readExp()
+  self:_skipEols()
+  lex:next(TokenType.SYMBOL, ")")
+
+  --(2) return
+  return PwaitFn.new(ln, col, exp)
+end
+
+--Read an emit() terminal.
+--
+--@return EmitFn
+function ExpParser:_readEmitFn()
+  local lex = self._.lexer
+  local tok, ln, col, event, arg
+
+  --(1) read
+  tok = lex:nextKeyword("emit")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  event = self:_readExp()
+  lex:nextSymbol(",")
+
+  if lex:advance(1):isName() and lex:advance(2):isSymbol("=") then
+    arg = {}
+
+    while true do
+      local name, value
+
+      self:_skipEols()
+      name = lex:nextName().value
+
+      if lex:skipSymbol("=") then
+        if lex:advance():isSymbol(",") then
+          value = name
+        else
+          value = self:_readExp()
+        end
+      else
+        value = name
+      end
+
+      table.insert(arg, {name = name, value = value})
+
+      if not lex:skipSymbol(",") then
+        break
+      end
+    end
+  else
+    arg = self:_readExp()
+  end
+
+  lex:nextSymbol(")")
+
+  --(2) return
+  return EmitFn.new(ln, col, event, arg)
+end
+
+--Read an expect() terminal.
+--
+--@return ExpectFn
+function ExpParser:_readExpectFn()
+  local lex = self._.lexer
+  local tok, ln, col, val, types
+
+  --(1) read
+  tok = lex:nextKeyword("expect")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol("(")
+  val = self:_readExp()
+  if lex:skipSymbol(",") then
+    types = self:_readExp()
+  end
+  lex:nextSymbol(")")
+
+  --(2) return
+  return ExpectFn.new(ln, col, val, types)
+end
+
+--Read a use(Exp) terminal.
+--
+--@return UseFn
+function ExpParser:_readUse()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:next(TokenType.KEYWORD, "use")
+  ln, col = tok.line, tok.col
+  lex:next(TokenType.SYMBOL, "(")
+  exp = self:_readExp()
+  lex:next(TokenType.SYMBOL, ")")
+
+  --(2) return
+  return UseFn.new(ln, col, exp)
+end
+
+--Read self.defer(Exp) terminal.
+--
+--@return SelfDeferFn
+function ExpParser:_readSelfDefer()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:nextKeyword("self")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol(".")
+  lex:nextName("defer")
+  lex:nextSymbol("(")
+  exp = self:_readExp()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return SelfDeferFn.new(ln, col, exp)
+end
+
+--Read self.deferred() terminal.
+--
+--@return SelfDeferredFn
+function ExpParser:_readSelfDeferred()
+  local lex = self._.lexer
+  local tok, ln, col
+
+  --(1) read
+  tok = lex:nextKeyword("self")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol(".")
+  lex:nextName("deferred")
+  lex:nextSymbol("(")
+  lex:nextSymbol(")")
+
+  --(2) return
+  return SelfDeferredFn.new(ln, col)
+end
+
+--Read a json.decode() terminal.
+--
+--@return JsonFn
+function ExpParser:_readJsonDecode()
+  local lex = self._.lexer
+  local tok, ln, col, type, exp
+
+  --(1) read
+  tok = lex:nextName("json")
+  ln, col = tok.line, tok.col
+  lex:nextSymbol(".")
+  lex:nextName("decode")
+  lex:nextSymbol("<")
+  type = lex:nextName().value
+  lex:nextSymbol(">")
+  lex:nextSymbol("(")
+  exp = self:_readExp()
+  lex:nextSymbol(")")
+
+  --(2) return
+  return JsonDecodeFn.new(ln, col, type, exp)
+end
+
+--Read a peval(Exp) terminal.
+--
+--@return PevalFn
+function ExpParser:_readPeval()
+  local lex = self._.lexer
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:next(TokenType.KEYWORD, "peval")
+  ln, col = tok.line, tok.col
+  lex:next(TokenType.SYMBOL, "(")
+  exp = self:_readExp()
+  lex:next(TokenType.SYMBOL, ")")
+
+  --(2) return
+  return PevalFn.new(ln, col, exp)
+end
+
+--Read a throw(Exp [, Exp]) terminal.
+--
+--@return ThrowFn
+function ExpParser:_readThrow()
+  local lex = self._.lexer
+  local tok, ln, col, args
+
+  --(1) read
+  tok = lex:next(TokenType.KEYWORD, "throw")
+  ln, col = tok.line, tok.col
+  lex:next(TokenType.SYMBOL, "(")
+
+  args = {}
+  while true do
+    table.insert(args, self:_readExp())
+
+    tok = lex:advance()
+    if not (tok.type == TokenType.SYMBOL and tok.value == ",") then
+      break
+    end
+
+    lex:next(TokenType.SYMBOL, ",")
+  end
+
+  lex:next(TokenType.SYMBOL, ")")
+
+  --(2) return
+  return ThrowFn.new(ln, col, args)
+end
+
+--Read the call arguments.
+--
+--@param exp:Exp  Current expression.
+function ExpParser:_readCallArgs(exp)
+  local lex = self._.lexer
+  local tok, call
+
+  --(1) pre: read (
+  tok = lex:nextSymbol("(")
+  tok.value = "()"
+
+  --(2) create operator
+  call = CallOp.new(tok)
+  exp:insert(call)
+
+  --(3) read arguments
+  self:_skipEols()
+
+  local onlyNamed = false
+  while true do
+    local arg
+
+    tok = lex:advance()
+
+    if not tok or tok:isSymbol(")") then
+      break
+    end
+
+    arg = self:_readCallArg(onlyNamed)
+    call:insert(arg)
+    onlyNamed = arg.kind == "named"
+
+    if lex:skipSymbol(",") or lex:skipEol() then
+      self:_skipEols()
+    else
+      break
+    end
+  end
+
+  call.finished = true
+  lex:nextSymbol(")")
+end
+
+--Read a call argument.
+--
+--@param onlyNamed  Only the named arguments can be accepted.
+--@returns Arg
+function ExpParser:_readCallArg(onlyNamed)
+  local lex = self._.lexer
+  local tok, name, value, arg
+
+  --(1) read
+  if onlyNamed then
+    name = lex:nextName().value
+
+    if lex:skipSymbol("=") then
+      tok = lex:advance()
+      if not tok:isSymbol(",") and not tok:isSymbol(")") then
+        value = self:_readExp()
+      end
+    end
+
+    arg = Arg.new("named", name, value)
+  else
+    if lex:advance(1):isName() and lex:advance(2):isSymbol("=") then
+      name = lex:nextName().value
+      lex:nextSymbol("=")
+
+      tok = lex:advance()
+      if tok:isSymbol(",") or tok:isSymbol(")") then
+        arg = Arg.new("named", name)
+      else
+        arg = Arg.new("named", name, self:_readExp())
+      end
+    else
+      arg = Arg.new("positional", self:_readExp())
+    end
+  end
+
+  --(2) return arg
+  return arg
+end
+
+--Read a literal list: [for].
+--
+--@return LiteralForList
+function ExpParser:_readLiteralForList()
+  local lex = self._.lexer
+  local tok, ln, col, vars, iter, exp
+
+  --(1) read [for each
+  tok = lex:nextSymbol("[")
+  ln, col = tok.line, tok.col
+
+  lex:skipEol()
+  lex:nextKeyword("for")
+  lex:skipKeyword("each")
+
+  --(2) read variables
+  vars = {lex:nextName().value}
+
+  if lex:skipSymbol(",") then
+    table.insert(vars, lex:nextName().value)
+  end
+
+  --(3) read value
+  lex:nextKeyword("in")
+  iter = self:_readExp()
+
+  --(4) read expression
+  lex:nextKeyword("do")
+  exp = self:_readExp()
+
+  --(5) read ]
+  lex:skipEol()
+  lex:nextSymbol("]")
+
+  --(6) return
+  return LiteralForList.new(ln, col, vars, iter, exp)
+end
+
+--Read a literal list: [...].
+--
+--@return LiteralList
+function ExpParser:_readLiteralList()
+  local lex = self._.lexer
+  local tok, ln, col, items
+
+  --(1) read [
+  tok = lex:nextSymbol("[")
+  ln, col = tok.line, tok.col
+
+  --(2) read items
+  items = {}
+
+  self:_skipEols()
+  if not lex:advance():isSymbol("]") then
+    while true do
+      table.insert(items, self:_readExp())
+
+      tok = lex:advance()
+      if tok:isSymbol(",") then
+        lex:nextSymbol(",")
+        self:_skipEols()
+      elseif tok:isEol() then
+        self:_skipEols()
+        if lex:advance():isSymbol("]") then
+          break
+        end
+      elseif tok:isSymbol("]") then
+        break
+      -- else
+      --   self:_raise("',', ']' or end of line expected.", tok)
+      end
+    end
+  end
+
+  --(3) read ]
+  lex:nextSymbol("]")
+
+  --(4) return
+  return LiteralList.new(ln, col, items)
+end
+
+--Read a literal set: [|...|].
+--
+--@return LiteralSet
+function ExpParser:_readLiteralSet()
+  local lex = self._.lexer
+  local tok, ln, col, items
+
+  --(1) read |
+  tok = lex:nextSymbol("[|")
+  ln, col = tok.line, tok.col
+
+  --(2) read items
+  items = {}
+
+  self:_skipEols()
+
+  tok = lex:advance()
+  if tok and not tok:isSymbol("|]") then
+    while true do
+      table.insert(items, self:_readExp())
+
+      tok = lex:advance()
+      if tok:isSymbol(",") then
+        lex:nextSymbol(",")
+        self:_skipEols()
+      elseif tok:isEol() then
+        self:_skipEols()
+        if lex:advance():isSymbol("|]") then
+          break
+        end
+      elseif tok:isSymbol("|]") then
+        break
+      end
+    end
+  end
+
+  --(3) read ]
+  lex:nextSymbol("|]")
+
+  --(4) return
+  return LiteralSet.new(ln, col, items)
+end
+
+--Read a map field.
+--
+--@return {name, value, cond}
+function ExpParser:_readLiteralMapField()
+  local lex = self._.lexer
+  local name, val, cond
+
+  --(1) read
+  if lex:skipSymbol("...") then
+    local tok = lex:current()
+    local op = UnaryOp.new(tok)
+
+    val = Exp.new({line = tok.line, col = tok.col})
+    val:insert(op)
+
+    tok = lex:nextId()
+    op:insert(Terminal.new(TerminalType.NAME, {line = tok.line, col = tok.col, value = tok.value}))
+
+    name = nil
+  elseif lex:skipSymbol("{") then
+    if lex:skipSymbol("{") then
+      name = lex:nextId()
+      lex:nextSymbol("}")
+      lex:nextSymbol("}")
+
+      val = Exp.new(name.line, name.col)
+      local op = BinOp.new({line = name.line, col = name.col, value = "."})
+      val:insert(op)
+      op:insert(Terminal.new(TerminalType.NAME, {line = name.line, col = name.col, value = name.value}))
+      op:insert(Terminal.new(TerminalType.NAME, {line = name.line, col = name.col, value = name.value}))
+    else
+      name = lex:nextId()
+      lex:nextSymbol("}")
+
+      lex:nextSymbol("=")
+      val = self:_readExp()
+
+      local op = BinOp.new({line = name.line, col = name.col, value = "."})
+      val:insert(op)
+      op:insert(Terminal.new(TerminalType.NAME, {line = name.line, col = name.col, value = name.value}))
+    end
+  elseif lex:skipSymbol("[") then
+    local start = lex:current()
+    name = {value=self:_readExp()}
+    lex:nextSymbol("]")
+
+    lex:nextSymbol("=")
+    if lex:skipEol() then
+      val = Exp.new(start.line, start.col)
+      val:insert(self:_readLiteralMapWithoutBrackets(start))
+    else
+      val = self:_readExp()
+    end
+  else
+    if lex:skipKeyword("if") then
+      cond = self:_readExp()
+      lex:nextKeyword("then")
+    end
+
+    name = lex:nextId()
+
+    if lex:skipSymbol("=") then
+      if lex:skipEol() then
+        val = Exp.new(name.line, name.col)
+        val:insert(self:_readLiteralMapWithoutBrackets(name))
+      else
+        val = self:_readExp()
+      end
+    else
+      val = Exp.new(name.line, name.col)
+      val:insert(Terminal.new(TerminalType.NAME, {line = name.line, col = name.col, value = name.value}))
+    end
+  end
+
+  --(2) return
+  return {cond = cond, name = name and name.value or nil, value = val}
+end
+
+--Read a literal map defined without brackets.
+--
+--@param start:Token  Start token.
+--@return LiteralMap
+function ExpParser:_readLiteralMapWithoutBrackets(start)
+  local lex = self._.lexer
+  local fields = {}
+
+  --(1) read fields
+  while true do
+    self:_skipEols()
+
+    local tok = lex:advance()
+    if (tok:isId() or tok:isSymbol("{") or tok:isSymbol("[")) and tok.col > start.col then
+      table.insert(fields, self:_readLiteralMapField())
+      if not lex._.token:isEol() then
+        lex:nextEol()
+      end
+    else
+      break
+    end
+  end
+
+  --(3) return
+  return LiteralMap.new(start.line, start.col, fields)
+end
+
+--Read a literal map defined with brackets.
+--
+--@return LiteralMap
+function ExpParser:_readLiteralMapWithBrackets()
+  local lex = self._.lexer
+  local tok, ln, col
+  local fields = {}
+
+  --(1) read {
+  tok = lex:nextSymbol("{")
+  ln, col = tok.line, tok.col
+
+  --(2) read fields
+  self:_skipEols()
+  if not lex:advance():isSymbol("}") then
+    while true do
+      table.insert(fields, self:_readLiteralMapField())
+
+      tok = lex:advance()
+      if tok:isSymbol(",") then
+        lex:nextSymbol(",")
+        self:_skipEols()
+      elseif tok:isEol() then
+        self:_skipEols()
+        if lex:advance():isSymbol("}") then
+          break
+        end
+      elseif tok:isSymbol("}") then
+        break
+      -- else
+      --   self:_raise("',', '}' or end of line expected.", tok)
+      end
+    end
+  end
+
+  --(3) read }
+  lex:nextSymbol("}")
+
+  --(4) return
+  return LiteralMap.new(ln, col, fields)
+end
+
+--Read a proc.
+--
+--@return LiteralProc
+function ExpParser:_readProc()
+  local parser, lex, stmt = self._.parser, self._.lexer, self._.stmtParser
+  local tok, ln, col, async, params, catch, body
+
+  --(1) read
+  async = not not lex:skipKeyword("async")
+  tok = lex:skipKeyword("pr") or lex:nextKeyword("proc")
+  ln, col = tok.line, tok.col
+
+  params = stmt:_readRoutineParams()
+
+  if lex:skipSymbol("=>") then
+    catch = self:_readExp()
+    lex:nextEol()
+  end
+
+  if lex:skipSymbol("{") then
+    if lex:skipSymbol("}") then
+      body = {}
+    else
+      body = {parser:next()}
+      if body[1].type == SentType.DIRECTIVE then
+        table.insert(body, parser:next())
+      end
+      lex:nextSymbol("}")
+    end
+  else
+    lex:skipEol()
+    body = stmt:_readBody(3)
+  end
+
+  --(2) return
+  return LiteralProc.new(ln, col, async, params, catch, body)
+end
+
+--Read a fn.
+--
+--@return LiteralFn
+function ExpParser:_readFn()
+  local parser, lex, stmt = self._.parser, self._.lexer, self._.stmtParser
+  local tok, ln, col, async, params, subparams, rtype, rvar, catch, body
+
+  --(1) read
+  async = not not lex:skipKeyword("async")
+  tok = lex:nextKeyword("fn")
+  ln, col = tok.line, tok.col
+
+  params, subparams = stmt:_readRoutineParams({subparams = true})
+
+  if lex:skipSymbol("=>") then
+    catch = self:_readExp()
+    lex:nextEol()
+  end
+
+  if lex:skipSymbol("{") then
+    if lex:skipSymbol("}") then
+      body = {}
+    else
+      body = {parser:next()}
+      if body[1].type == SentType.DIRECTIVE then
+        table.insert(body, parser:next())
+      end
+      lex:nextSymbol("}")
+    end
+  else
+    rvar = stmt:_readFnReturnVar()
+    rtype = stmt:_readFnType()
+
+    tok = lex:advance()
+    if tok.type == TokenType.SYMBOL and tok.value == "=" then
+      lex:nextSymbol("=")
+
+      tok = lex:advance()
+      if tok.type == TokenType.SYMBOL and tok.value == "(" then
+        lex:nextSymbol("(")
+        body = self:_readExp()
+        body = {ReturnStmt.new(body.ln, body.col, body)}
+        lex:nextSymbol(")")
+      else
+        body = self:_readExp()
+        body = {ReturnStmt.new(body.ln, body.col, body)}
+        lex:nextKeyword("end")
+      end
+    else
+      body = stmt:_readBody(3)
+    end
+  end
+
+  --(2) return
+  return LiteralFn.new(ln, col, async, params, subparams, rtype, rvar, catch, body)
+end
+
+--Read ?[exp] operator.
+--
+--@param exp:Exp  Expression to update.
+function ExpParser:_readOptionalIndexOp(exp)
+  local lex = self._.lexer
+  local tok, ln, col, ix
+
+  --(1) read ?[Exp
+  tok = lex:nextSymbol("?[")
+  ln, col = tok.line, tok.col
+
+  --(2) read expression
+  ix = self:next()
+
+  --(3) read ]
+  lex:nextSymbol("]")
+
+  --(4) add
+  local op = BinOp.new({line = ln, col = col, value = "?[]"})
+  exp:insert(op)
+  op:insert(ix.tree.root)
+end
+
+--Read an indexing operator.
+--
+--@param exp:Exp  Expression to update.
+function ExpParser:_readIndexOp(exp)
+  local lex = self._.lexer
+  local tok, ln, col, init, fin
+
+  --(1) read [Exp
+  tok = lex:next(TokenType.SYMBOL, "[")
+  ln, col = tok.line, tok.col
+  init = self:next()
+
+  --(2) read "", Exp" if existing
+  tok = lex:advance()
+
+  if tok.type == TokenType.SYMBOL and tok.value == "," then
+    lex:next()
+    fin = self:next()
+  end
+
+  --(3) read ]
+  lex:next(TokenType.SYMBOL, "]")
+
+  --(4) add
+  local op
+
+  if fin == nil then
+    op = BinOp.new({line = ln, col = col, value = "[]"})
+    exp:insert(op)
+    op:insert(init.tree.root)
+  else
+    op = SliceOp.new({line = ln, col = col, value = "[]"})
+    exp:insert(op)
+    op:insert(init.tree.root)
+    op:insert(fin.tree.root)
+  end
+end
+
+--Read the next [*] op.
+--
+--@param exp:Exp  Expression to update.
+function ExpParser:_readPackLOp(exp)
+  local lex = self._.lexer
+  local tok, op
+
+  --(1) read [
+  tok = lex:nextSymbol("[")
+
+  --(2) create op
+  tok.value = "[]"
+  op = PackLOp.new(tok)
+  exp:insert(op)
+
+  --(3) read *
+  lex:nextSymbol("*")
+
+  --(4) read items
+  while lex:skipSymbol(",") do
+    table.insert(op.children, self:_readExp())
+  end
+
+  --(5) read ]
+  lex:nextSymbol("]")
+  op.finished = true
+end
+
+--Read the next {name,name...} op.
+--
+--@param exp:Exp  Expression to update.
+function ExpParser:_readMPackOp(exp)
+  local lex = self._.lexer
+  local tok, op, clone
+
+  --(1) read {
+  tok = lex:nextSymbol("{")
+  self:_skipEols()
+
+  --(2) create op
+  tok.value = "{}"
+  op = PackOp.new(tok)
+  exp:insert(op)
+
+  --(3) read * if specified for {*} or {*,field,...}
+  tok = lex:advance()
+
+  if tok:isSymbol("*") or tok:isSymbol("**") then
+    clone = true
+    table.insert(op.children, {visib = ".", name = lex:nextSymbol().value, value = nil})
+    if not (lex:skipSymbol(",") or lex:skipEol()) and not lex:advance():isSymbol("}") then
+      self:_raise("',', end of line or '}' expected.", lex:advance())
+    end
+  else
+    clone = false
+  end
+
+  --(4) read fields
+  if not lex:advance():isSymbol("}") then
+    while true do
+      self:_skipEols()
+
+      if lex:advance():isSymbol("}") then
+        break
+      end
+
+      if lex:skipSymbol("...") then
+        tok = lex:current()
+
+        local val = Exp.new(tok.line, tok.col)
+        tok.value = "{}"
+        local pack = PackOp.new(tok)
+        val:insert(pack)
+
+        tok = lex:nextName()
+        pack:insert(Terminal.new(TerminalType.NAME, {line=tok.line, col=tok.col, value=tok.value}))
+
+        table.insert(op.children, {visib=".", name=nil, value=val, remove=false, rename=false})
+      elseif lex:skipSymbol("{") then
+        local name, val, dot
+
+        name = lex:nextId()
+        lex:nextSymbol("}")
+        lex:nextSymbol("=")
+        val = self:_readExp()
+
+        dot = BinOp.new({line=name.line, col=name.col, value="."})
+        val:insert(dot)
+        dot:insert(Terminal.new(TerminalType.NAME, {line=name.line, col=name.col, value=name.value}))
+
+        table.insert(op.children, {visib=".", name=name.value, value=val, remove=false, rename=false})
+      else
+        local visib, name, val, rm, rename
+
+        --remove the field?
+        rm = (clone and lex:skipSymbol("-"))
+        rename = false
+
+        --visibility?
+        tok = lex:advance()
+
+        if tok:isSymbol() and tablex.find({".", ":", "!"}, tok.value) then
+          lex:next()
+          visib = tok.value
+        else
+          visib = "."
+        end
+
+        --name
+        name = lex:nextId()
+
+        --value if needed
+        if rm then
+          val = nil
+        else
+          if lex:skipSymbol("=") then
+            val = self:_readExp()
+          elseif lex:skipSymbol("=>") then
+            rename = true
+            val = lex:nextId().value
+          else
+            if clone then --{*,field}
+              val = Exp.new(name.line, name.col)
+              val:insert(Terminal.new(TerminalType.NAME, {line=name.line, col=name.col, value=name.value}))
+            else          --{field}
+              val = nil
+            end
+          end
+        end
+
+        --insert into fields
+        table.insert(op.children, {visib=visib, name=name.value, value=val, remove=rm, rename=rename})
+      end
+
+      --end?
+      if lex:advance():isSymbol("}") then
+        break
+      end
+
+      --comma as separator
+      if not lex:skipSymbol(",") then
+        if not lex:skipEol() then
+          break
+        end
+      end
+    end
+  end
+
+  --(5) read }
+  lex:nextSymbol("}")
+  op.finished = true
+end
+
+--Read an update op: Exp.{} or Exp:{} or Exp!{}.
+function ExpParser:_readUpdateOp(exp)
+  local lex = self._.lexer
+  local tok, op
+
+  --(1) read .{ or :{ or !{
+  tok = lex:next()
+
+  if tok.value == "." then
+    tok.value = ".{}"
+    op = UpdateOp.new(tok, ".")
+  elseif tok.value == ":" then
+    tok.value = ".{}"
+    op = UpdateOp.new(tok, ":")
+  else
+    tok.value = ".{}"
+    op = UpdateOp.new(tok, "!")
+  end
+
+  lex:nextSymbol("{")
+
+  --(2) insert op in exp
+  exp:insert(op)
+
+  --(3) read fields
+  self:_skipEols()
+
+  while true do
+    local name, type, value, assign
+
+    --id, {id...} or (id...)
+    tok = lex:advance()
+
+    if tok:isSymbol() and (tok.value == "{" or tok.value == "(") then
+      type = (tok.value == "{" and "mapped" or "extended")
+      lex:next()
+      name = {}
+
+      while true do
+        table.insert(name, lex:nextId().value)
+
+        tok = lex:advance()
+        if tok:isSymbol(",") then
+          lex:next()
+        else
+          break
+        end
+      end
+
+      lex:nextSymbol(type == "mapped" and "}" or ")")
+    else
+      type = nil
+      name = lex:nextId().value
+    end
+
+    --=, ::=, .=, ?=
+    tok = lex:advance()
+
+    if tok:isSymbol() and tablex.find({"=", "::=", ".=", "?="}, tok.value) then
+      lex:next()
+      assign = tok.value
+      value = self:_readExp()
+    else
+      value, assign = nil, nil
+    end
+
+    --add field
+    table.insert(op.children, {name=name, type=type, assign=assign, value=value})
+
+    --end or next?
+    tok = lex:advance()
+
+    if tok:isSymbol(",") then
+      lex:nextSymbol(",")
+      self:_skipEols()
+    elseif tok:isNewline() then
+      self:_skipEols()
+
+      tok = lex:advance()
+      if tok:isSymbol("}") then
+        break
+      end
+    elseif tok:isSymbol("}") then
+      break
+    else
+      self:_raise("',' or '}' expected.", tok)
+    end
+  end
+
+  --(4) read }
+  lex:nextSymbol("}")
+  op.finished = true
+end
+
+--Read a XML expression.
+--
+--@return Exp
+function ExpParser:_readXmlExp()
+  local lex = self._.lexer
+
+  --(1) pre: #!react set in the file previously
+  if not self._.parser._.options.react then
+    self:_raise("XML only when #!react specified.", lex:advance())
+  end
+
+  --(2) read
+  local tok = lex:advance()
+  return XmlExp.new(tok.line, tok.col, self:_readLiteralXml())
+end
+
+--Read a literal XML: <e>...</e> or <e/>.
+--
+--@return LiteralXml
+function ExpParser:_readLiteralXml()
+  local lex = self._.lexer
+  local tok, ln, col, ele, props, body
+
+  --(1) read <
+  tok = lex:nextSymbol("<")
+  ln, col = tok.line, tok.col
+
+  --(2) read name
+  ele = self:_nextPath()
+
+  --(3) read props
+  props = {}
+
+  while true do
+    local name, val
+
+    --skip end of line
+    lex:skipEol()
+
+    --end?
+    tok = lex:advance()
+    if tok and tok:isSymbol(">") or tok:isSymbol("/>") then
+      break
+    end
+
+    --name or ...name
+    if lex:skipSymbol("...") then
+      if lex:advance():isSymbol("(") then
+        val = self:_readSubExp()
+      else
+        val = Terminal.new(TerminalType.NAME, lex:nextId())
+      end
+
+      name = nil
+    else
+      local unpack
+
+      if lex:skipSymbol("{") then
+        unpack = true
+        name = lex:nextId()
+        lex:skipSymbol("}")
+      else
+        unpack = false
+        name = lex:nextId()
+      end
+
+      --value
+      if lex:skipSymbol("=") then
+        tok = lex:advance()
+
+        if tok:isSymbol("{") then
+          val = Exp.new(tok.line, tok.col)
+          val:insert(self:_readLiteralMapWithBrackets())
+        elseif tok:isSymbol("[") then
+          val = Exp.new(tok.line, tok.col)
+          val:insert(self:_readLiteralList())
+        elseif tok:isKeyword("fn") or tok:isKeyword("async") then
+          val = Exp.new(tok.line, tok.col)
+          val:insert(self:_readFn())
+        elseif tok:isKeyword("true") then
+          lex:next()
+          val = Exp.new(tok.line, tok.col)
+          val:insert(Terminal.new(TerminalType.TRUE, tok))
+        elseif tok:isKeyword("false") then
+          lex:next()
+          val = Exp.new(tok.line, tok.col)
+          val:insert(Terminal.new(TerminalType.FALSE, tok))
+        elseif tok:isNum() then
+          lex:next()
+          val = Exp.new(tok.line, tok.col)
+          val:insert(Terminal.new(TerminalType.NUM, tok))
+        elseif tok:isText() then
+          lex:next()
+          val = Exp.new(tok.line, tok.col)
+          val:insert(Terminal.new(TerminalType.TEXT, tok))
+        elseif tok:isId() then
+          lex:next()
+          val = Exp.new(tok.line, tok.col)
+          val:insert(Terminal.new(TerminalType.NAME, tok))
+        else
+          lex:nextSymbol("(")
+          val = self:_readExp()
+          lex:nextSymbol(")")
+        end
+      else
+        val = Exp.new(name.line, name.col)
+        val:insert(Terminal.new(TerminalType.NAME, {line = name.line, col = name.col, value = name.value}))
+      end
+
+      if unpack then
+        local op = BinOp.new({line=name.ln, col=name.col, value = "."})
+        val:insert(op)
+        op:insert(Terminal.new(TerminalType.NAME, {line=name.line, col=name.col, value=name.value}))
+      end
+    end
+
+    --insert
+    table.insert(props, {name=name and name.value or nil, value=val})
+  end
+
+  --(4) read content and/or end
+  body = {}
+
+  tok = lex:advance()
+  if tok:isSymbol("/>") then
+    lex:nextSymbol("/>")
+  else  --if tok:isSymbol(">") then
+    lex:nextSymbol(">")
+    self:_skipEols()
+
+    tok = lex:advance()
+    if tok:isSymbol("</") then
+      lex:nextSymbol("</")
+    elseif tok:isSymbol("<") or tok:isSymbol("(") then
+      while not lex:skipSymbol("</") do
+        tok = lex:advance()
+        if tok:isSymbol("<") then
+          table.insert(body, self:_readLiteralXml())
+        elseif tok:isSymbol("(") then
+          table.insert(body, self:_readSubExp())
+        else
+          self:_raise("'<' or '(' expected.", tok)
+        end
+
+        self:_skipEols()
+      end
+    else
+      table.insert(body, self:_readExp())
+      self:_skipEols()
+      lex:nextSymbol("</")
+    end
+
+    self:_nextPath(ele)
+    lex:nextSymbol(">")
+  end
+
+  --(5) return
+  return LiteralXml.new(ln, col, ele, props, body)
+end

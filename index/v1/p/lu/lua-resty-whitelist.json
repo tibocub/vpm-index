@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-whitelist",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "resty.iputils",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "resty.iputils >= 0.3",
+        "resty.http >= 0.15"
+      ],
+      "files": {
+        "resty/whitelist.lua": {
+          "sha256": "2adde224c34b48a42328f75baa70fe278333bcb87564e6fb16ebb7e04532b8a7",
+          "size": 4779,
+          "url": "https://raw.githubusercontent.com/esidate/lua-resty-whitelist/ccd2926b5d55c6628290908345c00df9efa75636/lib/resty/whitelist.lua"
+        }
+      },
+      "homepage": "https://github.com/esidate/lua-resty-whitelist",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 18 Sep 2022 17:49:40 GMT",
+        "rockspec": {
+          "date": "Sun, 18 Sep 2022 17:49:40 GMT",
+          "sha256": "b9b57e8c5ed45f6500f4982844934520731d3275030a715a766ea632ad183bb3",
+          "size": 1002
+        },
+        "src": {
+          "date": "Sun, 18 Sep 2022 17:49:42 GMT",
+          "sha256": "12f314b26a1cd78dd93c03beba7e5692195b8518c26a322042fac8b18deacbff",
+          "size": 6508,
+          "url": "https://luarocks.org/lua-resty-whitelist-0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.whitelist"
+      ],
+      "origin": {
+        "commit": "ccd2926b5d55c6628290908345c00df9efa75636",
+        "ref": "v0.1-0",
+        "type": "git",
+        "url": "https://github.com/esidate/lua-resty-whitelist"
+      },
+      "size": 4779,
+      "summary": "Dynamic whitelist in Lua based on ngx_lua for NGINX and OpenResty",
+      "undeclared_requires": [
+        "resty.http",
+        "resty.iputils"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

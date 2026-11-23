@@ -1,0 +1,274 @@
+
+local sfs = require 'sfs'
+local utils = require 'lrocket.utils'
+
+local function parseargs(args)
+	local vargs = {}
+	for arg in args:sub(2,-2):gmatch "[^,]+" do
+		vargs[#vargs+1] = arg
+	end
+	return table.unpack(vargs)
+end
+
+---@param str string
+---@param defs table
+---@return string
+local function subst(str, defs)
+	local res, n = str, 1
+	while n > 0 do
+		n = 0
+		res = res:gsub("%f[%a_#](#?)([%w_]+)%f[^%w_]", function (literalize, name)
+			local value = name
+			if type(defs[name]) == 'string' then
+				n = n + 1
+				value = defs[name]
+				if literalize == '#' then
+					value = string.format('%q', value)
+				end
+			end
+			return value
+		end):gsub("%f[%a_#](#?)([%w_]+)%f[^%w_](%b())", function(literalize, name, args)
+			local value = literalize..name..args
+			if type(defs[name]) == 'function' then
+				n = n + 1
+				value = defs[name](parseargs(args))
+				if literalize == '#' then value = string.format('%q', value) end
+			end
+			return value
+		end)	end
+	return res
+end
+
+local function collect(header, vm)
+	header = header:gsub("//[^\n]*\n?", ""):gsub("/%*.-%*/", "")
+
+	local curcmd
+	local other = {}
+	for line in header:gmatch "[^\n\r]+" do
+		local begin, cmd, nextline = line:match "^(#?)(.-)(\\?)$"
+
+		if begin == '#' then
+			curcmd = '#'..cmd
+		elseif curcmd then
+			curcmd = curcmd..' '..cmd
+		end
+
+		if nextline == '' and curcmd then
+			local command, payload = curcmd:match "^#(%w+)%s*(.*)$"
+
+			local exec = vm["e_"..command]
+			if exec then exec(vm, payload) end
+
+			curcmd = nil
+		elseif not curcmd then
+			other[#other+1] = line
+		end
+	end
+
+	return table.concat(other, '\n')
+end
+
+---@class lrocket.PreprocessorVM
+local VM = {} do
+	VM.__index = VM
+
+	local function split(tokens, i, ...)
+		local tok = select(i, ...)
+		if not tok or #tokens <= 1 then return tokens[1] end
+
+		local node = {
+			a = {},
+			b = {}
+		}
+
+		local target = 'a'
+
+		for i = 1, #tokens do
+			local item = tokens[i]
+			if target == 'a' and type(item) == 'string' and item:match(tok) then
+				node.tok = tokens[i]
+				item = nil
+				target = 'b'
+			end
+			table.insert(node[target], item)
+		end
+
+		if #node.b == 0 then
+			return split(node.a, i+1, ...)
+		else
+			node.a = split(node.a, i+1, ...)
+			node.b = split(node.b, i, ...)
+
+			return node
+		end
+	end
+
+	local function tokenize(str)
+		local i = 1
+		local tokens = {}
+		while i <= #str do
+			local match
+			match, i = utils.matchpatterns(str, i,
+				"%s+",
+				"%d+",
+				"defined%(%s*[%w_]+%s*%)",
+				"&&",
+				"||",
+				"!",
+				"."
+			)
+
+			if not match then break end
+
+			if not match:find "^%s+$" then
+				if match:find '^%(' then
+					tokens[#tokens+1] = tokenize(match:sub(2,-2))
+				elseif tonumber(match) then
+					tokens[#tokens+1] = tonumber(match)
+				else
+					tokens[#tokens+1] = match
+				end
+			end
+		end
+
+		return tokens
+	end
+
+	function VM:_eval(node)
+		if type(node) == 'number' then return node > 0
+		elseif type(node) == 'string' then
+			local var = node:match "defined%(%s*([%w_]+)%s*%)"
+			return not not self.defs[var]
+		elseif type(node) ~= 'table' then
+			return node
+		end
+
+		local a, b = self:_eval(node.a), self:_eval(node.b)
+		if node.tok == '||' then
+			return a or b
+		elseif node.tok == '&&' then
+			return a and b
+		elseif node.tok == '!' then
+			return not b
+		end
+	end
+
+	function VM:eval(cond)
+		local tokens = tokenize(cond)
+
+		local tree = split(tokens, 1, '||', '&&', '!')
+
+		return self:_eval(tree)
+	end
+
+	function VM:init(defs, inc)
+		self.include = inc or {}
+		self.defs = defs
+		self.ifstack = { 1 }
+
+		return self
+	end
+
+	function VM:e_if(cond)
+		if self:silent() then
+			self.ifstack[#self.ifstack+1] = -1
+		else
+			self.ifstack[#self.ifstack+1] = self:eval(cond) and 1 or 0
+		end
+	end
+
+	function VM:e_elif(cond)
+		if self.ifstack[#self.ifstack] == 0 then
+			self.ifstack[#self.ifstack] = self:eval(cond) and 1 or 0
+		else
+			self.ifstack[#self.ifstack] = -1
+		end
+	end
+
+	function VM:e_endif()
+		self.ifstack[#self.ifstack] = nil
+	end
+
+	function VM:silent()
+		return self.ifstack[#self.ifstack] <= 0
+	end
+
+	function VM:e_else() self:e_elif("1") end
+	function VM:e_ifdef(sym) self:e_if("defined("..sym..")") end
+	function VM:e_ifndef(sym) self:e_if("!defined("..sym..")") end
+
+	function VM:e_define(payload)
+		if self:silent() then return end
+		local name, rest = payload:match "^([%w_]+)%s*(.*)$"
+		local args, replstr = rest:match "^(%b())%s*(.*)$"
+		if args then
+			self.defs[name] = function (...)
+				local vargs = { ... }
+				local vals = {}
+				local i = 1
+				for arg in args:sub(2,-2):gmatch "[^,]+" do
+					vals[arg] = tostring(vargs[i])
+					i = i + 1
+				end
+				return subst(replstr, vals)
+			end
+		else
+			self.defs[name] = rest
+		end
+	end
+
+	function VM:e_include(path)
+		if self:silent() then return end
+
+		local name = path:match '%b""'
+
+		if not name then return end
+
+		name = name:sub(2,-2)
+
+		local notfound = {}
+		for i = 1, #self.include do
+			local fullpath = sfs.combine(self.include[i], name)
+			if sfs.isFile(fullpath) then
+				collect(sfs.read(fullpath), self)
+				return
+			else
+				notfound[#notfound+1] = fullpath
+			end
+		end
+
+		error("could not resolve include '"..name.."':\n\t"..table.concat(notfound, '\n\t'))
+	end
+end
+
+local function concatstr(header)
+	local subst = {}
+	for line in header:gmatch "[^\n]+" do
+		local i = line:find '"'
+		local res = { not i and line or nil }
+		while i and i <= #line do
+			local j = line:find('"()', i+1)
+			while line:sub(j-1) == '\\' and line:sub(j-2) ~= '\\' do
+				j = line:find('"()', j+1)
+			end
+			if j then
+				res[#res+1] = line:sub(i+1,j-1)
+				i = line:find('"', j+1)
+			else
+				break
+			end
+		end
+		subst[#subst+1] = '"'..table.concat(res)..'"'
+	end
+
+	return table.concat(subst, "\n")
+end
+
+return function (header, inc, defs)
+	inc = inc or {}
+	defs = defs or {}
+	local vm = setmetatable({}, VM):init(defs, inc)
+	header = collect(header, vm)
+	header = subst(header, vm.defs)
+	return header
+end

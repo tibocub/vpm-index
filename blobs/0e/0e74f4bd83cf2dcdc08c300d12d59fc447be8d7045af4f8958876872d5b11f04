@@ -1,0 +1,156 @@
+local openssl = require 'openssl'
+
+local util = {}
+
+-- Fallback RequestId source for when HAProxy doesn't provide a unique id
+-- (e.g. no unique-id-format configured). Timestamp (seconds resolution) plus
+-- 74 bits of randomness is unique enough for that purpose even without
+-- millisecond precision.
+function util.uuidv7()
+    local ms = math.floor(os.time() * 1000)
+    local rand = openssl.random(10)
+    local r = { rand:byte(1, 10) }
+
+    local bytes = {}
+    for i = 6, 1, -1 do
+        bytes[i] = ms % 256
+        ms = math.floor(ms / 256)
+    end
+    bytes[7] = 0x70 + (r[1] % 16) -- version 7
+    bytes[8] = r[2]
+    bytes[9] = 0x80 + (r[3] % 64) -- variant 10xxxxxx
+    bytes[10] = r[4]
+    bytes[11] = r[5]
+    bytes[12] = r[6]
+    bytes[13] = r[7]
+    bytes[14] = r[8]
+    bytes[15] = r[9]
+    bytes[16] = r[10]
+
+    local hex = {}
+    for i = 1, 16 do
+        hex[i] = string.format("%02x", bytes[i])
+    end
+    local s = table.concat(hex)
+    return string.format("%s-%s-%s-%s-%s", s:sub(1, 8), s:sub(9, 12), s:sub(13, 16), s:sub(17, 20), s:sub(21, 32))
+end
+
+-- Sub-second clock for measuring request duration. core.now() (HAProxy's
+-- Lua clock, {sec=, usec=}) is preferred for millisecond precision; falls
+-- back to os.time() where core isn't available (e.g. unit tests).
+function util.now()
+    if core and core.now then
+        local ok, t = pcall(core.now)
+        if ok and t and t.sec then
+            return t.sec + (t.usec or 0) / 1e6
+        end
+    end
+    return os.time()
+end
+
+-- Calls fn and returns its value, or nil if fn errors.
+function util.safe_call(fn)
+    local ok, value = pcall(fn)
+    if ok then
+        return value
+    end
+    return nil
+end
+
+function util.header_value(headers, name, default)
+    local value = headers and headers[name]
+    return (value and value[0]) or default
+end
+
+-- Splits a comma-separated header value (e.g. X-Forwarded-For) and returns
+-- the trimmed element at index (0-based; negative counts from the end), or
+-- nil if that slot is out of range or empty.
+local function indexed_header_value(value, index)
+    local parts = {}
+    for part in (value .. ","):gmatch("(.-),") do
+        parts[#parts + 1] = part:match("^%s*(.-)%s*$")
+    end
+
+    local lua_index = index >= 0 and (index + 1) or (#parts + index + 1)
+    local selected = parts[lua_index]
+    if not selected or selected == "" then
+        return nil
+    end
+    return selected
+end
+
+-- Resolves the client IP from a configured header (e.g. behind a proxy/CDN
+-- that sets X-Forwarded-For or a similar header), falling back to
+-- fallback_ip whenever the header isn't configured, missing, empty, or the
+-- selected element is out of range/empty. Defaults to the last
+-- comma-separated element (index -1) when no index is given, since that's
+-- the entry appended by the nearest (presumably trusted) proxy rather than
+-- an arbitrary, client-spoofable value earlier in the chain.
+function util.resolve_client_ip(hdr, fallback_ip, real_ip_header, real_ip_header_index)
+    if not real_ip_header or real_ip_header == "" then
+        return fallback_ip
+    end
+
+    local value = hdr(real_ip_header:lower())
+    if not value or value == "" then
+        return fallback_ip
+    end
+
+    return indexed_header_value(value, real_ip_header_index or -1) or fallback_ip
+end
+
+-- Splits a Cookie header into its semicolon-delimited pairs, trimming
+-- surrounding whitespace, so cookie names are compared literally rather
+-- than treated as Lua patterns and matched as substrings.
+function util.find_cookie(cookie_header, cookie_name)
+    if not cookie_header then
+        return nil
+    end
+    for pair in (cookie_header .. ";"):gmatch("%s*(.-)%s*;") do
+        local name, value = pair:match("^([^=]+)=(.*)$")
+        if name == cookie_name then
+            return value or ""
+        end
+    end
+    return nil
+end
+
+function util.extract_cookie_value(cookie_header, cookie_name)
+    return util.find_cookie(cookie_header, cookie_name) or ""
+end
+
+-- Validates an HTTP(S) URL's scheme and host[:port], rejecting embedded
+-- userinfo, oversized/malformed hosts, and IPv6 literals (not supported).
+-- Returns scheme, host, path, or nil plus an error message on failure.
+function util.parse_url_authority(url)
+    local scheme, authority, path = url:match("^([hH][tT][tT][pP][sS]?)://([^/?#]*)(.*)$")
+    if not scheme or authority == "" then
+        return nil, nil, nil, "invalid URL: malformed scheme or host"
+    end
+    if #authority > 255 then
+        return nil, nil, nil, "invalid URL: host too long"
+    end
+    if authority:find("@", 1, true) then
+        return nil, nil, nil, "invalid URL: unexpected '@' in host"
+    end
+
+    local host, port = authority:match("^([%w%-%.]+)(:?%d*)$")
+    if not host or host == "" then
+        return nil, nil, nil, "invalid URL: malformed host"
+    end
+    if port ~= "" then
+        local port_num = tonumber(port:sub(2))
+        if not port_num or port_num < 1 or port_num > 65535 then
+            return nil, nil, nil, "invalid URL: malformed port"
+        end
+    end
+    for label in (host .. "."):gmatch("(.-)%.") do
+        if label == "" or #label > 63 or label:sub(1, 1) == "-" or label:sub(-1) == "-" then
+            return nil, nil, nil, "invalid URL: malformed host"
+        end
+    end
+
+    return scheme, host .. port, path, nil
+end
+
+return util

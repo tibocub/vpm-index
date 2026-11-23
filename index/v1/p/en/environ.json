@@ -1,0 +1,121 @@
+{
+  "kind": "lib",
+  "name": "environ",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "lpeg"
+      ],
+      "files": {
+        "environ.lua": {
+          "sha256": "da12c008e5c3bd31b762a007a7b450a2177d50622f1274d53907b5abb3b60f19",
+          "size": 287,
+          "url": "blob:da12c008e5c3bd31b762a007a7b450a2177d50622f1274d53907b5abb3b60f19"
+        },
+        "environ/process.lua": {
+          "sha256": "ffec39ed6f99ba0f018277136e61602f0edf026f37b9b8f4e8d1cf841210bb9b",
+          "size": 1679,
+          "url": "blob:ffec39ed6f99ba0f018277136e61602f0edf026f37b9b8f4e8d1cf841210bb9b"
+        },
+        "environ/system.lua": {
+          "sha256": "48024c63697cab2c0d709a51daa83d3d2b1fb4baaa17fb4b638a7dddafa35e36",
+          "size": 230,
+          "url": "blob:48024c63697cab2c0d709a51daa83d3d2b1fb4baaa17fb4b638a7dddafa35e36"
+        },
+        "environ/user.lua": {
+          "sha256": "29387d7515ba683950b6a8774bbbb75a2492b965ab5906334c4b9ff6dd1c503d",
+          "size": 229,
+          "url": "blob:29387d7515ba683950b6a8774bbbb75a2492b965ab5906334c4b9ff6dd1c503d"
+        },
+        "environ/utils.lua": {
+          "sha256": "3f5738facf6278d66fad310bffb70ed7bdf6262658559459be7470a454cf6420",
+          "size": 2305,
+          "url": "blob:3f5738facf6278d66fad310bffb70ed7bdf6262658559459be7470a454cf6420"
+        },
+        "environ/volatile.lua": {
+          "sha256": "e8c2ff16d1e8857080ce9487414e3bb1485c9a516b84784c3f8a0fb808045f96",
+          "size": 237,
+          "url": "blob:e8c2ff16d1e8857080ce9487414e3bb1485c9a516b84784c3f8a0fb808045f96"
+        },
+        "environ/win32/reg.lua": {
+          "sha256": "0a4c095c8aa96ab79af9743951d7b920aad968da3811dbcae68fe6868ba0bb90",
+          "size": 2694,
+          "url": "blob:0a4c095c8aa96ab79af9743951d7b920aad968da3811dbcae68fe6868ba0bb90"
+        },
+        "environ/win32/system.lua": {
+          "sha256": "90f02669257d135d064b3a5e3904fae8bc6b5f964698e34ac186c52c7a7a872a",
+          "size": 2197,
+          "url": "blob:90f02669257d135d064b3a5e3904fae8bc6b5f964698e34ac186c52c7a7a872a"
+        }
+      },
+      "homepage": "http://github.com/moteus/lua-environ",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Wed, 09 Nov 2016 11:43:16 GMT",
+        "rockspec": {
+          "date": "Wed, 09 Nov 2016 11:43:16 GMT",
+          "sha256": "f33d1a1851a5a508ba5a5ec623787e92ffcd221abbca780625521f3ca8960c01",
+          "size": 1254
+        },
+        "src": {
+          "date": "Wed, 09 Nov 2016 11:43:18 GMT",
+          "sha256": "5c446e0ce22214f5e170b584e544d275ba79259bb0ae6a288960d51045dca115",
+          "size": 14075,
+          "url": "https://luarocks.org/environ-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "environ",
+        "environ.core",
+        "environ.process",
+        "environ.system",
+        "environ.user",
+        "environ.utils",
+        "environ.volatile",
+        "environ.win32.reg",
+        "environ.win32.system"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "environ.core",
+              "sources": [
+                "src/environ.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-environ-0.1.0"
+      },
+      "origin": {
+        "date": "Wed, 09 Nov 2016 11:43:18 GMT",
+        "sha256": "5c446e0ce22214f5e170b584e544d275ba79259bb0ae6a288960d51045dca115",
+        "size": 14075,
+        "type": "luarocks",
+        "url": "https://luarocks.org/environ-0.1.0-1.src.rock"
+      },
+      "size": 9858,
+      "summary": "Manipulate with environment variables",
+      "undeclared_requires": [
+        "winreg"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 4,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

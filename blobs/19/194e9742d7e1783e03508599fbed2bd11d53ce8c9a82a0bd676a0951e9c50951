@@ -1,0 +1,7 @@
+local compile = require 'tformat.compile'
+
+local function tformat(format, arguments)
+  return compile(format)(arguments)
+end
+
+return tformat

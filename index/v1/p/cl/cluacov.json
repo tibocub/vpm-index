@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "cluacov",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "luacov >= 0.13.0"
+      ],
+      "files": {
+        "cluacov/version.lua": {
+          "sha256": "9fdc728dc9663386fb09f9936de87fcd14bd1da37f569d9ca4498e15a9d38cd9",
+          "size": 270,
+          "url": "blob:9fdc728dc9663386fb09f9936de87fcd14bd1da37f569d9ca4498e15a9d38cd9"
+        }
+      },
+      "homepage": "https://github.com/lunarmodules/cluacov",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 06 Feb 2026 23:04:13 GMT",
+        "rockspec": {
+          "date": "Fri, 06 Feb 2026 23:04:13 GMT",
+          "sha256": "8dabe74e5d4b8b7ebe4980858fb1726b0009e06fca727cf9b14eab23ad4378d1",
+          "size": 1139
+        },
+        "src": {
+          "date": "Fri, 06 Feb 2026 23:04:13 GMT",
+          "sha256": "eac49f2fb16e343df884c1f3f6f4a4c4eacf14aef9f18f23ca03d52bc2bdb13b",
+          "size": 96959,
+          "url": "https://luarocks.org/cluacov-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "cluacov.deepactivelines",
+        "cluacov.hook",
+        "cluacov.version"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "cluacov.deepactivelines",
+              "sources": [
+                "src/cluacov/deepactivelines.c"
+              ]
+            },
+            {
+              "name": "cluacov.hook",
+              "sources": [
+                "src/cluacov/hook.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 06 Feb 2026 23:04:13 GMT",
+        "sha256": "eac49f2fb16e343df884c1f3f6f4a4c4eacf14aef9f18f23ca03d52bc2bdb13b",
+        "size": 96959,
+        "type": "luarocks",
+        "url": "https://luarocks.org/cluacov-1.0.0-1.src.rock"
+      },
+      "size": 270,
+      "summary": "C extensions for LuaCov",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "ok",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,175 @@
+local misc = require("irc.misc")
+
+local irc = {}
+irc.__index = irc
+
+---@param sendFunc function(data: string)
+---@return table?
+function irc.new(sendFunc)
+	if not sendFunc or type(sendFunc) ~= "function" then
+		return error("sendFunc must be a function.")
+	end
+
+	local self = setmetatable({}, irc)
+	self.sendFunc = sendFunc
+	return self
+end
+
+---@param m string
+function irc:send(m)
+	self.sendFunc(m .. "\r\n")
+end
+
+---@param username string
+---@param realname string
+function irc:registerUser(username, realname)
+	self:send("USER " .. username .. " 0 * :" .. realname)
+end
+
+---@param nick string
+function irc:nick(nick)
+	self:send("NICK " .. nick)
+end
+
+---@param ch string
+function irc:join(ch)
+	self:send("JOIN " .. ch)
+end
+
+---@param chan string
+---@param msg string
+function irc:chat(chan, msg)
+	if not msg then
+		return
+	end
+
+	self:send("PRIVMSG " .. chan .. " :" .. msg)
+end
+
+---@param chan string
+---@param msg string
+function irc:notice(chan, msg)
+	if not msg then
+		return
+	end
+
+	self:send("NOTICE " .. chan .. " :" .. msg)
+end
+
+-- check whenever the incomming data is a PING message from the server &
+-- whenever this function has responded that ping automatically with PONG
+---@param line string
+---@return boolean
+function irc:pong(line)
+	if #line >= 4 and string.sub(line, 0, 4) == "PING" then
+		self:send("PONG " .. string.sub(line, 6))
+		return true
+	else
+		return false
+	end
+end
+
+---@param text string
+---@param code number
+---@return boolean
+function irc.isSrvCode(text, code)
+	local i = 0
+	for msg in string.gmatch(text, "%S+") do
+		if i == 1 and tonumber(msg) == code then
+			return true
+		elseif i >= 1 then
+			return false
+		end
+		i = i + 1
+		---@diagnostic disable: missing-return
+	end
+end
+
+-- get the RPL code from server.
+-- returns number if available, nil if none.
+---@param text string
+---@return number?
+function irc.getSrvCode(text)
+	local i = 0
+	for msg in string.gmatch(text, "%S+") do
+		if i == 1 then
+			return tonumber(msg)
+		elseif i >= 1 then
+			return nil
+		end
+		i = i + 1
+	end
+end
+
+-- checks whenever the server has greeted us.
+-- an alias for irc.isSrvCode(text, 001)
+---@param text string
+---@return boolean
+function irc.welcome(text)
+	return irc.isSrvCode(text, 001)
+end
+
+-- checks whenever the server says that the current nick
+-- has already being used & cannot be assigned.
+-- an alias for irc.isSrvCode(text, 433)
+function irc.nicknameIsUsed(text)
+	return irc.isSrvCode(text, 433)
+end
+
+function irc.cutIRCPrefixMSG(line)
+	local s = string.sub(line, 1, 1)
+	local withprefix = s == ":"
+	if withprefix then
+		return string.sub(line, 2), true
+	else
+		return line, false
+	end
+end
+
+---@class User
+---@field mask string
+---@field nick string?
+---@field ident string?
+---@field host string?
+
+---@return User user
+---@return string cmd
+---@return string[] args
+---@return string fullmsg
+function irc.parseLine(line)
+	local cutted = irc.cutIRCPrefixMSG(line)
+	local mask, c = misc.strcut(cutted, " ") -- c -> cutted string separated from ident
+
+	local excl = string.find(mask, "!") -- limiter for Nick!Ident@host
+	local at = string.find(mask, "@") -- host
+
+	local user = {
+		mask = mask,
+	}
+
+	if excl and at then
+		user.nick = string.sub(mask, 0, excl - 1)
+		user.ident = string.sub(mask, excl + 1, at - 1)
+		user.host = string.sub(mask, at + 1)
+	end
+
+	local cmds, fullmsg = misc.strcut(c, " :")
+	local cmdsep = string.find(cmds, " ")
+
+	local cmd = ""
+	local flags = {}
+
+	if cmdsep then
+		cmd = string.sub(cmds, 0, cmdsep - 1)
+		local flagsmsg = string.sub(cmds, cmdsep + 1)
+		for flag in string.gmatch(flagsmsg, "%S+") do
+			table.insert(flags, flag)
+		end
+	else
+		cmd = cmds
+	end
+
+	return user, cmd, flags, fullmsg
+end
+
+return irc

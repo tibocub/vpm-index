@@ -1,0 +1,198 @@
+local function tool_status(name)
+   name = name or "?"
+   return "tool:" .. name:sub(1, 27)
+end
+
+local function command_status(name)
+   name = name or "?"
+   -- `/compact` is the one command whose work is worth naming: it is slow, and
+   -- it is the reason a command needs a status at all.
+   if name == "compact" then return "compacting" end
+   if name == "!" or name == "!!" then return "shell" end
+   return "cmd:" .. name:sub(1, 28)
+end
+
+return {
+   name = "herdr",
+   activate = function()
+      local pane_id = os.getenv("HERDR_PANE_ID")
+      if os.getenv("HERDR_ENV") ~= "1" or not pane_id or pane_id == "" then return end
+
+      local panto = require("panto")
+      local uv = require("luv")
+      -- A panto launched from this one's shell (a `panto -p` test, say)
+      -- inherits HERDR_PANE_ID. Its reports would claim this pane and its exit
+      -- would release it, so only the outermost panto in a pane reports. The
+      -- marker names the owning process: `/new` re-activates extensions in
+      -- the same process, and that panto must keep reporting.
+      local owner = pane_id .. "@" .. string.format("%.0f", uv.os_getpid())
+      local inherited = os.getenv("PANTO_HERDR_OWNER")
+      local nested = inherited ~= owner and (inherited or ""):match("^(.*)@") == pane_id
+      if not nested then uv.os_setenv("PANTO_HERDR_OWNER", owner) end
+      -- Herdr orders reports by source and sequence. Seed each process from
+      -- wall time so a restarted panto cannot be shadowed by the prior
+      -- process's larger sequence numbers.
+      local seconds, micros = uv.gettimeofday()
+      local seq = seconds * 1000000 + micros
+      local binary = os.getenv("HERDR_BIN_PATH")
+      if not binary or binary == "" then binary = "herdr" end
+      local last_state
+      local last_status
+      local last_session = false
+      local last_path
+      local latest = {}
+      local guidance_added = false
+      local foreground_working = false
+      local foreground_status
+      local background_work = 0
+
+      local function spawn(args, report_seq, retry)
+         if nested then return end
+         local function failed(reason)
+            -- Never retry an obsolete state over a newer report or release.
+            if report_seq ~= latest[args[2]] then return end
+            if not retry then return spawn(args, report_seq, true) end
+            last_state, last_status, last_session, last_path = nil, nil, false, nil
+            -- panto contains and logs event/callback errors.
+            error("panto-herdr: " .. args[2] .. " failed: " .. tostring(reason))
+         end
+         local handle
+         local ok, result, err = pcall(function()
+            return uv.spawn(binary, { args = args, stdio = { nil, nil, nil } }, function(code, signal)
+               if handle then handle:close() end
+               if code ~= 0 or signal ~= 0 then
+                  failed("exit " .. tostring(code) .. ", signal " .. tostring(signal))
+               end
+            end)
+         end)
+         if ok then handle = result end
+         if not handle then failed(ok and err or result) end
+      end
+
+      local function metadata(session_id, path)
+         seq = seq + 1
+         local args = { "pane", "report-metadata", pane_id,
+            "--source", "panto:session", "--seq", string.format("%.0f", seq) }
+         for _, item in ipairs({ { "panto_session_id", session_id }, { "panto_session_path", path } }) do
+            args[#args + 1] = item[2] and "--token" or "--clear-token"
+            args[#args + 1] = item[2] and (item[1] .. "=" .. item[2]) or item[1]
+         end
+         latest[args[2]] = seq
+         spawn(args, seq)
+      end
+
+      local function report(state, status)
+         local info = panto.ext.session_info()
+         local session_id = info and info.session_id
+         if session_id == "" then session_id = nil end
+         local path = session_id and info.session_dir and info.session_dir ~= ""
+            and (info.session_dir:gsub("/$", "") .. "/" .. session_id .. ".jsonl") or nil
+         local identity_changed = session_id ~= last_session or path ~= last_path
+         if state == last_state and status == last_status and not identity_changed then return end
+         last_state, last_status, last_session, last_path = state, status, session_id, path
+         seq = seq + 1
+
+         local args = {
+            "pane", "report-agent", pane_id,
+            "--source", "panto:extension",
+            "--agent", "panto",
+            "--state", state,
+            "--seq", string.format("%.0f", seq),
+         }
+         if status then
+            args[#args + 1] = "--message"
+            args[#args + 1] = status
+         end
+
+         latest[args[2]] = seq
+         spawn(args, seq)
+         if identity_changed then metadata(session_id, path) end
+      end
+
+      local function release()
+         seq = seq + 1
+         latest["report-agent"], latest["release-agent"] = seq, seq
+         spawn({
+            "pane", "release-agent", pane_id,
+            "--source", "panto:extension",
+            "--agent", "panto",
+            "--seq", string.format("%.0f", seq),
+         }, seq)
+         metadata(nil, nil)
+      end
+
+      local function update_idle_state()
+         if foreground_working or background_work > 0 then
+            report("working", foreground_working and foreground_status or "background")
+         else
+            report("idle")
+         end
+      end
+
+      local function foreground(status)
+         foreground_working, foreground_status = true, status
+         update_idle_state()
+      end
+
+      panto.ext.on("session_ready", function()
+         foreground_working, foreground_status, background_work = false, nil, 0
+         local ok, err = pcall(function()
+            if guidance_added then return end
+            -- The borrowed conversation builder does not persist ambient context.
+            panto.ext.agent:conversation():add_system_message([[Panto in Herdr:
+Panto is a custom-reported agent, not a built-in Herdr kind. Do not use
+`herdr agent start`, `agent prompt`, or `agent send-keys` for panto, even
+if `agent list/get/wait/rename` recognizes it. Use `pane run` to launch
+panto; wait with `agent wait <id> --until idle --until done --timeout 30000`
+and inspect its UI before input. Then `pane run <id> <prompt>` submits text
+with bracketed paste and Enter. Use `pane send-keys` for interactive keys.
+Check the target before sending input; pane commands bypass agent approval
+guards. Never answer an approval/question without user authorization. Preserve
+any explicitly requested panto model with `-m provider:model`.
+Pane tokens `panto_session_id` and `panto_session_path` identify the session
+for transcript reads. Native session references and automatic Herdr
+restart/resume are not supported for panto. Use panto subagents and Lua
+workflows for delegated work, not extra terminals unless requested.]])
+            guidance_added = true
+         end)
+         update_idle_state()
+         if not ok then error(err) end
+      end)
+      panto.ext.on("turn_start", function() foreground("thinking") end)
+      panto.ext.on("agent_submission", function() foreground("thinking") end)
+      panto.ext.on("render_thinking", function() foreground("thinking") end)
+      -- Slash and shell commands run outside the turn lifecycle, so they need
+      -- their own bracket; `/compact` is slow enough that the gap showed as idle.
+      panto.ext.on("command_start", function(event)
+         foreground(command_status(event.command_name))
+      end)
+      panto.ext.on("command_end", function()
+         foreground_working, foreground_status = false, nil
+         update_idle_state()
+      end)
+      -- `render_compaction` fires when a summary block lands, i.e. after the work, so
+      -- it is never the thing that starts `compacting`. Report it only when
+      -- something already has work open (the turn that auto-compacted, or the
+      -- `/compact` command).
+      panto.ext.on("render_compaction", function()
+         if foreground_working then foreground("compacting") end
+      end)
+      panto.ext.on("render_tool_details", function(event)
+         foreground(tool_status(event.tool_name))
+      end)
+      panto.ext.on("render_assistant_text", function() foreground("responding") end)
+      panto.ext.on("turn_end", function()
+         foreground_working, foreground_status = false, nil
+         update_idle_state()
+      end)
+      panto.ext.on("background_work_start", function()
+         background_work = background_work + 1
+         update_idle_state()
+      end)
+      panto.ext.on("background_work_end", function()
+         background_work = math.max(0, background_work - 1)
+         update_idle_state()
+      end)
+      panto.ext.on("session_end", release)
+   end,
+}

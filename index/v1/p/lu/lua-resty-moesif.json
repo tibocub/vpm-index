@@ -1,0 +1,106 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-moesif",
+  "versions": {
+    "2.0.2-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "luasocket >= 3.0rc1",
+        "lua-cjson >= 2.1.0.6",
+        "luaxml >= 101012",
+        "moesifapi-lua"
+      ],
+      "files": {
+        "lua/resty/moesif/helpers.lua": {
+          "sha256": "5c206191b63ed89ae82f7a4fa8224a9ac84b1afa03701a357a55aee9f9b7b08d",
+          "size": 4767,
+          "url": "https://raw.githubusercontent.com/Moesif/lua-resty-moesif/ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00/lua/resty/moesif/helpers.lua"
+        },
+        "lua/resty/moesif/log.lua": {
+          "sha256": "927e9e1bd9ceac3a1c95157638f9a93e7076b376647b454fa029ae1bbf0f50d4",
+          "size": 12865,
+          "url": "https://raw.githubusercontent.com/Moesif/lua-resty-moesif/ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00/lua/resty/moesif/log.lua"
+        },
+        "lua/resty/moesif/moesif_ser.lua": {
+          "sha256": "4540643ba8df67a12d90ea57ca0a69a14c53c86350872e6b7c5d1a8cc616cb51",
+          "size": 6603,
+          "url": "https://raw.githubusercontent.com/Moesif/lua-resty-moesif/ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00/lua/resty/moesif/moesif_ser.lua"
+        },
+        "lua/resty/moesif/read_req_body.lua": {
+          "sha256": "049857266244a4a958de78beda473e69b2858dd00fd889c413aed389529db29e",
+          "size": 1530,
+          "url": "https://raw.githubusercontent.com/Moesif/lua-resty-moesif/ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00/lua/resty/moesif/read_req_body.lua"
+        },
+        "lua/resty/moesif/read_res_body.lua": {
+          "sha256": "0f70fc0b83fe5092a9b481b51c8a8f872c642e0e555425e8812d3c5f11a643b5",
+          "size": 856,
+          "url": "https://raw.githubusercontent.com/Moesif/lua-resty-moesif/ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00/lua/resty/moesif/read_res_body.lua"
+        },
+        "lua/resty/moesif/send_event.lua": {
+          "sha256": "c589e65e8c907771dbb2eadb004b5328458eddee3c46248d9b63c12afc118250",
+          "size": 748,
+          "url": "https://raw.githubusercontent.com/Moesif/lua-resty-moesif/ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00/lua/resty/moesif/send_event.lua"
+        },
+        "lua/resty/moesif/send_event_3Scale.lua": {
+          "sha256": "43609b39a0b4bc42bd8593b4a3633ac517d5f5b86af39886c4b09ccae18665c5",
+          "size": 20030,
+          "url": "https://raw.githubusercontent.com/Moesif/lua-resty-moesif/ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00/lua/resty/moesif/send_event_3Scale.lua"
+        }
+      },
+      "homepage": "http://moesif.com",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 21 Jan 2025 18:34:10 GMT",
+        "rockspec": {
+          "date": "Tue, 21 Jan 2025 18:34:10 GMT",
+          "sha256": "5063ce32dc35c95698ef7a38e37556acc030e98d4477e79ac59dc70289739279",
+          "size": 1723
+        },
+        "src": {
+          "date": "Tue, 21 Jan 2025 18:34:10 GMT",
+          "sha256": "0ce091abe0913a25fa27e612d19a3cfe2202d551911b7ac943ac8a9c140efe2f",
+          "size": 23084,
+          "url": "https://luarocks.org/lua-resty-moesif-2.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "lua.resty.moesif.helpers",
+        "lua.resty.moesif.log",
+        "lua.resty.moesif.moesif_ser",
+        "lua.resty.moesif.read_req_body",
+        "lua.resty.moesif.read_res_body",
+        "lua.resty.moesif.send_event",
+        "lua.resty.moesif.send_event_3Scale"
+      ],
+      "origin": {
+        "commit": "ead8c1e2f85f58d234b143cbd4fd34d45c0cdf00",
+        "ref": "2.0.2",
+        "type": "git",
+        "url": "https://github.com/Moesif/lua-resty-moesif"
+      },
+      "size": 47399,
+      "summary": "Moesif plugin for Openresty",
+      "undeclared_requires": [
+        "helpers",
+        "log",
+        "moesif_ser",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

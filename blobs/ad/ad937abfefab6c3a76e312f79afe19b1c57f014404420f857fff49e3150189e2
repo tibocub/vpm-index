@@ -1,0 +1,27 @@
+local _module_0 = nil
+local os = require('os')
+local inspect = require('inspect')
+local ngx = require('ngx')
+local db, queues, errs
+do
+	local _obj_0 = require('elan.built')
+	db, queues, errs = _obj_0.db, _obj_0.queues, _obj_0.errs
+end
+local worker = require('elan.mq.worker')
+local run
+run = function()
+	if errs then
+		ngx.log(ngx.ERR, "elan app has errors: " .. tostring(inspect(errs)))
+		if not (os.getenv('ELAN_ENV') == 'dev') then
+			return
+		end
+	end
+	if not db then
+		ngx.log(ngx.WARN, "elan app has no database configured, set ELAN_DATABASE_URI to use one")
+	end
+	if queues and #queues > 0 and db then
+		return worker(db, queues)
+	end
+end
+_module_0 = run
+return _module_0

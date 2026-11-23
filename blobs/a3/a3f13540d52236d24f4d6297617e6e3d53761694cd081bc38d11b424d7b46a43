@@ -1,0 +1,36 @@
+local lfs = require "lfs"
+
+local prevfile = {}
+ 
+local function padnum(d)
+	local dec, n = string.match(d, "(%.?)0*(.+)")
+	return #dec > 0 and ("%.12f"):format(d) or ("%s%03d%s"):format(dec, #n, n)
+end
+
+local function humansort(a, b)
+    return tostring(a):gsub("%.?%d+", padnum) < tostring(b):gsub("%.?%d+", padnum)
+ end
+
+function prevfile.ls(directory)
+	if not pcall(lfs.dir, directory) then
+		return nil
+	end
+
+	local files = {}
+	for file in lfs.dir(directory) do
+		if string.sub(file, 1, 1) ~= "." then
+			table.insert(files, file)
+		end
+	end
+
+	table.sort(files, humansort)
+	return files
+end
+
+function prevfile.prevfile(directory)
+	local files = prevfile.ls(directory)
+	if files == nil then return nil end
+	return files[#files]
+end
+
+return prevfile

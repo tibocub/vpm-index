@@ -1,0 +1,29 @@
+-- Plugin execution order (priority based): https://docs.konghq.com/konnect/reference/plugins/
+-- We are setting the priority to 2600 to be higher than the bundled bot-detection plugin (2500)
+local plugin = {
+  PRIORITY = 2600,
+  VERSION = "1.4.0",
+}
+
+local module_info = {
+  module_name = "Kong",
+  module_version = plugin.VERSION,
+}
+
+-- Plugin executed on the access phase (https://openresty-reference.readthedocs.io/en/latest/Directives/)
+-- For every request from a client and before it is being proxied to the upstream
+local datadome_openresty = require("datadome_openresty")
+function plugin:access(plugin_conf)
+  -- Pass a fresh per-request config to validateRequest() so concurrent coroutines stay isolated.
+  -- Copy rather than mutate plugin_conf so Kong's cached config entity is untouched.
+  local request_conf = {
+    module_name = module_info.module_name,
+    module_version = module_info.module_version,
+  }
+  for k, v in pairs(plugin_conf) do
+    request_conf[k] = v
+  end
+  datadome_openresty.validateRequest(request_conf)
+end
+
+return plugin

@@ -1,0 +1,140 @@
+{
+  "kind": "lib",
+  "name": "kong-pgmoon",
+  "versions": {
+    "2.3.6.0-1": {
+      "bin": [],
+      "deps": [
+        "lpeg"
+      ],
+      "files": {
+        "pgmoon/arrays.lua": {
+          "sha256": "0e3dd9783ca1a01e9484eaa7db647c8d1cdbc639f8dd57b4a9769fe110f13836",
+          "size": 5246,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/arrays.lua"
+        },
+        "pgmoon/bit.lua": {
+          "sha256": "a7e746e7bdc011dd11468bf72f5cc4f36a43a6b8e545c415ea46fdeab0d2aac0",
+          "size": 1328,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/bit.lua"
+        },
+        "pgmoon/cqueues.lua": {
+          "sha256": "aa607b79d0b1b050aac99bc4c28d8f05022237d9d1867e7afd1511325abc466d",
+          "size": 2123,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/cqueues.lua"
+        },
+        "pgmoon/crypto.lua": {
+          "sha256": "524b1e7054a98fca033f06bd5527042be7dd2ddb234ed309f58ac46ed8bbf965",
+          "size": 4782,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/crypto.lua"
+        },
+        "pgmoon/hstore.lua": {
+          "sha256": "82ded8ff28a0380187b6b47ac3c4729a4189b4e6c6e9b0eceb9f499a330eafc6",
+          "size": 2084,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/hstore.lua"
+        },
+        "pgmoon/init.lua": {
+          "sha256": "c16136c6c596508d0a6d357f9ffbf79f09b4ff3d86d65480805d497bb6b16cbd",
+          "size": 41286,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/init.lua"
+        },
+        "pgmoon/json.lua": {
+          "sha256": "7a8e8c1c2f45d6330c92440ea7838a2eaec132795b3ff2c094cd28789303d905",
+          "size": 665,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/json.lua"
+        },
+        "pgmoon/oauth.lua": {
+          "sha256": "dd988fae93f4fec305115197888e6d0327b4dfd427cfe8e65783f74d5d38d903",
+          "size": 664,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/oauth.lua"
+        },
+        "pgmoon/socket.lua": {
+          "sha256": "a30ec52c129751f2f8b59b8f9d4d8494706c775ba92aeab5c7c188f55f1a89ea",
+          "size": 3797,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/socket.lua"
+        },
+        "pgmoon/util.lua": {
+          "sha256": "ad1efc739f3fbdebb506b70ba2f09645c11dea0611242b8541b8c8d38770fdeb",
+          "size": 995,
+          "url": "https://raw.githubusercontent.com/Kong/pgmoon/426aac661e9fed3d142b2798f82cd13c451af984/pgmoon/util.lua"
+        }
+      },
+      "homepage": "https://github.com/Kong/pgmoon",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Fri, 23 Oct 2026 09:36:44 GMT",
+        "rockspec": {
+          "date": "Fri, 23 Oct 2026 09:36:44 GMT",
+          "sha256": "cfb3067b312975f336729a5de013838e1d0e3bdd6af8c972f81c2daee7986d97",
+          "size": 1136
+        },
+        "src": {
+          "date": "Fri, 23 Oct 2026 09:36:46 GMT",
+          "sha256": "11656acdf23afdd40fb658a8d1e4b3f43cda1d7cd6363c9a80afdcd72ee07c0c",
+          "size": 81001,
+          "url": "https://luarocks.org/kong-pgmoon-2.3.6.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "pgmoon",
+        "pgmoon.arrays",
+        "pgmoon.bit",
+        "pgmoon.cqueues",
+        "pgmoon.crypto",
+        "pgmoon.hstore",
+        "pgmoon.json",
+        "pgmoon.oauth",
+        "pgmoon.socket",
+        "pgmoon.util"
+      ],
+      "origin": {
+        "commit": "426aac661e9fed3d142b2798f82cd13c451af984",
+        "ref": "2.3.6.0",
+        "type": "git",
+        "url": "https://github.com/Kong/pgmoon.git"
+      },
+      "size": 62970,
+      "summary": "Postgres driver for OpenResty and Lua",
+      "undeclared_requires": [
+        "bit",
+        "cqueues.errno",
+        "cqueues.socket",
+        "crypto",
+        "mime",
+        "moon",
+        "ngx.ssl",
+        "openssl.digest",
+        "openssl.hmac",
+        "openssl.kdf",
+        "openssl.rand",
+        "openssl.ssl",
+        "openssl.ssl.context",
+        "openssl.x509",
+        "pl.file",
+        "resty.openssl.digest",
+        "resty.openssl.hmac",
+        "resty.openssl.kdf",
+        "resty.openssl.objects",
+        "resty.openssl.rand",
+        "resty.openssl.ssl",
+        "resty.openssl.x509",
+        "resty.random",
+        "resty.sha256",
+        "socket",
+        "ssl",
+        "ssl.context"
+      ],
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-23",
+        "loaded": 10,
+        "status": "ok",
+        "total": 10
+      }
+    }
+  }
+}

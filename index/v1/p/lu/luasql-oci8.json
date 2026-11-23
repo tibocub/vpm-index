@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "luasql-oci8",
+  "versions": {
+    "2.6.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://lunarmodules.github.io/luasql/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 07 Feb 2024 18:52:24 GMT",
+        "rockspec": {
+          "date": "Wed, 07 Feb 2024 18:52:24 GMT",
+          "sha256": "f72a71c0184567779554d7875cf36c7ad7872a72fc2333812ba97ef86a599495",
+          "size": 879
+        },
+        "src": {
+          "date": "Wed, 07 Feb 2024 18:52:26 GMT",
+          "sha256": "513df81668f45df690003655f35e2d575bac52b90f1e3f2f8df040ef172c7ab4",
+          "size": 181725,
+          "url": "https://luarocks.org/luasql-oci8-2.6.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.oci8"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "OCI8"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "OCI8": {
+              "header": "oci.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(OCI8_INCDIR)"
+              ],
+              "libdirs": [
+                "$(OCI8_LIBDIR)"
+              ],
+              "libraries": [
+                "z",
+                "clntsh"
+              ],
+              "name": "luasql.oci8",
+              "sources": [
+                "src/luasql.c",
+                "src/ls_oci8.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 07 Feb 2024 18:52:26 GMT",
+        "sha256": "513df81668f45df690003655f35e2d575bac52b90f1e3f2f8df040ef172c7ab4",
+        "size": 181725,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasql-oci8-2.6.0-3.src.rock"
+      },
+      "summary": "Database connectivity for Lua (Oracle driver)",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

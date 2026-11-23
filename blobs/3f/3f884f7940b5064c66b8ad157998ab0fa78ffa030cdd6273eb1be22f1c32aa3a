@@ -1,0 +1,75 @@
+require 'luarocks.loader'
+
+local sfs = require 'sfs'
+
+--
+
+local attac_map = {}
+local bin = nil
+
+local attac_injected = false
+local lr_pathmap = nil --[[@type lrocket.PathMap]]
+
+local _gsub = string.gsub
+function string.gsub(str, pattern, ...)
+    if pattern == "%-%-%s*%[(%=*)%[.-%](%1)%]" then
+        -- hook: lua chunk
+        for embed in str:gmatch '%-%-embed%s+([^\n]+)' do
+            if not bin then
+                bin = assert(io.open('_LRN_attac-chunk.bin', 'wb'))
+            end
+            local start = bin:seek()
+            local f = assert(io.open(
+                sfs.popen(_G['LRN_LUA'] .. ' -e ' .. sfs.quoteArgs('io.write(' .. embed .. ')')):read '*a', 'rb'))
+            bin:write(f:read '*a')
+            f:close()
+            attac_map[embed] = { start, bin:seek() }
+
+            if not attac_injected then
+                attac_injected = true
+                lr_pathmap:add('lua', 'attac-map', './_LRN_attac-map.lua')
+                lr_pathmap:mark 'lrocket-next.attac-loader'
+            end
+        end
+    end
+    return _gsub(str, pattern, ...)
+end
+
+local _require = require
+require = function(mod)
+    if mod ~= 'lrocket' then
+        return _require(mod)
+    end
+
+    local lrocket = _require 'lrocket'
+    local _scan = lrocket.scan
+
+    lrocket.scan = function(pathmap, ...)
+        lr_pathmap = pathmap
+        _scan(pathmap, ...)
+
+        -- hook: lua scan complete
+        if bin then
+            local total = bin:seek()
+            bin:close()
+
+            local map = assert(io.open('_LRN_attac-map.lua', 'w'))
+            map:write('return {\n')
+            for k, v in pairs(attac_map) do
+                map:write(('\t[%s] = { %d, %d },'):format(k, total - v[1], total - v[2]))
+            end
+            map:write('\n}')
+            map:close()
+        end
+    end
+
+    local _readSource = lrocket.lua.readSource
+    function lrocket.lua.readSource(path)
+        if lr_pathmap.root == path then
+            return "require 'lrocket-next.attac-loader';" .. _readSource(path)
+        end
+        return _readSource(path)
+    end
+
+    return lrocket
+end

@@ -1,0 +1,27 @@
+local base64 = require 'base64'
+
+local rand = assert(io.open('/dev/urandom', 'r'))
+local enc = base64.makeencoder('_', '_', '_')
+
+local M = {}
+
+function M.random_string(len)
+  local raw = rand:read(len)
+  return base64.encode(raw, enc)
+end
+
+function M.log(s, ...)
+  local msg = string.format(s, ...)
+  io.write(msg)
+  if not string.match(msg, '\n$') then
+    io.flush()
+  end
+end
+
+function M.write_file(path, content)
+  local fd = assert(io.open(path, 'w+'))
+  assert(fd:write(content))
+  assert(fd:close())
+end
+
+return M

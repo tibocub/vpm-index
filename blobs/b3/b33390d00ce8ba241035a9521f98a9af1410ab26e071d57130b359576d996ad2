@@ -1,0 +1,455 @@
+
+local _ENV = require 'compat53.module'
+if setfenv then setfenv(1, _ENV) end
+
+local sfs = require 'sfs'
+local log = require 'lrocket.log'
+local utils = require 'lrocket.utils'
+
+---@diagnostic disable-next-line: deprecated
+local pack, unpack = string.pack, string.unpack
+
+local LRA_ID = "lra"
+local LRA_MAGIC = pack("<i2", 24798)
+
+local function MAGIC_START()
+	return LRA_MAGIC..LRA_ID.."-start"
+end
+
+local function MAGIC_END()
+	return LRA_MAGIC..LRA_ID.."-end"
+end
+
+local TYPE_TO_OPCODE = {
+	zstring = 1,
+	bool = 2,
+	uint64 = 3,
+}
+
+local TYPE_TO_TYPE = {
+	string = 'zstring',
+	number = 'uint64',
+	boolean = 'bool'
+}
+
+local function opcode(type, always)
+	return string.char(TYPE_TO_OPCODE[type] + always * 0x80)
+end
+
+local ENCODE = {
+	zstring = 'z',
+	uint64 = 'I8',
+	bool = 'I1',
+}
+
+local function wrapdec(fmt, f)
+	f = f or function(...) return ... end
+	return function(dat, i)
+		local res, newi = unpack(fmt, dat, i)
+		return f(res), newi
+	end
+end
+
+local VALUE = {
+	[true] = 0xFF,
+	[false] = 0x00,
+}
+
+local DECODE = {
+	wrapdec('z'),
+	wrapdec('I1', function(dat) return dat ~= 0 end),
+	wrapdec('<I8')
+}
+
+local function encode(type, value)
+	return pack(ENCODE[type], VALUE[value] or value)
+end
+
+---@class lrocket.LRAW
+local LRAW = {} do
+	LRAW.__index = LRAW
+
+	---@package
+	function LRAW:_create(path)
+		local err
+		self._tmppath = sfs.tmppath()
+		self._path = path
+		self._file, err = sfs.open(self._tmppath, 'wb')
+
+		if not self._file then
+			return nil, err
+		end
+
+		self._attributes = {}
+		self._offset = 0
+
+		self:_addattribute('offset', 'uint64', 1)
+		self:_addattribute('size', 'uint64', 1)
+		self:_addattribute('modification', 'uint64', 1)
+		self:_addattribute('type', 'zstring', 1)
+		--[[
+		self:_addattribute('access', 'uint64', 1)
+		self:_addattribute('change', 'uint64', 1)
+		--]]
+
+		return self
+	end
+
+	function LRAW:_addattribute(name, type, fix)
+		if self._attributes[name] then return end
+
+		if fix == 0 then
+			self._fixattrs = (self._fixattrs or 0) + 1
+		end
+
+		local attr = {
+			name = name,
+			type = type,
+			fix = fix,
+		}
+
+		table.insert(self._attributes, attr)
+
+		self._attributes[name] = true
+	end
+
+	function LRAW:_finalizenode()
+		local cur = self[#self]
+		if cur and cur.type ~= 'link' then
+			cur.attributes.size = self._file:seek() - cur.attributes.offset
+		end
+	end
+
+	function LRAW:_addnode(entry)
+		self[#self+1] = entry
+		self[entry.path] = entry
+	end
+
+	function LRAW:linknode(src, dst)
+		assert(type(src) == 'string', type(src))
+		assert(type(dst) == 'string', type(dst))
+		self:_finalizenode()
+		local attr = utils.clone(self[dst].attributes)
+		attr.type = 'link'
+		self:_addnode {
+			path = src,
+			type = 'link',
+			attributes = attr
+		}
+	end
+
+	function LRAW:newnode(path, attrs)
+		self:_finalizenode()
+		local cur = {
+			path = path,
+			type = 'node',
+			attributes = {
+				type = 'file',
+				offset = self._file:seek(),
+			}
+		}
+
+		for k,v in utils.spairs(attrs) do
+			self:_addattribute(k, TYPE_TO_TYPE[type(v)], 0)
+			cur.attributes[k] = v
+		end
+		self:_addnode(cur)
+	end
+
+	function LRAW:write(...)
+		self._file:write(...)
+	end
+
+	local function bind(f, self)
+		return function(...)
+			return f(self, ...)
+		end
+	end
+
+	function LRAW:_header()
+		local res = {}
+		local function write(...)
+			for _,v in ipairs { ... } do
+				res[#res+1] = tostring(v)
+			end
+		end
+
+		local fixattr = {}
+		local optattr = {}
+		for _, attr in ipairs(self._attributes) do
+			if attr.fix == 1 then
+				fixattr[#fixattr+1] = attr
+			else
+				optattr[#optattr+1] = attr
+			end
+			write(pack('c1 z', opcode(attr.type, attr.fix), attr.name))
+		end
+
+		write '\0'
+
+		for _, entry in ipairs(self) do
+			write(pack('z', entry.path))
+			for _, attr in ipairs(fixattr) do
+				local value = entry.attributes[attr.name]
+				log.assert(value, string.format("attribute `%s` missing for '%s'", attr.name, entry.path))
+				write(encode(attr.type, value))
+			end
+
+			for idx, attr in ipairs(optattr) do
+				local value = entry.attributes[attr.name]
+				if value ~= nil then
+					write(pack("I1", idx), encode(attr.type, value))
+				end
+			end
+			write '\0'
+		end
+
+		return table.concat(res)
+	end
+
+	function LRAW:close()
+		self:_finalizenode()
+		self._file:close()
+
+		self._file = log.assert(sfs.open(self._path, 'wb'))
+
+		local write = bind(self._file.write, self._file)
+
+		local begin = self._file:seek()
+		write(MAGIC_START())
+
+		write(pack("<s8", self:_header()))
+
+		local tmpfile = log.assert(sfs.open(self._tmppath, 'rb'))
+		while true do
+			local buffer = tmpfile:read(4096)
+			if not buffer then break end
+			write(buffer)
+		end
+		tmpfile:close()
+		sfs.deltmppath(self._tmppath)
+
+		write(pack('<i8', begin - (self._file:seek()+8+#MAGIC_END())))
+		write(MAGIC_END())
+		self._file:close()
+	end
+end
+
+---@class lrocket.LRAR
+local LRAR = {} do
+	LRAR.__index = LRAR
+
+	---@param file file*
+	---@return integer?
+	local function find_magic(file)
+		local endpos = file:seek 'end'
+		file:seek 'set'
+
+		while true do
+			---@type string
+			local chunk = file:read(4096)
+			if not chunk then break end
+
+			local _, pos = chunk:find(MAGIC_START(), 1, true)
+
+			if pos then
+				return file:seek() - #chunk + pos
+			end
+
+			if file:seek() >= endpos then break end
+
+			file:seek('cur', -2*#LRA_MAGIC)
+		end
+		return nil
+	end
+
+	---@package
+	function LRAR:_load(file)
+		self._file = log.assert(sfs.open(file, 'rb'))
+		self._path = file
+
+		self._START = find_magic(self._file)
+
+		if not self._START then
+			return nil, "not a lrocket archive"
+		end
+
+		self._file:seek('set', self._START)
+
+		local bin = self._file:read(8)
+		local size = unpack('<I8', bin)
+		local header = self._file:read(size)
+		local hend = self._file:seek()
+
+		local i = 1
+		local fix_attr = {}
+		local opt_attr = {}
+
+		while i <= #header do
+			local opc = string.byte(header, i)
+			i = i + 1
+			if opc == 0 then break end
+			local tbl = opc > 128 and fix_attr or opt_attr
+			local name;
+			name, i = unpack('z', header, i)
+			tbl[#tbl+1] = name
+			tbl[name] = opc % 128
+		end
+
+		while i <= #header do
+			local entry = { attributes = {} }
+			entry.path, i = unpack('z', header, i)
+			for j = 1, #fix_attr do
+				local name = fix_attr[j]
+				local opc = fix_attr[name]
+				entry.attributes[name], i = DECODE[opc](header, i)
+			end
+
+			for _ = 1, #opt_attr+1 do
+				local idx
+				idx, i = unpack('I1', header, i)
+				local name = opt_attr[idx]
+				local opc = opt_attr[name]
+				if name then
+					entry.attributes[name], i = DECODE[opc](header, i)
+				elseif idx == 0 then
+					break
+				else
+					return nil, string.format('corrupt archive at 0x%x', self._START+i-1)
+				end
+			end
+
+			self[#self+1] = entry
+			self[entry.path] = entry
+
+			entry.attributes.offset = hend + entry.attributes.offset
+		end
+
+		return self
+	end
+
+	function LRAR:list()
+		local list = {}
+		for _, entry in ipairs(self) do
+			list[#list+1] = entry.path
+		end
+
+		return list
+	end
+
+	function LRAR:attributes(path)
+		local f = self[path]
+
+		if not f then return nil, 'file not found' end
+
+		local attrs = { }
+
+		for k,v in pairs(f.attributes) do attrs[k] = v end
+
+		return attrs
+	end
+
+	---@class lrocket.LimitedStream
+	local LimitedStream = {} do
+		LimitedStream.__index = LimitedStream
+
+		function LimitedStream:_init(path, i, size)
+			self._file = assert(io.open(path, 'rb'))
+
+			self._start = i
+			self._pos = i
+
+			self._stop = self._start+size-1
+
+			return self
+		end
+
+		function LimitedStream:size()
+			return self._stop + 1 - self._start
+		end
+
+		function LimitedStream:read(n)
+			assert(type(n) == 'number' and n >= 0)
+			if not (self._start <= self._pos and self._pos <= self._stop) then
+				return nil
+			end
+
+			self._file:seek('set', self._pos)
+
+			local nextpos = math.min(self._pos + n, self._stop+1)
+			local text, err = self._file:read(nextpos - self._pos)
+			self._pos = nextpos
+
+			if not text then return nil, err end
+
+			return text
+		end
+
+		function LimitedStream:seek(whence, offset)
+			if type(whence) ~= 'string' then
+				offset = whence
+				whence = 'cur'
+			end
+
+			offset = offset or 0
+
+			---@cast whence 'cur'|'set'|'end'
+			---@cast offset integer
+
+			local base = whence == 'cur' and self._pos or whence == 'set' and self._start or whence == 'end' and self._stop+1
+			self._pos = base + offset
+
+			return self._pos - self._start
+		end
+
+		function LimitedStream:close()
+			self._file:close()
+		end
+
+		function LimitedStream:__gc()
+			self:close()
+		end
+	end
+
+	function LRAR:open(path)
+		assert(type(path) == 'string')
+		local entry = self[path]
+		if not entry then
+			return nil, 'file not found'
+		end
+		return setmetatable({}, LimitedStream):_init(self._path, entry.attributes.offset, entry.attributes.size)
+	end
+end
+
+local lra = {}
+
+---@param path string
+---@param mode 'r' | 'w'?
+---@return lrocket.LRAW | lrocket.LRAR?, string?
+function lra.open(path, mode)
+	assert(type(path) == 'string', "#1 string expected")
+	mode = mode or 'r'
+	local a, err
+	if mode == 'r' then
+		a, err = setmetatable({}, LRAR):_load(path)
+	elseif mode == 'w' then
+		a, err = setmetatable({}, LRAW):_create(path)
+	else
+		error("invalid mode "..tostring(mode), 2)
+	end
+
+	return a, err
+end
+
+function lra.stat(path)
+	local f, err = sfs.open(path, 'r')
+	if not f then return nil, err end
+	local a, err = lra.open(path, 'r')
+	if not a then return nil, err end
+	return {
+		type = 'lra'
+	}
+end
+
+return lra
+

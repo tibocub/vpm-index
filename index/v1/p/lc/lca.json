@@ -1,0 +1,348 @@
+{
+  "kind": "app",
+  "name": "lca",
+  "versions": {
+    "0.1.19-1": {
+      "bin": {
+        "lca": "bin/lca",
+        "lca-agent": "bin/lca-agent",
+        "lca-auth": "bin/lca-auth",
+        "lca-login": "bin/lca-login",
+        "lca-repl": "bin/lca-repl"
+      },
+      "deps": [
+        "luasocket",
+        "luasec",
+        "lua-cjson",
+        "luv",
+        "linenoise-luv >= 0.1.3"
+      ],
+      "files": {
+        "agent/async.lua": {
+          "sha256": "8814e446e8f30de6ede2bc7d348a357a20d90ad0f096cdc7a3bcd5cb45799b5e",
+          "size": 1275,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/async.lua"
+        },
+        "agent/commands.lua": {
+          "sha256": "5de86abff1ef1b60bc0813e098a4b3cb947a90658fdefe3282e04ca88814c484",
+          "size": 15148,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/commands.lua"
+        },
+        "agent/compaction.lua": {
+          "sha256": "456076cb46b999eac011b3ff32caaac4effff1f3ebd0fc47e8346c0647973c62",
+          "size": 18095,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/compaction.lua"
+        },
+        "agent/config.lua": {
+          "sha256": "2f35efdac617c7b24062c2a01b105f88046fd1ba5d429358cfd96eb2680c9b54",
+          "size": 192,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/config.lua"
+        },
+        "agent/core.lua": {
+          "sha256": "af0303d5dd0d2d54c35c3dab0391c6cb8e1ba84c2bda0cd5b774ab29c6f38b09",
+          "size": 19415,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/core.lua"
+        },
+        "agent/job_supervisor.lua": {
+          "sha256": "6ba95b785342c48d4effba2a364beaf15b4d341edc8bc0242de123cecca0cb96",
+          "size": 2336,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/job_supervisor.lua"
+        },
+        "agent/jobs.lua": {
+          "sha256": "4da2f95d5008079f3aab0af5936d137d7e8e2e3c702d65f84ead492132aaa7f2",
+          "size": 22224,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/jobs.lua"
+        },
+        "agent/lint.lua": {
+          "sha256": "6b3f123e107758c3a3b3be830c1045801ae4c3b8f5c6961295ef3bdda5dfc4be",
+          "size": 3390,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/lint.lua"
+        },
+        "agent/login.lua": {
+          "sha256": "e6fc04c8b7334f99ad549b4781e6449a8438e779d84d1ed52757bea8d9d8b055",
+          "size": 2378,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/login.lua"
+        },
+        "agent/mcp.lua": {
+          "sha256": "9c090ee0ccbc8f61bf136ec743571753b4d1a5eec07de014552bb4df384ebed3",
+          "size": 4862,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/mcp.lua"
+        },
+        "agent/net/http_transport.lua": {
+          "sha256": "801f9ba7f24567e03fda5f7542da0c793584f1cc5dc5d1833bba289316873447",
+          "size": 16074,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/net/http_transport.lua"
+        },
+        "agent/net/websocket_transport.lua": {
+          "sha256": "e18c35046205fed42671e0f8a95057199eb1c9f91ac450c37b12f7305ab7fcc5",
+          "size": 11748,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/net/websocket_transport.lua"
+        },
+        "agent/parallel.lua": {
+          "sha256": "a5537bdc13c22930976e7ed211ca0143b058a057bf7b1b85bc5c5081a028c003",
+          "size": 15233,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/parallel.lua"
+        },
+        "agent/project_context.lua": {
+          "sha256": "af2ef50cc612a777f71897923ef703deeb54439b05876b0f6680aba4544739d0",
+          "size": 1311,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/project_context.lua"
+        },
+        "agent/project_index.lua": {
+          "sha256": "7d71d227c8e5634ff97f4edfb6c33bff4eb5015903159db12592919ed1da1f99",
+          "size": 3262,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/project_index.lua"
+        },
+        "agent/providers/bedrock.lua": {
+          "sha256": "7f06a9b879c983a3f67ecad8c5614edbf58f813dea0a9f1b4197c4c352cb6dc4",
+          "size": 17535,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/providers/bedrock.lua"
+        },
+        "agent/providers/codex.lua": {
+          "sha256": "839e0c0a55101a76758639a1934c72e5e694bf930e45422e87e8c08accfe15fc",
+          "size": 40892,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/providers/codex.lua"
+        },
+        "agent/providers/deepseek.lua": {
+          "sha256": "04eccba3101a8f95a466dcc0f6189ca9005cafba49c127aabe27841f0a67b140",
+          "size": 8755,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/providers/deepseek.lua"
+        },
+        "agent/providers/init.lua": {
+          "sha256": "eb0c81ba4b9126f485f52ffa5d8b8d2a7a054514c467a17e443d1f56beb53150",
+          "size": 6773,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/providers/init.lua"
+        },
+        "agent/repl.lua": {
+          "sha256": "de624e2938d46565ef74cf7f8932fa1c16eb3369af8d7c9772e8f97194407f3a",
+          "size": 23212,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/repl.lua"
+        },
+        "agent/session.lua": {
+          "sha256": "b90c1acf05814cc208e27a537cc1838c8676d6b3c79ad41bed6abbbf172a6db8",
+          "size": 14884,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/session.lua"
+        },
+        "agent/system_prompt.lua": {
+          "sha256": "5782d999c836ef1c9d5a41e159ea12a882895ae6eaade90f27fa3f0163b17a13",
+          "size": 4212,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/system_prompt.lua"
+        },
+        "agent/tool_protocol.lua": {
+          "sha256": "7e3995706320b4bef525979513ece81f8fb95cf15169902542ec8f71eebade47",
+          "size": 9643,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tool_protocol.lua"
+        },
+        "agent/tool_registry.lua": {
+          "sha256": "f7941a33e3859272be0a1f17215550aa7e625033681149f5653cd5a7b654da87",
+          "size": 12049,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tool_registry.lua"
+        },
+        "agent/tools/edit.lua": {
+          "sha256": "fd31fa96518f64d0c3994b18ba898c3e73f341ce16e9443180656e3403938f95",
+          "size": 9205,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/edit.lua"
+        },
+        "agent/tools/find.lua": {
+          "sha256": "24a6f86f672535158bb401b3c78bc97d193809b7556948c41c5a6f8da9459d3d",
+          "size": 1261,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/find.lua"
+        },
+        "agent/tools/grep.lua": {
+          "sha256": "8562a18aed3632f498a6c45e85aa849cf299840c125a93808777219372e5c1cc",
+          "size": 2235,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/grep.lua"
+        },
+        "agent/tools/job_output.lua": {
+          "sha256": "acd57638b83ef58d8c0231854643823fb7dc615bf314ddc38b9769f006fe73e8",
+          "size": 641,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/job_output.lua"
+        },
+        "agent/tools/job_start.lua": {
+          "sha256": "328423b8c341f66f785ba664d29a89d1d384f0977d2d5926b6c1f1221c1899b6",
+          "size": 718,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/job_start.lua"
+        },
+        "agent/tools/job_status.lua": {
+          "sha256": "8d3369e75dfaa76d3378228afb6d0d49fe907e960ac3efcd1e24a451b9506fb3",
+          "size": 1246,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/job_status.lua"
+        },
+        "agent/tools/job_stop.lua": {
+          "sha256": "105c484a6a7524b13e83d409052bb55a224c00129f13f0fa0a40ecd1ae4cfa2a",
+          "size": 535,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/job_stop.lua"
+        },
+        "agent/tools/job_wait.lua": {
+          "sha256": "b25cc72f873a646dc2c66e3b0633332c03a6e1efc5bff3599824d2c2206e9625",
+          "size": 1112,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/job_wait.lua"
+        },
+        "agent/tools/ls.lua": {
+          "sha256": "326a398f09a143cd968b951460cd5011597c39500397765533cea717260c54eb",
+          "size": 652,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/ls.lua"
+        },
+        "agent/tools/read.lua": {
+          "sha256": "31c458036c9ae62eeda286503e24d2fba9cb0be7419a679967b9177964a81ee9",
+          "size": 3460,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/read.lua"
+        },
+        "agent/tools/run.lua": {
+          "sha256": "5cd514e9de44188c7038d1b769b00559bba98db0c34069c807045ed5d828ad9b",
+          "size": 6481,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/run.lua"
+        },
+        "agent/tools/shell.lua": {
+          "sha256": "9482b6396f754477dfa8d69ee82f2410dcc6a5f9f2c477ead18f2662b8592315",
+          "size": 237,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/shell.lua"
+        },
+        "agent/tools/write.lua": {
+          "sha256": "84f08662de566334dade3e758b109eb50dde1803de102102b02d53c6887dced8",
+          "size": 3101,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/tools/write.lua"
+        },
+        "agent/ui.lua": {
+          "sha256": "a3f9f0ae1611cb16466f8a5ede67ba4d703cb84b5853e17d7209ee45efb94d51",
+          "size": 30489,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/ui.lua"
+        },
+        "agent/util/fs.lua": {
+          "sha256": "28292d07e92722e94ecbca3b83912c9ad76cc44b7467ac3a222a101b34188663",
+          "size": 273,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/util/fs.lua"
+        },
+        "agent/util/json.lua": {
+          "sha256": "b39d33e384526aabe066aade0c2ee628442f6b6d196dd3558c8f444cb70f109f",
+          "size": 9562,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/util/json.lua"
+        },
+        "agent/util/path.lua": {
+          "sha256": "63594abce1e9c91050d44dd6d52997f00eec6e177b3853d1c7f5285f0abb18c2",
+          "size": 419,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/util/path.lua"
+        },
+        "agent/util/shell.lua": {
+          "sha256": "9c2b88791f83cd9de80af59ff6b36082d10a1069d09e0dcb83c68a7292579188",
+          "size": 377,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/agent/util/shell.lua"
+        },
+        "bin/lca": {
+          "sha256": "ba6cb838d0f70ed06118e63d557a2e823cdfaf153b3222dfd42c36589513b35f",
+          "size": 4766,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/bin/lca"
+        },
+        "bin/lca-agent": {
+          "sha256": "2e421e49be97d5bdb3ed5814f6f25bbf7f9f3386ee1dabf20c2593a01a94b83d",
+          "size": 1867,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/bin/agent.lua"
+        },
+        "bin/lca-auth": {
+          "sha256": "f3fdaf21c7f3c9987e77b313a2bf47ca0c4fa3ececdddd4c81007a7f2d68cdcf",
+          "size": 10377,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/scripts/auth.lua"
+        },
+        "bin/lca-login": {
+          "sha256": "8fc6ac098a3809c54f4528089a972f0c807b1acf47a6f8f180e65ef3e0065d40",
+          "size": 10479,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/scripts/login.lua"
+        },
+        "bin/lca-repl": {
+          "sha256": "005b01cba2c8005c60847c4e799d632b6918c62a4271755bf61bcbbf8364870d",
+          "size": 3540,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/bin/repl.lua"
+        },
+        "logo.lua": {
+          "sha256": "ac7e4401baa3cfe0f6aa17871306d6ef3e12c07c06433a173a98373702b726a6",
+          "size": 2783,
+          "url": "https://raw.githubusercontent.com/forkfork/lca/v0.1.19/lua/logo.lua"
+        }
+      },
+      "homepage": "https://github.com/forkfork/lca",
+      "license": "BSD-2-Clause",
+      "lua": ">= 5.4, < 5.6",
+      "luarocks": {
+        "date": "Mon, 25 May 2026 13:35:24 GMT",
+        "rockspec": {
+          "date": "Mon, 25 May 2026 13:35:24 GMT",
+          "sha256": "b96b0eab38a6749ce06f12eb7f871d831228eca8c03cd076d9b48ea3b3ca3065",
+          "size": 3337
+        },
+        "src": {
+          "date": "Mon, 25 May 2026 13:35:26 GMT",
+          "sha256": "0b2d57be426d92082d1139b308a26d4b6daf461c5ea8ea42cad8ffc89ee4afde",
+          "size": 1939993,
+          "url": "https://luarocks.org/lca-0.1.19-1.src.rock"
+        }
+      },
+      "modules": [
+        "agent.async",
+        "agent.commands",
+        "agent.compaction",
+        "agent.config",
+        "agent.core",
+        "agent.job_supervisor",
+        "agent.jobs",
+        "agent.lint",
+        "agent.login",
+        "agent.mcp",
+        "agent.net.http_transport",
+        "agent.net.websocket_transport",
+        "agent.parallel",
+        "agent.project_context",
+        "agent.project_index",
+        "agent.providers",
+        "agent.providers.bedrock",
+        "agent.providers.codex",
+        "agent.providers.deepseek",
+        "agent.repl",
+        "agent.session",
+        "agent.system_prompt",
+        "agent.tool_protocol",
+        "agent.tool_registry",
+        "agent.tools.edit",
+        "agent.tools.find",
+        "agent.tools.grep",
+        "agent.tools.job_output",
+        "agent.tools.job_start",
+        "agent.tools.job_status",
+        "agent.tools.job_stop",
+        "agent.tools.job_wait",
+        "agent.tools.ls",
+        "agent.tools.read",
+        "agent.tools.run",
+        "agent.tools.shell",
+        "agent.tools.write",
+        "agent.ui",
+        "agent.util.fs",
+        "agent.util.json",
+        "agent.util.path",
+        "agent.util.shell",
+        "logo"
+      ],
+      "origin": {
+        "sha256": "37ce8d929b872b1781b80eda1ceac41335e7965f6234e29c91b0ca27d900110f",
+        "type": "archive",
+        "url": "https://github.com/forkfork/lca/archive/refs/tags/v0.1.19.tar.gz"
+      },
+      "size": 380714,
+      "summary": "A Lua coding absurdity using OpenAI Codex OAuth credentials",
+      "undeclared_requires": [
+        "agent.context_limits",
+        "luv",
+        "socket",
+        "ssl"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

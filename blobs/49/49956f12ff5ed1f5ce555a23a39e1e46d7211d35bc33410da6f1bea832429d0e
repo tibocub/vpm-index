@@ -1,0 +1,229 @@
+local async = require('panto_mcp.async')
+local Client = require('panto_mcp.client')
+local cache = require('panto_mcp.cache')
+local search = require('panto_mcp.search')
+local config = require('panto_mcp.config')
+local results = require('panto_mcp.results')
+local validate = require('panto_mcp.validate')
+local json = require('panto').ext.json
+local M = {}; M.__index=M
+function M.new(settings,servers,opts)
+    opts=opts or {}
+    local self=setmetatable({settings=settings,states={},opts=opts},M)
+    for name,cfg in pairs(servers) do
+        local metadata=cache.load(cfg,opts.cache_dir)
+        if metadata and cfg.transport=='http' and metadata.catalog then
+            metadata.catalog.tools=require('panto_mcp.http').filter_tools(metadata.catalog.tools,cfg.name,true)
+        end
+        self.states[name]={cfg=cfg,state='idle',metadata=metadata,
+            oauth=cfg.transport=='http' and require('panto_mcp.oauth').new(cfg,opts) or nil}
+    end
+    return self
+end
+function M:lookup(name)
+    if type(name)~='string' then return nil,'server must be an exact name' end
+    local state=self.states[name]; if state then return state end
+    local names={}; for n in pairs(self.states) do names[#names+1]=n end
+    return nil,'unknown server ' .. name .. '; closest: ' .. search.closest(name,names)
+end
+function M:start(state)
+    if self.closed then local f=async.future(); f:resolve(nil,'session ended'); return f end
+    if state.state=='connecting' then return state.ready end
+    if state.state=='ready' then local f=async.future(); f:resolve(state.client); return f end
+    state.state='connecting'; state.error=nil
+    local ready=async.future(); state.ready=ready
+    local timer_factory=self.opts.timer_factory or async.timer
+    local timer
+    local function fail(err)
+        if ready.done then return end
+        state.state='failed'; state.error=Client.error_text(err)
+        async.close(timer)
+        -- Resolve the shared startup first: closing RPC resumes the connector.
+        local failed_client=state.client
+        ready:resolve(nil,state.error)
+        if failed_client then failed_client:close() end
+    end
+    local c
+    c=Client.new(state.cfg,self.settings,{
+        transport_factory=self.opts.transport_factory,timer_factory=self.opts.timer_factory,oauth=state.oauth,request_fn=self.opts.request_fn,
+        on_error=function(err)
+            if state.state=='ready' and state.client==c then
+                state.state='failed'; state.error=Client.error_text(err); c:close()
+            end
+        end,
+        on_catalog=function(client)
+            if self.closed or client.closed then return end
+            state.metadata=client:metadata()
+            local _,err=cache.save(state.cfg,state.metadata,self.opts.cache_dir)
+            state.cache_error=err
+            -- E5/E6 hook: reconcile eager tools/prompt commands from this snapshot.
+            if self.opts.on_catalog then self.opts.on_catalog(state.cfg.name,state.metadata) end
+        end,
+    })
+    state.client=c
+    timer=timer_factory(self.settings.startup_timeout_ms,function()
+        fail(state.cfg.transport=='http' and state.cfg.name .. ' server/discover: startup timed out' or 'startup timed out')
+    end)
+    state.timer=timer
+    async.run(function()
+        local ok,err=c:connect(state.metadata)
+        if ready.done or self.closed then c:close(); return end
+        if not ok then fail(err); return end
+        async.close(timer)
+        state.state='ready'; state.error=nil
+        ready:resolve(c)
+    end,fail)
+    return ready
+end
+function M:ensure(name)
+    local state,err=self:lookup(name); if not state then return nil,err end
+    return self:start(state):await()
+end
+function M:start_cold()
+    for _,s in pairs(self.states) do if not s.metadata then self:start(s) end end
+end
+function M:servers()
+    local out=json.array({})
+    for name,s in pairs(self.states) do
+        local meta=s.metadata or {}; local catalog=meta.catalog or {}
+        out[#out+1]={name=name,transport=s.cfg.transport,mode=s.cfg.expose,state=s.state,
+            era=meta.era,version=meta.version,error=s.error,cache_error=s.cache_error,auth=s.oauth and s.oauth:status(),
+            notification_warning=s.client and s.client.notification_warning,
+            tools=#(catalog.tools or {}),prompts=#(catalog.prompts or {}),resources=#(catalog.resources or {}),
+            templates=#(catalog.templates or {}),stderr=s.client and s.client.transport and s.client.transport.stderr_tail or ''}
+    end
+    table.sort(out,function(a,b) return a.name<b.name end)
+    return out
+end
+function M:search(query,opts)
+    opts=opts or {}
+    if query~=nil and type(query)~='string' then return nil,'query must be a string' end
+    if opts.limit~=nil and (type(opts.limit)~='number' or opts.limit%1~=0 or opts.limit<1 or opts.limit>100) then return nil,'limit must be an integer from 1 to 100' end
+    if opts.server then local s,err=self:lookup(opts.server); if not s then return nil,err end end
+    -- Warm search never starts processes; cold activation is already connecting.
+    for name,s in pairs(self.states) do
+        if not opts.server or name==opts.server then
+            if s.state=='failed' or (not s.metadata and s.state=='idle') then self:start(s) end
+            if s.state=='connecting' then s.ready:await() end
+        end
+    end
+    local out=search.search(self.states,query,opts)
+    out.servers=self:servers()
+    for _,server in ipairs(out.servers) do server.stderr=nil end
+    return out
+end
+function M:call(server,tool,input)
+    if type(tool)~='string' or tool=='' then return results.map(tostring(server),nil,'tool must be an exact nonempty name') end
+    local c,err=self:ensure(server)
+    if not c then return results.map(tostring(server),nil,err) end
+    local definition,names=nil,{}
+    for _,t in ipairs(c.catalog.tools) do
+        if config.tool_enabled(c.cfg,t.name or '') then
+            names[#names+1]=t.name
+            if t.name==tool then definition=t end
+        end
+    end
+    if not definition then return results.map(server,nil,'unknown or disabled tool ' .. tool .. '; closest: ' .. search.closest(tool,names)) end
+    if input==nil then input={} end
+    local valid,errors=validate.check(input,definition.inputSchema)
+    if not valid then
+        local out=results.map(server,nil,'input validation failed:\n' .. table.concat(errors,'\n') .. '\nSchema: ' .. json.encode(definition.inputSchema))
+        out.validation_errors=errors; out.schema=definition.inputSchema
+        return out
+    end
+    local result; result,err=c:call(tool,input)
+    return results.map(server,result,err)
+end
+function M:read_resource(server,uri)
+    if type(uri)~='string' or uri=='' then return results.map(tostring(server),nil,'uri must be a nonempty string') end
+    local c,err=self:ensure(server); if not c then return results.map(tostring(server),nil,err) end
+    local result; result,err=c:read_resource(uri)
+    return results.map(server,result,err)
+end
+function M:prompts(server)
+    local c,err=self:ensure(server); if not c then return nil,err end
+    return c.catalog.prompts
+end
+function M:prompt(server,name,args)
+    if type(name)~='string' or name=='' then return nil,'prompt name must be nonempty' end
+    if args~=nil then
+        if type(args)~='table' then return nil,'prompt arguments must be an object of strings' end
+        for k,v in pairs(args) do if type(k)~='string' or type(v)~='string' then return nil,'prompt arguments must be an object of strings' end end
+    end
+    local c,err=self:ensure(server); if not c then return nil,err end
+    local result; result,err=c:prompt(name,args)
+    if not result then return nil,Client.error_text(err) end
+    if result.resultType=='input_required' then return nil,'server requested unsupported user input' end
+    return result.messages
+end
+function M:refresh(name)
+    local names={}
+    if name then local s,err=self:lookup(name); if not s then return nil,err end; names={name}
+    else for n in pairs(self.states) do names[#names+1]=n end; table.sort(names) end
+    local failures={}
+    for _,n in ipairs(names) do
+        local s=self.states[n]
+        if s.state=='ready' then
+            local _,err=s.client:refresh()
+            if err then s.state='failed'; s.error=err; s.client:close(); failures[#failures+1]=n .. ': ' .. err end
+        else local _,err=self:ensure(n); if err then failures[#failures+1]=n .. ': ' .. err end end
+    end
+    if #failures>0 then return nil,table.concat(failures,'\n') end
+    return true
+end
+function M:login(name,callback_url,reregister)
+    local state,err=self:lookup(name); if not state then return err end
+    local oauth=state.oauth
+    if not oauth then return 'OAuth is only available for HTTP servers' end
+    local function reconnect()
+        if self.closed then return end
+        if state.client then state.client:close() end
+        state.state='idle'; state.error=nil
+        self:start(state)
+    end
+    local function present(url)
+        if url==true then return 'OAuth callback accepted; /mcp shows login/reconnect status.' end
+        return 'Open this URL to log in:\n'..url..'\nFor SSH/headless, paste the full callback URL: /mcp-login '..name..' <callback-url>'
+    end
+    if state.login_preparing then return 'OAuth discovery/login preparation started; retry /mcp-login '..name..' to get the URL.' end
+    if oauth.refreshing then return 'OAuth refresh is in progress; retry /mcp-login '..name..' when it finishes.' end
+    local function failed(why) state.error=why end
+    local url,why
+    if reregister and (state.cfg.auth or (state.cfg.oauth and state.cfg.oauth.client_id)) then
+        return '--reregister is only available for automatic public DCR clients.'
+    end
+    if not reregister and (oauth.definition or state.cfg.auth or callback_url) then
+        url,why=oauth:login(callback_url,reconnect,failed)
+        if url or callback_url or state.cfg.auth or not oauth:available() then return url and present(url) or why end
+    end
+    if not oauth:available() then local _,err=oauth:login(nil,reconnect,failed); return err end
+    -- Only missing/failed definitions or an explicit registration reset need discovery.
+    if state.ready and not state.ready.done then state.ready:resolve(nil,'OAuth rediscovery requested') end
+    async.close(state.timer)
+    if state.client then state.client:close() end
+    oauth:invalidate(reregister); state.state='idle'; state.login_preparing=true
+    async.run(function()
+        local _,connect_error=self:start(state):await()
+        if self.closed then return end
+        if oauth.definition then url,why=oauth:login(nil,reconnect,failed)
+        else why=oauth:recovery_error(connect_error or 'OAuth discovery failed') end
+        state.login_preparing=nil
+        if not url then state.error=why end
+    end,function()
+        state.login_preparing=nil; state.error=oauth:recovery_error('OAuth discovery/login preparation failed')
+    end)
+    if url then return present(url) end
+    return why or ('OAuth discovery/login preparation started; retry /mcp-login '..name..' to get the URL.')
+end
+function M:close()
+    if self.closed then return end
+    self.closed=true
+    for _,s in pairs(self.states) do
+        s.state='failed'; s.error='session ended'
+        async.close(s.timer)
+        if s.oauth then s.oauth:close() end
+        if s.ready and not s.ready.done then s.ready:abandon(nil,'session ended') end
+        if s.client then s.client:close(true) end
+    end
+end
+return M

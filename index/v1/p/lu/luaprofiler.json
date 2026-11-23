@@ -1,0 +1,78 @@
+{
+  "kind": "app",
+  "name": "luaprofiler",
+  "versions": {
+    "2.0.2-2": {
+      "bin": {
+        "summary.lua": "bin/summary.lua"
+      },
+      "deps": [],
+      "files": {
+        "bin/summary.lua": {
+          "sha256": "db22c86c6a802e8bf443c42aeb4fc22ebe9ac9d874faba96dedbcfa0edccbe54",
+          "size": 3299,
+          "url": "blob:db22c86c6a802e8bf443c42aeb4fc22ebe9ac9d874faba96dedbcfa0edccbe54"
+        }
+      },
+      "homepage": "http://www.keplerproject.org/luaprofiler/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 02:43:14 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 02:43:14 GMT",
+          "sha256": "f7bd970f5367ed806b957c147d3c6b00032d013ec2c37ba329489488ac106288",
+          "size": 1027
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 02:43:14 GMT",
+          "sha256": "4c1fa1a926ee6c7162a1a64e9ddd02111a2d7e4e2593c13a12e8b2253a8d8be3",
+          "size": 20985,
+          "url": "https://luarocks.org/luaprofiler-2.0.2-2.src.rock"
+        }
+      },
+      "modules": [
+        "profiler"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "profiler",
+              "sources": [
+                "src/clocks.c",
+                "src/core_profiler.c",
+                "src/function_meter.c",
+                "src/stack.c",
+                "src/lua50_profiler.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 02:43:14 GMT",
+        "sha256": "4c1fa1a926ee6c7162a1a64e9ddd02111a2d7e4e2593c13a12e8b2253a8d8be3",
+        "size": 20985,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaprofiler-2.0.2-2.src.rock"
+      },
+      "size": 3299,
+      "summary": "Profiling for Lua scripts",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

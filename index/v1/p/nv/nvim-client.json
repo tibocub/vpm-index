@@ -1,0 +1,118 @@
+{
+  "kind": "lib",
+  "name": "nvim-client",
+  "versions": {
+    "0.2.4-1": {
+      "bin": [],
+      "deps": [
+        "mpack",
+        "luv",
+        "coxpcall"
+      ],
+      "files": {
+        "nvim/_compat.lua": {
+          "sha256": "8ae33c3da29a6b76c3adf46cfe05d8b695b2be1db9bebb94b875f2c9a94f94e4",
+          "size": 520,
+          "url": "blob:8ae33c3da29a6b76c3adf46cfe05d8b695b2be1db9bebb94b875f2c9a94f94e4"
+        },
+        "nvim/child_process_stream.lua": {
+          "sha256": "efd7fd00f60f50066f28bb74c4272562321a2883e248f8bca38c921571e44f1c",
+          "size": 1380,
+          "url": "blob:efd7fd00f60f50066f28bb74c4272562321a2883e248f8bca38c921571e44f1c"
+        },
+        "nvim/msgpack_rpc_stream.lua": {
+          "sha256": "3de8fbb5449d104a8eb7ee01ba43657daf09d78e936bbdf4519b79110e2b1ace",
+          "size": 3289,
+          "url": "blob:3de8fbb5449d104a8eb7ee01ba43657daf09d78e936bbdf4519b79110e2b1ace"
+        },
+        "nvim/session.lua": {
+          "sha256": "319c2ceb9c130fb5a02b648fd7f27e5bd6a012ade9af7ceb5861617014d7fd02",
+          "size": 4563,
+          "url": "blob:319c2ceb9c130fb5a02b648fd7f27e5bd6a012ade9af7ceb5861617014d7fd02"
+        },
+        "nvim/socket_stream.lua": {
+          "sha256": "015c6b3f5e3bb3a9d8bce329f72aebb54ada6645bf774a825c4db2ff11ec9294",
+          "size": 1028,
+          "url": "blob:015c6b3f5e3bb3a9d8bce329f72aebb54ada6645bf774a825c4db2ff11ec9294"
+        },
+        "nvim/stdio_stream.lua": {
+          "sha256": "9dce1d1742abbe5fb9269f709c3de56b4a3437a53c3417caed98a1202649c46b",
+          "size": 641,
+          "url": "blob:9dce1d1742abbe5fb9269f709c3de56b4a3437a53c3417caed98a1202649c46b"
+        },
+        "nvim/tcp_stream.lua": {
+          "sha256": "613a9d01a3b719a1eb0c9fe092b08fe4639bd23356c83b555fae1d842530c95b",
+          "size": 1003,
+          "url": "blob:613a9d01a3b719a1eb0c9fe092b08fe4639bd23356c83b555fae1d842530c95b"
+        }
+      },
+      "homepage": "https://github.com/neovim/lua-client",
+      "host": "nvim",
+      "license": "Apache",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 13 Jun 2022 08:17:02 GMT",
+        "rockspec": {
+          "date": "Mon, 13 Jun 2022 08:17:02 GMT",
+          "sha256": "6a2018cd16dffc192282705297c8322d9bd6de39db5f615ccb7e24a182e6c818",
+          "size": 919
+        },
+        "src": {
+          "date": "Mon, 13 Jun 2022 08:17:03 GMT",
+          "sha256": "281182f0976aaff2bd0ab6894ef549ba1728e242fcf415ca3b6f59ebf19bbb96",
+          "size": 14464,
+          "url": "https://luarocks.org/nvim-client-0.2.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "nvim._compat",
+        "nvim.child_process_stream",
+        "nvim.msgpack_rpc_stream",
+        "nvim.native",
+        "nvim.session",
+        "nvim.socket_stream",
+        "nvim.stdio_stream",
+        "nvim.tcp_stream"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "nvim.native",
+              "sources": [
+                "nvim/native.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-client-0.2.4-1"
+      },
+      "origin": {
+        "date": "Mon, 13 Jun 2022 08:17:03 GMT",
+        "sha256": "281182f0976aaff2bd0ab6894ef549ba1728e242fcf415ca3b6f59ebf19bbb96",
+        "size": 14464,
+        "type": "luarocks",
+        "url": "https://luarocks.org/nvim-client-0.2.4-1.src.rock"
+      },
+      "size": 12424,
+      "summary": "Lua client to Nvim",
+      "undeclared_requires": [
+        "luv"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

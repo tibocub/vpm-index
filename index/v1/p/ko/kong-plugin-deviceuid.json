@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-deviceuid",
+  "versions": {
+    "0.2.4-0": {
+      "bin": [],
+      "deps": [
+        "lua-resty-cookie >= 0.1.0"
+      ],
+      "files": {
+        "kong/plugins/deviceuid/handler.lua": {
+          "sha256": "aee1da7b126560bbfde3a925aa1c11e192a0129978ea99113e8a4e7603dd2368",
+          "size": 3164,
+          "url": "https://raw.githubusercontent.com/ernestofreyreg/kong-plugin-deviceuid/7abcaa5ba5099c4364a1084beaa471d6789c8900/handler.lua"
+        },
+        "kong/plugins/deviceuid/schema.lua": {
+          "sha256": "2c6c8888da96ea304658893cd1d8b7466576049e36324e4e0fd08c7df6e31810",
+          "size": 108,
+          "url": "https://raw.githubusercontent.com/ernestofreyreg/kong-plugin-deviceuid/7abcaa5ba5099c4364a1084beaa471d6789c8900/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 26 May 2017 05:30:21 GMT",
+        "rockspec": {
+          "date": "Fri, 26 May 2017 05:30:21 GMT",
+          "sha256": "f8fa8069cb7082df9ce3e2940deb6250e78a42d5cad5444ca0e397df88068aa6",
+          "size": 524
+        },
+        "src": {
+          "date": "Fri, 26 May 2017 05:30:22 GMT",
+          "sha256": "19854fb7b9e5187872861f34f53ecaa5a2062ebad62d86068dadb3a85c5b8c49",
+          "size": 3333,
+          "url": "https://luarocks.org/kong-plugin-deviceuid-0.2.4-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.deviceuid.handler",
+        "kong.plugins.deviceuid.schema"
+      ],
+      "origin": {
+        "commit": "7abcaa5ba5099c4364a1084beaa471d6789c8900",
+        "ref": "0.2.4",
+        "type": "git",
+        "url": "https://github.com/ernestofreyreg/kong-plugin-deviceuid"
+      },
+      "size": 3272,
+      "summary": "A Kong plugin that will add a sticky deviceuid cookie to all request",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

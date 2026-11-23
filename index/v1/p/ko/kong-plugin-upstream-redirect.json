@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-upstream-redirect",
+  "versions": {
+    "0.0.1-0": {
+      "bin": [],
+      "deps": [
+        "net-url >= 0.9-1"
+      ],
+      "files": {
+        "kong/plugins/upstream-redirect/access.lua": {
+          "sha256": "770d22da76dc815b41d49ebf0d69124fb31a7c4c76d7c1ae29b8e6fb4b43706a",
+          "size": 1603,
+          "url": "https://raw.githubusercontent.com/prashanth-unity/kong-plugin-upstream-redirect/7bcbb9e8b33f643927f284b7b932de2a0405e868/kong/plugins/upstream-redirect/access.lua"
+        },
+        "kong/plugins/upstream-redirect/handler.lua": {
+          "sha256": "1ff318fda6b46bc1c3b909499a89309d25a89ebe0869a12b50f9210c0f4945aa",
+          "size": 496,
+          "url": "https://raw.githubusercontent.com/prashanth-unity/kong-plugin-upstream-redirect/7bcbb9e8b33f643927f284b7b932de2a0405e868/kong/plugins/upstream-redirect/handler.lua"
+        },
+        "kong/plugins/upstream-redirect/schema.lua": {
+          "sha256": "3e5d18eb27e41a4c14087155e6e6a33d2c1c07412810bfd0e294658ea7dc6288",
+          "size": 131,
+          "url": "https://raw.githubusercontent.com/prashanth-unity/kong-plugin-upstream-redirect/7bcbb9e8b33f643927f284b7b932de2a0405e868/kong/plugins/upstream-redirect/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 08 Feb 2022 10:00:09 GMT",
+        "rockspec": {
+          "date": "Tue, 08 Feb 2022 10:00:09 GMT",
+          "sha256": "4a47fce9209dfe05f90d4fe0834813d24dde8c777bfbca65c5c7764417783d66",
+          "size": 730
+        }
+      },
+      "modules": [
+        "kong.plugins.upstream-redirect.access",
+        "kong.plugins.upstream-redirect.handler",
+        "kong.plugins.upstream-redirect.schema"
+      ],
+      "origin": {
+        "commit": "7bcbb9e8b33f643927f284b7b932de2a0405e868",
+        "type": "git",
+        "url": "https://github.com/prashanth-unity/kong-plugin-upstream-redirect"
+      },
+      "size": 2230,
+      "summary": "A Kong plugin for dynamic upstream URLs based on a request header.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

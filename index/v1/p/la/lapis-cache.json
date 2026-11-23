@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "lapis-cache",
+  "versions": {
+    "0.2.0-0": {
+      "bin": [],
+      "deps": [
+        "lapis",
+        "redis-lua"
+      ],
+      "files": {
+        "lapis/cache/cache.lua": {
+          "sha256": "b12b30bb6db204f7c1ab461d593ba0d7c6068476910a5d5721033c8a3d8cfc93",
+          "size": 2666,
+          "url": "https://raw.githubusercontent.com/CriztianiX/lapis-cache/45f9c0d4cfe5c995ad45755220ee3f361213e41e/lapis/cache/cache.lua"
+        },
+        "lapis/cache/engines/engine.lua": {
+          "sha256": "31a4ec66995f99b40b053ee5d9fbee2040673ab501a05afbecc3deb2bf043f7a",
+          "size": 1161,
+          "url": "https://raw.githubusercontent.com/CriztianiX/lapis-cache/45f9c0d4cfe5c995ad45755220ee3f361213e41e/lapis/cache/engines/engine.lua"
+        },
+        "lapis/cache/engines/redis.lua": {
+          "sha256": "6703e8b81928cd056624fc0f17d5d9e66ade18ecd3389ae93809bcc669b7916b",
+          "size": 3614,
+          "url": "https://raw.githubusercontent.com/CriztianiX/lapis-cache/45f9c0d4cfe5c995ad45755220ee3f361213e41e/lapis/cache/engines/redis.lua"
+        }
+      },
+      "homepage": "https://github.com/CriztianiX/lapis-cache",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 27 Jun 2017 18:42:48 GMT",
+        "rockspec": {
+          "date": "Tue, 27 Jun 2017 18:42:48 GMT",
+          "sha256": "6aedf0035cece6ace2ef6d39f747394ebfe54d153fc718fcfce50e9784aeb903",
+          "size": 671
+        },
+        "src": {
+          "date": "Tue, 27 Jun 2017 18:42:49 GMT",
+          "sha256": "e87d4c445bcbce72b6309dfc8ff4447f70c0d38efd1c12884dd4d65ef9b21188",
+          "size": 15787,
+          "url": "https://luarocks.org/lapis-cache-0.2.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "lapis.cache.cache",
+        "lapis.cache.engines.engine",
+        "lapis.cache.engines.redis"
+      ],
+      "origin": {
+        "commit": "45f9c0d4cfe5c995ad45755220ee3f361213e41e",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/CriztianiX/lapis-cache.git"
+      },
+      "size": 7441,
+      "summary": "Cache engines for Lapis Framework",
+      "undeclared_requires": [
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

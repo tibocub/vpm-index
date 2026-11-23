@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "civix",
+  "versions": {
+    "0.1-8": {
+      "bin": [],
+      "blocked_by": {
+        "name": "fmt",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "shim   ~> 0.1",
+        "fd     ~> 0.1",
+        "metaty ~> 0.1",
+        "ds     ~> 0.1",
+        "lap    ~> 0.1"
+      ],
+      "files": {
+        "civix.lua": {
+          "sha256": "cb239358a0c8c797782dbdda732c4762bb4195e53ab6b9425c0c1d9646f12ac1",
+          "size": 10694,
+          "url": "blob:cb239358a0c8c797782dbdda732c4762bb4195e53ab6b9425c0c1d9646f12ac1"
+        },
+        "civix/term.lua": {
+          "sha256": "689e75017b36feb747f3c6a9cd46e833bdeda580ee90e34e55584246e315560e",
+          "size": 8078,
+          "url": "blob:689e75017b36feb747f3c6a9cd46e833bdeda580ee90e34e55584246e315560e"
+        }
+      },
+      "homepage": "https://github.com/civboot/civlua/blob/main/lib/civix/README.md",
+      "license": "UNLICENSE",
+      "lua": "~> 5.3",
+      "luarocks": {
+        "date": "Thu, 16 May 2024 16:18:10 GMT",
+        "rockspec": {
+          "date": "Thu, 16 May 2024 16:18:10 GMT",
+          "sha256": "7f6d6809498879f8f02792983c1a1ddd171479af829003a5007b3b55e961079d",
+          "size": 580
+        },
+        "src": {
+          "date": "Thu, 16 May 2024 16:18:11 GMT",
+          "sha256": "11c54eb1055aa1edf0cb6a7c8320d047a1687d1ef3245c9792a872b83c6d7589",
+          "size": 242981,
+          "url": "https://luarocks.org/civix-0.1-8.src.rock"
+        }
+      },
+      "modules": [
+        "civix",
+        "civix.lib",
+        "civix.term"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "civix.lib",
+              "sources": [
+                "civix/lib.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "civlua/lib/civix"
+      },
+      "origin": {
+        "date": "Thu, 16 May 2024 16:18:11 GMT",
+        "sha256": "11c54eb1055aa1edf0cb6a7c8320d047a1687d1ef3245c9792a872b83c6d7589",
+        "size": 242981,
+        "type": "luarocks",
+        "url": "https://luarocks.org/civix-0.1-8.src.rock"
+      },
+      "size": 18772,
+      "summary": "Unix sys library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

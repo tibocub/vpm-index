@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "kong-cluster-drain",
+  "versions": {
+    "1.3-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-cluster-drain/handler.lua": {
+          "sha256": "3b87d46d464f65548684ed8265b942fef88c5f3f494a5dd0d39378a2af025c3e",
+          "size": 604,
+          "url": "https://raw.githubusercontent.com/Optum/kong-cluster-drain/cebe345723563d8990d8f8a6108b07fa49cdbb9d/src/handler.lua"
+        },
+        "kong/plugins/kong-cluster-drain/schema.lua": {
+          "sha256": "b880b408db569aa702db6d9063b8622226955b57ca2173fa4521912f48f512f6",
+          "size": 337,
+          "url": "https://raw.githubusercontent.com/Optum/kong-cluster-drain/cebe345723563d8990d8f8a6108b07fa49cdbb9d/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-cluster-drain",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 11 Jun 2020 19:24:40 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Jun 2020 19:24:40 GMT",
+          "sha256": "3bc063071a9ae258a01905814816ad4390136a43f88feaffff8ef7261e6179c1",
+          "size": 616
+        },
+        "src": {
+          "date": "Thu, 11 Jun 2020 19:24:40 GMT",
+          "sha256": "5047c1be6cb550e649d0e8fe1efbbc4838e2fb18f6a2a4b5f18631fd0d43b115",
+          "size": 183411,
+          "url": "https://luarocks.org/kong-cluster-drain-1.3-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-cluster-drain.handler",
+        "kong.plugins.kong-cluster-drain.schema"
+      ],
+      "origin": {
+        "commit": "cebe345723563d8990d8f8a6108b07fa49cdbb9d",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-cluster-drain.git"
+      },
+      "size": 941,
+      "summary": "Drain and divert your traffic without bringing down the LTM and interrupting existing traffic by a switch that allows failing your healthcheck to a datacenter.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

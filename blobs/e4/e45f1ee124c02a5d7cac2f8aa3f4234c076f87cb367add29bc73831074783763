@@ -1,0 +1,45 @@
+-- The `subagents.run` tool: start one background child agent.
+--
+-- Each call is implemented as a hidden single-agent workflow. The tool returns
+-- a session-scoped public name immediately; status, output, cancellation, and
+-- the durable child id are exposed through `subagents.agents[name]` in the Lua
+-- tool. Hidden workflow records never appear in `subagents.workflows`.
+
+local workflow = require("subagents.workflow")
+local progress = require("subagents.progress")
+
+local M = {}
+
+-- Kept as the common formatter for synchronous workflow results.
+local function manifest_profile(result)
+    local manifest = result.manifest
+    if type(manifest) ~= "table" then return nil end
+    local mine = manifest.subagents
+    if type(mine) ~= "table" or type(mine.agent) ~= "string" then return nil end
+    return mine.agent
+end
+
+function M.format_result(result, profile_name)
+    local body = result.output
+    if body == nil or body == "" then body = result.error or "" end
+    return table.concat({
+        "id: " .. (result.id or "(none)"),
+        "profile: " .. (profile_name or manifest_profile(result) or "?"),
+        "status: " .. (result.status or "unknown"),
+        "resumable: " .. tostring(result.resumable == true),
+        "--- output ---",
+        tostring(body),
+    }, "\n")
+end
+
+function M.handle(input, profiles, context)
+    local ok, name, err = pcall(workflow.start_agent, input, {
+        profiles = profiles,
+        tool_call_id = progress.owner(context) or progress.tool_call_id(),
+    })
+    if not ok then return "Error: " .. tostring(name) end
+    if not name then return "Error: " .. tostring(err) end
+    return name
+end
+
+return M

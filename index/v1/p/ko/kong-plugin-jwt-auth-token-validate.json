@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-auth-token-validate",
+  "versions": {
+    "2.2.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-auth-token-validate/handler.lua": {
+          "sha256": "b6df50dba6ad8a148d4fe20cba03b9c8f88a90cc8cc135ef1c1278798fde3671",
+          "size": 2115,
+          "url": "https://raw.githubusercontent.com/bluekiri/kong-plugin-jwt-auth-token-validate/55b7cedc9e4d5335c1e253f60603e951e4c16d79/kong/plugins/jwt-auth-token-validate/handler.lua"
+        },
+        "kong/plugins/jwt-auth-token-validate/schema.lua": {
+          "sha256": "2dab65fd68ddc0dbb725754fba7c48888c329fb1ed131a5abdaf4fa51394116b",
+          "size": 154,
+          "url": "https://raw.githubusercontent.com/bluekiri/kong-plugin-jwt-auth-token-validate/55b7cedc9e4d5335c1e253f60603e951e4c16d79/kong/plugins/jwt-auth-token-validate/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/bluekiri/kong-plugin-jwt-auth-token-validate",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 10 Mar 2020 10:55:35 GMT",
+        "rockspec": {
+          "date": "Tue, 10 Mar 2020 10:55:35 GMT",
+          "sha256": "6e806d1ff4d8f5b61dc8f8a1caf432f760bbf3b2e46f436d2744c82dad66b562",
+          "size": 695
+        },
+        "src": {
+          "date": "Tue, 10 Mar 2020 10:55:36 GMT",
+          "sha256": "bb8b05f7573b9e69d0d8036be6563108873c90d40c0de2d54deb192ee4158ec3",
+          "size": 5547,
+          "url": "https://luarocks.org/kong-plugin-jwt-auth-token-validate-2.2.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-auth-token-validate.handler",
+        "kong.plugins.jwt-auth-token-validate.schema"
+      ],
+      "origin": {
+        "commit": "55b7cedc9e4d5335c1e253f60603e951e4c16d79",
+        "ref": "v2.2.1.3",
+        "type": "git",
+        "url": "https://github.com/bluekiri/kong-plugin-jwt-auth-token-validate"
+      },
+      "size": 2269,
+      "summary": "A Kong plugin to validate JWT access tokens issuer and audience claim values",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

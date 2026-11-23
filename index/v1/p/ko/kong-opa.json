@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "kong-opa",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/opa/handler.lua": {
+          "sha256": "ffb9ef85a7678559126a2f5f617b76521092b65c9367b1546b1bda7d0fd06925",
+          "size": 3925,
+          "url": "https://raw.githubusercontent.com/ninjaneers-team/kong-opa/8f4a16a7fbfdc11f525a76cad9c8d9678310f624/src/handler.lua"
+        },
+        "kong/plugins/opa/schema.lua": {
+          "sha256": "44702fd326a05f9f87c784d7059bca4645edb2fe622d7f1d65a3c2d0fe3bfa00",
+          "size": 911,
+          "url": "https://raw.githubusercontent.com/ninjaneers-team/kong-opa/8f4a16a7fbfdc11f525a76cad9c8d9678310f624/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 13 Dec 2019 10:35:41 GMT",
+        "rockspec": {
+          "date": "Fri, 13 Dec 2019 10:35:41 GMT",
+          "sha256": "ff7fd24ba0ff9a0c5f734083e3bbcdf37341f21fee48d4215ae4861dbfaae413",
+          "size": 422
+        },
+        "src": {
+          "date": "Fri, 13 Dec 2019 10:35:42 GMT",
+          "sha256": "a0efeecfdfda79f1b0ced517876eb49778fa12ec4a8e1d0cb5a7aab4e5b737ce",
+          "size": 5013,
+          "url": "https://luarocks.org/kong-opa-0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.opa.handler",
+        "kong.plugins.opa.schema"
+      ],
+      "origin": {
+        "commit": "8f4a16a7fbfdc11f525a76cad9c8d9678310f624",
+        "ref": "v1.2",
+        "type": "git",
+        "url": "https://github.com/ninjaneers-team/kong-opa"
+      },
+      "size": 4836,
+      "summary": "OPA Plugin",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.utils",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

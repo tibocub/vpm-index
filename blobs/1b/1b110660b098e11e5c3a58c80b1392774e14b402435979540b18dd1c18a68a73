@@ -1,0 +1,184 @@
+-- The `subagents.models` tool: a bounded window onto the model catalog.
+--
+-- The catalog is far too large to inline into `subagents.run`'s description or
+-- schema, so it is queried on demand instead. Three forms:
+--
+--   { model = "anthropic:sonnet"} exact lookup: wire name, reasoning levels
+--   { provider =, query =, limit=} bounded search
+--   { }                           inherited model/reasoning + provider counts
+--
+-- Results are short readable lines, not JSON. A truncated search says so
+-- explicitly so the primary refines the query instead of assuming it saw
+-- everything; `limit` is clamped to 1..50 (default 10) so no query can dump
+-- the whole registry into the conversation.
+--
+-- The host owns the catalog and the provider-specific reasoning rules,
+-- including effort levels a Lua protocol reports dynamically. Anything this
+-- tool cannot confirm is still validated at spawn time — the catalog is
+-- advice, the runtime is authoritative.
+
+local DEFAULT_LIMIT = 10
+local MAX_LIMIT = 50
+
+local M = {}
+
+local function host()
+    return require("panto").ext
+end
+
+local function ask(q)
+    local ok, result = pcall(host().models, q)
+    if not ok then
+        return nil, tostring(result)
+    end
+    if type(result) ~= "table" then
+        return nil, "the host returned no model information"
+    end
+    return result
+end
+
+local function format_overview(result)
+    local out = {
+        "inherited model: " .. (result.model or "(unknown)"),
+        "inherited reasoning: " .. (result.reasoning or "(provider default)"),
+    }
+    local providers = result.providers or {}
+    if #providers == 0 then
+        out[#out + 1] = "providers: (none configured)"
+        return table.concat(out, "\n")
+    end
+    out[#out + 1] = "providers:"
+    for _, provider in ipairs(providers) do
+        out[#out + 1] = string.format("  %s (%s, %d models)",
+            tostring(provider.name), tostring(provider.style or "?"), tonumber(provider.models) or 0)
+    end
+    return table.concat(out, "\n")
+end
+
+local function format_match(match)
+    local detail = {}
+    if match.wire_model then
+        detail[#detail + 1] = "wire " .. tostring(match.wire_model)
+    end
+    if match.reasoning_default then
+        detail[#detail + 1] = "default reasoning " .. tostring(match.reasoning_default)
+    end
+    if match.context_window then
+        detail[#detail + 1] = "context " .. tostring(match.context_window)
+    end
+    if match.max_tokens then
+        detail[#detail + 1] = "max tokens " .. tostring(match.max_tokens)
+    end
+    local line = "  " .. tostring(match.ref)
+    if #detail > 0 then
+        line = line .. " — " .. table.concat(detail, ", ")
+    end
+    return line
+end
+
+local function format_exact(result, ref)
+    if not result.found then
+        return string.format(
+            "No configured model matches '%s'. Search with subagents.models { query = \"...\" }.", ref)
+    end
+    local out = { "model: " .. tostring(result.ref or ref) }
+    if result.wire_model then
+        out[#out + 1] = "wire model: " .. tostring(result.wire_model)
+    end
+    out[#out + 1] = "default reasoning: " .. (result.reasoning_default or "(provider default)")
+    local levels = result.reasoning_levels
+    if type(levels) == "table" and #levels > 0 then
+        out[#out + 1] = "reasoning levels: " .. table.concat(levels, ", ")
+    end
+    if result.context_window then
+        out[#out + 1] = "context window: " .. tostring(result.context_window)
+    end
+    if result.max_tokens then
+        out[#out + 1] = "max tokens: " .. tostring(result.max_tokens)
+    end
+    return table.concat(out, "\n")
+end
+
+local function format_search(result)
+    local matches = result.matches or {}
+    if #matches == 0 then
+        return "No models match that query."
+    end
+    local out = { string.format("%d match(es):", #matches) }
+    for _, match in ipairs(matches) do
+        out[#out + 1] = format_match(match)
+    end
+    if result.truncated then
+        out[#out + 1] = string.format("%d shown, more exist — refine the query", #matches)
+    end
+    return table.concat(out, "\n")
+end
+
+local function optional_string(value, field)
+    -- Providers may fill unused optional fields with empty strings.
+    if value == nil or value == "" then
+        return nil, nil
+    end
+    if type(value) ~= "string" then
+        return nil, string.format("Error: `%s` must be a non-empty string when given.", field)
+    end
+    return value, nil
+end
+
+local function clamp_limit(value)
+    local limit = tonumber(value) or DEFAULT_LIMIT
+    limit = math.floor(limit)
+    if limit < 1 then
+        return 1
+    end
+    if limit > MAX_LIMIT then
+        return MAX_LIMIT
+    end
+    return limit
+end
+
+function M.handle(input)
+    input = input or {}
+    if type(input) ~= "table" then
+        return "Error: expected a table of arguments."
+    end
+
+    local model, err = optional_string(input.model, "model")
+    if err then
+        return err
+    end
+    local provider
+    provider, err = optional_string(input.provider, "provider")
+    if err then
+        return err
+    end
+    local text
+    text, err = optional_string(input.query, "query")
+    if err then
+        return err
+    end
+
+    if model then
+        local result, ask_err = ask({ model = model })
+        if not result then
+            return "Error: " .. ask_err
+        end
+        return format_exact(result, model)
+    end
+
+    if provider or text then
+        local result, ask_err = ask({ provider = provider, query = text, limit = clamp_limit(input.limit) })
+        if not result then
+            return "Error: " .. ask_err
+        end
+        return format_search(result)
+    end
+
+    local result, ask_err = ask({})
+    if not result then
+        return "Error: " .. ask_err
+    end
+    return format_overview(result)
+end
+
+return M

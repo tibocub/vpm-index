@@ -1,0 +1,286 @@
+<script src="<%= url_for('site-root') %>static/js/hls.min.js"></script>
+<script src="<%= url_for('site-root') %>static/js/auto-complete.min.js"></script>
+<script src="<%= url_for('site-root') %>static/js/util.js"></script>
+<script src="<%= url_for('site-root') %>static/js/clipboard.min.js"></script>
+
+<h3><%= stream.name %></h3>
+
+<% render('multistreamer.views.stream-menu', { active_submenu = 'dashboard' }) %>
+
+<% if metadata_level == 2 then %>
+<div class="pure-form pure-form-aligned">
+
+<div class="pure-control-group">
+<label for="rtmp_url"><%= config.lang.rtmp_url %></label>
+<button id="copyRTMPBtn" type="button" class="pure-button" data-clipboard-text="<%= public_rtmp_url %>/<%= rtmp_prefix %>"><%= config.lang.copy %></button>
+<input type="text" id="rtmp_url" name="rtmp_url" value="<%= public_rtmp_url %>/<%= rtmp_prefix %>" readonly />
+</div>
+
+<div class="pure-control-group">
+<label for="stream_key"><%= config.lang.stream_key %></label>
+<button id="copyKeyBtn" type="button" class="pure-button" data-clipboard-text="<%= stream.uuid %>"><%= config.lang.copy %></button>
+<button id="showBtn" type="button" class="pure-button"><%= config.lang.show %></button>
+<input type="text" id="stream-key" value="<%= stream.uuid %>" readonly />
+</div>
+
+<script>
+var copyRTMPBtn = document.getElementById('copyRTMPBtn');
+var copyKeyBtn = document.getElementById('copyKeyBtn');
+var copyRTMPClip = new ClipboardJS(copyRTMPBtn);
+var copyKeyClip = new ClipboardJS(copyKeyBtn);
+
+copyRTMPClip.on('success',function(e) {
+    copyRTMPBtn.setAttribute('data-balloon','Copied!');
+    copyRTMPBtn.setAttribute('data-balloon-pos','up');
+    copyRTMPBtn.setAttribute('data-ballon-visible',true);
+});
+
+copyRTMPBtn.addEventListener('mouseleave',function() {
+    copyRTMPBtn.removeAttribute('data-balloon');
+    copyRTMPBtn.removeAttribute('data-balloon-pos');
+    copyRTMPBtn.removeAttribute('data-ballon-visible');
+});
+
+
+copyKeyClip.on('success',function(e) {
+    copyKeyBtn.setAttribute('data-balloon','Copied!');
+    copyKeyBtn.setAttribute('data-balloon-pos','up');
+    copyKeyBtn.setAttribute('data-ballon-visible',true);
+});
+
+copyKeyBtn.addEventListener('mouseleave',function() {
+    copyKeyBtn.removeAttribute('data-balloon');
+    copyKeyBtn.removeAttribute('data-balloon-pos');
+    copyKeyBtn.removeAttribute('data-ballon-visible');
+});
+
+</script>
+
+</div>
+<% end %>
+<% if metadata_level == 2 or chat_level > 0 then %>
+<p><a target="_blank" href="<%= url_for('stream-chat', { id = stream.id })%>?show_picture"><%= config.lang.chat %></a></p>
+<p><a onclick="window.open('<%= url_for('stream-chat-widget-config', { id = stream.id }) %>?night_mode=<%= user:get_pref('night_mode') and 'true' or 'false' %>','newwindow','width=1200,height=600'); return false;"  href="<%= url_for('stream-chat-widget-config', { id = stream.id})%>">Chat Widget</a></p>
+<p><strong><%= config.lang.irc_room %></strong> <code>#<%= user.username %>-<%= stream.slug %></code> <a href="irc<%= public_irc_ssl and 's' or '' %>://<%= public_irc_hostname %>:<%= public_irc_port %>/<%= user.username %>-<%= stream.slug %>,needpass"><%= config.lang.join %></a></p>
+<% end %>
+
+<% if metadata_level > 0 then %>
+
+<form class="pure-form pure-form-aligned" id="the_form" method="post" action="<%= url_for('stream-edit', { id = stream.id}) %>?subset=dashboard" enctype="multipart/form-data">
+
+<fieldset><legend><%= config.lang.stream_preview %></legend>
+<div class="pure-g">
+<% if #stream_accounts == 0 then %>
+<div class="pure-u-1-1">
+<p><span class="error"><%= config.lang.stream_live_warning %></span></p>
+</div>
+<% end %>
+<div class="pure-u-1-3">
+<video controls poster="<%= url_for('site-root') %>static/img/novideo.jpg" id="thevideo"></video>
+</div>
+<% if metadata_level == 2 then %>
+<div class="pure-u-1-3 pure-controls">
+<% if stream.ffmpeg_pull_args then %>
+<% if stream_status.data_pulling then %>
+<button class="pure-button pure-button-primary" type="submit" id="customPullBtnStop" name="customPullBtnStop"><%= config.lang.stop_puller %></button>
+<% else %>
+<button class="pure-button pure-button-primary" type="submit" id="customPullBtn" name="customPullBtn"><%= config.lang.start_puller %></button>
+<% end %>
+<% end %>
+<% if stream.preview_required == 1 and #stream_accounts > 0 and stream_status.data_incoming and not stream_status.data_pushing then %>
+<button class="pure-button pure-button-primary" type="submit" id="goLiveBtn" name="goLiveBtn"><%= config.lang.go_live %></button>
+<% else %>
+<button class="pure-button pure-button-primary" type="submit" id="goLiveBtn" name="goLiveBtn" disabled><%= config.lang.go_live %></button>
+<% end %>
+<button class="pure-button pure-button-primary" type="submit" id="stopLiveBtn" name="stopLiveBtn" <%= stream_status.data_pushing == true and '' or 'disabled'%>><%= config.lang.stop_pushing %></button>
+</div>
+<% end %>
+</div>
+</fieldset>
+
+<div class="pure-control-group"><label for="title"><%= config.lang.title %></label>
+<input type="text" id="title" name="title" <% if stream:get('title') then %>value="<%= stream:get('title') %>"<% end %> <%= metadata_level < 2 and 'readonly' or '' %>/>
+</div>
+
+<div class="pure-control-group"><label for="description"><%= config.lang.description %></label>
+<textarea id="description" name="description" <%= metadata_level < 2 and 'readonly' or '' %>><% if stream:get('description') then %><%= stream:get('description') %><% end %></textarea></div>
+
+<% if metadata_level == 2 then %>
+<div class="pure-control-group"><label><%= config.lang.copy_above_to_below %></label>
+<button id="copyDownBtn" type="button" class="pure-button"><%= config.lang.copy %></button>
+</div>
+<% end %>
+
+<% for _,account in pairs(stream_accounts) do %>
+<fieldset><legend>
+<%= config.lang.account_settings:gsub('%%account_with_network', config.lang.account_with_network:gsub('%%account',account.name):gsub('%%network',networks[account.network].displayname)) %>
+</legend>
+<% local metadata_form, err = networks[account.network].metadata_form(account:get_keystore(),stream:get_stream_account(account):get_keystore()) %>
+
+<% if err then %>
+<p><%= config.lang.account_form_error:format(err) %></p>
+<% elseif metadata_form then %>
+<% for i,v in ipairs(metadata_form) do %>
+
+<% if v.type ~= 'hidden' then %>
+<div class="pure-control-group"><label for="<%= v.key %>.<%= account.id %>"><%= config.lang[account.network].metadata_form[v.key] %><%= v.required and ' *' or '' %></label>
+<% end %>
+
+<% if v.type == 'text' then %>
+<input type="text" id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <% if v.value then %>value="<%= v.value %>"<% end %> <%= metadata_level < 2 and 'readonly' or ''%> />
+<% if metadata_level >= 2 and v.search then %>
+<script>
+
+var autocomplete_<%= v.key%>_<%= account.id %> = new autoComplete({
+    selector: document.getElementById('<%=v.key%>.<%=account.id%>'),
+    source: function(term,response) {
+        httpc.getJSON('<%= url_for('endpoint-' .. account.network .. '-' .. v.search) %>',
+          { <%= v.key %>: term } , {}, undefined, response);
+    },
+    renderItem: function(item ,search) {
+        search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+        return '<div class="autocomplete-suggestion" data-itemid="' + item.id + '" data-val="' + item.name + '">' + item.name.replace(re, "<b>$1</b>") + '</div>';
+    },
+    <% if v.update then %>
+    onSelect: function(e, term, item) {
+        document.getElementById('<%=v.update%>.<%=account.id%>').value = item.getAttribute('data-itemid');
+    },
+    <% end %>
+
+});
+
+</script>
+<% end %>
+
+<% elseif v.type == 'textarea' then %>
+<textarea id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <%= metadata_level < 2 and 'readonly' or '' %>><%= v.value ~= nil and v.value or '' %></textarea>
+
+<% elseif v.type == 'select' then %>
+<select id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <%= metadata_level < 2 and 'readonly' or '' %>>
+<option value="" disabled <% if not v.value then %>selected<% end %>><%= config.lang.select %></option>
+<% for i,o in ipairs(v.options) do %>
+<%
+local label
+if config.lang[account.network] and
+   config.lang[account.network].metadata_opts and
+   config.lang[account.network].metadata_opts[v.key] and
+   config.lang[account.network].metadata_opts[v.key][o.value] then
+   label = config.lang[account.network].metadata_opts[v.key][o.value]
+else
+   label = o.label
+end
+%>
+<option value="<%= o.value %>" <%= o.value == v.value and 'selected' or '' %>><%= label %></option>
+<% end %>
+</select>
+
+<% elseif v.type == 'checkbox' then %>
+<input <%= v.value and 'checked ' or ''%>type="checkbox" id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <%= metadata_level < 2 and 'readonly' or '' %>>
+<% elseif v.type == 'hidden' then %>
+<input type="hidden" id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <% if v.value then %>value="<%= v.value %>"<% end %> <%= metadata_level < 2 and 'readonly' or '' %> />
+
+<% end %>
+<% if v.type ~= 'hidden' then %>
+</div>
+<% end %>
+<% end %>
+
+<% else %>
+<p><%= config.lang.no_account_settings %></o>
+<% end %>
+
+<% if config.allow_transcoding then %>
+<% local ffmpeg_args = stream:get_stream_account(account).ffmpeg_args %>
+<div class="pure-control-group"><label for="ffmpeg_args.<%= account.id %>"><%= config.lang.ffmpeg_args %></label>
+<input type="text" id="ffmpeg_args.<%= account.id %>" name="ffmpeg_args.<%= account.id %>" <% if ffmpeg_args then %>value="<%= ffmpeg_args %>" <% end %> <%= metadata_level < 2 and 'readonly' or '' %> />
+</div>
+<% end %>
+
+</fieldset>
+<% end %>
+
+<% if metadata_level == 2 then %>
+<div class="pure-controls">
+<button class="pure-button pure-button-primary" type="submit" id="submitBtn" name="submitBtn"><%= config.lang.submit %></button>
+</div>
+<% end %>
+</form>
+
+<script type="text/javascript">
+var copyDownBtn = document.getElementById('copyDownBtn');
+var showBtn = document.getElementById('showBtn');
+
+var titleKeys = [];
+var descriptionKeys = [];
+var titleInput = document.getElementById('title');
+var descriptionInput = document.getElementById('description');
+var streamKey = document.getElementById('stream-key');
+<% for _,account in pairs(stream_accounts) do -%>
+<% local metadata_fields, err = networks[account.network].metadata_fields() -%>
+<% if metadata_fields then -%>
+<% for _,field in pairs(metadata_fields) do -%>
+<% if field.key == 'title' then -%>
+titleKeys.push('<%= field.key %>.<%= account.id %>');
+<% elseif field.key == 'description' then -%>
+descriptionKeys.push('<%= field.key %>.<%= account.id %>');
+<% end -%>
+<% end -%>
+<% end -%>
+<% end -%>
+copyDownBtn.onclick = function() {
+  titleKeys.forEach(function(k) {
+    var a = document.getElementById(k);
+    a.value = titleInput.value;
+  });
+  descriptionKeys.forEach(function(k) {
+    var a = document.getElementById(k);
+    a.value = descriptionInput.value;
+  });
+}
+
+function hideStreamKey() {
+  streamKey.style.display='none';
+  showBtn.onclick = showStreamKey;
+}
+
+function showStreamKey() {
+  streamKey.style.display='inline';
+  showBtn.onclick = hideStreamKey;
+}
+
+showBtn.onclick = showStreamKey;
+</script>
+
+<script>
+  var url = '<%= url_for('stream-video', { id = stream.id , fn = 'index.m3u8' }) %>';
+  var goLiveBtn = document.getElementById('goLiveBtn');
+  if(Hls.isSupported()) {
+
+    function loadVideo() {
+      var video = document.getElementById('thevideo');
+
+      var hls = new Hls();
+      hls.attachMedia(video);
+      hls.loadSource(url);
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        setTimeout(loadVideo, 10000);
+        hls.destroy();
+      });
+      hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+        console.log("manifest loaded, found " + data.levels.length + " quality level");
+        video.play();
+        <% if stream.preview_required == 1 and #stream_accounts > 0 and not stream_status.data_pushing then %>goLiveBtn.removeAttribute('disabled');<% end %>
+      });
+    }
+    loadVideo();
+  }
+  else {
+    goLiveBtn.removeAttribute('disabled');
+  }
+
+</script>
+
+<% end %>
+
+<% render('multistreamer.views.stream-functions', { active_submenu = 'dashboard' }) %>

@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-http-mirror",
+  "versions": {
+    "1.0.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-plugin-http-mirror/handler.lua": {
+          "sha256": "5a44a0c1a0fef49a33a57ea1f12cef9de338d77dc5fde7fc89ac253f15f092fe",
+          "size": 871,
+          "url": "https://raw.githubusercontent.com/nhp0712/kong-plugin-http-mirror/b213908032778999d2a333b0b2efceb194801892/kong/plugins/http-mirror/handler.lua"
+        },
+        "kong/plugins/kong-plugin-http-mirror/http_client.lua": {
+          "sha256": "1cca9c7eadff263812bc78855946357de4985a7031cfbefb108b815af3802bdb",
+          "size": 893,
+          "url": "https://raw.githubusercontent.com/nhp0712/kong-plugin-http-mirror/b213908032778999d2a333b0b2efceb194801892/kong/plugins/http-mirror/http_client.lua"
+        },
+        "kong/plugins/kong-plugin-http-mirror/mirror.lua": {
+          "sha256": "bb887ce167f84448628ef2be4f7a7a9e0fe6cfc6ada43f544ad4f625db83a65d",
+          "size": 860,
+          "url": "https://raw.githubusercontent.com/nhp0712/kong-plugin-http-mirror/b213908032778999d2a333b0b2efceb194801892/kong/plugins/http-mirror/mirror.lua"
+        },
+        "kong/plugins/kong-plugin-http-mirror/schema.lua": {
+          "sha256": "d80aa49b1a6012291e480579dd31cf1dc292b8fc1f715f388850db5f0b6a64bd",
+          "size": 1043,
+          "url": "https://raw.githubusercontent.com/nhp0712/kong-plugin-http-mirror/b213908032778999d2a333b0b2efceb194801892/kong/plugins/http-mirror/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 08 Jul 2021 07:07:31 GMT",
+        "rockspec": {
+          "date": "Thu, 08 Jul 2021 07:07:31 GMT",
+          "sha256": "57db30885b934d79230c83c0fa421de99000963aeac30be7a30be984d9ab61ab",
+          "size": 717
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-plugin-http-mirror.handler",
+        "kong.plugins.kong-plugin-http-mirror.http_client",
+        "kong.plugins.kong-plugin-http-mirror.mirror",
+        "kong.plugins.kong-plugin-http-mirror.schema"
+      ],
+      "origin": {
+        "commit": "b213908032778999d2a333b0b2efceb194801892",
+        "type": "git",
+        "url": "https://github.com/nhp0712/kong-plugin-http-mirror"
+      },
+      "size": 3667,
+      "summary": "A Kong plugin that will mirror original request to other endpoints",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 4
+      }
+    }
+  }
+}

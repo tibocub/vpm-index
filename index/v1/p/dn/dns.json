@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "dns",
+  "versions": {
+    "0.2.1-1": {
+      "bin": [],
+      "deps": [
+        "penlight > 1.1, < 2.0"
+      ],
+      "files": {
+        "dns/balancer.lua": {
+          "sha256": "59e93703f3810810c4045381dcd56898f57c8d8910823368a7d6b70d745fee9f",
+          "size": 24694,
+          "url": "https://raw.githubusercontent.com/Mashape/dns.lua/0.2.1/src/dns/balancer.lua"
+        },
+        "dns/client.lua": {
+          "sha256": "1320c2367c53f4c55f33fd1a1161fcdc770c027a238051dd92ed54d586075b2b",
+          "size": 27792,
+          "url": "https://raw.githubusercontent.com/Mashape/dns.lua/0.2.1/src/dns/client.lua"
+        },
+        "dns/utils.lua": {
+          "sha256": "135b0557b1a036d5d3fac09e38a83617a580556ae97045c89dcd163ac4d298a3",
+          "size": 9368,
+          "url": "https://raw.githubusercontent.com/Mashape/dns.lua/0.2.1/src/dns/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/Mashape/dnsutils.lua",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Mon, 24 Oct 2016 14:08:20 GMT",
+        "rockspec": {
+          "date": "Mon, 24 Oct 2016 14:08:20 GMT",
+          "sha256": "da1f144e5d7085ae91131d485d75ad5ea1e96179301165b4fc0b9fd252349284",
+          "size": 687
+        }
+      },
+      "modules": [
+        "dns.balancer",
+        "dns.client",
+        "dns.utils"
+      ],
+      "origin": {
+        "sha256": "fe02bdc5a1ecb28ad3548b44f1e0a491b7668fa16fd17a79eb308ff23c149d64",
+        "type": "archive",
+        "url": "https://github.com/Mashape/dns.lua/archive/0.2.1.tar.gz"
+      },
+      "size": 61854,
+      "summary": "DNS library",
+      "undeclared_requires": [
+        "ngx.semaphore",
+        "resty.dns.resolver",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (ngx.semaphore)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

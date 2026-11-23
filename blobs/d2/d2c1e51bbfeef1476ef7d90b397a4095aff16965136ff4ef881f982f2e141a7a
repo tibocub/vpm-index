@@ -1,0 +1,149 @@
+local lotus = {
+
+	--- Lotus string API
+	string = {
+
+		--- Splits the given string by newlines.
+		--
+		---@param str string the string to get the lines of
+		--
+		---@return table<integer, string> lines The lines of the string.
+		lines = function(str)
+			local lines = {}
+			for line in str:gmatch("[^\r\n]+") do
+				table.insert(lines, line)
+			end
+			return lines
+		end,
+
+		--- Splits the given string by the given delimiter
+		--
+		---@param str string The string to split
+		---@param delimiter string The delimiter to split by
+		--
+		---@return table<integer, string> words The string split by newlines
+		split = function(str, delimiter)
+			local tokens = {}
+			for word in str:gmatch("[^" .. delimiter .. "]+") do
+				table.insert(tokens, word)
+			end
+			return tokens
+		end,
+
+		--- Splits the given string by whitespace.
+		--
+		---@param str string The string to split
+		--
+		---@return table<integer, string> words The string split by newlines
+		words = function(str)
+			local words = {}
+			for word in str:gmatch("%S+") do
+				table.insert(words, word)
+			end
+			return words
+		end,
+	},
+
+	--- Lotus Table API
+	table = {
+
+		--- Returns whether the table contains the given value as an integer key.
+		--
+		---@param tbl table The table to check
+		---@param value any The value to search for
+		--
+		---@return boolean contains Whether the value is in the table
+		contains = function(tbl, value)
+			for _, v in ipairs(tbl) do
+				if v == value then
+					return true
+				end
+			end
+			return false
+		end,
+
+		--- Converts the given table to a JSON-style string.
+		--
+		---@param tbl table The table to stringify
+		--
+		---@return string stringified The table stringified
+		to_string = function(tbl)
+			local str = "{\n"
+			for _, v in ipairs(tbl) do
+				local lines = lotus.string.lines(lotus.value.to_string(v))
+				for _, line in ipairs(lines) do
+					str = str .. "\t" .. line .. "\n"
+				end
+			end
+			for key, value in pairs(tbl) do
+				if type(key) ~= "number" then
+					local value_lines = lotus.string.lines(lotus.value.to_string(value))
+					local key_lines = lotus.string.lines(lotus.value.to_string(key))
+					for index, new_value in ipairs(value_lines) do
+						str = str .. "\t" .. key_lines[index] .. "=" .. new_value .. "\n"
+					end
+				end
+			end
+			str = str .. "}"
+
+			if str == "{\n}" then
+				str = "{}"
+			end
+
+			return str
+		end,
+	},
+
+	--- Operations on any values
+	value = {
+
+		--- Converts the given value to a string, with proper formatting for tables.
+		--
+		---@param value any The value to stringify
+		--
+		---@return string str The stringified value
+		to_string = function(value)
+			if type(value) == "table" then
+				return lotus.table.to_string(value)
+			else
+				return tostring(value)
+			end
+		end,
+	},
+
+	-- Internal shell operations
+	shell = {
+
+		-- Captures the output of a command. This is autoboxed with the `$` syntax,
+		-- so `$(ls(-A1) |> grep("example"))` is the same as `lotus.capture(function() return ls("-A1") |> grep("example") end)`.
+		-- Note that `$()` is a special syntax, not a function call, meaning you can't pipe into `$` or assign variables to `$` etc.
+		--
+		---@param fn function The function to capture the output of
+		--
+		---@return string reading The output of the function
+		capture = function(fn)
+			io.open("/tmp/lotus_stdout", "w"):close()
+			local fcntl = require("posix.fcntl")
+			local unistd = require("posix.unistd")
+			local stat = require("posix.sys.stat")
+
+			local original_stdout = unistd.dup(unistd.STDOUT_FILENO)
+			local stdout_reading = fcntl.open("/tmp/lotus_stdout", fcntl.O_CREAT | fcntl.O_WRONLY | fcntl.O_TRUNC, stat.S_IRUSR | stat.S_IWUSR)
+			unistd.dup2(stdout_reading, unistd.STDOUT_FILENO)
+			unistd.close(stdout_reading)
+
+			fn()
+
+			unistd.dup2(original_stdout, unistd.STDOUT_FILENO)
+
+			local reading = io.open("/tmp/lotus_stdout", "r"):read("*a")
+			return reading
+		end,
+
+		pipe = function(fn1, fn2)
+			local unistd = require("posix.unistd")
+		end,
+	},
+}
+
+return lotus

@@ -1,0 +1,18 @@
+local kong = kong
+
+function RequestBodyLogHandler:access(config)
+    if kong.request.get_method() == config.request_type then
+        local body = kong.request.get_raw_body()
+        
+        if body and body ~= "" then
+            kong.log.notice(config.request_type .. " request with body detected: " .. kong.request.get_path())
+            
+            if config.log_body == true then
+                kong.log.notice(kong.request.get_path() .. "request body: " .. body:gsub("%s+", " "))
+            end
+        
+        end
+    end
+end
+
+return RequestBodyLogHandler

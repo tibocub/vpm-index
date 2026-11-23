@@ -1,0 +1,13 @@
+--- @module "zync"
+---
+local zync = {
+    api = require('zync.api'),
+}
+
+--- Executes zync
+---
+function zync.run()
+    zync.api.run()
+end
+
+return zync

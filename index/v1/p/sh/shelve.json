@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "shelve",
+  "versions": {
+    "0.35.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "license": "LGPLv2",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 14 Jan 2020 14:01:31 GMT",
+        "rockspec": {
+          "date": "Tue, 14 Jan 2020 14:01:31 GMT",
+          "sha256": "39eda0daaea90489b306da658a1fbd0f78f07212e04f67362211dc9224d7a6d2",
+          "size": 849
+        },
+        "src": {
+          "date": "Tue, 14 Jan 2020 14:01:33 GMT",
+          "sha256": "6a014a8f075dd360d7abb6224f965d35155c83864871e572b7e93402ada5bf80",
+          "size": 22707,
+          "url": "https://luarocks.org/shelve-0.35.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "shelve"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBGDBM"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBGDBM": {
+              "header": "gdbm.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "NDEBUG"
+              ],
+              "libraries": [
+                "gdbm"
+              ],
+              "name": "shelve",
+              "sources": [
+                "marshal.c",
+                "shelve.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 14 Jan 2020 14:01:33 GMT",
+        "sha256": "6a014a8f075dd360d7abb6224f965d35155c83864871e572b7e93402ada5bf80",
+        "size": 22707,
+        "type": "luarocks",
+        "url": "https://luarocks.org/shelve-0.35.3-1.src.rock"
+      },
+      "summary": "Serialization and on-disk persistence for Lua values",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

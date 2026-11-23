@@ -1,0 +1,46 @@
+local sfs       = require 'sfs'
+local utils     = require 'lrocket.utils'
+local cbin      = require 'lrocket.build.executable-c'
+local toolchain = require 'lrocket.toolchain'
+local lua       = require 'lrocket.lua'
+local routines  = require 'lrocket.routines'
+local log       = require 'lrocket.log'
+
+local loader = require 'lrocket.loader'
+
+---@type lrocket.Generator
+---@diagnostic disable-next-line: missing-fields
+local executable = setmetatable({}, { __index = cbin })
+
+function executable.build(src, output, userargs)
+	local cfile = userargs.keep and src.root..".lrocket.c" or sfs.tmppath()
+
+	cbin.build(src, cfile, userargs)
+
+	local conf = toolchain.compilerconf(userargs.cconf)
+
+	conf:addarg('object', loader.BASE_O)
+	conf:addarg('c', cfile)
+
+	routines.LINK_SIBLING_DEPS = utils.boolean(userargs.link_sibling_deps)
+
+	for _, mod in ipairs(src.mods) do
+		mod:configure(conf)
+	end
+
+	conf.subsystem = userargs.windows_gui and 'gui' or 'cmd'
+	conf.optimize = userargs.optimize
+	conf.output = output
+
+	local dir = sfs.getDir(output)
+	lua.addcflags(conf, 'li')
+	log.assert(toolchain.compile(conf))
+
+	if userargs.copy_native_libs then
+		routines.copynativelibs(src, lua.CONFIGURE_OPTS.linkmode == 'shared' and lua.LIBLUA_SHARED, dir)
+	end
+
+	sfs.deltmppath(cfile)
+end
+
+return executable

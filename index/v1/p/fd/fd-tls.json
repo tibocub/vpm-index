@@ -1,0 +1,99 @@
+{
+  "kind": "lib",
+  "name": "fd-tls",
+  "versions": {
+    "0.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "fd_tls/init.lua": {
+          "sha256": "25b669062a3e43cad43c121999dc02ba8dbbc3c87a01ab7701f2b1345ff4d9f2",
+          "size": 6157,
+          "url": "blob:25b669062a3e43cad43c121999dc02ba8dbbc3c87a01ab7701f2b1345ff4d9f2"
+        }
+      },
+      "homepage": "https://github.com/dozyio/lua-fd-tls",
+      "license": "MIT",
+      "lua": ">= 5.4",
+      "luarocks": {
+        "date": "Mon, 11 May 2026 21:34:01 GMT",
+        "rockspec": {
+          "date": "Mon, 11 May 2026 21:34:01 GMT",
+          "sha256": "71e87204bd61876d698567eb9b0752a83ff238216757c2991982d3f7f7a53324",
+          "size": 846
+        },
+        "src": {
+          "date": "Mon, 11 May 2026 21:34:02 GMT",
+          "sha256": "5cc6e3c7437b1844aebcacc9742a9be31a60aeb96ad4e1e9e3835caaeffb20e8",
+          "size": 25318,
+          "url": "https://luarocks.org/fd-tls-0.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "fd_tls",
+        "fd_tls.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "CRYPTO",
+          "OPENSSL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "CRYPTO": {
+              "header": "openssl/crypto.h",
+              "library": "crypto"
+            },
+            "OPENSSL": {
+              "header": "openssl/ssl.h",
+              "library": "ssl"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(OPENSSL_INCDIR)",
+                "$(CRYPTO_INCDIR)"
+              ],
+              "libdirs": [
+                "$(OPENSSL_LIBDIR)",
+                "$(CRYPTO_LIBDIR)"
+              ],
+              "libraries": [
+                "ssl",
+                "crypto"
+              ],
+              "name": "fd_tls.core",
+              "sources": [
+                "src/fd_tls.c",
+                "src/tls_conn.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 11 May 2026 21:34:02 GMT",
+        "sha256": "5cc6e3c7437b1844aebcacc9742a9be31a60aeb96ad4e1e9e3835caaeffb20e8",
+        "size": 25318,
+        "type": "luarocks",
+        "url": "https://luarocks.org/fd-tls-0.0.1-1.src.rock"
+      },
+      "size": 6157,
+      "summary": "Tiny fd-based TLS module for Lua",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

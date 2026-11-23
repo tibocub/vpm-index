@@ -1,0 +1,171 @@
+--- Core logic for the Zensical plugin.
+local utils = require("zensical.utils")
+local M = {}
+local job = nil
+local is_manually_stopped = false
+
+local function noop() end
+
+--- Find the PID of the process using the specified port
+--- @param port number Port number to check
+--- @return number|nil PID of the process, or nil if not found
+local function find_pid_by_port(port)
+	local command = string.format("lsof -t -iTCP:%d -sTCP:LISTEN 2>/dev/null || echo ''", port)
+	local handle = io.popen(command)
+	local pid = handle:read("*a"):gsub("^\n+", ""):gsub("\n+$", "")
+	handle:close()
+	return tonumber(pid) or nil
+end
+
+--- Check if Zensical server is already running on port 8000
+--- @return boolean True if the server is running, otherwise false
+function M.is_server_running()
+	return find_pid_by_port(8000) ~= nil
+end
+
+--- Check if zensical.toml exists in the current directory
+--- @return boolean True if the file exists, otherwise false
+local function is_zensical_toml_exists()
+	local path = vim.fn.expand("zensical.toml")
+	return vim.fn.filereadable(path) == 1
+end
+
+--- Open Zensical in the default browser (Linux only)
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.open_zensical(on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	if not M.is_server_running() then
+		on_error(utils.get_msg("server", "not_running"))
+		return false
+	end
+
+	if vim.fn.has("unix") ~= 1 then
+		on_error("This command is only supported on Linux.")
+		return false
+	end
+
+	vim.fn.jobstart("xdg-open http://localhost:8000", {
+		on_exit = function(_, code)
+			if code == 0 then
+				on_success("Zensical opened in the default browser.")
+			else
+				on_error("Failed to open Zensical in the default browser.")
+			end
+		end,
+	})
+	return true
+end
+
+--- Start the Zensical server
+--- @param command string Command to start the server
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.start_zensical(command, on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+	is_manually_stopped = false
+
+	if M.is_server_running() then
+		on_error(utils.get_msg("server", "already_running"))
+		return false
+	end
+
+	if not is_zensical_toml_exists() then
+		on_error(utils.get_msg("config", "missing_toml"))
+		return false
+	end
+
+	vim.notify(utils.get_msg("info", "starting"), vim.log.levels.INFO)
+	job = vim.system({
+		"uvx",
+		unpack(vim.split(command, " ")),
+	}, { text = true, cwd = vim.fn.getcwd() }, function(obj)
+		if not is_manually_stopped and obj.code ~= 0 then
+			on_error(utils.get_msg("server", "start_error"):format(obj.code))
+		end
+		job = nil
+	end)
+	on_success(utils.get_msg("server", "started"))
+	return true
+end
+
+--- Stop the Zensical server
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.stop_zensical(on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	local pid = find_pid_by_port(8000)
+	if not pid then
+		on_error(utils.get_msg("server", "not_running"))
+		return false
+	end
+
+	vim.notify(utils.get_msg("info", "stopping"):format(pid), vim.log.levels.INFO)
+	is_manually_stopped = true
+
+	vim.system({ "kill", "-9", pid }, { text = true }, function(obj)
+		if obj.code == 0 then
+			on_success(utils.get_msg("server", "stopped"))
+		else
+			on_error(utils.get_msg("server", "stop_error"):format(obj.stderr or "unknown error"))
+		end
+		job = nil
+	end)
+	return true
+end
+
+--- Build Zensical project
+--- @param command string Command to build the project
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.build_zensical(command, on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	vim.notify(utils.get_msg("info", "building"), vim.log.levels.INFO)
+	job = vim.system({
+		"uvx",
+		unpack(vim.split(command, " ")),
+	}, { text = true, cwd = vim.fn.getcwd() }, function(obj)
+		if obj.code ~= 0 then
+			on_error(utils.get_msg("build", "error"):format(obj.code))
+		end
+		job = nil
+	end)
+	on_success(utils.get_msg("build", "success"))
+	return true
+end
+
+--- Create a new Zensical project
+--- @param command string Command to create a new project
+--- @param on_success function Callback on success
+--- @param on_error function Callback on error
+function M.new_zensical(command, on_success, on_error)
+	on_success = on_success or noop
+	on_error = on_error or noop
+
+	if is_zensical_toml_exists() then
+		on_error(utils.get_msg("project", "exists"))
+		return false
+	end
+
+	vim.notify(utils.get_msg("info", "creating"), vim.log.levels.INFO)
+	job = vim.system({
+		"uvx",
+		unpack(vim.split(command, " ")),
+	}, { text = true, cwd = vim.fn.getcwd() }, function(obj)
+		if obj.code ~= 0 then
+			on_error(utils.get_msg("project", "create_error"):format(obj.code))
+		end
+		job = nil
+	end)
+	on_success(utils.get_msg("project", "created"))
+	return true
+end
+
+return M

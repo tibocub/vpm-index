@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "myplugin",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/myplugin/access.lua": {
+          "sha256": "327dcc69cd07ea718ef5e4236475272b62667ce0e9d22a2ab881b00dc3498504",
+          "size": 363,
+          "url": "https://raw.githubusercontent.com/francoisweissert1/myplugin/35caf4cc4e7438b96fcd9717a1ff2e30b9cf46ba/access.lua"
+        },
+        "kong/plugins/myplugin/handler.lua": {
+          "sha256": "ed8d8df003c9679fc98a726bebfcd5c158fd4393a7b534cb54e3f71920bf3a46",
+          "size": 454,
+          "url": "https://raw.githubusercontent.com/francoisweissert1/myplugin/35caf4cc4e7438b96fcd9717a1ff2e30b9cf46ba/handler.lua"
+        },
+        "kong/plugins/myplugin/schema.lua": {
+          "sha256": "64aa719279084ece992170059071dfd1bb672e1a1107e37244770864ddd56548",
+          "size": 109,
+          "url": "https://raw.githubusercontent.com/francoisweissert1/myplugin/35caf4cc4e7438b96fcd9717a1ff2e30b9cf46ba/schema.lua"
+        }
+      },
+      "homepage": "http://getkong.org",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 06 Dec 2018 09:16:25 GMT",
+        "rockspec": {
+          "date": "Thu, 06 Dec 2018 09:16:25 GMT",
+          "sha256": "28a88e75ad63b0dfafcf2414c0be42a04c9bc8c54bb360f86a648de6df51ac5e",
+          "size": 1439
+        },
+        "src": {
+          "date": "Thu, 06 Dec 2018 09:16:28 GMT",
+          "sha256": "fedff34c0566a3053707e310bed709f3cad9e829513e5b150abb6b3c25096bbd",
+          "size": 3842,
+          "url": "https://luarocks.org/myplugin-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.myplugin.access",
+        "kong.plugins.myplugin.handler",
+        "kong.plugins.myplugin.schema"
+      ],
+      "origin": {
+        "commit": "35caf4cc4e7438b96fcd9717a1ff2e30b9cf46ba",
+        "type": "git",
+        "url": "https://github.com/francoisweissert1/myplugin"
+      },
+      "size": 926,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.helloworld.access"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

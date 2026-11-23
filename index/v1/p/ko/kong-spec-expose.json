@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-spec-expose",
+  "versions": {
+    "1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-spec-expose/access.lua": {
+          "sha256": "24a2ac4e0b82c1a599ebf69a8a30913af82beb6ded340eb84f8202afec94a033",
+          "size": 722,
+          "url": "https://raw.githubusercontent.com/Optum/kong-spec-expose/0dba2d1fc31570e4b0c40ff127469583aed4a1ce/src/access.lua"
+        },
+        "kong/plugins/kong-spec-expose/handler.lua": {
+          "sha256": "ee857febdf6c4960a900793df2ff184060fee715f06befac68b73410b8501d8a",
+          "size": 235,
+          "url": "https://raw.githubusercontent.com/Optum/kong-spec-expose/0dba2d1fc31570e4b0c40ff127469583aed4a1ce/src/handler.lua"
+        },
+        "kong/plugins/kong-spec-expose/schema.lua": {
+          "sha256": "57a8fd25afcc547027fec300e79cc4baf2c74d7e6cb9847c16cce9acde07744f",
+          "size": 329,
+          "url": "https://raw.githubusercontent.com/Optum/kong-spec-expose/0dba2d1fc31570e4b0c40ff127469583aed4a1ce/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-spec-expose",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 11 Jun 2020 19:26:58 GMT",
+        "rockspec": {
+          "date": "Thu, 11 Jun 2020 19:26:58 GMT",
+          "sha256": "32b9154869170d4550bcf11559b2f7b35182260dd88bf933406ee6cad84e1240",
+          "size": 1285
+        },
+        "src": {
+          "date": "Thu, 11 Jun 2020 19:27:02 GMT",
+          "sha256": "fae3c67ce8a0f0674018e5ffd7858d3127e13d86e589d7bb969ff5ec5464a5d3",
+          "size": 557667,
+          "url": "https://luarocks.org/kong-spec-expose-1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-spec-expose.access",
+        "kong.plugins.kong-spec-expose.handler",
+        "kong.plugins.kong-spec-expose.schema"
+      ],
+      "origin": {
+        "commit": "0dba2d1fc31570e4b0c40ff127469583aed4a1ce",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-spec-expose.git"
+      },
+      "size": 1286,
+      "summary": "Plugin to expose the specification/contract of auth protected API services fronted by the Kong gateway",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "pl.stringx",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.stringx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

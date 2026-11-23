@@ -1,0 +1,714 @@
+{
+  "kind": "lib",
+  "name": "vgit.nvim",
+  "versions": {
+    "1.0.6-1": {
+      "bin": [],
+      "deps": [
+        "plenary.nvim"
+      ],
+      "files": {
+        "vgit.lua": {
+          "sha256": "bc36116b91cb2deaea27e014c88321de1131fccf9d54464c4f8d8ed48bfb8aca",
+          "size": 45,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit.lua"
+        },
+        "vgit/controller.lua": {
+          "sha256": "39542b4b6b36f543ecc243d1a545461e1a49b048acafc8667596d27b31552fd0",
+          "size": 7877,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/controller.lua"
+        },
+        "vgit/core/Buffer.lua": {
+          "sha256": "cab65a06d3e792f8d243914b4a1afa3ef65ad1df3931892150af38af0f591558",
+          "size": 4922,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Buffer.lua"
+        },
+        "vgit/core/Color.lua": {
+          "sha256": "50e7ed7ccda330972b307cea11d88a789718bd9d2e02ff46ff36c5b1d717bc52",
+          "size": 1119,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Color.lua"
+        },
+        "vgit/core/Config.lua": {
+          "sha256": "2d237a47038a8ef53ad1882bb3e6a2bd726e78eab4aa2d72ed05c3df60a8f193",
+          "size": 1138,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Config.lua"
+        },
+        "vgit/core/Diff.lua": {
+          "sha256": "215a998b9c8b577060d7b131319abf7c8e164653c2b786a72486b289db58868d",
+          "size": 17378,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Diff.lua"
+        },
+        "vgit/core/Object.lua": {
+          "sha256": "189ea8d14b73234421d21ac3495ae1853fa1c852b10a1f665927f39a3ac49381",
+          "size": 557,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Object.lua"
+        },
+        "vgit/core/Rgb.lua": {
+          "sha256": "45418c14decdc39fbd7e678b90dcf3369e6e10b8294bc0fef97867d3a4b46486",
+          "size": 1156,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Rgb.lua"
+        },
+        "vgit/core/Set.lua": {
+          "sha256": "8b11c7c781b711146afee3264cb8348f84cc193b4c490100c34a78c7f306eb04",
+          "size": 746,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Set.lua"
+        },
+        "vgit/core/Spawn.lua": {
+          "sha256": "1cc552bb7acf5ab11f90dd6ef2e051ddb122d67e115cb76966421ae21e8b5545",
+          "size": 1578,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Spawn.lua"
+        },
+        "vgit/core/Window.lua": {
+          "sha256": "2b4b4f8a07d2e66c853a3a3275ae2aab58a14ad59fa8dd4f1fe1ef381efa74b1",
+          "size": 2953,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/Window.lua"
+        },
+        "vgit/core/assertion.lua": {
+          "sha256": "ab8f89042acc04113017ce832fa85b2bc718a650f8180d264de981edbcd77cf6",
+          "size": 1389,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/assertion.lua"
+        },
+        "vgit/core/buffer_store.lua": {
+          "sha256": "e7b9f09f9b72b7cc991f39238c18e2a0f3a03cf3bc6c61e0c48a801e58c21445",
+          "size": 281,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/buffer_store.lua"
+        },
+        "vgit/core/console.lua": {
+          "sha256": "a1a2dccca4295085323fb677f06543906909c5cb20f547de5825fa70f0fa17cf",
+          "size": 2690,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/console.lua"
+        },
+        "vgit/core/env.lua": {
+          "sha256": "d253f3b16966ae4bacc3ea4a6bc61f7e36d041fea80d2101fd9ed71897df0615",
+          "size": 492,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/env.lua"
+        },
+        "vgit/core/event.lua": {
+          "sha256": "3050ecb9ea13210c91e179189bcc74de87f83237d3adff882602fe6ee9680940",
+          "size": 1222,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/event.lua"
+        },
+        "vgit/core/fs.lua": {
+          "sha256": "f3b01c28cf2fa5174a887859fc56d457f9f0598d27d93817f0fde09b5eec11c6",
+          "size": 1487,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/fs.lua"
+        },
+        "vgit/core/highlight.lua": {
+          "sha256": "d07f297c0f1e11641c1a3b5362238ce786a185cfccfd20ce0588f3aafea0ada8",
+          "size": 1335,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/highlight.lua"
+        },
+        "vgit/core/icons.lua": {
+          "sha256": "efda2eda9b79d9b5a1426e49e640a5a258112284876600492428ec326df4c372",
+          "size": 282,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/icons.lua"
+        },
+        "vgit/core/keymap.lua": {
+          "sha256": "a6090980cc34702092d48b88f43cb01b0052c829a7c1ac1f845133b84f7a4d8b",
+          "size": 2409,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/keymap.lua"
+        },
+        "vgit/core/loop.lua": {
+          "sha256": "ff6446cb941c6ad869fa8220a3be92b49bfdd8c481bb8e092d0256963d7da10c",
+          "size": 633,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/loop.lua"
+        },
+        "vgit/core/navigation.lua": {
+          "sha256": "57c00abb3bb58d8b96c992b9acf35bc752af18e0ce3d74ea4a78a7a7d641de22",
+          "size": 2462,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/navigation.lua"
+        },
+        "vgit/core/renderer.lua": {
+          "sha256": "d0d064466f4765cd0d733841d8c1b5354bbeea0f8c8d50025705e9b192a4839b",
+          "size": 711,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/renderer.lua"
+        },
+        "vgit/core/sign.lua": {
+          "sha256": "c0ec4a2455aa1664f6a00f2d8cfdd9cf4e2473cda39d760abb1b7c33a46e1197",
+          "size": 504,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/sign.lua"
+        },
+        "vgit/core/utils/date.lua": {
+          "sha256": "1b3af6e9102ce728bb0ad3b34a610d5c2d09d0f42c181bf289d8c5018b3cede2",
+          "size": 1317,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/utils/date.lua"
+        },
+        "vgit/core/utils/init.lua": {
+          "sha256": "6107b5a37de56289de5a0863a600c4e4af2e78d1108ee7c8ff0e0b0152376e9b",
+          "size": 300,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/utils/init.lua"
+        },
+        "vgit/core/utils/list.lua": {
+          "sha256": "6e3dc6f7a8ebd56014a157f46766f5c9389d3c7136dcaf57b2093d635f39295e",
+          "size": 2205,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/utils/list.lua"
+        },
+        "vgit/core/utils/math.lua": {
+          "sha256": "c8a65fdd63fd83b6e31e9f1dfbe06c8a83d3435dd7886de12cdb96318e309cb2",
+          "size": 596,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/utils/math.lua"
+        },
+        "vgit/core/utils/object.lua": {
+          "sha256": "f669dc9042afcdb8ea3abf942879fd3b72509de2ef002132097607e63a1f7bf9",
+          "size": 1941,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/utils/object.lua"
+        },
+        "vgit/core/utils/str.lua": {
+          "sha256": "bcbba73af1b21f7f102eb2d26d8597a4fd9c7126419712666af8d5ece9201bc5",
+          "size": 1104,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/core/utils/str.lua"
+        },
+        "vgit/features/buffer/Conflicts.lua": {
+          "sha256": "a56e5a0cdfd2be81cd9ec975712e56b3b3185d4f45a4a5b9eb550c3e38a01efc",
+          "size": 3268,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/buffer/Conflicts.lua"
+        },
+        "vgit/features/buffer/Hunks.lua": {
+          "sha256": "fc156e63c4cdacb22adc11240478fc8cdf74d36b479b9f9c7ecd214c5bac8931",
+          "size": 4807,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/buffer/Hunks.lua"
+        },
+        "vgit/features/buffer/LiveBlame.lua": {
+          "sha256": "c53f3720de049aa404811dd3d5711fefbb8edd636bd4d08f3e2416a8eca262a2",
+          "size": 1582,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/buffer/LiveBlame.lua"
+        },
+        "vgit/features/buffer/LiveConflict.lua": {
+          "sha256": "29c7c95897771d11d6f6eadcf1feaca16646e98893ed628d268f2d62c78ff622",
+          "size": 437,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/buffer/LiveConflict.lua"
+        },
+        "vgit/features/buffer/LiveGutter.lua": {
+          "sha256": "8218ddb5297a9a857cc7330b7d84cf74b71001fe78cfd032fd0de4f3b2e12b44",
+          "size": 1642,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/buffer/LiveGutter.lua"
+        },
+        "vgit/features/screens/DiffScreen/Model.lua": {
+          "sha256": "9232cb4d865b170556c132c5ee84ef3fe3a3738ade127aefdcc665ce4599d2a6",
+          "size": 3207,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/DiffScreen/Model.lua"
+        },
+        "vgit/features/screens/DiffScreen/init.lua": {
+          "sha256": "142a697b24154d3995e4ee0d99614fd1c91bbc5ad066fb2042b111162314fde9",
+          "size": 9072,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/DiffScreen/init.lua"
+        },
+        "vgit/features/screens/HistoryScreen/Model.lua": {
+          "sha256": "4d2af994638e7b315c72834c550311d57fe895eeb09ad80504d73ad6c9d9c8b9",
+          "size": 2686,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/HistoryScreen/Model.lua"
+        },
+        "vgit/features/screens/HistoryScreen/init.lua": {
+          "sha256": "4d03ad12274cb34f029e138a05eb20b934b4c02d94ee91fda9062c8304ccedff",
+          "size": 2564,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/HistoryScreen/init.lua"
+        },
+        "vgit/features/screens/LineBlameScreen/Model.lua": {
+          "sha256": "bab2e5de5411b15913ea8b891d61aeb31b21409c61d0d2cf25c50d32820c1e65",
+          "size": 3017,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/LineBlameScreen/Model.lua"
+        },
+        "vgit/features/screens/LineBlameScreen/init.lua": {
+          "sha256": "b89391616ccc12ff0b1c82d64594c58ed0f69fec52a38d121e1da76442f9d69e",
+          "size": 2863,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/LineBlameScreen/init.lua"
+        },
+        "vgit/features/screens/ProjectCommitScreen/Model.lua": {
+          "sha256": "6e98baffd12c6bcf5dd79620a73601df39399d542d9c8894b7f43b7a5c725e68",
+          "size": 1007,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectCommitScreen/Model.lua"
+        },
+        "vgit/features/screens/ProjectCommitScreen/init.lua": {
+          "sha256": "f9feccae4c42e2a431fb677764231d07e1c64a24af450b53068ab95dad9af7ab",
+          "size": 2222,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectCommitScreen/init.lua"
+        },
+        "vgit/features/screens/ProjectCommitsScreen/Model.lua": {
+          "sha256": "80c617c39deca144d6d78a00c02a17375f25d7ede9ee6c811cac460d7430e641",
+          "size": 4438,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectCommitsScreen/Model.lua"
+        },
+        "vgit/features/screens/ProjectCommitsScreen/init.lua": {
+          "sha256": "c885ed5008ddb379d4ad01603e57f9576d6f1800cbde0b2e413391c68676890a",
+          "size": 4025,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectCommitsScreen/init.lua"
+        },
+        "vgit/features/screens/ProjectDiffScreen/Model.lua": {
+          "sha256": "2b710bdd11ed0e73ba76d7418bb2988cd1bc89f454d2c0e57ff79aeb4c7615f7",
+          "size": 7618,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectDiffScreen/Model.lua"
+        },
+        "vgit/features/screens/ProjectDiffScreen/init.lua": {
+          "sha256": "2e95fc022050346961567f9a3c0f4f92dd364ddfb50cc1b818903568795aab29",
+          "size": 13455,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectDiffScreen/init.lua"
+        },
+        "vgit/features/screens/ProjectLogsScreen/Model.lua": {
+          "sha256": "f88e1458454b44eab0a26b8acaf9b114037861109f25616bfad7c02830c869bd",
+          "size": 3143,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectLogsScreen/Model.lua"
+        },
+        "vgit/features/screens/ProjectLogsScreen/init.lua": {
+          "sha256": "42b46fa9e7fcbf591c49c0ca403f2ff18e8aa2f4cec5a5caaab1f9575dd53ed4",
+          "size": 3688,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectLogsScreen/init.lua"
+        },
+        "vgit/features/screens/ProjectStashScreen/Model.lua": {
+          "sha256": "477c6e9c6edc52924ec9ee8c71a1b7e3718c88e1f058f743e105797885d4258e",
+          "size": 4417,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectStashScreen/Model.lua"
+        },
+        "vgit/features/screens/ProjectStashScreen/init.lua": {
+          "sha256": "6e0ecc65c256b4a612c45cb1ad9b7332a7b7fe025451c123c0ad1c9bb096ae5a",
+          "size": 7515,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/features/screens/ProjectStashScreen/init.lua"
+        },
+        "vgit/git/GitBlame.lua": {
+          "sha256": "7d4e2241d64a20ef515985c18e8b529f6b36c8ca6c42ae55f87f0f10eff8014f",
+          "size": 1775,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/GitBlame.lua"
+        },
+        "vgit/git/GitBuffer.lua": {
+          "sha256": "9258544098121f506833ee9b34271c5164211597e780b10bf4b747e95cb4d4f1",
+          "size": 9568,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/GitBuffer.lua"
+        },
+        "vgit/git/GitFile.lua": {
+          "sha256": "1a580ee95b4cca42bc963c1fa6dccb72a1dcd95589a80fcd91274f34c8b62ef1",
+          "size": 3721,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/GitFile.lua"
+        },
+        "vgit/git/GitHunk.lua": {
+          "sha256": "678776af4fab5157779925524520c3ae36fe75e8d1a305b1e28bc66e523df1e0",
+          "size": 2307,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/GitHunk.lua"
+        },
+        "vgit/git/GitLog.lua": {
+          "sha256": "c4b6c796ad49bc65776ac1390f7150ea06991984493ca68d7a7deb7750c68546",
+          "size": 800,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/GitLog.lua"
+        },
+        "vgit/git/GitPatch.lua": {
+          "sha256": "89a33543fedb5fa9cad9f4ecdfafa34e5d4679741b40c4d6b7632aa87a456b45",
+          "size": 660,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/GitPatch.lua"
+        },
+        "vgit/git/GitStatus.lua": {
+          "sha256": "512f618126b42f828fcf40575346c5ee50a0f7edb903dc085c7a68fb1df34513",
+          "size": 1786,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/GitStatus.lua"
+        },
+        "vgit/git/git_blame.lua": {
+          "sha256": "dde78a84cd18f09c7d0e534d6de16f60ca5118fd21bc59a8988850f7a7188ed4",
+          "size": 1290,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_blame.lua"
+        },
+        "vgit/git/git_buffer_store.lua": {
+          "sha256": "d59f7dcbd57c9f1a2b2cbcff149719838e58dd64484ad9b7cabab4ae006d4bd9",
+          "size": 4578,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_buffer_store.lua"
+        },
+        "vgit/git/git_commit.lua": {
+          "sha256": "3f3a4a97115b0963cf18c56d8e81912ca56b0285d93d7760f913f8469ef38712",
+          "size": 1016,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_commit.lua"
+        },
+        "vgit/git/git_conflict.lua": {
+          "sha256": "af7bce3e0d25eacc231f7ab2b6813e3007c5a8c0703d0591dfb3a38a892c8d06",
+          "size": 3164,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_conflict.lua"
+        },
+        "vgit/git/git_hunks.lua": {
+          "sha256": "ae8a535b166030248871c83f6ba4f83065ddb78bfc1443e2e1fd20c62d1ca259",
+          "size": 4279,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_hunks.lua"
+        },
+        "vgit/git/git_log.lua": {
+          "sha256": "b53495bc57d0f76d65b5841a53e21ea440deaf688000fa4c827bf08a7211835a",
+          "size": 1297,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_log.lua"
+        },
+        "vgit/git/git_repo.lua": {
+          "sha256": "97161976e52d74e165b57a3a34df5ac9902b2943c747fdeb582085c989198c64",
+          "size": 2811,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_repo.lua"
+        },
+        "vgit/git/git_show.lua": {
+          "sha256": "9719b180ef80881594b6982e257b8f5b898210af5843a5179685c4489cead171",
+          "size": 356,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_show.lua"
+        },
+        "vgit/git/git_stager.lua": {
+          "sha256": "14566ca155a7d4e0b0a978b84e954f3505266f0c59bb2640d65e9691ffc3d7da",
+          "size": 1852,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_stager.lua"
+        },
+        "vgit/git/git_stash.lua": {
+          "sha256": "471b23b22794ff203c859815f5dad66a90d628855d25990dd297506fbf4f14b5",
+          "size": 1832,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_stash.lua"
+        },
+        "vgit/git/git_status.lua": {
+          "sha256": "4f51c970611415311bee127be50fade16ec7f5059e8f3f465293be32f241f366",
+          "size": 1373,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/git_status.lua"
+        },
+        "vgit/git/gitcli.lua": {
+          "sha256": "972bd1f08a8dbd702d171022ddc374802181d30a293490fcfc641c698f70f354",
+          "size": 720,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/git/gitcli.lua"
+        },
+        "vgit/settings/diff_preview.lua": {
+          "sha256": "b9ca5df45989be76df9eb72635d82455a39d2b2b023ed0bfd68e0260dac0c289",
+          "size": 456,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/diff_preview.lua"
+        },
+        "vgit/settings/git.lua": {
+          "sha256": "b3dd68f9071fdf804bf86801116b7db1f24103582717a973ac18e266b327368f",
+          "size": 121,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/git.lua"
+        },
+        "vgit/settings/hls.lua": {
+          "sha256": "74abcd19f738b92c9a5990ab1a3cc90e900ac10856c29ffe28bdf8642a1a475c",
+          "size": 3945,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/hls.lua"
+        },
+        "vgit/settings/live_blame.lua": {
+          "sha256": "e1b6ce5894907e4fba9deff88497d5b0439c512924478e1506d2650cee4440b1",
+          "size": 758,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/live_blame.lua"
+        },
+        "vgit/settings/live_gutter.lua": {
+          "sha256": "0bc12bdb919834ed31f7ef8f87eabbdbb306d7bf25ce539182db9f86cd66cfc3",
+          "size": 107,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/live_gutter.lua"
+        },
+        "vgit/settings/project_commit_preview.lua": {
+          "sha256": "4da2bbb982e715dfc492e134c121aec7872d94efdbfba11b6662f6bc33a213d5",
+          "size": 146,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/project_commit_preview.lua"
+        },
+        "vgit/settings/project_diff_preview.lua": {
+          "sha256": "fd2db972658b7c5d6dc1f4e54e1ffe7291ec13209539a51ee91b7a4219c5e19d",
+          "size": 709,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/project_diff_preview.lua"
+        },
+        "vgit/settings/project_logs_preview.lua": {
+          "sha256": "9969394de92d33ca310c2b42a7aee7c4de973ef9ebb690221a028367154dd4c4",
+          "size": 205,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/project_logs_preview.lua"
+        },
+        "vgit/settings/project_stash_preview.lua": {
+          "sha256": "bf8cb21acefe1b7fa4ab93e970ae32d7132b3f4dff4b89a18765d09a66ea5e62",
+          "size": 400,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/project_stash_preview.lua"
+        },
+        "vgit/settings/scene.lua": {
+          "sha256": "30d11aae551f57c1730b386f172682601c3bad999cf986f8743feab47aec7a8f",
+          "size": 126,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/scene.lua"
+        },
+        "vgit/settings/signs.lua": {
+          "sha256": "0d1217158e93ff06eb9ac435243ebc7269e7cba2e4b437bc3acfbac3c0e506ac",
+          "size": 2414,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/signs.lua"
+        },
+        "vgit/settings/symbols.lua": {
+          "sha256": "5d5660d2d283ffa748c455babe96ddb321436f9bdf9b67dc1e1559d960a03333",
+          "size": 112,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/settings/symbols.lua"
+        },
+        "vgit/ui/Component.lua": {
+          "sha256": "e4f9957ab31acb369b46ee6ca23768500722048ffce91f405ab1e2cc12f2cbd3",
+          "size": 5070,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/Component.lua"
+        },
+        "vgit/ui/ComponentPlot.lua": {
+          "sha256": "d99e3d976703e11079b5fff9be0231bbd4a629b78aac12860d2e6310cab5fa24",
+          "size": 3535,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/ComponentPlot.lua"
+        },
+        "vgit/ui/Extmark.lua": {
+          "sha256": "7bb2aa15953838ac4dcfa9346998b86830b8f784f8c60ca6d8f6da7b4cbcec75",
+          "size": 3259,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/Extmark.lua"
+        },
+        "vgit/ui/RowLayout.lua": {
+          "sha256": "e27b7e4f5b3d4fe32cafd26eed240649c6ef9cfba0112ce00394092a6370cb90",
+          "size": 2167,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/RowLayout.lua"
+        },
+        "vgit/ui/Scene.lua": {
+          "sha256": "ca22daefb85bc13050f159d99af1ce7816e113aca12bc4e42c8114290466d28e",
+          "size": 1216,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/Scene.lua"
+        },
+        "vgit/ui/TableGenerator.lua": {
+          "sha256": "ab5f5164f80ded0fc1f7c518a30bc6065fed0d5fc33b640f38ce8eaed6ddf896",
+          "size": 3724,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/TableGenerator.lua"
+        },
+        "vgit/ui/components/AppBarComponent.lua": {
+          "sha256": "4bed8166fc9a5294cb4d1979c8355f48eb0568c20705e0e57358d081cd862695",
+          "size": 1957,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/components/AppBarComponent.lua"
+        },
+        "vgit/ui/components/DiffComponent.lua": {
+          "sha256": "183985e3b1c6c8c299f0cb8dcb53ff292cde3dcb0899d9fefa7026d4c094031b",
+          "size": 3627,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/components/DiffComponent.lua"
+        },
+        "vgit/ui/components/FoldableListComponent.lua": {
+          "sha256": "ffe0f5d744e3d335c10b8c7de4f0e95500e398fecf708c34267a0e6c16e67755",
+          "size": 8189,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/components/FoldableListComponent.lua"
+        },
+        "vgit/ui/components/PresentationalComponent.lua": {
+          "sha256": "bb5addc5320ac1359880150d95a314290382d662ba6eae3100fd8fa4a446b5df",
+          "size": 1740,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/components/PresentationalComponent.lua"
+        },
+        "vgit/ui/components/TableComponent.lua": {
+          "sha256": "630b278d1f14ef39050406658817775b4b6d11fb0953db9c5af8b3a7a900bac1",
+          "size": 2608,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/components/TableComponent.lua"
+        },
+        "vgit/ui/decorations/HeaderTitle.lua": {
+          "sha256": "17debb59c83310183d32a53474f826dafeb1cfa58b23f827e8f27214abc51bc3",
+          "size": 2027,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/decorations/HeaderTitle.lua"
+        },
+        "vgit/ui/decorations/Notification.lua": {
+          "sha256": "f29d55639df660e82ef53a508f3adac679225227cbcc37c36e155df4d456fb7c",
+          "size": 777,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/decorations/Notification.lua"
+        },
+        "vgit/ui/dimensions.lua": {
+          "sha256": "c37156514d241964a781093251f09b978822ccc5fd898e5cf87fb88bf5e724b7",
+          "size": 2325,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/dimensions.lua"
+        },
+        "vgit/ui/elements/FooterElement.lua": {
+          "sha256": "52179f7542c27f4c6dd2f123382e4ac090c498d555bbd04b892b0d2e3d46c516",
+          "size": 1023,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/elements/FooterElement.lua"
+        },
+        "vgit/ui/elements/HeaderElement.lua": {
+          "sha256": "c4cd31a128a0478165e3159526d9744daf5925a653f0c029ca93ee100d646dba",
+          "size": 1246,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/elements/HeaderElement.lua"
+        },
+        "vgit/ui/screen_manager.lua": {
+          "sha256": "d024aed88200b174f6785a63fc1830fb5c9f4343360bd85d9962613b059f4822",
+          "size": 4851,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/screen_manager.lua"
+        },
+        "vgit/ui/views/BlameListView.lua": {
+          "sha256": "c3f014558e6215fa50a747299e3bba18d8da19cc273f5729fc934a292fb1ccf1",
+          "size": 4017,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/BlameListView.lua"
+        },
+        "vgit/ui/views/DiffView.lua": {
+          "sha256": "d827b40f4c0e4c5ce3f2ad2801f7be9d5bc2bcfa1eb036905ccbcf6025e6903b",
+          "size": 18120,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/DiffView.lua"
+        },
+        "vgit/ui/views/KeyHelpBarView.lua": {
+          "sha256": "c2e92a61949f424e0082c03ba9e61b3f651ee8790b7a2b384dca377fb0d23472",
+          "size": 1557,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/KeyHelpBarView.lua"
+        },
+        "vgit/ui/views/LineBlameView.lua": {
+          "sha256": "11b6c6a5c6967becf8ae2bf2fa9eafecf5da25370b00482bd638d2f354a9c179",
+          "size": 2514,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/LineBlameView.lua"
+        },
+        "vgit/ui/views/PaginationView.lua": {
+          "sha256": "451815a70aba82d910e3557da9752ca0dd6962b7e245aeedc17dfa477b4cda1b",
+          "size": 684,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/PaginationView.lua"
+        },
+        "vgit/ui/views/SimpleView.lua": {
+          "sha256": "0e13e10e929dc4a7932fe119b57044a93b90fcd8c975adaf4049ce94f85c7bd0",
+          "size": 1919,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/SimpleView.lua"
+        },
+        "vgit/ui/views/StatusListView/StatusFolds.lua": {
+          "sha256": "30bb73a075315c1cb004504e89a4794e1f759846aa81479b4e2bac54ae0ff19d",
+          "size": 6833,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/StatusListView/StatusFolds.lua"
+        },
+        "vgit/ui/views/StatusListView/init.lua": {
+          "sha256": "c2853f251742c2905f464122de8bf4e463b86f1244fc11e8ee7ca83440140743",
+          "size": 4890,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/StatusListView/init.lua"
+        },
+        "vgit/ui/views/TableView.lua": {
+          "sha256": "7dda60ed9fd4166f8e871f3ac7caa3a4d781444bd41f64231ef6e8a7d42a15cd",
+          "size": 3315,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/ui/views/TableView.lua"
+        },
+        "vgit/vendor/bit.lua": {
+          "sha256": "9b577abe8a26f19a345f1034e96e9ee4a909c74b6701b9836170867b2c35e96b",
+          "size": 13425,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/vendor/bit.lua"
+        },
+        "vgit/vendor/dmp.lua": {
+          "sha256": "b130434fc3908587635d07b07e81dc25110675ca327d128252b37ee5b534296e",
+          "size": 72311,
+          "url": "https://raw.githubusercontent.com/tanvirtin/vgit.nvim/v1.0.6/lua/vgit/vendor/dmp.lua"
+        }
+      },
+      "homepage": "https://github.com/tanvirtin/vgit.nvim",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 07 Feb 2025 01:16:55 GMT",
+        "rockspec": {
+          "date": "Fri, 07 Feb 2025 01:16:55 GMT",
+          "sha256": "0ff3b6520d7e84170d5f3ced32505389f86ba81f5d2fd13d428082c1258bde7e",
+          "size": 733
+        },
+        "src": {
+          "date": "Fri, 07 Feb 2025 01:16:56 GMT",
+          "sha256": "c947e631ec4246435701717cef6898af4d47df91fa5c6489432b38071e2c0638",
+          "size": 182072,
+          "url": "https://luarocks.org/vgit.nvim-1.0.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "vgit",
+        "vgit.controller",
+        "vgit.core.Buffer",
+        "vgit.core.Color",
+        "vgit.core.Config",
+        "vgit.core.Diff",
+        "vgit.core.Object",
+        "vgit.core.Rgb",
+        "vgit.core.Set",
+        "vgit.core.Spawn",
+        "vgit.core.Window",
+        "vgit.core.assertion",
+        "vgit.core.buffer_store",
+        "vgit.core.console",
+        "vgit.core.env",
+        "vgit.core.event",
+        "vgit.core.fs",
+        "vgit.core.highlight",
+        "vgit.core.icons",
+        "vgit.core.keymap",
+        "vgit.core.loop",
+        "vgit.core.navigation",
+        "vgit.core.renderer",
+        "vgit.core.sign",
+        "vgit.core.utils",
+        "vgit.core.utils.date",
+        "vgit.core.utils.list",
+        "vgit.core.utils.math",
+        "vgit.core.utils.object",
+        "vgit.core.utils.str",
+        "vgit.features.buffer.Conflicts",
+        "vgit.features.buffer.Hunks",
+        "vgit.features.buffer.LiveBlame",
+        "vgit.features.buffer.LiveConflict",
+        "vgit.features.buffer.LiveGutter",
+        "vgit.features.screens.DiffScreen",
+        "vgit.features.screens.DiffScreen.Model",
+        "vgit.features.screens.HistoryScreen",
+        "vgit.features.screens.HistoryScreen.Model",
+        "vgit.features.screens.LineBlameScreen",
+        "vgit.features.screens.LineBlameScreen.Model",
+        "vgit.features.screens.ProjectCommitScreen",
+        "vgit.features.screens.ProjectCommitScreen.Model",
+        "vgit.features.screens.ProjectCommitsScreen",
+        "vgit.features.screens.ProjectCommitsScreen.Model",
+        "vgit.features.screens.ProjectDiffScreen",
+        "vgit.features.screens.ProjectDiffScreen.Model",
+        "vgit.features.screens.ProjectLogsScreen",
+        "vgit.features.screens.ProjectLogsScreen.Model",
+        "vgit.features.screens.ProjectStashScreen",
+        "vgit.features.screens.ProjectStashScreen.Model",
+        "vgit.git.GitBlame",
+        "vgit.git.GitBuffer",
+        "vgit.git.GitFile",
+        "vgit.git.GitHunk",
+        "vgit.git.GitLog",
+        "vgit.git.GitPatch",
+        "vgit.git.GitStatus",
+        "vgit.git.git_blame",
+        "vgit.git.git_buffer_store",
+        "vgit.git.git_commit",
+        "vgit.git.git_conflict",
+        "vgit.git.git_hunks",
+        "vgit.git.git_log",
+        "vgit.git.git_repo",
+        "vgit.git.git_show",
+        "vgit.git.git_stager",
+        "vgit.git.git_stash",
+        "vgit.git.git_status",
+        "vgit.git.gitcli",
+        "vgit.settings.diff_preview",
+        "vgit.settings.git",
+        "vgit.settings.hls",
+        "vgit.settings.live_blame",
+        "vgit.settings.live_gutter",
+        "vgit.settings.project_commit_preview",
+        "vgit.settings.project_diff_preview",
+        "vgit.settings.project_logs_preview",
+        "vgit.settings.project_stash_preview",
+        "vgit.settings.scene",
+        "vgit.settings.signs",
+        "vgit.settings.symbols",
+        "vgit.ui.Component",
+        "vgit.ui.ComponentPlot",
+        "vgit.ui.Extmark",
+        "vgit.ui.RowLayout",
+        "vgit.ui.Scene",
+        "vgit.ui.TableGenerator",
+        "vgit.ui.components.AppBarComponent",
+        "vgit.ui.components.DiffComponent",
+        "vgit.ui.components.FoldableListComponent",
+        "vgit.ui.components.PresentationalComponent",
+        "vgit.ui.components.TableComponent",
+        "vgit.ui.decorations.HeaderTitle",
+        "vgit.ui.decorations.Notification",
+        "vgit.ui.dimensions",
+        "vgit.ui.elements.FooterElement",
+        "vgit.ui.elements.HeaderElement",
+        "vgit.ui.screen_manager",
+        "vgit.ui.views.BlameListView",
+        "vgit.ui.views.DiffView",
+        "vgit.ui.views.KeyHelpBarView",
+        "vgit.ui.views.LineBlameView",
+        "vgit.ui.views.PaginationView",
+        "vgit.ui.views.SimpleView",
+        "vgit.ui.views.StatusListView",
+        "vgit.ui.views.StatusListView.StatusFolds",
+        "vgit.ui.views.TableView",
+        "vgit.vendor.bit",
+        "vgit.vendor.dmp"
+      ],
+      "origin": {
+        "sha256": "e0b688020868613d8dc261417618bc3c68d434e315334263e492ee0c7dbd6b2e",
+        "type": "archive",
+        "url": "https://github.com/tanvirtin/vgit.nvim/archive/v1.0.6.zip"
+      },
+      "size": 383112,
+      "summary": "Visual git plugin for Neovim",
+      "undeclared_requires": [
+        "bit",
+        "bit.numberlua"
+      ],
+      "vlr": {
+        "cause": "missing global: vim",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 14,
+        "status": "partial",
+        "total": 110
+      }
+    }
+  }
+}

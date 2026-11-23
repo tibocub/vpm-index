@@ -1,0 +1,1446 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 08-11-2023 @author Swarg
+--
+-- Goal: collect data to build help
+--       hold state and logic
+--
+
+local base = require('cmd4lua.base')
+local conf = require('cmd4lua.settings')
+
+local dprint = conf.dprint
+local _is_helpcmd = base._is_helpcmd
+local not_empty_or_nil = base.not_empty_or_nil
+local fullname_first = base.fullname_first
+
+
+---@class Cmd4LuaHelpCollector
+---@field lvl_deep number
+---@field thelp table
+---@field parent Cmd4Lua
+---@field cmd_default string|nil
+---@field cmd_expected boolean|nil
+---@field cmd_found boolean|nil
+---@field cmd_unknown boolean|nil
+---@field _validate_value_cb function|nil
+local Collector = {}
+
+function Collector:new(parent)
+  assert(base.is_instanceof_cmd4lua(parent), 'parent - cmd4lua instance')
+
+  local obj = {}
+  obj.parent = parent
+
+  obj.lvl_deep = 1
+  obj.access_n = 0
+  -- for annotation like bind additional properties to an elements(cmd,arg,opt)
+  -- like: w:tag('varname'):desc('...'):def('x'):env('KEY'):opt('--key', '-k')
+  obj.__next = {}
+
+  -- table {access_n, name, sn, description, required}
+  -- the properties about the current element (cmd, arg or opt)
+  obj.__d = nil
+
+  obj.thelp = {}
+
+  self.__index = self
+  setmetatable(obj, self)
+
+  return obj
+end
+
+function Collector:get_thelp_cmds()
+  if self.thelp and self.thelp.cmds then
+    return self.thelp.cmds
+  end
+end
+
+---@return nil|table {name, description, tag, required, missing}
+function Collector:get_thelp_args()
+  if self.thelp and self.thelp.args then
+    return self.thelp.args
+  end
+end
+
+---@return nil|table {name, description, tag, required, missing}
+function Collector:get_thelp_opts()
+  if self.thelp and self.thelp.opts then
+    return self.thelp.opts
+  end
+end
+
+--------------------------------------------------------------------------------
+--              Collection of data for building help
+--------------------------------------------------------------------------------
+
+--
+-- used for build help
+-- to collect offset from current lvl_deep. Offset in a one command context
+--
+---@return  number
+function Collector:get_offset()
+  return self.parent.ai - self.lvl_deep + 1
+end
+
+--
+-- Celear the data of the current command level(context)
+-- this data is used to build help by in-code annotations
+-- At each level of the tree hierarchy of nested subcommands,
+-- data is collected anew each time
+--
+function Collector:clear_level_data()
+  dprint(1, 'clear_level_data')
+
+  self.cmd_default = nil
+  self.cmd_expected = false
+  self.cmd_found = false
+  -- self.arg_expected = nil
+  self.lvl_deep = self.parent.ai -- index of argument in currect subcmd on help
+  self.access_n = 0
+  -- self.__next = {}
+
+  if self.thelp then
+    -- self.thelp.parent_desc  -- keep
+    self.thelp.cmd_lvl_description = nil
+    self.thelp.usage_examples = nil
+    -- reset current list of the commands used for building help
+    self.thelp.cmds = nil
+    self.thelp.opts = nil
+    self.thelp.args = nil
+    -- keep alive:
+    --   self.thelp.handlers
+    --   parent_desc
+    self.subscribers = nil
+  end
+
+  if conf.VARS_AUTO_CLEAR_VARS_FOR_SUBS then
+    self.parent:clear_vars()
+  end
+end
+
+--
+-- checks is argument already touched
+-- (accessed through method such as arg() argn() argb()  and so on
+--
+---@param offset number
+---@return boolean
+function Collector:is_touched_arg(offset)
+  offset = offset or 0
+  assert(type(offset) == 'number', 'offset')
+  offset = self.parent.ai - self.lvl_deep + offset
+  local targs = self:get_thelp_args()
+  if targs then
+    return targs[offset + 1] ~= nil
+  end
+  return false
+end
+
+-- move to next subcmd level(deeper)
+---@param name string
+---@param sn string?
+---@return boolean
+function Collector:move_deeper_to_subcommand(name, sn)
+  self.parent.ai = self.parent.ai + 1
+  -- find is here not optional args and required opts
+  local targs = Collector.get_thelp_args(self)
+  local topts = Collector.get_thelp_opts(self)
+  if targs then
+    for _, d in pairs(targs) do
+      if d.required then
+        self:add_to_cmdpath(base.get_arg_name(d))
+      end
+    end
+  end
+  if topts then
+    for _, d in pairs(topts) do
+      if d.required then
+        local optname = '<' .. tostring(base.get_opt_name(d)) .. '>'
+        self:add_to_cmdpath(optname)
+      end
+    end
+  end
+  -- for case then in current context about infos not defined take from prev lvl
+  local d = self:pop_next()
+  self.thelp.parent_desc = d.description
+
+  -- add current command into the path of commands and subcommands
+  name, sn = base.fullname_first(name, sn)
+
+  self:clear_level_data()
+  self:pop_next()
+
+  self:add_to_cmdpath(name)
+  return true
+end
+
+function Collector:add_to_cmdpath(cmd_name)
+  self._cmds_path = self._cmds_path or {}
+  self._cmds_path[#self._cmds_path + 1] = cmd_name
+end
+
+--
+-- return the parameters for the current element
+-- and make room for a next one. Like pop an element from a stack
+--
+---@return table {[ai], tag, name, default, required}
+function Collector:pop_next()
+  local d = self.__next or {}
+  self.__next = {}
+  return d
+end
+
+function Collector:has_pop()
+  return self.__next._pop_arg == true
+end
+
+function Collector:remove_pop()
+  self.__next._pop_arg = nil
+end
+
+function Collector:has_desc()
+  return self.__next.desc ~= nil
+end
+
+function Collector:has_def()
+  return self.__next.has_default == true
+end
+
+function Collector:has_tag()
+  return self.__next.tag ~= nil
+end
+
+function Collector:getElementMeta()
+  return self.__d
+end
+
+function Collector:getAnnotationMeta()
+  return self.__next
+end
+
+--
+-- generate a varname for opts and args
+-- generated names will be used for self.parent.vars
+--
+-- tag, argN, optname (--some-opt-key --> some_opt_key)
+--
+---@return string
+function Collector:getElementVarName()
+  local d = self.__d
+  assert(d ~= nil, 'd')
+
+  if d.tag and d.tag ~= '' then
+    return tostring(d.tag)
+    --
+  elseif d.ai then -- arg
+    return 'arg' .. tostring(d.ai)
+    --
+  elseif d.name and d.name ~= '' then -- optkey
+    return (d.name:match("%-%-?([%w%-]+)") or d.name):gsub('%-', '_')
+  end
+
+  assert(false, 'this is supposed to never happen')
+  return 'def_varname'
+end
+
+-- for v_opt, v_arg, ... mark to add value of the element to the self.parent.vars
+function Collector:annotation_set_valiable(b)
+  self.__next.variable = b ~= false or false
+end
+
+--
+-----------------------------------------------------------------------------
+--                  to validate user input and
+--        build help by in-code "annotations" and descriptions
+-----------------------------------------------------------------------------
+
+function Collector:def_type(vtype)
+  if self.__next.type == nil then
+    self.__next.type = vtype
+  end
+  return self
+end
+
+function Collector:next_access()
+  self.access_n = self.access_n + 1
+  return self.access_n
+end
+
+--
+---@param name string
+---@param sn string|nil
+---@param name3 string|nil
+function Collector:add_cmd_description(name, sn, name3)
+  local d = self:pop_next()
+
+  if name then
+    name, sn = fullname_first(name, sn) -- swap to right order
+    sn = not_empty_or_nil(sn)
+    name3 = not_empty_or_nil(name3)
+
+    self.thelp.cmds = self.thelp.cmds or {}
+    self.thelp.cmds[name] = d
+
+    d.access_n = self:next_access()
+    d.name = name
+    d.shortname = sn
+    d.name3 = name3
+    d.type = 'string'
+    -- alreay in d: (if used :desc() :tag() :def() :required()  etc)
+    -- d.tag = tag
+    -- d.description = description
+    -- d.group
+    -- d.ci = self:get_current_ai()
+    -- M.debug_inspect('cmd', d)
+    self.__d = d
+    dprint('registered cmd:', name)
+  end
+end
+
+---@param callback function
+---@param userdata any|nil
+function Collector:add_cmd_handler(callback, userdata)
+  assert(not callback or type(callback) == 'function', 'callback must be a function')
+  self.__d = self.__d or {}
+  self.__d.handler = callback
+  self.__d.userdata = userdata
+end
+
+--
+---@param offset number  -- the offset from a self.lvl_deep -- deep(ai) of the
+--                          current command
+function Collector:add_arg_description(offset)
+  local d = self:pop_next()
+  local ai = self:get_offset() + offset -- offset from current lvl_deep
+
+  if offset > 0 and d._pop_arg then
+    error('to pop an arg you cannot use offset, has: ' .. tostring(offset))
+    -- TODO
+  end
+  dprint(2, 'add_arg_description to relative-ai:', ai,
+    'abs-ai:', self.parent.ai, 'lvl_deep:', self.lvl_deep, 'pop:', d._pop_arg
+  )
+  self.thelp.args = self.thelp.args or {}
+  -- TODO fix overwriting annotations due to re-invoking an argument
+  self.thelp.args[ai] = d
+
+  d.access_n = self:next_access()
+  d.ai = ai -- offset from the current lvl_deep (absolute index from 1)
+  --d.type = atype or d.type -- nil for any or 'string'
+  -- for case w:arg()  consider this argument as mandatory(required)
+  -- for case w:def():arg()  consider this argument as optional
+  -- for case w:optional():arg()  consider this argument as optional
+  if d.has_default then
+    d.required = false
+    -- by default all args is required if not used optional: optional():arg()
+  elseif d.required == nil then
+    d.required = true -- d.required or not d.optional
+  end
+  -- already in d:
+  -- d.type =       -- type of expected value like 'any', 'string', 'list', etc
+  -- d.tag = tag    -- varname
+  -- d.description
+  -- d.default_value
+  -- d.group        -- arguments can be grouped in the same group as options
+  dprint(1, 'arg exp_type is:', d.type, 'def_val:', d.default_value)
+  self.__d = d
+end
+
+---@param name string
+---@param sn string|nil
+---@param description string|nil
+---@return false|table {name, description}
+function Collector:add_opt_description(name, sn, description)
+  local d = self:pop_next()
+
+  if name then
+    sn = not_empty_or_nil(sn)
+    description = not_empty_or_nil(description)
+
+    -- envvar = not_empty_or_nil(envvar)
+
+    name, sn = fullname_first(name, sn) -- swap to right order
+
+    -- self.thelp = self.thelp or {}
+    self.thelp.opts = self.thelp.opts or {}
+    self.thelp.opts[name] = d
+
+    d.access_n = self:next_access()
+    d.name = name
+    d.shortname = sn
+    d.description = description or d.description
+    -- already in d:
+    -- d.type          -- type of the expected variable in opt
+    -- d.tag           -- optional as argname for argument or varname
+    -- d.default_value
+    -- d.required
+    -- d.envvar_name
+    -- d.group          -- opt can be grouped in same group with arg
+
+    -- fix required for opts:
+    if d.group and d.group.type then
+      if not d.required then
+        -- if group is "one or more" then mark as required
+        d.required = d.group.type ~= 0
+        --
+      elseif d.required and d.group.type == 0 then
+        -- if required and group is non of group - not required
+        d.required = false
+      end
+      dprint(1, 'Opt:', d.name, ' is marked as required:', d.required)
+    end
+
+    self.__d = d
+    return d
+  end
+  return false
+end
+
+-----------------------------------------------------------------------------
+
+---@param errmsg string
+---@param value any
+function Collector:set_invalid(errmsg, value, ovalue)
+  if self.__d then
+    self.__d.has_invalid_value = true
+    self.__d.invalid_value = self.__d.invalid_value or value
+    self.__d.errmsg = self.__d.errmsg or not_empty_or_nil(errmsg)
+    dprint(1, 'set_invalid', errmsg, value, ovalue)
+  end
+end
+
+--- add to group if has group annotation marks
+---@param e table  - arg or opt
+---@param self Cmd4LuaHelpCollector
+local function add_to_group(self, e)
+  dprint('try add_to_group ', e)
+  if e and e.group and e.group.name and e.group.type then
+    self.thelp.groups = self.thelp.groups or {}
+    local name = e.group.name
+    self.thelp.groups[name] = self.thelp.groups[name] or {}
+    local g = self.thelp.groups[name]
+
+    g.name = e.group.name
+    g.type = e.group.type
+    g.elements = g.elements or {}
+    if not e.missing then
+      dprint('add not missing element to the group:', name)
+      g.elements[#g.elements + 1] = e
+    end
+  end
+end
+
+--------------------------------------------------------------------------------
+
+--
+-- check is a table containes only number indexes or empty
+-- to ensure what given table is not a map with a not number keys
+local function is_tbl_list_or_empty(t)
+  if type(t) == 'table' then
+    for key, _ in pairs(t) do
+      if type(key) ~= 'number' then
+        return false
+      end
+    end
+    return true
+  end
+  return false
+end
+
+--
+local function take_value_from_default(self, d, has, value)
+  if d.has_default then
+    dprint("take_value_from_default")
+
+    local exp_type = tostring(d.type) -- Note: nil cannot passed here - use "any"
+    -- not use 'nil' because _def_type() replace nil by 'string'
+    -- and breaks the type(nil)-annotation so needs explicity: type('any')
+    -- so 'nil' will never get here
+
+    local defval_type = type(d.default_value)
+    if exp_type == 'list' and defval_type == 'table' then
+      if is_tbl_list_or_empty(d.default_value) then
+        -- defval_type = 'list' - static analyzer is complains
+        exp_type = 'table' -- for type checking to succeed
+      end
+    end
+
+    if exp_type == 'any' or defval_type == exp_type then
+      value = d.default_value
+      has = true
+      -- nil - any type
+    elseif exp_type ~= 'nil' then -- error in a your command handler
+      local msg = string.format(
+        'Invalid default type for %s. Expected %s, has-def: %s',
+        base.get_elm_name(d), exp_type, type(d.default_value)
+      )
+      self:set_invalid(msg)
+      error(msg) -- error in a code not in the user input
+    end
+  end
+  return has, value
+end
+
+--
+--
+---@param d table
+---@param has boolean
+local function take_value_from_evnvar(self, d, has, value)
+  if d.envvar_name ~= nil then
+    dprint("take_value_from_evnvar")
+
+    local exp_type = tostring(d.type) -- Note: nil cannot passed here - use "any"
+    local envvar = os.getenv(d.envvar_name)
+    dprint('envvar:', d.envvar_name, envvar)
+
+    if envvar then
+      if exp_type == 'number' then
+        value = tonumber(envvar)
+        has = value ~= nil
+        if not value then
+          self:set_invalid("Cannot convert string to number", value, envvar)
+        end
+      else
+        value = envvar
+      end
+    end
+  end
+  return has, value
+end
+
+-- ? try to cast value to expected type
+---@param d table
+---@param has boolean
+local function update_invaid_value(self, d, has, value)
+  if has and not d.has_invalid_value then
+    dprint('has and has_invalid_value:false')
+
+    local exp_type = tostring(d.type) -- Note: nil cannot passed here - use "any"
+    local act_type = type(value)
+
+    if exp_type ~= 'nil' and value == nil then -- case: has key without value
+      self:set_invalid("Expected a " .. exp_type .. " value", value)
+      has = false
+      -- this error showed in show_help_or_errors. use this before work
+      --
+    elseif exp_type ~= "nil" and act_type ~= exp_type then
+      local badtype = true
+
+      if exp_type == 'any' then
+        badtype = false
+      elseif exp_type == 'list' and value ~= nil and type(value) ~= 'table' then
+        badtype = false
+        value = { value }
+        has = true
+      elseif act_type == 'table' then
+        if exp_type and exp_type:sub(1, 4) == 'list' then
+          badtype = false
+        end
+      elseif act_type == 'string' and exp_type == 'number' then
+        local v = tonumber(value)
+        if v ~= nil then
+          value = v
+          badtype = false
+        end
+      end
+
+      if badtype then
+        dprint(' actual_type ~= exp_type : a:', act_type, 'e:', exp_type)
+        self:set_invalid("Expected a: " .. exp_type .. " value:", value)
+        --
+        if conf.devmode and act_type == 'table' and exp_type == 'string' then
+          error("Type missmatch for" .. base.get_elm_name(d) .. "\n" ..
+            "To pass not string value you must specify a type. Like this:\n" ..
+            "local key = w:type('table'):opt('--key', '-k')\n" ..
+            "local arg1 = w:type('table'):arg(0)"
+          )
+        end
+        has, value = false, nil
+      end
+    end
+  end
+
+  return has, value
+end
+
+
+---@param d table
+---@param has boolean
+local function call_validate_callback(self, d, has, value)
+  local validate = d.validate_value_callback
+  local vt = type(validate)
+  local ut = type(d.validate_value_userdata)
+  dprint(' validate value cb: ', vt, 'ud:', ut,
+    'has_invalid_value:', d.has_invalid_value)
+
+  if not d.has_invalid_value and validate and vt == 'function' then
+    local valid, errmsg, new_value
+
+    if d.validate_value_userdata then
+      -- call method of the object (userdata is self)
+      valid, errmsg, new_value = validate(d.validate_value_userdata, value)
+    else
+      -- call function
+      valid, errmsg, new_value = validate(value)
+    end
+    if new_value ~= nil then
+      value = new_value
+    end
+
+    dprint(' validate callback ret valid:', valid, 'errmsg:', errmsg)
+
+    if not valid and d then
+      self:set_invalid(errmsg or '', value)
+    end
+  end
+
+  return has, value
+end
+
+-- move the index to the next argument if there is a corresponding annotation
+---@param self Cmd4LuaHelpCollector
+local function do_pop_arg(self, d)
+  if d._pop_arg and d.ai then
+    dprint(' move_to_next_arg from abs-ai:', self.parent.ai)
+    d._pop_arg = nil
+    self.parent.ai = self.parent.ai + 1
+  end
+end
+
+---@param self Cmd4LuaHelpCollector
+local function set_variable_to_vars(self, d, has, value)
+  -- is this element was actually passed in input or not
+  -- to prevent overwriting an already assigned value to the same variable
+  -- for example in one group for a radio button
+  if has or not d.group then
+    local varname = self:getElementVarName()
+    dprint(2, 'set varname:', varname, 'has-value:', value ~= nil)
+
+    self.parent:set_var(varname, value)
+  end
+end
+
+--
+---@param has boolean
+---@param value any|nil
+function Collector:validate_value(has, value)
+  local d = self.__d or {}
+  self.__d = d
+
+  dprint('ValidateValue name:', d.name, ' has:', has, 'value:', value, 'type:', d.type,
+    'has-def:', d.has_default, 'def:', d.default_value, 'tag:', d.tag)
+
+  if has and value == nil and d.has_default_value_exopt then
+    value = d.default_value_exopt
+    has = true -- value ~= nil
+    -- check type?
+    dprint('take default value for exist optkey', value)
+  end
+
+  if not has then -- cases:  w:def(..):opt()  or  w:env():opt()
+    has, value = take_value_from_default(self, d, has, value)
+    -- envvar override default if exists
+    has, value = take_value_from_evnvar(self, d, has, value)
+    --
+  elseif has and not d.has_invalid_value then
+    has, value = update_invaid_value(self, d, has, value)
+  end
+
+  if has or d.required then -- ?
+    -- TODO: find way to call validator for one value of a "radio-group"
+    has, value = call_validate_callback(self, d, has, value)
+  end
+
+  if d.required and not has then --value == nil then
+    d.missing = true             -- not defined but value can be provided by group
+    -- if d.ai then self.arg_expected = true end
+    dprint('required is missing!')
+  end
+
+  do_pop_arg(self, d)
+  add_to_group(self, d)
+  set_variable_to_vars(self, d, has, value)
+
+  dprint('return value:', value, 'has:', has, "\n")
+
+  return value, has
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+---@return boolean
+function Collector:has_unresolved_cmd()
+  local f = self.cmd_expected == true and not self.cmd_found
+  if f then dprint(2, 'unresolved_cmd:true') end
+  return f
+end
+
+-- check is some required optkey is not specified
+---@return boolean
+function Collector:has_missing_required_opts()
+  if self.thelp and self.thelp.opts then
+    for _, opt in pairs(self.thelp.opts) do
+      if opt.missing and opt.required then
+        -- the missing value is replaced with a value from the group
+        if self:is_provided_from_group(opt) then
+          dprint(2, 'missing_opts provided from ', opt.group.name)
+        else
+          dprint(2, 'has_missing_required_opts:true')
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+-- TODO
+-- there are elements from a blocked group (type = 0 none one of)
+
+function Collector:has_invalid_opt_values()
+  if self.thelp and self.thelp.opts then
+    for _, opt in pairs(self.thelp.opts) do
+      if not opt.missing and opt.has_invalid_value then
+        dprint('has_invalid_opt_values:true')
+        return true
+      end
+    end
+  end
+  return false
+end
+
+function Collector:has_invalid_arg_values()
+  if self.thelp and self.thelp.args then
+    for _, arg in pairs(self.thelp.args) do
+      if arg.has_invalid_value then
+        dprint('has_invalid_arg_values:true')
+        return true
+      end
+    end
+  end
+  return false
+end
+
+--  group consistency check
+function Collector:has_invalid_group()
+  local has_error = false
+
+  if self.thelp and self.thelp.groups then
+    for _, group in pairs(self.thelp.groups) do
+      local gtype = group.type
+      local name = group.name
+      local n = #group.elements
+      -- one of group
+      if gtype == 1 then
+        -- allow to has only one
+        if n ~= 1 then
+          dprint('Radio-button Group(1) ', name, 'has elements:', n)
+          has_error = true
+          break
+        end
+        -- non of group
+      elseif gtype == 0 then
+        if n > 0 then
+          dprint('Blocked Group(0) ', name, ' has elemnents:', n)
+          has_error = true
+          break
+        end
+      elseif gtype == 8 then
+        if n <= 0 then
+          dprint('Many Group(8)', name, ' is empty')
+          has_error = true
+          break
+        end
+      end
+    end
+  end
+
+  return has_error
+end
+
+--
+-- check is for given element(arg, opt) has a replacement pair from a same
+-- group
+-- (i.g. in same 1-group(Radio-button) arg and opt,
+--  if the required arg not defined but defined opt from this group - is ok)
+--
+---@param e table  element can be opt or arg  (e.missing == true)
+function Collector:is_provided_from_group(e)
+  -- check group arg+opt
+  if e and e.group and e.group.name then
+    local g = (self.thelp.groups or {})[e.group.name]
+    if g and g.elements then
+      return #g.elements > 0
+    end
+  end
+  return false
+end
+
+function Collector:has_missing_required_args()
+  if self.thelp and self.thelp.args then
+    for _, arg in pairs(self.thelp.args) do
+      if arg.missing and arg.required then
+        if self:is_provided_from_group(arg) then
+          dprint('a missing arg is provided by opt from same group')
+        else
+          dprint('has_missing_required_args:true')
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+function Collector:get_missing_required_cnt(list)
+  local cnt = 0
+  if list then
+    assert(type(list) == 'table', 'list')
+    for _, e in pairs(list) do
+      if e.missing and not self:is_provided_from_group(e) then
+        cnt = cnt + 1
+      end
+    end
+  end
+  return cnt
+end
+
+-- list of all not checked optkeys - extra not parsed
+-- To identify cases when unknown keys are passed
+---@return table|nil
+function Collector:unchecked_opts()
+  local cnt, unchecked, topts = 0, {}, self:get_thelp_opts()
+
+  for key, _ in pairs(self.parent.keys) do
+    if not base.find_by_name(topts, key) then
+      table.insert(unchecked, key)
+      cnt = cnt + 1
+    end
+  end
+
+  return cnt > 0 and unchecked or nil
+end
+
+--
+function Collector:has_unchecked_opts()
+  local cnt, has_h, topts = 0, false, self:get_thelp_opts()
+
+  for key, _ in pairs(self.parent.keys) do
+    if not base.find_by_name(topts, key) then
+      dprint('unchecked opt', key)
+      cnt = cnt + 1
+    end
+  end
+
+  if has_h and cnt == 1 then -- the only
+    cnt = cnt - 1
+  end
+  if cnt > 0 then dprint('has_unchecked_opts:true') end
+  return cnt > 0
+end
+
+--
+-- consider all extra arguments that were not checked in the code as
+-- an input error ( for build and show usage and help)
+-- or untouched args (gaps in case local a1, a5 = w:arg(0), w:arg(4))
+--
+function Collector:has_unexpected_args()
+  local i, has = 0, false
+  local targs = self:get_thelp_args()
+  if not targs then
+    has = self.parent.ai < #self.parent.args + 1
+    if has and _is_helpcmd(self.parent:_arg(0)) then
+      has = false
+    end
+    -- TODO: - self.cmd_unknown ??
+  else
+    -- in method arg(offset specified with index from 0) in table from 1
+    -- M.debug_inspect('self.args: ', self.args, '; thelp.args: ', self.thelp.args)
+
+    for ai = self.lvl_deep, #self.parent.args do
+      local offset = ai - self.lvl_deep + 1
+      local arg = targs[offset]
+      if not arg and not _is_helpcmd(arg) then
+        i = i + 1
+      end
+      -- if M.debug then
+      --   local targ
+      --   if arg then targ = self.args[self.lvl_deep + arg.ai - 1] end
+      --   dprint('ai', ai, 'in self.args: ', self.args[ai],
+      --     'offset:', offset, ' in thelp.args:', targ, 'unexp-cnt:', i)
+      -- end
+    end
+    -- support annotation "many"-args
+    if i > 0 and # targs > 0 and targs[#targs].many_args then
+      i = 0
+    end
+    has = i > 0
+  end
+  -- if self.arg_expected then dprint('arg_expected:true') end
+  if has then dprint('has_unexpected_args:true') end
+  return has
+end
+
+--
+-- Smart next command recognition
+-- implemented by checking touched arguments (self.thelp.args)
+--
+-- Get the offset relative to the current index(lvl_deep) to an argument that
+-- has not yet been touched through methods such as arg(N), argn(), and so on
+--
+-- Used to implement smart pickup of the check for the next command
+-- Usage example
+--  -- input: 'cmd a b c subcmd'
+--  local a, b, c = w:arg(1), w:arg(2), w:arg(3)   -- here no w.ai++ via :pop()
+--  is_cmd('subcmd') == say true!
+--
+--  Explanation:
+--  The method "is_cmd" will automatically see that three arguments from the
+--  current index (lvl_deep) have been touched and will automatically move to
+--  the position of the next untouched argument with the "subcmd" value.
+--  And then the command will be re-checked for compliance to the expected value
+--
+--  Why is this and how it can be usefull:
+--
+--  to reduce code size and the needs to constantly add methods in this style:
+--  local a, b, c = w:pop():arg(1), w:pop():arg(2), w:pop():arg(3)
+--
+---@return number|nil -- offset from lvl_deep
+function Collector:find_next_untouched_arg()
+  local targs = self:get_thelp_args()
+  if targs then
+    local max = 0
+    -- Note: ignors the gaps between indexes
+    for off, _ in pairs(targs) do
+      if off > max then max = off end
+    end
+    dprint('find next untouched arg max_offset:', max, '#targs:', #targs)
+    local off = self.parent.ai - (self.lvl_deep + max)
+    if off < 0 then off = -off end
+    dprint('found offset:', off, 'ai:', self.parent.ai, 'lvl_deep:', self.lvl_deep)
+    return off
+  end
+end
+
+--
+--
+---@param tcmd table {name, shortname, handler, ...}
+function Collector:get_command_handler(tcmd)
+  if tcmd then
+    local func_name -- from module with handlers, not used when the handler
+    -- is registered as an anonymous function like: cmd('name', function() end)
+
+    if not tcmd.handler then
+      tcmd.handler, func_name = self:find_cmdhandler_func(tcmd)
+    end
+    local cb = tcmd.handler
+
+    if not cb then
+      dprint('Not Found handler for command: ', tcmd.name)
+    end
+
+    if cb == nil then
+      local is_method = self.thelp.handler_instance ~= nil
+      local fname, exactly = base.get_cmdhandler_names(tcmd, is_method)
+      error(string.format(
+        'Not Found the callback function for a command: "%s" (tries: %s %s)',
+        tostring(tcmd.name), tostring(fname), tostring(exactly)
+      ))
+    elseif not type(cb) == 'function' then
+      error('Command handler callback must be a function. Has: ' .. type(cb))
+      error(string.format(
+        'Command handler callback must be a function. Has: %s, func_name: %s',
+        type(cb), tostring(func_name)
+      ))
+    end
+
+    return tcmd.handler
+  end
+end
+
+-- return registered instance for "handlers"
+-- to allow registed dynamic methods of the one class and call this method to
+-- already specified instance
+---@return table|nil
+function Collector:getHandlerInstance()
+  return self.thelp.handler_instance
+end
+
+--
+-- find the registered command for the current arg
+--
+---@return table|nil
+function Collector:find_command_for_arg()
+  local arg = self.parent:_arg(0)
+
+  local cmds = self:get_thelp_cmds()
+
+  dprint("_find_command_for ai:", self.parent.ai, 'arg:', arg,
+    " has-cmds:", cmds ~= nil)
+
+  if cmds then -- and type(arg) ~= 'string' then
+    local arg_type = type(arg)
+
+    if self.cmd_default and (not arg or arg_type ~= 'string') then
+      dprint('find default_cmd: ', self.cmd_default)
+
+      for _, tcmd in pairs(cmds) do
+        if tcmd.name == self.cmd_default then
+          return tcmd
+        end
+      end
+    end
+    --?
+
+    if arg_type == 'string' then
+      return self:_find_command_for(arg)
+      -- for _, cmd in pairs(cmds) do
+      --   local b = self.parent:_is_cmd(arg, cmd.name, cmd.shortname, cmd.name3)
+      --   dprint('.. cmd.name:', cmd.name, '_is_cmd:', b)
+      --   if b then
+      --     return cmd
+      --   end
+      -- end
+    else
+      dprint('current arg is', arg_type)
+    end
+  end
+end
+
+---@param arg string?
+---@return table?
+function Collector:_find_command_for(arg)
+  if not arg or arg == '' or not self:get_thelp_cmds() then return nil end
+
+  for _, cmd in pairs(self:get_thelp_cmds()) do
+    local b = self.parent:_is_cmd(arg, cmd.name, cmd.shortname, cmd.name3)
+    dprint('.. cmd.name:', cmd.name, '_is_cmd:', b)
+    if b then
+      return cmd
+    end
+  end
+end
+
+--
+-- find the functions corresponding to the cmd name in self.thelp.handlers
+--
+---@param tcmd table {name, tag}
+function Collector:find_cmdhandler_func(tcmd)
+  local is_method = self.thelp.handler_instance ~= nil
+  local fname, exactly = base.get_cmdhandler_names(tcmd, is_method)
+
+  dprint('find_command_handler for name:', fname, 'exactly:', exactly,
+    ' handlers:', self.thelp.handlers ~= nil,
+    ' handler-instance:', self.thelp.handler_instance ~= nil
+  )
+
+  if fname and self.thelp.handlers then
+    for name0, func in pairs(self.thelp.handlers) do
+      local match_fname = name0 == fname -- cmd_ + cmd.name
+      local match_tag = name0 == exactly -- cmd.tag
+      local match = match_fname or match_tag
+      dprint('find: check', fname, 'name0:', name0, ' match:', match)
+      if match then
+        local func_name = ((match_fname and fname) or (match_tag and exactly))
+        return func, func_name
+      end
+    end
+  end
+end
+
+-- arrange the order in which access was carried out
+---@return table
+function Collector:get_access_queue()
+  local queue = {}
+  if self.thelp then
+    local function fill(list, etype)
+      if list then
+        for _, d in pairs(list) do
+          if d.access_n then
+            queue[d.access_n] = d
+            d.elm_type = etype
+          end
+        end
+      end
+    end
+    fill(self.thelp.cmds, "Command")
+    fill(self.thelp.args, "Argument")
+    fill(self.thelp.opts, "Options")
+  end
+  return queue
+end
+
+--
+-- used to show unknown_cmd
+-- in current cmd level cmd_expected triggers by is_cmd|cmd call
+--
+---@return string|nil
+function Collector:get_actual_cmd()
+  local cmd
+  if self.cmd_expected then
+    --  smart find the next untouched arg and consider it as actual_cmd
+    if self:is_touched_arg(0) then
+      local off = self:find_next_untouched_arg()
+      if off then
+        cmd = self.parent:_arg(off)
+      end
+    end
+    local ci = self.parent.ai -- self.lvl_deep
+    if not cmd and ci > 0 and ci <= #self.parent.args then
+      cmd = self.parent.args[ci]
+    end
+  end
+  return cmd
+end
+
+function Collector:get_cmd_path()
+  return base.shallow_copy(self._cmds_path) or {}
+end
+
+--------------------------------------------------------------------------------
+--                          Annotations
+--------------------------------------------------------------------------------
+
+---@param cmd_name string
+---@return Cmd4Lua
+function Collector:annotation_root(cmd_name)
+  if cmd_name then
+    self._cmds_path = { cmd_name }
+  end
+  return self.parent
+end
+
+---@param cmd_lvl_description string|nil
+---@return Cmd4Lua
+function Collector:annotation_about(cmd_lvl_description)
+  cmd_lvl_description = cmd_lvl_description or ''
+  local s = self.thelp.cmd_lvl_description or ''
+  if s ~= '' and s:sub(-1, -1) ~= "\n" then
+    s = s .. "\n"
+  end
+  self.thelp.cmd_lvl_description = s .. cmd_lvl_description
+  return self.parent
+end
+
+---@param module table
+---@param instance table|nil
+---@return Cmd4Lua
+function Collector:annotation_handlers(module, instance)
+  self.thelp.handlers = module
+  self.thelp.handler_instance = instance or nil
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_default_cmd(name)
+  dprint('set default_cmd to ', name)
+  self.cmd_default = name
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_cmd(name, ...)
+  local shortname, name3, callback, userdata
+  -- when cmd found in same cmd level - skip remains
+  if self.cmd_found then
+    dprint('cmd found - skip register cmd:', name)
+    return self.parent
+  end
+
+  -- smart args parsing to pick multiples names and a callback with userdata
+  for i = 1, select('#', ...) do
+    local val = select(i, ...)
+    local t = type(val)
+    if t == 'string' then
+      if callback then
+        userdata = val
+      elseif not shortname then
+        shortname = val
+      elseif not name3 then
+        name3 = val
+      else
+        -- ignore extra strings
+      end
+    elseif t == 'function' then
+      callback = val
+    end
+  end
+
+  -- register command and add handler with userdata
+  self:add_cmd_description(name, shortname, name3)
+  self:add_cmd_handler(callback, userdata)
+
+  if conf.devmode then -- check handler callback throw errors
+    self:get_command_handler(self:getElementMeta())
+  end
+
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_group(name, gtype)
+  assert(not gtype or type(gtype) == 'number', 'group type must be a number')
+  local nt = type(name)
+
+  if nt == 'table' and name.name then
+    self.__next.group = { name = name.name, type = name.type }
+    --
+  elseif nt == 'string' then
+    self.__next.group = { name = name, type = gtype or 8 }
+  end
+
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_desc(description, tag)
+  if tag and tag ~= '' and #tag > #description then
+    -- swap
+    local tmp = tag
+    tag = description
+    description = tmp
+  end
+  if description then -- description can use both for commands and arguments
+    local prev = self.__next.description
+    if type(prev) == 'string' then
+      description = prev .. ' ' .. description
+    end
+    self.__next.description = description
+  end
+  if tag then
+    self.__next.tag = tag
+  end
+  return self.parent
+end
+
+---@param name string
+---@return Cmd4Lua
+function Collector:annotation_tag(name)
+  -- assert(not name or type(name) == 'string', 'tag name')
+  -- a name is used when this method is used to describe an argument, not cmd
+  if name and name ~= '' then
+    self.__next.tag = name
+  end
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_type(atype)
+  atype = atype or 'string'
+  -- if atype == 'any' then atype = nil end
+  self.__next.type = atype
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_def(value)
+  self.__next.has_default = true -- for values: nil, false, 0
+  self.__next.default_value = value
+  dprint('set default_value to ', value)
+  return self.parent
+end
+
+-- default value for specified opt-key without value(nil)
+-- def val for exists opts(without value)
+---@return Cmd4Lua
+function Collector:annotation_def_val_exopt(value)
+  self.__next.has_default_value_exopt = true -- for values: nil, false, 0
+  self.__next.default_value_exopt = value
+  if value ~= nil then
+    dprint('set type of def_value for exist opt ', type(value))
+    self.__next.type = type(value)
+  end
+  dprint('set default_value for exist opt to ', value)
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_env(envvar_name)
+  assert(type(envvar_name) == 'string', 'envvar name')
+  if envvar_name and envvar_name ~= '' then
+    self.__next.envvar_name = base.not_empty_or_nil(envvar_name)
+  end
+  return self.parent
+end
+
+---@param validate_value_callback function?
+---@param userdata table?
+---@return Cmd4Lua
+function Collector:annotation_pop(validate_value_callback, userdata)
+  self.__next._pop_arg = true
+  if (validate_value_callback) then
+    -- self._required = true
+    self:annotation_validate(validate_value_callback, userdata)
+  end
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_many()
+  self.__next.many_args = true
+  return self.parent
+end
+
+---@return Cmd4Lua
+function Collector:annotation_usage(examples)
+  assert(not examples or type(examples) == 'string', 'examples')
+  if examples and examples ~= '' then
+    local ue = self.thelp.usage_examples or ''
+    if ue == '' then
+      ue = "\nUsage Examples:\n"
+    end
+    if #ue > 0 and ue:sub(-1, -1) ~= "\n" then
+      ue = ue .. "\n"
+    end
+    self.thelp.usage_examples = ue .. examples .. "\n"
+  end
+
+  return self.parent
+end
+
+---@param validate_value_callback function?
+---@param userdata table?
+---@return Cmd4Lua
+function Collector:annotation_validate(validate_value_callback, userdata)
+  local vt = type(validate_value_callback)
+  local ut = type(userdata)
+  -- swap
+  if vt == 'table' and ut == 'function' then
+    local tmp = userdata
+    userdata = validate_value_callback
+    validate_value_callback = tmp
+  end
+
+  vt = type(validate_value_callback)
+  assert(vt == 'function', 'validate_value_callback has:' .. vt)
+
+  self.__next.validate_value_callback = validate_value_callback
+  self.__next.validate_value_userdata = userdata
+  return self.parent
+end
+
+---@param validate_value_callback function?
+---@param userdata table?
+---@return Cmd4Lua
+function Collector:annotation_required(validate_value_callback, userdata)
+  self.__next.required = true
+  if (validate_value_callback) then
+    self:annotation_validate(validate_value_callback, userdata)
+  end
+  return self.parent
+end
+
+---@param validate_value_callback function?
+---@param userdata table?
+---@return Cmd4Lua
+function Collector:annotation_optional(validate_value_callback, userdata)
+  self.__next.required = false
+  if (validate_value_callback) then
+    self:annotation_validate(validate_value_callback, userdata)
+  end
+  return self.parent
+end
+
+--- userdata for command-handler itself
+---@return Cmd4Lua
+function Collector:annotation_userdata(value)
+  self.__d = self.__d or {}
+  self.__d.userdata = value
+  return self.parent
+end
+
+--
+---@param callback function
+function Collector:annotation_pre_cmd(callback)
+  assert(type(callback) == 'function', 'pre_cmd callback')
+  self.thelp.pre_cmd_callback = callback
+  return self.parent
+end
+
+--
+---@param callback function
+function Collector:annotation_post_cmd(callback)
+  assert(type(callback) == 'function', 'post_cmd callback')
+  self.thelp.post_cmd_callback = callback
+  return self.parent
+end
+
+-- register a subscriber in a current command level with condguard to validate
+-- some values before actually run the job (in is_input_valid)
+function Collector:annotation_pre_work_condguard(subscriber, errmsg)
+  local t = type(subscriber)
+  assert(t == 'function' or t == 'boolean', 'subscriber can be func or bool')
+  self.subscribers = self.subscribers or {}
+  self.subscribers[#self.subscribers + 1] = { subscriber, errmsg }
+  return self.parent
+end
+
+--------------------------------------------------------------------------------
+
+function Collector:run_pre_cmd_subscriber()
+  if type(self.thelp.pre_cmd_callback) == 'function' then
+    dprint('pre_cmd_callback')
+    self.thelp.pre_cmd_callback(self.parent)
+    -- TODO pass a state of the touched opts from "parent"
+  end
+end
+
+function Collector:run_post_cmd_subscriber()
+  if type(self.thelp.post_cmd_callback) == 'function' then
+    dprint('post_cmd_callback')
+    self.thelp.post_cmd_callback(self.parent)
+  end
+end
+
+--
+-- Call subscribers or check alredy tested conditions(booleans) in order to
+-- determine whether everything is ready to launch the command handler,
+-- whether all external conditions are met and whether everything is enough.
+-- Used at is_input_valid and run before runs command handler
+--
+-- return true if "ready to work"
+---@return boolean
+function Collector:pre_work_subscribers()
+  local t = self.subscribers
+  if t and #t > 0 then
+    t = self.subscribers.pre_work or {}
+    for i, entry in pairs(t) do
+      local ret = true
+      local subscriber = entry[1]
+      local msg = entry[2]
+      local type0 = type(subscriber)
+
+      if type0 == 'function' then
+        ret = subscriber(self)
+      elseif subscriber == false then
+        ret = false
+      end
+
+      if not ret then
+        dprint('stop on subscriber #', i)
+        self.parent:print(msg)
+        return false
+      end
+    end
+  end
+  return true
+end
+
+return Collector

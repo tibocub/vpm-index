@@ -1,0 +1,39 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+return {
+    name = "traffic-shadowing",
+    fields = {
+        {
+            consumer = typedefs.no_consumer,
+        },
+        {
+            protocols = typedefs.protocols_http,
+        },
+        {
+            config = {
+                type = "record",
+                fields = {
+                    {
+                        upstream_urls = {
+                            type = "array",
+                            required = true,
+                            elements = {
+                                type = "string",
+                            },
+                        },
+                    },
+                    {
+                        sampling_rate = {
+                            type = "number",
+                            default = 100,
+                            between = {
+                                0,
+                                100,
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+}

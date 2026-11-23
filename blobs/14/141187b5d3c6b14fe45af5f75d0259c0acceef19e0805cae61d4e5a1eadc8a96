@@ -1,0 +1,556 @@
+-- ============================================================
+-- Shiva Test — In-Memory Database Mock
+-- Pure-Lua SQL engine that mimics oxmysql's API.
+-- Supports: CREATE TABLE, DROP TABLE, INSERT, SELECT,
+--           UPDATE, DELETE with basic WHERE/ORDER/LIMIT.
+-- Parameterised queries: positional (?) and named (:name / @name).
+-- ============================================================
+
+local Database = {}
+
+-- ========================
+-- Storage
+-- ========================
+
+local _tables = {}
+
+-- ========================
+-- Parameter binding
+-- ========================
+
+local function bindSQL(sql, params)
+    if not params then return sql end
+
+    local positional = {}
+    local named      = {}
+
+    if params[1] ~= nil or next(params) == nil then
+        for _, v in ipairs(params) do positional[#positional + 1] = v end
+    else
+        named = params
+    end
+
+    local posIdx = 0
+    local function toSQLLiteral(v)
+        if v == nil     then return 'NULL'
+        elseif type(v) == 'boolean' then return v and '1' or '0'
+        elseif type(v) == 'number'  then return tostring(v)
+        else return "'" .. tostring(v):gsub("'", "''") .. "'"
+        end
+    end
+
+    local bound = sql:gsub('%?', function()
+        posIdx = posIdx + 1
+        return toSQLLiteral(positional[posIdx])
+    end)
+
+    bound = bound:gsub('[@:][%w_]+', function(key)
+        return toSQLLiteral(named[key:sub(2)])
+    end)
+
+    return bound
+end
+
+-- ========================
+-- SQL value coercion
+-- ========================
+
+local function parseLiteral(s)
+    if type(s) ~= 'string' then return s end
+    s = s:match('^%s*(.-)%s*$')
+    if s:upper() == 'NULL'  then return nil   end
+    if s:upper() == 'TRUE'  then return true  end
+    if s:upper() == 'FALSE' then return false end
+    local str = s:match("^'(.*)'$")
+    if str then return str:gsub("''", "'") end
+    local num = tonumber(s)
+    if num then return num end
+    return s
+end
+
+-- ========================
+-- CSV parser (handles quoted strings)
+-- ========================
+
+local function parseCSV(s)
+    local items = {}
+    local i = 1
+    s = s:match('^%s*(.-)%s*$')
+    while i <= #s do
+        local ch = s:sub(i, i)
+        if ch == ' ' or ch == '\t' then
+            i = i + 1
+        elseif ch == ',' then
+            i = i + 1
+        elseif ch == "'" then
+            local str = ''
+            i = i + 1
+            while i <= #s do
+                local c2 = s:sub(i, i)
+                if c2 == "'" then
+                    if s:sub(i + 1, i + 1) == "'" then
+                        str = str .. "'"
+                        i = i + 2
+                    else
+                        i = i + 1
+                        break
+                    end
+                else
+                    str = str .. c2
+                    i = i + 1
+                end
+            end
+            items[#items + 1] = str
+        else
+            local j = s:find(',', i, true) or (#s + 1)
+            local token = s:sub(i, j - 1):match('^%s*(.-)%s*$')
+            items[#items + 1] = parseLiteral(token)
+            i = j
+        end
+    end
+    return items
+end
+
+-- ========================
+-- WHERE evaluation
+-- ========================
+
+local function splitByAnd(whereStr)
+    local parts = {}
+    local rest = whereStr
+    while true do
+        local s, e = rest:lower():find('%s+and%s+')
+        if s then
+            local part = rest:sub(1, s - 1):match('^%s*(.-)%s*$')
+            if part ~= '' then parts[#parts + 1] = part end
+            rest = rest:sub(e + 1)
+        else
+            local t = rest:match('^%s*(.-)%s*$')
+            if t ~= '' then parts[#parts + 1] = t end
+            break
+        end
+    end
+    return parts
+end
+
+local function parseOneCondition(part)
+    -- IS NOT NULL
+    local col = part:match('^([%w_`%.]+)%s+[Ii][Ss]%s+[Nn][Oo][Tt]%s+[Nn][Uu][Ll][Ll]$')
+    if col then return { col = col:gsub('`', ''), op = 'IS NOT NULL', val = nil } end
+
+    -- IS NULL
+    col = part:match('^([%w_`%.]+)%s+[Ii][Ss]%s+[Nn][Uu][Ll][Ll]$')
+    if col then return { col = col:gsub('`', ''), op = 'IS NULL', val = nil } end
+
+    -- LIKE
+    local valStr
+    col, valStr = part:match('^([%w_`%.]+)%s+[Ll][Ii][Kk][Ee]%s+(.+)$')
+    if col then return { col = col:gsub('`', ''), op = 'LIKE', val = parseLiteral(valStr) } end
+
+    -- Two-char operators: >=  <=  !=  <>
+    local op
+    col, op, valStr = part:match('^([%w_`%.]+)%s*([><!][=])%s*(.+)$')
+    if not col then col, op, valStr = part:match('^([%w_`%.]+)%s*(<>)%s*(.+)$') end
+
+    -- Single-char: =  >  <
+    if not col then col, op, valStr = part:match('^([%w_`%.]+)%s*([=><])%s*(.+)$') end
+
+    if col then
+        return { col = col:gsub('`', ''), op = op, val = parseLiteral(valStr) }
+    end
+
+    return nil
+end
+
+local function parseConditions(whereStr)
+    if not whereStr or whereStr:match('^%s*$') then return {} end
+    local conds = {}
+    for _, part in ipairs(splitByAnd(whereStr)) do
+        local cond = parseOneCondition(part)
+        if cond then conds[#conds + 1] = cond end
+    end
+    return conds
+end
+
+local function evalConditions(row, conds)
+    for _, c in ipairs(conds) do
+        local v = row[c.col]
+        if     c.op == 'IS NULL'     then if v ~= nil then return false end
+        elseif c.op == 'IS NOT NULL' then if v == nil  then return false end
+        elseif c.op == '='  then if v ~= c.val then return false end
+        elseif c.op == '!=' or c.op == '<>' then if v == c.val then return false end
+        elseif c.op == '>'  then if not (v ~= nil and v >  c.val) then return false end
+        elseif c.op == '<'  then if not (v ~= nil and v <  c.val) then return false end
+        elseif c.op == '>=' then if not (v ~= nil and v >= c.val) then return false end
+        elseif c.op == '<=' then if not (v ~= nil and v <= c.val) then return false end
+        elseif c.op == 'LIKE' then
+            local pattern = tostring(c.val):gsub('%%', '.*'):gsub('_', '.')
+            if not tostring(v or ''):lower():match('^' .. pattern:lower() .. '$') then
+                return false
+            end
+        end
+    end
+    return true
+end
+
+-- ========================
+-- Statement execution
+-- ========================
+
+local function execCreate(sql)
+    local name = sql:match('[Cc][Rr][Ee][Aa][Tt][Ee]%s+[Tt][Aa][Bb][Ll][Ee]%s+[Ii][Ff]%s+[Nn][Oo][Tt]%s+[Ee][Xx][Ii][Ss][Tt][Ss]%s+[`]?([%w_]+)[`]?')
+        or sql:match('[Cc][Rr][Ee][Aa][Tt][Ee]%s+[Tt][Aa][Bb][Ll][Ee]%s+[`]?([%w_]+)[`]?')
+    if not name then error('CREATE TABLE: cannot parse table name') end
+    if sql:upper():find('IF NOT EXISTS') and _tables[name] then return end
+
+    local colBlock = sql:match('%b()')
+    local columns  = {}
+    local pkCols   = {}
+
+    if colBlock then
+        colBlock = colBlock:sub(2, -2)
+        for def in colBlock:gmatch('[^,\n]+') do
+            def = def:match('^%s*(.-)%s*$')
+            local upper = def:upper()
+
+            if upper:match('^PRIMARY%s+KEY') or upper:match('^UNIQUE') or
+               upper:match('^INDEX') or upper:match('^KEY%s') or
+               upper:match('^CONSTRAINT') or upper:match('^FOREIGN') then
+                local pkList = def:match('[Pp][Rr][Ii][Mm][Aa][Rr][Yy]%s+[Kk][Ee][Yy]%s+%b()')
+                if pkList then
+                    for c in pkList:match('%b()'):sub(2, -2):gmatch('[`]?([%w_]+)[`]?') do
+                        pkCols[c] = true
+                    end
+                end
+            else
+                local colName = def:match('^[`]?([%w_]+)[`]?')
+                if colName then
+                    local isPK = upper:find('PRIMARY%s+KEY') ~= nil
+                    local isAI = upper:find('AUTO_INCREMENT') ~= nil or upper:find('AUTOINCREMENT') ~= nil
+                    local colType = def:match('[`]?[%w_]+[`]?%s+([%w]+)') or 'TEXT'
+
+                    -- Parse DEFAULT: try quoted then unquoted
+                    local default = nil
+                    local dq = def:match('[Dd][Ee][Ff][Aa][Uu][Ll][Tt]%s+\'([^\']*)\'')
+                    if dq ~= nil then
+                        default = dq
+                    else
+                        local du = def:match('[Dd][Ee][Ff][Aa][Uu][Ll][Tt]%s+(%S+)')
+                        if du then default = parseLiteral(du) end
+                    end
+
+                    columns[#columns + 1] = {
+                        name    = colName,
+                        type    = colType:upper(),
+                        pk      = isPK,
+                        ai      = isAI,
+                        default = default,
+                    }
+                    if isPK then pkCols[colName] = true end
+                end
+            end
+        end
+
+        for _, col in ipairs(columns) do
+            if pkCols[col.name] then col.pk = true end
+        end
+    end
+
+    _tables[name] = { columns = columns, rows = {}, nextId = 1 }
+end
+
+local function execDrop(sql)
+    local name = sql:match('[Dd][Rr][Oo][Pp]%s+[Tt][Aa][Bb][Ll][Ee]%s+[Ii][Ff]%s+[Ee][Xx][Ii][Ss][Tt][Ss]%s+[`]?([%w_]+)[`]?')
+        or sql:match('[Dd][Rr][Oo][Pp]%s+[Tt][Aa][Bb][Ll][Ee]%s+[`]?([%w_]+)[`]?')
+    if name then _tables[name] = nil end
+end
+
+local function execInsert(sql)
+    local tblName = sql:match('[Ii][Nn][Ss][Ee][Rr][Tt]%s+[Ii][Nn][Tt][Oo]%s+[`]?([%w_]+)[`]?')
+    if not tblName or not _tables[tblName] then
+        error('INSERT: table "' .. tostring(tblName) .. '" not found')
+    end
+
+    local tbl = _tables[tblName]
+    local colListStr, valListStr = sql:match('[Ii][Nn][Ss][Ee][Rr][Tt]%s+[Ii][Nn][Tt][Oo]%s+[`]?[%w_]+[`]?%s*(%b())%s+[Vv][Aa][Ll][Uu][Ee][Ss]%s*(%b())')
+
+    local cols, vals = {}, {}
+
+    if colListStr and valListStr then
+        for c in colListStr:sub(2, -2):gmatch('[`]?([%w_]+)[`]?') do
+            cols[#cols + 1] = c
+        end
+        vals = parseCSV(valListStr:sub(2, -2))
+    else
+        valListStr = sql:match('[Vv][Aa][Ll][Uu][Ee][Ss]%s*(%b())')
+        if valListStr then
+            vals = parseCSV(valListStr:sub(2, -2))
+            for _, col in ipairs(tbl.columns) do
+                cols[#cols + 1] = col.name
+            end
+        end
+    end
+
+    -- Build row with schema defaults
+    local row = {}
+    for _, col in ipairs(tbl.columns) do
+        if col.ai then
+            row[col.name] = tbl.nextId
+        elseif col.default ~= nil then
+            row[col.name] = col.default
+        end
+    end
+
+    -- Overlay provided values
+    for i, colName in ipairs(cols) do
+        row[colName] = vals[i]
+    end
+
+    local insertId = tbl.nextId
+    tbl.rows[#tbl.rows + 1] = row
+    tbl.nextId = tbl.nextId + 1
+
+    -- If PK was set explicitly to a higher value, advance nextId
+    for _, col in ipairs(tbl.columns) do
+        if col.pk and type(row[col.name]) == 'number' and row[col.name] >= tbl.nextId then
+            insertId   = row[col.name]
+            tbl.nextId = row[col.name] + 1
+        end
+    end
+
+    return insertId
+end
+
+local function execSelect(sql)
+    local tblName = sql:match('[Ff][Rr][Oo][Mm]%s+[`]?([%w_]+)[`]?')
+    if not tblName or not _tables[tblName] then return {} end
+
+    local tbl = _tables[tblName]
+
+    -- Extract WHERE (strip ORDER BY and LIMIT from it)
+    local whereStr = sql:match('[Ww][Hh][Ee][Rr][Ee]%s+(.-)%s*$')
+    if whereStr then
+        whereStr = whereStr:gsub('%s+[Oo][Rr][Dd][Ee][Rr]%s+[Bb][Yy]%s+.*$', '')
+            :gsub('%s+[Ll][Ii][Mm][Ii][Tt]%s+%d+.*$', '')
+    end
+    local conds = parseConditions(whereStr or '')
+
+    -- ORDER BY
+    local orderCol = sql:match('[Oo][Rr][Dd][Ee][Rr]%s+[Bb][Yy]%s+[`]?([%w_]+)[`]?')
+    local orderDesc = false
+    if orderCol then
+        if sql:match('[Oo][Rr][Dd][Ee][Rr]%s+[Bb][Yy]%s+[`]?[%w_]+[`]?%s+[Dd][Ee][Ss][Cc]') then
+            orderDesc = true
+        end
+    end
+
+    -- LIMIT
+    local limitStr = sql:match('[Ll][Ii][Mm][Ii][Tt]%s+(%d+)')
+    local limit    = limitStr and tonumber(limitStr)
+
+    -- Column selection
+    local colPart = sql:match('[Ss][Ee][Ll][Ee][Cc][Tt]%s+(.-)%s+[Ff][Rr][Oo][Mm]')
+    colPart = colPart and colPart:match('^%s*(.-)%s*$') or '*'
+    local selectAll  = colPart == '*'
+    local selectCols = {}
+    if not selectAll then
+        for c in colPart:gmatch('[`]?([%w_]+)[`]?') do
+            selectCols[c] = true
+        end
+    end
+
+    -- Filter
+    local matched = {}
+    for _, row in ipairs(tbl.rows) do
+        if evalConditions(row, conds) then
+            matched[#matched + 1] = row
+        end
+    end
+
+    -- Sort
+    if orderCol then
+        table.sort(matched, function(a, b)
+            local va, vb = a[orderCol], b[orderCol]
+            if va == nil then return orderDesc end
+            if vb == nil then return not orderDesc end
+            if orderDesc then return va > vb else return va < vb end
+        end)
+    end
+
+    -- Limit
+    if limit then
+        local trimmed = {}
+        for i = 1, math.min(limit, #matched) do trimmed[i] = matched[i] end
+        matched = trimmed
+    end
+
+    -- Project columns
+    if selectAll then return matched end
+    local projected = {}
+    for _, row in ipairs(matched) do
+        local proj = {}
+        for col in pairs(selectCols) do proj[col] = row[col] end
+        projected[#projected + 1] = proj
+    end
+    return projected
+end
+
+local function execUpdate(sql)
+    local tblName = sql:match('[Uu][Pp][Dd][Aa][Tt][Ee]%s+[`]?([%w_]+)[`]?')
+    if not tblName or not _tables[tblName] then
+        error('UPDATE: table "' .. tostring(tblName) .. '" not found')
+    end
+
+    local tbl = _tables[tblName]
+
+    local setStr = sql:match('[Ss][Ee][Tt]%s+(.-)%s+[Ww][Hh][Ee][Rr][Ee]')
+        or sql:match('[Ss][Ee][Tt]%s+(.-)%s*$')
+
+    local assignments = {}
+    if setStr then
+        for assign in setStr:gmatch('[^,]+') do
+            local col, val = assign:match('%s*[`]?([%w_]+)[`]?%s*=%s*(.+)$')
+            if col then assignments[col] = parseLiteral(val:match('^%s*(.-)%s*$')) end
+        end
+    end
+
+    local whereStr = sql:match('[Ww][Hh][Ee][Rr][Ee]%s+(.-)%s*$')
+    local conds    = parseConditions(whereStr or '')
+
+    local count = 0
+    for _, row in ipairs(tbl.rows) do
+        if evalConditions(row, conds) then
+            for col, val in pairs(assignments) do row[col] = val end
+            count = count + 1
+        end
+    end
+    return count
+end
+
+local function execDelete(sql)
+    local tblName = sql:match('[Dd][Ee][Ll][Ee][Tt][Ee]%s+[Ff][Rr][Oo][Mm]%s+[`]?([%w_]+)[`]?')
+    if not tblName or not _tables[tblName] then
+        error('DELETE: table "' .. tostring(tblName) .. '" not found')
+    end
+
+    local tbl = _tables[tblName]
+    local whereStr = sql:match('[Ww][Hh][Ee][Rr][Ee]%s+(.-)%s*$')
+    local conds    = parseConditions(whereStr or '')
+
+    local kept, count = {}, 0
+    for _, row in ipairs(tbl.rows) do
+        if evalConditions(row, conds) then
+            count = count + 1
+        else
+            kept[#kept + 1] = row
+        end
+    end
+    tbl.rows = kept
+    return count
+end
+
+-- ========================
+-- Dispatch
+-- ========================
+
+local function dispatch(sql, params)
+    local bound = bindSQL(sql, params)
+    local stmt  = bound:match('^%s*(%a+)'):upper()
+
+    if     stmt == 'CREATE' then execCreate(bound); return 0
+    elseif stmt == 'DROP'   then execDrop(bound);   return 0
+    elseif stmt == 'INSERT' then return execInsert(bound)
+    elseif stmt == 'SELECT' then return execSelect(bound)
+    elseif stmt == 'UPDATE' then return execUpdate(bound)
+    elseif stmt == 'DELETE' then return execDelete(bound)
+    else error('Unsupported SQL statement: ' .. stmt)
+    end
+end
+
+-- ========================
+-- Public API (matches oxmysql)
+-- ========================
+
+function Database.execute(sql, params)
+    return dispatch(sql, params)
+end
+
+function Database.query(sql, params, cb)
+    local rows = execSelect(bindSQL(sql, params))
+    if cb then cb(rows) end
+    return rows
+end
+
+Database.query_async = Database.query
+
+function Database.single(sql, params, cb)
+    local bound = bindSQL(sql, params)
+    if not bound:upper():find('LIMIT') then bound = bound .. ' LIMIT 1' end
+    local rows = execSelect(bound)
+    local row  = rows[1]
+    if cb then cb(row) end
+    return row
+end
+
+Database.single_async = Database.single
+
+function Database.scalar(sql, params, cb)
+    local row   = Database.single(sql, params)
+    local value
+    if row then
+        for _, v in pairs(row) do value = v; break end
+    end
+    if cb then cb(value) end
+    return value
+end
+
+Database.scalar_async = Database.scalar
+
+function Database.insert(sql, params, cb)
+    local id = execInsert(bindSQL(sql, params))
+    if cb then cb(id) end
+    return id
+end
+
+Database.insert_async = Database.insert
+
+function Database.update(sql, params, cb)
+    local n = dispatch(sql, params)
+    if cb then cb(n) end
+    return n
+end
+
+Database.update_async  = Database.update
+Database.execute_async = Database.execute
+
+-- ========================
+-- Test helpers
+-- ========================
+
+function Database.getRows(name)
+    return _tables[name] and _tables[name].rows or {}
+end
+
+function Database.getTable(name)
+    return _tables[name]
+end
+
+function Database.reset()
+    _tables = {}
+end
+
+function Database.installExports(G)
+    if not G.exports then return end
+    local ok, Exports = pcall(require, 'src.exports')
+    if not ok then return end
+    local methods = {
+        'query', 'query_async', 'single', 'single_async',
+        'scalar', 'scalar_async', 'execute', 'execute_async',
+        'insert', 'insert_async', 'update', 'update_async',
+    }
+    for _, name in ipairs(methods) do
+        Exports.mock('oxmysql', name, Database[name])
+    end
+end
+
+return Database

@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-helloworld",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/helloworld/access.lua": {
+          "sha256": "18709ce301fc0bedd667cae4edf116b0082515ffbc8c3358dcef495b418288a2",
+          "size": 313,
+          "url": "https://raw.githubusercontent.com/valeriydutt/kong-custom-plugin/3d57cb5c9bb21829c64c53328edf21bc540fc263/kong/plugins/helloworld/access.lua"
+        },
+        "kong/plugins/helloworld/handler.lua": {
+          "sha256": "0eb20ed6eef788c60ec731e9b7ce4c57e8795d3c8801619fe855a4b916e27c67",
+          "size": 377,
+          "url": "https://raw.githubusercontent.com/valeriydutt/kong-custom-plugin/3d57cb5c9bb21829c64c53328edf21bc540fc263/kong/plugins/helloworld/handler.lua"
+        },
+        "kong/plugins/helloworld/schema.lua": {
+          "sha256": "17964ac8e49fa6fefdc2c995a68bf46c0e304e3b1d85c4f23b5f8f774140428b",
+          "size": 102,
+          "url": "https://raw.githubusercontent.com/valeriydutt/kong-custom-plugin/3d57cb5c9bb21829c64c53328edf21bc540fc263/kong/plugins/helloworld/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/valeriydutt/kong-custom-plugin/",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 14 Nov 2022 15:51:44 GMT",
+        "rockspec": {
+          "date": "Mon, 14 Nov 2022 15:51:44 GMT",
+          "sha256": "8dd80db212d9106ee406379ad9b030a7989ef1726dedf19773c486fdc6670e19",
+          "size": 1206
+        }
+      },
+      "modules": [
+        "kong.plugins.helloworld.access",
+        "kong.plugins.helloworld.handler",
+        "kong.plugins.helloworld.schema"
+      ],
+      "origin": {
+        "commit": "3d57cb5c9bb21829c64c53328edf21bc540fc263",
+        "ref": "v0.1.0",
+        "type": "git",
+        "url": "https://github.com/valeriydutt/kong-custom-plugin"
+      },
+      "size": 792,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

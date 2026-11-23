@@ -1,0 +1,56 @@
+{
+  "kind": "lib",
+  "name": "kong-proxer",
+  "versions": {
+    "2.0-6": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/proxer/handler.lua": {
+          "sha256": "f943cd6f8f841666d02fca966c0373ac4bcf5bd5264939104a31b983bd540511",
+          "size": 1675,
+          "url": "https://raw.githubusercontent.com/fenix-hub/kong-proxer/a535e40390a82928d9f015e9456e54f28e105bb9/src/handler.lua"
+        },
+        "kong/plugins/proxer/schema.lua": {
+          "sha256": "ba5048c03c6b0ddfecd4cb72c6888239ad024d296f8f7cc8f9720873bc5f174d",
+          "size": 1033,
+          "url": "https://raw.githubusercontent.com/fenix-hub/kong-proxer/a535e40390a82928d9f015e9456e54f28e105bb9/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 19 Dec 2022 10:04:32 GMT",
+        "rockspec": {
+          "date": "Mon, 19 Dec 2022 10:04:32 GMT",
+          "sha256": "6c7db41e57d471b8f718d0c683494e26947e62c8320d0897f4f32bffb1d9a819",
+          "size": 452
+        }
+      },
+      "modules": [
+        "kong.plugins.proxer.handler",
+        "kong.plugins.proxer.schema"
+      ],
+      "origin": {
+        "commit": "a535e40390a82928d9f015e9456e54f28e105bb9",
+        "type": "git",
+        "url": "https://github.com/fenix-hub/kong-proxer.git"
+      },
+      "size": 2708,
+      "summary": "A Kong plugin that allows access to an upstream url through a proxy",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

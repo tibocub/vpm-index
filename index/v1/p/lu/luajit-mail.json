@@ -1,0 +1,110 @@
+{
+  "kind": "lib",
+  "name": "luajit-mail",
+  "versions": {
+    "1.0-4": {
+      "bin": [],
+      "blocked_by": {
+        "name": "luasocket",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "luajit-curl = 1.1-0",
+        "luasocket = 3.0rc1-2",
+        "luasec = 1.0.2-1"
+      ],
+      "files": {
+        "luajit-mail.lua": {
+          "sha256": "6ef0e903e19d0c09b1374682f9b21842fa53c8e29841b2b89a4a5e9ba373abec",
+          "size": 1695,
+          "url": "blob:6ef0e903e19d0c09b1374682f9b21842fa53c8e29841b2b89a4a5e9ba373abec"
+        },
+        "luajit-mail/curl.lua": {
+          "sha256": "044b5f0bb4d67b17172a7ff6f7538f7b50871aabde8b7a5d7f144272b178d7ea",
+          "size": 7336,
+          "url": "blob:044b5f0bb4d67b17172a7ff6f7538f7b50871aabde8b7a5d7f144272b178d7ea"
+        },
+        "luajit-mail/headers.lua": {
+          "sha256": "add40721c02b99797447453084eb6fe82c3041ddfb15a0d7b60955af581c613c",
+          "size": 697,
+          "url": "blob:add40721c02b99797447453084eb6fe82c3041ddfb15a0d7b60955af581c613c"
+        },
+        "luajit-mail/message.lua": {
+          "sha256": "777da823bb19272c9c506aa7876f5c62ad7c2e5fb90e83c6d79111b811103714",
+          "size": 6662,
+          "url": "blob:777da823bb19272c9c506aa7876f5c62ad7c2e5fb90e83c6d79111b811103714"
+        },
+        "luajit-mail/ngx_wrapper.lua": {
+          "sha256": "cab24b5a526a5e3a7526373194a4bd3247ca99739e8a1f64dead6d966411c88c",
+          "size": 13156,
+          "url": "blob:cab24b5a526a5e3a7526373194a4bd3247ca99739e8a1f64dead6d966411c88c"
+        },
+        "luajit-mail/resty_wrapper.lua": {
+          "sha256": "10dab770044e225bd3558e78f47734c2a82f4d786f15ad55e7394af3ebe03237",
+          "size": 1092,
+          "url": "blob:10dab770044e225bd3558e78f47734c2a82f4d786f15ad55e7394af3ebe03237"
+        },
+        "luajit-mail/rfc2822_date.lua": {
+          "sha256": "f985828e405c2227843b068ee7ca0bb0863e36309dd48163ad58b0b22fa5432e",
+          "size": 651,
+          "url": "blob:f985828e405c2227843b068ee7ca0bb0863e36309dd48163ad58b0b22fa5432e"
+        },
+        "luajit-mail/smtp.lua": {
+          "sha256": "27879c3a783d32c07ca5c13fd758cbbe36cbac3085b5a3b1a77ab650f9bba770",
+          "size": 6712,
+          "url": "blob:27879c3a783d32c07ca5c13fd758cbbe36cbac3085b5a3b1a77ab650f9bba770"
+        }
+      },
+      "homepage": "https://bitbucket.org/senanetworksinc/luajit-mail",
+      "host": "luajit",
+      "license": "MIT/X11",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 04 Nov 2021 06:10:16 GMT",
+        "rockspec": {
+          "date": "Thu, 04 Nov 2021 06:10:16 GMT",
+          "sha256": "dbac60b35f8c563f68034de95876b8ac53cc5f9c8ec09c0ea7424d1acc863931",
+          "size": 1006
+        },
+        "src": {
+          "date": "Thu, 04 Nov 2021 06:10:18 GMT",
+          "sha256": "a2ae32b96bc723d2940c2cfa8b33a378b919ef7e505eaf6a6d148065fc6c5e38",
+          "size": 13324,
+          "url": "https://luarocks.org/luajit-mail-1.0-4.src.rock"
+        }
+      },
+      "modules": [
+        "luajit-mail",
+        "luajit-mail.curl",
+        "luajit-mail.headers",
+        "luajit-mail.message",
+        "luajit-mail.ngx_wrapper",
+        "luajit-mail.resty_wrapper",
+        "luajit-mail.rfc2822_date",
+        "luajit-mail.smtp"
+      ],
+      "origin": {
+        "date": "Thu, 04 Nov 2021 06:10:18 GMT",
+        "sha256": "a2ae32b96bc723d2940c2cfa8b33a378b919ef7e505eaf6a6d148065fc6c5e38",
+        "size": 13324,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luajit-mail-1.0-4.src.rock"
+      },
+      "size": 38001,
+      "summary": "An lua-resty-mail fork.",
+      "undeclared_requires": [
+        "socket",
+        "ssl"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

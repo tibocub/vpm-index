@@ -1,0 +1,27 @@
+-- htb package root.
+--
+-- Public surface:
+--   htb.version       string, e.g. "0.1.0"
+--   htb.Config        alias for htb.config
+--   htb.Resolver      alias for htb.resolver
+--   htb.Script        alias for htb.script
+--   htb.Registry      alias for htb.registry
+--   htb.Model         alias for htb.model
+--   htb.errors        error types
+--
+-- Load order matters: the CLI loads plugins (htb.plugins) before resolving so
+-- that the registry is populated.
+
+local M = {}
+
+M.version = "0.1.0"
+
+-- Re-export the main modules for convenience.
+M.errors = require("htb.errors")
+M.Model = require("htb.model")
+M.Registry = require("htb.registry")
+M.Config = require("htb.config")
+M.Resolver = require("htb.resolver")
+M.Script = require("htb.script")
+
+return M

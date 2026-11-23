@@ -1,0 +1,84 @@
+-- © yokerp.com --
+
+local class = require'class'
+
+local socket = require'socket'
+local data = require'yoke.snap.mail.data'
+local concat = table.concat
+
+local mail = class('yoke.mail')
+
+function mail:initialize(host,port,tls)
+  self.rn = '\r\n'
+  self.host = host
+  self.port = port
+  local err
+  self.socket,err = socket.connect(host,port)
+  assert(self.socket,concat{'connect:',err})
+  self.socket:settimeout(5)
+  if tls then
+    self:tls({protocol = 'tlsv1_2'})
+  end
+end
+
+function mail:tls(tls)
+  tls = tls or {protocol = 'tlsv1_2'}
+  tls.mode = tls.mode or 'client'
+
+  local ssl = require 'ssl'
+  self.socket = ssl.wrap(self.socket, tls)
+  if self.socket then
+    self.socket:dohandshake()
+  end
+end
+
+function mail:receive(mode)
+  local data = {}
+  repeat
+    local result, state, part = self.socket:receive(mode or '*l')
+    if not result then
+      assert(state ~= 'closed', 'receive: closed')
+      assert(#part > 0, 'receive: time out')
+      data[#data+1] = part
+    end
+    data[#data+1] = result
+  until result
+  return concat(data)
+end
+
+function mail:parshdr(hdr,hdrs)
+  local data = data()
+  data:hdr(hdr,hdrs)
+  hdrs.subject = data.subject
+  hdrs.from = data.from
+  hdrs.date = data.date
+end
+
+function mail:parse(body)
+  local data = data()
+  data:parse(body)
+  local msg = {}
+  if not data.plain and not data.html then data.plain = data.body end
+  msg.from = data.from
+  msg.subject = data.subject
+  msg.date = data.date
+  msg.plain = data.plain
+  msg.html = data.html
+  msg.attach = {}
+  for _,attach in ipairs(data.attachs or {}) do
+      msg.attach[#msg.attach + 1] = {
+        name = attach.name,
+        filename = attach.filename,
+        filetype = attach.filetype,
+        cid = attach.cid,
+        body = attach.body
+      }
+  end
+  return msg
+end
+
+function mail:getlogin()
+  return self.uname
+end
+
+return mail

@@ -1,0 +1,137 @@
+--
+-- lua-schema : <https://fperrad.frama.io/lua-schema>
+--
+
+require'schema.dialect.draft2020-12'
+require'schema.openapi'
+local core = require'schema.core'
+
+local _ENV = nil
+
+core.default_schema = "https://spec.openapis.org/oas/3.1/dialect/2024-11-10"
+
+core.new({
+    ['$id'] = "https://spec.openapis.org/oas/3.1/meta/2024-11-10",
+    ['$schema'] = "https://json-schema.org/draft/2020-12/schema",
+    title = "OAS Base Vocabulary",
+    description = "A JSON Schema Vocabulary used in the OpenAPI Schema Dialect",
+    ['$dynamicAnchor'] = 'meta',
+    ['$vocabulary'] = {
+        ["https://spec.openapis.org/oas/3.1/vocab/base"] = true,
+    },
+    type = {
+        'object',
+        'boolean',
+    },
+    properties = {
+        discriminator = {
+            ['$ref'] = "#/$defs/discriminator",
+        },
+        example = true,
+        externalDocs = {
+            ['$ref'] = "#/$defs/external-docs",
+        },
+        xml = {
+            ['$ref'] = "#/$defs/xml",
+        },
+    },
+    ['$defs'] = {
+        discriminator = {
+            ['$ref'] = "#/$defs/extensible",
+            properties = {
+                mapping = {
+                    additionalProperties = {
+                        type = 'string',
+                    },
+                    type = 'object',
+                },
+                propertyName = {
+                    type = 'string',
+                },
+            },
+            required = {
+                'propertyName',
+            },
+            type = 'object',
+            unevaluatedProperties = false,
+        },
+        extensible = {
+            luaPatternProperties = { -- patternProperties = {
+                ['^x%-'] = true, -- ['^x-'] = true,
+            },
+        },
+        ['external-docs'] = {
+            ['$ref'] = "#/$defs/extensible",
+            properties = {
+                description = {
+                    type = 'string',
+                },
+                url = {
+                    format = "uri-reference",
+                    type = 'string',
+                },
+            },
+            required = {
+                'url',
+            },
+            type = 'object',
+            unevaluatedProperties = false,
+        },
+        xml = {
+            ['$ref'] = "#/$defs/extensible",
+            properties = {
+                attribute = {
+                    type = 'boolean',
+                },
+                name = {
+                    type = 'string',
+                },
+                namespace = {
+                    format = 'uri',
+                    type = 'string',
+                },
+                prefix = {
+                    type = 'string',
+                },
+                wrapped = {
+                    type = 'boolean',
+                },
+            },
+            type = 'object',
+            unevaluatedProperties = false,
+        },
+    },
+})
+
+return core.new({
+    ['$id'] = "https://spec.openapis.org/oas/3.1/dialect/2024-11-10",
+    ['$schema'] = "https://json-schema.org/draft/2020-12/schema",
+    title = "OpenAPI 3.1 Schema Object Dialect",
+    description = "A JSON Schema dialect describing schemas found in OpenAPI v3.1 Descriptions",
+    ['$dynamicAnchor'] = 'meta',
+    ['$vocabulary'] = {
+        ["https://json-schema.org/draft/2020-12/vocab/applicator"] = true,
+        ["https://json-schema.org/draft/2020-12/vocab/content"] = true,
+        ["https://json-schema.org/draft/2020-12/vocab/core"] = true,
+        ["https://json-schema.org/draft/2020-12/vocab/format-annotation"] = true,
+        ["https://json-schema.org/draft/2020-12/vocab/meta-data"] = true,
+        ["https://json-schema.org/draft/2020-12/vocab/unevaluated"] = true,
+        ["https://json-schema.org/draft/2020-12/vocab/validation"] = true,
+        ["https://spec.openapis.org/oas/3.1/vocab/base"] = false,
+    },
+    allOf = {
+        {
+            ['$ref'] = "https://json-schema.org/draft/2020-12/schema",
+        },
+        {
+            ['$ref'] = "https://spec.openapis.org/oas/3.1/meta/2024-11-10",
+        },
+    },
+})
+
+--
+-- Copyright (c) 2025-2026 Francois Perrad
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

@@ -1,0 +1,169 @@
+local cjson = require "cjson.safe"
+local base64 = require "ngx.base64"
+local pkey = require "resty.openssl.pkey"
+local env = require "kong.plugins.universal-jwt.env"
+
+local kong = kong
+local ngx = ngx
+local ngx_time = ngx.time
+local type = type
+
+local PRIVATE_KEY_ENV = "JWT_PRIVATE_KEY"
+-- Short lived because a token is minted for every request.
+local TOKEN_TTL = 100
+local INTERNAL_ERROR = { message = "An unexpected error occurred" }
+
+local UniversalJwtHandler = {
+  PRIORITY = 500,
+  VERSION = "4.0.0",
+}
+
+-- Parsed once per worker. Failures are not cached so they are reported on every affected request.
+local signing_key
+
+local function get_signing_key()
+  if signing_key then
+    return signing_key
+  end
+
+  local pem = env.jwt_private_key
+  if not pem or pem == "" then
+    return nil, PRIVATE_KEY_ENV .. " is not set"
+  end
+
+  local key, err = pkey.new(pem, { format = "PEM", type = "pr" })
+  if not key then
+    return nil, PRIVATE_KEY_ENV .. " is not a usable private key: " .. err
+  end
+
+  if key:get_key_type().sn ~= "rsaEncryption" then
+    return nil, PRIVATE_KEY_ENV .. " is not an RSA private key"
+  end
+
+  signing_key = key
+  return signing_key
+end
+
+-- Kong 3 collects access plugins lazily, so its per-phase lists do not include them.
+-- Check the same route/service/consumer combinations used by Kong's plugin iterator.
+local function has_key_auth_plugin()
+  local ctx = ngx.ctx
+  local ws = ctx.plugins and ctx.plugins.ws
+  local configs = ws and ws.combos["key-auth"]
+  if not configs then
+    return false
+  end
+
+  local route = ctx.route and ctx.route.id or ""
+  local service = ctx.service and ctx.service.id or ""
+  local consumer = ctx.authenticated_consumer and ctx.authenticated_consumer.id or ""
+  local function configured(r, s, c)
+    return configs[r .. ":" .. s .. ":" .. c] ~= nil
+  end
+
+  return configured(route, service, consumer)
+      or configured(route, "", consumer)
+      or configured("", service, consumer)
+      or configured(route, service, "")
+      or configured("", "", consumer)
+      or configured(route, "", "")
+      or configured("", service, "")
+      or configured("", "", "")
+end
+
+local function fetch_roles(consumer_id)
+  local roles = {}
+
+  for acl, err in kong.db.acls:each_for_consumer({ id = consumer_id }) do
+    if err then
+      return nil, err
+    end
+
+    roles[#roles + 1] = acl.group
+  end
+
+  return roles
+end
+
+local function encode_segment(value)
+  local json, err = cjson.encode(value)
+  if not json then
+    return nil, err
+  end
+
+  return base64.encode_base64url(json)
+end
+
+local function sign_rs256(claims, key)
+  local header, err = encode_segment({ typ = "JWT", alg = "RS256" })
+  if not header then
+    return nil, err
+  end
+
+  local payload
+  payload, err = encode_segment(claims)
+  if not payload then
+    return nil, err
+  end
+
+  local signing_input = header .. "." .. payload
+  local signature
+  signature, err = key:sign(signing_input, "sha256")
+  if not signature then
+    return nil, err
+  end
+
+  return signing_input .. "." .. base64.encode_base64url(signature)
+end
+
+local function internal_error(message, err)
+  kong.log.err(message, err)
+  return kong.response.exit(500, INTERNAL_ERROR)
+end
+
+function UniversalJwtHandler:access()
+  if not has_key_auth_plugin() then
+    return
+  end
+
+  local consumer = kong.client.get_consumer()
+  if not consumer then
+    return kong.response.exit(403, { message = "Cannot identify the consumer" })
+  end
+
+  if type(consumer.username) ~= "string" then
+    return internal_error("cannot issue a token for a consumer without a username: ", consumer.id)
+  end
+
+  local roles, err
+  roles, err = fetch_roles(consumer.id)
+  if not roles then
+    return internal_error("failed to load ACL groups: ", err)
+  end
+
+  local key
+  key, err = get_signing_key()
+  if not key then
+    return internal_error("cannot sign token: ", err)
+  end
+
+  local token
+  token, err = sign_rs256({
+    iss = consumer.username,
+    scopes = { roles = roles },
+    exp = ngx_time() + TOKEN_TTL,
+  }, key)
+  if not token then
+    return internal_error("failed to sign token: ", err)
+  end
+
+  kong.log.info("key auth plugin found, adding jwt for consumer ", consumer.username)
+  local device_id = kong.request.get_header("x-localz-deviceid")
+  if device_id then
+    kong.log.info("x-localz-deviceid: ", device_id)
+  end
+
+  kong.service.request.set_header("Authorization", "Bearer " .. token)
+end
+
+return UniversalJwtHandler

@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "gamecake-dumbft",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/dumbft.lua": {
+          "sha256": "755e3d036dbf48f1966e219c8d025fe74e5c4dd2ad8dac941641406660223acb",
+          "size": 598,
+          "url": "blob:755e3d036dbf48f1966e219c8d025fe74e5c4dd2ad8dac941641406660223acb"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:25:26 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:25:26 GMT",
+          "sha256": "07aa797b704f5ae4314bc68f9dd236845de83a076a9e5dca8d1bdad4457e99e6",
+          "size": 1507
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:25:27 GMT",
+          "sha256": "55edb0f7f31ac9a88cf8ac363fa198164582953ed8b0c0ccb5e61f7adfcce85a",
+          "size": 53968,
+          "url": "https://luarocks.org/gamecake-dumbft-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.dumbft",
+        "wetgenes.dumbft.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "lua_dumbft/code",
+                "lib_hacks/code"
+              ],
+              "name": "wetgenes.dumbft.core",
+              "sources": [
+                "lua_dumbft/code/lua_dumbft.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:25:27 GMT",
+        "sha256": "55edb0f7f31ac9a88cf8ac363fa198164582953ed8b0c0ccb5e61f7adfcce85a",
+        "size": 53968,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-dumbft-0.9-261005.src.rock"
+      },
+      "size": 598,
+      "summary": "dumbft sound processing",
+      "undeclared_requires": [
+        "wetgenes.fats"
+      ],
+      "vlr": {
+        "cause": "missing module: wetgenes.fats",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

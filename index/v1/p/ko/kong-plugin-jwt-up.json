@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-up",
+  "versions": {
+    "1.7-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-up/fixtures.lua": {
+          "sha256": "21d6b2b8c5d8a0873c1ae1d7d32768cd21aab9d396c64289f9e3203f6e936e10",
+          "size": 2201,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-jwt-up/971501d019dac33b099d77ab598e1716dd8000bb/src/fixtures.lua"
+        },
+        "kong/plugins/jwt-up/handler.lua": {
+          "sha256": "c498f2650b2a7cd664174d41ddabdd1f377e9d70a708a4b11af4fb2aceb5efda",
+          "size": 9552,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-jwt-up/971501d019dac33b099d77ab598e1716dd8000bb/src/handler.lua"
+        },
+        "kong/plugins/jwt-up/jwt_parser.lua": {
+          "sha256": "a408667fc1d10129b20e40708581850c3dfb90aede7cd9df87f5f84a6150cff4",
+          "size": 6831,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-jwt-up/971501d019dac33b099d77ab598e1716dd8000bb/src/jwt_parser.lua"
+        },
+        "kong/plugins/jwt-up/schema.lua": {
+          "sha256": "4dfec0fee940e77e4476a74db75da490519bca993e62124f512d8b9afbea0606",
+          "size": 346,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-jwt-up/971501d019dac33b099d77ab598e1716dd8000bb/src/schema.lua"
+        }
+      },
+      "homepage": "http://www.trust1team.com",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Thu, 01 Dec 2016 11:42:58 GMT",
+        "rockspec": {
+          "date": "Thu, 01 Dec 2016 11:42:58 GMT",
+          "sha256": "798ed04ddf671813eff03084edf8f44f092c4f50c2852549e1e7d642d41d0956",
+          "size": 1094
+        },
+        "src": {
+          "date": "Thu, 01 Dec 2016 11:43:00 GMT",
+          "sha256": "de25dac4c17c7e476d68184b095b6e3ba2f801b9d011485c1d6a009bd63b06cb",
+          "size": 17657,
+          "url": "https://luarocks.org/kong-plugin-jwt-up-1.7-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-up.fixtures",
+        "kong.plugins.jwt-up.handler",
+        "kong.plugins.jwt-up.jwt_parser",
+        "kong.plugins.jwt-up.schema"
+      ],
+      "origin": {
+        "commit": "971501d019dac33b099d77ab598e1716dd8000bb",
+        "ref": "1.7.0",
+        "type": "git",
+        "url": "https://github.com/Trust1Team/kong-plugin-jwt-up"
+      },
+      "size": 18930,
+      "summary": "The Kong JWT-Upstream plugin.",
+      "undeclared_requires": [
+        "crypto",
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.database_cache",
+        "kong.tools.responses",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.singletons",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

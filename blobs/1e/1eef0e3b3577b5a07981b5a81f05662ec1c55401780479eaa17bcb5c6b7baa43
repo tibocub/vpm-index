@@ -1,0 +1,24 @@
+--imports
+local ObjectStmt = require("dogma.syn._.ObjectStmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--An intf statement.
+local IntfStmt = {}
+IntfStmt.__index = IntfStmt
+setmetatable(IntfStmt, {__index = ObjectStmt})
+package.loaded[...] = IntfStmt
+
+--Constructor.
+function IntfStmt.new(ln, col, annots, visib, name, base, fields, meths)
+  local self
+
+  --(1) create
+  self = setmetatable(ObjectStmt.new(StmtType.INTF, ln, col, name, visib), IntfStmt)
+  self.fields = fields
+  self.methods = meths
+  self.annots = annots
+  self.base = base
+
+  --(2) return
+  return self
+end

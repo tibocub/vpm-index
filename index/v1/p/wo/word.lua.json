@@ -1,0 +1,511 @@
+{
+  "kind": "lib",
+  "name": "word.lua",
+  "versions": {
+    "master-1": {
+      "bin": [],
+      "deps": [
+        "nvim-nio ~> 1.7",
+        "plenary.nvim == 0.1.4",
+        "nui.nvim == 0.3.0",
+        "pathlib.nvim ~> 2.2"
+      ],
+      "files": {
+        "telescope/_extensions/word/finders/browse.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/telescope/_extensions/word/finders/browse.lua"
+        },
+        "telescope/_extensions/word/finders/files.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/telescope/_extensions/word/finders/files.lua"
+        },
+        "telescope/_extensions/word/finders/grep.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/telescope/_extensions/word/finders/grep.lua"
+        },
+        "telescope/_extensions/word/finders/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/telescope/_extensions/word/finders/init.lua"
+        },
+        "telescope/_extensions/word/finders/root.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/telescope/_extensions/word/finders/root.lua"
+        },
+        "telescope/_extensions/word/init.lua": {
+          "sha256": "cf1aabcd0b3fe1883f4fba67082d32ec4337b4eba3cb6b8e57c557290441ec4d",
+          "size": 1695,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/telescope/_extensions/word/init.lua"
+        },
+        "telescope/_extensions/word/util/init.lua": {
+          "sha256": "cce4eb9617b59e8f7c39122ca089c5518d1917a3ace0b04c76814bc88e906fa4",
+          "size": 189,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/telescope/_extensions/word/util/init.lua"
+        },
+        "test/init.lua": {
+          "sha256": "de500f635b94fa07f63f878031f92cc3015d0af97fbd9eb8701fbe8b68d72b67",
+          "size": 44,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/test/init.lua"
+        },
+        "word/cmd/custom/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/cmd/custom/init.lua"
+        },
+        "word/cmd/find/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/cmd/find/init.lua"
+        },
+        "word/cmd/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/cmd/init.lua"
+        },
+        "word/cmd/return/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/cmd/return/init.lua"
+        },
+        "word/config/default.lua": {
+          "sha256": "872394e73eeba99c271461e423d4802945c47318f02428868c4ebd526f5bb5d5",
+          "size": 12,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/config/default.lua"
+        },
+        "word/config/init.lua": {
+          "sha256": "f9a36fd1c0e43c2b9fda773e8773c8b020c8e42b9e0efc22de411f2f588a22a4",
+          "size": 3563,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/config/init.lua"
+        },
+        "word/init.lua": {
+          "sha256": "107693d0667fe1f389fc7ea6ebf8870a4146a3c027d5157e5654ec948fb54b78",
+          "size": 5256,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/init.lua"
+        },
+        "word/lsp/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/lsp/init.lua"
+        },
+        "word/mod/agenda/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/agenda/init.lua"
+        },
+        "word/mod/auto/agent/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/auto/agent/init.lua"
+        },
+        "word/mod/auto/delegate/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/auto/delegate/init.lua"
+        },
+        "word/mod/auto/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/auto/init.lua"
+        },
+        "word/mod/auto/reason/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/auto/reason/init.lua"
+        },
+        "word/mod/autocmd/init.lua": {
+          "sha256": "fd2d49ce078ca481cc3745d5d5b25371acadd584315958289e708c564fb1e975",
+          "size": 14576,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/autocmd/init.lua"
+        },
+        "word/mod/base/init.lua": {
+          "sha256": "82f6590e238ffe4796d836b8e743d2b7be8535a3531480b0ca144538ef8394c7",
+          "size": 917,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/base/init.lua"
+        },
+        "word/mod/calendar/init.lua": {
+          "sha256": "2d5646a62881383225a67856e649fdfdaa2ac8df069bc9aa865d15315e89c78b",
+          "size": 5417,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/calendar/init.lua"
+        },
+        "word/mod/calendar/views/monthly/init.lua": {
+          "sha256": "cffde76e0f55b7f31b4021843177ac301dc4741af366f4d49bb324efb771a627",
+          "size": 44954,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/calendar/views/monthly/init.lua"
+        },
+        "word/mod/capture/init.lua": {
+          "sha256": "0e5741bd87966d350a85efb496dc01cf1143768c5c14d823437f52af88e3cd0a",
+          "size": 816,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/capture/init.lua"
+        },
+        "word/mod/cmd/commands/return/init.lua": {
+          "sha256": "fa005741b06e3980c38b0cfe6bd0c6bb186555b88c291609e4d7156d6d1651d3",
+          "size": 1371,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/cmd/commands/return/init.lua"
+        },
+        "word/mod/cmd/init.lua": {
+          "sha256": "eac875f84382c2e5652d3fa8c2fc68fb940eca86f58a834890ef61b615612346",
+          "size": 15366,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/cmd/init.lua"
+        },
+        "word/mod/code/init.lua": {
+          "sha256": "d8285a0169f248d38f8cdf4cfec39c4b1e5471e4de640d4f07b75bc33e3515c0",
+          "size": 20783,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/code/init.lua"
+        },
+        "word/mod/completion/init.lua": {
+          "sha256": "ba62e3a9b9b219d7f7a652c793523bc7dc9a08d982a79946e0bf5c5035baf178",
+          "size": 99,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/completion/init.lua"
+        },
+        "word/mod/data/init.lua": {
+          "sha256": "4580d54ecadeca3faf31a75bae2dd4bde5fdcdbffc168837be501942ddb74961",
+          "size": 92,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/data/init.lua"
+        },
+        "word/mod/encrypt/init.lua": {
+          "sha256": "069ceada2ac4c8270bab430d661283cd48167f629b106ec2596c17912b7392e6",
+          "size": 816,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/encrypt/init.lua"
+        },
+        "word/mod/export/init.lua": {
+          "sha256": "d42d4bc32c7fb91b36498fe2e3c3f35ea2f88f219787c365634a9e98b84e5e87",
+          "size": 768,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/export/init.lua"
+        },
+        "word/mod/gen/toc/init.lua": {
+          "sha256": "77a66fe5b379b7122de7aa739dbbef3877fded9a46b0ae07b12919fc086a53d8",
+          "size": 19117,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/gen/toc/init.lua"
+        },
+        "word/mod/gen/todo/init.lua": {
+          "sha256": "899f3946ce5c955833cf9b68568f200d6b4ea287a35f197857b06bfe8eedcd4a",
+          "size": 15021,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/gen/todo/init.lua"
+        },
+        "word/mod/hl/init.lua": {
+          "sha256": "6cf41f4921908c5a1165937369af62904a636e3bd8c041bc8fba97baf3e5aea4",
+          "size": 18820,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/hl/init.lua"
+        },
+        "word/mod/init.lua": {
+          "sha256": "6614eb7c09e68cbdb8607b902cfa677eb7b929f9c89d2e2635859457e0411c5d",
+          "size": 32132,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/init.lua"
+        },
+        "word/mod/link/init.lua": {
+          "sha256": "c86a0924ecee41b05abafced921ffcd2cf5008dab26e91db18f99ed2292655f1",
+          "size": 3705,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/link/init.lua"
+        },
+        "word/mod/lsp/init.lua": {
+          "sha256": "ddeeb28e4f8a6701ecf644606078651121df84cfbac8c376d421b4aa21a988fa",
+          "size": 775,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/lsp/init.lua"
+        },
+        "word/mod/maps/init.lua": {
+          "sha256": "363a6d07bf46f10cd03abe0c760a073b6c6a61f46d5cddc06352b17fe62c808e",
+          "size": 14900,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/maps/init.lua"
+        },
+        "word/mod/media/init.lua": {
+          "sha256": "124c1760eb89bf3ce1f2cfb0400998439fc55b381b18fc5614b01dfee9400107",
+          "size": 94,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/media/init.lua"
+        },
+        "word/mod/metadata/init.lua": {
+          "sha256": "a0abe2e75e0a765758994dae09a7eb3bb321cf53d0a70971b26098cf904a7048",
+          "size": 823,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/metadata/init.lua"
+        },
+        "word/mod/notes/init.lua": {
+          "sha256": "9f118ef498f707600728b8719b5dba86fb0361d5863bc92883c6181208faebf4",
+          "size": 20953,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/notes/init.lua"
+        },
+        "word/mod/pick/init.lua": {
+          "sha256": "fa7d8858c5bfa6e496d095917ed8fe9671c02ba50ef0c8869be0c82dce42324e",
+          "size": 795,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/pick/init.lua"
+        },
+        "word/mod/preview/init.lua": {
+          "sha256": "891c234acb90ba3bd55e1946f8aee089d9b52dfef110f38a572f48e7832e30fe",
+          "size": 818,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/preview/init.lua"
+        },
+        "word/mod/publish/init.lua": {
+          "sha256": "12acc08e0b3b50a00f91419bd03b78553c6c77ab7629c2723ae2a238c4763163",
+          "size": 775,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/publish/init.lua"
+        },
+        "word/mod/resources/init.lua": {
+          "sha256": "71b1bb5b22a19ed2ad493e788dcd70431feaf3b85cc11c5025a28ad7ee5f8547",
+          "size": 789,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/resources/init.lua"
+        },
+        "word/mod/run/init.lua": {
+          "sha256": "2b28cc677bd7a0de491435f1b9c89946130f59a83b620cd3f52fbbafa89c6767",
+          "size": 758,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/run/init.lua"
+        },
+        "word/mod/search/init.lua": {
+          "sha256": "c7cb53d8d895c544b0d20c0762ce09891b54958323c5f3ed829c48af60827684",
+          "size": 2543,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/search/init.lua"
+        },
+        "word/mod/snippets/init.lua": {
+          "sha256": "6f4527b487a63e0e9c99b0a09699bc626ceefc79a6410da607282c520606099e",
+          "size": 823,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/snippets/init.lua"
+        },
+        "word/mod/store/init.lua": {
+          "sha256": "1aad335d3ade7a4da534ea8016e9110421624a902ab30f77c71b8fdad6cbd96a",
+          "size": 2469,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/store/init.lua"
+        },
+        "word/mod/sync/init.lua": {
+          "sha256": "824019372b628709366dd59c0b3969ba6c305ef7ec77d18dc4bad211bdaabe39",
+          "size": 765,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/sync/init.lua"
+        },
+        "word/mod/template/init.lua": {
+          "sha256": "472704bfc31451de508d9acf0de579ecbad7f168e9dc021efe8c9ce1c7bfadde",
+          "size": 823,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/template/init.lua"
+        },
+        "word/mod/time/init.lua": {
+          "sha256": "cbc5bfc594c1ce4ade3bfeeb70806457578e1aa77332fb5e7881e95058de8e53",
+          "size": 10832,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/time/init.lua"
+        },
+        "word/mod/todo/init.lua": {
+          "sha256": "587490078c5d9da895f60437468c5ceb468770febda9143b24f5d6503bed0319",
+          "size": 6441,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/todo/init.lua"
+        },
+        "word/mod/track/init.lua": {
+          "sha256": "5fe479a222257aca5d9daeadadbdbde4ab105858f03815e91262f16195d3d408",
+          "size": 802,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/track/init.lua"
+        },
+        "word/mod/treesitter/init.lua": {
+          "sha256": "f920ccd9a3b2a7bc9fe6a2abcf000224186f78efbdf08a4eb8493fa42e96b99e",
+          "size": 32572,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/treesitter/init.lua"
+        },
+        "word/mod/ui/init.lua": {
+          "sha256": "8a4837e41c6ffe39cd241ea4659aa74158ae55fa9b7c2a44c70f12f3c105a69f",
+          "size": 16464,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/ui/init.lua"
+        },
+        "word/mod/ui/selection_popup/init.lua": {
+          "sha256": "6e3b9bfb6adf85134a3ce3601dde7aa5d4e0c74c9436585e05d8423efe2de684",
+          "size": 21134,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/ui/selection_popup/init.lua"
+        },
+        "word/mod/ui/text_popup/init.lua": {
+          "sha256": "7500b19a7827f64e5319589a888938c3659a4df3d333d41384cd428c1426e952",
+          "size": 3370,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/ui/text_popup/init.lua"
+        },
+        "word/mod/web/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/web/init.lua"
+        },
+        "word/mod/workspace/config/public.lua": {
+          "sha256": "5841701befecb35e39369fe323f3ce6863553198e495e84ad5ef41a15b3c0c84",
+          "size": 1108,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/workspace/config/public.lua"
+        },
+        "word/mod/workspace/event.lua": {
+          "sha256": "b5d373c3ff666b2e1d9ee4a0ef41c7a571b08bd1363f80a78bdb72c7ff9ea42d",
+          "size": 2703,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/workspace/event.lua"
+        },
+        "word/mod/workspace/init.lua": {
+          "sha256": "fdfa6075010f95fb1ac4d481552b94fe1e99acc7f8904c060d7ba802a8195caf",
+          "size": 18934,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/workspace/init.lua"
+        },
+        "word/mod/workspace/public.lua": {
+          "sha256": "e1caa236aa043c1efd62d790c32af47965f6e59aeefc49209b705831483de4ee",
+          "size": 10402,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/workspace/public.lua"
+        },
+        "word/mod/workspace/utils/init.lua": {
+          "sha256": "ba2c7c72e89224ab04b7ee70ef8f9ea56acdbf7cd56f7ba12a1ceb4e49038355",
+          "size": 4553,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/mod/workspace/utils/init.lua"
+        },
+        "word/ui/finder/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/ui/finder/init.lua"
+        },
+        "word/ui/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/ui/init.lua"
+        },
+        "word/ui/pick/init.lua": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/ui/pick/init.lua"
+        },
+        "word/util/callback.lua": {
+          "sha256": "8b12e987478e749c3c6a33ce445a2d4deeb79b28044024ef41adb4ea065c1272",
+          "size": 1689,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/util/callback.lua"
+        },
+        "word/util/init.lua": {
+          "sha256": "a8f57a8103afdfcd3b951d2fd4a4e9eacf9174cdda7da2205bc07ae665b22426",
+          "size": 7903,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/util/init.lua"
+        },
+        "word/util/lib.lua": {
+          "sha256": "1effee5b4a31a1db8f40689c5f7b6ef418c7f21fc328f69b756d1b65d8c09483",
+          "size": 14087,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/util/lib.lua"
+        },
+        "word/util/log.lua": {
+          "sha256": "38dd591bf267f5faf0fb2fd253d41fe040fefdc71822cd9d55da1e96a71b5256",
+          "size": 5532,
+          "url": "https://raw.githubusercontent.com/clpi/word.lua/e8e68503dfc33705ae2a4c672ad6432f0fe90232/lua/word/util/log.lua"
+        }
+      },
+      "homepage": "http://word.cli.st/",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 17 Nov 2024 00:18:55 GMT",
+        "rockspec": {
+          "date": "Sun, 17 Nov 2024 00:18:55 GMT",
+          "sha256": "3ccaa8cf1288fe541e26526ffff02f0268c6d40dfb0a8b6eb6e71e26228eb2ba",
+          "size": 1272
+        },
+        "src": {
+          "date": "Sun, 17 Nov 2024 00:18:56 GMT",
+          "sha256": "91784ddb5410af901e29ca983dd4ff1b16e82c140ab8ae816f601cb35c29d807",
+          "size": 184440,
+          "url": "https://luarocks.org/word.lua-master-1.src.rock"
+        }
+      },
+      "modules": [
+        "telescope._extensions.word",
+        "telescope._extensions.word.finders",
+        "telescope._extensions.word.finders.browse",
+        "telescope._extensions.word.finders.files",
+        "telescope._extensions.word.finders.grep",
+        "telescope._extensions.word.finders.root",
+        "telescope._extensions.word.util",
+        "test",
+        "word",
+        "word.cmd",
+        "word.cmd.custom",
+        "word.cmd.find",
+        "word.cmd.return",
+        "word.config",
+        "word.config.default",
+        "word.lsp",
+        "word.mod",
+        "word.mod.agenda",
+        "word.mod.auto",
+        "word.mod.auto.agent",
+        "word.mod.auto.delegate",
+        "word.mod.auto.reason",
+        "word.mod.autocmd",
+        "word.mod.base",
+        "word.mod.calendar",
+        "word.mod.calendar.views.monthly",
+        "word.mod.capture",
+        "word.mod.cmd",
+        "word.mod.cmd.commands.return",
+        "word.mod.code",
+        "word.mod.completion",
+        "word.mod.data",
+        "word.mod.encrypt",
+        "word.mod.export",
+        "word.mod.gen.toc",
+        "word.mod.gen.todo",
+        "word.mod.hl",
+        "word.mod.link",
+        "word.mod.lsp",
+        "word.mod.maps",
+        "word.mod.media",
+        "word.mod.metadata",
+        "word.mod.notes",
+        "word.mod.pick",
+        "word.mod.preview",
+        "word.mod.publish",
+        "word.mod.resources",
+        "word.mod.run",
+        "word.mod.search",
+        "word.mod.snippets",
+        "word.mod.store",
+        "word.mod.sync",
+        "word.mod.template",
+        "word.mod.time",
+        "word.mod.todo",
+        "word.mod.track",
+        "word.mod.treesitter",
+        "word.mod.ui",
+        "word.mod.ui.selection_popup",
+        "word.mod.ui.text_popup",
+        "word.mod.web",
+        "word.mod.workspace",
+        "word.mod.workspace.config.public",
+        "word.mod.workspace.event",
+        "word.mod.workspace.public",
+        "word.mod.workspace.utils",
+        "word.ui",
+        "word.ui.finder",
+        "word.ui.pick",
+        "word.util",
+        "word.util.callback",
+        "word.util.lib",
+        "word.util.log"
+      ],
+      "origin": {
+        "sha256": "db95cffeb629fc9fe9ace81ea787548a1dc1c3280b5666bcc2e6f7cbea888f2b",
+        "type": "archive",
+        "url": "https://github.com/clpi/word.lua/archive/e8e68503dfc33705ae2a4c672ad6432f0fe90232.zip"
+      },
+      "size": 412958,
+      "summary": "the (eventually) infinitely extensible markdown note-taking homstead and (soon to be) extraordinarly powerful work environment that you can have in Neovim without having to ever leave the comfort of the plain markup gold standard, markdown.",
+      "undeclared_requires": [
+        "dorm.utils",
+        "nvim-treesitter.highlight",
+        "nvim-treesitter.install",
+        "nvim-treesitter.parsers",
+        "nvim-treesitter.query",
+        "nvim-treesitter.shell_command_selectors",
+        "telescope",
+        "telescope.actions",
+        "telescope.actions.set",
+        "telescope.actions.state",
+        "telescope.builtin",
+        "telescope.config",
+        "telescope.finders",
+        "telescope.pickers",
+        "telescope.pickers.entry_display",
+        "telescope.pickers.window",
+        "telescope.previewers",
+        "telescope.sorters"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

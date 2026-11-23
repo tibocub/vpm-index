@@ -1,0 +1,92 @@
+-- Built-in filter plugins: u32, fw, matchall.
+
+local Registry = require("htb.registry")
+local toml = require("htb.toml")
+
+local M = {}
+
+local function str(v)
+    return tostring(v)
+end
+
+-- tc's u32 ip selector needs the mask slash-joined into one token
+-- ("192.168.1.0/24" or "192.168.1.0/255.255.255.0"). Normalize a legacy
+-- space-separated "addr mask" value to "addr/mask"; bare IPs and CIDRs pass
+-- through unchanged.
+local function normalizeIpMatch(value)
+    value = tostring(value)
+    local addr, mask = value:match("^(%S+)%s+(%S+)$")
+    if addr and mask
+        and addr:match("^%d+%.%d+%.%d+%.%d+$")
+        and mask:match("^%d+%.%d+%.%d+%.%d+$") then
+        return addr .. "/" .. mask
+    end
+    return value
+end
+
+-- u32: universal 32-bit classifier. Emits "match ip <key> <value> [mask]"
+-- for each ip match, in TOML source order, resolving host aliases.
+Registry.register("filter", "u32", {
+    description = "Universal 32-bit classifier",
+    params = {
+        src = "source IP or CIDR",
+        dst = "destination IP or CIDR",
+        sport = "source port",
+        dport = "destination port",
+    },
+    generate = function(p)
+        local out = {}
+        local ipMatches = p.ip_matches or {}
+        local hosts = p.hosts or {}
+        for key, value in toml.orderedPairs(ipMatches) do
+            if hosts[value] ~= nil then
+                value = hosts[value]
+            end
+            value = normalizeIpMatch(value)
+            out[#out + 1] = "match"
+            out[#out + 1] = "ip"
+            out[#out + 1] = key
+            out[#out + 1] = str(value)
+            if key:match("port$") then
+                out[#out + 1] = "0xffff"
+            end
+        end
+        return out
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- fw: firewall mark classifier.
+Registry.register("filter", "fw", {
+    description = "Firewall mark classifier",
+    params = {
+        handle = "firewall mark value to match (required)",
+    },
+    generate = function(p)
+        local out = {}
+        if p.handle and p.handle ~= "" then
+            out[#out + 1] = "handle"
+            out[#out + 1] = str(p.handle)
+        end
+        return out
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+-- matchall: matches every packet.
+Registry.register("filter", "matchall", {
+    description = "Match-all classifier",
+    params = {},
+    generate = function(_p)
+        return {}
+    end,
+    validate = function(_p)
+        return {}
+    end,
+})
+
+return M

@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "limath",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://webserver2.tecgraf.puc-rio.br/~lhf/ftp/lua/",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 09 Apr 2019 19:40:40 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Apr 2019 19:40:40 GMT",
+          "sha256": "da3bfa75a5375503ce6f73ebe97d53fce4d5788d7758516b206edd898db8f3d7",
+          "size": 663
+        },
+        "src": {
+          "date": "Tue, 09 Apr 2019 19:40:42 GMT",
+          "sha256": "6c89ed7512171ab2a606efc0766aa4914cdcff2ae61a944e015aa5bc46956e60",
+          "size": 27447,
+          "url": "https://luarocks.org/limath-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "imath"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "./src"
+              ],
+              "name": "imath",
+              "sources": [
+                "limath.c",
+                "src/imath.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 09 Apr 2019 19:40:42 GMT",
+        "sha256": "6c89ed7512171ab2a606efc0766aa4914cdcff2ae61a944e015aa5bc46956e60",
+        "size": 27447,
+        "type": "luarocks",
+        "url": "https://luarocks.org/limath-1.0.1-1.src.rock"
+      },
+      "summary": "An arbitrary-precision integer library for Lua based on imath.",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,807 @@
+{
+  "kind": "app",
+  "name": "luasec-scanner",
+  "versions": {
+    "0.5.1-1": {
+      "bin": {
+        "luasec": "bin/luasec"
+      },
+      "deps": [],
+      "files": {
+        "bin/luasec": {
+          "sha256": "cc2445550277a58e4954ff3a2622e57754876da319653a283d01fad83f68efaf",
+          "size": 318,
+          "url": "blob:cc2445550277a58e4954ff3a2622e57754876da319653a283d01fad83f68efaf"
+        },
+        "luacheck/builtin_standards/init.lua": {
+          "sha256": "188683f9d71142ba0d9eeadd39c23a4368a723f9d1288e9cd530e4cb2a431a46",
+          "size": 12457,
+          "url": "blob:188683f9d71142ba0d9eeadd39c23a4368a723f9d1288e9cd530e4cb2a431a46"
+        },
+        "luacheck/builtin_standards/love.lua": {
+          "sha256": "611a0517872f211b2f0839f43184b56b0ba005cc02be8450f23cf5eba02d0fbd",
+          "size": 7411,
+          "url": "blob:611a0517872f211b2f0839f43184b56b0ba005cc02be8450f23cf5eba02d0fbd"
+        },
+        "luacheck/builtin_standards/luanti.lua": {
+          "sha256": "cf8719395671134571c6b450528fc4401fd5e182fa5085acafd32a6c8cf7c508",
+          "size": 16134,
+          "url": "blob:cf8719395671134571c6b450528fc4401fd5e182fa5085acafd32a6c8cf7c508"
+        },
+        "luacheck/builtin_standards/ngx.lua": {
+          "sha256": "89b12acb284b7bf9d44067af7f568914759af5afec67bac7b392a9ac378edf53",
+          "size": 5688,
+          "url": "blob:89b12acb284b7bf9d44067af7f568914759af5afec67bac7b392a9ac378edf53"
+        },
+        "luacheck/builtin_standards/playdate.lua": {
+          "sha256": "60a4dbde4e047e56fa9580ea9a36cd2dc0779974084161d50efc49a9a33d35e4",
+          "size": 15565,
+          "url": "blob:60a4dbde4e047e56fa9580ea9a36cd2dc0779974084161d50efc49a9a33d35e4"
+        },
+        "luacheck/cache.lua": {
+          "sha256": "2580a963e8578e2b986d9b9f58291fb5101c4c3434e0c1e5a4b1a8a5f06f0f8e",
+          "size": 3695,
+          "url": "blob:2580a963e8578e2b986d9b9f58291fb5101c4c3434e0c1e5a4b1a8a5f06f0f8e"
+        },
+        "luacheck/check.lua": {
+          "sha256": "a8d7c41b0d6a2169e43220515b113f7cc7bec263c73f547d25d64ae5bc35d8d0",
+          "size": 3133,
+          "url": "blob:a8d7c41b0d6a2169e43220515b113f7cc7bec263c73f547d25d64ae5bc35d8d0"
+        },
+        "luacheck/check_state.lua": {
+          "sha256": "6497205c19560eb6785d32f43ddb558cd9950abdcb6f0ab09c5aa6e34e5b58cc",
+          "size": 1792,
+          "url": "blob:6497205c19560eb6785d32f43ddb558cd9950abdcb6f0ab09c5aa6e34e5b58cc"
+        },
+        "luacheck/config.lua": {
+          "sha256": "68f58208261f0d51db6c391d3673f431350911823c8d8f1122d3b93cfad74cf5",
+          "size": 16018,
+          "url": "blob:68f58208261f0d51db6c391d3673f431350911823c8d8f1122d3b93cfad74cf5"
+        },
+        "luacheck/core_utils.lua": {
+          "sha256": "6eb1dfc0005766585a7b315511bccbc54b059e8a4a8445fd57512a8f6adaa174",
+          "size": 2787,
+          "url": "blob:6eb1dfc0005766585a7b315511bccbc54b059e8a4a8445fd57512a8f6adaa174"
+        },
+        "luacheck/decoder.lua": {
+          "sha256": "be1ec589eafd0e3e8358e792c71eb55fa36454dce722d22806e81e1d3891d146",
+          "size": 5532,
+          "url": "blob:be1ec589eafd0e3e8358e792c71eb55fa36454dce722d22806e81e1d3891d146"
+        },
+        "luacheck/expand_rockspec.lua": {
+          "sha256": "966a9456394699d33114bed85bfac43a4c21d174c6fd71a3df4e41fb46236809",
+          "size": 2990,
+          "url": "blob:966a9456394699d33114bed85bfac43a4c21d174c6fd71a3df4e41fb46236809"
+        },
+        "luacheck/filter.lua": {
+          "sha256": "b9947d25c9502ae9720c3ce8fb6b693627fa863dcefc0d79fc06d518ce50a3c2",
+          "size": 18456,
+          "url": "blob:b9947d25c9502ae9720c3ce8fb6b693627fa863dcefc0d79fc06d518ce50a3c2"
+        },
+        "luacheck/format.lua": {
+          "sha256": "973c578c042f70289032f0da34b6cafa2e966b4c9fe5bf07e1534a53bcaa2c36",
+          "size": 10636,
+          "url": "blob:973c578c042f70289032f0da34b6cafa2e966b4c9fe5bf07e1534a53bcaa2c36"
+        },
+        "luacheck/fs.lua": {
+          "sha256": "6d26863ae822b2ed17c088779788b5c87e8d739b2e6f8b91a4c5c97ba93e1977",
+          "size": 5538,
+          "url": "blob:6d26863ae822b2ed17c088779788b5c87e8d739b2e6f8b91a4c5c97ba93e1977"
+        },
+        "luacheck/globbing.lua": {
+          "sha256": "f28987e9971d94b7576bb3abfcdbfdb25e9ff8ea4bf492d0fed9e8e37769fb29",
+          "size": 4160,
+          "url": "blob:f28987e9971d94b7576bb3abfcdbfdb25e9ff8ea4bf492d0fed9e8e37769fb29"
+        },
+        "luacheck/init.lua": {
+          "sha256": "f053d908a5820c03a40ebf99647a99a62f32a447125e47ca2438417ca46f2bba",
+          "size": 4300,
+          "url": "blob:f053d908a5820c03a40ebf99647a99a62f32a447125e47ca2438417ca46f2bba"
+        },
+        "luacheck/lexer.lua": {
+          "sha256": "79938e80108a13415c1050366f74e372c241b6cef13d135050dae5d82e7b941c",
+          "size": 19818,
+          "url": "blob:79938e80108a13415c1050366f74e372c241b6cef13d135050dae5d82e7b941c"
+        },
+        "luacheck/main.lua": {
+          "sha256": "11c6f75cd9abe049cb6739097a2557f4008370e024313dc2a505ab285c434742",
+          "size": 13970,
+          "url": "blob:11c6f75cd9abe049cb6739097a2557f4008370e024313dc2a505ab285c434742"
+        },
+        "luacheck/multithreading.lua": {
+          "sha256": "93ee314d06410f7717d0644d7a0a4e51f6c306892bd741d6120ccdca4333fabb",
+          "size": 2444,
+          "url": "blob:93ee314d06410f7717d0644d7a0a4e51f6c306892bd741d6120ccdca4333fabb"
+        },
+        "luacheck/options.lua": {
+          "sha256": "5a941adc68337cc36069603e72ad75f933421740cb84a994cc206d28fd3b6982",
+          "size": 12488,
+          "url": "blob:5a941adc68337cc36069603e72ad75f933421740cb84a994cc206d28fd3b6982"
+        },
+        "luacheck/parser.lua": {
+          "sha256": "3cb8ebfcc2e4409a80a11a79d2b70f34b349f98dce1331844a74c41513638554",
+          "size": 31136,
+          "url": "blob:3cb8ebfcc2e4409a80a11a79d2b70f34b349f98dce1331844a74c41513638554"
+        },
+        "luacheck/profiler.lua": {
+          "sha256": "1d6d1d5d37b7804c66846675de5a7b2bf7eda363520242a46a156dc976463908",
+          "size": 3944,
+          "url": "blob:1d6d1d5d37b7804c66846675de5a7b2bf7eda363520242a46a156dc976463908"
+        },
+        "luacheck/runner.lua": {
+          "sha256": "2fc94b08e8de7900388da51cc061718d59684f6715818d040270ee3e64649ded",
+          "size": 13872,
+          "url": "blob:2fc94b08e8de7900388da51cc061718d59684f6715818d040270ee3e64649ded"
+        },
+        "luacheck/serializer.lua": {
+          "sha256": "9a602e5203a9933143918c518063151fb6c63aedec34e12afd0eae8d9a9f0010",
+          "size": 5661,
+          "url": "blob:9a602e5203a9933143918c518063151fb6c63aedec34e12afd0eae8d9a9f0010"
+        },
+        "luacheck/stages/detect_bad_whitespace.lua": {
+          "sha256": "cccb014a5243309cbbb94e36257722817d9dd9736d31fabe5d50e62ed341b250",
+          "size": 3299,
+          "url": "blob:cccb014a5243309cbbb94e36257722817d9dd9736d31fabe5d50e62ed341b250"
+        },
+        "luacheck/stages/detect_compound_operators.lua": {
+          "sha256": "1e5c6299055561063b7ea21105036d6a49be846748b8ceb01f59c57c89e9cd91",
+          "size": 723,
+          "url": "blob:1e5c6299055561063b7ea21105036d6a49be846748b8ceb01f59c57c89e9cd91"
+        },
+        "luacheck/stages/detect_cyclomatic_complexity.lua": {
+          "sha256": "ea1f7204d34504620e6ca6cac3b26baefff623e78b37c818cb324156ccdddd4d",
+          "size": 3999,
+          "url": "blob:ea1f7204d34504620e6ca6cac3b26baefff623e78b37c818cb324156ccdddd4d"
+        },
+        "luacheck/stages/detect_empty_blocks.lua": {
+          "sha256": "42adb5cf50199fc1753103df00ba308c3a6ce0101a518ac81c786399fc605238",
+          "size": 754,
+          "url": "blob:42adb5cf50199fc1753103df00ba308c3a6ce0101a518ac81c786399fc605238"
+        },
+        "luacheck/stages/detect_empty_statements.lua": {
+          "sha256": "6c5c074e1840ae04742b01f947a8640680d3987cac217afb71fbef1ca965d1db",
+          "size": 252,
+          "url": "blob:6c5c074e1840ae04742b01f947a8640680d3987cac217afb71fbef1ca965d1db"
+        },
+        "luacheck/stages/detect_globals.lua": {
+          "sha256": "b66dbdd00e5e3a52fd732371f7bc5072d5075b611e868a1316bf9ce5ac2a1c13",
+          "size": 8109,
+          "url": "blob:b66dbdd00e5e3a52fd732371f7bc5072d5075b611e868a1316bf9ce5ac2a1c13"
+        },
+        "luacheck/stages/detect_reversed_fornum_loops.lua": {
+          "sha256": "660fc2cd60161adb877a49bfb200087d51d24c0caf200f80e56bfaaba661d494",
+          "size": 870,
+          "url": "blob:660fc2cd60161adb877a49bfb200087d51d24c0caf200f80e56bfaaba661d494"
+        },
+        "luacheck/stages/detect_unbalanced_assignments.lua": {
+          "sha256": "c13fc01c1ed5f356193c404f309063b71dd4c02b40ddcb99cfff9eebd0d68b4f",
+          "size": 874,
+          "url": "blob:c13fc01c1ed5f356193c404f309063b71dd4c02b40ddcb99cfff9eebd0d68b4f"
+        },
+        "luacheck/stages/detect_uninit_accesses.lua": {
+          "sha256": "ec1d54fe113c8c43a80d7eb14fce754e3e3dc946846f35df2b2ad78e7ae3f3d0",
+          "size": 2196,
+          "url": "blob:ec1d54fe113c8c43a80d7eb14fce754e3e3dc946846f35df2b2ad78e7ae3f3d0"
+        },
+        "luacheck/stages/detect_unreachable_code.lua": {
+          "sha256": "4ec38967aa7889c9864790a5ba0778c00e343c9795c1b355bf9ae02fc787522c",
+          "size": 1106,
+          "url": "blob:4ec38967aa7889c9864790a5ba0778c00e343c9795c1b355bf9ae02fc787522c"
+        },
+        "luacheck/stages/detect_unused_fields.lua": {
+          "sha256": "23298da06ae2ce5a5441555b818c4f78d9cc1d746285e9bdaa66fa4af11ead60",
+          "size": 2419,
+          "url": "blob:23298da06ae2ce5a5441555b818c4f78d9cc1d746285e9bdaa66fa4af11ead60"
+        },
+        "luacheck/stages/detect_unused_locals.lua": {
+          "sha256": "da6dc11c7e7d6ca5154264f2edf60aa18e4aa9da0411b9ac7f7f00f966f31fd5",
+          "size": 12101,
+          "url": "blob:da6dc11c7e7d6ca5154264f2edf60aa18e4aa9da0411b9ac7f7f00f966f31fd5"
+        },
+        "luacheck/stages/init.lua": {
+          "sha256": "9362b38dcf5fb85ea1ab06feb890d149aef8ce74fa3b4da2afce4fc55f0f39c0",
+          "size": 2227,
+          "url": "blob:9362b38dcf5fb85ea1ab06feb890d149aef8ce74fa3b4da2afce4fc55f0f39c0"
+        },
+        "luacheck/stages/linearize.lua": {
+          "sha256": "08394b732cf95dd75dab549735a7d7747e7c7bf2a82ba26f5f0b5d9a52cf3700",
+          "size": 18790,
+          "url": "blob:08394b732cf95dd75dab549735a7d7747e7c7bf2a82ba26f5f0b5d9a52cf3700"
+        },
+        "luacheck/stages/name_functions.lua": {
+          "sha256": "97df44cb403114e54986b1455c1a801e99f971fb286fd282f4a8df73dbbd2755",
+          "size": 2049,
+          "url": "blob:97df44cb403114e54986b1455c1a801e99f971fb286fd282f4a8df73dbbd2755"
+        },
+        "luacheck/stages/parse.lua": {
+          "sha256": "68882a5b45e665c4820acfe133c099626aa2aa837dd33b800530e0c19a95adb5",
+          "size": 592,
+          "url": "blob:68882a5b45e665c4820acfe133c099626aa2aa837dd33b800530e0c19a95adb5"
+        },
+        "luacheck/stages/parse_inline_options.lua": {
+          "sha256": "7a9fbe7d5240694a7bf274f75f079e6c8c211e5d47d5f2622028604e1fbb0e27",
+          "size": 11949,
+          "url": "blob:7a9fbe7d5240694a7bf274f75f079e6c8c211e5d47d5f2622028604e1fbb0e27"
+        },
+        "luacheck/stages/resolve_locals.lua": {
+          "sha256": "6a1b86cc02584784eb5088b7e6c44787636c66d816f9b1f4f9f46f4b847d2008",
+          "size": 10428,
+          "url": "blob:6a1b86cc02584784eb5088b7e6c44787636c66d816f9b1f4f9f46f4b847d2008"
+        },
+        "luacheck/stages/unwrap_parens.lua": {
+          "sha256": "5eca02efc27368dc8d63ad0151ba3f25f7f658ae2d25ab71ad75d55ff99d2352",
+          "size": 2993,
+          "url": "blob:5eca02efc27368dc8d63ad0151ba3f25f7f658ae2d25ab71ad75d55ff99d2352"
+        },
+        "luacheck/standards.lua": {
+          "sha256": "edebbd34bb9372b4c21460ef729a9a27c0ba049e971b9f6e0631cafaaa54a0eb",
+          "size": 9585,
+          "url": "blob:edebbd34bb9372b4c21460ef729a9a27c0ba049e971b9f6e0631cafaaa54a0eb"
+        },
+        "luacheck/unicode.lua": {
+          "sha256": "e5a1107fc2f9291549764db01a78eca27a5179f07519853dde858a334173bd3d",
+          "size": 1293,
+          "url": "blob:e5a1107fc2f9291549764db01a78eca27a5179f07519853dde858a334173bd3d"
+        },
+        "luacheck/unicode_printability_boundaries.lua": {
+          "sha256": "ed6a5d715f0db6604ed73c669810fa7db8353b9a110c4c827a20127e94c66d7f",
+          "size": 7727,
+          "url": "blob:ed6a5d715f0db6604ed73c669810fa7db8353b9a110c4c827a20127e94c66d7f"
+        },
+        "luacheck/utils.lua": {
+          "sha256": "0da6b52dbfb8c9e6e350b6de1709ab071f42add8665bcc8032ff916668e0f46b",
+          "size": 8318,
+          "url": "blob:0da6b52dbfb8c9e6e350b6de1709ab071f42add8665bcc8032ff916668e0f46b"
+        },
+        "luacheck/vendor/sha1/bit32_ops.lua": {
+          "sha256": "e91f7515625f20bfe8337712e65eddc068d2f6c9d62634083179ce99c8fa064d",
+          "size": 569,
+          "url": "blob:e91f7515625f20bfe8337712e65eddc068d2f6c9d62634083179ce99c8fa064d"
+        },
+        "luacheck/vendor/sha1/bit_ops.lua": {
+          "sha256": "47546f147c3dd942d913bbbc9a9c736d07610e2f97c1822f54cc9e36b35de218",
+          "size": 553,
+          "url": "blob:47546f147c3dd942d913bbbc9a9c736d07610e2f97c1822f54cc9e36b35de218"
+        },
+        "luacheck/vendor/sha1/common.lua": {
+          "sha256": "5f86c1944b851b9e962a12aa664b34d8a62826fd062d461ef27039cc1ba60ac5",
+          "size": 427,
+          "url": "blob:5f86c1944b851b9e962a12aa664b34d8a62826fd062d461ef27039cc1ba60ac5"
+        },
+        "luacheck/vendor/sha1/init.lua": {
+          "sha256": "2cd557879508dfea92d3601aceac0f9d6d5362b36fdd4d19d188d24cc4802869",
+          "size": 5986,
+          "url": "blob:2cd557879508dfea92d3601aceac0f9d6d5362b36fdd4d19d188d24cc4802869"
+        },
+        "luacheck/vendor/sha1/lua53_ops.lua": {
+          "sha256": "fd0f08bf8abdc217e5db163c5e52bd0a06a7ab8bb50f88612847ad9d7f759d4c",
+          "size": 616,
+          "url": "blob:fd0f08bf8abdc217e5db163c5e52bd0a06a7ab8bb50f88612847ad9d7f759d4c"
+        },
+        "luacheck/vendor/sha1/pure_lua_ops.lua": {
+          "sha256": "c1409c0e95bde5368ff92dbe8072f98607ed0fb21133f005543154f999583c64",
+          "size": 5785,
+          "url": "blob:c1409c0e95bde5368ff92dbe8072f98607ed0fb21133f005543154f999583c64"
+        },
+        "luacheck/version.lua": {
+          "sha256": "f5fcc2aa0aef45182d11f46a44e876c26878facfe1caccf890d7275b322bac99",
+          "size": 849,
+          "url": "blob:f5fcc2aa0aef45182d11f46a44e876c26878facfe1caccf890d7275b322bac99"
+        },
+        "luasec/api.lua": {
+          "sha256": "765b566d2b537be0de7d1b7c921262e0e647a649876863c35f17e45f45ed451b",
+          "size": 21396,
+          "url": "blob:765b566d2b537be0de7d1b7c921262e0e647a649876863c35f17e45f45ed451b"
+        },
+        "luasec/bytecode/detect.lua": {
+          "sha256": "62aceeebc0a39a25683cc8e6cab940c2ce19a7d0ceea77034a0bae36086ab03f",
+          "size": 3313,
+          "url": "blob:62aceeebc0a39a25683cc8e6cab940c2ce19a7d0ceea77034a0bae36086ab03f"
+        },
+        "luasec/bytecode/header.lua": {
+          "sha256": "fac7c9887671c42d162828463e3f31cae420025d6fbb715cd6abf5e1032381e2",
+          "size": 15494,
+          "url": "blob:fac7c9887671c42d162828463e3f31cae420025d6fbb715cd6abf5e1032381e2"
+        },
+        "luasec/bytecode/protos.lua": {
+          "sha256": "ca133fb16137d8c2bd2c5e33bf1eca4f382d9ebdec4c75f585f5104147bcd544",
+          "size": 21777,
+          "url": "blob:ca133fb16137d8c2bd2c5e33bf1eca4f382d9ebdec4c75f585f5104147bcd544"
+        },
+        "luasec/bytecode/triage.lua": {
+          "sha256": "68cdd906141f23ab937a262de249fcc8424c1866b24965e3c81d342c93e8e353",
+          "size": 6749,
+          "url": "blob:68cdd906141f23ab937a262de249fcc8424c1866b24965e3c81d342c93e8e353"
+        },
+        "luasec/cli/args.lua": {
+          "sha256": "e7cef2c123c3069ad4bbacd3c98f096ff095752ab5072719e78d5f23d07a1c84",
+          "size": 9793,
+          "url": "blob:e7cef2c123c3069ad4bbacd3c98f096ff095752ab5072719e78d5f23d07a1c84"
+        },
+        "luasec/cli/baseline.lua": {
+          "sha256": "f3205cafbd7101e3f0bd1f7a846498dd7ea70f720eec9a9e1b5673743ca50e1c",
+          "size": 4852,
+          "url": "blob:f3205cafbd7101e3f0bd1f7a846498dd7ea70f720eec9a9e1b5673743ca50e1c"
+        },
+        "luasec/cli/ci_cmd.lua": {
+          "sha256": "9026c5abe94953a22dceac37fa3cd65fe7d5b89cbcf7694a55940cf10a21e780",
+          "size": 2206,
+          "url": "blob:9026c5abe94953a22dceac37fa3cd65fe7d5b89cbcf7694a55940cf10a21e780"
+        },
+        "luasec/cli/config.lua": {
+          "sha256": "4e0bc2312635d14edf4b8d72931c308894423eadb2ff1eaa65d0d899011862fa",
+          "size": 9180,
+          "url": "blob:4e0bc2312635d14edf4b8d72931c308894423eadb2ff1eaa65d0d899011862fa"
+        },
+        "luasec/cli/fix_cmd.lua": {
+          "sha256": "fc5f8d64a827d5252160fafe81b90feae030a67321a786b3a8d11238833115b3",
+          "size": 5376,
+          "url": "blob:fc5f8d64a827d5252160fafe81b90feae030a67321a786b3a8d11238833115b3"
+        },
+        "luasec/cli/handoff.lua": {
+          "sha256": "416b86172e8dc68d8adde950384b7de3774eaf6baaa9f548439b8feb6d7062a0",
+          "size": 7053,
+          "url": "blob:416b86172e8dc68d8adde950384b7de3774eaf6baaa9f548439b8feb6d7062a0"
+        },
+        "luasec/cli/install_cmd.lua": {
+          "sha256": "a38b6abf8f3d433fe878a1f4854ada07fd5471babd39ebd8ad3a803795f20681",
+          "size": 8181,
+          "url": "blob:a38b6abf8f3d433fe878a1f4854ada07fd5471babd39ebd8ad3a803795f20681"
+        },
+        "luasec/cli/menu.lua": {
+          "sha256": "82b049b52fef47fba4b695f54d14c7881c48f6d5af79831d42a5f0d25db7e109",
+          "size": 7174,
+          "url": "blob:82b049b52fef47fba4b695f54d14c7881c48f6d5af79831d42a5f0d25db7e109"
+        },
+        "luasec/cli/progress.lua": {
+          "sha256": "1b5ecc2df0804a7a6bafe6abee20870913dc29d21628ed96a19595f45ab36529",
+          "size": 3929,
+          "url": "blob:1b5ecc2df0804a7a6bafe6abee20870913dc29d21628ed96a19595f45ab36529"
+        },
+        "luasec/cli/review.lua": {
+          "sha256": "1ffaae43ba4861ccc9dcb1c9515d762714867655d8c4e04970ec3d29e2f0d85b",
+          "size": 9516,
+          "url": "blob:1ffaae43ba4861ccc9dcb1c9515d762714867655d8c4e04970ec3d29e2f0d85b"
+        },
+        "luasec/cli/rules_cmd.lua": {
+          "sha256": "130cc5f7ae816becd828e7858d3d4eaf57fbd51b614674036b7ca0c428d18ade",
+          "size": 6045,
+          "url": "blob:130cc5f7ae816becd828e7858d3d4eaf57fbd51b614674036b7ca0c428d18ade"
+        },
+        "luasec/cli/scope.lua": {
+          "sha256": "885657525364a6055e9ddac079bf2678d85e09411f004288641bc5b04178e4f3",
+          "size": 3855,
+          "url": "blob:885657525364a6055e9ddac079bf2678d85e09411f004288641bc5b04178e4f3"
+        },
+        "luasec/cli/selection.lua": {
+          "sha256": "500bfcf6b1f646e118dd5346954a38c329ed578a31d6cf8b5a565a13c53bb35c",
+          "size": 5937,
+          "url": "blob:500bfcf6b1f646e118dd5346954a38c329ed578a31d6cf8b5a565a13c53bb35c"
+        },
+        "luasec/cli/selector.lua": {
+          "sha256": "624bfee008b5da87c10f732d8f35a1da78bbd6d3203253c1e0dd82fc73f2ed9a",
+          "size": 4116,
+          "url": "blob:624bfee008b5da87c10f732d8f35a1da78bbd6d3203253c1e0dd82fc73f2ed9a"
+        },
+        "luasec/cli/template.lua": {
+          "sha256": "77fdf1986a4a2336581d025087383ebfc9d4bb5742dcdb65efd1853f545b40a0",
+          "size": 3122,
+          "url": "blob:77fdf1986a4a2336581d025087383ebfc9d4bb5742dcdb65efd1853f545b40a0"
+        },
+        "luasec/cli/term.lua": {
+          "sha256": "b9e156c797b6ceda534ed9d574f00d20b43d867d7b2a13cac97e9420a5f7b4b9",
+          "size": 7480,
+          "url": "blob:b9e156c797b6ceda534ed9d574f00d20b43d867d7b2a13cac97e9420a5f7b4b9"
+        },
+        "luasec/cli/walk.lua": {
+          "sha256": "b2e879ef9b3d892d09f3ad05f231d36cfa2e2bf84ccea52853cf0cadadf3848a",
+          "size": 48801,
+          "url": "blob:b2e879ef9b3d892d09f3ad05f231d36cfa2e2bf84ccea52853cf0cadadf3848a"
+        },
+        "luasec/cli/why_cmd.lua": {
+          "sha256": "2d71d2d263b8a876fd71018dca6a2510afb263246507f5d0c8e5d0ce282a25e1",
+          "size": 4905,
+          "url": "blob:2d71d2d263b8a876fd71018dca6a2510afb263246507f5d0c8e5d0ce282a25e1"
+        },
+        "luasec/engine/callgraph.lua": {
+          "sha256": "d64c59563b3247604a2ea442d698a6af7b652ab63192322183ff2ac11e076751",
+          "size": 9678,
+          "url": "blob:d64c59563b3247604a2ea442d698a6af7b652ab63192322183ff2ac11e076751"
+        },
+        "luasec/engine/escapes.lua": {
+          "sha256": "64fc88948cf19695ae89180eb402f8b09dba312f0d8b86e472c39c76fd494e6d",
+          "size": 4034,
+          "url": "blob:64fc88948cf19695ae89180eb402f8b09dba312f0d8b86e472c39c76fd494e6d"
+        },
+        "luasec/engine/inline_directives.lua": {
+          "sha256": "3345971f2c7c8e63e83876ad9000a97e52782c5caec863d47813b9bdc6284f2a",
+          "size": 24767,
+          "url": "blob:3345971f2c7c8e63e83876ad9000a97e52782c5caec863d47813b9bdc6284f2a"
+        },
+        "luasec/engine/interprocedural.lua": {
+          "sha256": "2a552b8277f5ec5920b177f60259317758900e10391e115c1d947c953934e1e0",
+          "size": 10386,
+          "url": "blob:2a552b8277f5ec5920b177f60259317758900e10391e115c1d947c953934e1e0"
+        },
+        "luasec/engine/jobs.lua": {
+          "sha256": "37c687f028ff11589d51466f97767ed594c4f926a9acf16712db0a854351bd25",
+          "size": 7283,
+          "url": "blob:37c687f028ff11589d51466f97767ed594c4f926a9acf16712db0a854351bd25"
+        },
+        "luasec/engine/parse_context.lua": {
+          "sha256": "077e0e4adc36041972f0afd60843e5da1ad7dda011527458e9e4949415d63a54",
+          "size": 7738,
+          "url": "blob:077e0e4adc36041972f0afd60843e5da1ad7dda011527458e9e4949415d63a54"
+        },
+        "luasec/engine/pipeline.lua": {
+          "sha256": "65a5fa775570fc3cae1eb9f88c253937209a713163ee49b139201389726b7377",
+          "size": 27680,
+          "url": "blob:65a5fa775570fc3cae1eb9f88c253937209a713163ee49b139201389726b7377"
+        },
+        "luasec/engine/taint.lua": {
+          "sha256": "ab4ce37404660aca837e2b37650fb87bf32a868d0a1e98c37a4440a41600750d",
+          "size": 73350,
+          "url": "blob:ab4ce37404660aca837e2b37650fb87bf32a868d0a1e98c37a4440a41600750d"
+        },
+        "luasec/engine/whole_program.lua": {
+          "sha256": "f40e68bb3cb04748f4ebba54233eef651a42d4e90cdb109d06e638d7fd425cdd",
+          "size": 53359,
+          "url": "blob:f40e68bb3cb04748f4ebba54233eef651a42d4e90cdb109d06e638d7fd425cdd"
+        },
+        "luasec/main.lua": {
+          "sha256": "92f9afb5701106afec0346b1a94ed967d6061077fe4887cdbdfd70c43e06ee59",
+          "size": 15898,
+          "url": "blob:92f9afb5701106afec0346b1a94ed967d6061077fe4887cdbdfd70c43e06ee59"
+        },
+        "luasec/registry/platform_api.lua": {
+          "sha256": "dbcf54604ef1fec80b9ac1e38e9e10b8c55191327e9c806996579c63dc621a3c",
+          "size": 16405,
+          "url": "blob:dbcf54604ef1fec80b9ac1e38e9e10b8c55191327e9c806996579c63dc621a3c"
+        },
+        "luasec/registry/profiles.lua": {
+          "sha256": "8985dd7ff1023490e8f010c69e6192e4ebba5d0dbddc7e567493d93b09f83d7f",
+          "size": 10682,
+          "url": "blob:8985dd7ff1023490e8f010c69e6192e4ebba5d0dbddc7e567493d93b09f83d7f"
+        },
+        "luasec/registry/stds/cgilua.lua": {
+          "sha256": "6fe7425f321ff562501fcea80b125a88cff2d09d08d6a97700b643f406646658",
+          "size": 4461,
+          "url": "blob:6fe7425f321ff562501fcea80b125a88cff2d09d08d6a97700b643f406646658"
+        },
+        "luasec/registry/stds/espressif.lua": {
+          "sha256": "b9fca990b624e49dea3e70003dbb8dc3ede6f00103721c58456b1ac84078c2a4",
+          "size": 849,
+          "url": "blob:b9fca990b624e49dea3e70003dbb8dc3ede6f00103721c58456b1ac84078c2a4"
+        },
+        "luasec/registry/stds/hisi.lua": {
+          "sha256": "8108543bc5cbf0ef43cccaf4688b45d17d3fba94383d417e4929b8077af38ce5",
+          "size": 704,
+          "url": "blob:8108543bc5cbf0ef43cccaf4688b45d17d3fba94383d417e4929b8077af38ce5"
+        },
+        "luasec/registry/stds/luajit.lua": {
+          "sha256": "3555d6c776df0eae1f56b4945acf1f85e90160563fb358bf279ad04d1061a1f1",
+          "size": 775,
+          "url": "blob:3555d6c776df0eae1f56b4945acf1f85e90160563fb358bf279ad04d1061a1f1"
+        },
+        "luasec/registry/stds/luci.lua": {
+          "sha256": "38c44a1f2944fe37463ed0c861e96f8ee1c4a217c96602c55e7fdeabd2eb1c18",
+          "size": 2538,
+          "url": "blob:38c44a1f2944fe37463ed0c861e96f8ee1c4a217c96602c55e7fdeabd2eb1c18"
+        },
+        "luasec/registry/stds/openresty.lua": {
+          "sha256": "13a311561913619ec4a9264995a85feed05b1b9e59f69c71c9a78b965420b2bc",
+          "size": 6230,
+          "url": "blob:13a311561913619ec4a9264995a85feed05b1b9e59f69c71c9a78b965420b2bc"
+        },
+        "luasec/registry/stds/openwrt.lua": {
+          "sha256": "1fdc7b8ad0204ff81f6e82404413c73dee1c7a8ba8020cc1ba642228c8b23789",
+          "size": 8944,
+          "url": "blob:1fdc7b8ad0204ff81f6e82404413c73dee1c7a8ba8020cc1ba642228c8b23789"
+        },
+        "luasec/registry/stds/signatures.lua": {
+          "sha256": "856e8622960f1dba83c838452c8d4b19140a74ab80ff1759a7bef3e1b811260b",
+          "size": 4354,
+          "url": "blob:856e8622960f1dba83c838452c8d4b19140a74ab80ff1759a7bef3e1b811260b"
+        },
+        "luasec/report/doctor.lua": {
+          "sha256": "37249019a7e4a2a53ac7c5ce17d185ca3d97dbe61250906e8214e16da341737c",
+          "size": 7337,
+          "url": "blob:37249019a7e4a2a53ac7c5ce17d185ca3d97dbe61250906e8214e16da341737c"
+        },
+        "luasec/report/findings.lua": {
+          "sha256": "06835beca6d1cac8cff4a547701138fffad6a71dca93c6db768140d6bd634521",
+          "size": 16627,
+          "url": "blob:06835beca6d1cac8cff4a547701138fffad6a71dca93c6db768140d6bd634521"
+        },
+        "luasec/report/html.lua": {
+          "sha256": "05accdb2aa6707fb34abe301d02de098ea45f6bc960e7d331d3ba3b5f18f4f7b",
+          "size": 6973,
+          "url": "blob:05accdb2aa6707fb34abe301d02de098ea45f6bc960e7d331d3ba3b5f18f4f7b"
+        },
+        "luasec/report/json.lua": {
+          "sha256": "6fcbb1689ae9620dafbd20f92af5fe41e477d8e3380fab645516e0fa6182fc40",
+          "size": 2482,
+          "url": "blob:6fcbb1689ae9620dafbd20f92af5fe41e477d8e3380fab645516e0fa6182fc40"
+        },
+        "luasec/report/plain.lua": {
+          "sha256": "6021bfcb2b7d7000441787f407bed99338da80e5279e4872ad91814cf77bf8f4",
+          "size": 4059,
+          "url": "blob:6021bfcb2b7d7000441787f407bed99338da80e5279e4872ad91814cf77bf8f4"
+        },
+        "luasec/report/render.lua": {
+          "sha256": "cc81e896e1fab6b8129ef320c9b6321636f24eda8a026b54fc391e2285c5b312",
+          "size": 1528,
+          "url": "blob:cc81e896e1fab6b8129ef320c9b6321636f24eda8a026b54fc391e2285c5b312"
+        },
+        "luasec/report/sarif.lua": {
+          "sha256": "3211f64dc60db24725c04d210e4d3682e84be19260218affe17cdbcf2dfbd68f",
+          "size": 7188,
+          "url": "blob:3211f64dc60db24725c04d210e4d3682e84be19260218affe17cdbcf2dfbd68f"
+        },
+        "luasec/report/score.lua": {
+          "sha256": "bf7cd4f76728203c56e928d72af32304151fdab9983c565a74566f162c758037",
+          "size": 1797,
+          "url": "blob:bf7cd4f76728203c56e928d72af32304151fdab9983c565a74566f162c758037"
+        },
+        "luasec/report/summary.lua": {
+          "sha256": "2b6a296868d46be02eaf358552f9929c656eab0e8140cc3d8121be8d6ee46999",
+          "size": 2743,
+          "url": "blob:2b6a296868d46be02eaf358552f9929c656eab0e8140cc3d8121be8d6ee46999"
+        },
+        "luasec/rules/categories.lua": {
+          "sha256": "e0461d5c3e951f6d2a126fc6e7122cfdf49cdac0f8796b64bcd3719fd5f57c7a",
+          "size": 1182,
+          "url": "blob:e0461d5c3e951f6d2a126fc6e7122cfdf49cdac0f8796b64bcd3719fd5f57c7a"
+        },
+        "luasec/rules/codes.lua": {
+          "sha256": "d38187cd37d80a1a7c5cb8e2268547cbd0bf31f30ec428fe17bc001eeb365eac",
+          "size": 10521,
+          "url": "blob:d38187cd37d80a1a7c5cb8e2268547cbd0bf31f30ec428fe17bc001eeb365eac"
+        },
+        "luasec/rules/context.lua": {
+          "sha256": "4efe2a4c3511dbe2517ef66528ee207db132a46ad8f28e01bee94e77cab4067c",
+          "size": 4953,
+          "url": "blob:4efe2a4c3511dbe2517ef66528ee207db132a46ad8f28e01bee94e77cab4067c"
+        },
+        "luasec/rules/degraded.lua": {
+          "sha256": "71ff8395320d2c1af7d5aba072a47a14654483f44c1afc728db4c1aefc1169f0",
+          "size": 1827,
+          "url": "blob:71ff8395320d2c1af7d5aba072a47a14654483f44c1afc728db4c1aefc1169f0"
+        },
+        "luasec/rules/file_role.lua": {
+          "sha256": "bc1159ecb2abf7dbd286a0ca2e51af9cb2552883da96b58d8cda93d058d17eec",
+          "size": 16118,
+          "url": "blob:bc1159ecb2abf7dbd286a0ca2e51af9cb2552883da96b58d8cda93d058d17eec"
+        },
+        "luasec/rules/firmware.lua": {
+          "sha256": "1db8bc08397d3225ec882ade54a37be45b9ab8c165401dadb529e54244952c0a",
+          "size": 64672,
+          "url": "blob:1db8bc08397d3225ec882ade54a37be45b9ab8c165401dadb529e54244952c0a"
+        },
+        "luasec/rules/payloads.lua": {
+          "sha256": "54d92f47097bda7730aa0a705cb1f253d153a91810bb52726acf6edc394db83b",
+          "size": 67931,
+          "url": "blob:54d92f47097bda7730aa0a705cb1f253d153a91810bb52726acf6edc394db83b"
+        },
+        "luasec/rules/rawscan.lua": {
+          "sha256": "dd413841db2a68ef5e25109096c15f67157da290af73d076a6011f474d689954",
+          "size": 37630,
+          "url": "blob:dd413841db2a68ef5e25109096c15f67157da290af73d076a6011f474d689954"
+        },
+        "luasec/rules/registry.lua": {
+          "sha256": "f12e635308f190a94dd8cc8b96f9589d2914bc956e55c9903a8ef8a8bde8aa4b",
+          "size": 835,
+          "url": "blob:f12e635308f190a94dd8cc8b96f9589d2914bc956e55c9903a8ef8a8bde8aa4b"
+        },
+        "luasec/rules/secrets.lua": {
+          "sha256": "0d7ff1c62ee6a0c95198f0edab9931d6306ada2a3c392e587a45696955dfa29c",
+          "size": 59351,
+          "url": "blob:0d7ff1c62ee6a0c95198f0edab9931d6306ada2a3c392e587a45696955dfa29c"
+        },
+        "luasec/util/const_eval.lua": {
+          "sha256": "bbe6172ab79212b137ddbde8fa9e56a34437b586dfc294dddff073db9c67b614",
+          "size": 8209,
+          "url": "blob:bbe6172ab79212b137ddbde8fa9e56a34437b586dfc294dddff073db9c67b614"
+        },
+        "luasec/util/util.lua": {
+          "sha256": "25d5ed7b9dab97c8edcaeea1271cf73d2ac0eadf89c3d8e3273a8acad161bcf0",
+          "size": 3253,
+          "url": "blob:25d5ed7b9dab97c8edcaeea1271cf73d2ac0eadf89c3d8e3273a8acad161bcf0"
+        },
+        "luasec/validate/child.lua": {
+          "sha256": "6776d3591f1ac02070a7c99a41a17fedefffc968d64cba4be8425d2e1d99c759",
+          "size": 33344,
+          "url": "blob:6776d3591f1ac02070a7c99a41a17fedefffc968d64cba4be8425d2e1d99c759"
+        },
+        "luasec/validate/driver.lua": {
+          "sha256": "cbd2c5ab45c526cc524f499a9d2a7d32ea8fc6a788a11f7877d939424713f4c8",
+          "size": 26018,
+          "url": "blob:cbd2c5ab45c526cc524f499a9d2a7d32ea8fc6a788a11f7877d939424713f4c8"
+        },
+        "luasec/validate/report.lua": {
+          "sha256": "d73ca1b868eda1f74c5de281ee0f8acaaa5b00c13842370c15ada8fc250cde45",
+          "size": 4347,
+          "url": "blob:d73ca1b868eda1f74c5de281ee0f8acaaa5b00c13842370c15ada8fc250cde45"
+        },
+        "luasec/version.lua": {
+          "sha256": "a6c054e1eb5dbc7d9b424034cc54895749ccf0d85fb9bbb3156c0dc9c523db54",
+          "size": 107,
+          "url": "blob:a6c054e1eb5dbc7d9b424034cc54895749ccf0d85fb9bbb3156c0dc9c523db54"
+        }
+      },
+      "homepage": "https://github.com/Vaibhav91one/luasec",
+      "host": "luajit",
+      "license": "MIT",
+      "lua": ">= 5.3",
+      "luajit": true,
+      "luarocks": {
+        "date": "Tue, 06 Oct 2026 21:24:28 GMT",
+        "rockspec": {
+          "date": "Tue, 06 Oct 2026 21:24:28 GMT",
+          "sha256": "849c9533e25b049c784ebce72f98d4a797fe9ca7637339fd35103eb136038679",
+          "size": 9795
+        },
+        "src": {
+          "date": "Tue, 06 Oct 2026 21:24:29 GMT",
+          "sha256": "591af3b8cf179dc0f17237af2b82e0a0ea69cae0218b683a683c66d9efc5fd33",
+          "size": 760157,
+          "url": "https://luarocks.org/luasec-scanner-0.5.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "luacheck",
+        "luacheck.builtin_standards",
+        "luacheck.builtin_standards.love",
+        "luacheck.builtin_standards.luanti",
+        "luacheck.builtin_standards.ngx",
+        "luacheck.builtin_standards.playdate",
+        "luacheck.cache",
+        "luacheck.check",
+        "luacheck.check_state",
+        "luacheck.config",
+        "luacheck.core_utils",
+        "luacheck.decoder",
+        "luacheck.expand_rockspec",
+        "luacheck.filter",
+        "luacheck.format",
+        "luacheck.fs",
+        "luacheck.globbing",
+        "luacheck.lexer",
+        "luacheck.main",
+        "luacheck.multithreading",
+        "luacheck.options",
+        "luacheck.parser",
+        "luacheck.profiler",
+        "luacheck.runner",
+        "luacheck.serializer",
+        "luacheck.stages",
+        "luacheck.stages.detect_bad_whitespace",
+        "luacheck.stages.detect_compound_operators",
+        "luacheck.stages.detect_cyclomatic_complexity",
+        "luacheck.stages.detect_empty_blocks",
+        "luacheck.stages.detect_empty_statements",
+        "luacheck.stages.detect_globals",
+        "luacheck.stages.detect_reversed_fornum_loops",
+        "luacheck.stages.detect_unbalanced_assignments",
+        "luacheck.stages.detect_uninit_accesses",
+        "luacheck.stages.detect_unreachable_code",
+        "luacheck.stages.detect_unused_fields",
+        "luacheck.stages.detect_unused_locals",
+        "luacheck.stages.linearize",
+        "luacheck.stages.name_functions",
+        "luacheck.stages.parse",
+        "luacheck.stages.parse_inline_options",
+        "luacheck.stages.resolve_locals",
+        "luacheck.stages.unwrap_parens",
+        "luacheck.standards",
+        "luacheck.unicode",
+        "luacheck.unicode_printability_boundaries",
+        "luacheck.utils",
+        "luacheck.vendor.sha1",
+        "luacheck.vendor.sha1.bit32_ops",
+        "luacheck.vendor.sha1.bit_ops",
+        "luacheck.vendor.sha1.common",
+        "luacheck.vendor.sha1.lua53_ops",
+        "luacheck.vendor.sha1.pure_lua_ops",
+        "luacheck.version",
+        "luasec.api",
+        "luasec.bytecode.detect",
+        "luasec.bytecode.header",
+        "luasec.bytecode.protos",
+        "luasec.bytecode.triage",
+        "luasec.cli.args",
+        "luasec.cli.baseline",
+        "luasec.cli.ci_cmd",
+        "luasec.cli.config",
+        "luasec.cli.fix_cmd",
+        "luasec.cli.handoff",
+        "luasec.cli.install_cmd",
+        "luasec.cli.menu",
+        "luasec.cli.progress",
+        "luasec.cli.review",
+        "luasec.cli.rules_cmd",
+        "luasec.cli.scope",
+        "luasec.cli.selection",
+        "luasec.cli.selector",
+        "luasec.cli.template",
+        "luasec.cli.term",
+        "luasec.cli.walk",
+        "luasec.cli.why_cmd",
+        "luasec.engine.callgraph",
+        "luasec.engine.escapes",
+        "luasec.engine.inline_directives",
+        "luasec.engine.interprocedural",
+        "luasec.engine.jobs",
+        "luasec.engine.parse_context",
+        "luasec.engine.pipeline",
+        "luasec.engine.taint",
+        "luasec.engine.whole_program",
+        "luasec.main",
+        "luasec.registry.platform_api",
+        "luasec.registry.profiles",
+        "luasec.registry.stds.cgilua",
+        "luasec.registry.stds.espressif",
+        "luasec.registry.stds.hisi",
+        "luasec.registry.stds.luajit",
+        "luasec.registry.stds.luci",
+        "luasec.registry.stds.openresty",
+        "luasec.registry.stds.openwrt",
+        "luasec.registry.stds.signatures",
+        "luasec.report.doctor",
+        "luasec.report.findings",
+        "luasec.report.html",
+        "luasec.report.json",
+        "luasec.report.plain",
+        "luasec.report.render",
+        "luasec.report.sarif",
+        "luasec.report.score",
+        "luasec.report.summary",
+        "luasec.rules.categories",
+        "luasec.rules.codes",
+        "luasec.rules.context",
+        "luasec.rules.degraded",
+        "luasec.rules.file_role",
+        "luasec.rules.firmware",
+        "luasec.rules.payloads",
+        "luasec.rules.rawscan",
+        "luasec.rules.registry",
+        "luasec.rules.secrets",
+        "luasec.util.const_eval",
+        "luasec.util.util",
+        "luasec.validate.child",
+        "luasec.validate.driver",
+        "luasec.validate.report",
+        "luasec.version"
+      ],
+      "origin": {
+        "sha256": "b004d2d727a9d48c10755277105e625596ad5fa7c1c1f3cfb1d5a319e9bd126c",
+        "type": "archive",
+        "url": "https://github.com/Vaibhav91one/luasec/releases/download/v0.5.1/luasec-0.5.1.tar.gz"
+      },
+      "size": 1268778,
+      "summary": "Static security scanner for Lua in embedded firmware: finds remote code execution.",
+      "undeclared_requires": [
+        "argparse",
+        "bit",
+        "luasec.rules.",
+        "luci.dispatcher",
+        "luci.jsonc",
+        "mod",
+        "name",
+        "socket",
+        "ubus",
+        "uci",
+        "util"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-newrelic-insights",
+  "versions": {
+    "0.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/newrelic-insights/debug.lua": {
+          "sha256": "1623a09e0cd368217fd06bdcd7ecd9fa6e3f95e61e4ba8f9ff97d6f45a2c70f7",
+          "size": 1752,
+          "url": "https://raw.githubusercontent.com/JnMik/kong-plugin-newrelic-insights/5c2e9c40665c6cc6b9d4a6113ee8eebeeaa7aa9f/kong/plugins/newrelic-insights/debug.lua"
+        },
+        "kong/plugins/newrelic-insights/handler.lua": {
+          "sha256": "01c8f99944277b5c4206f292bc2476c2cef7ffd5dde1dce008e6cde718bf38fe",
+          "size": 4674,
+          "url": "https://raw.githubusercontent.com/JnMik/kong-plugin-newrelic-insights/5c2e9c40665c6cc6b9d4a6113ee8eebeeaa7aa9f/kong/plugins/newrelic-insights/handler.lua"
+        },
+        "kong/plugins/newrelic-insights/json.lua": {
+          "sha256": "39bfd0b3f8930ee59e6727c2e02c9cd8dcdd47c9f4ee1127228e14f758c294ad",
+          "size": 7088,
+          "url": "https://raw.githubusercontent.com/JnMik/kong-plugin-newrelic-insights/5c2e9c40665c6cc6b9d4a6113ee8eebeeaa7aa9f/kong/plugins/newrelic-insights/json.lua"
+        },
+        "kong/plugins/newrelic-insights/schema.lua": {
+          "sha256": "892bdfd2346562c375b19601ba79fb4da636cd3ee0a89c5d526fd1dd1926bc94",
+          "size": 753,
+          "url": "https://raw.githubusercontent.com/JnMik/kong-plugin-newrelic-insights/5c2e9c40665c6cc6b9d4a6113ee8eebeeaa7aa9f/kong/plugins/newrelic-insights/schema.lua"
+        }
+      },
+      "homepage": "http://getkong.org",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 19 Oct 2017 19:43:03 GMT",
+        "rockspec": {
+          "date": "Thu, 19 Oct 2017 19:43:03 GMT",
+          "sha256": "a0bd76ffecd924c7906a7d536eb6082701d8574101930903f29841432ae6cd00",
+          "size": 1092
+        },
+        "src": {
+          "date": "Thu, 19 Oct 2017 19:43:04 GMT",
+          "sha256": "f610d898242d5647ad77a1eb7b44a14fe7a1a9bdf03a2e44a40f339664993224",
+          "size": 128835,
+          "url": "https://luarocks.org/kong-plugin-newrelic-insights-0.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.newrelic-insights.debug",
+        "kong.plugins.newrelic-insights.handler",
+        "kong.plugins.newrelic-insights.json",
+        "kong.plugins.newrelic-insights.schema"
+      ],
+      "origin": {
+        "commit": "5c2e9c40665c6cc6b9d4a6113ee8eebeeaa7aa9f",
+        "ref": "0.6",
+        "type": "git",
+        "url": "https://github.com/JnMik/kong-plugin-newrelic-insights"
+      },
+      "size": 14267,
+      "summary": "Extends Kong API Gateway for Newrelic Insights tracking",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "stormpath-nginx",
+  "versions": {
+    "1.0.2-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-jwt = 0.1.5",
+        "lua-resty-http = 0.08"
+      ],
+      "files": {
+        "stormpath-nginx.lua": {
+          "sha256": "0f7b0fb0d82239bef21ac3adc161eff3e80c1560e9869d538c97c7cafdd41d16",
+          "size": 4387,
+          "url": "https://raw.githubusercontent.com/stormpath/stormpath-nginx/c7e1bc4946b2e8cbccf9bec0994c508f8c156bc9/src/stormpath-nginx.lua"
+        }
+      },
+      "homepage": "https://stormpath.com/",
+      "host": "openresty",
+      "license": "Apache2",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 16 Aug 2016 22:47:45 GMT",
+        "rockspec": {
+          "date": "Tue, 16 Aug 2016 22:47:45 GMT",
+          "sha256": "0c9bf07edafcd2c483cf5caa27de0eee6710e6ae930809aafcb3fe6467df60e9",
+          "size": 535
+        },
+        "src": {
+          "date": "Tue, 16 Aug 2016 22:47:45 GMT",
+          "sha256": "aeb5a14d0094b98449aa0e62f1f7f0363d8c924e57b8ecfcb290c9f98c92aac0",
+          "size": 14620,
+          "url": "https://luarocks.org/stormpath-nginx-1.0.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "stormpath-nginx"
+      ],
+      "origin": {
+        "commit": "c7e1bc4946b2e8cbccf9bec0994c508f8c156bc9",
+        "ref": "1.0.2",
+        "type": "git",
+        "url": "https://github.com/stormpath/stormpath-nginx"
+      },
+      "size": 4387,
+      "summary": "A Stormpath + nginx integration",
+      "undeclared_requires": [
+        "resty.jwt",
+        "resty.jwt-validators"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-geo-restriction",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-geoip >= 0.2-1"
+      ],
+      "files": {
+        "kong/plugins/geo-restriction/handler.lua": {
+          "sha256": "6c826098a93d5901bb1ffe381faddfcecd82b1c32a161654ac3dd52d782cbbfc",
+          "size": 1988,
+          "url": "https://raw.githubusercontent.com/alrls/kong-plugin-geo-restriction/ac3b067f5e2386769ea2a78e90c97eb2b8c3c74e/geo-restriction/handler.lua"
+        },
+        "kong/plugins/geo-restriction/schema.lua": {
+          "sha256": "beb72824bdf44329472bd4ce938f2d3ec16f6e06512d00e572dc08ef7f85908e",
+          "size": 1404,
+          "url": "https://raw.githubusercontent.com/alrls/kong-plugin-geo-restriction/ac3b067f5e2386769ea2a78e90c97eb2b8c3c74e/geo-restriction/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 23 Jul 2023 12:21:53 GMT",
+        "rockspec": {
+          "date": "Sun, 23 Jul 2023 12:21:53 GMT",
+          "sha256": "2290034185052bedf5bc7cd0f044dc68730d0b23d4ff7a316c5cd5e16326ce94",
+          "size": 520
+        }
+      },
+      "modules": [
+        "kong.plugins.geo-restriction.handler",
+        "kong.plugins.geo-restriction.schema"
+      ],
+      "origin": {
+        "commit": "ac3b067f5e2386769ea2a78e90c97eb2b8c3c74e",
+        "type": "git",
+        "url": "https://github.com/alrls/kong-plugin-geo-restriction"
+      },
+      "size": 3392,
+      "summary": "A Kong plugin that restricts access by location",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.meta",
+        "resty.lrucache"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

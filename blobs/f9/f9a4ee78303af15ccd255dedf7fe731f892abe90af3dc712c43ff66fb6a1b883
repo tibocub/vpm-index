@@ -1,0 +1,263 @@
+-- voice/OpusEncoder.lua
+-- Thin wrapper around libopus, supporting two backends:
+--   1. lua-opus  (luarocks install lua-opus)  – preferred
+--   2. LuaJIT FFI calling libopus.so directly – fallback when running LuaJIT
+--
+-- Usage:
+--   local OpusEncoder = require("voice.OpusEncoder")
+--   local enc = OpusEncoder.new({ sample_rate=48000, channels=2, bitrate=128000 })
+--   local opus_bytes = enc:encode(pcm_bytes, 960)
+--   enc:destroy()
+
+local OpusEncoder = {}
+OpusEncoder.__index = OpusEncoder
+
+-- Opus constants
+local OPUS_OK               = 0
+local OPUS_APPLICATION_AUDIO= 2049  -- Best for music (vs VOIP=2048, LOWDELAY=2051)
+local OPUS_SET_BITRATE_REQUEST   = 4002
+local OPUS_SET_COMPLEXITY_REQUEST= 4010
+local OPUS_SET_SIGNAL_REQUEST    = 4024
+local OPUS_SIGNAL_MUSIC          = 3002
+
+-- ── Backend detection ────────────────────────────────────────────────────────
+
+local backend  -- "lua-opus" | "ffi" | nil
+
+local opus_lib  -- FFI cdata or lua-opus module
+
+local function try_lua_opus()
+  local ok, m = pcall(require, "opus")
+  if ok then
+    backend   = "lua-opus"
+    opus_lib  = m
+    return true
+  end
+  return false
+end
+
+local function try_ffi()
+  if type(jit) ~= "table" then return false end  -- not LuaJIT
+  local ok, ffi = pcall(require, "ffi")
+  if not ok then return false end
+
+  -- Try to load libopus from common paths
+  local loaded
+  for _, path in ipairs({ "libopus.so.0", "libopus.so", "libopus" }) do
+    local ok2, lib = pcall(ffi.load, path)
+    if ok2 then
+      loaded = lib
+      break
+    end
+  end
+  if not loaded then return false end
+
+  ffi.cdef[[
+    typedef struct OpusEncoder OpusEncoder;
+    typedef struct OpusDecoder OpusDecoder;
+
+    OpusEncoder* opus_encoder_create(int32_t Fs, int channels, int application, int *error);
+    int          opus_encoder_ctl   (OpusEncoder *st, int request, ...);
+    int          opus_encode        (OpusEncoder *st, const int16_t *pcm,
+                                     int frame_size, unsigned char *data, int32_t max_data_bytes);
+    void         opus_encoder_destroy(OpusEncoder *st);
+
+    OpusDecoder* opus_decoder_create(int32_t Fs, int channels, int *error);
+    int          opus_decode        (OpusDecoder *st, const unsigned char *data, int32_t len,
+                                     int16_t *pcm, int frame_size, int decode_fec);
+    void         opus_decoder_destroy(OpusDecoder *st);
+  ]]
+
+  backend  = "ffi"
+  opus_lib = { ffi = ffi, lib = loaded }
+  return true
+end
+
+local function ensure_backend()
+  if backend then return end
+  if try_lua_opus() then return end
+  if try_ffi()      then return end
+  error(
+    "[OpusEncoder] No Opus backend found.\n" ..
+    "Option 1 (any Lua): luarocks install lua-opus\n" ..
+    "Option 2 (LuaJIT):  install libopus system package, e.g.\n" ..
+    "                    apt install libopus-dev   (Debian/Ubuntu)\n" ..
+    "                    brew install opus          (macOS)"
+  )
+end
+
+-- ── Constructor ──────────────────────────────────────────────────────────────
+
+--- Create a new Opus encoder.
+-- @param opts table
+--   sample_rate  number  Sample rate in Hz (Discord requires 48000)
+--   channels     number  1 (mono) or 2 (stereo). Default 2.
+--   bitrate      number  Bits per second. Default 128000.
+--   complexity   number  0–10. Default 10.
+function OpusEncoder.new(opts)
+  ensure_backend()
+  opts = opts or {}
+  local self       = setmetatable({}, OpusEncoder)
+  self.sample_rate = opts.sample_rate or 48000
+  self.channels    = opts.channels    or 2
+  self.bitrate     = opts.bitrate     or 128000
+  self.complexity  = opts.complexity  or 10
+  self._enc        = nil
+  self._backend    = backend
+
+  if backend == "lua-opus" then
+    self._enc = opus_lib.Encoder.new(self.sample_rate, self.channels, OPUS_APPLICATION_AUDIO)
+    self._enc:set("bitrate",    self.bitrate)
+    self._enc:set("complexity", self.complexity)
+    self._enc:set("signal",     OPUS_SIGNAL_MUSIC)
+
+  elseif backend == "ffi" then
+    local ffi = opus_lib.ffi
+    local lib = opus_lib.lib
+    local err = ffi.new("int[1]")
+    self._enc = lib.opus_encoder_create(self.sample_rate, self.channels, OPUS_APPLICATION_AUDIO, err)
+    if err[0] ~= OPUS_OK or self._enc == nil then
+      error("[OpusEncoder] opus_encoder_create failed, code=" .. tostring(err[0]))
+    end
+    lib.opus_encoder_ctl(self._enc, OPUS_SET_BITRATE_REQUEST,    self.bitrate)
+    lib.opus_encoder_ctl(self._enc, OPUS_SET_COMPLEXITY_REQUEST, self.complexity)
+    lib.opus_encoder_ctl(self._enc, OPUS_SET_SIGNAL_REQUEST,     OPUS_SIGNAL_MUSIC)
+    -- Keep references so GC doesn't collect them
+    self._ffi = ffi
+    self._lib = lib
+  end
+
+  return self
+end
+
+-- ── Encode ───────────────────────────────────────────────────────────────────
+
+--- Encode a frame of PCM audio to Opus.
+-- @param pcm_data   string | cdata   Raw signed 16-bit interleaved PCM samples (little-endian)
+-- @param frame_size number            Samples per channel (e.g., 960 for 20ms @ 48kHz)
+-- @return string  Encoded Opus frame bytes, or nil + error string
+function OpusEncoder:encode(pcm_data, frame_size)
+  frame_size = frame_size or 960
+
+  if self._backend == "lua-opus" then
+    local ok, result = pcall(function()
+      return self._enc:encode(pcm_data, frame_size)
+    end)
+    if not ok then return nil, tostring(result) end
+    return result
+
+  elseif self._backend == "ffi" then
+    local ffi = self._ffi
+    local lib = self._lib
+    -- Max Opus packet size is 4000 bytes for safety
+    local out_buf  = ffi.new("unsigned char[4000]")
+    local pcm_ptr
+    if type(pcm_data) == "string" then
+      pcm_ptr = ffi.cast("const int16_t*", pcm_data)
+    else
+      pcm_ptr = ffi.cast("const int16_t*", pcm_data)
+    end
+    local nbytes = lib.opus_encode(self._enc, pcm_ptr, frame_size, out_buf, 4000)
+    if nbytes < 0 then
+      return nil, "opus_encode error code: " .. tostring(nbytes)
+    end
+    return ffi.string(out_buf, nbytes)
+  end
+
+  return nil, "No backend available"
+end
+
+-- ── Destroy ──────────────────────────────────────────────────────────────────
+
+--- Free the encoder resources.
+function OpusEncoder:destroy()
+  if self._backend == "ffi" and self._enc ~= nil then
+    self._lib.opus_encoder_destroy(self._enc)
+    self._enc = nil
+  end
+  -- lua-opus handles GC automatically
+end
+
+-- ── Decoder ──────────────────────────────────────────────────────────────────
+-- A lightweight Opus decoder is included for bots that need to receive audio.
+
+local OpusDecoder = {}
+OpusDecoder.__index = OpusDecoder
+
+--- Create a new Opus decoder.
+-- @param opts table  { sample_rate=48000, channels=2 }
+function OpusDecoder.new(opts)
+  ensure_backend()
+  opts = opts or {}
+  local self       = setmetatable({}, OpusDecoder)
+  self.sample_rate = opts.sample_rate or 48000
+  self.channels    = opts.channels    or 2
+  self._backend    = backend
+  self._dec        = nil
+
+  if backend == "lua-opus" then
+    self._dec = opus_lib.Decoder.new(self.sample_rate, self.channels)
+
+  elseif backend == "ffi" then
+    local ffi = opus_lib.ffi
+    local lib = opus_lib.lib
+    local err = ffi.new("int[1]")
+    self._dec = lib.opus_decoder_create(self.sample_rate, self.channels, err)
+    if err[0] ~= OPUS_OK or self._dec == nil then
+      error("[OpusDecoder] opus_decoder_create failed, code=" .. tostring(err[0]))
+    end
+    self._ffi = ffi
+    self._lib = lib
+  end
+
+  return self
+end
+
+--- Decode an Opus packet to raw PCM.
+-- @param opus_data  string   Opus packet bytes
+-- @param frame_size number   Expected output samples per channel (e.g., 960)
+-- @return string  Raw 16-bit signed PCM bytes, or nil + error
+function OpusDecoder:decode(opus_data, frame_size)
+  frame_size = frame_size or 960
+
+  if self._backend == "lua-opus" then
+    local ok, result = pcall(function()
+      return self._dec:decode(opus_data, frame_size)
+    end)
+    if not ok then return nil, tostring(result) end
+    return result
+
+  elseif self._backend == "ffi" then
+    local ffi     = self._ffi
+    local lib     = self._lib
+    local samples = frame_size * self.channels
+    local out_buf = ffi.new("int16_t[?]", samples)
+    local n       = lib.opus_decode(
+      self._dec,
+      opus_data, #opus_data,
+      out_buf, frame_size,
+      0  -- no FEC
+    )
+    if n < 0 then
+      return nil, "opus_decode error code: " .. tostring(n)
+    end
+    return ffi.string(out_buf, n * self.channels * 2)
+  end
+
+  return nil, "No backend available"
+end
+
+--- Free the decoder.
+function OpusDecoder:destroy()
+  if self._backend == "ffi" and self._dec ~= nil then
+    self._lib.opus_decoder_destroy(self._dec)
+    self._dec = nil
+  end
+end
+
+-- ── Module exports ───────────────────────────────────────────────────────────
+
+return {
+  Encoder = OpusEncoder,
+  Decoder = OpusDecoder,
+}

@@ -1,0 +1,95 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-balancer",
+  "versions": {
+    "0.05-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "resty/balancer/utils.lua": {
+          "sha256": "86367133cc8cd96f8cb8c1db1d25d6f8edac6896277adb512dd5546770e2c57e",
+          "size": 877,
+          "url": "blob:86367133cc8cd96f8cb8c1db1d25d6f8edac6896277adb512dd5546770e2c57e"
+        },
+        "resty/chash.lua": {
+          "sha256": "bfffb8dbfaea94d76888a99354d2af07c030b013240a25b15266605516c75e41",
+          "size": 7560,
+          "url": "blob:bfffb8dbfaea94d76888a99354d2af07c030b013240a25b15266605516c75e41"
+        },
+        "resty/roundrobin.lua": {
+          "sha256": "8d0b72b53e4e95e83fe9fa976c6abdc54b02a66be70ffafb6be94edd68ba7a8a",
+          "size": 3783,
+          "url": "blob:8d0b72b53e4e95e83fe9fa976c6abdc54b02a66be70ffafb6be94edd68ba7a8a"
+        },
+        "resty/swrr.lua": {
+          "sha256": "4ee4f1952306743480f931a2d5b83901b59bc81a51d800db8de1a75b3d3d6ca0",
+          "size": 3010,
+          "url": "blob:4ee4f1952306743480f931a2d5b83901b59bc81a51d800db8de1a75b3d3d6ca0"
+        }
+      },
+      "homepage": "https://github.com/openresty/lua-resty-balancer",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 18 Sep 2025 02:48:11 GMT",
+        "rockspec": {
+          "date": "Thu, 18 Sep 2025 02:48:11 GMT",
+          "sha256": "a2415d37e355e82309d2aae6c5289849097c20c0518d7f0cbd9f4ac031fea106",
+          "size": 698
+        },
+        "src": {
+          "date": "Thu, 18 Sep 2025 02:48:11 GMT",
+          "sha256": "925482dd2408e3d5d127901e4720f322307cc1df22fd7050b2f393c9c10deb63",
+          "size": 23161,
+          "url": "https://luarocks.org/lua-resty-balancer-0.05-0.src.rock"
+        }
+      },
+      "modules": [
+        "librestychash",
+        "resty.balancer.utils",
+        "resty.chash",
+        "resty.roundrobin",
+        "resty.swrr"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "librestychash",
+              "sources": [
+                "chash.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 18 Sep 2025 02:48:11 GMT",
+        "sha256": "925482dd2408e3d5d127901e4720f322307cc1df22fd7050b2f393c9c10deb63",
+        "size": 23161,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-resty-balancer-0.05-0.src.rock"
+      },
+      "size": 15230,
+      "summary": "A generic consistent hash implementation for OpenResty",
+      "undeclared_requires": [
+        "bit"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+local utils = require "kong.plugins.google-storage-adapter.path.utils"
+
+local function try_to_resolve_file_path_by_req_path(req_path, service_path, req_site_name, conf)
+  local locale = req_path:match("%l%l%l?%-%u%u/?") or ""
+  local file_name = req_path:match("/([a-zA-Z0-9-_.]*%.[a-zA-Z0-9-_]+)$") or ""
+
+  local is_linked_site_by_service = service_path ~= string.format("/%s/", req_site_name)
+  local one_page_path = "/sites/" .. req_site_name .. "/" .. locale .. file_name
+  local is_linked_site_by_req_path = one_page_path ~= req_path
+
+  if conf.path_transformation.log then
+    kong.log.notice(
+    "try_to_resolve_file_path_by_req_path",
+    "service_path = ", service_path, "\n",
+    'string.format("/%s/", req_site_name) = ', string.format("/%s/", req_site_name), "\n",
+    "one_page_path = ", one_page_path, "\n",
+    "req_path = ", req_path, "\n",
+    "is_linked_site_by_service = ", is_linked_site_by_service, "\n",
+    "is_linked_site_by_req_path = ", is_linked_site_by_req_path, "\n")
+  end
+
+  -- To keep legacy multipaging
+  if is_linked_site_by_service then
+    local full_path = "/sites" .. service_path .. locale .. file_name
+    local path = utils.add_index_file_to_path(full_path)
+    if conf.path_transformation.log then
+      local log_message = string.format(
+        "The path has been built as the old linked. " ..
+        "The full_path is %s, the service_path is %s, the req_site_name is %s",
+        full_path,
+        service_path,
+        req_site_name
+      )
+      kong.log.notice(log_message)
+    end
+    return path
+  else
+    local path = utils.add_index_file_to_path(req_path)
+    if conf.path_transformation.log then
+      local log_message = string.format(
+        "The path has been built as the old traditional. " ..
+        "The req_path is %s, the service_path is %s, the req_site_name is %s",
+        req_path,
+        service_path,
+        req_site_name
+      )
+      kong.log.notice(log_message)
+    end
+    return path
+  end
+end
+
+return {
+  try_to_resolve_file_path_by_req_path = try_to_resolve_file_path_by_req_path,
+}

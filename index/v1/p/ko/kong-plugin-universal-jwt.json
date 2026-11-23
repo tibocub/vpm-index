@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-universal-jwt",
+  "versions": {
+    "4.0.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/universal-jwt/env.lua": {
+          "sha256": "07db6966f987c15eacd15200138e92f1dfb2cbb481d5885680d87b5a5f7f3448",
+          "size": 1762,
+          "url": "blob:07db6966f987c15eacd15200138e92f1dfb2cbb481d5885680d87b5a5f7f3448"
+        },
+        "kong/plugins/universal-jwt/handler.lua": {
+          "sha256": "05a95bf85530613c65acecf6b4522f40952cb94e013d9b1b886e4738da649207",
+          "size": 4417,
+          "url": "blob:05a95bf85530613c65acecf6b4522f40952cb94e013d9b1b886e4738da649207"
+        },
+        "kong/plugins/universal-jwt/schema.lua": {
+          "sha256": "50e47d2ca3cc10f26cac4ffd86aba4fb2b9bccae2b031d5e730c6018f940386e",
+          "size": 335,
+          "url": "blob:50e47d2ca3cc10f26cac4ffd86aba4fb2b9bccae2b031d5e730c6018f940386e"
+        }
+      },
+      "homepage": "https://github.com/DSG-Localz/kong-plugin-universal-jwt",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 13 Oct 2026 01:09:59 GMT",
+        "rockspec": {
+          "date": "Tue, 13 Oct 2026 01:09:59 GMT",
+          "sha256": "89886d834e7108875918b0646b2185b391eb0887204efd88398f054fddd16ba1",
+          "size": 1282
+        },
+        "src": {
+          "date": "Tue, 13 Oct 2026 01:10:00 GMT",
+          "sha256": "c1f228cd6d11af6fb460711f5db18179710096248250b2f1207ac72076c9ece6",
+          "size": 14075,
+          "url": "https://luarocks.org/kong-plugin-universal-jwt-4.0.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.universal-jwt.env",
+        "kong.plugins.universal-jwt.handler",
+        "kong.plugins.universal-jwt.schema"
+      ],
+      "origin": {
+        "date": "Tue, 13 Oct 2026 01:10:00 GMT",
+        "sha256": "c1f228cd6d11af6fb460711f5db18179710096248250b2f1207ac72076c9ece6",
+        "size": 14075,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-universal-jwt-4.0.0-0.src.rock"
+      },
+      "size": 6514,
+      "summary": "Kong custom plugin for generating a JWT from some other auth method",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "ngx.base64",
+        "resty.openssl.pkey"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (ngx.base64)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

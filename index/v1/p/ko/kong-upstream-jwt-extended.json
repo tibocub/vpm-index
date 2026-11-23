@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "kong-upstream-jwt-extended",
+  "versions": {
+    "2.1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-upstream-jwt-extended/access.lua": {
+          "sha256": "79d5aaaceab795cff9610054bcff6b92e4e72f4128cabdbc4eaa1a3bce40c8b0",
+          "size": 8919,
+          "url": "https://raw.githubusercontent.com/andrey-tech/kong-upstream-jwt-extended/a426fdd9699f92a782abb18f169067d4eb47f996/src/access.lua"
+        },
+        "kong/plugins/kong-upstream-jwt-extended/handler.lua": {
+          "sha256": "840dd079b09e35259db494adcdad2ba43bfc5ac09b23a757ad952592f0880798",
+          "size": 614,
+          "url": "https://raw.githubusercontent.com/andrey-tech/kong-upstream-jwt-extended/a426fdd9699f92a782abb18f169067d4eb47f996/src/handler.lua"
+        },
+        "kong/plugins/kong-upstream-jwt-extended/schema.lua": {
+          "sha256": "d9f42d90ea466c04bbb92d1247296beb9c3d525d4fb3553a3b6fbbf6749f722b",
+          "size": 1780,
+          "url": "https://raw.githubusercontent.com/andrey-tech/kong-upstream-jwt-extended/a426fdd9699f92a782abb18f169067d4eb47f996/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/andrey-tech/kong-upstream-jwt-extended",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 15 Oct 2020 06:35:56 GMT",
+        "rockspec": {
+          "date": "Thu, 15 Oct 2020 06:35:56 GMT",
+          "sha256": "cbad268b1ac4ad3f21fadad996be385cb32e046b2571c32e2e7118edfd24d72c",
+          "size": 2072
+        },
+        "src": {
+          "date": "Thu, 15 Oct 2020 06:35:58 GMT",
+          "sha256": "e07033a2ed41f4afd45000ecb608c08b4577410ce4fcfb8a5129a6f38bbe5d75",
+          "size": 35035,
+          "url": "https://luarocks.org/kong-upstream-jwt-extended-2.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-upstream-jwt-extended.access",
+        "kong.plugins.kong-upstream-jwt-extended.handler",
+        "kong.plugins.kong-upstream-jwt-extended.schema"
+      ],
+      "origin": {
+        "commit": "a426fdd9699f92a782abb18f169067d4eb47f996",
+        "type": "git",
+        "url": "https://github.com/andrey-tech/kong-upstream-jwt-extended.git"
+      },
+      "size": 11313,
+      "summary": "A plugin for Kong which adds a signed JWT with extended payload to HTTP Headers of outgoing requests",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.singletons",
+        "kong.tools.utils",
+        "pl.file",
+        "resty.openssl.digest",
+        "resty.openssl.pkey",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.sha256)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

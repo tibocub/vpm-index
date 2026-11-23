@@ -1,0 +1,112 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-header-translator",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [
+        "classic 0.1.0-1",
+        "kong-lib-logger >= 0.3.0-1"
+      ],
+      "files": {
+        "kong/plugins/header-translator/api.lua": {
+          "sha256": "d956143e636a61b01e5825935cb94547d4d795c2b755033a9b42d8cdd855f2a6",
+          "size": 3254,
+          "url": "blob:d956143e636a61b01e5825935cb94547d4d795c2b755033a9b42d8cdd855f2a6"
+        },
+        "kong/plugins/header-translator/daos.lua": {
+          "sha256": "41b653ce7a076a9bf046e8821c174faeec551ef37783aa7b4aedda3f5f7f8c94",
+          "size": 592,
+          "url": "blob:41b653ce7a076a9bf046e8821c174faeec551ef37783aa7b4aedda3f5f7f8c94"
+        },
+        "kong/plugins/header-translator/handler.lua": {
+          "sha256": "ddc0f96c13dd11b27df21f0ea87c552d70280213a8d41234cb0477dc6d62a006",
+          "size": 1785,
+          "url": "blob:ddc0f96c13dd11b27df21f0ea87c552d70280213a8d41234cb0477dc6d62a006"
+        },
+        "kong/plugins/header-translator/migrations/000_base_header_translator.lua": {
+          "sha256": "ff9ad13510debb665b7d18a9de5d678909e30726bf0fc33ecae275789eb184a7",
+          "size": 803,
+          "url": "blob:ff9ad13510debb665b7d18a9de5d678909e30726bf0fc33ecae275789eb184a7"
+        },
+        "kong/plugins/header-translator/migrations/001_040_to_100.lua": {
+          "sha256": "65ff83d03fde95e4530f6561f9ebe54ded5975a80f4ea6ee10eed5b8c83ca380",
+          "size": 535,
+          "url": "blob:65ff83d03fde95e4530f6561f9ebe54ded5975a80f4ea6ee10eed5b8c83ca380"
+        },
+        "kong/plugins/header-translator/migrations/002_100_to_101.lua": {
+          "sha256": "69cf212672eb4a5628dc9c9025606056ef60c2d4ea387a865e6f858d80a955d4",
+          "size": 599,
+          "url": "blob:69cf212672eb4a5628dc9c9025606056ef60c2d4ea387a865e6f858d80a955d4"
+        },
+        "kong/plugins/header-translator/migrations/init.lua": {
+          "sha256": "acde721e706e280e4d062751d202a8e22e717cc9da3a79d3cccebc02a6a86951",
+          "size": 87,
+          "url": "blob:acde721e706e280e4d062751d202a8e22e717cc9da3a79d3cccebc02a6a86951"
+        },
+        "kong/plugins/header-translator/normalize_header.lua": {
+          "sha256": "26e482493dba3af147da1d618c8b1cb25c94578a2839d3be11466c6171dc737c",
+          "size": 66,
+          "url": "blob:26e482493dba3af147da1d618c8b1cb25c94578a2839d3be11466c6171dc737c"
+        },
+        "kong/plugins/header-translator/schema.lua": {
+          "sha256": "cbdeab02b41e4b0da42098df732f24b21fe0b98170505833b1ca53cbc7ad603c",
+          "size": 748,
+          "url": "blob:cbdeab02b41e4b0da42098df732f24b21fe0b98170505833b1ca53cbc7ad603c"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-header-translator",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Wed, 29 Apr 2020 08:40:28 GMT",
+        "rockspec": {
+          "date": "Wed, 29 Apr 2020 08:40:28 GMT",
+          "sha256": "cad4aab8bea18fbb831564a738c465ece47912a15761907de92b272350757ad4",
+          "size": 1561
+        },
+        "src": {
+          "date": "Wed, 29 Apr 2020 08:40:30 GMT",
+          "sha256": "77db794e377d28c3c2b9e9d8f1c3e19b2a77cf72b92d292ebc28b6d7daf9bffc",
+          "size": 16306,
+          "url": "https://luarocks.org/kong-plugin-header-translator-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.header-translator.api",
+        "kong.plugins.header-translator.daos",
+        "kong.plugins.header-translator.handler",
+        "kong.plugins.header-translator.migrations",
+        "kong.plugins.header-translator.migrations.000_base_header_translator",
+        "kong.plugins.header-translator.migrations.001_040_to_100",
+        "kong.plugins.header-translator.migrations.002_100_to_101",
+        "kong.plugins.header-translator.normalize_header",
+        "kong.plugins.header-translator.schema"
+      ],
+      "origin": {
+        "date": "Wed, 29 Apr 2020 08:40:30 GMT",
+        "sha256": "77db794e377d28c3c2b9e9d8f1c3e19b2a77cf72b92d292ebc28b6d7daf9bffc",
+        "size": 16306,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-header-translator-1.0.1-1.src.rock"
+      },
+      "size": 8469,
+      "summary": "Translate the contents of a header into another header based on a custom dictionary.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.singletons"
+      ],
+      "vlr": {
+        "cause": "missing global: kong",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 6,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

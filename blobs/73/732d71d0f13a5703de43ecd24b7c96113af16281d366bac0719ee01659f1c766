@@ -1,0 +1,83 @@
+local config = require('panto_mcp.config')
+local json = require('panto').ext.json
+local M = {}
+local function terms(s)
+    local out={}; for t in tostring(s or ''):lower():gmatch('[%w]+') do out[#out+1]=t end; return out
+end
+local function fields(item)
+    local out={item.name or '',item.name or '',item.name or '',item.title or '',item.title or '',item.uri or '',item.uriTemplate or '',item.description or ''}
+    local function props(schema,depth)
+        if type(schema)~='table' or depth>8 then return end
+        for name,p in pairs(type(schema.properties)=='table' and schema.properties or {}) do
+            out[#out+1]=tostring(name)
+            if type(p)=='table' then out[#out+1]=type(p.description)=='string' and p.description or ''; props(p,depth+1) end
+        end
+    end
+    props(item.inputSchema,0)
+    return table.concat(out,' ')
+end
+function M.search(states,query,opts)
+    opts=opts or {}; local docs,df={},{}
+    for server,state in pairs(states) do
+        if not opts.server or opts.server==server then
+            local catalog=(state.metadata and state.metadata.catalog) or {}
+            for _,kind in ipairs({'tools','resources','templates'}) do
+                for _,item in ipairs(catalog[kind] or {}) do
+                    if kind~='tools' or config.tool_enabled(state.cfg,item.name or '') then
+                        local tf,n={},0
+                        for _,t in ipairs(terms(fields(item))) do tf[t]=(tf[t] or 0)+1; n=n+1 end
+                        for t in pairs(tf) do df[t]=(df[t] or 0)+1 end
+                        docs[#docs+1]={server=server,item=item,kind=kind,tf=tf,n=n}
+                    end
+                end
+            end
+        end
+    end
+    local total=0; for _,d in ipairs(docs) do total=total+d.n end
+    local avg=math.max(1,total/math.max(1,#docs)); local q=terms(query)
+    local ranked={}
+    for _,d in ipairs(docs) do
+        local score=0
+        for _,t in ipairs(q) do
+            local f=d.tf[t] or 0
+            if f>0 then score=score+math.log(1+(#docs-(df[t] or 0)+0.5)/((df[t] or 0)+0.5))*f*2.2/(f+1.2*(0.25+0.75*d.n/avg)) end
+        end
+        if #q==0 or score>0 then d.score=score; ranked[#ranked+1]=d end
+    end
+    table.sort(ranked,function(a,b)
+        if a.score~=b.score then return a.score>b.score end
+        return (a.server .. ':' .. a.kind .. ':' .. tostring(a.item.name or a.item.uri or a.item.uriTemplate)) <
+            (b.server .. ':' .. b.kind .. ':' .. tostring(b.item.name or b.item.uri or b.item.uriTemplate))
+    end)
+    local hits=json.array({})
+    for i=1,math.min(#ranked,opts.limit or 10) do
+        local d=ranked[i]; local v=d.item
+        hits[#hits+1]={server=d.server,kind=d.kind,name=v.name or v.uri or v.uriTemplate,
+            title=v.title or (type(v.annotations)=='table' and v.annotations.title),description=v.description,
+            inputSchema=v.inputSchema,uri=v.uri,uriTemplate=v.uriTemplate,mimeType=v.mimeType,score=d.score}
+    end
+    local out={hits=hits,total=#ranked}
+    if opts.server and states[opts.server] then
+        local meta=states[opts.server].metadata
+        if meta and type(meta.instructions)=='string' then out.instructions=require('panto_mcp.results').cap(meta.instructions,4096) end
+    end
+    return out
+end
+local function distance(a,b)
+    a=a:sub(1,256):lower(); b=b:sub(1,256):lower()
+    local prev={}; for j=0,#b do prev[j]=j end
+    for i=1,#a do
+        local row={[0]=i}
+        for j=1,#b do row[j]=math.min(row[j-1]+1,prev[j]+1,prev[j-1]+(a:byte(i)==b:byte(j) and 0 or 1)) end
+        prev=row
+    end
+    return prev[#b]
+end
+function M.closest(name,names)
+    local ranked={}
+    for _,n in ipairs(names) do ranked[#ranked+1]={name=n,d=distance(name,n)} end
+    table.sort(ranked,function(a,b) return a.d==b.d and a.name<b.name or a.d<b.d end)
+    local out={}; for i=1,math.min(3,#ranked) do out[#out+1]=ranked[i].name end
+    return table.concat(out,', ')
+end
+return M

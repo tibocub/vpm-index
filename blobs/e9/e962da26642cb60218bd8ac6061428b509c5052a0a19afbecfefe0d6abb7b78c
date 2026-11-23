@@ -1,0 +1,335 @@
+--[[-- High-level API for administrative tasks.
+
+Note: this is a top-level module and should not be imported by any other core
+API modules in `src` (but it can be imported by utilities in `src/util`).
+
+@module pocket_archive.admin
+]]
+
+local json = require "cjson"
+local lfs = require "lfs"
+local dir = require "pl.dir"
+local path = require "pl.path"
+local wait = require 'posix.sys.wait'.wait
+local fork = require "posix.unistd".fork
+local graph = require "volksdata.graph"
+local store = require "volksdata.store"
+local t2s = require('table_serializer')
+
+local pkar = require "pocket_archive"
+local logger = pkar.logger
+local config_parser = require "pocket_archive.config_parser"
+local fs = require "pocket_archive.fs"
+local model = require "pocket_archive.model"
+local pres = require "pocket_archive.presentation"
+local repo = require "pocket_archive.repo"
+local vocab = require "pocket_archive.vocab"
+
+local M = {}
+
+
+--[[-- Initialize the DRes store.
+
+Clear (if existing) and (re)create the DRes store, and populate it with
+baseline data (vocabularies, etc.).
+]]
+function M.init_store()
+    repo.init_store()
+    vocab.init()
+end
+
+
+--[[-- Reset the DRes store to defaults.
+
+Set the store location to the default one (in case it was changed by
+@{tmp_store} and, optionally, re-initializes it.
+
+@tparam bool init Whether to initialize the default store.
+
+@seeAlso init_store
+]]
+function M.reset_store(init)
+    repo.reset_store(init)
+    if init then vocab.init() end
+end
+
+
+--[[-- Switch to a temporary DRes store at a random path, and initialize it.
+
+The path is created if it does not exist.
+
+This is useful for test suites and other scenarios where stores are opened and
+closed repeatedly and quickly -- which LMDB does not like.
+
+@tparam string pfx Filesystem path prefix. A random location name will be
+    appended to this.
+--]]
+function M.tmp_store(pfx)
+    repo.tmp_store(pfx)
+    vocab.init()
+end
+
+
+--[[-- Initialize the application storage layers.
+
+This function must be called once for each application instance that is being
+run, before performing any meaningful operations on it. It can also be called
+to clear a previously used store. The data cannot be recovered.
+]]
+function M.init()
+    child_pid, err = fork()
+    -- Fork the process so that it can open the same MDB environment.
+    if child_pid == nil then error ("Fork failed.")
+    elseif child_pid == 0 then
+        M.reset_store(true)
+        fs.reset_ores()
+        pres.reset_site()
+        os.exit()
+    else
+        wait(child_pid)
+    end
+end
+
+
+--[[-- Copy a stored file and verify its integrity against the DRes database.
+
+This function is only meant to be used for files tracked by the repository.
+Deleted files and arbitrary file paths are not supported.
+
+The function will raise an error in all failure scenarios.
+
+@tparam volksdata.Term s Subject term of the file resource.
+@tparam string dest Destination file or directory.
+@tparam[opt=true] force Overwrite existing file.
+
+@treturn string File format (MIME) extracted from the magic number.
+@treturn int File size in bytes.
+@treturn string Hex-encoded checksum prefixed with `blake2:`)
+]]
+function M.safe_copy(s, dest_dir, force)
+    logger:debug("Copying file with ID: " .. model.uri_to_id(s.data))
+    local archive_path = (repo.get_single_v(s, "archive_path") or {}).data
+    if not archive_path then error ("No archival path for " .. s.data) end
+
+    local src = path.join(pkar.config.fs.ores_path, archive_path)
+    local orig_checksum = repo.get_single_v(s, "checksum")
+    local dest = path.join(dest_dir, archive_path)
+
+    local mimetype, fsize, checksum = fs.copy_w_metadata(src, dest, force)
+    if not fsize then error("File copy failed.") end
+    logger:debug(("Copied %s to %s: %d bytes"):format(src, dest, fsize))
+
+    assert(
+            checksum == orig_checksum.data,
+            "Checksum failed for file: " .. src)
+
+    return mimetype, fsize, checksum
+end
+
+
+--[[-- Create a backup of all the files in the archive.
+
+@tparam string dest_dir The destination directory to create the backup
+  in. The actual backup is in a timestamp-named sub-directory of the provided
+  path. The function will automatically create it along with any missing
+  parents.
+]]
+function M.backup(dest_dir)
+    local dest_path = path.join(
+            dest_dir, "pkar_backup_" .. os.date("%F_%H-%M-%S"))
+    assert(
+            not path.exists(dest_path),
+            "The destination exists already: " .. dest_path)
+    assert(dir.makepath(dest_path), "Destination path creation failed.")
+
+    local report = {
+        root = dest_path,
+        ores = {
+            src = path.abspath(pkar.config.fs.ores_path),
+            dest = path.join(dest_path, "data", "ores"),
+            file_ct = 0,
+            byte_ct = 0,
+        },
+        dres = {
+            src = path.abspath(pkar.config.fs.dres_path),
+            dest = path.join(dest_path, "data", "dres"),
+            byte_ct = 0,
+        },
+        config = {
+            src = path.abspath(pkar.config_path),
+            dest = path.join(dest_path, "config")
+        },
+        selfstart_config = path.join(dest_path, "selfstart_config"),
+        manifest = path.join(dest_path, "pkar_restore.json"),
+    }
+
+    -- Data backup.
+    -- Only copy files in DB (skip deleted files).
+    local files_ts = repo.list_resources("file")
+    if not files_ts then
+        logger:warn("No files in this repository!")
+        goto skip_data
+    end
+    logger:info(("Found %d files to copy in database."):format(#files_ts))
+    dir.makepath(report.ores.dest)
+    for file_s in files_ts:iter() do
+        local _, fsize = M.safe_copy(file_s, report.ores.dest)
+        report.ores.file_ct = report.ores.file_ct + 1
+        report.ores.byte_ct = report.ores.byte_ct + fsize
+    end
+    ::skip_data::
+
+    -- Metadata backup.
+    dir.makepath(report.dres.dest)
+    fs.clonetree(
+        pkar.config.fs.dres_path, report.dres.dest,
+        function(src, dest)
+            local _, fsize, checksum = fs.copy_w_metadata(src, dest, true, true)
+            report.dres.byte_ct = report.dres.byte_ct + fsize
+        end
+    )
+    logger:info("Database bytes written: " .. report.dres.byte_ct)
+
+    -- Configuration backup.
+    fs.clonetree(
+        pkar.config_path, report.config.dest, function(src, dest)
+            return fs.copy_w_metadata(src, dest, true, true)
+        end)
+
+    -- Templates backup.
+    local tpl_path = pkar.config.pres_gen.tpl_root
+    if tpl_path and path.isdir(tpl_path) then
+        report.templates = {
+            src = tpl_path,
+            dest = path.join(dest_path, "templates"),
+        }
+        fs.clonetree(
+            tpl_path, report.templates.dest, function(src, dest)
+                return fs.copy_w_metadata(src, dest, true, true)
+            end
+        )
+    end
+
+    -- Generate self-start config.
+    dir.makepath(report.selfstart_config)
+    local ss_config_path = path.join(report.selfstart_config, "app.lua")
+    -- Modify and serialize the current config.
+    local _, ss_config = config_parser.parse()
+    ss_config.root = report.root
+    ss_config.fs.ores_path = report.ores.dest
+    ss_config.fs.dres_path = report.dres.dest
+    if report.templates then
+        ss_config.pres_gen.tpl_root = report.templates.dest
+    end
+    local ser_conf = t2s(ss_config, { style = 'readable_long' })
+    local fh = assert(io.open(ss_config_path, "w"))
+    fh:write(ser_conf)
+    fh:close()
+
+    -- Create symlinks for other directories and files in the config
+    for _, f in ipairs(dir.getdirectories(report.config.dest)) do
+        lfs.link(
+            f, path.join(report.selfstart_config, path.basename(f)), true
+        )
+    end
+
+    -- Write report in backup folder.
+    fh = assert(io.open(report.manifest, "w"))
+    -- Write backup manifest used by the restore process.
+    -- Paths are reversed in the inverse operation.
+    -- (That sounds like a line from Syd Barrett)
+    local manifest = {
+        ores = {
+            src = report.ores.dest,
+            dest = report.ores.src,
+        },
+        dres = {
+            src = report.dres.dest,
+            dest = report.dres.src,
+        },
+        config = {
+            src = report.config.dest,
+            dest = report.config.src,
+        },
+        templates = report.templates and {
+            src = report.templates.dest,
+            dest = report.templates.src,
+        },
+    }
+    fh:write(json.encode(manifest))
+    fh:close()
+
+    return report
+end
+
+
+--[[- Restore a complete repository from a backup.
+
+The sources and destinations of the repository components are indicated in the
+manifest file passed as an argument.
+
+Note: this wipes the repository completely. The CLI command wrapping this
+function requires a prompt confirmation.
+
+@tparam str manifest_path Manifest file path.
+]]
+function M.restore(manifest_path)
+    local fh = assert(io.open(manifest_path))
+    local manifest = json.decode(fh:read("a"))
+    fh:close()
+
+    -- ORes --
+    assert(dir.rmtree(manifest.ores.dest))
+    assert(dir.makepath(manifest.ores.dest))
+    -- Checksums will be verified later from the database.
+    fs.clonetree(manifest.ores.src, manifest.ores.dest, fs.copy_w_metadata)
+
+    -- DRes --
+    assert(dir.rmtree(manifest.dres.dest))
+    assert(dir.makepath(manifest.dres.dest))
+    fs.clonetree(manifest.dres.src, manifest.dres.dest, function(src, dest)
+        fs.copy_w_metadata(src, dest, true, true)
+    end)
+
+    -- Config --
+    assert(dir.rmtree(manifest.config.dest))
+    assert(dir.makepath(manifest.config.dest))
+    fs.clonetree(manifest.config.src, manifest.config.dest, function(src, dest)
+        fs.copy_w_metadata(src, dest, true, true)
+    end)
+
+    -- Templates --
+    assert(dir.rmtree(manifest.templates.dest))
+    assert(dir.makepath(manifest.templates.dest))
+    fs.clonetree(manifest.templates.src, manifest.templates.dest, function(src, dest)
+        fs.copy_w_metadata(src, dest, true, true)
+    end)
+
+    M.fixity_check()
+
+    logger:info(
+            ("Archive configured at %s has been restored.")
+            :format(manifest_path))
+end
+
+
+--- Perform a fixity check on the whole archive or on a single file.
+function M.fixity_check(id)
+    -- TODO WIP
+end
+
+
+--- Replace the whole database from an RDF file.
+--- TODO WIP
+function M.import(fh)
+    M.init()
+
+    M.store:decode(fh)
+    logger:info(("New archive created at %s with %d triples."):format(
+            pkar.config.fs.dres_path, #M.store))
+
+    return #gr
+end
+--]]
+
+return M

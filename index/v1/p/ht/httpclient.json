@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "httpclient",
+  "versions": {
+    "0.1.0-8": {
+      "bin": [],
+      "blocked_by": {
+        "name": "luasocket",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "luasocket ~> 3.0rc1-2",
+        "inspect ~> 3.0-1"
+      ],
+      "files": {
+        "httpclient.lua": {
+          "sha256": "c6ad517edc64c50bac48f1362466643bcbcb589f421ad87471b39949e829f45c",
+          "size": 3003,
+          "url": "https://raw.githubusercontent.com/lusis/lua-httpclient/de03a3881b56043d1ac52325ff117b30a6437eb2/src/httpclient.lua"
+        },
+        "httpclient/luasocket_driver.lua": {
+          "sha256": "29c40d0ac20de7fb5d3467f6ab1bd10adda0921d3a2a395380e166983ca4d5e3",
+          "size": 4145,
+          "url": "https://raw.githubusercontent.com/lusis/lua-httpclient/de03a3881b56043d1ac52325ff117b30a6437eb2/src/httpclient/luasocket_driver.lua"
+        },
+        "httpclient/neturl.lua": {
+          "sha256": "f8d07c8d377338d1505666663538eb1fac28bbbae01e00c236277e11f584599d",
+          "size": 10762,
+          "url": "https://raw.githubusercontent.com/lusis/lua-httpclient/de03a3881b56043d1ac52325ff117b30a6437eb2/src/httpclient/neturl.lua"
+        },
+        "httpclient/ngx_driver.lua": {
+          "sha256": "30770aa3de3fd439b61d9c765e03f97a2d6d017aaf80430bdd8f2ccfc35c385c",
+          "size": 3805,
+          "url": "https://raw.githubusercontent.com/lusis/lua-httpclient/de03a3881b56043d1ac52325ff117b30a6437eb2/src/httpclient/ngx_driver.lua"
+        },
+        "httpclient/utils.lua": {
+          "sha256": "71b3edbcad68628ba3fc3822d7a97291c24c53fd02b2cbc14310d0dce51c69da",
+          "size": 475,
+          "url": "https://raw.githubusercontent.com/lusis/lua-httpclient/de03a3881b56043d1ac52325ff117b30a6437eb2/src/httpclient/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/lusis/lua-httpclient",
+      "license": "Apache",
+      "luarocks": {
+        "date": "Mon, 31 Oct 2016 17:13:03 GMT",
+        "rockspec": {
+          "date": "Mon, 31 Oct 2016 17:13:03 GMT",
+          "sha256": "1024be2baecfe0b072496d651fda857b971461f66bacc19b1532cbd2351858cb",
+          "size": 792
+        },
+        "src": {
+          "date": "Mon, 31 Oct 2016 17:13:04 GMT",
+          "sha256": "1dd7440da58f3a25f9195482798224d54e579f06c39328e689154bf06d909c7a",
+          "size": 27151,
+          "url": "https://luarocks.org/httpclient-0.1.0-8.src.rock"
+        }
+      },
+      "modules": [
+        "httpclient",
+        "httpclient.luasocket_driver",
+        "httpclient.neturl",
+        "httpclient.ngx_driver",
+        "httpclient.utils"
+      ],
+      "origin": {
+        "commit": "de03a3881b56043d1ac52325ff117b30a6437eb2",
+        "ref": "0.1.0-8",
+        "type": "git",
+        "url": "https://github.com/lusis/lua-httpclient"
+      },
+      "size": 22190,
+      "summary": "Unified http client wrapper",
+      "undeclared_requires": [
+        "ltn12",
+        "socket.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

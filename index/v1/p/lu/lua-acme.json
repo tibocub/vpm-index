@@ -1,0 +1,98 @@
+{
+  "kind": "app",
+  "name": "lua-acme",
+  "versions": {
+    "0.6-2": {
+      "bin": {
+        "luacme": "bin/luacme"
+      },
+      "deps": [
+        "lua-jwc == 0.2",
+        "luasocket",
+        "luaossl",
+        "lua-cjson"
+      ],
+      "files": {
+        "acme/account.lua": {
+          "sha256": "2893a5018996021966f8cb8490c3be5dbb7606f1c96a2504b59cab35cc089dd3",
+          "size": 3164,
+          "url": "blob:2893a5018996021966f8cb8490c3be5dbb7606f1c96a2504b59cab35cc089dd3"
+        },
+        "acme/challenge/dns-01.lua": {
+          "sha256": "9af9a2b36691e3bcd2a8237a709a7438bd5d98b70cbf08912e67731c5324455c",
+          "size": 1017,
+          "url": "blob:9af9a2b36691e3bcd2a8237a709a7438bd5d98b70cbf08912e67731c5324455c"
+        },
+        "acme/challenge/http-01.lua": {
+          "sha256": "5de14211f42d908dd8945da44144aa211bf03adbca11f0e67cc8c64630194099",
+          "size": 590,
+          "url": "blob:5de14211f42d908dd8945da44144aa211bf03adbca11f0e67cc8c64630194099"
+        },
+        "acme/datautil.lua": {
+          "sha256": "460132ac7a4edb36b268d2cf3fd1d514ea8fd41ec3a8cf1028fbfa5c417eae6e",
+          "size": 1176,
+          "url": "blob:460132ac7a4edb36b268d2cf3fd1d514ea8fd41ec3a8cf1028fbfa5c417eae6e"
+        },
+        "acme/error.lua": {
+          "sha256": "bf8ac386969d748578ed1a5b8bbb69ec5c20cbcdf1a988ffe5ade27233854c2f",
+          "size": 492,
+          "url": "blob:bf8ac386969d748578ed1a5b8bbb69ec5c20cbcdf1a988ffe5ade27233854c2f"
+        },
+        "bin/luacme": {
+          "sha256": "c905febd3fea2b88e52ec93fdb230c75dfcae005ac040e99c21ff69e15ac36a9",
+          "size": 7803,
+          "url": "blob:c905febd3fea2b88e52ec93fdb230c75dfcae005ac040e99c21ff69e15ac36a9"
+        }
+      },
+      "homepage": "http://code.zash.se/lua-acme",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 14 Apr 2016 09:04:39 GMT",
+        "rockspec": {
+          "date": "Thu, 14 Apr 2016 09:04:39 GMT",
+          "sha256": "213f3038b4d8305cd3ba5b3f1637c46f3e378ea080faff4a3cf13ab74c25f585",
+          "size": 571
+        },
+        "src": {
+          "date": "Thu, 14 Apr 2016 09:04:40 GMT",
+          "sha256": "3fcf34a86d07a023bd48215bf4572d3e36c48308f904db37d66a5d2256714aea",
+          "size": 9393,
+          "url": "https://luarocks.org/lua-acme-0.6-2.src.rock"
+        }
+      },
+      "modules": [
+        "acme.account",
+        "acme.challenge.dns-01",
+        "acme.challenge.http-01",
+        "acme.datautil",
+        "acme.error"
+      ],
+      "origin": {
+        "date": "Thu, 14 Apr 2016 09:04:40 GMT",
+        "sha256": "3fcf34a86d07a023bd48215bf4572d3e36c48308f904db37d66a5d2256714aea",
+        "size": 9393,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-acme-0.6-2.src.rock"
+      },
+      "size": 14242,
+      "undeclared_requires": [
+        "b64url",
+        "jwk",
+        "jws",
+        "luarocks.loader",
+        "socket",
+        "socket.http",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

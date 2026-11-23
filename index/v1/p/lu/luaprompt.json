@@ -1,0 +1,116 @@
+{
+  "kind": "app",
+  "name": "luaprompt",
+  "versions": {
+    "0.10-1": {
+      "bin": {
+        "luap": "bin/luap"
+      },
+      "deps": [
+        "argparse"
+      ],
+      "files": {
+        "bin/luap": {
+          "sha256": "2330ddf94ee714dd7989f4d2918193d63a3dba7cc2e70f220464da638d0029a4",
+          "size": 5671,
+          "url": "blob:2330ddf94ee714dd7989f4d2918193d63a3dba7cc2e70f220464da638d0029a4"
+        }
+      },
+      "homepage": "https://github.com/dpapavas/luaprompt",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 03 Aug 2026 10:32:09 GMT",
+        "rockspec": {
+          "date": "Mon, 03 Aug 2026 10:32:09 GMT",
+          "sha256": "dd96d061851766626c8f885dc7b9cbd983972fe64bea0d38e7f1679d942702d1",
+          "size": 3059
+        },
+        "src": {
+          "date": "Mon, 03 Aug 2026 10:32:11 GMT",
+          "sha256": "47401fbdc47fbc90d0c4614fd50dc54de0cff3ad6f747849fc5ba3db934f123b",
+          "size": 32299,
+          "url": "https://luarocks.org/luaprompt-0.10-1.src.rock"
+        }
+      },
+      "modules": [
+        "prompt"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "HISTORY",
+          "READLINE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "HISTORY": {
+              "header": "readline/history.h",
+              "library": "history"
+            },
+            "READLINE": {
+              "header": "readline/readline.h",
+              "library": "readline"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "_GNU_SOURCE",
+                "HAVE_LIBREADLINE",
+                "HAVE_READLINE_HISTORY",
+                "HAVE_IOCTL",
+                "COMPLETE_KEYWORDS",
+                "COMPLETE_TABLE_KEYS",
+                "COMPLETE_METATABLE_KEYS",
+                "COMPLETE_FILE_NAMES",
+                "COMPLETE_MODULES",
+                "SAVE_RESULTS",
+                "RESULTS_TABLE_NAME=\"_\""
+              ],
+              "incdirs": [
+                "$(READLINE_INCDIR)",
+                "$(HISTORY_INCDIR)"
+              ],
+              "libdirs": [
+                "$(READLINE_LIBDIR)",
+                "$(HISTORY_LIBDIR)"
+              ],
+              "libraries": [
+                "readline",
+                "history"
+              ],
+              "name": "prompt",
+              "sources": [
+                "prompt.c",
+                "module.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 03 Aug 2026 10:32:11 GMT",
+        "sha256": "47401fbdc47fbc90d0c4614fd50dc54de0cff3ad6f747849fc5ba3db934f123b",
+        "size": 32299,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaprompt-0.10-1.src.rock"
+      },
+      "size": 5671,
+      "summary": "A Lua command prompt with pretty-printing and auto-completion",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+return {
+  name = "traceable",
+  fields = {
+    {
+      config = {
+        type = "record",
+        fields = {
+          { ext_cap_endpoint = {
+            type = "string",
+            required = true,
+            match = "^https?://[^/]+$",
+            err = "ext_cap_endpoint must start with http:// or https:// and must not end with a /",
+          }
+          },
+          {
+            allow_on_failure = {
+              type = "boolean",
+              required = true,
+              default = true,
+            }
+          },
+          { service_name = {
+            type = "string",
+            required = false,
+            default = "kong",
+          }
+          },
+          {
+            use_kong_service_naming = {
+              type = "boolean",
+              required = false,
+              default = false,
+            }
+          },
+          {
+            service_name_prefix = {
+              type = "string",
+              required = false,
+            }
+          },
+          { environment_name = {
+            type = "string",
+            required = false,
+          }
+          },
+          { timeout = {
+            type = "number",
+            required = false,
+            default = 500,
+          }
+          },
+          { payload_record_time_ms = {
+            type = "number",
+            required = false,
+            default = 60000,
+          }
+          },
+          { buffer_request_body = {
+            type = "boolean",
+            required = true,
+            default = true,
+          }
+          },
+          { mode = {
+            type = "string",
+            required = true,
+            default = "sync",
+            one_of = { "sync", "async" },
+          }
+          },
+          { max_body_size_bytes = {
+            type = "number",
+            required = false,
+            default = 131072,
+          }
+          },
+          { sse_max_size_bytes = {
+            type = "number",
+            required = false,
+            default = 0,
+          }
+          },
+          { token = {
+            type = "string",
+            required = false,
+            referenceable = true,
+          }
+          },
+        }
+      },
+    },
+  },
+}

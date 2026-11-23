@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-oidc-acl",
+  "versions": {
+    "1.0-5": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/oidc-acl/handler.lua": {
+          "sha256": "2f70fdb8bd36b3719bd9a8cd9feb90569269952405a034c58f13d37422bb861b",
+          "size": 1322,
+          "url": "https://raw.githubusercontent.com/pravin-raha/kong-plugin-oidc-acl/115a8681b6b1b73ad1a9c8e6b54a46bbdfed1f82/handler.lua"
+        },
+        "kong/plugins/oidc-acl/schema.lua": {
+          "sha256": "432fbf383a0cac0d020032d8c2cebb6ede02eb06d943a13ed531139c7462fa72",
+          "size": 837,
+          "url": "https://raw.githubusercontent.com/pravin-raha/kong-plugin-oidc-acl/115a8681b6b1b73ad1a9c8e6b54a46bbdfed1f82/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Sun, 07 Apr 2024 14:39:52 GMT",
+        "rockspec": {
+          "date": "Sun, 07 Apr 2024 14:39:52 GMT",
+          "sha256": "c4ef6152c797aa86fef594c49f893f53d567659baf8c9cc0107b602fb4811d16",
+          "size": 455
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc-acl.handler",
+        "kong.plugins.oidc-acl.schema"
+      ],
+      "origin": {
+        "commit": "115a8681b6b1b73ad1a9c8e6b54a46bbdfed1f82",
+        "ref": "v1.0-5",
+        "type": "git",
+        "url": "https://github.com/pravin-raha/kong-plugin-oidc-acl"
+      },
+      "size": 2159,
+      "summary": "A Kong ACL plugin for oidc plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

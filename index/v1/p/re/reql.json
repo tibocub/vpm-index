@@ -1,0 +1,210 @@
+{
+  "kind": "lib",
+  "name": "reql",
+  "versions": {
+    "1.0.4-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "luasocket",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "luacrypto ~> 0.3",
+        "luajson ~> 1.3",
+        "luasec ~> 0.6",
+        "luasocket ~> 3.0",
+        "semver ~> 1.2"
+      ],
+      "files": {
+        "reql.lua": {
+          "sha256": "59ab319556cc79843be8acf3275055b992f63cf4824f6adbd76a229f10af739d",
+          "size": 1739,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb.lua"
+        },
+        "reql/connection.lua": {
+          "sha256": "ac94e4cd3995a0708bd440372d25b526e8a91540f80ab45e21ccf0a69e1957bf",
+          "size": 1160,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/connection.lua"
+        },
+        "reql/connection_instance.lua": {
+          "sha256": "52ba4b5c33796b17cae61fbc8f6afff0aa0fe1ee0436627c1bcd743304e40686",
+          "size": 8110,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/connection_instance.lua"
+        },
+        "reql/connector.lua": {
+          "sha256": "24778f26bfe12c6fdc5accacdebe5a6e64d088fbaa3339cb929a1c391cadacce",
+          "size": 2493,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/connector.lua"
+        },
+        "reql/cursor.lua": {
+          "sha256": "22d748decf6493a81d864dac535cb2b8870c2a2f8b0856d5e38304ec334810e7",
+          "size": 6322,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/cursor.lua"
+        },
+        "reql/depreciate.lua": {
+          "sha256": "4364f85673e3237aa811007158acf59f2516158a8e1bfa26c4df2bb3ef5b117d",
+          "size": 2199,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/depreciate.lua"
+        },
+        "reql/errors.lua": {
+          "sha256": "543183309f9096b69ba24c2746550692bc75fcc3a3676fb855b1eae4667478b3",
+          "size": 2576,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/errors.lua"
+        },
+        "reql/internal/bits51.lua": {
+          "sha256": "55273f71239b73e5e584eec3e93e80cef6860a9ad58a788826c1ddd35c621fdc",
+          "size": 915,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/bits51.lua"
+        },
+        "reql/internal/bits53.lua": {
+          "sha256": "4403b46659c94037ddb7779068afba089d4e4f659031b9f18810afaa9ae9c68d",
+          "size": 556,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/bits53.lua"
+        },
+        "reql/internal/bytes_to_int.lua": {
+          "sha256": "838336d69c5e485a5a3735ca68bd1252b223b6c04d5daeaa481238117dde7a1e",
+          "size": 824,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/bytes_to_int.lua"
+        },
+        "reql/internal/convert_pseudotype.lua": {
+          "sha256": "8c1a78cd69eedbcc6342acc0d8348adfb36e0cc0b3b5e1b2d4eb7680fdcf9336",
+          "size": 3472,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/convert_pseudotype.lua"
+        },
+        "reql/internal/current_handshake.lua": {
+          "sha256": "3d0ec20c2d8e361d2d54119922e70995975efecbc51052fcd5e7895a17aa5413",
+          "size": 7873,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/current_handshake.lua"
+        },
+        "reql/internal/int_to_bytes.lua": {
+          "sha256": "332f59a69d756e79ade1a8e41703c10b9d44eb5279b510b369cd1bc42ae135b4",
+          "size": 1148,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/int_to_bytes.lua"
+        },
+        "reql/internal/pbkdf.lua": {
+          "sha256": "8e862c71e623b0080711e14ef0b6d8d7f1e08301be6beb5a33466327aa36cdc6",
+          "size": 2383,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/pbkdf.lua"
+        },
+        "reql/internal/protect.lua": {
+          "sha256": "c9adce6d70534e42e0eb510b28f32292a6a60e4bb30e21059e0847612c0a308d",
+          "size": 420,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/protect.lua"
+        },
+        "reql/internal/protocol.lua": {
+          "sha256": "0e9512aa1e82a243afcead99286edf57127d297885f5576fb2957ab0556881ed",
+          "size": 4397,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/protocol.lua"
+        },
+        "reql/internal/protodef.lua": {
+          "sha256": "66bcbeb4123b4085ade72f7bf1d9e1369fee055ae3663425ae40aeabfd71615c",
+          "size": 4157,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/protodef.lua"
+        },
+        "reql/internal/socket.lua": {
+          "sha256": "d1bfd70ab705058b52eab5d3779291249b3e6d9fc0e0549ffcb688e6b26a2ab8",
+          "size": 1829,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/socket.lua"
+        },
+        "reql/internal/utilities.lua": {
+          "sha256": "f0d0e3e2ecec1c1fdf8d8ef890bb8cd782b7568fd916f909cf317255355d17c1",
+          "size": 851,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/internal/utilities.lua"
+        },
+        "reql/reql.lua": {
+          "sha256": "1df649061401ef93d3a5b198a7857e5fb0cc716305e70da952bdb8279bacb8fd",
+          "size": 10019,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/reql.lua"
+        },
+        "reql/rtype.lua": {
+          "sha256": "d8420e0f64a32c69bfa13abce7feb003e4d6b19741b2cf913be6183eda5d8ac3",
+          "size": 1406,
+          "url": "https://raw.githubusercontent.com/RebirthDB/rebirthdb-lua/eca188dead23cec28652a6a1aed6df6735f3a849/src/rethinkdb/rtype.lua"
+        }
+      },
+      "homepage": "https://github.com/RebirthDB/rebirthdb-lua/wiki",
+      "license": "Apache",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Sun, 27 May 2018 01:14:21 GMT",
+        "rockspec": {
+          "date": "Sun, 27 May 2018 01:14:21 GMT",
+          "sha256": "dadf5f9f4e7d891cfc4144bb467656bc3c1600ba9f48ffc5586d2055837a922c",
+          "size": 2549
+        },
+        "src": {
+          "date": "Sun, 27 May 2018 01:14:22 GMT",
+          "sha256": "5395babb6b786bdda8a5087ad511e4a798a9e6c4631448ebf003f287a7672760",
+          "size": 48041,
+          "url": "https://luarocks.org/reql-1.0.4-0.src.rock"
+        }
+      },
+      "modules": [
+        "reql",
+        "reql.connection",
+        "reql.connection_instance",
+        "reql.connector",
+        "reql.cursor",
+        "reql.depreciate",
+        "reql.errors",
+        "reql.internal.bits51",
+        "reql.internal.bits53",
+        "reql.internal.bytes_to_int",
+        "reql.internal.convert_pseudotype",
+        "reql.internal.current_handshake",
+        "reql.internal.int_to_bytes",
+        "reql.internal.pbkdf",
+        "reql.internal.protect",
+        "reql.internal.protocol",
+        "reql.internal.protodef",
+        "reql.internal.socket",
+        "reql.internal.utilities",
+        "reql.reql",
+        "reql.rtype"
+      ],
+      "origin": {
+        "commit": "eca188dead23cec28652a6a1aed6df6735f3a849",
+        "ref": "v1.0.4",
+        "type": "git",
+        "url": "https://github.com/RebirthDB/rebirthdb-lua"
+      },
+      "size": 64849,
+      "summary": "A Lua driver for RebirthDB.",
+      "undeclared_requires": [
+        "ltn12",
+        "mime",
+        "rethinkdb.connection",
+        "rethinkdb.connection_instance",
+        "rethinkdb.connector",
+        "rethinkdb.cursor",
+        "rethinkdb.depreciate",
+        "rethinkdb.errors",
+        "rethinkdb.internal.bits53",
+        "rethinkdb.internal.bytes_to_int",
+        "rethinkdb.internal.convert_pseudotype",
+        "rethinkdb.internal.current_handshake",
+        "rethinkdb.internal.int_to_bytes",
+        "rethinkdb.internal.pbkdf",
+        "rethinkdb.internal.protect",
+        "rethinkdb.internal.protocol",
+        "rethinkdb.internal.protodef",
+        "rethinkdb.internal.socket",
+        "rethinkdb.internal.utilities",
+        "rethinkdb.reql",
+        "rethinkdb.rtype",
+        "semver",
+        "socket",
+        "ssl"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

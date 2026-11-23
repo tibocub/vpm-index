@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-kubernetes-sidecar-injector",
+  "versions": {
+    "0.2.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kubernetes-sidecar-injector/api.lua": {
+          "sha256": "8abc61a73bcc3b644b69240080cf8b00212e62f3725266aa0ceebb5c8f30dc2d",
+          "size": 10186,
+          "url": "https://raw.githubusercontent.com/kong/kubernetes-sidecar-injector/v0.2.1/kong/plugins/kubernetes-sidecar-injector/api.lua"
+        },
+        "kong/plugins/kubernetes-sidecar-injector/config.lua": {
+          "sha256": "b6eee8bf6893f35bdde87528e32dd8193a4f0197cd95a17e68c334071a9a3e9f",
+          "size": 1588,
+          "url": "https://raw.githubusercontent.com/kong/kubernetes-sidecar-injector/v0.2.1/kong/plugins/kubernetes-sidecar-injector/config.lua"
+        },
+        "kong/plugins/kubernetes-sidecar-injector/handler.lua": {
+          "sha256": "12a43d1e906ec53aa2723bce25878d5fc984ee8f292f914a1f8afb5583ea20f6",
+          "size": 156,
+          "url": "https://raw.githubusercontent.com/kong/kubernetes-sidecar-injector/v0.2.1/kong/plugins/kubernetes-sidecar-injector/handler.lua"
+        },
+        "kong/plugins/kubernetes-sidecar-injector/schema.lua": {
+          "sha256": "0e048d013c4cd70ce56f56aea1953f3df8e65ba422b2c049eb016540224816f0",
+          "size": 1298,
+          "url": "https://raw.githubusercontent.com/kong/kubernetes-sidecar-injector/v0.2.1/kong/plugins/kubernetes-sidecar-injector/schema.lua"
+        },
+        "kong/plugins/kubernetes-sidecar-injector/typedefs.lua": {
+          "sha256": "8b0e153269c1ea7ba66ddc0da11ce9d9f114e213219de01ec6f257c27de73deb",
+          "size": 7143,
+          "url": "https://raw.githubusercontent.com/kong/kubernetes-sidecar-injector/v0.2.1/kong/plugins/kubernetes-sidecar-injector/typedefs.lua"
+        }
+      },
+      "homepage": "https://github.com/kong/kubernetes-sidecar-injector",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 25 Jun 2019 19:34:40 GMT",
+        "rockspec": {
+          "date": "Tue, 25 Jun 2019 19:34:40 GMT",
+          "sha256": "bb94029e72a0d7b419ed51f9f7592380aee1b2141bdaf69caf63ec2d2e31b61e",
+          "size": 1106
+        },
+        "src": {
+          "date": "Tue, 25 Jun 2019 19:34:41 GMT",
+          "sha256": "4963e6a91cb43c36c3298200a11cf137807b5d50cf071dd2730cb4c1248503c2",
+          "size": 15476,
+          "url": "https://luarocks.org/kong-plugin-kubernetes-sidecar-injector-0.2.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kubernetes-sidecar-injector.api",
+        "kong.plugins.kubernetes-sidecar-injector.config",
+        "kong.plugins.kubernetes-sidecar-injector.handler",
+        "kong.plugins.kubernetes-sidecar-injector.schema",
+        "kong.plugins.kubernetes-sidecar-injector.typedefs"
+      ],
+      "origin": {
+        "sha256": "99a7b10bd78adcd94c60d1ebab53f9c755d0cfc02ae2825cde1928fc7cc9a094",
+        "type": "archive",
+        "url": "https://github.com/kong/kubernetes-sidecar-injector/archive/v0.2.1.zip"
+      },
+      "size": 20371,
+      "summary": "This plugin allows Kong to inject Kong sidecars into Kubernetes Pods",
+      "undeclared_requires": [
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.pdk"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

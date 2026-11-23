@@ -1,0 +1,35 @@
+--- Module for interacting with Azure Key Vault keys API.
+-- @module resty.azure.api.keys
+local keyvault = require "resty.azure.api.keyvault"
+
+local keys = {}
+keys.__index = keys
+setmetatable(keys, keyvault)
+
+--- Constructor function for keys object.
+-- @function new
+-- @param table parent_client Azure Key Vault client object.
+-- @param string vault_uri URI of the Azure Key Vault.
+-- @return A new keys object.
+function keys:new(parent_client, vault_uri)
+  local self = keyvault:new(parent_client, vault_uri)
+  setmetatable(self, keys)
+  return self
+end
+
+--- Creates a signature from a digest using the specified key.
+-- @function sign
+-- @tparam string key_name The name of the key.
+-- @tparam string key_version The API version.
+-- @tparam string alg The signing/verification algorithm identifier.
+-- @tparam string value The value to be signed. The value should be base64url encoded before passing to this function.
+-- @treturn table The response from the Azure Key Vault API.
+function keys:sign(key_name, key_version, alg, value, opts)
+    local resource_body = {
+        alg = alg,
+        value = value
+    }
+    return self:sign_resource(self.vault_types.KEYS, key_name, resource_body, key_version, opts)
+end
+
+return keys

@@ -1,0 +1,100 @@
+{
+  "kind": "lib",
+  "name": "gamecake-ogg",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/ogg.lua": {
+          "sha256": "f9106130d34922d6f35d6f4887af6eedd4545a165d77a75901e51e7701fb393a",
+          "size": 1210,
+          "url": "blob:f9106130d34922d6f35d6f4887af6eedd4545a165d77a75901e51e7701fb393a"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:25:40 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:25:40 GMT",
+          "sha256": "3f4a08896eafe72676933ef41fe05043b5d990080a3ca859ca4f27b4fd8e5c8c",
+          "size": 1225
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:25:41 GMT",
+          "sha256": "d34a9dbb0f2bdd03859b1a72e36c3a1c875566d6391717a10004d8de77abd81b",
+          "size": 18259,
+          "url": "https://luarocks.org/gamecake-ogg-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.ogg",
+        "wetgenes.ogg.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "OGG_LIB",
+          "VORBIS_LIB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "OGG_LIB": {
+              "header": "ogg/ogg.h"
+            },
+            "VORBIS_LIB": {
+              "header": "vorbis/codec.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "lua_ogg",
+                "lib_hacks/code",
+                "$(VORBIS_LIB_INCDIR)",
+                "$(OGG_LIB_INCDIR)"
+              ],
+              "libdirs": [
+                "$(VORBIS_LIB_LIBDIR)",
+                "$(OGG_LIB_LIBDIR)"
+              ],
+              "libraries": [
+                "vorbis",
+                "ogg"
+              ],
+              "name": "wetgenes.ogg.core",
+              "sources": [
+                "lua_ogg/code/lua_ogg.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:25:41 GMT",
+        "sha256": "d34a9dbb0f2bdd03859b1a72e36c3a1c875566d6391717a10004d8de77abd81b",
+        "size": 18259,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-ogg-0.9-261005.src.rock"
+      },
+      "size": 1210,
+      "summary": "read ogg vorbis audio files",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

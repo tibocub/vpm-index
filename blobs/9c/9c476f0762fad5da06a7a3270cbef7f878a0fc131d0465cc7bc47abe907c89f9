@@ -1,0 +1,1107 @@
+--[[--
+Submission module.
+
+This module takes care of the complete deposit process (except for the back
+end storage, which is called here but defined in the repo module).
+
+The deposit process is carried out in two major steps, controlled by the
+caller via separate methods:
+
+- Laundry list parsing and SIP generation (@{Submission:new}):
+    - Create a `Submission` object initialized with a laundry list path
+    - Scan the LL
+    - Validate the LL
+    - Create SIP data structure
+    - Generate unique IDs for resources
+    - Add user-provided metadata
+    - Infer member relationships from provided paths (@{infer_members})
+    - Generate tree structures where requested (@{generate_trees})
+    - For each resource (@{process_rsrc}):
+        - Generate technical metadata for file (@{process_file})
+        - Move file to a staging area (@{process_file})
+        - Create other implicit relationships
+    - Create a metadata graph ready for deposit
+    - Add system-controlled metadata
+- Deposit (@{Submission:deposit}):
+    - Scan through the generated metadata graph
+    - Identify files in the submission
+    - Calculate file checksums
+    - Move the files to temporary storage
+    - Add checksums to the metadata [TODO allow user-provided metadata and
+      validation]
+    - Within a single DB transaction:
+        - Push the RDF graph to permanent store (via functions in
+          the `repo` module), which includes content model validation
+        - Delete existing tree graphs related to the resources
+        - Push each of the newly generated tree graphs to permanent store
+    - If the previous step succeeds, related files are moved from the staging
+      area to the archival store
+    - If a cleanup was requested in this function call, the laundry
+      list and resource folder are deleted from their original location.
+
+The first step fails if the laundry list is incorrectly formatted. These checks
+include all general metadata rules not dependent on the content model. The
+second step fails if metadata validation does not pass the rules set for the
+content model. It will still complete if there are warnings but not errors.
+
+@module pocket_archive.submission
+--]]
+local csv = require "ftcsv"
+local dir = require "pl.dir"
+local file = require "pl.file"
+local json = require "cjson"
+local path = require "pl.path"
+local pp = require "pl.pretty"
+local term = require "volksdata.term"
+local triple = require "volksdata.triple"
+local graph = require "volksdata.graph"
+local nsm = require "volksdata.namespace"
+
+local pkar = require "pocket_archive"
+local flags = require "pocket_archive.flags"
+local fs = require "pocket_archive.fs"
+local model = require "pocket_archive.model"
+local repo = require "pocket_archive.repo"
+local Tree = require "pocket_archive.tree".Tree
+local validator = require "pocket_archive.validator"
+local vocab = require "pocket_archive.vocab"
+
+local NT = pkar.NT
+local logger = pkar.logger
+
+
+-- Keep the existing system properties for md-only updates on files.
+local sysprops = {
+    archive_path = true,
+    checksum = true,
+    mimetype = true,
+    size = true,
+}
+
+--
+-- Local functions.
+--
+
+local function gather_keys(tdata, sparse)
+    if sparse then
+        local out_fields = {}
+        local check_fields = {}
+        for i, row in ipairs(tdata) do
+            -- Gather all the populated keys.
+            for k in pairs(row) do check_fields[k] = true end
+        end
+        for _, k in ipairs(model.properties.order) do
+            if check_fields[k] then table.insert(out_fields, k) end
+        end
+
+        return out_fields
+    else
+        return model.properties.order
+    end
+end
+
+
+--[[--
+Split traceback lines by `\n` character.
+]]
+local function split_tb(src)
+    local fn_error
+    local tblist = {}
+    local i = 1
+    src:gsub("[^\n]+", function(line)
+        if i == 1 then fn_error = line
+        elseif i > 2 then table.insert(tblist, line) end
+        i = i + 1
+    end)
+
+    return fn_error, tblist
+end
+
+
+--[[--
+Infer resource memberships from user-provided paths.
+
+Members are added only to their immediate parents.
+This adds to any `member_of` attributes explicitly provided by the depositor.
+]]
+local function infer_members(sub)
+    for i, id in ipairs(sub.ord_ids) do
+        local rsrc = sub.sip[id]
+        local rpath = (rsrc.data.source_path or NT)[1]
+        sub.current_id = id
+        sub.current_path = rpath
+
+        -- Look for single-file containers.
+        local schema = model.schemata[rsrc.content_type]
+        if schema.types.container and path.isfile(
+            path.join(sub.root_path, rpath)
+        ) then
+            -- Create an implicit member from single-file container.
+            logger:debug(
+                rsrc.id .. " is an implicit file container. \z
+                Creating a separate file resource.")
+            -- Look for an already created ID for this file.
+            --require "debugger"()
+            local members = repo.get_members(rsrc.uri)
+            if #members > 1 then error(
+                ("Cannot create a single-file container for %s. The \z
+                container has already more than one member."):format(rpath)
+            ) end
+
+            local stored_file_uri = members:iter()()
+            local file_id =
+                    stored_file_uri and model.uri_to_id(stored_file_uri.data)
+                    or model.idgen()
+            sub.current_id = file_id
+            sub.ids[file_id] = true
+
+            -- Adjust parent resource metadata.
+            rsrc.data.pref_rep = { file_id }
+            -- The container source path becomes empty.
+            rsrc.data.source_path = nil
+            logger:debug(
+                ("Added implicit file %s with path %s to %s")
+                :format(file_id, rpath, rsrc.id)
+            )
+            -- Insert new file ID after the container among the ordered IDs.
+            table.insert(sub.ord_ids, i + 1, file_id)
+
+            -- Create the file resource and add it to the SIP.
+            local file_rsrc = {
+                id = file_id,
+                sub = sub,
+                content_type = schema.default_fmodel or "file",
+                -- Save original file path so that the deposit process can find
+                -- it without moving the original.
+                orig_path = rpath,
+                data = {
+                    member_of = { rsrc.id },
+                    sub_id = { sub.id },
+                    label = { path.basename(rpath) },
+                    source_path = { rpath },
+                },
+            }
+            sub.sip[file_id] = file_rsrc
+
+            -- Update path_to_id to use the file ID for the file path.
+            sub.path_to_id[file_rsrc.data.source_path[1]] = file_id
+        end
+
+        -- Assign parent.
+        local ppath = path.dirname(rpath)
+        if ppath == "" or sub.path_to_id[ppath] == nil then goto skip end
+        local parent = sub.sip[sub.path_to_id[ppath]]
+
+        logger:debug(("Adding member %s to %s"):format(rpath, ppath))
+        if rsrc.data.member_of then
+            table.insert(rsrc.data.member_of, parent.id)
+        else
+            rsrc.data.member_of = { parent.id }
+            -- First child row becomes preferred rep if not explicitly set.
+            if not parent.data.pref_rep then
+                parent.data.pref_rep = { rsrc.id }
+            end
+        end
+
+        if sub.members[parent.id] then sub.members[parent.id][rsrc.id] = true
+        else sub.members[parent.id] = { [rsrc.id] = true } end
+
+        ::skip::
+    end
+end
+
+
+--[[--
+Generate (named) graphs for all resource trees in a submission.
+
+This is only done from folder layout. Further versions may allow providing a
+structure JSON file or similar.
+]]
+function generate_trees(sub)
+    logger:info("Generating trees.")
+    sub.trees = {}  -- Tree graphs in the SIP, one per top-level path.
+    for src_path, rsrc_id in pairs(sub.path_to_id) do
+
+        -- has_tree is user-defined as a boolean to request tree generation.
+        if not sub.sip[rsrc_id].data.has_tree then
+            goto skip
+        end
+
+        local tree_id = model.idgen()
+        logger:debug("Parsing tree root: " .. src_path)
+        local t = Tree.new({
+            id = tree_id,
+            sub = sub,
+            path = src_path,
+            ref_id = rsrc_id,
+            shallow = (model.schemata[sub.sip[rsrc_id].content_type].flags or 0)
+                & flags.TYPE_SHALLOW_TREE ~= 0,
+        })
+        sub.trees[rsrc_id] = t
+        -- has_tree value is replaced with the actual tree URI.
+        sub.sip[rsrc_id].data.has_tree = { t.uri.data }
+
+        logger:info("Generated tree for resource " .. rsrc_id)
+        logger:debug(pp.write(t:structure()))
+
+        ::skip::
+    end
+end
+
+
+--[[--
+Process a file resource.
+
+During this step, the file is moved to a staging area, its checksum is
+calculated, and some more technical metadata are extracted and added to the
+file's D-Res.
+
+@tparam table rsrc Resource table to be updated.
+]]
+local function process_file(rsrc)
+    -- orig_path may have been set if the logical path was moved when creating
+    -- inferred resources.
+    local rel_src_path = rsrc.orig_path or rsrc.data.source_path[1]
+    local src_path = path.join(rsrc.sub.root_path, rel_src_path)
+    local tmp_dir = path.join(pkar.config.fs.ores_path, "tmp/")
+    local fext
+    _, fext = path.splitext(src_path)
+    local tmp_path = tmp_dir .. rsrc.id .. fext
+    dir.makepath(tmp_dir)
+
+    local mimetype, fsize, checksum = fs.copy_w_metadata(src_path, tmp_path)
+    local prov_checksum = (rsrc.data.checksum or NT)[1]
+    if prov_checksum and prov_checksum ~= checksum then error(
+        ("Checksum mismatch for file %s. Provided: %s ; computed: %s")
+        :format(rsrc.id, prov_checksum, checksum)
+    ) end
+
+    if not rsrc.data then rsrc.data = {} end
+    rsrc.data.mimetype = {mimetype}
+    rsrc.data.size = {fsize}
+    rsrc.data.checksum = {checksum}
+    -- Checksum without the algo: prefix
+    local checksum_hash = checksum:gsub("^.*:", "")
+
+    -- Copy file and calculate checksum.
+    local out_dir, out_path
+    out_dir = path.join(
+            pkar.config.fs.ores_path,
+            checksum_hash:sub(1, 2),
+            checksum_hash:sub(3, 4))
+    out_path = path.join(out_dir, checksum_hash:sub(1,32) .. fext)
+    dir.makepath(out_dir)
+    logger:debug(("Moving file %s to %s"):format(tmp_path, out_path))
+    dir.movefile(tmp_path, out_path)
+    rsrc.data.archive_path = {path.relpath(out_path, pkar.config.fs.ores_path)}
+
+    -- Copy thumbnail if existing.
+    if rsrc.thumbnail then
+        src_path = rsrc.thumbnail
+        out_path = path.join(
+                out_dir, path.basename(src_path))
+        logger:debug(("Moving file %s to %s"):format(src_path, out_path))
+        dir.movefile(src_path, out_path)
+        rsrc.thumbnail = {out_path}
+    end
+
+    return true
+end
+
+
+--[[--
+Convert a SIP resource table to an in-memory Volksdata graph.
+]]
+local function rsrc_to_graph(rsrc)
+    local schema = model.schemata[rsrc.content_type]
+    logger:vardump("Converting resource to graph: ", rsrc.data)
+    local s = model.id_to_uri(rsrc.id)
+
+    it = rsrc.sub.gr:add_init()
+    -- Add content type.
+    it:add_iter(triple.new(
+        s, model.uri_map.content_type, term.new_iriref_ns(schema.uri)
+    ))
+
+    -- Add triples from data section.
+    for pname, v in pairs(rsrc.data) do  -- BEGIN properties loop
+        local p = model.uri_map[pname]
+        local pconf = schema.properties[pname]
+        if not p or not pconf then
+            error(
+                    ("Property `%s` is not defined in the `%s` schema.")
+                    :format(pname, schema.id))
+        end
+
+        -- Protected properties.
+        if
+            pconf.flags & flags.PROP_NO_DELETE ~= 0
+            -- If it's a metadata-only update on a file, keep the checksum.
+            or pname == "checksum" and rsrc.mdonly
+        then
+            logger:debug("Preserving stored property: " .. pname)
+            for o in repo.gr:attr(s, p):iter() do
+                it:add_iter(triple.new(s, p, o))
+            end
+        end
+        logger:debug(("Creating triple: %s = %s"):format(pname, pp.write(v)))
+
+        -- Convert values to volksdata.Term objects.
+        local o
+        for i, vv in ipairs(v) do  -- BEGIN values loop.
+
+            -- URI types.
+            if pname == "sub_id" then
+                o = term.new_iriref_ns(vv)
+
+            elseif pconf.type == "resource" then
+                -- Attempt to make a URI from whatever is in the field, either
+                -- an ID or a path.
+                o = model.id_to_uri(vv)
+
+                -- If no ID is provided nor one is found in the archive,
+                -- it is assumed to be a local path. Convert it to URI.
+                if
+                    not rsrc.sub.ids[vv]
+                    and not repo.gr:contains(triple.new(
+                            o, pkar.RDF_TYPE, model.uri_map.resource))
+                then
+                    -- If the ID converted from the path is not found in the
+                    -- SIP, it's not valid.
+                    local id = rsrc.sub.path_to_id[vv]
+                    if not id then
+                        error(
+                        ("Not a valid path: %s for property: %s on res: %s")
+                        :format(vv, pname, rsrc.id))
+                    end
+                    o = model.id_to_uri(id)
+                    v[i] = id  -- TODO Is it necessary to update the value?
+                    logger:debug(
+                            "Converted path ".. vv .. " to URI: " .. o.data)
+                end
+
+            elseif pconf.type == "url" then
+                o = term.new_iriref(vv)
+
+            -- Controlled vocabulary term.
+            elseif pconf.type == "vocab" then
+                o = assert(vocab.get(pconf.range, vv))
+
+            -- Literal types.
+            else
+                local langtag_pos
+                if pconf.type == "string" then
+                    -- Check for language tag (@ within the last 8 characters).
+                    langtag_pos = vv:sub(-8):find("@[%a%d_]+$")
+                end
+                if langtag_pos then
+                    o = term.new_lit(
+                            vv:sub(1, -10 + langtag_pos), nil,
+                            vv:sub(-8 + langtag_pos))
+                else
+                    local datatype_str = model.DATATYPES[pconf.type]
+                    local datatype = datatype_str and
+                            term.new_iriref_ns(datatype_str)
+                    o = term.new_lit(vv, datatype)
+                end
+            end
+
+            -- Add triple.
+            it:add_iter(triple.new(s, p, o))
+        end  -- END values loop.
+    end  -- END properties loop
+
+    -- Add submission ID.
+    if rsrc.sub.uri then
+        it:add_iter(triple.new(s, model.uri_map.sub_id, rsrc.sub.uri))
+    end
+
+    -- Add resource lineage triples.
+    for i, m in ipairs(schema.lineage) do
+        it:add_iter(triple.new(
+            s, pkar.RDF_TYPE,
+            term.new_iriref_ns(model.schemata[m].uri)))
+    end
+    it:add_done()
+
+    return s
+end
+
+
+--[[-- Process a resource in the SIP.
+
+@tparam table rsrc Resource from the SIP parsed by #{parse_ll}.
+--]]
+local function process_rsrc(rsrc)
+    logger:info("Staging resource: " .. rsrc.id)
+    local schema = model.schemata[rsrc.content_type]
+    if not schema then
+        error(("No schema defined for content type %s of resource %s.")
+                :format(rsrc.content_type, rsrc.id))
+    end
+    local tstamp = os.time(os.date("!*t"))
+    if rsrc.is_update then
+        logger:debug(("Preserving sub timestamp for %s"):format(rsrc.id))
+    end
+    rsrc.data.submitted =
+            rsrc.is_update
+            and {repo.get_single_v(rsrc.uri, "submitted").data}
+            or {tstamp}
+    rsrc.data.last_modified = {tstamp}
+
+    local source_path = rsrc.orig_path or (rsrc.data.source_path or NT)[1]
+
+    -- BEGIN file check and processing.
+    if schema.types.file then
+        if source_path then
+            local abs_path = path.join(rsrc.sub.root_path, source_path)
+            rsrc.data.label =
+                    rsrc.data.label or {path.basename(source_path)}
+
+            -- If the source path is a regular file, process it.
+            if path.isfile(abs_path) then process_file(rsrc, abs_path)
+
+            elseif rsrc.is_update then
+                -- If the path is a non-existing path,
+                -- proceed to metadata-only update. The source path
+                -- will be updated and the new path will be used for rebuilding
+                -- the SIP.
+                if not path.exists(abs_path) then rsrc.mdonly = true
+
+                -- If the path is provided but is not a file, that's an error.
+                else error(
+                    ("File %s is already stored but the provided path %s \z
+                    is not a file. Refusing to update.")
+                    :format(rsrc.id, abs_path)
+                )
+                end
+            else
+                -- If it's a new submission but the path is not a valid file,
+                -- that's an error.
+                error(
+                    ("File type provided for %s but the source path %s \z
+                    is not a file."):format(rsrc.id, abs_path)
+                )
+            end
+
+        -- No path provided. It could be a metadata-only update.
+        else
+            -- If it's a file and no path is provided, look for it in the
+            -- repo. This will obviously fail if no ID was provided.
+            if rsrc.is_update then
+                -- File is in the repo. This is a metadata-only update.
+                logger:info("Metadata-only update on file: " .. rsrc.id)
+
+                rsrc.mdonly = true
+            else
+                -- No file found. That's an error.
+                error(
+                    "No source path was provided and no file with this ID \z
+                    was found in the archive: " .. rsrc.id)
+            end
+        end
+
+        -- Metadata-only update on a file.
+        if rsrc.mdonly then
+            local s = model.id_to_uri(rsrc.id)
+            for pname in pairs(sysprops) do
+                rsrc.data[pname] = {repo.get_single_v(s, pname).data}
+            end
+            -- Only replace source_path if not already set by this update.
+            rsrc.data.source_path = rsrc.data.source_path or {
+                    repo.get_single_v(s, "source_path").data}
+        end
+    -- DRes without a path are always OK.
+    elseif not source_path then goto skip_path end
+    -- END file check and processing.
+
+    ::skip_path::
+
+    return rsrc_to_graph(rsrc)
+end
+
+
+--[[--
+Parse laundry list and generate the basic SIP.
+
+@tparam Submission sub Submission object to populate.
+
+@return true on success; false, error report on failure.
+]]
+local function parse_ll(sub)
+    local tn_dir = path.join(sub.root_path, "proc", "tn")
+    dir.makepath(tn_dir)
+
+    -- Properties to skip when adding metadata.
+    local skip_props = {id = true, content_type = true}
+
+    -- Generate basic SIP data structure with user-provided data.
+    local i = 0
+    local rsrc_id
+    for row_n, row in csv.parseLine(sub.ll_path) do
+        local has_content
+        for k, v in pairs(row) do
+            -- Change "" to nil.
+            if v == "" then row[k] = nil
+            else has_content = true end
+        end
+        -- Skip empty lines.
+        if not has_content then goto skip end
+
+        logger:debug("Parsing row:", pp.write(row))
+        -- Each resource must have a content type and/or an ID defined on its
+        -- first row. If the content type is missing, it must be an update.
+        if row.content_type or row.id then
+            -- New row.
+            i = i + 1
+            logger:info(
+                    ("Processing LL resource #%d at row #%d.")
+                    :format(i, row_n))
+
+            -- Use provided ID or generate a random one.
+            rsrc_id = row.id or model.idgen()
+            sub.current_id = rsrc_id
+            local s = model.id_to_uri(rsrc_id)
+            -- Set the is_update flag if a resource with the given ID is
+            -- already stored.
+            local is_update = row.id and repo.gr:contains(triple.new(
+                s, pkar.RDF_TYPE, model.uri_map.resource
+            ))
+
+            if is_update then
+                local stored_ctype = model.from_uri(
+                    repo.get_single_v(s, "content_type") or NT).id
+
+                if row.content_type and stored_ctype ~= row.content_type then
+                    -- TODO this is more like a warning, pass in the report.
+                    error(
+                        ("Content type `%s` may not be changed after creation.")
+                        :format(stored_ctype))
+                else row.content_type = stored_ctype end
+
+            elseif not row.content_type then
+                error(("Resource with ID %s at row %d was not found in the \z
+                DB, therefore it is assumed to be a new resource. In that \z
+                case, a content type MUST be given."):format(row.id, row_n))
+            end
+
+            local schema = model.schemata[row.content_type]
+            if not schema then
+                error(("Content type %s is not defined in schema."):format(
+                        row.content_type))
+            end
+
+            local rsrc = {
+                id = rsrc_id,
+                uri = s,
+                sub = sub,
+                content_type = schema.id,
+                is_update = is_update,
+                data = {
+                    sub_id = {sub.id},
+                },
+            }
+            sub.ids[rsrc.id] = true  -- Add to common SIP ID set.
+
+            -- Path checks and normalization.
+            if row.source_path then
+                -- Remove trailing slash.
+                row.source_path = row.source_path:gsub("/+$", "")
+                -- Protect against `../` exploits.
+                local abs_path = path.abspath(row.source_path, sub.root_path)
+                if abs_path:sub(1, #sub.root_path) ~= sub.root_path then
+                    error("Path is outside the SIP root: " .. abs_path)
+                end
+                if row.source_path:sub(1, 1) == "/" then
+                    error("Path begins with a slash: " .. row.source_path)
+                end
+                -- Check for duplicate paths.
+                if sub.path_to_id[row.source_path] then
+                    error("Duplicate source path: " .. row.source_path)
+                end
+                -- Add to URI map for later referencing.
+                sub.path_to_id[row.source_path] = rsrc.id
+                table.insert(sub.ord_ids, rsrc.id)
+                table.insert(sub.alpha_ord_paths, row.source_path)
+            elseif row.has_tree then error(
+                "Resource " .. rsrc.id .. " is requesting a tree but does \z
+                not have source_path defined."
+            ) end
+
+            -- Populate metadata.
+            for k, v in pairs(row) do
+                -- skip empty strings and non-data properties.
+                if v and not skip_props[k] then
+                    pconf = schema.properties[k]
+                    if not pconf then
+                        error(("Property %s is not defined for content type \z
+                        %s on row %d"):format(k, rsrc.content_type, row_n), 2)
+                    end
+                    -- Treat checksum as a normal prop here because it's needed
+                    -- for validation in process_file. Either the value matches
+                    -- with the computed one, or an error will be raised, so
+                    -- there is no chance of mismatch.
+                    if k ~= "checksum" and pconf.flags & flags.PROP_PROTECTED ~= 0 then
+                        -- TODO report
+                        logger:warn(
+                            ("Property %s is protected. Skipping."):format(k)
+                        )
+                    elseif
+                            rsrc.is_update and
+                            pconf.flags & flags.PROP_NO_UPDATE ~=0 then
+                        -- TODO report
+                        logger:warn((
+                            "Property %s may not be changed after creation. \z
+                            Not updating."):format(k))
+                    else
+                        -- Multi-values are ordered in the SIP for further
+                        -- processing.
+                        rsrc.data[k] = {v}
+                    end
+                end
+            end
+
+            sub.sip[rsrc.id] = rsrc  -- index by resource ID.
+        else
+            -- Continuation of values from a previous row.
+            if i < 1 then
+                error("First row MUST have a content type or an ID.", 2)
+            elseif not sub.current_id then
+                error(("No path information at row %d"):format(row_n), 2)
+            else
+                for k, v in pairs(row) do
+                    if not sub.sip[rsrc_id].data[k] then
+                        error(("First value of \z
+                        property `%s` on line %d is not in the first row of \z
+                        the resource."):format(k, row_n), 2)
+                    end
+                    if not v then goto cont2 end  -- skip empty strings.
+                    -- This step will happily accept multiple values for
+                    -- single-valued property. They will be checked by
+                    -- validation.
+                    logger:debug("Value: ", v)
+                    logger:debug("Inserting at row ", i - 1)
+                    table.insert(sub.sip[rsrc_id].data[k], v)
+                    ::cont2::
+                end
+            end
+        end
+        ::skip::
+        --row_n = row_n + 1
+    end
+    table.sort(sub.alpha_ord_paths)
+
+    -- Add implicit memberships.
+    infer_members(sub)
+
+    -- Generate graphs for tree structures. This comes before processing the
+    -- resources as it may add resources and metadata to the SIP. It uses
+    -- membership information added by infer_members.
+    generate_trees(sub)
+
+    -- Process & enrich metadata.
+    for id, rsrc in pairs(sub.sip) do process_rsrc(rsrc) end
+
+    return true
+end
+
+
+local function add_sub_meta(sub)
+    -- Add triples for submission metadata directly to the stored graph.
+    local it = repo.gr:add_init()
+    it:add_iter(triple.new(
+        sub.uri,
+        pkar.RDF_TYPE,
+        term.new_iriref_ns("pas:Submission")
+    ))
+    if sub.name then
+        it:add_iter(triple.new(
+            sub.uri,
+            model.uri_map.label,
+            term.new_lit(sub.name)
+        ))
+    end
+    local tstamp = os.time(os.date("!*t"))
+    it:add_iter(triple.new(
+        sub.uri,
+        model.uri_map.submitted,
+        term.new_lit(tstamp, term.new_iriref_ns("xsd:dateTime"), nil, true)
+    ))
+    it:add_done()
+end
+
+
+local function generate_report(rpath, report)
+    report.timestamp = os.date("!%Y-%m-%dT%TZ")
+
+    if rpath then
+        local fh = io.open(rpath, "w")
+        fh:write(json.encode(report))
+        fh:close()
+        logger:info("Report written to " .. rpath)
+        return true
+    else return report end
+end
+
+
+local function cleanup_src(sub)
+    -- Post-deposit: gather all top-level directories and delete them.
+    rsrc_paths = {}
+    for rsrc_id in pairs(sub.sip) do
+        local rsrc = sub.sip[rsrc_id]
+        local source_path = rsrc.orig_path or (rsrc.data.source_path or NT)[1] or ""
+        if not source_path then goto skip end
+        local tlf = source_path:match("[^/]+")
+        if tlf then
+            local target = path.join(sub.root_path, tlf)
+            if rsrc_paths[target] then goto skip end
+            logger:info("Cleaning up SIP file: " .. target)
+            if path.isdir(target) then dir.rmtree(target)
+            elseif path.isfile(target) then file.delete(target) end
+            rsrc_paths[target] = true
+        end
+        ::skip::
+    end
+    logger:info("Cleaning up LL: " .. sub.ll_path)
+    file.delete(sub.ll_path)
+
+    return true
+end
+
+
+local function get_tdata(s)
+    local res_gr = repo.get_rsrc(s)
+    if not res_gr then return nil end
+
+    local ctype = repo.get_single_v(s, "content_type")
+    local mconf = model.schemata[model.cname_map[nsm.denormalize_uri(ctype.data)]]
+
+    local tdata = {
+        {
+            id = path.basename(s.data),
+            content_type = mconf.id,
+        },
+    }
+    for p, ots_it in res_gr:connections(s, term.LINK_OUTBOUND):iter() do
+        local pname = model.cname_map[nsm.denormalize_uri(p.data)]
+        --if p == pkar.RDF_TYPE then goto skip_p end
+        if not pname then goto skip_p end
+        if pname == "content_type" then goto skip_p end
+        local ptype = (mconf.properties[pname] or NT).type
+        local voc_ns
+        if ptype == "vocab" then
+            local vkey = mconf.properties[pname].range
+            voc_ns = vocab.index[vkey].ns
+        end
+        for o in ots_it do
+            local _o
+            if ptype == "resource" then
+                _o = {data = o.data:gsub(nsm.get_ns("par"), "")}
+            else _o = o end
+            -- Find a row where the pname slot has not been occupied.
+            for i = 1, math.huge do
+                if (tdata[i] or NT)[pname] then goto continue
+                else
+                    local v
+                    if o.type == term.TYPE_LT_LITERAL then
+                        v = ("%s@%s"):format(_o.data, _o.lang)
+                    elseif ptype == "vocab" then
+                        v = _o.data:gsub("^" .. voc_ns, "")
+                    else v = _o.data end
+                    if tdata[i] then tdata[i][pname] = v
+                    else tdata[i] = {[pname] = v} end
+                    break
+                end
+                ::continue::
+            end
+        end
+        ::skip_p::
+    end
+
+    return tdata
+end
+
+--
+-- Public class & members
+--
+
+local M = {
+    -- Flags.
+    NO_RECORD = 1<<0,
+
+    --  Submission class.
+    Submission = {},
+}
+
+
+
+
+--[[--
+Create a new submission.
+
+@tparam string ll_path Path of laundry list file.
+@tparam string report_path Path of report file generated upon calling
+    @{Submission:deposit}. If not specified, the report is returned.
+@tparam int f Submission flags:
+    - NO_RECORD: the submission URI is not recorded.
+
+@treturn table New Submission object.
+]]
+function M.Submission:new(ll_path, report_path, f)
+    f = f or 0
+    if not path.isfile(ll_path) then error(ll_path .. " is not a file.", 2) end
+
+    local sub = {
+        root_path = path.dirname(ll_path),
+        ll_path = ll_path,
+        report_path = report_path,
+        name = ll_path:match("pkar_submission[%-_%.](.*)%.csv"),
+        sip = {},           --- SIP resources indexed by ID.
+        gr = graph.new(),   --- Main graph of submitted resources.
+        ord_ids = {},       --- IDs of resources ordered as entered in the LL.
+        alpha_ord_paths = {}, --- Paths ordered alphabetically (hierarchically).
+        path_to_id = {},    --- Local path to ID mapping.
+        --- Track IDs in SIP to validate links created in a submission.
+        --  TODO ids might be redundant with sip, check for cleanup.
+        ids = {},
+        members = {},       --- Track member relationships.
+    }
+    if f & M.NO_RECORD == 0 then
+        sub.id = "sub:" .. model.idgen()
+        sub.uri = term.new_iriref_ns(sub.id)
+    end
+    self.__index = self
+    setmetatable(sub, self)
+
+    local rc, ret = xpcall(parse_ll, debug.traceback, sub)
+    if not rc then
+        local fn_error, tb = split_tb(ret)
+        return nil, generate_report(sub.report_path, {
+            result = "failure",
+            message = "An error occurred while parsing the SIP.",
+            fn_error = fn_error,
+            traceback = tb,
+            ll = sub.ll_path,
+            id = sub.current_id,
+            path = sub.current_path,
+        })
+    end
+
+    return sub
+end
+
+
+--[[--
+Deposit resources from a SIP.
+@tparam boolean cleanup If set to `true`, it removes the SIP if the submission
+    is successful.
+
+@treturn bool Whether the process completed successfully.
+--]]
+function M.Submission:deposit(cleanup)
+    local rc, ret
+
+    if self.uri then
+        rc, ret = xpcall(add_sub_meta, debug.traceback, self)
+        if not rc then
+            return generate_report(self.report_path, {
+                result = "failure",
+                message = "An error occurred while updating submission metadata.",
+                traceback = split_tb(ret),
+                metadata = {
+                    sub_id = self.id,
+                },
+            })
+        end
+    end
+
+    logger:debug("Graph to be validated: ")
+    for chunk in self.gr:encode() do logger:debug(chunk) end
+
+    for id in pairs(self.ids) do
+        local val_report = validator.validate(self.gr, model.id_to_uri(id))
+        if val_report.max_level == "ERROR" then
+            return generate_report(self.report_path, {
+                result = "failure",
+                message = "A resource did not pass validation.",
+                traceback = {},
+                metadata = {
+                    sub_id = self.id,
+                    rsrc_id = id,
+                    validation = val_report,
+                }
+            })
+        elseif val_report.max_level == "WARN" then logger:warn(
+            "Validation raised warnings: " .. pp.write(val_report))
+        elseif val_report.max_level == "NOTICE" then logger:info(
+            "Validation raised notices: " .. pp.write(val_report)) end
+    end
+
+    -- BEGIN atomic DB update.
+    local txn = repo.store:begin()
+    -- Update tree first.
+    for id, tree in pairs(self.trees) do
+        assert(tree.uri, "No URI for tree: " .. id)
+
+        -- Look for all trees connected to the referred subject.
+        -- There *should* be only one...
+        -- @TODO replace lookup with attr when Volksdata supports txn for
+        -- that function.
+        -- @TODO actually, move this whole thing to a dedicate remove() 
+        -- function in tree...
+        for spo in repo.gr:lookup(
+                tree.ref_uri, model.uri_map.has_tree, nil, txn) do
+            local gr = graph.new(repo.store, spo.o.data)
+            local ct = gr:remove(nil, nil, nil, txn)
+            logger:debug(("Removed %d triples from tree graph %s."):format(
+                    ct, gr.uri.data))
+        end
+
+        _, ct = repo.store_updates(tree.gr, tree.uri, txn)
+    end
+    local rm_ct, add_ct = repo.store_updates(self.gr, nil, txn)
+
+    txn:commit()
+    -- END atomic DB update.
+
+    -- After this point, the outcome is either `success` or `warnings`.
+
+    -- Remove processing directory.
+    local proc_dir = path.join(self.root_path, "proc")
+    if path.isdir(proc_dir) then dir.rmtree(proc_dir) end
+
+    local report = {
+        metadata = {
+            sub_id = self.id,
+            resources = {},
+            trees = {},
+        },
+    }
+
+    if cleanup then
+        local rc, ret = xpcall(cleanup_src, debug.traceback, self)
+        if not rc then
+            report.result = "warnings"
+            report.message = "An error occurred while deleting the SIP source."
+        end
+    end
+
+    report.result = "success"
+    report.message = "The SIP has been successfully submitted."
+
+    for id, rsrc in pairs(self.sip) do
+        report.metadata.resources[id] =
+                (rsrc.data.source_path or NT)[1] or false
+    end
+    for id, tree in pairs(self.trees) do
+        report.metadata.trees[id] = self.trees[id]:structure()
+    end
+
+    return generate_report(self.report_path, report)
+end
+
+
+--
+-- Module-level members.
+--
+
+--[[--
+List submissions.
+
+@treturn table List of pairs of submission ID and timestamp, ordered by the latter.
+]]
+function M.list()
+    local sub_id_ts = repo.gr:term_set(
+        pkar.RDF_TYPE, triple.POS_P,
+        term.new_iriref_ns("pas:Submission"), triple.POS_O
+    )
+    subs = {}
+    for s in sub_id_ts:iter() do
+        tstamp = repo.get_single_v(s, "submitted").data
+        label = (repo.get_single_v(s, "label") or NT).data
+
+        table.insert(subs, {
+            tstamp = tstamp,
+            id = nsm.denormalize_uri(s.data),
+            label = label,
+        })
+    end
+    table.sort(subs, function(a, b) return a.tstamp < b.tstamp end)
+
+    return subs
+end
+
+
+--- Get a submission's details and list of resources with minimal metadata.
+function M.get(id)
+    local s = term.new_iriref_ns("sub:" .. id:gsub("^sub:", ""))
+    local sub = {
+        metadata = {
+            id = id,
+            label = (repo.get_single_v(s, "label") or NT).data,
+            timestamp = (repo.get_single_v(s, "submitted") or NT).data,
+        },
+        items = {}
+    }
+
+    -- Not found.
+    if not sub.metadata.timestamp then return nil end
+
+    for s in repo.gr:term_set(
+        model.uri_map.sub_id, triple.POS_P,
+        s, triple.POS_O
+    ):iter() do
+        sub.items[nsm.denormalize_uri(s.data)] = {
+            content_type = nsm.denormalize_uri(
+                    repo.get_single_v(s, "content_type").data),
+            label = (repo.get_single_v(s, "label") or NT).data or "",
+        }
+    end
+
+    return sub
+end
+
+
+function M.generate_res_ll(s, sparse, no_header)
+    local tdata = get_tdata(s)
+    if not tdata then return nil end
+
+    return csv.encode(tdata, {
+        encodeNilAs = "", allowMissingKeys = true,
+        fieldsToKeep = gather_keys(tdata, sparse),
+        headers = no_header ~= true,
+    })
+end
+
+
+--[[--
+Generate a laundry list for a submission.
+
+@tparam s volksdata.Term URI of LL (`sub:...`).
+
+@treturn string Laundry list as a serialized CSV.
+@treturn string|nil Original submission name, if it was provided.
+]]
+function M.generate_sub_ll(s, sparse)
+    -- TODO this is quite inefficient. Rewrite this and generate_res_ll in a
+    -- streaming application. https://github.com/rgamble/libcsv looks better
+    -- than any Lua solution.
+    local res_ts = repo.gr:term_set(
+        model.uri_map.sub_id, triple.POS_P,
+        s, triple.POS_O
+    )
+    local sub_name = (repo.get_single_v(s, "label") or NT).data
+
+    local dip = {}
+    for s in res_ts:iter() do
+        for _, row in ipairs(get_tdata(s)) do table.insert(dip, row) end
+    end
+
+    return csv.encode(dip, {
+        encodeNilAs = "", allowMissingKeys = true,
+        fieldsToKeep = gather_keys(dip, sparse)
+    }), sub_name
+end
+
+
+return M

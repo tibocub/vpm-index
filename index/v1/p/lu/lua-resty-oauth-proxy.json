@@ -1,0 +1,54 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-oauth-proxy",
+  "versions": {
+    "1.3.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-openssl >= 0.8.4"
+      ],
+      "files": {
+        "resty/oauth-proxy.lua": {
+          "sha256": "9971c173d02d3ca30c53eaf125e7027143cb22e7aaa29c02feb159bbf39f1005",
+          "size": 11719,
+          "url": "https://raw.githubusercontent.com/curityio/nginx-lua-oauth-proxy-plugin/c0e4a4a9f8b98c7ee2bdc53160520c3edcb801e3/plugin/access.lua"
+        }
+      },
+      "homepage": "https://curity.io/product/token-service/oauth-for-web/",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 21 Oct 2022 08:08:40 GMT",
+        "rockspec": {
+          "date": "Fri, 21 Oct 2022 08:08:40 GMT",
+          "sha256": "e07421a5d345adb7ab1a4296b9e6e86ccc18566db42ef272c8a7603490e085df",
+          "size": 1536
+        }
+      },
+      "modules": [
+        "resty.oauth-proxy"
+      ],
+      "origin": {
+        "commit": "c0e4a4a9f8b98c7ee2bdc53160520c3edcb801e3",
+        "ref": "v1.3.0",
+        "type": "git",
+        "url": "https://github.com/curityio/nginx-lua-oauth-proxy-plugin"
+      },
+      "size": 11719,
+      "summary": "A LUA plugin used during API requests to deal with CORS and cookies, then forward access tokens",
+      "undeclared_requires": [
+        "ngx.base64"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (ngx.base64)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 1
+      }
+    }
+  }
+}

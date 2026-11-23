@@ -1,0 +1,68 @@
+local dir =       require "pl.dir"
+local pp =        require "pl.pretty"
+local getuid =    require "posix.unistd".getuid
+local term =      require "volksdata.term"
+
+local config_path, config = require "pocket_archive.config_parser".parse()
+
+
+--- "nil" table to use as a fallback for value checks.
+local NT = {}
+setmetatable(NT, {__newindex = function() error("Read only table.") end})
+
+
+local loglevel = os.getenv("PKAR_LOGLEVEL")
+if not loglevel or loglevel == "" then loglevel = "warn" end
+
+local M = {
+    -- Project root path.
+    config_path = config_path,
+    config = config,
+    ROOT = config.core.root,
+    NT = NT,
+
+    --Logger config.
+    logger = require "sllog":init{
+      {"err",   "%T PKAR %-5L ",          "%n", io.stderr},
+      {"warn",  "%T PKAR %-5L ",          "%n", io.stderr},
+      {"info",  "%T PKAR %-5L ",          "%n", io.stderr},
+      {"debug", "%T PKAR %-5L%f (%S) ",   "%n", io.stderr},
+      timefn=(require "socket" or NT).gettime,
+      report="debug",
+      hookrequire=false,
+      level=loglevel,
+    },
+
+    -- Commonly used terms.
+    RDF_TYPE = term.new_iriref(term.RDF_TYPE),
+
+    -- Methods.
+
+    -- Escape strings for use as gsub patterns.
+    escape_ptn = function(src)
+        return src:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%0")
+    end,
+
+}
+
+
+function M.script_path()
+   local str = debug.getinfo(2, "S").source:sub(2)
+   return str:match("(.*/)") or "./"
+end
+
+
+-- Set random seed for ID generator.
+math.randomseed(os.time())
+
+-- Get user ID and create pidfile directory accordingly.
+M.PID_DIR = (getuid() == 0)
+        and "/run/pkar"
+        or os.getenv("HOME") .. "/.local/run/pkar"
+dir.makepath(M.PID_DIR)
+
+M.logger:info("Pocket Archive initialized using config at " .. config_path)
+M.logger:debug("Configuration: " .. pp.write(M.config))
+
+
+return M

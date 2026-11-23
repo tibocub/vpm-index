@@ -1,0 +1,157 @@
+-- luv: optional async transport. requires the luv rock; the rest of
+-- mcptk does not.
+--
+-- each request runs in its own coroutine, so a tool can wait for a
+-- timer or a subprocess without blocking the ones beside it. stdin is
+-- read through libuv; replies still go out through the real stdout
+-- handle, which keeps a tty and a pipe behaving the same.
+
+local uv = require("luv")
+
+local stdio = require("mcptk.stdio")
+
+local M = {}
+
+M.uv = uv
+
+local function resumer(co)
+	return function(...)
+		local ok, err = coroutine.resume(co, ...)
+
+		if not ok then
+			io.stderr:write("mcptk: ", tostring(err), "\n")
+		end
+	end
+end
+
+---Waits, without blocking the calls beside this one. Only valid
+---inside a tool running on this transport.
+---@param ms integer milliseconds
+function M.sleep(ms)
+	local co = assert(coroutine.running(), "sleep needs a coroutine")
+	local timer = uv.new_timer()
+	local resume = resumer(co)
+
+	timer:start(ms, 0, function()
+		timer:stop()
+		timer:close()
+		resume()
+	end)
+	return coroutine.yield()
+end
+
+---Runs a command to completion. Only valid inside a tool running on
+---this transport.
+---@param cmd string program to run
+---@param args string[]|nil arguments
+---@param opts table|nil cwd and env
+---@return integer|nil code exit status, or nil when the spawn failed
+---@return string stdout everything the command wrote, or the failure reason
+---@return string stderr
+function M.exec(cmd, args, opts)
+	local co = assert(coroutine.running(), "exec needs a coroutine")
+	local resume = resumer(co)
+	local out = uv.new_pipe(false)
+	local err = uv.new_pipe(false)
+	local obuf, ebuf = {}, {}
+	local code, pending = nil, 2
+
+	local function done()
+		pending = pending - 1
+		if pending == 0 and code then
+			resume(code, table.concat(obuf), table.concat(ebuf))
+		end
+	end
+
+	local handle
+
+	handle = uv.spawn(cmd, {
+		args = args,
+		cwd = opts and opts.cwd,
+		env = opts and opts.env,
+		stdio = { nil, out, err },
+	}, function(status)
+		code = status
+		handle:close()
+		if pending == 0 then
+			resume(code, table.concat(obuf), table.concat(ebuf))
+		end
+	end)
+	if not handle then
+		return nil, "cannot run " .. tostring(cmd)
+	end
+
+	local function reader(pipe, buf)
+		pipe:read_start(function(rerr, chunk)
+			if chunk then
+				buf[#buf + 1] = chunk
+			else
+				pipe:read_stop()
+				pipe:close()
+				done()
+			end
+		end)
+	end
+
+	reader(out, obuf)
+	reader(err, ebuf)
+	return coroutine.yield()
+end
+
+---Serves until stdin closes. Falls back to the blocking transport
+---when stdin is a terminal, which is what hand testing looks like.
+---@param server mcptk.Server
+---@param opts table|nil guard = false to leave stdout alone
+function M.run(server, opts)
+	opts = opts or {}
+	if opts.guard ~= false then
+		stdio.guard_stdout()
+	end
+	if uv.guess_handle(0) == "tty" then
+		return stdio.run(server, { guard = false })
+	end
+
+	local out = opts.out or io.stdout
+	local stdin = uv.new_pipe(false)
+	local rest = ""
+
+	out:setvbuf("line")
+	stdin:open(0)
+
+	local function serve(line)
+		local co = coroutine.create(function()
+			local reply = server:handle_line(line)
+
+			if reply then
+				out:write(reply, "\n")
+				out:flush()
+			end
+		end)
+
+		resumer(co)()
+	end
+
+	stdin:read_start(function(err, chunk)
+		if err or not chunk then
+			stdin:read_stop()
+			stdin:close()
+			return
+		end
+		rest = rest .. chunk
+		while true do
+			local line, tail = rest:match("^([^\n]*)\n(.*)$")
+
+			if not line then
+				break
+			end
+			rest = tail
+			if line:match("%S") then
+				serve(line)
+			end
+		end
+	end)
+
+	uv.run()
+end
+
+return M

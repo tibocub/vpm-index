@@ -1,0 +1,632 @@
+--
+-- lua-ubjson : <https://fperrad.frama.io/lua-ubjson/>
+--
+
+if _VERSION < 'Lua 5.3' then
+    require'compat53'
+end
+
+local assert = assert
+local error = error
+local pairs = pairs
+local pcall = pcall
+local setmetatable = setmetatable
+local tonumber = tonumber
+local tostring = tostring
+local type = type
+local math_type = math.type
+local format = string.format
+local find = string.find
+local pack = string.pack
+local unpack = string.unpack
+local tconcat = table.concat
+local utf8_len = utf8.len
+
+local _ENV = nil
+local m = {}
+
+local function argerror (caller, narg, extramsg)
+    error("bad argument #" .. tostring(narg) .. " to "
+          .. caller .. " (" .. extramsg .. ")")
+end
+
+local function typeerror (caller, narg, arg, tname)
+    argerror(caller, narg, tname .. " expected, got " .. type(arg))
+end
+
+local function checktype (caller, narg, arg, tname)
+    if type(arg) ~= tname then
+        typeerror(caller, narg, arg, tname)
+    end
+end
+
+local function checkunsigned (caller, narg, arg)
+    if math_type(arg) ~= 'integer' or arg < 0 then
+        typeerror(caller, narg, arg, 'positive integer')
+    end
+end
+
+local function checkubjtype (caller, narg, arg)
+    if type(arg) ~= 'string' or #arg ~= 1 or not find('CDFHILNSTUZ[dil{', arg, 1, true) then
+        argerror(caller, narg, "UBJSON type expected, got " .. tostring(arg))
+    end
+end
+
+local coders = setmetatable({}, {
+    __index = function (_, k)
+        if k == 1 then return end   -- allows ipairs (Lua 5.3)
+        error("encode '" .. tostring(k) .. "' is unimplemented")
+    end
+})
+m.coders = coders
+
+coders['nil'] = function (buffer)
+    buffer[#buffer+1] = 'Z'             -- null
+end
+
+coders['boolean'] = function (buffer, bool)
+    if bool then
+        buffer[#buffer+1] = 'T'         -- true
+    else
+        buffer[#buffer+1] = 'F'         -- false
+    end
+end
+
+local function encode_size (n)
+    if n <= 0xFF then
+        return pack('>B I1', 0x55, n)   -- uint8 --> U
+    elseif n <= 0x7FFF then
+        return pack('>B i2', 0x49, n)   -- int16 --> I
+    elseif n <= 0x7FFFFFFF then
+        return pack('>B i4', 0x6C, n)   -- int32 --> l
+    else
+        return pack('>B i8', 0x4C, n)   -- int64 --> L
+    end
+end
+
+coders['integer'] = function (buffer, n)
+    if n >= 0 then
+        if n <= 0x7F then
+            buffer[#buffer+1] = pack('>B I1', 0x69, n)  -- int8  --> i
+        elseif n <= 0x7FFF then
+            buffer[#buffer+1] = pack('>B i2', 0x49, n)  -- int16 --> I
+        elseif n <= 0x7FFFFFFF then
+            buffer[#buffer+1] = pack('>B i4', 0x6C, n)  -- int32 --> l
+        else
+            buffer[#buffer+1] = pack('>B i8', 0x4C, n)  -- int64 --> L
+        end
+    else
+        if n >= -0x80 then
+            buffer[#buffer+1] = pack('>B i1', 0x69, n)  -- int8  --> i
+        elseif n>= -0x8000 then
+            buffer[#buffer+1] = pack('>B i2', 0x49, n)  -- int16 --> I
+        elseif n>= -0x80000000 then
+            buffer[#buffer+1] = pack('>B i4', 0x6C, n)  -- int32 --> l
+        else
+            buffer[#buffer+1] = pack('>B i8', 0x4C, n)  -- int64 --> L
+        end
+    end
+end
+
+coders['float32'] = function (buffer, n)
+    buffer[#buffer+1] = pack('>B f', 0x64, n)           -- float32 --> d
+end
+
+coders['float64'] = function (buffer, n)
+    buffer[#buffer+1] = pack('>B d', 0x44, n)           -- float64 --> D
+end
+
+coders['high-precision'] = function (buffer, n)
+    local str = tostring(n)
+    buffer[#buffer+1] = 'H'
+    buffer[#buffer+1] = encode_size(#str)
+    buffer[#buffer+1] = str
+end
+
+local function set_float (option)
+    if option == 'float32' then
+        coders['float'] = coders['float32']
+    elseif option == 'float64' then
+        coders['float'] = coders['float64']
+    elseif option == 'high-precision' then
+        coders['float'] = coders['high-precision']
+    else
+        argerror('set_float', 1, "invalid option '" .. option .."'")
+    end
+end
+m.set_float = set_float
+
+coders['number'] = function (buffer, n)
+    coders[math_type(n)](buffer, n)
+end
+
+coders['_string'] = function (buffer, str)
+    local n = #str
+    if n == 1 and str <= '\127' then
+        buffer[#buffer+1] = 'C'
+    else
+        buffer[#buffer+1] = 'S'
+        buffer[#buffer+1] = encode_size(n)
+    end
+    buffer[#buffer+1] = str
+end
+
+coders['binary'] = function (buffer, str)
+    buffer[#buffer+1] = '[$U#'
+    buffer[#buffer+1] = encode_size(#str)
+    buffer[#buffer+1] = str
+end
+
+local set_string = function (option)
+    if option == 'text' then
+        coders['string'] = coders['_string']
+    elseif option == 'binary' then
+        coders['string'] = coders['binary']
+    elseif option == 'check_utf8' then
+        coders['string'] = function (buffer, str)
+            if utf8_len(str) then
+                coders['_string'](buffer, str)
+            else
+                coders['binary'](buffer, str)
+            end
+        end
+    else
+        argerror('set_string', 1, "invalid option '" .. option .."'")
+    end
+end
+m.set_string = set_string
+
+coders['array'] = function (buffer, tbl, n)
+    buffer[#buffer+1] = '[#'
+    buffer[#buffer+1] = encode_size(n)
+    for i = 1, n do
+        local v = tbl[i]
+        coders[type(v)](buffer, v)
+    end
+end
+
+coders['object'] = function (buffer, tbl)
+    buffer[#buffer+1] = '{#'
+    buffer[#buffer+1] = ''
+    local patch = #buffer
+    local n = 0
+    for k, v in pairs(tbl) do
+        if type(k) == 'string' then
+            buffer[#buffer+1] = encode_size(#k)
+            buffer[#buffer+1] = k
+            coders[type(v)](buffer, v)
+            n = n + 1
+        end
+    end
+    buffer[patch] = encode_size(n)
+end
+
+local function set_array (option)
+    if option == 'without_hole' then
+        coders['_table'] = function (buffer, tbl)
+            local n = #tbl
+            if n > 0 then
+                coders['array'](buffer, tbl, n)
+            else
+                coders['object'](buffer, tbl)
+            end
+        end
+    elseif option == 'with_hole' then
+        coders['_table'] = function (buffer, tbl)
+            local is_object, max = false, 0
+            for k in pairs(tbl) do
+                if math_type(k) == 'integer' and k > 0 then
+                    if k > max then
+                        max = k
+                    end
+                else
+                    is_object = true
+                    break
+                end
+            end
+            if is_object then
+                coders['object'](buffer, tbl)
+            else
+                coders['array'](buffer, tbl, max)
+            end
+        end
+    elseif option == 'always_as_object' then
+        coders['_table'] = coders['object']
+    else
+        argerror('set_array', 1, "invalid option '" .. option .."'")
+    end
+end
+m.set_array = set_array
+
+coders['table'] = function (buffer, tbl)
+    coders['_table'](buffer, tbl)
+end
+
+function m.encode (data)
+    local buffer = {}
+    coders[type(data)](buffer, data)
+    return tconcat(buffer)
+end
+
+function m.open_array (count, type_)
+    local t = { '[' }
+    if type_ then
+        checkubjtype('open_array', 2, type_)
+        t[#t+1] = '$'
+        t[#t+1] = type_
+    end
+    if count then
+        checkunsigned('open_array', 1, count)
+        t[#t+1] = '#'
+        t[#t+1] = encode_size(count)
+    end
+    return tconcat(t)
+end
+
+function m.close_array ()
+    return ']'
+end
+
+function m.open_object (count, type_)
+    local t = { '{' }
+    if type_ then
+        checkubjtype('open_object', 2, type_)
+        t[#t+1] = '$'
+        t[#t+1] = type_
+    end
+    if count then
+        checkunsigned('open_object', 1, count)
+        t[#t+1] = '#'
+        t[#t+1] = encode_size(count)
+    end
+    return tconcat(t)
+end
+
+function m.close_object ()
+    return '}'
+end
+
+function m.no_op ()
+    return 'N'
+end
+
+function m.encode_name (str)
+    checktype('encode_key', 1, str, 'string')
+    return encode_size(#str) .. str
+end
+
+local decoders, size_decoders  -- forward declaration
+
+local function lookahead (c)
+    local s, i, j = c.s, c.i, c.j
+    if i > j then
+        c:underflow(i)
+        s, i = c.s, c.i
+    end
+    return s:sub(i, i)
+end
+
+local function decode_size (c)
+    local s, i, j = c.s, c.i, c.j
+    if i > j then
+        c:underflow(i)
+        s, i = c.s, c.i
+    end
+    local val = s:sub(i, i)
+    c.i = i+1
+    local n = size_decoders[val](c)
+    assert(n >= 0, "negative size")
+    return n
+end
+
+local function decode_cursor (c)
+    local s, i, j = c.s, c.i, c.j
+    if i > j then
+        c:underflow(i)
+        s, i = c.s, c.i
+    end
+    local val = s:sub(i, i)
+    c.i = i+1
+    return decoders[val](c)
+end
+m.decode_cursor = decode_cursor
+
+local function decode_uint8 (c)
+    local s, i, j = c.s, c.i, c.j
+    if i > j then
+        c:underflow(i)
+        s, i = c.s, c.i
+    end
+    c.i = i+1
+    return unpack('>I1', s, i)
+end
+
+local function decode_int8 (c)
+    local s, i, j = c.s, c.i, c.j
+    if i > j then
+        c:underflow(i)
+        s, i = c.s, c.i
+    end
+    c.i = i+1
+    return unpack('>i1', s, i)
+end
+
+local function decode_int16 (c)
+    local s, i, j = c.s, c.i, c.j
+    if i+1 > j then
+        c:underflow(i+1)
+        s, i = c.s, c.i
+    end
+    c.i = i+2
+    return unpack('>i2', s, i)
+end
+
+local function decode_int32 (c)
+    local s, i, j = c.s, c.i, c.j
+    if i+3 > j then
+        c:underflow(i+3)
+        s, i = c.s, c.i
+    end
+    c.i = i+4
+    return unpack('>i4', s, i)
+end
+
+local function decode_int64 (c)
+    local s, i, j = c.s, c.i, c.j
+    if i+7 > j then
+        c:underflow(i+7)
+        s, i = c.s, c.i
+    end
+    c.i = i+8
+    return unpack('>i8', s, i)
+end
+
+local function decode_float32 (c)
+    local s, i, j = c.s, c.i, c.j
+    if i+3 > j then
+        c:underflow(i+3)
+        s, i = c.s, c.i
+    end
+    c.i = i+4
+    return unpack('>f', s, i)
+end
+
+local function decode_float64 (c)
+    local s, i, j = c.s, c.i, c.j
+    if i+7 > j then
+        c:underflow(i+7)
+        s, i = c.s, c.i
+    end
+    c.i = i+8
+    return unpack('>d', s, i)
+end
+
+local function decode_char (c)
+    local s, i, j = c.s, c.i, c.j
+    if i > j then
+        c:underflow(i)
+        s, i = c.s, c.i
+    end
+    c.i = i+1
+    return s:sub(i, i)
+end
+
+local function decode_string (c)
+    local n = decode_size(c)
+    local s, i, j = c.s, c.i, c.j
+    local e = i+n-1
+    if e > j or n < 0 then
+        c:underflow(e)
+        s, i = c.s, c.i
+        e = i+n-1
+    end
+    c.i = i+n
+    return s:sub(i, e)
+end
+
+local function check_utf8 (s)
+    if m.strict and not utf8_len(s) then
+        error("invalid UTF-8 string")
+    end
+    return s
+end
+
+local function decode_array (c)
+    local n
+    local decode = decode_cursor
+    if lookahead(c) == '$' then
+        c.i = c.i+1
+        decode = decoders[decode_char(c)]
+        assert(lookahead(c) == '#', "type without size")
+        c.i = c.i+1
+        if decode == decode_uint8 then
+            return decode_string(c)
+        end
+        n = decode_size(c)
+    elseif lookahead(c) == '#' then
+        c.i = c.i+1
+        n = decode_size(c)
+    end
+    local t = {}
+    if n then
+        for i = 1, n do
+            t[i] = decode(c)
+        end
+    else
+        while true do
+            if lookahead(c) == ']' then
+                c.i = c.i+1
+                break
+            end
+            t[#t+1] = decode(c)
+        end
+    end
+    return t
+end
+
+local function decode_object (c)
+    local strict = m.strict
+    local n
+    local decode = decode_cursor
+    if lookahead(c) == '$' then
+        c.i = c.i+1
+        decode = decoders[decode_char(c)]
+        assert(lookahead(c) == '#', "type without size")
+        c.i = c.i+1
+        n = decode_size(c)
+    elseif lookahead(c) == '#' then
+        c.i = c.i+1
+        n = decode_size(c)
+    end
+    local t = {}
+    if n then
+        for _ = 1, n do
+            local k = check_utf8(decode_string(c))
+            local val = decode(c)
+            if strict and t[k] ~= nil then
+                error("duplicated keys")
+            end
+            t[k] = val
+        end
+    else
+        while true do
+            if lookahead(c) == '}' then
+                c.i = c.i+1
+                break
+            end
+            local k = check_utf8(decode_string(c))
+            local val = decode(c)
+            if strict and t[k] ~= nil then
+                error("duplicated keys")
+            end
+            t[k] = val
+        end
+    end
+    return t
+end
+
+decoders = {
+    ['Z'] = function () return nil end,
+    ['N'] = function () return end,
+    ['F'] = function () return false end,
+    ['T'] = function () return true end,
+    ['U'] = decode_uint8,
+    ['i'] = decode_int8,
+    ['I'] = decode_int16,
+    ['l'] = decode_int32,
+    ['L'] = decode_int64,
+    ['d'] = decode_float32,
+    ['D'] = decode_float64,
+    ['H'] = function (c) return check_utf8(decode_string(c)) end,
+    ['C'] = function (c) return check_utf8(decode_char(c)) end,
+    ['S'] = function (c) return check_utf8(decode_string(c)) end,
+    ['['] = function (c) return decode_array(c) end,
+    ['{'] = function (c) return decode_object(c) end,
+}
+setmetatable(decoders, {
+    __index = function (_, k) error("decode '" .. format('%#x', k:byte(1)) .. "' is unexpected") end
+})
+
+size_decoders = {
+    ['U'] = decode_uint8,
+    ['i'] = decode_int8,
+    ['I'] = decode_int16,
+    ['l'] = decode_int32,
+    ['L'] = decode_int64,
+}
+setmetatable(size_decoders, {
+    __index = function (_, k) error("decode size '" .. format('%#x', k:byte(1)) .. "' is unexpected") end
+})
+
+local function cursor_string (str)
+    return {
+        s = str,
+        i = 1,
+        j = #str,
+        underflow = function ()
+                        error "missing bytes"
+                    end,
+    }
+end
+
+local function cursor_loader (ld)
+    return {
+        s = '',
+        i = 1,
+        j = 0,
+        underflow = function (self, e)
+                        self.s = self.s:sub(self.i)
+                        e = e - self.i + 1
+                        self.i = 1
+                        self.j = 0
+                        while e > self.j do
+                            local chunk = ld()
+                            if not chunk then
+                                error "missing bytes"
+                            end
+                            self.s = self.s .. chunk
+                            self.j = #self.s
+                        end
+                    end,
+    }
+end
+
+function m.decode (s)
+    checktype('decode', 1, s, 'string')
+    local cursor = cursor_string(s)
+    local data = decode_cursor(cursor)
+    if cursor.i <= cursor.j then
+        error "extra bytes"
+    end
+    return data
+end
+
+function m.decoder (src)
+    if type(src) == 'string' then
+        local cursor = cursor_string(src)
+        return function ()
+            if cursor.i <= cursor.j then
+                return cursor.i, decode_cursor(cursor)
+            end
+        end
+    elseif type(src) == 'function' then
+        local cursor = cursor_loader(src)
+        return function ()
+            if cursor.i > cursor.j then
+                pcall(cursor.underflow, cursor, cursor.i)
+            end
+            if cursor.i <= cursor.j then
+                return true, decode_cursor(cursor)
+            end
+        end
+    else
+        argerror('decoder', 1, "string or function expected, got " .. type(src))
+    end
+end
+
+set_string'text'
+set_array'with_hole'
+m.strict = true
+if #pack('n', 0.0) == 4 then
+    decoders['L'] = nil         -- int64
+    size_decoders['L'] = nil    -- int64
+    set_float'float32'
+else
+    if #pack('n', 0.0) > 8 then
+        decoders['H'] = function (c)
+            return assert(tonumber(check_utf8(decode_string(c))), "invalid high-precision number")
+        end
+        set_float'high-precision'
+    else
+        set_float'float64'
+    end
+end
+
+m._VERSION = '0.1.0'
+m._DESCRIPTION = "lua-ubjson : a pure Lua implementation of UBJSON"
+m._COPYRIGHT = "Copyright (c) 2023 Francois Perrad"
+return m
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

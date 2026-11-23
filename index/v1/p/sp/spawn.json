@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "spawn",
+  "versions": {
+    "0.1-0": {
+      "bin": [],
+      "deps": [
+        "lunix"
+      ],
+      "files": {
+        "spawn/init.lua": {
+          "sha256": "b308c82858843781684d8a79b75b0f8a0786ccb76b194ab588e76c12aa7d7436",
+          "size": 594,
+          "url": "blob:b308c82858843781684d8a79b75b0f8a0786ccb76b194ab588e76c12aa7d7436"
+        },
+        "spawn/wait.lua": {
+          "sha256": "7a1dd1e8de046f98f1433cc455956b7fb113ad372b80a262ed18a666e0275c4d",
+          "size": 992,
+          "url": "blob:7a1dd1e8de046f98f1433cc455956b7fb113ad372b80a262ed18a666e0275c4d"
+        }
+      },
+      "homepage": "https://github.com/daurnimator/lua-spawn",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Fri, 10 Aug 2018 01:07:57 GMT",
+        "rockspec": {
+          "date": "Fri, 10 Aug 2018 01:07:57 GMT",
+          "sha256": "66a392c1b2f48f2b264ad13e1d1bf351ee85fdc4484f4b2779c03a21150b2c7a",
+          "size": 671
+        },
+        "src": {
+          "date": "Fri, 10 Aug 2018 01:08:45 GMT",
+          "sha256": "b4784dad210969f422bc7315bf9fe9f109dceecd65bf2a9d8a37bdc9196137f3",
+          "size": 70734,
+          "url": "https://luarocks.org/spawn-0.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "spawn",
+        "spawn.init",
+        "spawn.posix",
+        "spawn.wait"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "_POSIX_C_SOURCE=200809L",
+                "_GNU_SOURCE"
+              ],
+              "incdirs": [
+                "vendor/compat-5.3/c-api/"
+              ],
+              "name": "spawn.posix",
+              "sources": [
+                "spawn/posix.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-spawn-0.1"
+      },
+      "origin": {
+        "date": "Fri, 10 Aug 2018 01:08:45 GMT",
+        "sha256": "b4784dad210969f422bc7315bf9fe9f109dceecd65bf2a9d8a37bdc9196137f3",
+        "size": 70734,
+        "type": "luarocks",
+        "url": "https://luarocks.org/spawn-0.1-0.src.rock"
+      },
+      "size": 1586,
+      "summary": "A lua library to spawn programs",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

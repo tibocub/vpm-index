@@ -1,0 +1,353 @@
+-- Start child coroutine streams, bound how many run at once, and collect their events.
+--
+-- Native delivery is buffered by panto.ext.async; one consumer coroutine per
+-- admitted child reads that stream through the host's owner-local resume queue.
+-- Extension policy (the concurrency gate, result cache, and await modes) stays
+-- here; this module owns no loop handles or notification resources.
+
+local M = {}
+
+-- The activation-time default is five; init.lua may replace it from the
+-- layered [subagents] max_concurrent setting before any child can start.
+M.MAX_CONCURRENT = 5
+
+local handle_mt = {}
+handle_mt.__index = handle_mt
+handle_mt.__name = "subagents.job"
+
+local live = {}
+local queued = {}
+local waiters = {}
+local running = 0
+local pumping = false
+local cancelling = false
+
+local function close_stream(handle)
+    local stream = handle.stream
+    handle.stream = nil
+    if stream then pcall(stream.close, stream) end
+end
+
+local function remove_live(handle)
+    for index, other in ipairs(live) do
+        if other == handle then
+            table.remove(live, index)
+            return
+        end
+    end
+end
+
+local function collect(handles, mode)
+    if mode == "first" then
+        local results, remaining = {}, {}
+        for _, handle in ipairs(handles) do
+            if handle.settled ~= nil then
+                results[#results + 1] = handle.settled
+            else
+                remaining[#remaining + 1] = handle
+            end
+        end
+        if #results == 0 and #remaining > 0 then return nil end
+        return results, remaining
+    end
+
+    local results = {}
+    for index, handle in ipairs(handles) do
+        if handle.settled == nil then return nil end
+        results[index] = handle.settled
+    end
+    return results, {}
+end
+
+local pump_queue
+local wake
+
+local function settle(handle, raw)
+    if handle.settled ~= nil then return end
+    local result = raw
+    if handle.spec.shape then
+        local ok, shaped = pcall(handle.spec.shape, raw)
+        if ok and type(shaped) == "table" then
+            result = shaped
+        elseif not ok then
+            result = { status = "failed", error = tostring(shaped), resumable = false }
+        end
+    end
+    handle.settled = result
+    if handle.state == "running" or handle.state == "closing" then
+        running = running - 1
+    end
+    handle.state = "settled"
+    if handle.close_on_settle then close_stream(handle) end
+    pump_queue()
+    wake()
+end
+
+local function update_summary(summary, event)
+    if event.type == "message_start" and event.role == "assistant" then
+        summary.current = { text = {}, tool_calls = {} }
+    elseif event.type == "block_complete" and summary.current then
+        if event.block_type == "text" and type(event.text) == "string" then
+            summary.current.text[#summary.current.text + 1] = event.text
+        elseif event.block_type == "tool_use" then
+            summary.current.tool_calls[#summary.current.tool_calls + 1] = {
+                id = event.id,
+                name = event.name,
+                input = event.text,
+            }
+        end
+    elseif event.type == "message_complete" and event.role == "assistant" and summary.current then
+        summary.completed = summary.current
+        summary.current = nil
+    end
+end
+
+local function consume(handle)
+    local stream = handle.stream
+    local summary = { current = nil, completed = nil }
+    local ok, failure = pcall(function()
+        while true do
+            local event, err = stream:next()
+            if event == nil then
+                if err ~= nil then
+                    local canceled = type(err) == "table" and err.error_name == "Canceled"
+                    local message = type(err) == "table" and err.message or tostring(err)
+                    settle(handle, {
+                        status = canceled and "cancelled" or "failed",
+                        error = message,
+                        resumable = false,
+                    })
+                else
+                    local final = summary.completed or { text = {}, tool_calls = {} }
+                    settle(handle, {
+                        status = "completed",
+                        text = table.concat(final.text),
+                        tool_calls = final.tool_calls,
+                    })
+                end
+                return
+            end
+            if type(event) == "table" then update_summary(summary, event) end
+            if handle.spec.on_event then pcall(handle.spec.on_event, event) end
+        end
+    end)
+    if not ok then
+        close_stream(handle)
+        settle(handle, { status = "failed", error = tostring(failure), resumable = false })
+    end
+end
+
+local function launch(handle)
+    local ok, stream, err = pcall(handle.spec.build)
+    if not ok then return false, tostring(stream) end
+    if stream == nil then
+        return false, err and tostring(err) or "the child could not be started"
+    end
+    if type(stream.next) ~= "function" or type(stream.request_cancel) ~= "function" or
+        type(stream.close) ~= "function" then
+        pcall(stream.close, stream)
+        return false, "the child did not return a coroutine stream"
+    end
+
+    handle.stream = stream
+    handle.state = "running"
+    running = running + 1
+    handle.consumer = coroutine.create(function() consume(handle) end)
+    if handle.spec.on_start then pcall(handle.spec.on_start) end
+    local resumed, resume_err = coroutine.resume(handle.consumer)
+    if not resumed then
+        close_stream(handle)
+        settle(handle, { status = "failed", error = tostring(resume_err), resumable = false })
+    end
+    return true
+end
+
+pump_queue = function()
+    if pumping or cancelling then return end
+    pumping = true
+    local ok, err = pcall(function()
+        while running < M.MAX_CONCURRENT do
+            local handle = table.remove(queued, 1)
+            if handle == nil then break end
+            if handle.state == "queued" then
+                local started, start_err = launch(handle)
+                if not started then
+                    settle(handle, { status = "failed", error = tostring(start_err), resumable = false })
+                end
+            end
+        end
+    end)
+    pumping = false
+    if not ok then
+        wake()
+        error(err, 0)
+    end
+end
+
+local function remove_waiter(waiter)
+    for index, other in ipairs(waiters) do
+        if other == waiter then
+            table.remove(waiters, index)
+            return
+        end
+    end
+end
+
+wake = function()
+    local self_co = coroutine.running()
+    local index = 1
+    while index <= #waiters do
+        local waiter = waiters[index]
+        local results, remaining = collect(waiter.handles, waiter.mode)
+        local status = coroutine.status(waiter.co)
+        if results ~= nil and waiter.co ~= self_co and status == "suspended" then
+            table.remove(waiters, index)
+            local ok, err = coroutine.resume(waiter.co, results, remaining)
+            if not ok then
+                io.stderr:write("subagents.jobs: failed to resume waiter: ", tostring(err), "\n")
+            end
+        elseif status == "dead" then
+            table.remove(waiters, index)
+        else
+            index = index + 1
+        end
+    end
+end
+
+function handle_mt:result()
+    return self.settled
+end
+
+function handle_mt:cancel()
+    if self.settled ~= nil then return end
+    if self.state == "queued" then
+        for index, other in ipairs(queued) do
+            if other == self then
+                table.remove(queued, index)
+                break
+            end
+        end
+        settle(self, { status = "cancelled", error = "cancelled before the child started", resumable = false })
+    elseif self.stream then
+        pcall(self.stream.request_cancel, self.stream)
+    end
+end
+
+function M.cancel(handle)
+    if getmetatable(handle) ~= handle_mt then
+        error("jobs.cancel expects a job handle", 2)
+    end
+    if handle.settled ~= nil then return false end
+    handle:cancel()
+    wake()
+    return true
+end
+
+-- startspec.build() returns panto.ext.async.run(agent, request)'s stream.
+-- Progress and terminal result shaping remain extension policy.
+function M.start(spec)
+    if type(spec) ~= "table" or type(spec.build) ~= "function" then
+        return nil, "jobs.start needs a build function"
+    end
+
+    local handle = setmetatable({ spec = spec, id = spec.id, state = "queued" }, handle_mt)
+    live[#live + 1] = handle
+    if running >= M.MAX_CONCURRENT then
+        queued[#queued + 1] = handle
+        return handle
+    end
+
+    local ok, err = launch(handle)
+    if not ok then
+        remove_live(handle)
+        return nil, err
+    end
+    return handle
+end
+
+function M.active(id)
+    if id == nil then return false end
+    for _, handle in ipairs(live) do
+        if handle.id == id and handle.settled == nil then return true end
+    end
+    return false
+end
+
+function M.any_active()
+    for _, handle in ipairs(live) do
+        if handle.settled == nil then return true end
+    end
+    return false
+end
+
+-- `first` answers as soon as one result settles; both modes preserve input order.
+function M.await(handles, mode)
+    mode = mode or "all"
+    if type(handles) ~= "table" then error("jobs.await expects an array of job handles", 2) end
+    if mode ~= "all" and mode ~= "first" then
+        error('jobs.await mode must be "all" or "first"', 2)
+    end
+
+    while true do
+        local results, remaining = collect(handles, mode)
+        if results ~= nil then return results, remaining end
+        if not coroutine.isyieldable() then error("requires a yieldable coroutine", 2) end
+
+        local waiter = { co = coroutine.running(), handles = handles, mode = mode }
+        waiters[#waiters + 1] = waiter
+        local woken, rest = coroutine.yield()
+        remove_waiter(waiter)
+        if woken ~= nil then return woken, rest end
+    end
+end
+
+-- `interrupt` spares children whose spec asked to survive interruption.
+function M.cancel_all(interrupt)
+    cancelling = true
+    for index = #live, 1, -1 do
+        local handle = live[index]
+        if not (interrupt and handle.spec.survives_interrupt) then handle:cancel() end
+    end
+    cancelling = false
+    pump_queue()
+    wake()
+end
+
+function M.reap()
+    local kept = {}
+    for _, handle in ipairs(live) do
+        if handle.settled ~= nil then
+            close_stream(handle)
+            handle.state = "closed"
+        else
+            kept[#kept + 1] = handle
+        end
+    end
+    live = kept
+end
+
+-- Cancellation is a request: consumers keep draining until native termination,
+-- then release their concurrency slot and stream subscription.
+function M.close_all()
+    cancelling = true
+    local closing = {}
+    for _, handle in ipairs(live) do
+        if handle.settled ~= nil then
+            close_stream(handle)
+            handle.state = "closed"
+        elseif handle.stream then
+            handle.close_on_settle = true
+            handle.state = "closing"
+            pcall(handle.stream.request_cancel, handle.stream)
+            closing[#closing + 1] = handle
+        else
+            handle:cancel()
+        end
+    end
+    live, queued = closing, {}
+    running = #closing
+    cancelling = false
+    wake()
+end
+
+return M

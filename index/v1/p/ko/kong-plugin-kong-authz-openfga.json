@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-kong-authz-openfga",
+  "versions": {
+    "0.1.0-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-authz-openfga/access.lua": {
+          "sha256": "e808ac84e71df0db2fbe5804f839104dcd7bb2cd4632003b04e9879e9eba7110",
+          "size": 4019,
+          "url": "https://raw.githubusercontent.com/dol/kong-authz-openfga/67c370956dcfe45ea122763e13a9d4c913c3187f/kong/plugins/kong-authz-openfga/access.lua"
+        },
+        "kong/plugins/kong-authz-openfga/handler.lua": {
+          "sha256": "70b99873a162fd3f164c6af21e9bfaa4b4784f19a1a809cbd8bcd36aa010e348",
+          "size": 360,
+          "url": "https://raw.githubusercontent.com/dol/kong-authz-openfga/67c370956dcfe45ea122763e13a9d4c913c3187f/kong/plugins/kong-authz-openfga/handler.lua"
+        },
+        "kong/plugins/kong-authz-openfga/schema.lua": {
+          "sha256": "be258a5a168ed09e0b41a4fb9211e3fd41b5e0311cb1ae76ebdf3ee0d18a597e",
+          "size": 2886,
+          "url": "https://raw.githubusercontent.com/dol/kong-authz-openfga/67c370956dcfe45ea122763e13a9d4c913c3187f/kong/plugins/kong-authz-openfga/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/dol/kong-authz-openfga",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Mon, 26 May 2025 21:00:51 GMT",
+        "rockspec": {
+          "date": "Mon, 26 May 2025 21:00:51 GMT",
+          "sha256": "84106f72b91693f18efb1e7def551de0d57f3661af346d142981591b3609dd1f",
+          "size": 697
+        },
+        "src": {
+          "date": "Mon, 26 May 2025 21:00:52 GMT",
+          "sha256": "6624094d32a9a20565db27946b51bb6bc95a46c23953f80f7ea537a4c5205253",
+          "size": 48008,
+          "url": "https://luarocks.org/kong-plugin-kong-authz-openfga-0.1.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-authz-openfga.access",
+        "kong.plugins.kong-authz-openfga.handler",
+        "kong.plugins.kong-authz-openfga.schema"
+      ],
+      "origin": {
+        "commit": "67c370956dcfe45ea122763e13a9d4c913c3187f",
+        "ref": "v0.1.0-2",
+        "type": "git",
+        "url": "https://github.com/dol/kong-authz-openfga.git"
+      },
+      "size": 7265,
+      "summary": "Kong plugin for kong-authz-openfga integration",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.",
+        "kong.tools.sandbox",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

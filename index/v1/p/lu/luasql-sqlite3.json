@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "luasql-sqlite3",
+  "versions": {
+    "2.8.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://lunarmodules.github.io/luasql/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 14 Feb 2026 19:34:35 GMT",
+        "rockspec": {
+          "date": "Sat, 14 Feb 2026 19:34:35 GMT",
+          "sha256": "d4e29c78897bc5551f4111740792f9232846ac37af40ff1d89d2b61882d00cff",
+          "size": 990
+        },
+        "src": {
+          "date": "Sat, 14 Feb 2026 19:34:37 GMT",
+          "sha256": "803da6e49ee6e7bc3e6701d8b7453c3eb6b0b4d842ca61414c2da742cba47691",
+          "size": 212949,
+          "url": "https://luarocks.org/luasql-sqlite3-2.8.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.sqlite3"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SQLITE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SQLITE": {
+              "header": "sqlite3.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "LUASQL_VERSION_NUMBER=\"2.8.0\""
+              ],
+              "incdirs": [
+                "$(SQLITE_INCDIR)"
+              ],
+              "libdirs": [
+                "$(SQLITE_LIBDIR)"
+              ],
+              "libraries": [
+                "sqlite3"
+              ],
+              "name": "luasql.sqlite3",
+              "sources": [
+                "src/luasql.c",
+                "src/ls_sqlite3.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 14 Feb 2026 19:34:37 GMT",
+        "sha256": "803da6e49ee6e7bc3e6701d8b7453c3eb6b0b4d842ca61414c2da742cba47691",
+        "size": 212949,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasql-sqlite3-2.8.0-1.src.rock"
+      },
+      "summary": "Database connectivity for Lua (SQLite3 driver)",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

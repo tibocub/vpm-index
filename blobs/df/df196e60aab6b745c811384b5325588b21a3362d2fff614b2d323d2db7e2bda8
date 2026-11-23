@@ -1,0 +1,31 @@
+--- languages.es
+-- @module es
+
+local s = require("say")
+
+s:set_namespace("es")
+
+-- s:set("test.message.ko", "Error, sorry.\nOne:\n%s\nTwo:\n%s")
+--
+-- base messages
+s:set("base.no.action.given", "No se ha indicado acción")
+s:set("base.invalid.action", "Acción inválida: %s")
+s:set("base.error.raised", "Se ha producido un error")
+
+-- repos messages
+s:set("repos.no.action.given", "No se ha indicado acción")
+s:set("repos.invalid.action", "Acción inválida en repos: %s")
+s:set("repos.valid.actions", "%s. Las acciones válidas son:")
+s:set("repos.list", "Listando los repositorios del directorio actual")
+s:set("repos.status", "Estado de mis repositorios")
+s:set("repos.updating.repos", "Actualizando repositorios en %s")
+s:set("repos.updating.external.repos", "Actualizando otros repositorios")
+s:set("repos.sync.repo.dir.does.not.exist", "El directorio %s no existe")
+
+-- notify messages
+s:set("notify.number.of.updates.low", "Algunos paquetes necesitan actualización...")
+s:set("notify.number.of.updates.normal", "Se debería actualizar pronto")
+s:set("notify.number.of.updates.critical", "Por favor, ¡Actualice ahora!")
+
+-- storage messages
+s:set("storage.check.paths", "Please check paths: source: %s, destination: %s")

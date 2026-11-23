@@ -1,0 +1,250 @@
+{
+  "kind": "app",
+  "name": "luapak",
+  "versions": {
+    "0.1.0.beta5-1": {
+      "bin": {
+        "luapak": "bin/luapak"
+      },
+      "blocked_by": {
+        "name": "luafilesystem",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "brieflz ~> 0.1.2",
+        "depgraph ~> 0.1",
+        "lua-glob-pattern ~> 0.2",
+        "luafilesystem ~> 1.6",
+        "luarocks ~> 2.4",
+        "luasrcdiet ~> 0.3",
+        "optparse ~> 1.1"
+      ],
+      "files": {
+        "bin/luapak": {
+          "sha256": "cd0f173079b183a05211311bbdaf8f8d335a8e56c9fc2fc4b6b6cf46c9097975",
+          "size": 1966,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/bin/luapak"
+        },
+        "luapak/build/builtin.lua": {
+          "sha256": "a677283f1b3a7495c32faa0c04ed6389e7da0c50a5cf07c66764ad81ee5cb3e6",
+          "size": 5334,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/build/builtin.lua"
+        },
+        "luapak/build/toolchain/gnu.lua": {
+          "sha256": "13a67bd9ff7d0b10d91a489453d862fa5d541ad6d65c58c518a30fd849f24523",
+          "size": 2334,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/build/toolchain/gnu.lua"
+        },
+        "luapak/build/toolchain/init.lua": {
+          "sha256": "6c6982183e418899ca12571b7eab47daaa248e478dc6055e0ad947a5ca860fcc",
+          "size": 2887,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/build/toolchain/init.lua"
+        },
+        "luapak/build/toolchain/msvc.lua": {
+          "sha256": "d09bb5a9379598c7fe28e836c860771be7e7086e178fd2701e8d10c904421b06",
+          "size": 1364,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/build/toolchain/msvc.lua"
+        },
+        "luapak/build/toolchain/utils.lua": {
+          "sha256": "c5bbb4401dfd2eb6c03efc37e31c9ea09cb2db113923e89a93778444360d0aa2",
+          "size": 1311,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/build/toolchain/utils.lua"
+        },
+        "luapak/build/warn_interceptor.lua": {
+          "sha256": "b3f7d768de83bbd1ae6790119cf438cfcebe15b99cef75ba4612ea2826847219",
+          "size": 705,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/build/warn_interceptor.lua"
+        },
+        "luapak/cli/analyse_deps.lua": {
+          "sha256": "aa57137e04e0aed1a29389b4cc47077050edb96a55a9b4586dc9ef6353a533e1",
+          "size": 4138,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/cli/analyse_deps.lua"
+        },
+        "luapak/cli/build_rock.lua": {
+          "sha256": "17c436faebcfb5e9d989b5b0d42e959f24dd228608d5f35bc8fb9f3ad5b83f3d",
+          "size": 4670,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/cli/build_rock.lua"
+        },
+        "luapak/cli/make.lua": {
+          "sha256": "d10fc3238e0a0faba04805e4976ddd2f9fd496f578f85ab6c43c46d709be40fb",
+          "size": 6954,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/cli/make.lua"
+        },
+        "luapak/cli/merge.lua": {
+          "sha256": "a1a8d957f965f32f773831af9b524de71cf4a48816788e6ad93eba16c994bccd",
+          "size": 1824,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/cli/merge.lua"
+        },
+        "luapak/cli/minify.lua": {
+          "sha256": "0bcb3921d23395f55bf7ba075541d3ca892954e5420a33a64f1bc7a9fb838f72",
+          "size": 1717,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/cli/minify.lua"
+        },
+        "luapak/cli/wrapper.lua": {
+          "sha256": "e2d35746514d5160c9afee8c74bca1acf1cdb39a2ef66e75f0cce28e5175c872",
+          "size": 1666,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/cli/wrapper.lua"
+        },
+        "luapak/compat.lua": {
+          "sha256": "4570b9a431a011eed7895d1187ce1212fb61c77dc430e4b9e52a2c1c26df18ac",
+          "size": 868,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/compat.lua"
+        },
+        "luapak/deps_analyser.lua": {
+          "sha256": "58869f0386bb3aa8f176941d79c653613eaee09def966274e4322e599f24795f",
+          "size": 9190,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/deps_analyser.lua"
+        },
+        "luapak/fs.lua": {
+          "sha256": "9d1a929488444fe5d4dab4574e7e301c0a26eccccd4c54c7de707aa3dc943cfd",
+          "size": 4976,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/fs.lua"
+        },
+        "luapak/init.lua": {
+          "sha256": "f5ed682c993d4a64e44216f7d229ac858cb1de36d7e1cd295ffee75b99599f35",
+          "size": 235,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/init.lua"
+        },
+        "luapak/logging.lua": {
+          "sha256": "3dca610975bcb79e31a8a35938587a47c549c74194c200ae35da6121ebe8b64d",
+          "size": 2988,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/logging.lua"
+        },
+        "luapak/lua_finder.lua": {
+          "sha256": "3b9e246dd47f2363778dfa0d96851fe22bf25e0ed0d4b63b0a87f519c91ee0a2",
+          "size": 7347,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/lua_finder.lua"
+        },
+        "luapak/luarocks/cfg_extra.lua": {
+          "sha256": "7bde36084c176c6edba67fc6bb32682d3881bc48ecccdd91869ac3175a34570c",
+          "size": 3163,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/luarocks/cfg_extra.lua"
+        },
+        "luapak/luarocks/constants.lua": {
+          "sha256": "757b68654c17ac010a9c81136fc99063976689913a99956448aeb65444909456",
+          "size": 374,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/luarocks/constants.lua"
+        },
+        "luapak/luarocks/init.lua": {
+          "sha256": "3c987f86d0fcc2fcbb4b47c932bee00935feea8fa8b6b01ec9d9de95d7288b4a",
+          "size": 4280,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/luarocks/init.lua"
+        },
+        "luapak/luarocks/site_config.lua": {
+          "sha256": "e0830d4304de3635c89a0cd2433639a6a926ffd89a526e2692d0fc5cbd1dd78b",
+          "size": 2132,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/luarocks/site_config.lua"
+        },
+        "luapak/make.lua": {
+          "sha256": "8451b4f699705001126470777f5a48f8a5760bce97aee23efaab2e38701ab436",
+          "size": 11386,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/make.lua"
+        },
+        "luapak/merger.lua": {
+          "sha256": "e6eeda6afca056ee6580323602acea24b922f0e9ce949b4cb523829ac8c2c025",
+          "size": 1947,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/merger.lua"
+        },
+        "luapak/minifier.lua": {
+          "sha256": "9ad124984e7ae8719fd5344b00050ac2496ec092c92f5866fa03dd27a2977a88",
+          "size": 1871,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/minifier.lua"
+        },
+        "luapak/optparse.lua": {
+          "sha256": "628395b967f04e131dc72831a3651f548b1446e18b9a91d75cc4bf1c7a8c2b90",
+          "size": 814,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/optparse.lua"
+        },
+        "luapak/pkgpath.lua": {
+          "sha256": "b2fb55644db58be644cde7e6440ad7e14cd10d3851ac2eda4912695a2c08e575",
+          "size": 1700,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/pkgpath.lua"
+        },
+        "luapak/utils.lua": {
+          "sha256": "8a6ac16b5fb9551b8cea87fd548f2f2e450e369aa7b88ba6bf3a4bf91dfbb8c4",
+          "size": 8795,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/utils.lua"
+        },
+        "luapak/wrapper.lua": {
+          "sha256": "be61b44a93f1acaff2dc16303dff1f779464c81c07d287a1f155c565341bc32e",
+          "size": 3860,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/wrapper.lua"
+        },
+        "luapak/wrapper_tmpl.lua": {
+          "sha256": "7c397e5f724f4bf33207fe27593eb90e066f48634ee9d345f57614a33423132b",
+          "size": 13087,
+          "url": "https://raw.githubusercontent.com/jirutka/luapak/v0.1.0.beta5/luapak-0.1.0.beta5/luapak/wrapper_tmpl.lua"
+        }
+      },
+      "homepage": "https://github.com/jirutka/luapak",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 23 Jul 2017 23:15:54 GMT",
+        "rockspec": {
+          "date": "Sun, 23 Jul 2017 23:15:54 GMT",
+          "sha256": "b556e023716cfa2cfd54c22cafc7143a1559cf33c3637c6c6a2bc17a8d1675c9",
+          "size": 2858
+        },
+        "src": {
+          "date": "Sun, 23 Jul 2017 23:15:55 GMT",
+          "sha256": "d6c7ca6c237ad9d067a9c9e26db4eb9765fe2381f37c7b6a9167da620f6f9de2",
+          "size": 38846,
+          "url": "https://luarocks.org/luapak-0.1.0.beta5-1.src.rock"
+        }
+      },
+      "modules": [
+        "luapak",
+        "luapak.build.builtin",
+        "luapak.build.toolchain",
+        "luapak.build.toolchain.gnu",
+        "luapak.build.toolchain.msvc",
+        "luapak.build.toolchain.utils",
+        "luapak.build.warn_interceptor",
+        "luapak.cli.analyse_deps",
+        "luapak.cli.build_rock",
+        "luapak.cli.make",
+        "luapak.cli.merge",
+        "luapak.cli.minify",
+        "luapak.cli.wrapper",
+        "luapak.compat",
+        "luapak.deps_analyser",
+        "luapak.fs",
+        "luapak.logging",
+        "luapak.lua_finder",
+        "luapak.luarocks",
+        "luapak.luarocks.cfg_extra",
+        "luapak.luarocks.constants",
+        "luapak.luarocks.site_config",
+        "luapak.make",
+        "luapak.merger",
+        "luapak.minifier",
+        "luapak.optparse",
+        "luapak.pkgpath",
+        "luapak.utils",
+        "luapak.wrapper",
+        "luapak.wrapper_tmpl"
+      ],
+      "origin": {
+        "sha256": "b3168875327d3696dc437e4b16c4a3ce2befeb2ab043ed77ad6f3a164688928a",
+        "type": "archive",
+        "url": "https://github.com/jirutka/luapak/archive/v0.1.0.beta5/luapak-0.1.0.beta5.tar.gz"
+      },
+      "size": 115883,
+      "summary": "Easily build a standalone executable for any Lua program.",
+      "undeclared_requires": [
+        "luarocks.cfg",
+        "optparse"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

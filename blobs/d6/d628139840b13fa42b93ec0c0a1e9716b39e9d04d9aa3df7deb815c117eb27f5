@@ -1,0 +1,156 @@
+
+local sfs = require 'sfs'
+local lrversion = require 'lrocket.version'
+local log = require 'lrocket.log'
+
+local Version = {} do
+	Version.__index = Version
+
+	local TRANSLATE = {
+		major = 3,
+		minor = 2,
+		patch = 1,
+	}
+
+	function Version.__index(ver, k)
+		if type(k) == 'number' then
+			return rawget(ver, k)
+		elseif Version[k] then
+			return Version[k]
+		else
+			return rawget(ver, TRANSLATE[k])
+		end
+	end
+
+	function Version.__eq(a, b)
+		if #a ~= #b then return false end
+		for i = 1, #a do
+			if a[i] ~= b[i] then
+				return false
+			end
+		end
+	end
+
+	function Version.__le(a, b)
+		return a == b or a < b
+	end
+
+	function Version.__lt(a, b)
+		if getmetatable(a) ~= getmetatable(b) then return false end
+
+		for i = 1, #a do
+			if type(a[i]) == type(b[i]) and a[i] < b[i] or tostring(a[i]) < tostring(b[i]) then
+				return true
+			end
+		end
+
+		return false
+	end
+
+	function Version:__tostring()
+		local res = {}
+		for i = 1, #self do
+			res[#res+1] = tostring(self[i])
+			if i ~= #self then
+				res[#res+1] = i == 3 and '-' or '.'
+			end
+		end
+	end
+end
+
+local function parserversion(version)
+	local res = { }
+	for field in version:gmatch "[^.-]+" do
+		res[#res+1] = tonumber(field) or field
+	end
+	return setmetatable(res, Version)
+end
+
+local function getabiver(path)
+	for line in io.lines(path) do
+		local abiver = line:match "%-%-lr:abi%s+(.*)$"
+		if abiver then return abiver end
+	end
+
+	return nil
+end
+
+local abi = {}
+
+local warnings = {}
+
+warnings.NO_ABI = [[
+hook $CHUNKNAME does not contain an ABI version
+this hook may fail due to internal ABI changes (current ABI version is v$ABI_VERSION)
+please upgrade the hook or downgrade lrc to a previous version
+if you are developing the hook add `--lr:abi $VERSION` to the related hook]]
+
+warnings.ABI_OUTDATED = [[
+ABI version in $CHUNKNAME is outdated, upgrade the hook to ABI v$ABI_VERSION or downgrade lrc to ABI v$HOOK_VERSION]]
+
+local function replace(fmt, vars)
+	return (fmt:gsub("$([%w_]+)", vars))
+end
+
+local reported = {}
+function abi.validatehook(file, chunkname)
+	if reported[chunkname] then return reported[chunkname] end
+	reported[chunkname] = true
+
+	chunkname = chunkname or file
+	local abi_ver = getabiver(file)
+
+	if not abi_ver then
+		return false, replace(warnings.NO_ABI, {
+			CHUNKNAME = chunkname,
+			ABI_VERSION = lrversion.ABI_VERSION,
+			VERSION = lrversion.VERSION
+		})
+	end
+
+	if parserversion(abi_ver) < parserversion(lrversion.ABI_VERSION) then
+		return false, replace(warnings.NO_ABI, {
+			CHUNKNAME = chunkname,
+			ABI_VERSION = lrversion.ABI_VERSION,
+			VERSION = lrversion.VERSION,
+			HOOK_VERSION = abi_ver,
+		})
+	end
+
+	return true
+end
+
+local function resolvemod(modname)
+	local path = sfs.searchpath(modname, package.path)
+
+	if path then return path end
+
+	local embedmod = string.format("lr:///lua_modules/%s.lua", modname:gsub("%.", "/"))
+	local embedmod_init = string.format("lr:///lua_modules/%s/init.lua", modname:gsub("%.", "/"))
+	local f = io.open(embedmod, 'r')
+	if f then f:close(); return embedmod end
+	f = io.open(embedmod_init, 'r')
+	if f then f:close(); return embedmod_init end
+
+	return nil
+end
+
+function abi.validatemodule(mod, chunkname)
+	local modpath = resolvemod(mod)
+	if modpath then
+		return abi.validatehook(modpath, chunkname)
+	else
+		return false
+	end
+end
+
+function abi.report(ok, err)
+	if ok then return end
+
+	log.warnf('%s\n', err)
+	log.checkpoint()
+	log.warn('trying anyways...')
+end
+
+return abi
+

@@ -1,0 +1,290 @@
+{
+  "kind": "app",
+  "name": "moonscript",
+  "versions": {
+    "0.8.0-1": {
+      "bin": {
+        "moon": "bin/moon",
+        "moonc": "bin/moonc"
+      },
+      "deps": [
+        "lpeg >= 0.10, ~= 0.11",
+        "argparse >= 0.7",
+        "luafilesystem >= 1.5"
+      ],
+      "files": {
+        "bin/moon": {
+          "sha256": "b2d36cc3c70d7b4bd55860bd33b378404b26be52118de2375f6e2510a4fe6e56",
+          "size": 3641,
+          "url": "blob:b2d36cc3c70d7b4bd55860bd33b378404b26be52118de2375f6e2510a4fe6e56"
+        },
+        "bin/moonc": {
+          "sha256": "a919ef94af4f26da9feebce66b1f3c6f52c0b74d0fc12c6bc8e9a3b0f07e3da8",
+          "size": 8293,
+          "url": "blob:a919ef94af4f26da9feebce66b1f3c6f52c0b74d0fc12c6bc8e9a3b0f07e3da8"
+        },
+        "moon/all.lua": {
+          "sha256": "2b5269a4bc56c64427f4dc7bedae3c90d7976c181a76aaf64060ae8c17b42f37",
+          "size": 84,
+          "url": "blob:2b5269a4bc56c64427f4dc7bedae3c90d7976c181a76aaf64060ae8c17b42f37"
+        },
+        "moon/init.lua": {
+          "sha256": "2851085e9e112a7794be05e6589ff2b3b1dac960703c966a8e3484ac95173757",
+          "size": 5031,
+          "url": "blob:2851085e9e112a7794be05e6589ff2b3b1dac960703c966a8e3484ac95173757"
+        },
+        "moonscript/base.lua": {
+          "sha256": "88a70b6c959798295200aca293a925972b0ffeda6e20ae43a0bb812d9919b313",
+          "size": 4147,
+          "url": "blob:88a70b6c959798295200aca293a925972b0ffeda6e20ae43a0bb812d9919b313"
+        },
+        "moonscript/cmd/coverage.lua": {
+          "sha256": "b7badcef054d2bf2e7e67ebd7773cd0521057d036c655c883bf322c6e11883ca",
+          "size": 3813,
+          "url": "blob:b7badcef054d2bf2e7e67ebd7773cd0521057d036c655c883bf322c6e11883ca"
+        },
+        "moonscript/cmd/lint.lua": {
+          "sha256": "b0357fb1c24c6e605d76b09c3b97dc2a8b4fb1ba11f5fc52a5ee868a96373e6f",
+          "size": 11985,
+          "url": "blob:b0357fb1c24c6e605d76b09c3b97dc2a8b4fb1ba11f5fc52a5ee868a96373e6f"
+        },
+        "moonscript/cmd/moonc.lua": {
+          "sha256": "35cb46477fe1c2c876d7b5bda26d957dc3d4169540e52f48bda8c00b6adcccdf",
+          "size": 5042,
+          "url": "blob:35cb46477fe1c2c876d7b5bda26d957dc3d4169540e52f48bda8c00b6adcccdf"
+        },
+        "moonscript/cmd/watchers.lua": {
+          "sha256": "9d615e6e12a2e919df0c0bcc13334fd6d080d5544f14f0537cf70d285d0304c5",
+          "size": 7058,
+          "url": "blob:9d615e6e12a2e919df0c0bcc13334fd6d080d5544f14f0537cf70d285d0304c5"
+        },
+        "moonscript/compile.lua": {
+          "sha256": "a574833881596606c07a6369d2fdfc934b82f6fe113fed874a7b3ded1b11e182",
+          "size": 21989,
+          "url": "blob:a574833881596606c07a6369d2fdfc934b82f6fe113fed874a7b3ded1b11e182"
+        },
+        "moonscript/compile/statement.lua": {
+          "sha256": "6c54eff12b8d4edf6efd153ad33e988c65db783026ff7a3846922631fe9e7d1e",
+          "size": 6602,
+          "url": "blob:6c54eff12b8d4edf6efd153ad33e988c65db783026ff7a3846922631fe9e7d1e"
+        },
+        "moonscript/compile/value.lua": {
+          "sha256": "db768c4321260c841b362f148565b187742aa1fb722ea2e60fccf44d51c9027d",
+          "size": 11197,
+          "url": "blob:db768c4321260c841b362f148565b187742aa1fb722ea2e60fccf44d51c9027d"
+        },
+        "moonscript/data.lua": {
+          "sha256": "779f6778b8fb8ff6c189fe26873a098d70b6efe7954d7489b357b8297abe4f22",
+          "size": 1440,
+          "url": "blob:779f6778b8fb8ff6c189fe26873a098d70b6efe7954d7489b357b8297abe4f22"
+        },
+        "moonscript/dump.lua": {
+          "sha256": "6cb600dc8b7f00d33787268ece1f0304d5d869c2952ff92ad6e1071537a76a8c",
+          "size": 972,
+          "url": "blob:6cb600dc8b7f00d33787268ece1f0304d5d869c2952ff92ad6e1071537a76a8c"
+        },
+        "moonscript/errors.lua": {
+          "sha256": "12d6f7c3627a9389c2afd73e95d841fedab3790cf0715a624badc8ecf051d9eb",
+          "size": 2924,
+          "url": "blob:12d6f7c3627a9389c2afd73e95d841fedab3790cf0715a624badc8ecf051d9eb"
+        },
+        "moonscript/init.lua": {
+          "sha256": "a9fb617e1777577a62d0b089e1dfb76ba8713f9698173c5fdcd5504a52285233",
+          "size": 95,
+          "url": "blob:a9fb617e1777577a62d0b089e1dfb76ba8713f9698173c5fdcd5504a52285233"
+        },
+        "moonscript/line_tables.lua": {
+          "sha256": "938f1450e9923372224e0d28db588a057f4ac30143bbc38ba746011be9317466",
+          "size": 11,
+          "url": "blob:938f1450e9923372224e0d28db588a057f4ac30143bbc38ba746011be9317466"
+        },
+        "moonscript/parse.lua": {
+          "sha256": "72acd5bc138d6f7efbb571bae27bd8254e24235d3e630991cfe0641ef3b7bd3e",
+          "size": 788,
+          "url": "blob:72acd5bc138d6f7efbb571bae27bd8254e24235d3e630991cfe0641ef3b7bd3e"
+        },
+        "moonscript/parse/errors.lua": {
+          "sha256": "efaf2037105d7533b51b61c965a9268b9d1045e4ed2a26d9b4a7212478930396",
+          "size": 4061,
+          "url": "blob:efaf2037105d7533b51b61c965a9268b9d1045e4ed2a26d9b4a7212478930396"
+        },
+        "moonscript/parse/grammar.lua": {
+          "sha256": "1411016fe49bbfb8c2319dbaf70adb271ba73a9429a1058317ee76be1250c049",
+          "size": 13742,
+          "url": "blob:1411016fe49bbfb8c2319dbaf70adb271ba73a9429a1058317ee76be1250c049"
+        },
+        "moonscript/parse/slow.lua": {
+          "sha256": "a1f9d38786899bd4c454addf36ffcb3b55cd95ec20a2dc89130a98ed807c53b8",
+          "size": 359591,
+          "url": "blob:a1f9d38786899bd4c454addf36ffcb3b55cd95ec20a2dc89130a98ed807c53b8"
+        },
+        "moonscript/parse/tree.lua": {
+          "sha256": "c8496d659b03e1e9731333823ac9b0a883f404bf0d59b94952429d77180623ef",
+          "size": 2133,
+          "url": "blob:c8496d659b03e1e9731333823ac9b0a883f404bf0d59b94952429d77180623ef"
+        },
+        "moonscript/transform.lua": {
+          "sha256": "59c0d38b84857707ec472bdaf92ca64bce85f2657d15bcc02e3dbf5567a3f18d",
+          "size": 116,
+          "url": "blob:59c0d38b84857707ec472bdaf92ca64bce85f2657d15bcc02e3dbf5567a3f18d"
+        },
+        "moonscript/transform/accumulator.lua": {
+          "sha256": "61856e71db5e9cf0993843b090f92555b2e767c661c78f6472b4f18e48dc351a",
+          "size": 2803,
+          "url": "blob:61856e71db5e9cf0993843b090f92555b2e767c661c78f6472b4f18e48dc351a"
+        },
+        "moonscript/transform/class.lua": {
+          "sha256": "271142cb5b76360d1e0abce7c0ac77c8d9f6dca8557ba2cff8da11a0fad86da6",
+          "size": 10530,
+          "url": "blob:271142cb5b76360d1e0abce7c0ac77c8d9f6dca8557ba2cff8da11a0fad86da6"
+        },
+        "moonscript/transform/comprehension.lua": {
+          "sha256": "1b44fcd955b796c8a1e3f9b5c8a8934a794205cb4a368c4bd8de1d0c78cb36af",
+          "size": 1278,
+          "url": "blob:1b44fcd955b796c8a1e3f9b5c8a8934a794205cb4a368c4bd8de1d0c78cb36af"
+        },
+        "moonscript/transform/destructure.lua": {
+          "sha256": "48875fe55c3374c6582cf7b257d70b9d4a64274ae74255f0f105a9f160e9e86a",
+          "size": 8651,
+          "url": "blob:48875fe55c3374c6582cf7b257d70b9d4a64274ae74255f0f105a9f160e9e86a"
+        },
+        "moonscript/transform/names.lua": {
+          "sha256": "d5622a785cf0d19cd2a192b3b491ee7311869f45f7613969c5f8eb907ae6db50",
+          "size": 2472,
+          "url": "blob:d5622a785cf0d19cd2a192b3b491ee7311869f45f7613969c5f8eb907ae6db50"
+        },
+        "moonscript/transform/statement.lua": {
+          "sha256": "4a5f57ca8c48949f430d9bb5c6301f6b57d8feb38169ee549b1cc13267a5f055",
+          "size": 21302,
+          "url": "blob:4a5f57ca8c48949f430d9bb5c6301f6b57d8feb38169ee549b1cc13267a5f055"
+        },
+        "moonscript/transform/statements.lua": {
+          "sha256": "b5f489784a3b61854d4d3a72a1cbc7c78e9bdc2cff727c2d8df16d650fcc4623",
+          "size": 4185,
+          "url": "blob:b5f489784a3b61854d4d3a72a1cbc7c78e9bdc2cff727c2d8df16d650fcc4623"
+        },
+        "moonscript/transform/transformer.lua": {
+          "sha256": "3192224c2ae941d0b987c3f344426c7f61f1696c2f53bd46af6b161aac8d81b8",
+          "size": 1910,
+          "url": "blob:3192224c2ae941d0b987c3f344426c7f61f1696c2f53bd46af6b161aac8d81b8"
+        },
+        "moonscript/transform/value.lua": {
+          "sha256": "94c5ebb047feea86b7be4a66fc1cb68fd2d2011a7ffcd04d67b4ef356bb25ffa",
+          "size": 10053,
+          "url": "blob:94c5ebb047feea86b7be4a66fc1cb68fd2d2011a7ffcd04d67b4ef356bb25ffa"
+        },
+        "moonscript/types.lua": {
+          "sha256": "e8dade74961aa237bba39622371b09c819496d48bf4249a8c3b15e60cf88da2d",
+          "size": 6305,
+          "url": "blob:e8dade74961aa237bba39622371b09c819496d48bf4249a8c3b15e60cf88da2d"
+        },
+        "moonscript/util.lua": {
+          "sha256": "ea98bcb9e9292eb67038394eeba67ffd9587c42505ee65651e928f35a72ba54f",
+          "size": 5478,
+          "url": "blob:ea98bcb9e9292eb67038394eeba67ffd9587c42505ee65651e928f35a72ba54f"
+        },
+        "moonscript/version.lua": {
+          "sha256": "be83885fa99b4f4f62a2032f8af81ee2d14e411e7bdcc2a3384496205f80f671",
+          "size": 508,
+          "url": "blob:be83885fa99b4f4f62a2032f8af81ee2d14e411e7bdcc2a3384496205f80f671"
+        }
+      },
+      "homepage": "https://moonscript.org",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 22 Oct 2026 20:57:07 GMT",
+        "rockspec": {
+          "date": "Thu, 22 Oct 2026 20:57:07 GMT",
+          "sha256": "511deed7a87c31f36760e2bcc9fb856f0c0f0733e13d5ff05fadd58f8c87754c",
+          "size": 2643
+        },
+        "src": {
+          "date": "Thu, 22 Oct 2026 20:57:07 GMT",
+          "sha256": "f28c82626cb50852e4808edf5632c1ded0a7314575ecd020c424f0c7c09e9dc6",
+          "size": 303440,
+          "url": "https://luarocks.org/moonscript-0.8.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "moon",
+        "moon.all",
+        "moonscript",
+        "moonscript.base",
+        "moonscript.cmd.coverage",
+        "moonscript.cmd.lint",
+        "moonscript.cmd.moonc",
+        "moonscript.cmd.watchers",
+        "moonscript.compile",
+        "moonscript.compile.statement",
+        "moonscript.compile.value",
+        "moonscript.data",
+        "moonscript.dump",
+        "moonscript.errors",
+        "moonscript.line_tables",
+        "moonscript.parse",
+        "moonscript.parse.errors",
+        "moonscript.parse.grammar",
+        "moonscript.parse.native",
+        "moonscript.parse.slow",
+        "moonscript.parse.tree",
+        "moonscript.transform",
+        "moonscript.transform.accumulator",
+        "moonscript.transform.class",
+        "moonscript.transform.comprehension",
+        "moonscript.transform.destructure",
+        "moonscript.transform.names",
+        "moonscript.transform.statement",
+        "moonscript.transform.statements",
+        "moonscript.transform.transformer",
+        "moonscript.transform.value",
+        "moonscript.types",
+        "moonscript.util",
+        "moonscript.version"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "moonscript.parse.native",
+              "sources": [
+                "moonscript/parse/native.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 22 Oct 2026 20:57:07 GMT",
+        "sha256": "f28c82626cb50852e4808edf5632c1ded0a7314575ecd020c424f0c7c09e9dc6",
+        "size": 303440,
+        "type": "luarocks",
+        "url": "https://luarocks.org/moonscript-0.8.0-1.src.rock"
+      },
+      "size": 550230,
+      "summary": "A programmer friendly language that compiles to Lua",
+      "undeclared_requires": [
+        "ansicolors",
+        "inotify",
+        "lint_config",
+        "moonscript_parse_slow",
+        "pgen",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

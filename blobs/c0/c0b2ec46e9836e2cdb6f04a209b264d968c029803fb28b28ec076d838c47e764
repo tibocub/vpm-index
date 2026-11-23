@@ -1,0 +1,200 @@
+local const = require "impart.sdk.const"
+local rpc = require "impart.sdk.rpcmsgs"
+local bit = bit or require "bit32"
+
+-- luacheck: push globals unpack
+-- luacheck: push ignore accessing undefined field unpack of global table
+local unpack = unpack or table.unpack
+-- luacheck: pop
+-- luacheck: pop
+
+--- @class Client
+--- @field private reqMsgHeader string
+--- @field private resMsgHeader string
+--- @field private settingsMsgHeader string
+--- @field private connFactory ConnFactory
+--- @field private moduleInfo string?
+local Client = {}
+Client.__index = Client
+
+--- @param pluginIdentifier number
+--- @param pluginVersion number
+--- @param connFactory ConnFactory
+--- @param moduleInfo string? optional module info key-value string
+--- @return Client
+local function newClient(pluginIdentifier, pluginVersion, connFactory, moduleInfo)
+  ---@type Client
+  local c = {
+    reqMsgHeader = string.char(unpack({
+      const.ReqMsgRPC,
+      bit.band(pluginIdentifier, 0xFF),
+      bit.rshift(bit.band(pluginIdentifier, 0xFF00), 8),
+      bit.band(pluginVersion, 0xFF),
+      bit.rshift(bit.band(pluginVersion, 0xFF00), 8),
+      const.CBORrpcEncoding,
+      const.NoRPCCompression,
+      bit.bor(0, const.AdvancedFlagCloseConnection),
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+    })),
+    resMsgHeader = string.char(unpack({
+      const.ResMsgRPC,
+      bit.band(pluginIdentifier, 0xFF),
+      bit.rshift(bit.band(pluginIdentifier, 0xFF00), 8),
+      bit.band(pluginVersion, 0xFF),
+      bit.rshift(bit.band(pluginVersion, 0xFF00), 8),
+      const.CBORrpcEncoding,
+      const.NoRPCCompression,
+      bit.bor(0, const.AdvancedFlagCloseConnection),
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+    })),
+    settingsMsgHeader = string.char(unpack({
+      const.SettingsRPC,
+      bit.band(pluginIdentifier, 0xFF),
+      bit.rshift(bit.band(pluginIdentifier, 0xFF00), 8),
+      bit.band(pluginVersion, 0xFF),
+      bit.rshift(bit.band(pluginVersion, 0xFF00), 8),
+      const.CBORrpcEncoding,
+      const.NoRPCCompression,
+      bit.bor(0, const.AdvancedFlagCloseConnection),
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+    })),
+    connFactory = connFactory,
+    moduleInfo = moduleInfo
+  }
+
+  connFactory:setHealthHeader({
+    const.HealthRPC,
+    bit.band(pluginIdentifier, 0xFF),
+    bit.rshift(bit.band(pluginIdentifier, 0xFF00), 8),
+    bit.band(pluginVersion, 0xFF),
+    bit.rshift(bit.band(pluginVersion, 0xFF00), 8),
+    const.CBORrpcEncoding,
+    const.NoRPCCompression,
+    0, --- Don't close the connection after sending the health message.
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  })
+
+  return setmetatable(c, Client)
+end
+
+--- @param req HTTPRequestInterface
+--- @param maxBodySize integer? max request body bytes to capture (SDK default if nil)
+--- @param timeoutMs integer? per-call RPC timeout override (ms); factory default when nil
+--- @return ReqMsgResponse res
+--- @return string? err
+function Client:InspectRequest(req, maxBodySize, timeoutMs)
+  local conn, err = self.connFactory:newConn(timeoutMs)
+  if err then
+    return {}, err
+  end
+
+  local _, writeErr = conn:write(self.reqMsgHeader ..
+    rpc.newReqMsg(req, self.moduleInfo, maxBodySize):encode())
+  if writeErr then
+    conn:close()
+    return {}, writeErr
+  end
+
+  local b, readErr = conn:read()
+  if readErr then
+    conn:close()
+    return {}, readErr
+  end
+
+  conn:close()
+
+  return rpc.decodeReqMsgResponse(b)
+end
+
+--- @param res HTTPResponseInterface
+--- @param requestID string
+--- @param maxBodySize integer? max response body bytes to capture (SDK default if nil)
+--- @param timeoutMs integer? per-call RPC timeout override (ms); factory default when nil
+--- @return ResMsgResponse res
+--- @return string? err
+function Client:InspectResponse(res, requestID, maxBodySize, timeoutMs)
+  local conn, err = self.connFactory:newConn(timeoutMs)
+  if err then
+    return {}, err
+  end
+
+  local _, writeErr = conn:write(self.resMsgHeader .. rpc.newResMsg(res, requestID, maxBodySize):encode())
+  if writeErr then
+    conn:close()
+    return {}, writeErr
+  end
+
+  local b, readErr = conn:read()
+  if readErr then
+    conn:close()
+    return {}, readErr
+  end
+
+  conn:close()
+
+  return rpc.decodeResMsgResponse(b)
+end
+
+--- Fetch the Inspector's inspection-profile set via a SettingsRPC. The optional
+--- profilesHash is the module's last-known hash; when it matches the Inspector's
+--- current set, the response omits `profiles` (a conditional fetch), so callers
+--- should keep their existing cache. A short timeout is appropriate — this runs
+--- off a background poller, not the request hot path.
+--- @param profilesHash string? last-known profiles hash (empty/nil forces a full resend)
+--- @param timeoutMs integer? per-call timeout override (ms); factory default when nil
+--- @return SettingsRPCResponse? res
+--- @return string? err
+function Client:FetchSettings(profilesHash, timeoutMs)
+  local conn, err = self.connFactory:newConn(timeoutMs)
+  if err then
+    return nil, err
+  end
+
+  local _, writeErr = conn:write(self.settingsMsgHeader .. rpc.newSettingsMsg(profilesHash):encode())
+  if writeErr then
+    conn:close()
+    return nil, writeErr
+  end
+
+  local b, readErr = conn:read()
+  if readErr then
+    conn:close()
+    return nil, readErr
+  end
+
+  conn:close()
+
+  return rpc.decodeSettingsResponse(b)
+end
+
+return {
+  newClient = newClient,
+}

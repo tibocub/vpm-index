@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "audit-log",
+  "versions": {
+    "0.1.5-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/audit-log/api.lua": {
+          "sha256": "a74f7e4ce85f45c92fd2e8cb14c7793c90510d68d74cece80f0c651782d94612",
+          "size": 4580,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-audit-log/5a0fefea0482d957702c16c3caa9e265fdd5e924/kong/plugins/audit-log/api.lua"
+        },
+        "kong/plugins/audit-log/daos.lua": {
+          "sha256": "4311558ae105d1559197a600c8409c44fa4672d2d965e10406c93f79cb8edad0",
+          "size": 537,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-audit-log/5a0fefea0482d957702c16c3caa9e265fdd5e924/kong/plugins/audit-log/daos.lua"
+        },
+        "kong/plugins/audit-log/handler.lua": {
+          "sha256": "d65a8fd746f6dba10a2f34625d49214e949f7a66b5fa4bc854c1e23a5b909ace",
+          "size": 94,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-audit-log/5a0fefea0482d957702c16c3caa9e265fdd5e924/kong/plugins/audit-log/handler.lua"
+        },
+        "kong/plugins/audit-log/migrations/000_base_audit_log.lua": {
+          "sha256": "8a74429f8e114fe2dae36cde5ce4c6a374874666558703e090a9dc7a56b3e1d4",
+          "size": 7766,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-audit-log/5a0fefea0482d957702c16c3caa9e265fdd5e924/kong/plugins/audit-log/migrations/000_base_audit_log.lua"
+        },
+        "kong/plugins/audit-log/migrations/init.lua": {
+          "sha256": "00e986397e4726e724c0aa1de0f28de52f9adde76010b65c2fb61d03007ebc7b",
+          "size": 36,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-audit-log/5a0fefea0482d957702c16c3caa9e265fdd5e924/kong/plugins/audit-log/migrations/init.lua"
+        },
+        "kong/plugins/audit-log/schema.lua": {
+          "sha256": "d0eded99f627387cf8627bcfea6c0842c791e57f8cee59f27899ba0209691c09",
+          "size": 176,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-audit-log/5a0fefea0482d957702c16c3caa9e265fdd5e924/kong/plugins/audit-log/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/mykaarma/kong-audit-log",
+      "host": "openresty",
+      "license": "AGPL-3",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 30 Oct 2025 06:55:32 GMT",
+        "rockspec": {
+          "date": "Thu, 30 Oct 2025 06:55:32 GMT",
+          "sha256": "ac92b314514f3be5e13498b3998d0fb228ef77b6f36dbeb66b5b0d9e161b29dc",
+          "size": 1248
+        },
+        "src": {
+          "date": "Thu, 30 Oct 2025 06:55:32 GMT",
+          "sha256": "6c2f48cf14be09418129223559b66b7105da7e3f545af7c98b073c4b54f7928c",
+          "size": 21240,
+          "url": "https://luarocks.org/audit-log-0.1.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.audit-log.api",
+        "kong.plugins.audit-log.daos",
+        "kong.plugins.audit-log.handler",
+        "kong.plugins.audit-log.migrations",
+        "kong.plugins.audit-log.migrations.000_base_audit_log",
+        "kong.plugins.audit-log.schema"
+      ],
+      "origin": {
+        "commit": "5a0fefea0482d957702c16c3caa9e265fdd5e924",
+        "ref": "0.1.5",
+        "type": "git",
+        "url": "https://github.com/mykaarma/kong-audit-log"
+      },
+      "size": 13189,
+      "summary": "audit-log is a custom plugin made at MyKaarma to generate audit logs whenever a consumer/credential/rate-limit is created/updated/deleted in Kong",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "ngx"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (ngx)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "partial",
+        "total": 6
+      }
+    }
+  }
+}

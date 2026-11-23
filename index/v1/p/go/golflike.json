@@ -1,0 +1,287 @@
+{
+  "kind": "app",
+  "name": "golflike",
+  "versions": {
+    "0.6b-1": {
+      "bin": {
+        "golflike": "bin/golflike"
+      },
+      "deps": [
+        "date >= 2.1.2",
+        "30log >= 1.3.0",
+        "forma >= 0.4",
+        "lcurses >= 9.0.0",
+        "luaposix >= 34.0.4"
+      ],
+      "files": {
+        "bin/golflike": {
+          "sha256": "ae1144ee613e10ff6e6ac0e5314549c4a4ac4ddb23304463954b8cfcd0540b50",
+          "size": 3642,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/main.lua"
+        },
+        "golflike/aim.lua": {
+          "sha256": "eacc264a43a47cf0d06767e2275861e9cab993111783f1db6b99a0b2e76d60bc",
+          "size": 7886,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/aim.lua"
+        },
+        "golflike/astar.lua": {
+          "sha256": "f9fcca48141fee03bc1e32b5e5a48c70289e81da114ecacbc89dfaf671b553e0",
+          "size": 2324,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/astar.lua"
+        },
+        "golflike/bresenham.lua": {
+          "sha256": "2b1ebb298f16ebfc46fdd11316d03d2294ef2790c38cb646b3868e53dd16893c",
+          "size": 1358,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/bresenham.lua"
+        },
+        "golflike/clubs.lua": {
+          "sha256": "9a0468772e3ec354f4a3d3dac356135a5967d9c1428c7d2678f371208af3ad85",
+          "size": 1415,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/clubs.lua"
+        },
+        "golflike/common.lua": {
+          "sha256": "2067a66e81a038f79f99c51a590f1ecebddfcb4a224cab03931852ebe6af9527",
+          "size": 593,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/common.lua"
+        },
+        "golflike/competition.lua": {
+          "sha256": "2828b07207cda907441f37e5a4e0b66de8a0fea013b060ba28af3ef87d4fa79b",
+          "size": 6025,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/competition.lua"
+        },
+        "golflike/draw.lua": {
+          "sha256": "449daac52910edc6ac5df53d5b1fbeac8b826d18284bdb9af1e2bf965983022d",
+          "size": 3875,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/draw.lua"
+        },
+        "golflike/effects/watershimmer.lua": {
+          "sha256": "eee2816f490a901f59afde0a0dd265b4dfd65e61eebb483243b4ee924fc6d666",
+          "size": 1535,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/effects/watershimmer.lua"
+        },
+        "golflike/exitconf.lua": {
+          "sha256": "497432fe6c9a8a1c35324b0510757c5894ce33fae5a685a29c4361e2f8698372",
+          "size": 901,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/exitconf.lua"
+        },
+        "golflike/flight.lua": {
+          "sha256": "a55094269b9e79e1eac3941092fb053802bd69b218bcad497493d618f8bf4c79",
+          "size": 3910,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/flight.lua"
+        },
+        "golflike/geometry.lua": {
+          "sha256": "598cb9199779a526d85f3757eaae082ce629327349a73c977edd87741586202c",
+          "size": 3592,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/geometry.lua"
+        },
+        "golflike/help.lua": {
+          "sha256": "e4dbbcdb51d0062677d955c629578596e2be19120f8fb2e1f4f5e38abff5db7e",
+          "size": 6489,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/help.lua"
+        },
+        "golflike/hole.lua": {
+          "sha256": "970d059db8c5d65179055d4afea0a2f9f63ce8cc49dcfe3fb1007d2eee4750e1",
+          "size": 9342,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/hole.lua"
+        },
+        "golflike/keymap.lua": {
+          "sha256": "b9225faa6080abe7ea92a58fd7f2812e15ec2b9f68d410b9ecc4fffe88932013",
+          "size": 710,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/keymap.lua"
+        },
+        "golflike/lib/cmwc.lua": {
+          "sha256": "6c94bf6e74906565c525f07cdcd44a1ed48820a5b51ac73013992d3d5cf3a8ae",
+          "size": 2922,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/lib/cmwc.lua"
+        },
+        "golflike/lib/log.lua": {
+          "sha256": "4039e28215bb83b2f52fe242287f36ffb540cf193d8064e4558121a868cdf8c3",
+          "size": 3149,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/lib/log.lua"
+        },
+        "golflike/loading.lua": {
+          "sha256": "6776670e21f3880cb68d339615a3b56912d898bd8e547282ae5562a2468adf0d",
+          "size": 2296,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/loading.lua"
+        },
+        "golflike/map.lua": {
+          "sha256": "2285306690977b474067cf85ee7a062389d58cc075d663bbe450ec4c5233262e",
+          "size": 2887,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/map.lua"
+        },
+        "golflike/mapgen.lua": {
+          "sha256": "178ea835b0992e8f2af0f370fd6a97b5a612d78b80b2785cedc38e596097c09d",
+          "size": 3704,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/mapgen.lua"
+        },
+        "golflike/maprender.lua": {
+          "sha256": "ade4220aae742a2544facd569ecb6debb2cd3450ce7c34a09958315b67f57baf",
+          "size": 1573,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/maprender.lua"
+        },
+        "golflike/markov.lua": {
+          "sha256": "2f9b9705cecf330b5cfbbe1d593e955eba1f21fac4089e355304154e5c0f7a34",
+          "size": 2562,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/markov.lua"
+        },
+        "golflike/menu.lua": {
+          "sha256": "09c1cbadb87ba0505c8cf2acc4cf6e31a1abc4db379e36242f9fccf5281aacbd",
+          "size": 3141,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/menu.lua"
+        },
+        "golflike/message.lua": {
+          "sha256": "91be043949851101c18541523a394cd20f8eb5ca840ada9ebd90f8e865bc7635",
+          "size": 2599,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/message.lua"
+        },
+        "golflike/par.lua": {
+          "sha256": "4fda3661dbe87a1b44909aea2e42026d940cd3421cd4aeaee38161dd99d51d68",
+          "size": 1595,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/par.lua"
+        },
+        "golflike/pqueue.lua": {
+          "sha256": "d57f822fd5542dc9cdc198874c77b75c9c913efd180e6cd7f43bf5354815b5bb",
+          "size": 1502,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/pqueue.lua"
+        },
+        "golflike/random.lua": {
+          "sha256": "4d7186848e658c220d772354931059c71446f6f83abcbce2153f948fdacbac10",
+          "size": 911,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/random.lua"
+        },
+        "golflike/score_hole.lua": {
+          "sha256": "62f6bb797b929db586d2919b487efad2ffa912fb62476a166af62c2c849ccd93",
+          "size": 1331,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/score_hole.lua"
+        },
+        "golflike/state.lua": {
+          "sha256": "bb511e0a2f738d63157b3066d21c5a336b18cb37aabd4eb987f76c55515c5b5d",
+          "size": 2558,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/state.lua"
+        },
+        "golflike/suffix_data.lua": {
+          "sha256": "824fa93f6ce619f59a0f6c313057c7bdb1b79b89f1a3e4684aaa9727b525fa0d",
+          "size": 4069,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/suffix_data.lua"
+        },
+        "golflike/surname_data.lua": {
+          "sha256": "290d28c643a07c80f22fa6c74b2a378d15c20d61306d928da5dd2426728247a4",
+          "size": 1507,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/surname_data.lua"
+        },
+        "golflike/town_data.lua": {
+          "sha256": "e1314c5c0c9a2df697d21d1bd6c3acfb38b77d13ef22791615667b7afbc15815",
+          "size": 22014,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/town_data.lua"
+        },
+        "golflike/transition.lua": {
+          "sha256": "26f14776cf635282a951baf8dd84ecd8b322541ef0f2f8827ed3389b8b4c7032",
+          "size": 1283,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/transition.lua"
+        },
+        "golflike/util.lua": {
+          "sha256": "20567fa69d20de9700aa5ed2877eeec1879ec9a65b4201c01cdbba9d81f7fe18",
+          "size": 1179,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golflike/util.lua"
+        },
+        "golfterm/colour.lua": {
+          "sha256": "d43cd90f9c0177fa2d2d92bc15ba6f8dacc94db9198b42f9904d28b971a7f420",
+          "size": 402,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golfterm/colour.lua"
+        },
+        "golfterm/io.lua": {
+          "sha256": "f0b0878bf2e685252c6000ca3bfa32ce2805072ec6c23dc05aec9bae6ffe171d",
+          "size": 7510,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golfterm/io.lua"
+        },
+        "golfterm/keys.lua": {
+          "sha256": "fa5e2d95010feb712c03bfc8756215ed7f3885f8ef1df083ac837bedc9ab234f",
+          "size": 1700,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golfterm/keys.lua"
+        },
+        "golfterm/lcurses_driver.lua": {
+          "sha256": "4f0538b3d2ae55efdc6e793b9d6c65fa297080a532d7b6cf049afc0c32233aa3",
+          "size": 3658,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golfterm/lcurses_driver.lua"
+        },
+        "golfterm/plua_driver.lua": {
+          "sha256": "bc09f44d9f454edbb143481cf1895457e165fb66fefe81aa928e5a094a2dda04",
+          "size": 5914,
+          "url": "https://raw.githubusercontent.com/nhartland/golflike/377c23c9f91af82cfc292e51041adc6df32d6041/golfterm/plua_driver.lua"
+        }
+      },
+      "homepage": "https://github.com/nhartland/golflike",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 06 Apr 2020 19:30:44 GMT",
+        "rockspec": {
+          "date": "Mon, 06 Apr 2020 19:30:44 GMT",
+          "sha256": "330080f6ab600b2d9613ebabc2b96a5553518ee16e3aed196f2f67ab2439597b",
+          "size": 3260
+        }
+      },
+      "modules": [
+        "golflike.aim",
+        "golflike.astar",
+        "golflike.bresenham",
+        "golflike.clubs",
+        "golflike.common",
+        "golflike.competition",
+        "golflike.draw",
+        "golflike.effects.watershimmer",
+        "golflike.exitconf",
+        "golflike.flight",
+        "golflike.geometry",
+        "golflike.help",
+        "golflike.hole",
+        "golflike.keymap",
+        "golflike.lib.cmwc",
+        "golflike.lib.log",
+        "golflike.loading",
+        "golflike.map",
+        "golflike.mapgen",
+        "golflike.maprender",
+        "golflike.markov",
+        "golflike.menu",
+        "golflike.message",
+        "golflike.par",
+        "golflike.pqueue",
+        "golflike.random",
+        "golflike.score_hole",
+        "golflike.state",
+        "golflike.suffix_data",
+        "golflike.surname_data",
+        "golflike.town_data",
+        "golflike.transition",
+        "golflike.util",
+        "golfterm.colour",
+        "golfterm.io",
+        "golfterm.keys",
+        "golfterm.lcurses_driver",
+        "golfterm.plua_driver"
+      ],
+      "origin": {
+        "commit": "377c23c9f91af82cfc292e51041adc6df32d6041",
+        "ref": "v0.6b",
+        "type": "git",
+        "url": "https://github.com/nhartland/golflike"
+      },
+      "size": 135563,
+      "summary": "A golf roguelike",
+      "undeclared_requires": [
+        "curses",
+        "posix.sys.time"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

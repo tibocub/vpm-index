@@ -1,0 +1,61 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-apikey-validator",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "lunajson >= 1.2.3-1"
+      ],
+      "files": {
+        "kong/plugins/apikey-validator/handler.lua": {
+          "sha256": "8a19d6bf5dd7f66916c22d64a1e7b0f2f6e09b0f8d4ce6dce5fab61ac5bacd37",
+          "size": 8638,
+          "url": "https://raw.githubusercontent.com/fenix-hub/kong-apikey-validator/35c0596e2156904ee4a525f6bc7753955a313fdc/kong/plugins/apikey-validator/handler.lua"
+        },
+        "kong/plugins/apikey-validator/schema.lua": {
+          "sha256": "28af03a49b533b92454a33b8e440eb18545d9fe2d0c545f08db76615d5e8edf6",
+          "size": 2270,
+          "url": "https://raw.githubusercontent.com/fenix-hub/kong-apikey-validator/35c0596e2156904ee4a525f6bc7753955a313fdc/kong/plugins/apikey-validator/schema.lua"
+        }
+      },
+      "homepage": "https://fenix-hub.github.io/kong-apikey-validator",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 12 Dec 2024 14:40:19 GMT",
+        "rockspec": {
+          "date": "Thu, 12 Dec 2024 14:40:19 GMT",
+          "sha256": "1771bedffd9a071887383d5e8dadbee91de08d360f6964fbd222d26552fc1279",
+          "size": 1110
+        }
+      },
+      "modules": [
+        "kong.plugins.apikey-validator.handler",
+        "kong.plugins.apikey-validator.schema"
+      ],
+      "origin": {
+        "commit": "35c0596e2156904ee4a525f6bc7753955a313fdc",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/fenix-hub/kong-apikey-validator.git"
+      },
+      "size": 10908,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-plugins-openidc",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.7.5-1"
+      ],
+      "files": {
+        "kong/plugins/openidc/access.lua": {
+          "sha256": "5153f85dc31580ecaf61f2e58e31c1298a88f97da79c311446973dab4f331918",
+          "size": 550,
+          "url": "https://raw.githubusercontent.com/murillio4/kong-openidc/13f06bae8550548ad6c4a88443f513e239b203c8/kong/plugins/openidc/access.lua"
+        },
+        "kong/plugins/openidc/handler.lua": {
+          "sha256": "7c485fbffca21fa5cf689ccabec1e1a2d22609bc54226e1e30cdfa71eafe5d35",
+          "size": 641,
+          "url": "https://raw.githubusercontent.com/murillio4/kong-openidc/13f06bae8550548ad6c4a88443f513e239b203c8/kong/plugins/openidc/handler.lua"
+        },
+        "kong/plugins/openidc/schema.lua": {
+          "sha256": "64a9a09042a7365fe82918e8dbd469b737fb412028c2e643c10bd90ed788cde3",
+          "size": 404,
+          "url": "https://raw.githubusercontent.com/murillio4/kong-openidc/13f06bae8550548ad6c4a88443f513e239b203c8/kong/plugins/openidc/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/murillio4/kong-openidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 21 Jul 2022 14:12:32 GMT",
+        "rockspec": {
+          "date": "Thu, 21 Jul 2022 14:12:32 GMT",
+          "sha256": "063eaed514136758ada624b82fd71524f57b66fe2dc312671a9f4aa53284df79",
+          "size": 709
+        }
+      },
+      "modules": [
+        "kong.plugins.openidc.access",
+        "kong.plugins.openidc.handler",
+        "kong.plugins.openidc.schema"
+      ],
+      "origin": {
+        "commit": "13f06bae8550548ad6c4a88443f513e239b203c8",
+        "ref": "v0.1.1",
+        "type": "git",
+        "url": "https://github.com/murillio4/kong-openidc"
+      },
+      "size": 1595,
+      "summary": "A kong plugin for Oidc token validation",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

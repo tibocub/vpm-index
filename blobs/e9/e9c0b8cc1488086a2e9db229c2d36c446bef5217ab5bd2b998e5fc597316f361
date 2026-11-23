@@ -1,0 +1,31 @@
+<h3><%= stream.name %></h3>
+
+<% render('multistreamer.views.stream-menu', { active_submenu = 'advanced' }) %>
+
+<form class="pure-form pure-form-aligned" id="the_form" method="post" action="<%= url_for('stream-edit') %><% if stream then %>/<%= stream.id %><% end %>?subset=advanced" enctype="multipart/form-data">
+
+<% if config.allow_custom_puller then %>
+<div class="pure-control-group">
+<label for="ffmpeg_pull_args"><%= config.lang.ffmpeg_pull_args %></label>
+<input type="text" name="ffmpeg_pull_args" <% if stream and stream.ffmpeg_pull_args then %>value="<%= stream.ffmpeg_pull_args %>"<% end %>/>
+</div>
+<% end %>
+
+<div class="pure-control-group">
+<label for="export_button"><%= config.lang.export_long %></label>
+<input class="pure-button pure-button-secondary"  type="submit" id="export_button" name="export_button" value="<%= config.lang.export %>" />
+</div>
+
+<div class="pure-control-group">
+<label for="import_file"><%= config.lang.import_long %></label>
+<input type="file" id="import_file" name="import_file" />
+<input class="pure-button pure-button-secondary"  type="submit" id="import_button" name="import_button" value="<%= config.lang.import %>" />
+</div>
+
+<div class="pure-controls">
+<input class="pure-button pure-button-primary" type="submit" value="<%= config.lang.save %>" id="submitBtn" />
+</div>
+
+</form>
+
+<% render('multistreamer.views.stream-functions', { active_submenu = 'advanced' }) %>

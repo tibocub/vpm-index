@@ -1,0 +1,140 @@
+-- Identical private copies share one Lua-state footer, without a companion rock.
+local M = {}
+local slot = "panto.subscription_usage.v1"
+
+local function text(value)
+    return tostring(value):gsub("[%c]", " "):sub(1, 100)
+end
+
+local function reset_time(value)
+    if type(value) == "number" then
+        if value == value and value >= 0 and value <= 253402300799 then return value end
+        return nil
+    end
+    if type(value) ~= "string" then return nil end
+    local y, m, d, h, n, tail = value:match("^(%d%d%d%d)%-(%d%d)%-(%d%d)[Tt ](%d%d):(%d%d)(.*)$")
+    if not y then return nil end
+    local s, zone = tail:match("^:(%d%d)(.*)$")
+    if s then zone = zone:gsub("^%.%d+", "") else s, zone = "0", tail end
+    y, m, d, h, n, s = tonumber(y), tonumber(m), tonumber(d), tonumber(h), tonumber(n), tonumber(s)
+    local leap = y % 4 == 0 and (y % 100 ~= 0 or y % 400 == 0)
+    local days = { 31, leap and 29 or 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+    if y < 1 or m < 1 or m > 12 or d < 1 or d > days[m] or h > 23 or n > 59 or s > 59 then return nil end
+    local offset = 0
+    if zone ~= "Z" and zone ~= "z" then
+        local sign, oh, om = zone:match("^([+-])(%d%d):(%d%d)$")
+        if not sign or tonumber(oh) > 23 or tonumber(om) > 59 then return nil end
+        offset = (tonumber(oh) * 60 + tonumber(om)) * 60 * (sign == "+" and 1 or -1)
+    end
+    -- Gregorian civil date to Unix days; independent of local timezone/DST.
+    y = y - (m <= 2 and 1 or 0)
+    local era = math.floor(y / 400)
+    local year = y - era * 400
+    local day = math.floor((153 * (m + (m > 2 and -3 or 9)) + 2) / 5) + d - 1
+    local unix_days = era * 146097 + year * 365 + math.floor(year / 4) - math.floor(year / 100) + day - 719468
+    return unix_days * 86400 + h * 3600 + n * 60 + s - offset
+end
+
+local function countdown(reset, now)
+    if not reset then return "reset unknown" end
+    local seconds = reset - now
+    if seconds <= 0 then return "reset due" end
+    if seconds < 60 then return "reset in <1m" end
+    local minutes = math.floor(seconds / 60)
+    local parts = {}
+    for _, unit in ipairs({ {1440, "d"}, {60, "h"}, {1, "m"} }) do
+        local amount = math.floor(minutes / unit[1])
+        if amount > 0 then parts[#parts + 1] = amount .. unit[2] end
+        minutes = minutes % unit[1]
+    end
+    return "reset in " .. table.concat(parts, " ")
+end
+
+local function summary(state, ext)
+    local style = type(ext.style) == "function" and ext.style() or {}
+    local base, reset = style.footer or style.dim or "", style.reset or "\27[0m"
+    local accent = "\27[1m" .. (style.syntax_function or "\27[36m")
+    local function paint(color, value) return color .. value .. reset .. base end
+    local keys, parts, now = {}, {}, os.time()
+    for key in pairs(state.entries) do keys[#keys + 1] = key end
+    table.sort(keys)
+    for _, key in ipairs(keys) do
+        local entry = state.entries[key]
+        local label = entry.label:gsub("^%S+", string.lower)
+        local windows = {}
+        for _, window in ipairs(entry.windows) do
+            local percent = window.used_percent
+            local color = percent and (percent <= 33 and "\27[32m" or percent <= 66 and "\27[33m" or "\27[31m") or base
+            local value = percent and string.format("%.1f%%", percent):gsub("%.0%%", "%%") or "?%"
+            windows[#windows + 1] = paint(accent, label .. " " .. window.label) .. " "
+                .. paint(color, value) .. " " .. countdown(window.resets_at, now)
+        end
+        local detail = table.concat(windows, ", ")
+        if entry.status then
+            if detail == "" then detail = paint(accent, label) end
+            detail = detail .. " · " .. entry.status
+        end
+        if detail ~= "" then parts[#parts + 1] = detail end
+    end
+    return #parts > 0 and (base .. "usage (used): " .. table.concat(parts, " | ") .. reset) or nil
+end
+
+local function start_clock(state)
+    if state.timer then return end
+    local ok, uv = pcall(require, "luv")
+    if not ok or type(uv.new_timer) ~= "function" then return end
+    state.timer = uv.new_timer()
+    state.timer:start(60000, 60000, function()
+        if not state.closed and state.handle then state.handle:invalidate() end
+    end)
+    state.timer:unref()
+end
+
+-- Install during activate(), before render_footer; samples may arrive later.
+function M.install(ext)
+    if type(ext.on) ~= "function" then return nil end
+    local state = package.loaded[slot]
+    if not state then
+        state = { entries = {} }
+        package.loaded[slot] = state
+        ext.on("render_footer", function(event)
+            local inner = event:get_component()
+            state.handle = event:set_component({
+                render = function(_, width)
+                    local lines = inner:render(width)
+                    local line = summary(state, ext)
+                    if line then lines[#lines + 1] = line end
+                    return lines
+                end,
+            })
+        end)
+        ext.on("session_end", function()
+            state.closed = true
+            if state.timer then state.timer:stop(); state.timer:close(); state.timer = nil end
+        end)
+    end
+    return state
+end
+
+function M.publish(ext, key, label, windows, status)
+    local state = M.install(ext)
+    if not state or state.closed then return false end
+    local copy, has_reset = {}, false
+    for _, window in ipairs(windows or {}) do
+        local percent, reset = window.used_percent, reset_time(window.resets_at)
+        local valid = type(percent) == "number" and percent == percent and percent >= 0 and percent < math.huge
+        if valid or (percent == nil and reset ~= nil) then
+            copy[#copy + 1] = {
+                label = text(window.label or "quota"), used_percent = valid and percent or nil,
+                resets_at = reset,
+            }
+            has_reset = has_reset or reset ~= nil
+        end
+    end
+    state.entries[key] = { label = text(label), windows = copy, status = status and text(status) or nil }
+    if has_reset then start_clock(state) end
+    if state.handle then state.handle:invalidate() end
+    return true
+end
+
+return M

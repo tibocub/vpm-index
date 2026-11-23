@@ -1,0 +1,134 @@
+{
+  "kind": "app",
+  "name": "tarantoolapp",
+  "versions": {
+    "1.0.5-1": {
+      "bin": {
+        "tarantoolapp": "bin/tarantoolapp"
+      },
+      "deps": [
+        "luarocks-fetch-gitrec",
+        "lua-resty-template ~> 1.9"
+      ],
+      "files": {
+        "bin/tarantoolapp": {
+          "sha256": "4fc6b5604bc9391d3bcdf57d6f553063cb03b7222957bbeebd5c8be445019119",
+          "size": 1636,
+          "url": "blob:4fc6b5604bc9391d3bcdf57d6f553063cb03b7222957bbeebd5c8be445019119"
+        },
+        "datafile.lua": {
+          "sha256": "3ef8b96025c73ee5e96ed3bc3c5f8b168362dcfd36abd11382fb875dcda3f616",
+          "size": 1895,
+          "url": "blob:3ef8b96025c73ee5e96ed3bc3c5f8b168362dcfd36abd11382fb875dcda3f616"
+        },
+        "datafile/openers/caller.lua": {
+          "sha256": "77cd92edbc7d0ff10b657087fddc7ac6810a3b995863fdb898052df1a425e639",
+          "size": 1177,
+          "url": "blob:77cd92edbc7d0ff10b657087fddc7ac6810a3b995863fdb898052df1a425e639"
+        },
+        "datafile/openers/luarocks.lua": {
+          "sha256": "638a6fb68dfc98ecec05d8ad77f71ea6462592458de0992a16096782ee18f262",
+          "size": 3350,
+          "url": "blob:638a6fb68dfc98ecec05d8ad77f71ea6462592458de0992a16096782ee18f262"
+        },
+        "datafile/util.lua": {
+          "sha256": "3b32c47b6acc7c1bdc0cc609e971e9c093b4366742aa9a0140df69d1e6657cea",
+          "size": 1538,
+          "url": "blob:3b32c47b6acc7c1bdc0cc609e971e9c093b4366742aa9a0140df69d1e6657cea"
+        },
+        "tarantoolapp/argparse.lua": {
+          "sha256": "b824d12874d80a561f6f277165d4f2a0d6bd78858033f15f66b7160b4b942dcd",
+          "size": 38166,
+          "url": "blob:b824d12874d80a561f6f277165d4f2a0d6bd78858033f15f66b7160b4b942dcd"
+        },
+        "tarantoolapp/commands.lua": {
+          "sha256": "a270dddf3c24cc5a4409842fe2d23becb1b7e817bf1d0217264e083ddcbc174b",
+          "size": 818,
+          "url": "blob:a270dddf3c24cc5a4409842fe2d23becb1b7e817bf1d0217264e083ddcbc174b"
+        },
+        "tarantoolapp/commands/create.lua": {
+          "sha256": "db0a34e0be455a0d75f36e3c3eb79eb81f3af016b229b7a710490444fadd8021",
+          "size": 6612,
+          "url": "blob:db0a34e0be455a0d75f36e3c3eb79eb81f3af016b229b7a710490444fadd8021"
+        },
+        "tarantoolapp/commands/dep.lua": {
+          "sha256": "624bba7aa339bbcc98c9da3173bb1bb715d0fe52072a06a147e168a7de038dd7",
+          "size": 5581,
+          "url": "blob:624bba7aa339bbcc98c9da3173bb1bb715d0fe52072a06a147e168a7de038dd7"
+        },
+        "tarantoolapp/compat.lua": {
+          "sha256": "a913ba8ccb8541610f0a89f055d78f50da4e9c9f2ca819f154e62cd5954890d5",
+          "size": 1305,
+          "url": "blob:a913ba8ccb8541610f0a89f055d78f50da4e9c9f2ca819f154e62cd5954890d5"
+        },
+        "tarantoolapp/fileio.lua": {
+          "sha256": "dfa24f1b1ba98709f011663440848893d205eeb28f39b2bdb3165a54d1e228e9",
+          "size": 4063,
+          "url": "blob:dfa24f1b1ba98709f011663440848893d205eeb28f39b2bdb3165a54d1e228e9"
+        },
+        "tarantoolapp/util.lua": {
+          "sha256": "b6df9a0aff0d5c8a73c25683a4bd5780830f42dd3b1282d7a2b7f4c134bafb97",
+          "size": 2272,
+          "url": "blob:b6df9a0aff0d5c8a73c25683a4bd5780830f42dd3b1282d7a2b7f4c134bafb97"
+        }
+      },
+      "homepage": "https://github.com/moonlibs/tarantoolapp",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 09 Nov 2020 14:53:20 GMT",
+        "rockspec": {
+          "date": "Mon, 09 Nov 2020 14:53:20 GMT",
+          "sha256": "b758546c5e7d8d003f77620a2df56bd4ef7691880f6f7e5ecfe67d38839a3ad9",
+          "size": 2104
+        },
+        "src": {
+          "date": "Mon, 09 Nov 2020 14:53:22 GMT",
+          "sha256": "0c9d06e9f5d2a19831b43472b87e4abc090d4f83a623750d08cb4e494028c2cc",
+          "size": 109861,
+          "url": "https://luarocks.org/tarantoolapp-1.0.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "datafile",
+        "datafile.openers.caller",
+        "datafile.openers.luarocks",
+        "datafile.util",
+        "tarantoolapp.argparse",
+        "tarantoolapp.commands",
+        "tarantoolapp.commands.create",
+        "tarantoolapp.commands.dep",
+        "tarantoolapp.compat",
+        "tarantoolapp.fileio",
+        "tarantoolapp.util"
+      ],
+      "origin": {
+        "date": "Mon, 09 Nov 2020 14:53:22 GMT",
+        "sha256": "0c9d06e9f5d2a19831b43472b87e4abc090d4f83a623750d08cb4e494028c2cc",
+        "size": 109861,
+        "type": "luarocks",
+        "url": "https://luarocks.org/tarantoolapp-1.0.5-1.src.rock"
+      },
+      "size": 68413,
+      "summary": "App starter for Tarantool application server",
+      "undeclared_requires": [
+        "errno",
+        "fio",
+        "fun",
+        "json",
+        "strict",
+        "yaml"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

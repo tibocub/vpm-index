@@ -1,0 +1,37 @@
+local _module_0 = { }
+local table = require('table')
+local path = require('path')
+local fs = require('path.fs')
+local template = require('resty.template.safe')
+local tpl_inst = template.new()
+local build
+build = function(elandir)
+	local rootdir = path(elandir, 'templates')
+	local errs = { }
+	for abspath, typ in fs.scandir(rootdir) do
+		local _continue_0 = false
+		repeat
+			local relpath = path.rel(abspath, rootdir)
+			local segment = path.name(relpath)
+			local stem, ext = path.stem(segment), path.suffix(segment)
+			if not (typ == 'file' and ext == '.tpl') then
+				_continue_0 = true
+				break
+			end
+			local tpl, err = tpl_inst.compile_file(abspath, relpath)
+			if not tpl then
+				errs[#errs + 1] = "failed to compile template " .. tostring(relpath) .. ": " .. tostring(err)
+			end
+			_continue_0 = true
+		until true
+		if not _continue_0 then
+			break
+		end
+	end
+	if #errs > 0 then
+		return nil, table.concat(errs, '\n')
+	end
+	return tpl_inst
+end
+_module_0["build"] = build
+return _module_0

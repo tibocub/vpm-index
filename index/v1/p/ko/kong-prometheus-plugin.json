@@ -1,0 +1,104 @@
+{
+  "kind": "lib",
+  "name": "kong-prometheus-plugin",
+  "versions": {
+    "1.3.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-counter >= 0.2.0"
+      ],
+      "files": {
+        "kong/plugins/prometheus/api.lua": {
+          "sha256": "d4844d45255b5aed1c83ce744435f5434e6257e5b7a2f6c6559f79d800dd18bb",
+          "size": 333,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/api.lua"
+        },
+        "kong/plugins/prometheus/enterprise/exporter.lua": {
+          "sha256": "26b26faa5a0a27c4b5d5d7a9b330258bfccc4c54b3a1c6b7ce239e792b254e45",
+          "size": 3182,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/enterprise/exporter.lua"
+        },
+        "kong/plugins/prometheus/exporter.lua": {
+          "sha256": "b9fdb0cd93629174d7a276a20a3c52c6687a7ad250287143db5e84219fcf2060",
+          "size": 15999,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/exporter.lua"
+        },
+        "kong/plugins/prometheus/handler.lua": {
+          "sha256": "e8a1a28bf32bdc3390fa78d8a94b1bfeaec8b59b74fcfbf5079c670ddbc5ced2",
+          "size": 537,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/handler.lua"
+        },
+        "kong/plugins/prometheus/prometheus.lua": {
+          "sha256": "ea70e5fb881cab3a8b30fb823b27f0ac31317f2887904ca9f82b9a033e295f1b",
+          "size": 22409,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/prometheus.lua"
+        },
+        "kong/plugins/prometheus/schema.lua": {
+          "sha256": "906f90733827df84a1c255e8d5bab46cd294b359dd746ff8b25687b339bc75cb",
+          "size": 436,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/schema.lua"
+        },
+        "kong/plugins/prometheus/serve.lua": {
+          "sha256": "b712af4c0d30fa0785869d3f20e387ad20c2f4e03444d70f150f0973fbecb1a8",
+          "size": 935,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/serve.lua"
+        },
+        "kong/plugins/prometheus/status_api.lua": {
+          "sha256": "bb0b145885f3d674a0f7869f7a74cc83e5865ca282d8164a7eab0ae5e6ff9306",
+          "size": 156,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-prometheus/1ff98d4d9f2f2280149788a519f724d759269165/kong/plugins/prometheus/status_api.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Wed, 02 Jun 2021 17:08:12 GMT",
+        "rockspec": {
+          "date": "Wed, 02 Jun 2021 17:08:12 GMT",
+          "sha256": "9adad6c992acb518fe34c7b6a4c489b14694281c1934a9e885d4ebc31b901ea6",
+          "size": 1079
+        },
+        "src": {
+          "date": "Wed, 02 Jun 2021 17:08:14 GMT",
+          "sha256": "79265ed2ebb59b33d6e876f786453391fc75329a7e697a36021c67d1f0a42642",
+          "size": 48576,
+          "url": "https://luarocks.org/kong-prometheus-plugin-1.3.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.prometheus.api",
+        "kong.plugins.prometheus.enterprise.exporter",
+        "kong.plugins.prometheus.exporter",
+        "kong.plugins.prometheus.handler",
+        "kong.plugins.prometheus.prometheus",
+        "kong.plugins.prometheus.schema",
+        "kong.plugins.prometheus.serve",
+        "kong.plugins.prometheus.status_api"
+      ],
+      "origin": {
+        "commit": "1ff98d4d9f2f2280149788a519f724d759269165",
+        "ref": "1.3.0",
+        "type": "git",
+        "url": "https://github.com/Kong/kong-plugin-prometheus"
+      },
+      "size": 43987,
+      "summary": "Prometheus metrics for Kong and upstreams configured in Kong",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.runloop.balancer",
+        "kong.tools.utils",
+        "lapis",
+        "prometheus_resty_counter"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.runloop.balancer",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "oauth-jwks-validator",
+  "versions": {
+    "0.1-3": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "kong-oidc ~> 1.1.0"
+      ],
+      "files": {
+        "kong/plugins/oauth-jwks-validator/authorization.lua": {
+          "sha256": "62806eadf412a87ee06dbc079359f189def516869b65e4e2bf99a3a3f309c4a6",
+          "size": 7525,
+          "url": "https://raw.githubusercontent.com/jhonatanTeixeira/kong-oauth-jwks-validator/56bacb9f4b402c7c4f49ea4e8613ec7fa8fc02c9/kong/plugins/oauth-jwks-validator/authorization.lua"
+        },
+        "kong/plugins/oauth-jwks-validator/handler.lua": {
+          "sha256": "77b956e602c0964a130eb080b8c3af84b31780be12fb506768aa647a9caeb9c9",
+          "size": 9088,
+          "url": "https://raw.githubusercontent.com/jhonatanTeixeira/kong-oauth-jwks-validator/56bacb9f4b402c7c4f49ea4e8613ec7fa8fc02c9/kong/plugins/oauth-jwks-validator/handler.lua"
+        },
+        "kong/plugins/oauth-jwks-validator/resty-lib/openidc.lua": {
+          "sha256": "3153be09012c80b2a42a0f1f340c4f7ff9fb28f9dbafa449615a8bd45575d2d3",
+          "size": 48168,
+          "url": "https://raw.githubusercontent.com/jhonatanTeixeira/kong-oauth-jwks-validator/56bacb9f4b402c7c4f49ea4e8613ec7fa8fc02c9/kong/plugins/oauth-jwks-validator/resty-lib/openidc.lua"
+        },
+        "kong/plugins/oauth-jwks-validator/schema.lua": {
+          "sha256": "71986625683456016ab67bca0ba2aa8fd14f631ff8ba66e6279197a8cda82f80",
+          "size": 5442,
+          "url": "https://raw.githubusercontent.com/jhonatanTeixeira/kong-oauth-jwks-validator/56bacb9f4b402c7c4f49ea4e8613ec7fa8fc02c9/kong/plugins/oauth-jwks-validator/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/jhonatanTeixeira/kong-oauth-jwks-validator",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Tue, 06 Dec 2022 01:59:18 GMT",
+        "rockspec": {
+          "date": "Tue, 06 Dec 2022 01:59:18 GMT",
+          "sha256": "188a9b16bce03ae010ab3140c3b480b85f20993c255791583939d3a267af9318",
+          "size": 1069
+        }
+      },
+      "modules": [
+        "kong.plugins.oauth-jwks-validator.authorization",
+        "kong.plugins.oauth-jwks-validator.handler",
+        "kong.plugins.oauth-jwks-validator.resty-lib.openidc",
+        "kong.plugins.oauth-jwks-validator.schema"
+      ],
+      "origin": {
+        "commit": "56bacb9f4b402c7c4f49ea4e8613ec7fa8fc02c9",
+        "ref": "v0.1-3",
+        "type": "git",
+        "url": "https://github.com/jhonatanTeixeira/kong-oauth-jwks-validator"
+      },
+      "size": 70223,
+      "summary": "Kong Oauth JWKS validator",
+      "undeclared_requires": [
+        "kong.db.errors",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.utils",
+        "resty.jwt",
+        "resty.jwt-validators",
+        "resty.random",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

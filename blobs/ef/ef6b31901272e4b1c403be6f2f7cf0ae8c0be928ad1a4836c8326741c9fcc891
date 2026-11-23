@@ -1,0 +1,232 @@
+--- ManagedIdentityCredentials class.
+-- @classmod ManagedIdentityCredentials
+
+
+-- Create class
+local Super = require "resty.azure.credentials.Credentials"
+local json = require "cjson.safe"
+local pl_stringx = require "pl.stringx"
+local fmt = string.format
+local str_upper = string.upper
+local ngx_time = ngx.time
+
+
+local IMDS_AUTHORITY = "http://169.254.169.254"
+local IMDS_TOKEN_PATH = "/metadata/identity/oauth2/token"
+
+
+local ManagedIdentityCredentials = setmetatable({}, Super)
+ManagedIdentityCredentials.__index = ManagedIdentityCredentials
+
+
+--- Constructor, inherits from `Credentials`.
+--
+-- @tparam table global_config global configuration table
+-- @tparam table opts options table, additional fields to the `Credentials` class:
+-- @tparam[opt="AZURE"] string opts.envPrefix prefix to use when looking for environment variables.
+-- @return new ManagedIdentityCredentials object, or nil+error
+function ManagedIdentityCredentials:new(global_config, opts, source)
+  local self = Super:new(opts)  -- override 'self' to be the new object/class
+  setmetatable(self, ManagedIdentityCredentials)
+
+  opts = opts or {}
+  self.envPrefix = opts.envPrefix or "AZURE"
+  self.global_config = global_config
+  self.opts = opts
+  self.source = source
+  self.request = {}
+
+  local _, _, _, err = self:get() -- force immediate refresh
+
+  return self, err
+end
+
+
+-- send the request to the managed identity endpoint
+-- @return success, or nil+err
+function ManagedIdentityCredentials:sendRequest()
+  local time_now = ngx_time()
+
+  -- get the token
+  -- Single-shot requests use the `request_uri` interface.
+  local httpc = require "resty.luasocket.http".new()
+
+  local url
+  if not pl_stringx.startswith(self.request.url, "http://")
+    and not pl_stringx.startswith(self.request.url, "https://")
+    and not pl_stringx.startswith(self.request.url, "//")
+  then
+    url = fmt("http://%s", self.request.url)
+
+  else
+    url = self.request.url
+  end
+
+  local res, err = httpc:request_uri(url,
+    {
+      method = self.request.method,
+      query = self.request.query,
+      headers = self.request.headers,
+      keepalive = false,
+    }
+  )
+  if not res then
+    return false, fmt("managed identity credentials request failed: %s", err)
+  end
+
+  if res.status ~= 200 then
+    return false, fmt("managed identity credentials request failed, status: %s, body: %s", res.status, res.body)
+  end
+
+  -- parse out the token and expiry
+  local auth_response, err = json.decode(res.body)
+  if err then
+    return false, "cannot parse auth response body"
+  end
+
+  if not auth_response.access_token then
+    return false, "access token not in response body"
+  end
+
+  local expire_time = auth_response.expires_in and tonumber(auth_response.expires_in) + time_now or tonumber(auth_response.expires_on)
+  self:set(auth_response.access_token, expire_time)
+
+  return true, nil
+end
+
+
+-- get the managed identity related variable from
+-- opts or environment variables.
+-- @return value, or nil
+function ManagedIdentityCredentials:getVariables(var_name)
+  return self.opts[var_name]
+          or self.global_config[var_name]
+          or os.getenv(self.envPrefix .. "_" .. str_upper(var_name))
+          or os.getenv("AZURE_" .. str_upper(var_name))
+end
+
+
+-- updates credentials.
+-- @return success, or nil+err
+function ManagedIdentityCredentials:refresh()
+  self.request = {}
+
+  local token_resource = self:resolve_token_parameter("resource", "token_resource")
+  self.request.resource = token_resource
+
+  if self:getVariables("identity_endpoint") then
+    if self:getVariables("identity_header") then
+      if self:getVariables("identity_server_thumbprint") then
+        self:configureServiceFabricCredentialRequest()
+      else
+        self:configureAppServiceCredentialRequest()
+      end
+
+    -- self:getVariables("identity_header") is nil
+    elseif self:getVariables("imds_endpoint") then
+      self:configureAzureArcCredentialRequest()
+    end
+
+  -- self:getVariables("identity_endpoint") is nil
+  elseif self:getVariables("msi_endpoint") then
+    if self:getVariables("msi_secret") then
+
+      self:configureAzureMLCredentialRequest()
+    else
+      self:configureCloudShellCredentialRequest()
+    end
+
+  -- both self:getVariables("identity_endpoint")
+  -- and self:getVariables("msi_endpoint") are nil
+  else
+    self:configureIMDSCredentialRequest()
+  end
+
+  local client_id = self:getVariables("client_id")
+  if client_id then
+    ngx.log(ngx.DEBUG, "try to use managed identity client_id ", client_id)
+    self.request.query["client_id"] = client_id
+  end
+
+  return self:sendRequest()
+end
+
+
+function ManagedIdentityCredentials:configureServiceFabricCredentialRequest()
+  ngx.log(ngx.DEBUG, "use managed identity in Service Fabric")
+  local identity_endpoint = self:getVariables("identity_endpoint")
+  local secret = self:getVariables("identity_header")
+
+  self.request.url = identity_endpoint
+  self.request.method = "GET"
+  self.request.headers = {
+    ["Secret"] = secret,
+  }
+  self.request.query = {
+    ["api-version"] = "2019-07-01-preview",
+    ["resource"] = self.request.resource,
+  }
+end
+
+
+function ManagedIdentityCredentials:configureAppServiceCredentialRequest()
+  ngx.log(ngx.DEBUG, "use managed identity in App Service")
+  local identity_endpoint = self:getVariables("identity_endpoint")
+  local secret = self:getVariables("identity_header")
+
+  self.request.url = identity_endpoint
+  self.request.method = "GET"
+  self.request.headers = {
+    ["X-IDENTITY-HEADER"] = secret,
+  }
+  self.request.query = {
+    ["api-version"] = "2019-08-01",
+    ["resource"] = self.request.resource,
+  }
+end
+
+
+function ManagedIdentityCredentials:configureAzureArcCredentialRequest()
+  -- TODO: Azure Arc is a service that allows you to manage your servers that are not in Azure.
+  -- We may need to implement in the future.
+  ngx.log(ngx.DEBUG, "use managed identity in Azure Arc")
+  error("Azure Arc managed identity is not implemented")
+end
+
+
+function ManagedIdentityCredentials:configureAzureMLCredentialRequest()
+  ngx.log(ngx.DEBUG, "use managed identity in Azure ML")
+  -- Azure ML Credential is used by Azure Machine Learning
+  -- services so no need for us to expose it
+  error("Azure ML managed identity is not implemented")
+end
+
+
+function ManagedIdentityCredentials:configureCloudShellCredentialRequest()
+  ngx.log(ngx.DEBUG, "use managed identity in CloudShell")
+  -- Cloudshell is the web terminal for Azure so
+  -- no need to implement now
+  error("Cloudshell managed identity is not implemented")
+end
+
+
+function ManagedIdentityCredentials:configureIMDSCredentialRequest()
+  ngx.log(ngx.DEBUG, "use managed identity in IMDS")
+  local host = (self:getVariables("pod_identity_authority_host") and pl_stringx.strip(self:getVariables("pod_identity_authority_host"), "/"))
+                or (self:getVariables("instance_metadata_host") and pl_stringx.strip(self:getVariables("instance_metadata_host"), "/"))
+                or IMDS_AUTHORITY
+  local path = IMDS_TOKEN_PATH
+
+  self.request.url = fmt("%s%s", host, path)
+  self.request.method = "GET"
+  self.request.query = {
+    ["api-version"] = "2018-02-01",
+    ["resource"] = self.request.resource,
+  }
+  self.request.headers = {
+    ["Metadata"] = "true",
+  }
+end
+
+
+return ManagedIdentityCredentials

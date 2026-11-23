@@ -1,0 +1,37 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A map terminal node.
+local LiteralMap = {}
+LiteralMap.__index = LiteralMap
+setmetatable(LiteralMap, {__index = Terminal})
+package.loaded[...] = LiteralMap
+
+--Constructor.
+function LiteralMap.new(ln, col, map)
+  return setmetatable(Terminal.new(TerminalType.MAP, {line = ln, col = col, value = map}), LiteralMap)
+end
+
+--@override
+function LiteralMap:__tostring()
+  local desc
+
+  desc = "{"
+  for i, e in ipairs(self.data) do
+    if e.name then
+      desc = desc .. (i == 1 and "" or ", ") .. string.format(
+        "%s%s = %s%s",
+        e.cond and "[" or "",
+        type(e.name) == "string" and e.name or string.format("[%s]", tostring(e.name)),
+        tostring(e.value),
+        e.cond and "]" or ""
+      )
+    else
+      desc = desc .. (tostring(e.value))
+    end
+  end
+  desc = desc .. "}"
+
+  return desc
+end

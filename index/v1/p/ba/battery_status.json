@@ -1,0 +1,68 @@
+{
+  "kind": "app",
+  "name": "battery_status",
+  "versions": {
+    "1.1-1": {
+      "bin": {
+        "show_battery_status": "bin/show_battery_status"
+      },
+      "blocked_by": {
+        "name": "luafilesystem",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lgi ~> 0.7.2-1",
+        "lrexlib-posix ~> 2.7.2-1",
+        "luafilesystem ~> 1.6.2-2"
+      ],
+      "files": {
+        "battery_status.lua": {
+          "sha256": "1b9190c9abe804af43a26d4506a4b956e8c893c7facfe1d31e125e2bea98e4f1",
+          "size": 2714,
+          "url": "https://raw.githubusercontent.com/svarogg/battery_status/a069cc73c6bcfa78cebdf7e8c090b4a0efe1c7d8/src/battery_status.lua"
+        },
+        "bin/show_battery_status": {
+          "sha256": "90685dfaed35d83e05ffa23598d4308d4ce64807b77f3b7621b4ec21ed9eba91",
+          "size": 114,
+          "url": "https://raw.githubusercontent.com/svarogg/battery_status/a069cc73c6bcfa78cebdf7e8c090b4a0efe1c7d8/src/show_battery_status"
+        }
+      },
+      "homepage": "http://everythingisvoid.com/",
+      "license": "MIT/X11",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 12 Aug 2014 06:37:46 GMT",
+        "rockspec": {
+          "date": "Tue, 12 Aug 2014 06:37:46 GMT",
+          "sha256": "07f5aeda11199211d43251ca6f67f3ea940fbd41a72418ca43dfd3a0cab9fa11",
+          "size": 738
+        }
+      },
+      "modules": [
+        "battery_status"
+      ],
+      "origin": {
+        "commit": "a069cc73c6bcfa78cebdf7e8c090b4a0efe1c7d8",
+        "ref": "v1.1-1",
+        "type": "git",
+        "url": "https://github.com/svarogg/battery_status"
+      },
+      "size": 2828,
+      "summary": "Battery status indicator.",
+      "undeclared_requires": [
+        "Gtk",
+        "lgi",
+        "luarocks.loader"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

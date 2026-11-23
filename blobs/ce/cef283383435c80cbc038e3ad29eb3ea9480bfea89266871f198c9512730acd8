@@ -1,0 +1,428 @@
+local queue = require"lacord.x.queue"
+local cqueues = require"cqueues"
+local cond = require"cqueues.condition"
+local promise = require"cqueues.promise"
+local setmetatable = setmetatable
+local getm = getmetatable
+local running = cqueues.running
+local type = type
+local assert = assert
+local monotime = cqueues.monotime
+local poll = cqueues.poll
+local err = error
+local insert = table.insert
+local pack = table.pack
+local remove = table.remove
+local iiter = ipairs
+local piter = pairs
+local _ENV = {}
+
+local emitter = {__name = "lacord.x.emitter"}
+local receiver = {}
+
+emitter.__index = emitter
+
+--- Makes a new emitter.
+local function new(tag)
+    return setmetatable({
+          cbs = queue.new()
+         ,pollfd = cond.new()
+         ,waiting = 0
+         ,tag = tag or false
+    }, emitter)
+end
+_ENV.new = new
+
+local function check_recv(r, ...)
+    if getm(r) == receiver and r.source then
+        return err("Receiver cannot listen to events because it already has a source.")
+    elseif ... then return r, check_recv(...)
+    end
+end
+
+-- Listen to the event.
+function emitter.listen(em, ...)
+    em.cbs:pushes_right(check_recv(...))
+    return em
+end
+
+--- Emit the event without blocking.
+function emitter.enqueue(em, event)
+    for _, cb in em.cbs:from_left() do
+        if type(cb) == 'function' then -- simple case, a callback
+            running():wrap(cb,event)
+        elseif getm(cb) == receiver then
+        -- a receiver, which has an op field. We call
+        -- cb.op(cb, event) in this case
+            cb:op(event)
+        elseif cb.receive then
+        -- an object with a `receive` method
+        -- we either call the method em.tag on the cb
+        -- or call cb.receive
+            if em.tag then
+                if not cb[em.tag] then return err(("%s is missing tagged event %s"):format(cb, em.tag)) end
+                running():wrap(cb[em.tag], cb, event)
+            else
+                running():wrap(cb.receive, cb, event)
+            end
+        elseif cb.enqueue then
+        -- if its another emitter then propagate
+            cb:enqueue(event)
+        end
+    end
+    em._last = event
+    return em.pollfd:signal()
+end
+
+local function not_eq(a,b) return a ~= b end
+
+local function recv_rem(a, b)
+    if a == b then
+        a.source = nil
+        return false
+    else return true
+    end
+end
+
+--- Removes a listener by value.
+function emitter.remove(em, cb)
+    if getm(cb) == receiver then
+        em.cbs = em.cbd:filtered(recv_rem, cb)
+    else
+        em.cbs = em.cbs:filtered(not_eq, cb)
+    end
+end
+
+--- Waits for the next event optionally within a given timeout.
+function emitter.wait(em, ...)
+    em.waiting = em.waiting + 1
+    local recd, polled = em.pollfd:wait(...)
+    local ev
+
+    if recd then
+        ev = em._last
+        if em.waiting == 1 then
+            em._last = nil
+        end
+    end
+    em.waiting = em.waiting - 1
+    return ev, not recd and polled
+end
+
+local function waiter(em, ...)
+    em.waiting = em.waiting + 1
+    local recd = em.pollfd:wait(...)
+    local ev
+
+    if recd then
+        ev = em._last
+        if em.waiting == 1 then
+            em._last = nil
+        end
+    else
+        return err("emitter rejected")
+    end
+    em.waiting = em.waiting - 1
+    return ev
+end
+
+--- Returns a promise that will resolve when the next event is emitted.
+function emitter.promised (em, ...)
+    return promise.new(waiter, em, ...)
+end
+
+
+local function collect_backlog(state)
+    while state.in_body and not state.done do
+        local ev = state.em:wait()
+        state.backlog:push_left(ev)
+    end
+end
+
+local function iter_inf(state)
+    state.in_body = false
+    if state.done then return nil end
+    if state.backlog.length > 0 then
+        state.in_body = true
+        running(state.em):wrap(collect_backlog, state)
+        return state, state.backlog:pop_right()
+    else
+        local result, cancelled
+        if state.em.cancelfd then
+            result, cancelled = state.em:wait(state.em.cancelfd)
+        else
+            result, cancelled = state.em:wait()
+        end
+        if not cancelled then
+            state.in_body = true
+            running(state.em):wrap(collect_backlog, state)
+            return state, result
+        else
+            state.done = true
+            return nil
+        end
+    end
+end
+
+local function collect_waiting(state)
+    local result, timedout
+    if state.em.cancelfd then
+        result, timedout = state.em:wait(state.em.cancelfd, state.deadline - monotime())
+    else
+        result, timedout = state.em:wait(state.deadline - monotime())
+    end
+    if timedout or monotime() >= state.deadline then state.done = true return nil end
+    return result
+end
+
+local function iter(state)
+    state.in_body = false
+    if state.done then return nil end
+    if state.backlog.length > 0 then
+        state.in_body = true
+        if monotime() < state.deadline then running(state.em):wrap(collect_backlog, state) end
+        return state, state.backlog:pop_right()
+    else
+        local res = collect_waiting(state)
+        if res then
+            state.in_body = true
+            running(state.em):wrap(collect_backlog, state)
+            return state, res
+        end
+    end
+end
+
+
+--- Iterator for events.
+function emitter.__pairs(em, timeout)
+    if timeout then
+        return iter, {done = false, em = em, deadline = monotime() + timeout, in_body = false, backlog = queue.new()}
+    else
+        return iter_inf, {done = false, em = em, in_body = false, backlog = queue.new()}
+    end
+end
+
+--- Predicated wait, which can optionally accept any number of pollables.
+function emitter.await(em, f, ...)
+    assert(f, "Please provide a filter to await. To wait for an event with no filtering use emitter:wait().")
+    local e, timedout
+    repeat
+        e, timedout = em:wait(...)
+        if e and f(e) then break end
+    until timedout
+    if timedout then
+        return nil, timedout
+    else
+        return e
+    end
+end
+
+--- Predicated and counted wait, which can optionally accept any number of pollables.
+-- This variant accepts an integer `n > 0` and will wait for a maximum of `n` events before returning.
+function emitter.await_n(em, n, f, ...)
+    assert(f and n, "Please provide a filter to await. To wait for an event with no filtering use emitter:wait().")
+    local results = {}
+    for _ = 1, n do
+        local e, timedout
+        repeat
+            e, timedout = em:wait(...)
+        until f(e) or timedout
+        if not timedout then
+            insert(results, e)
+        else break end
+    end
+    return results
+end
+
+--- Predicated and counted wait, which can optionally accept any number of pollables.
+-- This variant accepts an integer `n > 0` and will wait for exactly `n` events before returning.
+function emitter.must_await_n(em, n, f, ...)
+    assert(f and n, "Please provide a filter to await. To wait for an event with no filtering use emitter:wait().")
+    local results = {}
+    for _ = 1, n do
+        local e, timedout
+        repeat
+            e, timedout = em:wait(...)
+        until f(e) or timedout
+        if not timedout then
+            insert(results, e)
+        end
+    end
+    return results
+end
+
+function await_all(f, ...)
+    while true do
+        local polled = pack(poll(...))
+        local res
+        for i = 1, polled.n do
+            local it = polled[i]
+            if f(it) then
+                res = res or {}
+                insert(res, it)
+            end
+        end
+        if res then return res end
+    end
+end
+
+function await_all_with_timeout(f, T, ...)
+    while true do
+        local polled = pack(poll(...))
+        local res, timedout
+        for i = 1, polled.n do
+            local it = polled[i]
+            if it == T then timedout = T
+            elseif f(it) then
+                res = res or {}
+                insert(res, it)
+            end
+        end
+        if res then return res
+        elseif timedout then return nil, timedout
+        end
+    end
+end
+
+--- Attach a cancellation condvar to an emitter.
+function emitter.cancellable(em)
+    em.cancelfd = em.cancelfd or cond.new()
+    return em
+end
+
+function emitter.cwait(em, ...)
+    if em.cancelfd then
+        local res = pack(em:wait(em.cancelfd, ...))
+        for i, v in iiter(res) do
+            if v == em.cancelfd then
+                remove(res, i)
+                break
+            end
+        end
+        return res
+    else return em:wait(...)
+    end
+end
+
+--- Cancel an emitter, causing any subscriptions it has to finish.
+-- This only causes pairs interators and `cwait` to be cancelled and may be removed in future.
+function emitter.cancel(em)
+    em.cancelfd:signal()
+    return em
+end
+
+receiver.__index = receiver
+receiver.__name = "lacord.x.receiver"
+
+local ops = {}
+
+local function new_recver(op, f)
+    return setmetatable({
+          cbs = queue.new()
+         ,pollfd = cond.new()
+         ,waiting = 0
+         ,op = op
+         ,f = f
+    }, receiver)
+end
+
+--[[
+    Receivers are created by the following functions.
+    Unlike regular emitters, they cannot be have events enqueued.
+]]
+
+--- Create a new receiver which emits events from the emitter transformed by a function `f`.
+function emitter.map(em, f)
+    local out = new_recver(ops.mapping, f)
+    em:listen(out)
+    out.source = em
+    return out
+end
+
+function ops.mapping(rec, event)
+    return emitter.enqueue(rec, rec.f(event))
+end
+
+--- Create a new receiver which emits events from the emitter that satisfy a predicate function `f`.
+function emitter.filter(em, f)
+    local out = new_recver(ops.filtering, f)
+    em:listen(out)
+    out.source = em
+    return out
+end
+
+function ops.filtering(rec, event)
+    if rec.f(event) then return emitter.enqueue(rec, event) end
+end
+
+--- Create a new receiver which emits the cummulative result
+--  of applying a binary function `f` to the previous result and the next event.
+function emitter.reduce(em, f, a)
+    local out = new_recver(ops.reducing, f)
+    out.a = a
+    em:listen(out)
+    out.source = em
+    return out
+end
+
+function ops.reducing(rec, event)
+    if rec.a == nil then
+        rec.a = event
+    else
+        rec.a = rec.f(rec.a, event)
+    end
+    return emitter.enqueue(rec, rec.a)
+end
+
+--- Creates a mapping receiver like `map` but only emits truthy events.
+function emitter.transform(em, f)
+    local out = new_recver(ops.transforming, f)
+    em:listen(out)
+    out.source = em
+    return out
+end
+
+function ops.transforming(rec, event)
+    local res = rec.f(event)
+    if res ~= nil then
+        return emitter.enqueue(rec, res)
+    end
+end
+
+local function parse_recset(rec, set)
+    local out = {}
+    for key, r in piter(set) do
+        if getm(r) == receiver then
+            r.source = rec
+            out[key] = r
+        else
+            return err(r.." cannot be used as a target for `split`, please use receivers instead.")
+        end
+    end
+    return out
+end
+
+--- Creates a receiver which will broadcast events to receivers in the `set`
+--  if the indexing function `f` produces the key of that receiver in `set`.
+function emitter.split(em, f, set)
+    local out = new_recver(ops.splitting, f)
+    out.set = parse_recset(out, set)
+    em:listen(out)
+    out.source = em
+    return out
+end
+
+function ops.splitting(rec, event)
+    local key = rec.f(event)
+    if key ~= nil and rec.set[key] then
+        emitter.enqueue(rec.set[key], event)
+    end
+end
+
+function _ENV.recv() return new_recver() end
+
+for k , v in piter(emitter) do receiver[k] = v end
+
+receiver.enqueue = nil
+
+return _ENV

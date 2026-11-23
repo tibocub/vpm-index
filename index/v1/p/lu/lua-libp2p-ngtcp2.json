@@ -1,0 +1,101 @@
+{
+  "kind": "lib",
+  "name": "lua-libp2p-ngtcp2",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/dozyio/lua-libp2p-ngtcp2",
+      "license": "MIT",
+      "lua": ">= 5.4, < 5.5",
+      "luarocks": {
+        "date": "Mon, 25 May 2026 17:37:58 GMT",
+        "rockspec": {
+          "date": "Mon, 25 May 2026 17:37:58 GMT",
+          "sha256": "54c747cb47c217bcc36cbcfb54689124a46d1fd0a0b8b4e107667bb39945de57",
+          "size": 978
+        },
+        "src": {
+          "date": "Mon, 25 May 2026 17:37:59 GMT",
+          "sha256": "a641cdf0d040e6eb4ca845b0f928d41c975aa2183206b423cb77a9aeefc5916d",
+          "size": 33394,
+          "url": "https://luarocks.org/lua-libp2p-ngtcp2-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "lua_libp2p_ngtcp2"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBUV",
+          "NGTCP2",
+          "NGTCP2_CRYPTO_OSSL",
+          "OPENSSL_CRYPTO",
+          "OPENSSL_SSL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBUV": {
+              "header": "uv.h",
+              "library": "uv"
+            },
+            "NGTCP2": {
+              "header": "ngtcp2/ngtcp2.h",
+              "library": "ngtcp2"
+            },
+            "NGTCP2_CRYPTO_OSSL": {
+              "header": "ngtcp2/ngtcp2_crypto_ossl.h",
+              "library": "ngtcp2_crypto_ossl"
+            },
+            "OPENSSL_CRYPTO": {
+              "header": "openssl/crypto.h",
+              "library": "crypto"
+            },
+            "OPENSSL_SSL": {
+              "header": "openssl/ssl.h",
+              "library": "ssl"
+            }
+          },
+          "modules": [
+            {
+              "libraries": [
+                "uv",
+                "ngtcp2",
+                "ngtcp2_crypto_ossl",
+                "ssl",
+                "crypto"
+              ],
+              "name": "lua_libp2p_ngtcp2",
+              "sources": [
+                "native/lua_libp2p_ngtcp2.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 25 May 2026 17:37:59 GMT",
+        "sha256": "a641cdf0d040e6eb4ca845b0f928d41c975aa2183206b423cb77a9aeefc5916d",
+        "size": 33394,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-libp2p-ngtcp2-0.1.0-1.src.rock"
+      },
+      "summary": "Native ngtcp2 backend for lua-libp2p QUIC",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

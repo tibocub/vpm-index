@@ -1,0 +1,426 @@
+---@diagnostic disable: duplicate-set-field
+
+local sfs = require "sfs"
+local utils = require "lrocket.utils"
+local log   = require "lrocket.log"
+
+---@class lrocket.gnu : lrocket.Toolchain
+local gnu = {}
+
+local shared_ext = (package.cpath..";"):match("(%.%P*);")
+
+local parent
+
+gnu.ME = true
+
+local ENVIRON = require 'lrocket.environ'
+ENVIRON.fetch(
+	'CC', 'LD', 'NM', 'AR', 'OBJDUMP', 'LDFLAGS', 'CFLAGS', 'CXXFLAGS', 'TARGET', 'MINGW_PREFIX'
+)
+
+function gnu.configure(cfg, userargs)
+	gnu.CC = gnu.ENV.CC
+	gnu.LD = gnu.ENV.LD
+	gnu.HOST = gnu.HOST or gnu.targettripplet(sfs.shellout("cc", "-dumpmachine"):match "[^\n]*")
+
+	cfg.target = cfg.target:inherit(gnu.HOST)
+
+	gnu.TARGET = cfg.target
+
+	-- TODO: improve compiler lookup readability/mechanism
+
+	local tcprefix = ""
+	local binprefix = ""
+
+	if not gnu.CC or gnu.CC == 'gcc' or gnu.CC == 'clang' then
+		gnu.CC = gnu.CC or 'gcc'
+		if cfg.target then
+			if not gnu.CC:find 'clang' then -- Let's just assume clang or gcc for the moment
+				if gnu.HOST ~= gnu.TARGET then
+					gnu.CC = gnu.TARGET.."-"..gnu.CC
+					tcprefix = gnu.TARGET.."-gcc-"
+
+					-- if <target>-gcc not installed, fall back to clang
+					if not sfs.which(gnu.CC)() then
+						gnu.CC = "clang"
+					end
+				end
+			end
+
+			if gnu.CC:find "clang" then
+				gnu.CC = gnu.CC.." --target="..cfg.target.." -fuse-ld=lld"
+			end
+		elseif sfs.which(gnu.CC)() then
+			gnu.CC = 'clang'
+		end
+
+		if gnu.CC:find 'clang' then
+			tcprefix = "llvm-"
+			binprefix = "llvm-"
+		else
+			tcprefix = ""
+			binprefix = ""
+		end
+	end
+
+	if cfg.sysroot then
+		gnu.CC = gnu.CC.." --sysroot "..cfg.sysroot
+	end
+
+	gnu.LD = gnu.LD or gnu.CC
+
+	-- Compiler toolchain
+	gnu.AR = gnu.ENV.AR or tcprefix.."ar"
+	gnu.NM = gnu.ENV.NM or tcprefix.."nm"
+
+	if tcprefix == "llvm-" then
+		if gnu.AR:find("^llvm%-") and not sfs.which(gnu.AR)() then
+			gnu.AR = "ar"
+		end
+		if gnu.NM:find("^llvm%-") and not sfs.which(gnu.NM)() then
+			gnu.NM = "nm"
+		end
+	end
+
+	-- Binutils
+	gnu.OBJDUMP = gnu.ENV.OBJDUMP or binprefix.."objdump"
+
+	-- Extensions
+
+	gnu.EXT_ARCHIVE = ".a"
+	gnu.EXT_BIN = ""
+	gnu.EXT_SHARED = ".so"
+	gnu.EXT_OBJECT = ".o"
+
+	gnu.WIN_TARGET = not not (gnu.TARGET.sys:find 'mingw' or gnu.TARGET.sys:find 'windows')
+
+	if gnu.WIN_TARGET then
+		-- Let's just hope Windows is the only outlier
+		-- I don't have a mac sorry guys
+		gnu.EXT_BIN = ".exe"
+		gnu.EXT_SHARED = ".dll"
+		gnu.EXT_ARCHIVE = gnu.TARGET.sys:find "windows" and ".lib" or ".a"
+	end
+
+	-- Add sysroot libgcc for clang
+
+	if gnu.SYSROOT and gnu.CC:find 'clang' then
+		local libgcc = sfs.glob(string.format(sfs.combine(gnu.SYSROOT, "usr/lib/gcc/{%s,*}/*/libgcc{%s,%s}"), tostring(gnu.TARGET), gnu.EXT_ARCHIVE, gnu.EXT_SHARED))()
+		if libgcc then
+			local gccdir = sfs.getDir(libgcc)
+			gnu.CC = gnu.CC..' -B'..gccdir..' -L'..gccdir
+			gnu.LD = gnu.LD..' -B'..gccdir..' -L'..gccdir
+		end
+	end
+
+	-- Internal cache
+
+	gnu.DEFAULT_DEFS = nil
+	gnu.ENV.CC = gnu.CC
+	gnu.ENV.LD = gnu.LD
+	gnu.ENV.AR = gnu.AR
+	gnu.ENV.NM = gnu.NM
+	gnu.ENV.OBJDUMP = gnu.OBJDUMP
+	gnu.ENV.TARGET = tostring(gnu.TARGET)
+
+	local LDFLAGS = ENVIRON.LDFLAGS
+	local CFLAGS = ENVIRON.CFLAGS
+
+	if LDFLAGS then
+		for ldflag in LDFLAGS:gmatch "%S+" do cfg.cconf:addarg('ldflag', ldflag) end
+	end
+	if CFLAGS then
+		for cflag in CFLAGS:gmatch "%S+" do cfg.cconf:addarg('cflag', cflag) end
+	end
+end
+
+function gnu.testtools()
+	local errs = {}
+	local tested = {}
+	local function checkexist(cmd, related)
+		if tested[cmd] then return end
+		tested[cmd] = true
+		if not sfs.exec(cmd, "--version", "2>&1", "1>", sfs.DEV_NULL) then
+			errs[#errs+1] = string.format("exec '%s --version' failed (%s installed?)", cmd, related)
+		end
+	end
+
+	checkexist(gnu.CC, "gcc")
+	checkexist(gnu.AR, "gcc")
+	checkexist(gnu.NM, "gcc")
+	checkexist(gnu.OBJDUMP, "binutils")
+
+	if #errs > 0 then
+		return false, "Compiler toolchain for target "..gnu.TARGET.." incomplete:\n\t"..table.concat(errs, "\n\t")
+	else
+		return true
+	end
+end
+
+gnu._popencache = {}
+gnu._infocache = {}
+
+function gnu.cleaninternalcache()
+	gnu._popencache = {}
+	gnu._infocache = {}
+end
+
+function gnu.cachedpopen(...)
+	local args = select(1, ...)
+	local key = table.concat(args, ' ')
+
+	if gnu._popencache[key] then
+		return gnu._popencache[key]
+	end
+
+	local fd, err = sfs.popen(...)
+	if not fd then return nil, err end
+
+	local info = fd:read '*a'
+	local p = {
+		lines = function()
+			return info:gmatch '[^\n]*'
+		end
+	}
+
+	gnu._popencache[key] = p
+	return p
+end
+
+function gnu.libdeps(shared_lib)
+	local key = 'libdeps ' .. shared_lib
+	if gnu._infocache[key] then return gnu._infocache[key] end
+
+	local objdump, err = gnu.cachedpopen({ gnu.OBJDUMP, "-p", sfs.quoteArgs(shared_lib), "2>"..sfs.DEV_NULL }, 'r')
+	if not objdump then return nil, "objdump: "..err end
+
+	local dyn = {}
+	for line in objdump:lines() do
+		local pat = gnu.WIN_TARGET and "DLL Name:?%s+(.*)" or "NEEDED:?%s+(.*)"
+		local name = line:match(pat)
+
+		local fullpath
+
+		if name then
+			if gnu.WIN_TARGET then
+				-- ignore virtual dlls
+				if name:find("api-ms-win", 1, true) == 1 then
+					name = nil
+				else
+					fullpath = sfs.which(name)()
+					-- gcc has problems linking against windows directly and we don't need to anyways
+					if fullpath and sfs.isAncestor("C:/Windows", fullpath) then
+						local mingw_ar = sfs.combine(ENVIRON.MINGW_PREFIX, "lib", "lib"..sfs.getBaseName(name)..".a")
+						if sfs.isFile(mingw_ar) then
+							fullpath = mingw_ar
+						else
+							fullpath = nil
+						end
+					end
+				end
+			else
+				fullpath = sfs.which(sfs.combine("../lib/"..name))()
+			end
+		end
+
+		if name then
+			-- Don't report lua itself
+			if name and not (name:find "^liblua%d%.?%d$" or name:find "^lua%d%.?%d$" or name:find "^libluajit%-?%d%.?%d$" or name:find "^luajit%-?%d%.?%d$") then
+				dyn[#dyn+1] = fullpath
+			end
+		end
+	end
+
+	gnu._infocache[key] = utils.reverse(dyn)
+	return gnu._infocache[key]
+end
+
+function gnu.symbols(shared_lib)
+	local key = 'symbols ' .. shared_lib
+	if gnu._infocache[key] then return gnu._infocache[key] end
+
+	local nm, err = gnu.cachedpopen({ gnu.NM, sfs.quoteArgs(shared_lib), "2>"..sfs.DEV_NULL }, "r")
+	if not nm then return nil, "nm: "..err end
+
+	local symbols = {}
+	for line in nm:lines() do
+		symbols[#symbols + 1] = line:match "[tT] (.+)$"
+	end
+
+	gnu._infocache[key] = symbols
+	return symbols
+end
+
+function gnu.libtype(library)
+	local key = 'libtype ' .. library
+	if gnu._infocache[key] then return gnu._infocache[key] end
+
+	local objdump, err = gnu.cachedpopen({ gnu.OBJDUMP, "-p", sfs.quoteArgs(library), "2>"..sfs.DEV_NULL }, 'r')
+	if not objdump then return nil, "objdump: "..err end
+
+	for line in objdump:lines() do
+		local pat = gnu.WIN_TARGET and "DLL Name:?%s+(.*)" or "NEEDED:?%s+(.*)"
+		local name = line:match(pat)
+
+		if name then
+			gnu._infocache[key] = 'dynamic'
+			return gnu._infocache[key]
+		end
+	end
+
+	gnu._infocache[key] = 'static'
+	return gnu._infocache[key]
+end
+
+local LIB_EXT = utils.lookuptable {
+	static = {
+		'a', 'lib', 'o', 'obj'
+	},
+	dynamic = {
+		'dylib', 'dll', 'so'
+	}
+}
+
+---@param conf lrocket.CompilerConf
+function gnu.compile(conf)
+    local compile_command = { }
+
+	for word in gnu.CC:gmatch "%S+" do
+		local wantflag = true
+		if conf.type == 'object' and word:find "^%-fuse%-ld=" then
+			wantflag = false
+		end
+
+		if wantflag then
+			compile_command[#compile_command+1] = word
+		end
+	end
+
+	--[[
+    if gnu.CC:find "clang" and gnu.WIN_TARGET then
+        addargs "-lmsvcrt"
+        addargs "-llibcmt"
+	else
+        addargs "-lm"
+    end
+	--]]
+
+	gnu.bakeargs('clo', conf, compile_command)
+
+	for i, arg in ipairs(compile_command) do
+		compile_command[i] = sfs.quoteArgs(arg)
+	end
+
+	-- addargs "-v"
+
+	log.nextlevel 'detail'
+	return sfs.exec(compile_command)
+end
+
+function gnu.defaultdefs()
+	if not gnu.DEFAULT_DEFS then
+		gnu.DEFAULT_DEFS = sfs.shellout("echo | ", gnu.CC:gsub('%-fuse%-ld=lld%S*', ''), "-dM -E -")
+	end
+	return gnu.DEFAULT_DEFS
+end
+
+---@param mode 'c'|'l'|'o'|string # c adds cflags, l adds ldflags, o adds output flags
+---@param conf lrocket.CompilerConf
+---@param res string[]?
+---@return string[]
+function gnu.bakeargs(mode, conf, res)
+	res = res or {}
+	local function addarg(...)
+		for _, item in ipairs { ... } do
+			res[#res+1] = tostring(item)
+		end
+	end
+
+	conf:dedupargs()
+
+	if mode:find 'o' then
+		addarg(
+			"-o",
+			conf.output
+		)
+
+		if conf.type == 'shared' then
+			addarg("-shared")
+		elseif conf.type == 'object' then
+			addarg("-c")
+		end
+	end
+
+	if mode:find 'c' then
+		if conf.type == 'shared' or conf.type == 'object' then
+			addarg '-fPIC'
+		end
+
+		for type, value in conf:args() do
+			if type == 'include' then
+				local path = value
+				addarg("-I", path)
+			elseif type == 'cflag' then
+				local extra = value
+				addarg(extra)
+			end
+		end
+	end
+
+	if mode:find 'o' then
+		for type, value in conf:args() do
+			if type == 'c' then
+				local file, ext = value, sfs.getExtension(value)
+				if ext == 'c' then
+					addarg(file)
+				else
+					addarg("-xc", file, "-xnone")
+				end
+			end
+		end
+	end
+
+	if mode:find 'l' and conf.type ~= 'object' then
+		for type, value in conf:args() do
+			if type == 'library' then
+				local lib = value
+				local ext = sfs.getExtension(lib) or ""
+				local libtype = LIB_EXT[ext:lower()]
+				if libtype == 'static' then
+					addarg(lib)
+				else
+					if libtype or lib:find "%.so" then
+						addarg('-l:'..lib)
+					else
+						addarg('-l', lib)
+					end
+				end
+			elseif type == 'libdir' then
+				local searchpath = value
+				addarg("-L", searchpath)
+			elseif type == 'object' then
+				local obj = value
+				addarg(obj)
+			elseif type == 'ldflag' then
+				local flag = value
+				addarg(flag)
+			end
+		end
+
+		-- http://lua-users.org/lists/lua-l/2009-05/msg00147.html
+		if gnu.WIN_TARGET then
+			addarg "-Wl,-export-all-symbols"
+		else
+			addarg "-Wl,-export-dynamic"
+		end
+
+		if conf.subsystem == 'gui' and gnu.WIN_TARGET then
+			addarg "-mwindows"
+		end
+	end
+
+	return res
+end
+
+return gnu
+

@@ -1,0 +1,58 @@
+{
+  "kind": "lib",
+  "name": "kong-external-auth",
+  "versions": {
+    "0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-external-auth/handler.lua": {
+          "sha256": "0a56fce89f3cccf58db58c63381e3707b77547515c7fc02e3d245ec3e24c48e2",
+          "size": 947,
+          "url": "https://raw.githubusercontent.com/wiput1999/kong-external-auth/f34a3f8560ceb23dccfb63d9e24d6db21a580cf2/src/handler.lua"
+        },
+        "kong/plugins/kong-external-auth/schema.lua": {
+          "sha256": "ba6d54926e7adeb70c534e890f2bcb87ade5ac7e88bb0f7eefa073d555028b63",
+          "size": 368,
+          "url": "https://raw.githubusercontent.com/wiput1999/kong-external-auth/f34a3f8560ceb23dccfb63d9e24d6db21a580cf2/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/wiput1999/kong-external-auth",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 04 May 2020 09:45:17 GMT",
+        "rockspec": {
+          "date": "Mon, 04 May 2020 09:45:17 GMT",
+          "sha256": "c90f195885db57a0d4ed2c46a554cd0bfb8793b8954b9129e1bbaa7c94dcea8d",
+          "size": 640
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-external-auth.handler",
+        "kong.plugins.kong-external-auth.schema"
+      ],
+      "origin": {
+        "commit": "f34a3f8560ceb23dccfb63d9e24d6db21a580cf2",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/wiput1999/kong-external-auth"
+      },
+      "size": 1315,
+      "summary": "Kong plugin to authenticate requests using http services.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

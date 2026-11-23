@@ -1,0 +1,118 @@
+-- ============================================================
+-- Shiva Test — ox_lib Mock
+-- Stubs out the `lib` global used by ox_lib-dependent resources.
+-- ============================================================
+
+local OxLibMock = {}
+
+-- ========================
+-- Callback system
+-- ========================
+
+local _callbacks = {}
+
+local callback = {}
+
+function callback.register(name, fn)
+    _callbacks[name] = fn
+end
+
+function callback.call(name, source, cb, ...)
+    local fn = _callbacks[name]
+    if not fn then
+        error('ox_lib callback: "' .. name .. '" not registered')
+    end
+    fn(source, cb, ...)
+end
+
+-- ========================
+-- lib table
+-- ========================
+
+local lib = {
+    callback = callback,
+
+    -- Notification — no-op in tests
+    notify = function(_data) end,
+
+    -- Alert dialog — immediately returns default (true)
+    alertDialog = function(_data, cb)
+        if cb then cb(true) end
+        return true
+    end,
+
+    -- Input dialog — immediately returns empty table
+    inputDialog = function(_header, _rows, cb)
+        if cb then cb({}) end
+        return {}
+    end,
+
+    -- Context menu — no-op
+    showContext   = function(_id) end,
+    hideContext   = function() end,
+    registerMenu  = function(_data, _cb) end,
+
+    -- Radial menu — no-op
+    addRadialItem  = function(_item) end,
+    removeRadialItem = function(_id) end,
+    clearRadialItems = function() end,
+
+    -- Points
+    points = {
+        ---@param data   table  { coords, distance, ... }
+        ---@param nearby? function  Called with point when player is near
+        ---@param onEnter? function
+        ---@param onExit?  function
+        new = function(data, _nearby, _onEnter, _onExit)
+            return setmetatable(data, {
+                __index = {
+                    remove  = function() end,
+                    isNearby = function() return false end,
+                }
+            })
+        end,
+    },
+
+    -- Zones
+    zones = {
+        box    = function(data) return setmetatable(data, { __index = { remove = function() end } }) end,
+        sphere = function(data) return setmetatable(data, { __index = { remove = function() end } }) end,
+        poly   = function(data) return setmetatable(data, { __index = { remove = function() end } }) end,
+    },
+
+    -- String / math helpers that ox_lib exposes
+    string = {
+        trim    = function(s) return s:match('^%s*(.-)%s*$') end,
+        starts  = function(s, prefix) return s:sub(1, #prefix) == prefix end,
+        ends    = function(s, suffix) return suffix == '' or s:sub(-#suffix) == suffix end,
+    },
+
+    math = {
+        clamp  = function(val, min, max) return math.max(min, math.min(max, val)) end,
+        round  = function(val, dec)
+            local factor = 10 ^ (dec or 0)
+            return math.floor(val * factor + 0.5) / factor
+        end,
+    },
+
+    -- Cache shim
+    cache = setmetatable({}, {
+        __index = function(_, _) return nil end,
+        __newindex = function(t, k, v) rawset(t, k, v) end,
+    }),
+}
+
+-- ========================
+-- Install into _G
+-- ========================
+
+---@param G table
+function OxLibMock.install(G)
+    G.lib = lib
+    -- ox_lib also provides `cache` as a global
+    G.cache = lib.cache
+end
+
+OxLibMock.lib = lib
+
+return OxLibMock

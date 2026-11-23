@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-openwhisk",
+  "versions": {
+    "0.1.2-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/openwhisk/handler.lua": {
+          "sha256": "9b211cd5ef81ce857c033012cc4272aa829166aa7d072c7515ca0b0a8ac54d9b",
+          "size": 4551,
+          "url": "https://raw.githubusercontent.com/mashape/kong-plugin-openwhisk/7ed8521176f6a1d9e5226d9af8ea7e718a41d133/kong/plugins/openwhisk/handler.lua"
+        },
+        "kong/plugins/openwhisk/schema.lua": {
+          "sha256": "ae015e4db64d9e1ebbedc7b85a5e7fd23fa990f031ff6579ccf19640628ce5a0",
+          "size": 628,
+          "url": "https://raw.githubusercontent.com/mashape/kong-plugin-openwhisk/7ed8521176f6a1d9e5226d9af8ea7e718a41d133/kong/plugins/openwhisk/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 18 Jun 2018 17:09:18 GMT",
+        "rockspec": {
+          "date": "Mon, 18 Jun 2018 17:09:18 GMT",
+          "sha256": "bc7e280c8cec92288b2d1e2638e854995af2bb40002c802cbbbe843cf2bf0cf7",
+          "size": 492
+        },
+        "src": {
+          "date": "Mon, 18 Jun 2018 17:09:20 GMT",
+          "sha256": "1cb2eb91d55dea92093db20e82a90e3f573aa00c2be9f0b46e69d8868cbae3b7",
+          "size": 16640,
+          "url": "https://luarocks.org/kong-plugin-openwhisk-0.1.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.openwhisk.handler",
+        "kong.plugins.openwhisk.schema"
+      ],
+      "origin": {
+        "commit": "7ed8521176f6a1d9e5226d9af8ea7e718a41d133",
+        "ref": "0.1.2",
+        "type": "git",
+        "url": "https://github.com/mashape/kong-plugin-openwhisk"
+      },
+      "size": 5179,
+      "summary": "This plugin allows Kong to invoke OpenWhisk action.",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.meta",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.public",
+        "kong.tools.responses",
+        "kong.tools.utils",
+        "multipart",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

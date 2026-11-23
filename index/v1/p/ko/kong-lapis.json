@@ -1,0 +1,592 @@
+{
+  "kind": "app",
+  "name": "kong-lapis",
+  "versions": {
+    "1.16.0.1-1": {
+      "bin": {
+        "lapis": "bin/lapis"
+      },
+      "deps": [
+        "ansicolors",
+        "date",
+        "etlua",
+        "loadkit",
+        "lpeg",
+        "luasocket",
+        "kong-pgmoon",
+        "lua-resty-openssl"
+      ],
+      "files": {
+        "bin/lapis": {
+          "sha256": "ca487079f147ddb627adb0ebc6b69debe9254b3d64ce78817c019b559f38fff0",
+          "size": 104,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/bin/lapis"
+        },
+        "lapis/application.lua": {
+          "sha256": "c309e008eb9895d55436395aeee7bed16e6216f3dd2400889e0752c14e462977",
+          "size": 15311,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/application.lua"
+        },
+        "lapis/application/route_group.lua": {
+          "sha256": "7d806fcf1571b75c64c8a779468ca77744b6276896265c8d6d5173842ddeb6bf",
+          "size": 3812,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/application/route_group.lua"
+        },
+        "lapis/cache.lua": {
+          "sha256": "1d16fd47af9018abee1345973b400fa8c7faf70e217b36b3c73ead2a7516bea2",
+          "size": 36,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cache.lua"
+        },
+        "lapis/cmd/actions.lua": {
+          "sha256": "99afa051d6da809cc235992966c9a6a38791561dc5829070b1819fedb1586095",
+          "size": 27401,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/actions.lua"
+        },
+        "lapis/cmd/attached_server.lua": {
+          "sha256": "0971f3fa3d020b1207b6ea6b55aaf1a4dd5795c555eaf3490f1817c635773bc4",
+          "size": 1932,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/attached_server.lua"
+        },
+        "lapis/cmd/cqueues.lua": {
+          "sha256": "5b4f6792967d7912d9c710d2871c7c01d3e68eb3aac4b4f762e397f7ec4d52df",
+          "size": 5146,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/cqueues.lua"
+        },
+        "lapis/cmd/cqueues/actions.lua": {
+          "sha256": "950d6aa8fec93719a8f3a25c58685c7c78833dbec6cfd4e1c06037066d6de4b8",
+          "size": 1036,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/cqueues/actions.lua"
+        },
+        "lapis/cmd/cqueues/attached_server.lua": {
+          "sha256": "4dd35e0bd8c48a686ebd4b1011aa70fdb9f0adaaebefd8160698c89cef98e187",
+          "size": 2346,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/cqueues/attached_server.lua"
+        },
+        "lapis/cmd/nginx.lua": {
+          "sha256": "b8705981201d67745b82611cc68b4ef08e99a5d0299afa549af0cbdb8bf71224",
+          "size": 8386,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/nginx.lua"
+        },
+        "lapis/cmd/nginx/actions.lua": {
+          "sha256": "0b4712d3513c0130bf353e4289eca185e45fb55d8e9d655f204bf9b8aadc3bd5",
+          "size": 1415,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/nginx/actions.lua"
+        },
+        "lapis/cmd/nginx/attached_server.lua": {
+          "sha256": "c403ef2bee59e240d19a3ca6a245f54544af2799601ffc48b0eda1b549af7c9b",
+          "size": 5050,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/nginx/attached_server.lua"
+        },
+        "lapis/cmd/nginx/config.lua": {
+          "sha256": "f124038cbf0575dab3183a8a22d7f10ff7134c7d46141bfeefdae1908d9a0230",
+          "size": 3263,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/nginx/config.lua"
+        },
+        "lapis/cmd/path.lua": {
+          "sha256": "7adba4b287feb3c6801a8df71d39f44a2e20db10f5f1a7bc0a4d826a430188a3",
+          "size": 3113,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/path.lua"
+        },
+        "lapis/cmd/templates/application.lua": {
+          "sha256": "b89ccac745cb54a988c4f759c05849a7f2a1c580ae58fc31a3f83ff23d03ee51",
+          "size": 1552,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/application.lua"
+        },
+        "lapis/cmd/templates/config.lua": {
+          "sha256": "359e3abde0e06980286089072ce720ed25d8c6618688d5dca316c193dadeac00",
+          "size": 2162,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/config.lua"
+        },
+        "lapis/cmd/templates/flow.lua": {
+          "sha256": "efde2f19b18137dd9dba9d0faaa905ae5505f005727953a7e6560a81b18734b4",
+          "size": 2035,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/flow.lua"
+        },
+        "lapis/cmd/templates/gitignore.lua": {
+          "sha256": "81fd2a5899e866759d1e3b2675ace8686b435cc52cc2ab51917486bd0b16be29",
+          "size": 853,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/gitignore.lua"
+        },
+        "lapis/cmd/templates/migration.lua": {
+          "sha256": "73dd59cea703c60e062ef022f502cb81aaadee0b5979eabf9c34a3be1d3c03f7",
+          "size": 3962,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/migration.lua"
+        },
+        "lapis/cmd/templates/model.lua": {
+          "sha256": "0ae5da8d058bc1653a0b87d4b8ba1d930f96f5caa1c979f53c761952af365ce2",
+          "size": 1967,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/model.lua"
+        },
+        "lapis/cmd/templates/models.lua": {
+          "sha256": "29d14df020a77db84e8ee9928ba74d2ba4f0ed7ad244ffb61a3e7ce76df29cca",
+          "size": 1404,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/models.lua"
+        },
+        "lapis/cmd/templates/nginx/config.lua": {
+          "sha256": "7cbea4b00054d6d36d85a5aa2bae5796ca1abd3c0658d232b3cad2f755c0bc64",
+          "size": 1604,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/nginx/config.lua"
+        },
+        "lapis/cmd/templates/nginx/mime_types.lua": {
+          "sha256": "9ddd47360d1304d988b94f80a7df27b0b053b309de5e8139a4854c196f964160",
+          "size": 3644,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/nginx/mime_types.lua"
+        },
+        "lapis/cmd/templates/rockspec.lua": {
+          "sha256": "7193952c43197d8fb382f70c3421ac850a429d997c6e8ff3b0a65bdce4879faf",
+          "size": 2939,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/rockspec.lua"
+        },
+        "lapis/cmd/templates/spec.lua": {
+          "sha256": "77ca1b9cd100ffb7db5b08ca0257db000b543119708279a3ba566bb861aaaab6",
+          "size": 3729,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/spec.lua"
+        },
+        "lapis/cmd/templates/tupfile.lua": {
+          "sha256": "2a35e02908313f1f8f06cab6e07d9aead318380376ebfe121d500f62fa8bcc28",
+          "size": 490,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/templates/tupfile.lua"
+        },
+        "lapis/cmd/util.lua": {
+          "sha256": "c3e5fceaeead19200996379207e80c91cb64e6020937ec0b0d52e5a62caee4d2",
+          "size": 3576,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cmd/util.lua"
+        },
+        "lapis/config.lua": {
+          "sha256": "e8f561612e50717583c863e636cadb654e016434379a3722952cbd9d37c17476",
+          "size": 4179,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/config.lua"
+        },
+        "lapis/coroutine.lua": {
+          "sha256": "b1592293909bc1aa08ba1f1c4d3f441ab60b462390003ce369c5171f05d308e8",
+          "size": 85,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/coroutine.lua"
+        },
+        "lapis/cqueues.lua": {
+          "sha256": "7581b3b26ab311873925444697290b8a593ac509e42fe3835dae7be2603b2d80",
+          "size": 3991,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/cqueues.lua"
+        },
+        "lapis/csrf.lua": {
+          "sha256": "cc012be30ee6a05474845f9af9deba90ab70d908454bc9e526cd345b86694fa5",
+          "size": 1681,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/csrf.lua"
+        },
+        "lapis/db.lua": {
+          "sha256": "b27a42a4fb024bafc031870e4b293136896419cfff70a36368ccecbb951924f7",
+          "size": 339,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db.lua"
+        },
+        "lapis/db/base.lua": {
+          "sha256": "8ed3d1a05f601d5fae380ee3adbc52361d34c634ec5903db755ad569ea4e5195",
+          "size": 10839,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/base.lua"
+        },
+        "lapis/db/base_model.lua": {
+          "sha256": "415bb1d8d37bc7ec0c1965539c3a034936bb4be45ac5abce807f94f11a118523",
+          "size": 33177,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/base_model.lua"
+        },
+        "lapis/db/migrations.lua": {
+          "sha256": "c88a7a4e5eb20cd029ea52deb6ffb2ca51db12b8db841317dc89f740bb09c42e",
+          "size": 4436,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/migrations.lua"
+        },
+        "lapis/db/model.lua": {
+          "sha256": "af327d8a0aeea80aaa03af2ca9a9e0bf3a563a950f7bb6750e73ec4319be1438",
+          "size": 357,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/model.lua"
+        },
+        "lapis/db/model/relations.lua": {
+          "sha256": "a0e5f523be95672bfeb43b36f1d33dfeaa130f02ed48861b638324fb298805d3",
+          "size": 22373,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/model/relations.lua"
+        },
+        "lapis/db/mysql.lua": {
+          "sha256": "c13800f00541594d585b7e87f9ca1bbfd87ec698f102c416b048b3f9a9d56d19",
+          "size": 9216,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/mysql.lua"
+        },
+        "lapis/db/mysql/model.lua": {
+          "sha256": "1ae99a8981dc68154bdcc3efcbe324fe6fed77ed98a7924654c4e3b2e79a4439",
+          "size": 4595,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/mysql/model.lua"
+        },
+        "lapis/db/mysql/schema.lua": {
+          "sha256": "809fc7e4eed817da3388195bafc02a6f40311ef5968fd8c64789c17e945a9d91",
+          "size": 7685,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/mysql/schema.lua"
+        },
+        "lapis/db/pagination.lua": {
+          "sha256": "7db8da8dcb5245e46adff8d535e35e9c1645d44091fc6a22881e79e2b17db10f",
+          "size": 12100,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/pagination.lua"
+        },
+        "lapis/db/postgres.lua": {
+          "sha256": "89ed4c5feadb2773d4c150450b763edb3ad0828a6c25f0bd4ddbaf38756d4c31",
+          "size": 10704,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/postgres.lua"
+        },
+        "lapis/db/postgres/model.lua": {
+          "sha256": "76909c1756a1fcd967d3487769dd5b15b46a7bc2339f1c70a13e24a331f01164",
+          "size": 1739,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/postgres/model.lua"
+        },
+        "lapis/db/postgres/parse_clause.lua": {
+          "sha256": "108616203aaa91ef2206fa2d6d165272a268dbf4f0f3ac1b486cdedc9766b029",
+          "size": 2752,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/postgres/parse_clause.lua"
+        },
+        "lapis/db/postgres/schema.lua": {
+          "sha256": "c3ada7600b47263db76a01f4587578d9b60f454bd55f0b04a35cef261222d56e",
+          "size": 8679,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/postgres/schema.lua"
+        },
+        "lapis/db/schema.lua": {
+          "sha256": "a9b8c05db8e3f2685b8c954573b9b88662963364ff89e00a88778bbba8a81856",
+          "size": 360,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/schema.lua"
+        },
+        "lapis/db/sqlite.lua": {
+          "sha256": "f97f04ae33c56ac23a9e3a06c0fea5187eb86a9bc2fd60cd28b5aebf01fdd8f0",
+          "size": 7040,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/sqlite.lua"
+        },
+        "lapis/db/sqlite/model.lua": {
+          "sha256": "91ace8abf0d800e0ea96bdd3aec13571fbbe907643c13c89d2dae75dc51ef3ed",
+          "size": 1459,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/sqlite/model.lua"
+        },
+        "lapis/db/sqlite/schema.lua": {
+          "sha256": "84c43541e73b176b12be2e7c49b5fd66274925d9306605eb497d19d111ff6b5c",
+          "size": 6713,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/db/sqlite/schema.lua"
+        },
+        "lapis/environment.lua": {
+          "sha256": "370d507ffc714a4d72103ab4b1ddb240c416afe84a43c04fcc6fa8a70a6d5bf4",
+          "size": 2326,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/environment.lua"
+        },
+        "lapis/etlua.lua": {
+          "sha256": "5ea535656d0090070bb0693367ee16660fb9906e29d755439d0e79f19a6d3117",
+          "size": 7579,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/etlua.lua"
+        },
+        "lapis/features/etlua.lua": {
+          "sha256": "dca5ff10698b3f241fbb630a1644705c20f024692567321abf302401c6285e17",
+          "size": 318,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/features/etlua.lua"
+        },
+        "lapis/flow.lua": {
+          "sha256": "e0b32cd41367fee643af5a64418f3abe658ea3c3c7c7f660058583c0fe77e002",
+          "size": 3163,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/flow.lua"
+        },
+        "lapis/html.lua": {
+          "sha256": "d4d11e0cd9be4d822d56571810dd4262df61aa3e19545e133bdbcafd75a7e665",
+          "size": 18826,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/html.lua"
+        },
+        "lapis/http.lua": {
+          "sha256": "c8bd92f691df4d687d1e40f3c72b4d1ead7dcee61b4b4454bb13f84f6da43195",
+          "size": 178,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/http.lua"
+        },
+        "lapis/init.lua": {
+          "sha256": "f534663947785f27a5df416bd9905bcea2628f812192428d417be1b35ae5a853",
+          "size": 716,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/init.lua"
+        },
+        "lapis/logging.lua": {
+          "sha256": "fda6cd9ede2ba022b600c853c5cf726b994a4f6818a639c57f2c781a4fbc23c2",
+          "size": 3615,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/logging.lua"
+        },
+        "lapis/lua.lua": {
+          "sha256": "1161b04b6b6c826b9e28e56fcee4e916a214f43feb392b84bf01c05ed30b602e",
+          "size": 2262,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/lua.lua"
+        },
+        "lapis/moonscript/widget_optimizer.lua": {
+          "sha256": "ff81191f94d6f39d91ddd3f3f86e77a1b8df80dbee191b4478c6df19ddc5e7ef",
+          "size": 7343,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/moonscript/widget_optimizer.lua"
+        },
+        "lapis/nginx.lua": {
+          "sha256": "5a608a9e4ae8d354ddb819d084e159f6f7958d5f5aa527fc92000a7caa502223",
+          "size": 5816,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/nginx.lua"
+        },
+        "lapis/nginx/cache.lua": {
+          "sha256": "02be066137f5154697c387d14d62502844d581e1272844e7d9be26cb2afda518",
+          "size": 3603,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/nginx/cache.lua"
+        },
+        "lapis/nginx/context.lua": {
+          "sha256": "f06f61a33e3a024b648a95f217d02c1e8aa7985d3b02fe33e7379d37e47fb207",
+          "size": 1738,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/nginx/context.lua"
+        },
+        "lapis/nginx/http.lua": {
+          "sha256": "fe2a2fb77c316df3ae0bd5cbdd17891e83f1bab5d676b87545b8547170f1487c",
+          "size": 3476,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/nginx/http.lua"
+        },
+        "lapis/nginx/postgres.lua": {
+          "sha256": "889887a8309e24859440b2565562f8cee41c316e008f99bd91ac16de19ffbd68",
+          "size": 162,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/nginx/postgres.lua"
+        },
+        "lapis/request.lua": {
+          "sha256": "54aee324c3ed7d7f92aa15bdf999cc0cd62e501903568d1867942ecde5dc4474",
+          "size": 10045,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/request.lua"
+        },
+        "lapis/router.lua": {
+          "sha256": "f3dc1bfd48d173358cc0a44582a98f22374a84b8555f1529b0b5382c231393c1",
+          "size": 13348,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/router.lua"
+        },
+        "lapis/server.lua": {
+          "sha256": "b2aa610b1f0be9dbce2f8b8a687dabf3095a86e629f302fa866d2cc8a35765c8",
+          "size": 142,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/server.lua"
+        },
+        "lapis/session.lua": {
+          "sha256": "1efb8693d3b47f4590e2a49d2b407d87586663243708fc6b7e490acb359bd343",
+          "size": 3507,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/session.lua"
+        },
+        "lapis/spec.lua": {
+          "sha256": "7e8306e4c8f204eaaec844a070dcc448efa329099840955cb07cda65e45314e9",
+          "size": 1174,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/spec.lua"
+        },
+        "lapis/spec/db.lua": {
+          "sha256": "2227100a4667e60104f162dfd28d43712eec230a393903d5ada732505ffcc4bc",
+          "size": 1613,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/spec/db.lua"
+        },
+        "lapis/spec/request.lua": {
+          "sha256": "aafa0513562c89ee3d9148ab7b9342f3352c61f3b9b43bb07f3dc08ddfbef335",
+          "size": 10955,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/spec/request.lua"
+        },
+        "lapis/spec/server.lua": {
+          "sha256": "dcaa2139146ade86ed79646f43f79e6232c0beaa6727f9ecdf5bd82cf074d4f2",
+          "size": 5688,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/spec/server.lua"
+        },
+        "lapis/spec/shared.lua": {
+          "sha256": "a9b9bd638ef5c1468faafca48dc36a9121b13530d71ccb531e6383896dab448a",
+          "size": 2065,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/spec/shared.lua"
+        },
+        "lapis/spec/stack.lua": {
+          "sha256": "e2219b75664d4fc051c88675bf6337e9c0692911472661b0c84f5d6a2b918540",
+          "size": 523,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/spec/stack.lua"
+        },
+        "lapis/time.lua": {
+          "sha256": "f21b11cf5b85fadf2c63c21343cee9d05fc7f392804a4971349aa473688f4407",
+          "size": 294,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/time.lua"
+        },
+        "lapis/util.lua": {
+          "sha256": "d90f0329f88042597d0a07b1712efc8c732a16e7ed9f57ca4b052e3e693b69fb",
+          "size": 12327,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/util.lua"
+        },
+        "lapis/util/encoding.lua": {
+          "sha256": "bf295fe93a2b7d08ab2d179ab291918c7b37fee4e8d92dee427a7ece8ed871c6",
+          "size": 2072,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/util/encoding.lua"
+        },
+        "lapis/util/fenv.lua": {
+          "sha256": "e613184e415176a741b039aa371143a73d90f2fe34742d52bdaba9f756726a60",
+          "size": 610,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/util/fenv.lua"
+        },
+        "lapis/util/functions.lua": {
+          "sha256": "5477121c784e3cd368857405cde51486aedd8daa01a8b3aa9b4c877dd61c69f6",
+          "size": 1613,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/util/functions.lua"
+        },
+        "lapis/util/utf8.lua": {
+          "sha256": "d2d42574b8a6ba8ab702a940d80f0f278693d3cf8b20f228523b4a0e621f121d",
+          "size": 1445,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/util/utf8.lua"
+        },
+        "lapis/validate.lua": {
+          "sha256": "3845245aae285a6d57dfa6c15b29539cd829f2c0b14ce0c1ef14a9c87e596ef5",
+          "size": 5146,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/validate.lua"
+        },
+        "lapis/validate/types.lua": {
+          "sha256": "c779138ebafdd606eefb9d742050bf572941a7f95df0a64b497f5a13f01eaa1c",
+          "size": 19988,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/validate/types.lua"
+        },
+        "lapis/version.lua": {
+          "sha256": "6d62cf8c356a84a9e9bb7ed62409347f8f2836c86506aae03823cbd34c7aeee8",
+          "size": 16,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/version.lua"
+        },
+        "lapis/views/error.lua": {
+          "sha256": "4a16fa03148df785e6d27bd7b3bff318d7f0302f19dca1205ab3e76086b6ff46",
+          "size": 3292,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/views/error.lua"
+        },
+        "lapis/views/layout.lua": {
+          "sha256": "5cfffd3543a0a17018c4744c86ceeedb7b83f4af4794ca7c6c11d70c48558385",
+          "size": 1208,
+          "url": "https://raw.githubusercontent.com/Kong/lapis/3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6/lapis/views/layout.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 20 Nov 2023 17:24:36 GMT",
+        "rockspec": {
+          "date": "Mon, 20 Nov 2023 17:24:36 GMT",
+          "sha256": "533227d9b232dbaa3038739626ae8b678b8ffd94432d95cd6b1fbb6fea014ca1",
+          "size": 5211
+        },
+        "src": {
+          "date": "Mon, 20 Nov 2023 17:24:38 GMT",
+          "sha256": "7d5697ed4a9418a3f4a23ad36274cebfdce0e4d4e03ec5fea89fa7162f82d43c",
+          "size": 456567,
+          "url": "https://luarocks.org/kong-lapis-1.16.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "lapis",
+        "lapis.application",
+        "lapis.application.route_group",
+        "lapis.cache",
+        "lapis.cmd.actions",
+        "lapis.cmd.attached_server",
+        "lapis.cmd.cqueues",
+        "lapis.cmd.cqueues.actions",
+        "lapis.cmd.cqueues.attached_server",
+        "lapis.cmd.nginx",
+        "lapis.cmd.nginx.actions",
+        "lapis.cmd.nginx.attached_server",
+        "lapis.cmd.nginx.config",
+        "lapis.cmd.path",
+        "lapis.cmd.templates.application",
+        "lapis.cmd.templates.config",
+        "lapis.cmd.templates.flow",
+        "lapis.cmd.templates.gitignore",
+        "lapis.cmd.templates.migration",
+        "lapis.cmd.templates.model",
+        "lapis.cmd.templates.models",
+        "lapis.cmd.templates.nginx.config",
+        "lapis.cmd.templates.nginx.mime_types",
+        "lapis.cmd.templates.rockspec",
+        "lapis.cmd.templates.spec",
+        "lapis.cmd.templates.tupfile",
+        "lapis.cmd.util",
+        "lapis.config",
+        "lapis.coroutine",
+        "lapis.cqueues",
+        "lapis.csrf",
+        "lapis.db",
+        "lapis.db.base",
+        "lapis.db.base_model",
+        "lapis.db.migrations",
+        "lapis.db.model",
+        "lapis.db.model.relations",
+        "lapis.db.mysql",
+        "lapis.db.mysql.model",
+        "lapis.db.mysql.schema",
+        "lapis.db.pagination",
+        "lapis.db.postgres",
+        "lapis.db.postgres.model",
+        "lapis.db.postgres.parse_clause",
+        "lapis.db.postgres.schema",
+        "lapis.db.schema",
+        "lapis.db.sqlite",
+        "lapis.db.sqlite.model",
+        "lapis.db.sqlite.schema",
+        "lapis.environment",
+        "lapis.etlua",
+        "lapis.features.etlua",
+        "lapis.flow",
+        "lapis.html",
+        "lapis.http",
+        "lapis.logging",
+        "lapis.lua",
+        "lapis.moonscript.widget_optimizer",
+        "lapis.nginx",
+        "lapis.nginx.cache",
+        "lapis.nginx.context",
+        "lapis.nginx.http",
+        "lapis.nginx.postgres",
+        "lapis.request",
+        "lapis.router",
+        "lapis.server",
+        "lapis.session",
+        "lapis.spec",
+        "lapis.spec.db",
+        "lapis.spec.request",
+        "lapis.spec.server",
+        "lapis.spec.shared",
+        "lapis.spec.stack",
+        "lapis.time",
+        "lapis.util",
+        "lapis.util.encoding",
+        "lapis.util.fenv",
+        "lapis.util.functions",
+        "lapis.util.utf8",
+        "lapis.validate",
+        "lapis.validate.types",
+        "lapis.version",
+        "lapis.views.error",
+        "lapis.views.layout"
+      ],
+      "origin": {
+        "commit": "3f1d38370b1b3bc133a9ff16aeec39d7a12f16b6",
+        "ref": "v1.16.0.1",
+        "type": "git",
+        "url": "https://github.com/Kong/lapis.git"
+      },
+      "size": 420959,
+      "summary": "A fork of leafo/lapis for Kong",
+      "undeclared_requires": [
+        "argparse",
+        "busted",
+        "cqueues",
+        "cqueues.thread",
+        "http.compat.socket",
+        "http.headers",
+        "http.server",
+        "http.version",
+        "lapis_environment",
+        "lsqlite3",
+        "ltn12",
+        "luasql.mysql",
+        "mime",
+        "models",
+        "moon",
+        "moonscript.compile",
+        "resty.mysql",
+        "resty.upload",
+        "socket",
+        "socket.http",
+        "socket.url",
+        "tableshape",
+        "tableshape.moonscript"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 70,
+        "status": "partial",
+        "total": 84
+      }
+    }
+  }
+}

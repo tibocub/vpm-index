@@ -1,0 +1,712 @@
+-- subagents/toml_workflows.lua
+--
+-- Workflow profiles are TOML files: discovery, validation, execution, the
+-- generated `/workflow:<name>` slash commands, and the model-facing
+-- `subagents.workflow` tool. This is the fixed-DAG surface. Output-dependent branching and dynamic
+-- fan-out stay in the Lua API (subagents/workflow.lua); TOML deliberately does
+-- not grow into a programming language.
+--
+-- Discovery mirrors profiles: `workflows/**/*.toml` beneath every host config
+-- layer (base, user, project, local), a later layer shadowing an earlier one by
+-- resolved name (the `name` field, defaulting to the file stem).
+--
+-- A workflow may declare its own subagent profiles as `[profile.<key>]`
+-- sections (`system_prompt` required; `name` defaults to the key; optional
+-- `description`, `model`, `reasoning`). They exist only for that workflow and
+-- shadow discovered profiles of the same name.
+--
+-- Both entry points start the workflow in the background and return at once.
+-- The tool returns the workflow id; the command writes the run into the
+-- primary's history as that same tool call, so both render as the call's live
+-- board and survive a resume. Completion wakes the primary with the shared
+-- workflow notice.
+--
+-- Validation runs before any inference: a workflow profile needs a non-empty `steps`
+-- array, every step needs a unique `id`, a `profile`, and a `prompt`, every
+-- entry in `needs` must name a declared step, and the dependency graph must be
+-- acyclic. Discovery itself never throws — an invalid file is recorded with its
+-- error and registers no command, and `subagents.workflow` reports that error
+-- if the model asks to run the workflow profile.
+--
+-- Execution lowers onto the Lua job primitives. Every step's prompt is its own
+-- text, then the workflow input, then one labeled section per dependency in
+-- `needs` order. All ready steps start at once; as each settles, any dependent
+-- whose needs are now satisfied starts immediately, so unrelated branches keep
+-- running. A step whose dependency did not complete is marked "skipped" and
+-- never spawns, and that skip cascades transitively. What comes back is the
+-- steps `output` names, in its order, or — without it — every terminal step
+-- (one no other step depends on) in declaration order. Either way the reported
+-- order is fixed by the file, not by settle order.
+--
+-- Edge cases: the TOML parser returns nil rather than raising for some
+-- malformed documents, so a non-table parse result is treated as a parse
+-- error. A workflow input may legitimately be empty (a bare `/workflow:name`
+-- with no tail), which is passed through as an empty string rather than
+-- rejected. A workflow whose steps are all terminal returns every step, unless
+-- a top-level `output` array names the steps to report instead.
+
+local workflow = require("subagents.workflow")
+local paths = require("subagents.paths")
+local profiles_mod = require("subagents.profiles")
+local spawn = require("subagents.spawn")
+local progress = require("subagents.progress")
+
+local M = {}
+
+-- toml2lua installs its module under the name "toml", not "toml2lua".
+local TOML_MODULE = "toml"
+
+local function host()
+    return require("panto").ext
+end
+
+local function load_toml()
+    local ok, toml = pcall(require, TOML_MODULE)
+    if not ok or type(toml) ~= "table" or type(toml.parse) ~= "function" then
+        return nil, "the 'toml2lua' rock is required to read workflow profiles"
+    end
+    return toml
+end
+
+-- ---------------------------------------------------------------------------
+-- Parsing and validation
+-- ---------------------------------------------------------------------------
+
+local function is_array(value)
+    if type(value) ~= "table" then
+        return false
+    end
+    local count = 0
+    for key in pairs(value) do
+        if type(key) ~= "number" then
+            return false
+        end
+        count = count + 1
+    end
+    return count == #value
+end
+
+local function optional_string(value, label)
+    if value == nil then
+        return nil, nil
+    end
+    if type(value) ~= "string" or value == "" then
+        return nil, label .. " must be a non-empty string when given"
+    end
+    return value, nil
+end
+
+-- validate(def, fallback_name) -> normalized workflow profile | nil, err
+--
+-- The returned workflow profile is a fresh table, so a caller can trust its shape:
+-- { name, description, steps = { { id, profile, prompt, model, reasoning,
+-- needs }, ... }, terminal = { [id] = true }, report = { id, ... } }.
+function M.validate(def, fallback_name)
+    if type(def) ~= "table" then
+        return nil, "workflow profile must be a table"
+    end
+
+    local name, err = optional_string(def.name, "`name`")
+    if err then
+        return nil, err
+    end
+    name = name or fallback_name
+    if name == nil or name == "" then
+        return nil, "workflow profile has no name"
+    end
+
+    local description
+    description, err = optional_string(def.description, "`description`")
+    if err then
+        return nil, err
+    end
+
+    -- `[profile.<key>]` sections: profiles that exist only for this workflow,
+    -- shadowing discovered ones of the same name.
+    local locals
+    if def.profile ~= nil then
+        if type(def.profile) ~= "table" or (is_array(def.profile) and #def.profile > 0) then
+            return nil, "workflow profile '" .. name .. "': `profile` must be a table of [profile.<name>] sections"
+        end
+        locals = {}
+        for key, raw in pairs(def.profile) do
+            local where = string.format("workflow profile '%s' [profile.%s]", name, tostring(key))
+            if type(raw) ~= "table" then
+                return nil, where .. " must be a table"
+            end
+            local fields = {}
+            for _, field in ipairs({ "name", "description", "model", "reasoning" }) do
+                local value, field_err = optional_string(raw[field], "`" .. field .. "`")
+                if field_err then return nil, where .. ": " .. field_err end
+                fields[field] = value
+            end
+            if fields.model and not fields.model:match(profiles_mod.MODEL_PATTERN) then
+                return nil, where .. ": `model` must be provider:model"
+            end
+            if type(raw.system_prompt) ~= "string" or not raw.system_prompt:match("%S") then
+                return nil, where .. ": `system_prompt` is required"
+            end
+            local profile_name = fields.name or key
+            if locals[profile_name] then
+                return nil, string.format("workflow profile '%s': duplicate profile '%s'", name, profile_name)
+            end
+            locals[profile_name] = {
+                name = profile_name,
+                description = fields.description or "",
+                model = fields.model,
+                reasoning = fields.reasoning,
+                body = raw.system_prompt,
+                layer = "workflow",
+            }
+        end
+    end
+
+    if not is_array(def.steps) or #def.steps == 0 then
+        return nil, "workflow profile '" .. name .. "' has no `steps` array"
+    end
+
+    local steps, by_id = {}, {}
+    for index, raw in ipairs(def.steps) do
+        if type(raw) ~= "table" then
+            return nil, string.format("workflow profile '%s': step %d is not a table", name, index)
+        end
+        local where = string.format("workflow profile '%s' step %d", name, index)
+        if type(raw.id) ~= "string" or raw.id == "" then
+            return nil, where .. ": `id` is required and must be a non-empty string"
+        end
+        if by_id[raw.id] then
+            return nil, string.format("workflow profile '%s': duplicate step id '%s'", name, raw.id)
+        end
+        if raw.agent ~= nil then
+            return nil, string.format("workflow profile '%s' step '%s': `agent` was renamed to `profile`", name, raw.id)
+        end
+        if type(raw.profile) ~= "string" or raw.profile == "" then
+            return nil, string.format("workflow profile '%s' step '%s': `profile` is required", name, raw.id)
+        end
+        if type(raw.prompt) ~= "string" or raw.prompt == "" then
+            return nil, string.format("workflow profile '%s' step '%s': `prompt` is required", name, raw.id)
+        end
+
+        local model, model_err = optional_string(raw.model, "`model`")
+        if model_err then
+            return nil, string.format("workflow profile '%s' step '%s': %s", name, raw.id, model_err)
+        end
+        local reasoning, reasoning_err = optional_string(raw.reasoning, "`reasoning`")
+        if reasoning_err then
+            return nil, string.format("workflow profile '%s' step '%s': %s", name, raw.id, reasoning_err)
+        end
+
+        local needs = {}
+        if raw.needs ~= nil then
+            if not is_array(raw.needs) then
+                return nil, string.format("workflow profile '%s' step '%s': `needs` must be an array", name, raw.id)
+            end
+            for _, need in ipairs(raw.needs) do
+                if type(need) ~= "string" or need == "" then
+                    return nil, string.format("workflow profile '%s' step '%s': `needs` entries must be step ids", name, raw.id)
+                end
+                needs[#needs + 1] = need
+            end
+        end
+
+        local step = {
+            id = raw.id,
+            profile = raw.profile,
+            prompt = raw.prompt,
+            model = model,
+            reasoning = reasoning,
+            needs = needs,
+        }
+        steps[#steps + 1] = step
+        by_id[raw.id] = step
+    end
+
+    -- Dependencies must exist before the cycle walk, so an unknown name reports
+    -- itself rather than looking like a broken graph.
+    local terminal = {}
+    for _, step in ipairs(steps) do
+        terminal[step.id] = true
+    end
+    for _, step in ipairs(steps) do
+        for _, need in ipairs(step.needs) do
+            if not by_id[need] then
+                return nil, string.format("workflow profile '%s' step '%s': unknown dependency '%s'", name, step.id, need)
+            end
+            terminal[need] = nil
+        end
+    end
+
+    -- Iterative-free DFS with a per-node mark: "open" means the node is on the
+    -- current path, so meeting it again is a cycle.
+    local mark = {}
+    local function visit(step, trail)
+        if mark[step.id] == "done" then
+            return true
+        end
+        if mark[step.id] == "open" then
+            return false, string.format(
+                "workflow profile '%s': dependency cycle through '%s' (%s)",
+                name, step.id, table.concat(trail, " -> ") .. " -> " .. step.id)
+        end
+        mark[step.id] = "open"
+        trail[#trail + 1] = step.id
+        for _, need in ipairs(step.needs) do
+            local ok, cycle_err = visit(by_id[need], trail)
+            if not ok then
+                return false, cycle_err
+            end
+        end
+        trail[#trail] = nil
+        mark[step.id] = "done"
+        return true
+    end
+    for _, step in ipairs(steps) do
+        local ok, cycle_err = visit(step, {})
+        if not ok then
+            return nil, cycle_err
+        end
+    end
+
+    -- What the workflow reports. `output` names the steps explicitly, in the
+    -- order it lists them; without it, every terminal step in declaration order.
+    local report = {}
+    if def.output ~= nil then
+        if not is_array(def.output) or #def.output == 0 then
+            return nil, string.format("workflow profile '%s': `output` must be a non-empty array of step ids", name)
+        end
+        local seen = {}
+        for _, id in ipairs(def.output) do
+            if type(id) ~= "string" or id == "" then
+                return nil, string.format("workflow profile '%s': `output` entries must be step ids", name)
+            end
+            if not by_id[id] then
+                return nil, string.format("workflow profile '%s': `output` names unknown step '%s'", name, id)
+            end
+            if seen[id] then
+                return nil, string.format("workflow profile '%s': `output` names '%s' twice", name, id)
+            end
+            seen[id] = true
+            report[#report + 1] = id
+        end
+    else
+        for _, step in ipairs(steps) do
+            if terminal[step.id] then
+                report[#report + 1] = step.id
+            end
+        end
+    end
+
+    return {
+        name = name,
+        description = description,
+        profiles = locals,
+        steps = steps,
+        by_id = by_id,
+        terminal = terminal,
+        report = report,
+    }
+end
+
+-- parse(text, fallback_name) -> definition | nil, err, declared_name
+--
+-- On failure the third value is the `name` the document declared, when it read
+-- as one, so discovery can index a broken file under the name it claims rather
+-- than its filename stem — otherwise a broken project file would fail to shadow
+-- the user workflow of the same name and the error would go unreported.
+function M.parse(text, fallback_name)
+    local toml, err = load_toml()
+    if not toml then
+        return nil, err
+    end
+    local ok, parsed = pcall(toml.parse, text, { strict = true })
+    if not ok then
+        return nil, "invalid TOML: " .. tostring(parsed)
+    end
+    if type(parsed) ~= "table" then
+        return nil, "invalid TOML: the document did not parse into a table"
+    end
+    local def, validate_err = M.validate(parsed, fallback_name)
+    if def then
+        return def
+    end
+    local declared = parsed.name
+    if type(declared) ~= "string" or declared == "" then
+        declared = nil
+    end
+    return nil, validate_err, declared
+end
+
+-- ---------------------------------------------------------------------------
+-- Discovery
+-- ---------------------------------------------------------------------------
+
+-- discover() -> { list = ordered array, by_name = map, warnings = array }
+--
+-- Later roots (the more local layers) shadow earlier ones by resolved name. An
+-- unreadable or invalid file never aborts discovery: it becomes a warning, and
+-- its name maps to a definition-less entry carrying the error so the tool can
+-- explain the failure if the model asks for it. An invalid file shadows under
+-- the name it declares (falling back to its stem only when it declares none), so
+-- a broken project workflow profile reports its error rather than silently letting
+-- the same-named user workflow profile run in its place.
+function M.discover()
+    local list, by_name, warnings = {}, {}, {}
+
+    -- Walking is the only part that can raise (a missing luv, a hostile
+    -- filesystem); a root that cannot be read contributes a warning and no
+    -- workflows, so discovery as a whole keeps its "never throws" contract.
+    local roots_ok, roots = pcall(paths.config_roots, "workflows")
+    if not roots_ok then
+        return { list = list, by_name = by_name, warnings = { tostring(roots) } }
+    end
+
+    for _, root in ipairs(roots) do
+        local walk_ok, found = pcall(paths.walk, root, ".toml")
+        if not walk_ok then
+            warnings[#warnings + 1] = root .. ": " .. tostring(found)
+            found = {}
+        end
+        for _, path in ipairs(found) do
+            local stem = paths.stem(path)
+            local text, read_err = paths.read_file(path)
+            local entry
+            if not text then
+                entry = { name = stem, path = path, error = tostring(read_err) }
+            else
+                local def, err, declared = M.parse(text, stem)
+                if def then
+                    entry = { name = def.name, path = path, definition = def }
+                else
+                    entry = { name = declared or stem, path = path, error = tostring(err) }
+                end
+            end
+            if entry.error then
+                warnings[#warnings + 1] = path .. ": " .. entry.error
+            end
+
+            local existing = by_name[entry.name]
+            if existing then
+                for index, candidate in ipairs(list) do
+                    if candidate == existing then
+                        list[index] = entry
+                        break
+                    end
+                end
+            else
+                list[#list + 1] = entry
+            end
+            by_name[entry.name] = entry
+        end
+    end
+
+    return { list = list, by_name = by_name, warnings = warnings }
+end
+
+-- ---------------------------------------------------------------------------
+-- Lowering onto the Lua workflow API
+-- ---------------------------------------------------------------------------
+
+local function dependency_text(result)
+    if result == nil then
+        return "[failed: not run]"
+    end
+    if result.status == "completed" then
+        return workflow.output_text(result)
+    end
+    return "[failed: " .. tostring(result.error or result.status or "unknown") .. "]"
+end
+
+-- The exact prompt a step receives: its own text, the workflow input when there
+-- is one, then one labeled section per dependency in `needs` order. An
+-- unparameterized workflow (a bare `/workflow:name`) gets no input heading
+-- rather than an empty one.
+local function step_prompt(step, input, settled)
+    local parts = { step.prompt }
+    if input ~= nil and input ~= "" then
+        parts[#parts + 1] = "\n\n## Workflow input\n\n"
+        parts[#parts + 1] = input
+    end
+    for _, need in ipairs(step.needs) do
+        parts[#parts + 1] = "\n\n## Output of " .. need .. "\n\n"
+        parts[#parts + 1] = dependency_text(settled[need])
+    end
+    return table.concat(parts)
+end
+
+M.step_prompt = step_prompt
+
+-- lower(def) -> workflow object
+function M.lower(def)
+    return workflow.workflow(function(ctx, input)
+        input = input or ""
+        local waiting = {}
+        for index, step in ipairs(def.steps) do
+            waiting[index] = step
+        end
+
+        local settled = {}
+        local live, live_step = {}, {}
+
+        -- One pass may unblock another (a skip cascades to its dependents), so
+        -- this repeats until nothing more can start or be skipped.
+        local function advance()
+            local changed = true
+            while changed do
+                changed = false
+                local index = 1
+                while index <= #waiting do
+                    local step = waiting[index]
+                    local ready, skip = true, false
+                    for _, need in ipairs(step.needs) do
+                        local result = settled[need]
+                        if result == nil then
+                            ready = false
+                        elseif result.status ~= "completed" then
+                            skip = true
+                            break
+                        end
+                    end
+
+                    if skip then
+                        table.remove(waiting, index)
+                        settled[step.id] = {
+                            status = "skipped",
+                            error = "skipped: a dependency did not complete",
+                        }
+                        changed = true
+                    elseif ready then
+                        table.remove(waiting, index)
+                        local handle = ctx:agent({
+                            name = step.id,
+                            profile = step.profile,
+                            prompt = step_prompt(step, input, settled),
+                            model = step.model,
+                            reasoning = step.reasoning,
+                        })
+                        live[#live + 1] = handle
+                        live_step[handle] = step.id
+                        changed = true
+                    else
+                        index = index + 1
+                    end
+                end
+            end
+        end
+
+        advance()
+        while #live > 0 do
+            local result, remaining = ctx:await(live, "first")
+            if result == nil then
+                break
+            end
+            local still = {}
+            for _, handle in ipairs(remaining or {}) do
+                still[handle] = true
+            end
+            for _, handle in ipairs(live) do
+                if not still[handle] then
+                    settled[live_step[handle]] = result
+                    break
+                end
+            end
+            live = remaining or {}
+            advance()
+        end
+
+        local out = {}
+        for _, id in ipairs(def.report) do
+            local result = settled[id] or { status = "skipped", error = "skipped: never started" }
+            out[#out + 1] = {
+                id = id,
+                status = result.status,
+                output = result.output,
+                error = result.error,
+            }
+        end
+        return out
+    end)
+end
+
+local function profiles_for(def, profiles)
+    return spawn.overlay_profiles(profiles, def.profiles)
+end
+
+-- run(def, input, profiles) -> array of reported results, on the caller's
+-- coroutine.
+function M.run(def, input, profiles)
+    return workflow.execute(M.lower(def), input or "", { profiles = profiles_for(def, profiles) })
+end
+
+-- start(def, input, profiles, opts) -> id, record. Runs in the background like
+-- a `std.lua` workflow; its result is the formatted report. `opts` are
+-- workflow.start's (tool_call_id, survives_interrupt).
+function M.start(def, input, profiles, opts)
+    local lowered = M.lower(def)
+    local start_opts = { profiles = profiles_for(def, profiles), label = def.name, workflow_labels = true }
+    for key, value in pairs(opts or {}) do start_opts[key] = value end
+    return workflow.start(workflow.workflow(function(ctx)
+        return M.format_results(lowered.run(ctx, input or ""))
+    end), start_opts)
+end
+
+-- ---------------------------------------------------------------------------
+-- Model- and user-visible formatting
+-- ---------------------------------------------------------------------------
+
+local function format_step(result)
+    return table.concat({
+        "step: " .. tostring(result.id),
+        "status: " .. tostring(result.status),
+        "--- output ---",
+        workflow.output_text(result),
+    }, "\n")
+end
+
+function M.format_results(results)
+    if type(results) ~= "table" or #results == 0 then
+        return "The workflow produced no results."
+    end
+    local blocks = {}
+    for index, result in ipairs(results) do
+        blocks[index] = format_step(result)
+    end
+    return table.concat(blocks, "\n\n")
+end
+
+-- ---------------------------------------------------------------------------
+-- Tool and command entry points
+-- ---------------------------------------------------------------------------
+
+local registry = nil
+
+-- The discovered set, discovered once per activation.
+function M.workflows()
+    if registry == nil then
+        registry = M.discover()
+    end
+    return registry
+end
+
+local function known_names(found)
+    local names = {}
+    for name in pairs(found.by_name) do
+        names[#names + 1] = name
+    end
+    if #names == 0 then
+        return "(no workflows found)"
+    end
+    table.sort(names)
+    return table.concat(names, ", ")
+end
+
+-- The `subagents.workflow` tool: start a discovered workflow profile in the
+-- background and return its id. Dynamic graphs belong in the `std.lua`
+-- subagents namespace.
+function M.handle(input, profiles, context)
+    if type(input) ~= "table" then
+        return "Error: expected an input object"
+    end
+    if type(input.prompt) ~= "string" or input.prompt == "" then
+        return "Error: prompt is required and must be a non-empty string"
+    end
+    if input.name ~= nil then
+        return "Error: `name` was renamed to `profile`"
+    end
+    if type(input.profile) ~= "string" or input.profile == "" then
+        return "Error: `profile` is required and must be a non-empty string"
+    end
+    local found = M.workflows()
+    local entry = found.by_name[input.profile]
+    if not entry then
+        return "Error: unknown workflow profile '" .. input.profile .. "'; known: " .. known_names(found)
+    end
+    if not entry.definition then
+        return "Error: workflow profile '" .. input.profile .. "' failed to load: " .. tostring(entry.error)
+    end
+    local ok, id_or_err, record = pcall(M.start, entry.definition, input.prompt, profiles, {
+        tool_call_id = progress.owner(context),
+    })
+    if not ok then
+        return "Error: " .. tostring(id_or_err)
+    end
+    return workflow.started_notice(record)
+end
+
+-- The first step naming a profile that was not discovered, if any. Profile names
+-- cannot be checked by `validate` (it knows nothing about discovery), but they
+-- can be checked here, once, rather than after a spawn has already burned the
+-- tokens of every step that ran before the bad one.
+local function missing_profile(def, profiles)
+    if type(profiles) ~= "table" or type(profiles.by_name) ~= "table" then
+        return nil
+    end
+    for _, step in ipairs(def.steps) do
+        if profiles.by_name[step.profile] == nil and (def.profiles or {})[step.profile] == nil then
+            return string.format("workflow profile '%s' step '%s': unknown profile '%s'",
+                def.name, step.id, step.profile)
+        end
+    end
+    return nil
+end
+
+-- Record a command-started run in the primary's history as the
+-- `subagents.workflow` call it is equivalent to. The transcript renders the
+-- call's board from it, a resume restores it, and the model learns the
+-- workflow is running. The typed line opens the exchange, so the call never
+-- directly follows a model turn (Gemini rejects a call that does).
+local function record_call(line, call_id, name, input, result)
+    local ext = host()
+    local conv = ext.agent:conversation()
+    conv:add_user_message(line)
+    conv:add_assistant_message({ {
+        type = "tool_use",
+        id = call_id,
+        name = "subagents.workflow",
+        input = ext.json.encode({ profile = name, prompt = input }),
+    } })
+    conv:add_user_blocks({ { type = "tool_result", tool_use_id = call_id, parts = { { text = result } } } })
+end
+
+-- Discover workflow profiles and register a `/workflow:<name>` command for each
+-- valid one. Invalid files register nothing; their errors stay in the
+-- discovery warnings and surface through `subagents.workflow`.
+function M.discover_and_register(profiles)
+    registry = M.discover()
+    local ext = host()
+    for _, entry in ipairs(registry.list) do
+        local unknown = entry.definition and missing_profile(entry.definition, profiles)
+        if unknown then
+            entry.definition = nil
+            entry.error = unknown
+            registry.warnings[#registry.warnings + 1] = tostring(entry.path) .. ": " .. unknown
+        end
+        if entry.definition then
+            local def = entry.definition
+            ext.register_command({
+                name = "workflow:" .. def.name,
+                description = def.description or ("Run the " .. def.name .. " workflow."),
+                -- Background, like the tool: the user keeps talking to the
+                -- primary, and completion wakes it with the usual notice.
+                handler = function(args)
+                    args = args or ""
+                    -- Provider-safe ([%w_]) and unique across the session's runs.
+                    local call_id = string.format("call_workflow_%d_%d", os.time(), require("luv").hrtime())
+                    local ok, id, record = pcall(M.start, def, args, profiles, {
+                        tool_call_id = call_id,
+                        survives_interrupt = true,
+                    })
+                    if not ok then
+                        return "[workflow error: " .. tostring(id) .. "]"
+                    end
+                    local line = "/workflow:" .. def.name .. (args ~= "" and (" " .. args) or "")
+                    if not pcall(record_call, line, call_id, def.name, args, workflow.started_notice(record)) then
+                        return "[started " .. id .. " (" .. def.name .. ") in the background]"
+                    end
+                end,
+            })
+        end
+    end
+    return registry
+end
+
+return M

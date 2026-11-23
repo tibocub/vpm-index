@@ -1,0 +1,381 @@
+{
+  "kind": "lib",
+  "name": "tulip",
+  "versions": {
+    "0.2.4-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "mna/lua-cjson",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "mna/lua-cjson 62fe2246ccb15139476e5a03648633ed69404250-2",
+        "mna/luaossl 20200709-1",
+        "mna/luapgsql 1.6.1-1",
+        "argon2 3.0.1-1",
+        "base64 1.5-2",
+        "basexx 0.4.1-1",
+        "binaryheap 0.4-1",
+        "compat53 0.8-1",
+        "cqueues 20200726.54-0",
+        "cqueues-pgsql 0.1-0",
+        "fifo 0.2-0",
+        "http 0.3-0",
+        "lpeg 1.0.2-1",
+        "lpeg_patterns 0.5-0",
+        "lua-resty-template 2.0-1",
+        "lua-resty-tsort 1.0-1",
+        "lua-zlib 1.2-1",
+        "luafn 0.2-1",
+        "luaposix 35.0-1",
+        "luashell 0.4-1",
+        "net-url 0.9-1",
+        "optparse 1.4-1",
+        "tcheck 0.1-1",
+        "xpgsql 0.5-1"
+      ],
+      "files": {
+        "tulip/App.lua": {
+          "sha256": "32e4ab7ac96c38d93c9c3c61f34968e4f5b3a1b108d088255e48b940273695dc",
+          "size": 9273,
+          "url": "blob:32e4ab7ac96c38d93c9c3c61f34968e4f5b3a1b108d088255e48b940273695dc"
+        },
+        "tulip/Semaphore.lua": {
+          "sha256": "8e2306557d8b9a7cf1a4e588d69ae50e6d87bd0cdf7b58cb1f199997222fad75",
+          "size": 1104,
+          "url": "blob:8e2306557d8b9a7cf1a4e588d69ae50e6d87bd0cdf7b58cb1f199997222fad75"
+        },
+        "tulip/crypto.lua": {
+          "sha256": "32ba165b5a97ed9e3a312d26b32d10a94ad79cf539aea9875ae9eec4dd3f3ec7",
+          "size": 3516,
+          "url": "blob:32ba165b5a97ed9e3a312d26b32d10a94ad79cf539aea9875ae9eec4dd3f3ec7"
+        },
+        "tulip/handler/extmime.lua": {
+          "sha256": "5cc61b4227789415c16d6e845c01ece38bac6df88293ccf4599ddb7c6ddeaee5",
+          "size": 33063,
+          "url": "blob:5cc61b4227789415c16d6e845c01ece38bac6df88293ccf4599ddb7c6ddeaee5"
+        },
+        "tulip/handler/httpstatus.lua": {
+          "sha256": "af3698a3a5ec41bc2fd093ccb6217efea12aef6d2f9efa42e8c269074ace1fc9",
+          "size": 1889,
+          "url": "blob:af3698a3a5ec41bc2fd093ccb6217efea12aef6d2f9efa42e8c269074ace1fc9"
+        },
+        "tulip/handler/init.lua": {
+          "sha256": "6565f4566749a9b03097a1e935e554af12e42b61bcb56908b44ac89a4c409ff9",
+          "size": 5761,
+          "url": "blob:6565f4566749a9b03097a1e935e554af12e42b61bcb56908b44ac89a4c409ff9"
+        },
+        "tulip/init.lua": {
+          "sha256": "ba7d55d95b4e11725a16c8ccbf8f0558fd8ff2a71fcbfba5109f7a5277a6b35e",
+          "size": 45,
+          "url": "blob:ba7d55d95b4e11725a16c8ccbf8f0558fd8ff2a71fcbfba5109f7a5277a6b35e"
+        },
+        "tulip/pkg/account/Account.lua": {
+          "sha256": "1dca51bb5d752fef36fff6f17d68c01eda423e95a3652d98fbceaa400fff691f",
+          "size": 7732,
+          "url": "blob:1dca51bb5d752fef36fff6f17d68c01eda423e95a3652d98fbceaa400fff691f"
+        },
+        "tulip/pkg/account/init.lua": {
+          "sha256": "4fa2291da91094cdf4ed1245c5dd88a3f56791982f27c8c24a36ee3e26e006d1",
+          "size": 14912,
+          "url": "blob:4fa2291da91094cdf4ed1245c5dd88a3f56791982f27c8c24a36ee3e26e006d1"
+        },
+        "tulip/pkg/account/middleware.lua": {
+          "sha256": "26c57edf909595f291cb2aa1a5fee27f03fc90d235281377bd4856c6b66590f1",
+          "size": 17164,
+          "url": "blob:26c57edf909595f291cb2aa1a5fee27f03fc90d235281377bd4856c6b66590f1"
+        },
+        "tulip/pkg/account/migrations.lua": {
+          "sha256": "5f05546f8213d496be210604a7dcee791638ba3a586fd2e9f46717202871520c",
+          "size": 1087,
+          "url": "blob:5f05546f8213d496be210604a7dcee791638ba3a586fd2e9f46717202871520c"
+        },
+        "tulip/pkg/cron/cron.lua": {
+          "sha256": "4304a7086846ba361e7c8fb46114f658929d37e4dff693d96ab4e8780deed6a4",
+          "size": 1225,
+          "url": "blob:4304a7086846ba361e7c8fb46114f658929d37e4dff693d96ab4e8780deed6a4"
+        },
+        "tulip/pkg/cron/init.lua": {
+          "sha256": "8cfb76d8405d731f8fad716bfb39f118f878b92c31ae04c976ca99d85788dd14",
+          "size": 3331,
+          "url": "blob:8cfb76d8405d731f8fad716bfb39f118f878b92c31ae04c976ca99d85788dd14"
+        },
+        "tulip/pkg/csrf/Mw.lua": {
+          "sha256": "91c5f22814ea3ef3eeaa52cd3d4d37430b4688d664fe521f2b7fa8fee2ec47fa",
+          "size": 5426,
+          "url": "blob:91c5f22814ea3ef3eeaa52cd3d4d37430b4688d664fe521f2b7fa8fee2ec47fa"
+        },
+        "tulip/pkg/csrf/init.lua": {
+          "sha256": "b5ba821d8ba19636dd85f6481c23555d9a61e469d08c7b8e0a7c0484388116d1",
+          "size": 2426,
+          "url": "blob:b5ba821d8ba19636dd85f6481c23555d9a61e469d08c7b8e0a7c0484388116d1"
+        },
+        "tulip/pkg/database/Migrator.lua": {
+          "sha256": "6e227866e5af2cb44f5cb6e0014bb43da92f395ac17d52efdc69bbf0efb5e92e",
+          "size": 5516,
+          "url": "blob:6e227866e5af2cb44f5cb6e0014bb43da92f395ac17d52efdc69bbf0efb5e92e"
+        },
+        "tulip/pkg/database/init.lua": {
+          "sha256": "53e2edcc901732b8e703e516bff1f6b0fc7e3368b00d8a37e5909bdf1cabde0a",
+          "size": 9291,
+          "url": "blob:53e2edcc901732b8e703e516bff1f6b0fc7e3368b00d8a37e5909bdf1cabde0a"
+        },
+        "tulip/pkg/flash.lua": {
+          "sha256": "39fb13d56f795fd3ae3b2252bfd9f9e00caf4cdd00b1df612f90207d28f40a31",
+          "size": 4090,
+          "url": "blob:39fb13d56f795fd3ae3b2252bfd9f9e00caf4cdd00b1df612f90207d28f40a31"
+        },
+        "tulip/pkg/gzip.lua": {
+          "sha256": "9d9fe902e6827d89d693147df6bb2d953b18eab545e939dafbd4610b12c5e464",
+          "size": 2347,
+          "url": "blob:9d9fe902e6827d89d693147df6bb2d953b18eab545e939dafbd4610b12c5e464"
+        },
+        "tulip/pkg/json.lua": {
+          "sha256": "316bdbdf72b2f6873b05729e9735f89b841f35f02f9443e9f42f6a58ab7de5f9",
+          "size": 2292,
+          "url": "blob:316bdbdf72b2f6873b05729e9735f89b841f35f02f9443e9f42f6a58ab7de5f9"
+        },
+        "tulip/pkg/locals.lua": {
+          "sha256": "cfb162e1bfe9cef3c7c0a1dfa8f08188eaf0805821623c902279a96d980fc481",
+          "size": 502,
+          "url": "blob:cfb162e1bfe9cef3c7c0a1dfa8f08188eaf0805821623c902279a96d980fc481"
+        },
+        "tulip/pkg/log.lua": {
+          "sha256": "08406fa415b8ed1eacf90ac84593abceb24d162ad8d3f157896c80cc16bab63f",
+          "size": 3140,
+          "url": "blob:08406fa415b8ed1eacf90ac84593abceb24d162ad8d3f157896c80cc16bab63f"
+        },
+        "tulip/pkg/metrics/init.lua": {
+          "sha256": "629ec104a1e1efc6f4e9aeb58ae721a9202b8c91fa543fb8252e85abee1a1604",
+          "size": 6913,
+          "url": "blob:629ec104a1e1efc6f4e9aeb58ae721a9202b8c91fa543fb8252e85abee1a1604"
+        },
+        "tulip/pkg/middleware.lua": {
+          "sha256": "c4de9494732fc605cf5c8ce04b144c8336a37f69991914f0ed719bf68d6a56cf",
+          "size": 2615,
+          "url": "blob:c4de9494732fc605cf5c8ce04b144c8336a37f69991914f0ed719bf68d6a56cf"
+        },
+        "tulip/pkg/mqueue/init.lua": {
+          "sha256": "1994d32c164f3f73627c9493bf6af884ddd986db0229c0567a5d00ef7d8a9a21",
+          "size": 4212,
+          "url": "blob:1994d32c164f3f73627c9493bf6af884ddd986db0229c0567a5d00ef7d8a9a21"
+        },
+        "tulip/pkg/mqueue/migrations.lua": {
+          "sha256": "8aada75553ce207e9537253473c1fb73b6f333ba264e57bcf0074ea98a3f3a69",
+          "size": 5909,
+          "url": "blob:8aada75553ce207e9537253473c1fb73b6f333ba264e57bcf0074ea98a3f3a69"
+        },
+        "tulip/pkg/mqueue/mqueue.lua": {
+          "sha256": "3f35cf417fe7d02fb6f66c29f376cd13a734bf1a8ee74bd35dd648a15b47f87f",
+          "size": 2579,
+          "url": "blob:3f35cf417fe7d02fb6f66c29f376cd13a734bf1a8ee74bd35dd648a15b47f87f"
+        },
+        "tulip/pkg/pubsub/init.lua": {
+          "sha256": "45c58532fe1d73fab672936b941fca368def291858baaf919545a95e130c34c2",
+          "size": 4569,
+          "url": "blob:45c58532fe1d73fab672936b941fca368def291858baaf919545a95e130c34c2"
+        },
+        "tulip/pkg/pubsub/pubsub.lua": {
+          "sha256": "c304065ffd78289812a2c1c9f617544af69f65e98d88b91ba0cd17a5af9e76dc",
+          "size": 3611,
+          "url": "blob:c304065ffd78289812a2c1c9f617544af69f65e98d88b91ba0cd17a5af9e76dc"
+        },
+        "tulip/pkg/reqid.lua": {
+          "sha256": "d85f193976282cb6e2982bd6bc46ed49d5890e50b1299c2002aa3d982a861468",
+          "size": 1258,
+          "url": "blob:d85f193976282cb6e2982bd6bc46ed49d5890e50b1299c2002aa3d982a861468"
+        },
+        "tulip/pkg/routes/Mux.lua": {
+          "sha256": "1296bd27cd5faec8b07df7b4345052e17c85669abf9bea2ae3762f2b99b0bfc7",
+          "size": 4179,
+          "url": "blob:1296bd27cd5faec8b07df7b4345052e17c85669abf9bea2ae3762f2b99b0bfc7"
+        },
+        "tulip/pkg/routes/init.lua": {
+          "sha256": "1c337de14f964562f93a6ae2de4986b9e57e7c0cfd0279ef3325a99a0f11327f",
+          "size": 3137,
+          "url": "blob:1c337de14f964562f93a6ae2de4986b9e57e7c0cfd0279ef3325a99a0f11327f"
+        },
+        "tulip/pkg/sendgrid.lua": {
+          "sha256": "ce7e64086b50dae489fa0086d681f1d274b1e12fd16be4808729c55e2311281d",
+          "size": 2717,
+          "url": "blob:ce7e64086b50dae489fa0086d681f1d274b1e12fd16be4808729c55e2311281d"
+        },
+        "tulip/pkg/server/Request.lua": {
+          "sha256": "f30a6295000b49531f6590b50a78f840191acdeef8a11b0b084cb266275b73a8",
+          "size": 3914,
+          "url": "blob:f30a6295000b49531f6590b50a78f840191acdeef8a11b0b084cb266275b73a8"
+        },
+        "tulip/pkg/server/Response.lua": {
+          "sha256": "b68d9c8b0f129025a78f8405963a81c3b4451735ee1cd2cbd0618262fc6ec855",
+          "size": 7522,
+          "url": "blob:b68d9c8b0f129025a78f8405963a81c3b4451735ee1cd2cbd0618262fc6ec855"
+        },
+        "tulip/pkg/server/init.lua": {
+          "sha256": "8c78df146e60feef0e88ebce22fcb3ff553b8f2b63b948123a0477e05b7a12dc",
+          "size": 4972,
+          "url": "blob:8c78df146e60feef0e88ebce22fcb3ff553b8f2b63b948123a0477e05b7a12dc"
+        },
+        "tulip/pkg/template.lua": {
+          "sha256": "73c8a479c8528f64ce6b0dd3a1248759445c5a33f4f1094394517b2147c424c9",
+          "size": 1312,
+          "url": "blob:73c8a479c8528f64ce6b0dd3a1248759445c5a33f4f1094394517b2147c424c9"
+        },
+        "tulip/pkg/token/init.lua": {
+          "sha256": "e2c5c1f119be40faad6e4d6418cd355bb5d2e48fb6c07e13fd92ddb8280add41",
+          "size": 3662,
+          "url": "blob:e2c5c1f119be40faad6e4d6418cd355bb5d2e48fb6c07e13fd92ddb8280add41"
+        },
+        "tulip/pkg/token/token.lua": {
+          "sha256": "be78be5b1bf1dc6f4d1fde1dd0687a0e117c9d686b0a9d220f5ef45062f56259",
+          "size": 3164,
+          "url": "blob:be78be5b1bf1dc6f4d1fde1dd0687a0e117c9d686b0a9d220f5ef45062f56259"
+        },
+        "tulip/pkg/urlenc.lua": {
+          "sha256": "b7ffd97c97139d5129850f1f856427f97c5843d72d97e07cff19ba313c5f8402",
+          "size": 708,
+          "url": "blob:b7ffd97c97139d5129850f1f856427f97c5843d72d97e07cff19ba313c5f8402"
+        },
+        "tulip/pkg/validator/init.lua": {
+          "sha256": "11de0c047a003f08626d2a3e141ee46d31e079356fa727af471fb065067d3d4d",
+          "size": 9739,
+          "url": "blob:11de0c047a003f08626d2a3e141ee46d31e079356fa727af471fb065067d3d4d"
+        },
+        "tulip/pkg/wmiddleware.lua": {
+          "sha256": "ad2a7041fcc5183b18e949fafbae3571a562e9ceb68f92ea25dc6c8267a3d291",
+          "size": 2600,
+          "url": "blob:ad2a7041fcc5183b18e949fafbae3571a562e9ceb68f92ea25dc6c8267a3d291"
+        },
+        "tulip/pkg/worker/init.lua": {
+          "sha256": "922b3f6fb378d2735e8a31cf402d561b10cbcb4733099cab2ec164f850686cd5",
+          "size": 4105,
+          "url": "blob:922b3f6fb378d2735e8a31cf402d561b10cbcb4733099cab2ec164f850686cd5"
+        },
+        "tulip/pkg/wroutes/Mux.lua": {
+          "sha256": "a22652dfa7f61b76248200fbf72c4436802ca37658de706dec70817cf20ebc5f",
+          "size": 2063,
+          "url": "blob:a22652dfa7f61b76248200fbf72c4436802ca37658de706dec70817cf20ebc5f"
+        },
+        "tulip/pkg/wroutes/init.lua": {
+          "sha256": "673160480405c43d7d7f37021fd49d9c4e9f9a64bfa965abe54b9450e7edaae4",
+          "size": 2491,
+          "url": "blob:673160480405c43d7d7f37021fd49d9c4e9f9a64bfa965abe54b9450e7edaae4"
+        },
+        "tulip/xerror.lua": {
+          "sha256": "71a7dc2afeb32e350a68289ac9a89882629fc9f251eb4e243f86bff3ba33dc46",
+          "size": 7357,
+          "url": "blob:71a7dc2afeb32e350a68289ac9a89882629fc9f251eb4e243f86bff3ba33dc46"
+        },
+        "tulip/xio.lua": {
+          "sha256": "8b4cc6a9acba0e3f9884aa8aabfa7bf95ea8232aca0624f1093523fb1f99cacf",
+          "size": 1286,
+          "url": "blob:8b4cc6a9acba0e3f9884aa8aabfa7bf95ea8232aca0624f1093523fb1f99cacf"
+        },
+        "tulip/xstring.lua": {
+          "sha256": "05b6a1cd24e321f29f3a3e7ee1247871b12cf5bd79bd3d1889ac05737222c4fb",
+          "size": 6811,
+          "url": "blob:05b6a1cd24e321f29f3a3e7ee1247871b12cf5bd79bd3d1889ac05737222c4fb"
+        },
+        "tulip/xtable.lua": {
+          "sha256": "14630f49b40bb497bd7445107c2a735771923e535cf9c4185588f15f17cebd84",
+          "size": 3536,
+          "url": "blob:14630f49b40bb497bd7445107c2a735771923e535cf9c4185588f15f17cebd84"
+        }
+      },
+      "homepage": "Lua web framework based on lua-http and PostgreSQL.",
+      "host": "openresty",
+      "license": "BSD",
+      "lua": ">= 5.3, < 5.5",
+      "luarocks": {
+        "date": "Tue, 06 Apr 2021 22:05:46 GMT",
+        "rockspec": {
+          "date": "Tue, 06 Apr 2021 22:05:46 GMT",
+          "sha256": "96eeadf4465da4d3a364778ac59c5883bee48b49bb0b5809ec38f10d4a6746c4",
+          "size": 3745
+        },
+        "src": {
+          "date": "Tue, 06 Apr 2021 22:05:47 GMT",
+          "sha256": "60e4a0b74d734af1840da0f675b0cd97c0499e3a3771d776eecd96c4af27a030",
+          "size": 184857,
+          "url": "https://luarocks.org/tulip-0.2.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "tulip",
+        "tulip.App",
+        "tulip.Semaphore",
+        "tulip.crypto",
+        "tulip.handler",
+        "tulip.handler.extmime",
+        "tulip.handler.httpstatus",
+        "tulip.pkg.account",
+        "tulip.pkg.account.Account",
+        "tulip.pkg.account.middleware",
+        "tulip.pkg.account.migrations",
+        "tulip.pkg.cron",
+        "tulip.pkg.cron.cron",
+        "tulip.pkg.csrf",
+        "tulip.pkg.csrf.Mw",
+        "tulip.pkg.database",
+        "tulip.pkg.database.Migrator",
+        "tulip.pkg.flash",
+        "tulip.pkg.gzip",
+        "tulip.pkg.json",
+        "tulip.pkg.locals",
+        "tulip.pkg.log",
+        "tulip.pkg.metrics",
+        "tulip.pkg.middleware",
+        "tulip.pkg.mqueue",
+        "tulip.pkg.mqueue.migrations",
+        "tulip.pkg.mqueue.mqueue",
+        "tulip.pkg.pubsub",
+        "tulip.pkg.pubsub.pubsub",
+        "tulip.pkg.reqid",
+        "tulip.pkg.routes",
+        "tulip.pkg.routes.Mux",
+        "tulip.pkg.sendgrid",
+        "tulip.pkg.server",
+        "tulip.pkg.server.Request",
+        "tulip.pkg.server.Response",
+        "tulip.pkg.template",
+        "tulip.pkg.token",
+        "tulip.pkg.token.token",
+        "tulip.pkg.urlenc",
+        "tulip.pkg.validator",
+        "tulip.pkg.wmiddleware",
+        "tulip.pkg.worker",
+        "tulip.pkg.wroutes",
+        "tulip.pkg.wroutes.Mux",
+        "tulip.xerror",
+        "tulip.xio",
+        "tulip.xstring",
+        "tulip.xtable"
+      ],
+      "origin": {
+        "date": "Tue, 06 Apr 2021 22:05:47 GMT",
+        "sha256": "60e4a0b74d734af1840da0f675b0cd97c0499e3a3771d776eecd96c4af27a030",
+        "size": 184857,
+        "type": "luarocks",
+        "url": "https://luarocks.org/tulip-0.2.4-1.src.rock"
+      },
+      "size": 242073,
+      "undeclared_requires": [
+        "cqueues",
+        "cqueues.auxlib",
+        "cqueues.condition",
+        "cqueues.errno",
+        "cqueues.socket",
+        "posix",
+        "posix.time"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

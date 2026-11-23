@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "ai-lasso-guardrail",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/ai-lasso-guardrail/client.lua": {
+          "sha256": "ddc1c0a3a4c1bffe3448574d4c0674abd656fb182f0707e3b7d042e08493cabc",
+          "size": 1583,
+          "url": "https://raw.githubusercontent.com/lasso-security/kong-ai-lasso-guardrail/9cf3730404b70a3102f16c87139c6c34bf07b200/kong/plugins/ai-lasso-guardrail/client.lua"
+        },
+        "kong/plugins/ai-lasso-guardrail/handler.lua": {
+          "sha256": "d20b2c58f751d83ca5be890c4ccb86ada4e46a11e09fe1e55a3563eb990e8b4b",
+          "size": 15102,
+          "url": "https://raw.githubusercontent.com/lasso-security/kong-ai-lasso-guardrail/9cf3730404b70a3102f16c87139c6c34bf07b200/kong/plugins/ai-lasso-guardrail/handler.lua"
+        },
+        "kong/plugins/ai-lasso-guardrail/lasso.lua": {
+          "sha256": "a05613a206505a0e5d19c323c83b6474e7c40fb177647a2f2394362adbf6a249",
+          "size": 20966,
+          "url": "https://raw.githubusercontent.com/lasso-security/kong-ai-lasso-guardrail/9cf3730404b70a3102f16c87139c6c34bf07b200/kong/plugins/ai-lasso-guardrail/lasso.lua"
+        },
+        "kong/plugins/ai-lasso-guardrail/schema.lua": {
+          "sha256": "242624609ecdaae2cb00739ea9e3f63ef84391f7b70a2b806a475e11b5ecd229",
+          "size": 4932,
+          "url": "https://raw.githubusercontent.com/lasso-security/kong-ai-lasso-guardrail/9cf3730404b70a3102f16c87139c6c34bf07b200/kong/plugins/ai-lasso-guardrail/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/lasso-security/kong-ai-lasso-guardrail",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 13 Aug 2026 20:01:35 GMT",
+        "rockspec": {
+          "date": "Thu, 13 Aug 2026 20:01:35 GMT",
+          "sha256": "de7a58f55e498286757d70c203986d0f6be50d2ae76d06ff8ed8bc4dbeb98bcd",
+          "size": 846
+        },
+        "src": {
+          "date": "Thu, 13 Aug 2026 20:01:35 GMT",
+          "sha256": "4f502dc30fce1e01490852aade00ba0b79a6a56889af05884480510762e8b9a3",
+          "size": 40994,
+          "url": "https://luarocks.org/ai-lasso-guardrail-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.ai-lasso-guardrail.client",
+        "kong.plugins.ai-lasso-guardrail.handler",
+        "kong.plugins.ai-lasso-guardrail.lasso",
+        "kong.plugins.ai-lasso-guardrail.schema"
+      ],
+      "origin": {
+        "commit": "9cf3730404b70a3102f16c87139c6c34bf07b200",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/lasso-security/kong-ai-lasso-guardrail.git"
+      },
+      "size": 42583,
+      "summary": "Kong plugin: classify chat traffic with Lasso Security and block or mask inline.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

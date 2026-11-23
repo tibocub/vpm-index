@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "pdh",
+  "versions": {
+    "0.1.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "pdh.lua": {
+          "sha256": "b1448ffbb9b54629cb5a46d4a24e77b8e2ac1d94dd16edfb9b272a732472b438",
+          "size": 25,
+          "url": "blob:b1448ffbb9b54629cb5a46d4a24e77b8e2ac1d94dd16edfb9b272a732472b438"
+        },
+        "pdh/psapi.lua": {
+          "sha256": "6aea8b1242e22a54e00b0ed01d446952bbb99d5a2e012d5f47ded7a472c55ab9",
+          "size": 83,
+          "url": "blob:6aea8b1242e22a54e00b0ed01d446952bbb99d5a2e012d5f47ded7a472c55ab9"
+        }
+      },
+      "homepage": "https://github.com/moteus/lua-pdh",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Wed, 16 Nov 2016 07:36:41 GMT",
+        "rockspec": {
+          "date": "Wed, 16 Nov 2016 07:36:41 GMT",
+          "sha256": "1c600c91394af5b9ea623a426e1d34658ef9cbf9bbec05ff30edc2f13521d032",
+          "size": 897
+        },
+        "src": {
+          "date": "Wed, 16 Nov 2016 07:36:43 GMT",
+          "sha256": "e7a4a55526dda9a19efaf162573166dd9253e81f5ea17d0929a26995397d4347",
+          "size": 34456,
+          "url": "https://luarocks.org/pdh-0.1.3-1.src.rock"
+        }
+      },
+      "modules": [
+        "pdh",
+        "pdh.core",
+        "pdh.psapi"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "WINVER=0x0502",
+                "_WIN32_WINNT=0x0502"
+              ],
+              "libraries": [
+                "pdh",
+                "psapi",
+                "advapi32"
+              ],
+              "name": "pdh.core",
+              "sources": [
+                "src/l52util.c",
+                "src/lpdh.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-pdh-0.1.3"
+      },
+      "origin": {
+        "date": "Wed, 16 Nov 2016 07:36:43 GMT",
+        "sha256": "e7a4a55526dda9a19efaf162573166dd9253e81f5ea17d0929a26995397d4347",
+        "size": 34456,
+        "type": "luarocks",
+        "url": "https://luarocks.org/pdh-0.1.3-1.src.rock"
+      },
+      "size": 108,
+      "summary": "Lua binding to Microsoft Performance Data Helper (PDH) library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

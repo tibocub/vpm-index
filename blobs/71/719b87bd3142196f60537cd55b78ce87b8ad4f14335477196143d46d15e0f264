@@ -1,0 +1,479 @@
+
+local utils = require 'lrocket.utils'
+local sfs = require 'sfs'
+local datafile = require 'datafile'
+
+local abi = require'lrocket.abi'
+local log = require 'lrocket.log'
+
+local util = require "datafile.util"
+
+local function datafile_fakepath(where, path)
+	local sl = util.stacklevel
+---@diagnostic disable-next-line: duplicate-set-field
+	util.stacklevel = function()
+		return where, where and "@"..where or nil
+	end
+	local p, err = datafile.path(path)
+	util.stacklevel = sl
+
+	return p, err
+end
+
+local langs = setmetatable({}, {
+	__index = function (t, lang)
+		local modname = "lrocket.lang."..lang
+		local internal = {
+			lua = true,
+			shared = true,
+			static = true,
+			teal = true,
+		}
+		if not internal[lang] then
+			abi.report(abi.validatemodule(modname, string.format("lang '%s'", lang)))
+		end
+		local found = utils.findmodule(modname)
+		if not found then
+			log.errorf("language '%s' unsupported\n", lang)
+			return nil
+		end
+
+		local ok, L = pcall(require, modname)
+		if ok then
+			if not internal[lang] then
+				log.infof("using lang extension %s%s\n",
+					log.colors.bright..lang..log.colors.reset,
+					log.level == log.levels.debug and log.colors.gray.." ("..(sfs.searchpath(modname, package.path))..")"..log.colors.reset or ""
+				)
+			end
+			t[lang] = L
+			return L
+		else
+			log.errorf("error loading lang extension '%s':\n%s\n", lang, L)
+			return nil
+		end
+	end
+})
+
+---@class lrocket.package
+local M = {}
+
+local searchpaths = {}
+
+local TREES = {}
+
+function M.ensurelang(lang)
+	if not langs[lang] then
+		log.exit(log.EXITCODE.GENERAL_ERROR)
+	end
+end
+
+function M.defaultpath(lang)
+	M.ensurelang(lang)
+	local L = langs[lang]
+
+	return L.defaultpath(TREES)
+end
+
+local id = function(...) return ... end
+function M.addsearchpath(lang, path)
+	M.ensurelang(lang)
+	local lang_driver = langs[lang]
+	local searchpath = (lang_driver.expandpath or id)(path:gsub(";;", ';'..M.defaultpath(lang)..';'):gsub(";+", ";"))
+	searchpaths[#searchpaths+1] = { lang, searchpath  }
+end
+
+function M.clearsearchpath()
+	searchpaths = {}
+	TREES = {}
+end
+
+function M.addtree(tree)
+	table.insert(TREES, tree)
+end
+
+---@class lrocket.RequireInfo
+---@field constraint 'opt'|'required'
+---@field modname string
+---@field source string
+
+---@class lrocket.ModInfo
+---@field modname string Module name as used in `require`-statements
+---@field path string Filename of the module source code / binary on disk
+---@field lang string Module language<br/><br/>(The name of your `lrocket.lang.<name>` extension)
+---@field chunkname string A display name for the module for printing stacktraces<br/><br/>(should respect the debuginfo path setting `spec.debug` = `relative`|`full`|`none`)
+---@field embed? fun(modinfo:lrocket.ModInfo,targetarchive:lrocket.LRAW,flags:'g'|'O'|string) Function writing file contents of this module to the given lrocket archive
+---@field configure? fun(info:lrocket.ModInfo,conf:lrocket.CompilerConf) Function for configuring this module before starting the compilation
+---@field entrypoint? string `luaopen_` C symbol (for native modules)
+---@field resources? {scope:string,lrpath:string,source:string}[] List of additional resource files that should be embedded with this module<br/><br/>(can be empty, as list of triples: `{scope, filename, content}`)
+---@field requires? lrocket.RequireInfo[] List of `lrocket.RequireInfo`<br/><br/>(can be empty, modules required from inside this module)
+---@field _deps? table<string,'opt'|'required'>|string[] :internal: Actually included modules after applying corresponding filter
+
+--- Returns iterator for module glob
+---@param glob string
+---@param langfilter table?
+---@return fun(): string, lrocket.ModInfo
+function M.searchmodules(glob, langfilter)
+	local hasglob = glob:match "[%?%*]"
+
+	return coroutine.wrap(function ()
+		for _, tuple in ipairs(searchpaths) do
+			local lang, path = tuple[1], tuple[2]
+
+			local L = langs[lang]
+
+			if not langfilter or langfilter[lang] then
+				for modname, modinfo in coroutine.wrap(L.searchpath), glob, path do
+					modinfo.lang = lang
+					coroutine.yield(modname, modinfo)
+					if not hasglob then return end
+				end
+			end
+		end
+	end)
+end
+
+local function modnamespace(mod, filter)
+	if not filter or filter == 'file' then
+		local _, item = M.searchmodules(mod, { lua = true })()
+		if item then return item.path end
+	end if not filter or filter == 'dir' then
+		local _, item = M.searchmodules(mod..".*", { lua = true })()
+		if item then return item.path end
+	end
+
+	return nil
+end
+
+local function acceptopt(mod, opts)
+	for _, glob in ipairs(opts) do
+		local pat = "^"..glob:gsub("%p", "%%%1"):gsub("%%%*%%%*", ".-"):gsub("%%%*", "[^.]-"):gsub("%?", ".").."$"
+		if mod:find(pat) then
+			return true
+		end
+	end
+	return false
+end
+
+local function modglobtolua(mod)
+	return mod
+		:gsub("%p", "%%%1")
+		:gsub("%%%*%%%*", ".-")
+		:gsub("%%%*", "[^.]*")
+		:gsub("%%%?", "[^.]")
+		:gsub("^.*$", "^%1$")
+end
+
+local function newignore(ignore)
+	local test = {}
+	for i = 1, #ignore do
+		test[i] = ignore[i]:match "^%!?"..modglobtolua(ignore[i]:match("^%!?(.-)$"))
+	end
+
+	--- Returns if modname is included under ignore rules
+	return function (modname)
+		for i = #test, 1, -1 do
+			local invert, pat = test[i]:match("^(%!?)(.-)$")
+			if modname:find(pat) then
+				return invert == '!'
+			end
+		end
+
+		return true
+	end
+end
+
+---@class lrocket.ModConf
+local ModConf = {} do
+	ModConf.__index = ModConf
+	function ModConf:init(root)
+		self.ignored = {}
+		self.opts = {}
+		self.mods = {}
+		self.root = root
+		self.fuzzy = true
+
+		return self
+	end
+
+	function ModConf:ignore(mod) self.ignored[#self.ignored+1] = mod end
+	function ModConf:addmod(mod) self.mods[#self.mods+1] = mod end
+	function ModConf:addopt(mod) self.opts[#self.opts+1] = mod end
+end
+
+function M.newmodconf(root)
+	return setmetatable({}, ModConf):init(assert(type(root) == 'string' and root))
+end
+
+---@class lrocket.Package
+---@field rpath string?
+---@field rcpath string?
+local Package = {} do
+	Package.__index = Package
+
+	function Package:init(root)
+		self.root = root
+		---@type lrocket.ModInfo[] | table<string, lrocket.ModInfo>
+		self.mods = {}
+		---@type lrocket.Embed[]
+		self.embeds = {}
+		self.res = {}
+		self.resn = 0
+		---@type table<string, lrocket.Embed|false>
+		self.uniqueembeds = {}
+
+		self.unresolved = {}
+
+		return self
+	end
+
+	---@param modinfo lrocket.ModInfo
+	function Package:addmod(modinfo)
+		if self.mods[modinfo.modname] then
+			for k,v in pairs(self.mods[modinfo.modname]) do self.mods[modinfo.modname][k] = nil end
+			for k,v in pairs(modinfo) do
+				self.mods[modinfo.modname][k] = v
+			end
+		else
+			self.mods[modinfo.modname] = modinfo
+			table.insert(self.mods, modinfo)
+			self.unresolved[modinfo.modname] = nil
+		end
+		for _, mod in pairs(self.mods) do if not (mod.lang ~= 'shared' or mod.entrypoint == nil) then error(require'inspect'(modinfo)) end end
+	end
+
+	function Package:markunresolved(glob, source, constraint)
+		local sources = self.unresolved[glob] or {}
+		self.unresolved[glob] = sources
+		if source then
+			table.insert(sources, {
+				source = source,
+				constraint = constraint,
+			})
+		end
+	end
+
+	function Package:addres(scope, path, realpath, mode, source)
+		mode = mode or 'local'
+		---@class lrocket.Embed
+		local embed = {
+			namespace = scope,
+			lrmode = mode,
+			lrpath = path,
+			realpath = realpath,
+			source = source,
+		}
+
+		if not self.res[embed.realpath] then
+			self.resn = self.resn + 1
+			self.res[embed.realpath] = string.format("res/%d", self.resn)
+		end
+
+		self.uniqueembeds[embed.lrpath] =
+			(self.uniqueembeds[embed.lrpath] == nil or self.uniqueembeds[embed.lrpath] and self.uniqueembeds[embed.lrpath].realpath == embed.realpath)
+			and embed or false;
+
+		embed.embedpath = self.res[embed.realpath]
+
+		self.embeds[#self.embeds+1] = embed
+	end
+end
+
+---@param conf lrocket.ModConf
+---@return lrocket.Package
+function M.trace(conf)
+	local pkg = setmetatable({}, Package):init(conf.root)
+
+	local deps = {}
+	local included = newignore(conf.ignored)
+
+	---@type lrocket.ModInfo[]
+	local worklist = { langs.lua.scan("<main>", conf.root) }
+	worklist[1].embed = function() end
+
+	for _, glob in ipairs(conf.mods) do
+		local foundany = false
+		for _, mod in M.searchmodules(glob) do
+			foundany = true
+			worklist[#worklist+1] = mod
+		end
+
+		if not foundany then
+			pkg:markunresolved(glob, '@cfg.modules', 'required')
+		end
+	end
+
+	while #worklist > 0 do
+		local curmod
+
+		repeat
+			curmod = table.remove(worklist, 1) --[[@as lrocket.ModInfo]]
+		until not curmod or deps[curmod.modname] ~= 'added'
+
+		curmod.configure = curmod.configure or function() end
+		curmod.embed = curmod.embed or function() end
+		deps[curmod.modname] = 'added'
+		pkg:addmod(curmod)
+
+		curmod.resources = curmod.resources or {}
+		for _, res in ipairs(curmod.resources) do
+			local mod, lrpath = res.scope, res.lrpath
+
+			local scope = (mod == "" or mod == "@") and "@"..curmod.modname or mod
+			local relmodpath = modnamespace(scope:sub(2))
+			local realpath, err = datafile_fakepath((scope == "@" or scope == "") and curmod.path or relmodpath or curmod.path, lrpath)
+
+			if not realpath then
+				---@cast err -nil
+				log.warnf(
+					"cannot resolve '%s%s'%s", scope, (#scope > 0 and ":" or "")..lrpath,
+					log.level == log.levels.debug and
+						": "..err -- prettify and shorten datafile errors
+						:gsub("^[^\n]+", "")
+						:gsub("%f[^\n]%s*can't%s*open%s*", "")
+						:gsub("%f[^\n][^:]+: ", "\t")
+						:gsub("%f[^\n][^\n]+", log.colors.gray.."%1"..log.colors.reset).."\n"
+					or "\n"
+				)
+			else
+				local isrel = realpath:find "^./" or not realpath:find "[/\\]" or not realpath:find "^%a:[\\/]"
+				pkg:addres(scope, lrpath, realpath, isrel and mod == "" and 'global' or 'local', res.source)
+			end
+		end
+
+		curmod._deps = {}
+		curmod.requires = curmod.requires or {}
+
+		for _, info in ipairs(curmod.requires) do
+			local dep = info.modname
+			local isopt = info.constraint == 'opt'
+			if
+				(
+					not deps[dep] -- not encountered this module?
+					or (deps[dep] == 'rejected' and not isopt) -- is module been previously been rejected due to being optional and we are not?
+				)
+				and (conf.fuzzy or not dep:find "[%*%?]")
+				and included(dep)
+			then
+				local foundany = false
+				local seen = {}
+				for modname, mod in M.searchmodules(dep) do
+					if not seen[mod] then
+						foundany = true
+						if info.constraint == 'required' or acceptopt(modname, conf.opts) then
+							worklist[#worklist+1] = mod
+							curmod._deps[modname] = curmod.requires[modname] and curmod.requires[modname].constraint or 'opt'
+							deps[modname] = 'pending' -- do not search them twice if already added to list
+						else
+							-- optional modules get rejected and marked as no longer missing, so sad
+							deps[modname] = 'rejected'
+						end
+					end
+					seen[mod] = true
+				end
+
+				if not foundany then
+					deps[dep] = 'missing'
+					pkg:markunresolved(dep, info.source, info.constraint)
+				end
+			elseif deps[dep] == 'missing' then
+				pkg:markunresolved(dep, info.source, info.constraint)
+			end
+		end
+	end
+
+	return pkg
+end
+
+--- Sets the runtime cpath
+---@param project lrocket.Package
+---@param path string?
+---@param cpath string?
+function M.setpath(project, path, cpath)
+	if path then project.rpath = langs.lua.expandpath(path) end
+	if cpath then project.rcpath = langs.shared.expandpath(cpath) end
+end
+
+---@generic K, V
+---@param t table<string, V>
+---@param k K
+---@return V?
+local function getmodbyglob(t, k)
+	if t[k] then return t[k] end
+
+	for k, v in pairs(t) do
+		if type(k) == 'string' then
+			local pat = k
+				:gsub("%p", "%%%1")
+				:gsub("%%*%%*", ".-")
+				:gsub("%%*", "[^.]-"):gsub("%%?", ".")
+				:gsub("^.*$", "^.*$")
+			if k:find(pat) then
+				return v
+			end
+		end
+	end
+end
+
+---@param pkg lrocket.Package
+---@return table
+function M.getoptionalmods(pkg)
+	local optmods = {}
+
+	local function check(modname, optstatus)
+		local modinfo = pkg.mods[modname]
+
+		local last_optstatus = optmods[modname]
+		if last_optstatus ~= optstatus then
+			optmods[modname] = optstatus
+
+			for modname in pairs(modinfo._deps) do
+				local info = getmodbyglob(modinfo.requires, modname)
+				assert(info, 'still not fixed '..modname)
+				check(modname, optstatus == 'opt' and optstatus or info.constraint)
+			end
+		end
+	end
+
+	check('<main>', 'required')
+
+	optmods['<main>'] = nil
+
+	for k, v in pairs(optmods) do
+		optmods[k] = v == 'opt' or nil
+	end
+
+	return optmods
+end
+
+---@param pkg lrocket.Package
+---@return table
+function M.modsbylang(pkg)
+	local res = {}
+	for _, mod in ipairs(pkg.mods) do
+		res[mod.lang] = res[mod.lang] or {}
+		res[mod.lang][mod.modname] = mod.path
+	end
+	return res
+end
+
+function M.searchpaths()
+	local paths = {}
+
+	local lastlang
+	for _, pat in ipairs(searchpaths) do
+		local searchpath = { lang = pat[1], path = pat[2] }
+		if lastlang == pat[1] then
+			searchpath = paths[#paths]
+			searchpath.path = searchpath.path..";"..pat[2]
+		else
+			paths[#paths+1] = searchpath
+			lastlang = searchpath.lang
+		end
+	end
+
+	return paths
+end
+
+return M
+

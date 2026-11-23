@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "luaexif",
+  "versions": {
+    "1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/minoki/luaexif",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Thu, 10 Jun 2021 00:11:57 GMT",
+        "rockspec": {
+          "date": "Thu, 10 Jun 2021 00:11:57 GMT",
+          "sha256": "253d51753eb6319d62724208dedab613987e0f551691674c4fa3d3ebc3f24d97",
+          "size": 669
+        },
+        "src": {
+          "date": "Thu, 10 Jun 2021 00:11:58 GMT",
+          "sha256": "11305da76e06fba99b31dd55778f714b4388e4d47dcd55358732cca667b605e2",
+          "size": 7972,
+          "url": "https://luarocks.org/luaexif-1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "exif"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBEXIF"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBEXIF": {
+              "header": "libexif/exif-data.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBEXIF_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LIBEXIF_LIBDIR)"
+              ],
+              "libraries": [
+                "exif"
+              ],
+              "name": "exif",
+              "sources": [
+                "lexif.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 10 Jun 2021 00:11:58 GMT",
+        "sha256": "11305da76e06fba99b31dd55778f714b4388e4d47dcd55358732cca667b605e2",
+        "size": 7972,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaexif-1.1-1.src.rock"
+      },
+      "summary": "Lua binding for libexif",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

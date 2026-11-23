@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "3rd-party-oauth",
+  "versions": {
+    "1.0-6": {
+      "bin": [],
+      "deps": [
+        "luacrypto >= 0.3"
+      ],
+      "files": {
+        "kong/plugins/3rd-party-oauth/access.lua": {
+          "sha256": "3f691f3d626b1be53a953b85cb9e7e98fb8b7409730e28ce121dfee091206a1f",
+          "size": 7511,
+          "url": "https://raw.githubusercontent.com/akarmazyn/3rd-party-oauth/3d2fb6db51dd72f6eba7938cc77aee4fa5dc9b9c/src/access.lua"
+        },
+        "kong/plugins/3rd-party-oauth/handler.lua": {
+          "sha256": "d8acdfb30c5a9e3ee419371f05e7df539f5d651aebf17531bcfc88435bae0730",
+          "size": 969,
+          "url": "https://raw.githubusercontent.com/akarmazyn/3rd-party-oauth/3d2fb6db51dd72f6eba7938cc77aee4fa5dc9b9c/src/handler.lua"
+        },
+        "kong/plugins/3rd-party-oauth/schema.lua": {
+          "sha256": "e90b19517d5af8a9af44d40baa55f9bd713fa1e4a22643e30bbf21226296da1a",
+          "size": 1090,
+          "url": "https://raw.githubusercontent.com/akarmazyn/3rd-party-oauth/3d2fb6db51dd72f6eba7938cc77aee4fa5dc9b9c/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 30 Oct 2019 06:18:58 GMT",
+        "rockspec": {
+          "date": "Wed, 30 Oct 2019 06:18:58 GMT",
+          "sha256": "61ab336b006738b654eab763fa2be6f61e9f3ada3ac5cb5c2b5f922f24834f8b",
+          "size": 552
+        },
+        "src": {
+          "date": "Wed, 30 Oct 2019 06:18:59 GMT",
+          "sha256": "f3f7a149047aa10a16f62a6c104e10090786654bc860eea5951456b71d769b4a",
+          "size": 11084,
+          "url": "https://luarocks.org/3rd-party-oauth-1.0-6.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.3rd-party-oauth.access",
+        "kong.plugins.3rd-party-oauth.handler",
+        "kong.plugins.3rd-party-oauth.schema"
+      ],
+      "origin": {
+        "commit": "3d2fb6db51dd72f6eba7938cc77aee4fa5dc9b9c",
+        "type": "git",
+        "url": "https://github.com/akarmazyn/3rd-party-oauth"
+      },
+      "size": 9570,
+      "summary": "A Kong plugin, that let you use an external Oauth 2.0 provider to protect your API",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.plugins.base_plugin",
+        "pl.stringx",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

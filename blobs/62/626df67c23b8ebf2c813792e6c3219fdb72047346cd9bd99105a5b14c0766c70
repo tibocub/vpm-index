@@ -1,0 +1,26 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A new() function.
+local NewFn = {}
+NewFn.__index = NewFn
+setmetatable(NewFn, {__index = Terminal})
+package.loaded[...] = NewFn
+
+--Constructor.
+function NewFn.new(ln, col, arg)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.NEW, {line = ln, col = col}), NewFn)
+  self.arg = arg
+
+  --(2) return
+  return self
+end
+
+--@override
+function NewFn:__tostring()
+  return string.format('(new %s)', self.arg)
+end

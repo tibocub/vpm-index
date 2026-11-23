@@ -1,0 +1,135 @@
+{
+  "kind": "lib",
+  "name": "x-lua-api-gateway-aws",
+  "versions": {
+    "1.7.1-0": {
+      "bin": [],
+      "deps": [
+        "lua-api-gateway-hmac",
+        "lua-api-gateway-cachemanager",
+        "lua-resty-http"
+      ],
+      "files": {
+        "api-gateway/aws/AWSBasicCredentials.lua": {
+          "sha256": "5f09f5a59d78f933203d29ef58884b8a3ec0fc46f4e158e3621291a59350fb8d",
+          "size": 1264,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/AWSBasicCredentials.lua"
+        },
+        "api-gateway/aws/AWSIAMCredentials.lua": {
+          "sha256": "d113026f28f7533e86cadb760fccc20e559f400988ac1238964f6617ec6bf7f7",
+          "size": 7420,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/AWSIAMCredentials.lua"
+        },
+        "api-gateway/aws/AWSSTSCredentials.lua": {
+          "sha256": "9ff4c514927dd85abf954f811eafca9bd7ac77821333dc1b812532668b3c1040",
+          "size": 7913,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/AWSSTSCredentials.lua"
+        },
+        "api-gateway/aws/AwsDateConverter.lua": {
+          "sha256": "caf744c4e197269c70df0ac0102f410870ec04895a98366568a4281bc344005c",
+          "size": 1755,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/AwsDateConverter.lua"
+        },
+        "api-gateway/aws/AwsService.lua": {
+          "sha256": "576da8dcc9672c9b3ecccf9ebaa19070ab2811c3886066f8848a8ba205016e28",
+          "size": 12881,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/AwsService.lua"
+        },
+        "api-gateway/aws/AwsV4Signature.lua": {
+          "sha256": "bb1d37bfa7eb2a80e5e479aed609fe8f77b2df29973507358d3025f19091cc75",
+          "size": 6914,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/AwsV4Signature.lua"
+        },
+        "api-gateway/aws/httpclient/http.lua": {
+          "sha256": "ed97b0e161b888dde43901e27e98891d52de39efdc90ba95620fd7c0eb79af2a",
+          "size": 11984,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/httpclient/http.lua"
+        },
+        "api-gateway/aws/httpclient/restyhttp.lua": {
+          "sha256": "28e870bfef57f934b0e3f5fe7785a0d2e085bccab6d6b96d4f04b577d0b5b4df",
+          "size": 1647,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/httpclient/restyhttp.lua"
+        },
+        "api-gateway/aws/httpclient/url.lua": {
+          "sha256": "cd88a4ce6eda4318ff6c33d225fad78fe665b322ec8d71c619e9e82bcaaf5e0e",
+          "size": 11533,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/httpclient/url.lua"
+        },
+        "api-gateway/aws/kinesis/KinesisService.lua": {
+          "sha256": "106a93438e65c3705ebbb1a6c69816d7b97391e5b7742ecc4a3ea9136863cec5",
+          "size": 4020,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/kinesis/KinesisService.lua"
+        },
+        "api-gateway/aws/kms/KmsService.lua": {
+          "sha256": "aef84d3e86c44a3d209a4b6cd7043259cfb3b0c76748802e3f109e036aef4a6f",
+          "size": 4536,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/kms/KmsService.lua"
+        },
+        "api-gateway/aws/lambda/LambdaService.lua": {
+          "sha256": "c76e5a939e3f5219afb4ad19f144bf11f61d5e7b1712885a1bb92f09b0819a85",
+          "size": 2693,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/lambda/LambdaService.lua"
+        },
+        "api-gateway/aws/sns/SnsService.lua": {
+          "sha256": "4c9de29a43c6f162bc24ba5ed878621dfac2da32381a5c0f0584e28b195168dd",
+          "size": 1820,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/sns/SnsService.lua"
+        },
+        "api-gateway/aws/sts/SecurityTokenService.lua": {
+          "sha256": "4a1e3dfdf0a5a9f06e4efb51adc15d4bf5e526971390a41db992c61af3d471fb",
+          "size": 2118,
+          "url": "https://raw.githubusercontent.com/JonoGillett/x-api-gateway-aws/e44349ed05c78a91bf0f1545e2c3b208caa926ac/src/lua/api-gateway/aws/sts/SecurityTokenService.lua"
+        }
+      },
+      "homepage": "https://github.com/JonoGillett/x-api-gateway-aws",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 15 Aug 2017 01:57:42 GMT",
+        "rockspec": {
+          "date": "Tue, 15 Aug 2017 01:57:42 GMT",
+          "sha256": "830b43c0a247cf276d339ed93786e6d76b75132d2bd05e1391e688de0b87ccf5",
+          "size": 2057
+        }
+      },
+      "modules": [
+        "api-gateway.aws.AWSBasicCredentials",
+        "api-gateway.aws.AWSIAMCredentials",
+        "api-gateway.aws.AWSSTSCredentials",
+        "api-gateway.aws.AwsDateConverter",
+        "api-gateway.aws.AwsService",
+        "api-gateway.aws.AwsV4Signature",
+        "api-gateway.aws.httpclient.http",
+        "api-gateway.aws.httpclient.restyhttp",
+        "api-gateway.aws.httpclient.url",
+        "api-gateway.aws.kinesis.KinesisService",
+        "api-gateway.aws.kms.KmsService",
+        "api-gateway.aws.lambda.LambdaService",
+        "api-gateway.aws.sns.SnsService",
+        "api-gateway.aws.sts.SecurityTokenService"
+      ],
+      "origin": {
+        "commit": "e44349ed05c78a91bf0f1545e2c3b208caa926ac",
+        "ref": "1.7.1",
+        "type": "git",
+        "url": "https://github.com/JonoGillett/x-api-gateway-aws"
+      },
+      "size": 78498,
+      "summary": "Fork - AWS SDK for NGINX with Lua",
+      "undeclared_requires": [
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 14
+      }
+    }
+  }
+}

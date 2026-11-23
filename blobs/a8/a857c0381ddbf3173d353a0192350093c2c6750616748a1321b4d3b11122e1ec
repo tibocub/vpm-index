@@ -1,0 +1,156 @@
+-- One transient warming request: the session's current prompt, a minimal
+-- extra user message, one model response -- and none of it kept.
+--
+-- The request runs on a throwaway agent so the live session is never
+-- touched. The pieces:
+--
+--   transcript  `panto.file_system_jsonl_store` over the session's own
+--               store dir, then `load` -- the same reconstruction `/resume`
+--               uses, so system blocks, tool inputs, and thinking
+--               signatures come back verbatim and the request shares the
+--               session's prompt prefix byte for byte.
+--   config      `panto.ext.resolve_model` for the session's current
+--               model/reasoning label, which inherits the live credentialed
+--               transport when it resolves the session's own model.
+--   tools       the session agent's declarations, copied with `set_tools`
+--               so the tools array matches the session's own requests (see
+--               the README's fidelity notes on schema re-encoding).
+--   store       `panto.null_store()` -- the warm turn's user message and
+--               response are appended to the throwaway conversation and
+--               persisted nowhere.
+--   turn        callback-form `agent:run_async(request, callback)`, started
+--               by the timer. Progress is ignored; only termination is cached.
+--
+-- Nothing here raises: the binding reports failures by raising, and every
+-- call goes through `try` so callers get one `nil, message` shape.
+
+local M = {}
+
+local function try(fn, ...)
+    local ok, value = pcall(fn, ...)
+    if not ok then
+        return false, tostring(value)
+    end
+    return true, value
+end
+
+-- start(prompt) -> handle | nil, err
+--
+-- Everything that can fail before the turn starts fails here: a caller
+-- either gets a handle to inspect or a message. The callback retains the
+-- throwaway Lua owners until termination, and never retains event payloads.
+function M.start(prompt)
+    local panto = require("panto")
+    local ext = panto.ext
+
+    local ok, info = try(ext.session_info)
+    if not ok then
+        return nil, "session_info: " .. tostring(info)
+    end
+    if type(info) ~= "table" or type(info.session_dir) ~= "string" or type(info.session_id) ~= "string" then
+        return nil, "no session information available"
+    end
+
+    local opened, store = try(panto.file_system_jsonl_store, { dir = info.session_dir })
+    if not opened then
+        return nil, "session store: " .. tostring(store)
+    end
+    if store == nil then
+        return nil, "the session store could not be opened"
+    end
+
+    local loaded, conv = try(store.load, store, info.session_id)
+    if not loaded then
+        return nil, "session store: " .. tostring(conv)
+    end
+    if conv == nil then
+        return nil, "the session transcript could not be loaded"
+    end
+
+    local asked, cfg, resolve_err = pcall(ext.resolve_model, {
+        model = info.model,
+        reasoning = info.reasoning,
+    })
+    if not asked then
+        return nil, tostring(cfg)
+    end
+    if cfg == nil then
+        return nil, resolve_err and tostring(resolve_err) or "the session model could not be resolved"
+    end
+
+    local made, no_store = try(panto.null_store)
+    if not made then
+        return nil, tostring(no_store)
+    end
+
+    local built, agent = try(panto.agent, {
+        config = cfg,
+        store = no_store,
+        conversation = conv,
+    })
+    if not built then
+        return nil, "warm agent: " .. tostring(agent)
+    end
+    if agent == nil then
+        return nil, "the warm agent could not be created"
+    end
+
+    local primary = ext.agent
+    if primary ~= nil then
+        local got, decls = try(primary.tools, primary)
+        if not got then
+            return nil, "tools: " .. tostring(decls)
+        end
+        if type(decls) == "table" and #decls > 0 then
+            local armed, tools_err = try(agent.set_tools, agent, decls)
+            if not armed then
+                return nil, "warm tools: " .. tostring(tools_err)
+            end
+        end
+    end
+
+    local handle = { agent = agent, store = store, conv = conv }
+    local function on_delivery(delivery)
+        if handle.abandoned or handle.result or type(delivery) ~= "table" or delivery.kind ~= "termination" then
+            return
+        end
+        local status = delivery.status
+        local err = type(delivery.error) == "table" and delivery.error.message or nil
+        handle.result = { status = status, err = err }
+    end
+
+    local started, stream = try(agent.run_async, agent, {
+        prompt = prompt,
+        dispatch_tools = false,
+    }, on_delivery)
+    if not started then
+        return nil, "warm turn: " .. tostring(stream)
+    end
+    if stream == nil then
+        return nil, "the warm turn could not be started"
+    end
+    handle.stream = stream
+    return handle
+end
+
+-- poll(handle) returns only the cached terminal state. It never calls into
+-- the native stream; callbacks own terminal observation and discard events.
+function M.poll(handle)
+    return handle.result
+end
+
+-- Abandon without joining. close() suppresses future callbacks and requests
+-- cancellation; the binding manager retains native dependencies until worker
+-- retirement. The caller keeps this handle through state teardown.
+function M.abandon(handle)
+    if handle.abandoned then
+        return
+    end
+    handle.abandoned = true
+    handle.result = nil
+    if handle.stream then
+        pcall(handle.stream.close, handle.stream)
+    end
+end
+
+return M

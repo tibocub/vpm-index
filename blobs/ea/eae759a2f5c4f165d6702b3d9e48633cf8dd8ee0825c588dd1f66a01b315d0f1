@@ -1,0 +1,458 @@
+local ext = require('panto').ext
+local json = ext.json
+local async = require('panto_mcp.async')
+local config = require('panto_mcp.config')
+local M = {}; M.__index=M
+local function nonempty(v) return type(v)=='string' and v~='' and not v:find('[%z\1-\32\127]') end
+-- Credentials, fragments and ambiguous authorities are never accepted.
+function M.url(value)
+    if type(value)~='string' or value:find('[%z\1-\32\127\\#]') then return nil end
+    local scheme,authority,tail=value:match('^([A-Za-z]+)://([^/?]+)(.*)$')
+    if not scheme then return nil end
+    scheme=scheme:lower(); if scheme~='https' and scheme~='http' then return nil end
+    local host,port
+    if authority:sub(1,1)=='[' then host,port=authority:match('^(%[[%x:]+%])(:?%d*)$')
+    else host,port=authority:match('^([A-Za-z0-9.-]+)(:?%d*)$') end
+    if not host or port==':' then return nil end
+    if port~='' and (not tonumber(port:sub(2)) or tonumber(port:sub(2))<1 or tonumber(port:sub(2))>65535) then return nil end
+    host=host:lower()
+    local literal_loopback=host=='[::1]'
+    local mapped_loopback=false
+    if host:sub(1,1)=='[' then
+        local address=host:sub(2,-2); local left,right=address:match('^(.-)::(.-)$')
+        local groups={}
+        for group in (left or address):gmatch('[^:]+') do groups[#groups+1]=tonumber(group,16) end
+        if left then
+            local suffix={}; for group in right:gmatch('[^:]+') do suffix[#suffix+1]=tonumber(group,16) end
+            while #groups+#suffix<8 do groups[#groups+1]=0 end
+            for _,group in ipairs(suffix) do groups[#groups+1]=group end
+        end
+        if #groups==8 then
+            local zeros=true; for i=1,5 do if groups[i]~=0 then zeros=false end end
+            literal_loopback=zeros and groups[6]==0 and groups[7]==0 and groups[8]==1
+            mapped_loopback=zeros and groups[6]==0xffff and groups[7]>=0x7f00 and groups[7]<=0x7fff
+        end
+    end
+    local a,b,c,d=host:match('^(%d+)%.(%d+)%.(%d+)%.(%d+)$')
+    if a then
+        for _,octet in ipairs({a,b,c,d}) do
+            if (#octet>1 and octet:sub(1,1)=='0') or tonumber(octet)>255 then return nil end
+        end
+        literal_loopback=a=='127'
+    elseif host:match('^[%d.]+$') then return nil end
+    for octet in host:gmatch('[^.]+') do if octet:match('^0x%x+$') then return nil end end
+    if scheme=='http' and not literal_loopback then return nil end
+    if (scheme=='https' and port==':443') or (scheme=='http' and port==':80') then port='' end
+    local origin=scheme..'://'..host..port
+    if tail=='/' then tail='' end
+    return origin..tail,origin,tail:match('^[^?]*'),literal_loopback or mapped_loopback or host=='localhost' or host=='localhost.' or host:match('%.localhost%.?$')~=nil
+end
+function M.prm_urls(resource)
+    local _,origin,path=M.url(resource); if not origin then return {} end
+    local root=origin..'/.well-known/oauth-protected-resource'
+    return path~='' and {root..path,root} or {root}
+end
+function M.metadata_urls(issuer)
+    local _,origin,path=M.url(issuer)
+    if not origin or issuer:find('?',1,true) then return {} end
+    path=path:gsub('/$','')
+    local urls={origin..'/.well-known/oauth-authorization-server'..path,origin..'/.well-known/openid-configuration'..path}
+    if path~='' then urls[#urls+1]=origin..path..'/.well-known/openid-configuration' end
+    return urls
+end
+function M.scopes(value)
+    local out,seen={},{}
+    if type(value)=='string' then
+        local parts={}; for part in value:gmatch('%S+') do parts[#parts+1]=part end; value=parts
+    end
+    if type(value)~='table' then return out end
+    for _,v in ipairs(value) do
+        local valid=type(v)=='string' and v~=''
+        if valid then
+            for i=1,#v do
+                local byte=v:byte(i)
+                if byte<33 or byte>126 or byte==34 or byte==92 then valid=false; break end
+            end
+        end
+        if valid and not seen[v] then seen[v]=true; out[#out+1]=v end
+    end
+    return out
+end
+function M.union(a,b)
+    local out=M.scopes(a); local seen={}; for _,v in ipairs(out) do seen[v]=true end
+    for _,v in ipairs(M.scopes(b)) do if not seen[v] then seen[v]=true; out[#out+1]=v end end
+    return out
+end
+-- Commas inside quoted strings are not challenge separators; quoted-pairs are unescaped.
+function M.challenge(header)
+    if type(header)~='string' or #header>16384 or header:find('[\r\n%z]') then return {} end
+    local chunks,begin,quoted,escaped={},1,false,false
+    for i=1,#header do
+        local c=header:sub(i,i)
+        if escaped then escaped=false
+        elseif quoted and c=='\\' then escaped=true
+        elseif c=='"' then quoted=not quoted
+        elseif c==',' and not quoted then chunks[#chunks+1]=header:sub(begin,i-1); begin=i+1 end
+    end
+    if quoted or escaped then return {} end
+    chunks[#chunks+1]=header:sub(begin)
+    local candidates,current={},nil
+    for _,chunk in ipairs(chunks) do
+        chunk=chunk:match('^%s*(.-)%s*$')
+        local scheme,rest=chunk:match('^([%w!#$%%&\'*+.^_`|~-]+)%s+(.+)$')
+        if scheme and not rest:match('^=') then
+            current={scheme=scheme:lower()}; candidates[#candidates+1]=current; chunk=rest
+        elseif chunk:match('^[%w_-]+$') then
+            current={scheme=chunk:lower()}; candidates[#candidates+1]=current; chunk=''
+        end
+        if current and chunk~='' then
+            local key,value=chunk:match('^([%w!#$%%&\'*+.^_`|~-]+)%s*=%s*(.-)%s*$')
+            if key then
+                key=key:lower()
+                if value:sub(1,1)=='"' and value:sub(-1)=='"' then
+                    value=value:sub(2,-2):gsub('\\(.)','%1')
+                elseif not value:match('^[%w!#$%%&\'*+.^_`|~-]+$') then current.invalid=true end
+                if current[key]~=nil then current.invalid=true end
+                current[key]=value
+            else current.invalid=true end
+        end
+    end
+    local first
+    for _,c in ipairs(candidates) do
+        if c.scheme=='bearer' and not c.invalid then
+            local safe={resource_metadata=c.resource_metadata,scope=c.scope,error=c.error}
+            if c.resource_metadata then return safe end
+            first=first or safe
+        end
+    end
+    return first or {}
+end
+function M.validate_metadata(metadata,issuer)
+    if type(metadata)~='table' or metadata.issuer~=issuer then return nil,'OAuth metadata issuer mismatch' end
+    if not M.url(metadata.authorization_endpoint) or not M.url(metadata.token_endpoint) then return nil,'OAuth metadata has unsafe endpoints' end
+    local s256=false
+    for _,method in ipairs(type(metadata.code_challenge_methods_supported)=='table' and metadata.code_challenge_methods_supported or {}) do
+        if method=='S256' then s256=true end
+    end
+    if not s256 then return nil,'OAuth server must advertise PKCE S256' end
+    if metadata.authorization_response_iss_parameter_supported~=nil and type(metadata.authorization_response_iss_parameter_supported)~='boolean' then
+        return nil,'Invalid OAuth issuer-response metadata'
+    end
+    return true
+end
+function M.session_name(server,resource,issuer,client_id)
+    local identity=json.encode({resource=resource,issuer=issuer,client_id=client_id})
+    return 'mcp.'..server:sub(1,91)..'.'..require('panto_mcp.hash').sha256(identity):sub(1,32)
+end
+function M.new(cfg,opts)
+    opts=opts or {}
+    local resource,origin,_,loopback=M.url(cfg.url)
+    local self=setmetatable({cfg=cfg,name=cfg.auth,auth=opts.auth or ext.auth,
+        state=opts.state or ext.state,request_fn=opts.request_fn or ext.http_request,
+        timer_factory=opts.timer_factory or async.timer,clock=opts.clock or require('luv').now,
+        timers={},resource=resource,origin=origin,loopback=loopback},M)
+    self.key='mcp.oauth.server_'..cfg.name
+    if not cfg.auth and self.state then
+        local stored=self.state.get(self.key)
+        if type(stored)=='table' and stored.version==2 and stored.fingerprint==cfg.fingerprint and stored.resource==resource and self:available() then
+            self.name=stored.name
+            self:define(stored)
+        end
+    end
+    return self
+end
+function M:available()
+    return type(self.auth)=='table' and type(self.auth.define)=='function' and type(self.auth.status)=='function'
+        and type(self.auth.login)=='function' and type(self.auth.refresh)=='function' and type(self.auth.complete)=='function'
+end
+function M:login_error() return 'Authentication required; run /mcp-login '..self.cfg.name end
+function M:recovery_error(text)
+    if self.cfg.auth then return text..'; check configured auth with panto auth login/status' end
+    local hint=(self.cfg.oauth and self.cfg.oauth.client_id) and 'check the configured OAuth client/issuer' or
+        ('try /mcp-login '..self.cfg.name..' --reregister to replace a stale DCR client')
+    return text..'; '..hint
+end
+function M:usable()
+    local state=self:auth_status().state
+    return state=='logged_in' or (state=='pending' and self.login_usable==true)
+end
+function M:configured_error()
+    return 'Configured auth session rejected (HTTP 401); check its credentials/type with panto auth login/status'
+end
+function M:auth_status()
+    if not self.name or not self:available() then return {state='logged_out'} end
+    local now=self.clock()
+    if not self.cached_status or now>=(self.status_at or 0)+1000 then
+        self.cached_status=self.auth.status(self.name) or {state='logged_out'}; self.status_at=now
+    end
+    return self.cached_status
+end
+function M:status()
+    if not self:available() then return 'unavailable' end
+    if not self.cfg.auth and not self.definition then return 'undiscovered' end
+    local state=self:auth_status().state
+    if self.login_required and state~='pending' then return 'login_required' end
+    return state
+end
+function M:request_auth()
+    if self.cfg.auth then return self.cfg.auth end
+    if self.definition and (self.refreshing or (not self.login_required and self:usable())) then return self.name end
+end
+function M:blocked()
+    if self.refreshing then return false end
+    return not self.cfg.auth and self.definition and (self.login_required or not self:usable())
+end
+function M:before_request()
+    if self.refreshing then
+        local ok,err=self.refreshing:await(); if not ok then return nil,err end
+    end
+    if self:blocked() then return nil,self:login_error() end
+    if not self.definition and self.discovery_error and self.clock()<self.retry_at then return nil,self.discovery_error end
+    return true
+end
+function M:url_allowed(url)
+    local canonical,_,_,loopback=M.url(url)
+    return canonical and (not loopback or self.loopback)
+end
+function M:define(stored)
+    if not self:available() then return nil,'MCP OAuth requires a newer panto with panto.ext.auth' end
+    if not self.resource then return nil,'MCP OAuth requires HTTPS (or literal loopback HTTP)' end
+    local configured=self.cfg.oauth
+    if configured and ((configured.issuer and configured.issuer~=stored.issuer) or
+        (configured.client_id and (not configured.issuer or configured.client_id~=stored.client_id))) then
+        return nil,'Configured oauth.issuer does not match the discovered authorization server/client'
+    end
+    if not self:url_allowed(stored.issuer) or #M.metadata_urls(stored.issuer)==0 then return nil,'Unsafe OAuth issuer for this resource' end
+    local ok,err=M.validate_metadata(stored.metadata,stored.issuer); if not ok then return nil,err end
+    if not self:url_allowed(stored.metadata.authorization_endpoint) or not self:url_allowed(stored.metadata.token_endpoint) then return nil,'Unsafe OAuth endpoint for this resource' end
+    if not nonempty(stored.client_id) or stored.client_secret~=nil then return nil,'Invalid/public-only OAuth client registration; configure oauth.client_id and oauth.issuer' end
+    local name=M.session_name(self.cfg.name,self.resource,stored.issuer,stored.client_id)
+    local spec={type='oauth_pkce',authorization_url=stored.metadata.authorization_endpoint,token_url=stored.metadata.token_endpoint,
+        client_id=stored.client_id,client_secret=configured and configured.client_secret,
+        scopes=M.scopes(stored.scopes),resource=self.resource,issuer=stored.issuer,
+        require_iss=stored.metadata.authorization_response_iss_parameter_supported==true}
+    if not self.auth.define(name,spec) then return nil,'Cannot define MCP OAuth session (check session name/config collision)' end
+    if self.name and self.name~=name then
+        -- Runtime definitions are process-local; a stored old name may need restoring for logout.
+        if not self.auth.define(self.name,self.spec or spec) then return nil,'Cannot restore the previous OAuth session for logout' end
+        local ok=self.auth.logout and self.auth.logout(self.name)
+        if not ok then return nil,'Cannot retire the previous OAuth session' end
+    end
+    if self.name~=name then self.cached_status=nil; self.login_usable=nil end
+    self.name=name; self.definition=stored; self.spec=spec
+    return true
+end
+function M:save()
+    if self.state and self.definition then
+        local d=self.definition
+        return self.state.set(self.key,{version=2,name=self.name,fingerprint=self.cfg.fingerprint,resource=self.resource,issuer=d.issuer,
+            metadata=d.metadata,client_id=d.client_id,scopes=d.scopes})
+    end
+    return true
+end
+function M:invalidate(reregister)
+    if self.cfg.auth then return end
+    if self.definition then
+        self.previous_issuer=self.definition.issuer; self.requested_scopes=self.spec.scopes
+    end
+    if reregister and self.state and self.previous_issuer then
+        self.state.set('mcp.oauth.registration_'..config.hash(self.previous_issuer),nil)
+    end
+    if self.state then self.state.set(self.key,nil) end
+    self.login_poll=(self.login_poll or 0)+1
+    self.definition=nil; self.spec=nil; self.cached_status=nil; self.login_required=nil; self.login_url=nil
+    self.discovery_error=nil; self.retry_at=nil; self.backoff=nil
+end
+function M:fetch(url,body)
+    if self.closed then return nil,'session ended' end
+    if not self:url_allowed(url) then return nil,'Unsafe OAuth discovery URL for this resource' end
+    local future=async.future()
+    local opts={url=url,method=body and 'POST' or 'GET',timeout_ms=10000,max_bytes=1024*1024,headers={Accept='application/json'}}
+    if body then opts.body=json.encode(body); opts.headers['Content-Type']='application/json' end
+    local ok,handle=pcall(self.request_fn,opts,function(response)
+        if self.closed then future:resolve(nil,'session ended'); return end
+        if not response or response.status<200 or response.status>=300 then future:resolve(nil,'OAuth discovery/registration request failed'); return end
+        local decoded,value=pcall(json.decode,response.body or '')
+        if not decoded or type(value)~='table' then future:resolve(nil,'Invalid OAuth metadata JSON'); return end
+        future:resolve(value)
+    end)
+    if not ok or not handle then return nil,'OAuth HTTP request could not start' end
+    self.requests=self.requests or {}; self.requests[handle]=future
+    local value,err=future:await(); self.requests[handle]=nil
+    return value,err
+end
+function M:discover(challenge)
+    if self.cfg.auth then return nil,self:configured_error() end
+    challenge=challenge or {}
+    if self.definition then return true end
+    if self.discovering then return self.discovering:await() end
+    if self.discovery_error and self.clock()<self.retry_at then return nil,self.discovery_error end
+    if not self:available() then return nil,'MCP OAuth requires a newer panto with panto.ext.auth and HTTP POST support' end
+    if not self.resource then return nil,'MCP OAuth requires HTTPS (or literal loopback HTTP)' end
+    local future=async.future(); self.discovering=future
+    local function work()
+        local urls=challenge.resource_metadata and {challenge.resource_metadata} or M.prm_urls(self.resource)
+        local prm,expected_resource
+        for i,url in ipairs(urls) do
+            local value=self:fetch(url)
+            if value then
+                prm=value; expected_resource=(not challenge.resource_metadata and i==2) and self.origin or self.resource
+                break
+            end
+        end
+        if not prm then return nil,'Cannot discover OAuth protected-resource metadata' end
+        if M.url(prm.resource)~=expected_resource then return nil,'OAuth protected-resource metadata resource mismatch' end
+        local servers=type(prm.authorization_servers)=='table' and prm.authorization_servers or {}
+        local issuer=servers[1]
+        local pinned=self.cfg.oauth and self.cfg.oauth.issuer
+        if pinned then
+            issuer=nil
+            for _,candidate in ipairs(servers) do if candidate==pinned then issuer=candidate; break end end
+            if not issuer then return nil,'Configured oauth.issuer is not advertised by the resource' end
+        end
+        if not issuer or #M.metadata_urls(issuer)==0 or not self:url_allowed(issuer) then return nil,'OAuth resource has no safe authorization server' end
+        local metadata
+        for _,url in ipairs(M.metadata_urls(issuer)) do
+            local value=self:fetch(url)
+            if value then
+                local valid,why=M.validate_metadata(value,issuer); if not valid then return nil,why end
+                metadata={issuer=issuer,authorization_endpoint=value.authorization_endpoint,token_endpoint=value.token_endpoint,
+                    code_challenge_methods_supported={'S256'},registration_endpoint=value.registration_endpoint,
+                    authorization_response_iss_parameter_supported=value.authorization_response_iss_parameter_supported}
+                break
+            end
+        end
+        if not metadata then return nil,'Cannot discover OAuth authorization-server metadata' end
+        if not self:url_allowed(metadata.authorization_endpoint) or not self:url_allowed(metadata.token_endpoint) then return nil,'Unsafe OAuth endpoint for this resource' end
+        local registration=self.cfg.oauth
+        local registration_key='mcp.oauth.registration_'..config.hash(issuer)
+        if not registration or not registration.client_id then
+            registration=self.state and self.state.get(registration_key)
+            if type(registration)=='table' and registration.client_secret~=nil then
+                return nil,self:recovery_error('Confidential DCR is unsupported')
+            end
+            if type(registration)~='table' or registration.issuer~=issuer or not nonempty(registration.client_id) then
+                if not self:url_allowed(metadata.registration_endpoint) then return nil,'OAuth server needs configured oauth.client_id and oauth.issuer (no safe DCR endpoint)' end
+                local value,why=self:fetch(metadata.registration_endpoint,{client_name='panto-mcp',application_type='native',
+                    redirect_uris={'http://127.0.0.1/callback'},token_endpoint_auth_method='none',
+                    grant_types={'authorization_code','refresh_token'},response_types={'code'}})
+                if not value then return nil,why end
+                if value.client_secret~=nil or (value.token_endpoint_auth_method~=nil and value.token_endpoint_auth_method~='none') then
+                    return nil,'Confidential DCR is unsupported; configure oauth.client_id, oauth.issuer and optional oauth.client_secret'
+                end
+                if not nonempty(value.client_id) then return nil,'Invalid OAuth registration response' end
+                registration={issuer=issuer,client_id=value.client_id}
+                if self.state and not self.state.set(registration_key,registration) then return nil,'Cannot persist OAuth registration' end
+            end
+        end
+        local scopes=challenge.scope
+        if scopes==nil then scopes=prm.scopes_supported end
+        if scopes==nil then scopes=self.cfg.oauth and self.cfg.oauth.scopes end
+        if self.previous_issuer==issuer then scopes=M.union(scopes,self.requested_scopes) end
+        local ok,why=self:define({issuer=issuer,metadata=metadata,client_id=registration.client_id,scopes=M.scopes(scopes)})
+        if not ok then return nil,why end
+        if not self:save() then return nil,'Cannot persist OAuth discovery' end
+        if self.previous_issuer and self.previous_issuer~=issuer and self.state then
+            self.state.set('mcp.oauth.registration_'..config.hash(self.previous_issuer),nil)
+        end
+        return true
+    end
+    local ok,value,err=pcall(work)
+    if not ok then value=nil; err='OAuth discovery failed' end
+    if not value then
+        self.backoff=math.min((self.backoff or 2500)*2,60000); self.retry_at=self.clock()+self.backoff; self.discovery_error=err
+    else self.backoff=nil; self.discovery_error=nil; self.retry_at=nil end
+    self.discovering=nil; future:resolve(value,err)
+    return value,err
+end
+function M:poll(callback,remaining,active)
+    if self.closed then return end
+    local t
+    t=self.timer_factory(1000,function()
+        self.timers[t]=nil
+        if self.closed or (active and not active()) then return end
+        local status=self:auth_status()
+        if status.state~='pending' then callback(status); return end
+        if remaining<=1000 then callback(nil); return end
+        self:poll(callback,remaining-1000,active)
+    end)
+    self.timers[t]=true
+end
+function M:refresh()
+    if self.refreshing then return self.refreshing:await() end
+    local future=async.future(); self.refreshing=future
+    local ok=self.auth.refresh(self.name)
+    if not ok then self.refreshing=nil; return nil,self.cfg.auth and self:configured_error() or self:recovery_error(self:login_error()) end
+    self.cached_status={state='pending'}; self.status_at=self.clock()
+    self:poll(function(status)
+        self.refreshing=nil
+        if status and status.state=='logged_in' and not status.error then future:resolve(true)
+        else future:resolve(nil,self.cfg.auth and self:configured_error() or self:recovery_error(self:login_error())) end
+    end,70000)
+    return future:await()
+end
+function M:recover(data)
+    local challenge=data.challenge or {}
+    if data.http_status==403 then
+        if challenge.error~='insufficient_scope' then return nil,'Forbidden (HTTP 403); check server permissions' end
+        if self.cfg.auth then return nil,'Configured auth session needs additional scopes; update its scopes and use panto auth login' end
+        if not self.definition then return nil,'Insufficient scope (HTTP 403); no OAuth definition is available' end
+        local scopes=M.union(M.union(self.spec.scopes,self:auth_status().scopes),challenge.scope)
+        self.definition.scopes=scopes
+        local ok,err=self:define(self.definition); if not ok then return nil,err end
+        self:save()
+        return nil,'Additional permission required; run /mcp-login '..self.cfg.name
+    end
+    if not self:available() then
+        return nil,self.cfg.auth and self:configured_error() or 'MCP OAuth requires a newer panto with panto.ext.auth and HTTP POST support'
+    end
+    if data.auth_used then
+        local ok,err=self:refresh()
+        if ok or self.cfg.auth then return ok,err end
+        self:invalidate()
+        local discovered,why=self:discover(challenge)
+        self.login_required=not self:usable() or nil
+        return nil,discovered and err or self:recovery_error(why)
+    end
+    local ok,err=self:discover(challenge)
+    if not ok then return nil,err end
+    if self:request_auth() then return true end
+    return nil,self:login_error()
+end
+function M:login(callback_url,on_success,on_error)
+    if not self:available() then return nil,self.cfg.auth and 'Configured auth login requires a newer panto and an oauth_pkce session; use panto auth login instead' or 'MCP OAuth requires a newer panto with panto.ext.auth' end
+    if not self.cfg.auth and not self.definition then return nil,'OAuth discovery is not ready; retry /mcp-login '..self.cfg.name..' after checking /mcp' end
+    local usable=self:usable()
+    local result
+    if callback_url then
+        if not self.auth.complete(self.name,callback_url) then return nil,'OAuth callback rejected; check the URL/state/issuer and retry' end
+    elseif self.login_url and self:auth_status().state=='pending' then result={url=self.login_url}
+    else
+        result=self.auth.login(self.name)
+        if not result then
+            local text='Cannot start OAuth login; check that the configured auth session is oauth_pkce'
+            return nil,self.cfg.auth and text or self:recovery_error(text)
+        end
+        self.login_url=result.url
+    end
+    self.login_usable=usable; self.login_required=not usable or nil
+    self.cached_status={state='pending'}; self.status_at=self.clock()
+    self.login_poll=(self.login_poll or 0)+1
+    local generation=self.login_poll
+    self:poll(function(status)
+        self.login_required=nil; self.login_url=nil
+        if status and status.state=='logged_in' and not status.error then
+            self.login_usable=nil; on_success()
+        elseif on_error then
+            on_error(self:recovery_error('OAuth login failed or timed out'))
+        end
+    end,670000,function() return generation==self.login_poll end)
+    return result and result.url or true
+end
+function M:close()
+    self.closed=true
+    for t in pairs(self.timers) do async.close(t) end; self.timers={}
+    for handle,future in pairs(self.requests or {}) do handle:cancel(); future:resolve(nil,'session ended') end
+    if self.refreshing then self.refreshing:resolve(nil,'session ended') end
+end
+return M

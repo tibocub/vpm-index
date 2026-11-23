@@ -1,0 +1,46 @@
+
+--
+-- lua-LIVR : <https://fperrad.frama.io/lua-LIVR/>
+--
+
+local error = error
+local tostring = tostring
+local type = type
+
+local _ENV = nil
+
+local primitive_type = {
+        boolean = true,
+        number = true,
+        string = true,
+}
+
+local string_number_type = {
+        number = true,
+        string = true,
+}
+
+local number_boolean_type = {
+        boolean = true,
+        number = true,
+}
+
+local function expected_type (rule, n, tname, value)
+    if type(value) ~= tname then
+        error("Rule [" .. rule .. "] bad argument #" .. tostring(n) .. " (" .. tname .. " expected)")
+    end
+end
+
+return {
+    primitive_type = primitive_type,
+    string_number_type = string_number_type,
+    number_boolean_type = number_boolean_type,
+    expected_type = expected_type,
+}
+
+--
+-- Copyright (c) 2018-2026 Francois Perrad
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

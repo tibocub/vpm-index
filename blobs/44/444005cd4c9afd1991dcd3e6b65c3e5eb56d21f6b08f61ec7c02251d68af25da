@@ -1,0 +1,50 @@
+local M = {}
+
+M.BASE = "https://facialharmonyai.com"
+
+function M.analysis_url()
+  return M.BASE .. "/analyze"
+end
+
+function M.pricing_url()
+  return M.BASE .. "/#pricing"
+end
+
+function M.features_url()
+  return M.BASE .. "/#features"
+end
+
+function M.faq_url()
+  return M.BASE .. "/#faq"
+end
+
+function M.dashboard_url()
+  return M.BASE .. "/dashboard"
+end
+
+function M.blog_url()
+  return M.BASE .. "/blog"
+end
+
+function M.report_url(report_id)
+  if type(report_id) ~= "string" or report_id == "" then
+    error("report_id must be a non-empty string")
+  end
+  return M.BASE .. "/report/" .. report_id:gsub("([^%w%-_%.~])", function(c)
+    return string.format("%%%02X", string.byte(c))
+  end)
+end
+
+function M.is_valid_report_id(report_id)
+  return type(report_id) == "string" and report_id:match("^[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]*$") ~= nil and #report_id <= 64
+end
+
+function M.site_metadata()
+  return {
+    name = "FacialHarmonyAI",
+    homepage = M.BASE,
+    description = "AI-powered facial analysis and coaching platform"
+  }
+end
+
+return M

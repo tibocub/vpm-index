@@ -1,0 +1,97 @@
+local map = require 'attac-map'
+
+-- source: https://codeberg.org/sewbacca/sfs/src/branch/main/lua/sfs.lua
+local DIR_SEP, PATH_SEP, REP_MARK = package.config:match("(.)\n(.)\n(.)\n(.)")
+package.searchpath = package.searchpath or function(mod, path, sep, rep)
+    sep = sep or PATH_SEP
+    rep = rep or REP_MARK
+
+    local reldir = mod:gsub("%.", DIR_SEP)
+    local err = {}
+
+    for pattern in path:gmatch("[^" .. sep .. "]+") do
+        local filename = pattern:gsub(rep, reldir)
+        local h = io.open(filename, "r")
+        if h then
+            h:close()
+            return filename
+        end
+
+        err[#err + 1] = string.format("\nno file '%s'", filename)
+    end
+
+    return nil, table.concat(err, '\n')
+end
+
+--
+
+local fself = rawget(_G, 'arg') and rawget(_G, 'arg')[0] or
+    package.searchpath(debug.getinfo(3, "S").source:sub(2), package.cpath)
+
+local _open = io.open
+
+---Returns an io.open compatible table representing a file that has been embedded with the attac mechansim.
+---@param offsetdef integer[] Offset of the file relative to the executable end.
+---@return file* file A table acting like a file retrieved from io.open.
+local function embedfile(offsetdef)
+    local file = assert(_open(fself, 'rb'))
+    local total = file:seek('end')
+    file:seek('end', -offsetdef[1])
+
+    local function read(_, mode)
+        local limit = (total - offsetdef[2]) - file:seek()
+        if limit <= 0 then
+            return nil
+        end
+
+        if mode == '*n' then
+            -- read a numeral and return it as number
+            local num = file:read '*n'
+            if num and file:seek() > (total - offsetdef[2]) then
+                file:seek('end', -offsetdef[2])
+                return tonumber(tostring(num):sub(1, limit))
+            end
+            return num
+        else
+            if mode == '*a' then
+                mode = limit
+            end
+            local line = file:read(mode)
+            if line and file:seek() > (total - offsetdef[2]) then
+                file:seek('end', -offsetdef[2])
+                return line:sub(1, limit)
+            end
+            return line
+        end
+    end
+
+    local function seek(_, whence, offset)
+        offset = offset or 0
+        local start = (total - offsetdef[1])
+
+        if whence == 'set' then
+            return file:seek('set', (total - offsetdef[1]) + offset) - start
+        elseif whence == 'end' then
+            return file:seek('set', (total - offsetdef[2]) - offset) - start
+        else
+            return file:seek('set', math.max(start, math.min((total - offsetdef[2]), file:seek() + offset))) - start
+        end
+    end
+
+    return setmetatable({ read = read, seek = seek }, {
+        __index = function(self, k)
+            local f = function(...) file[k](file, ...) end
+            self[k] = f
+            return f
+        end
+    })
+end
+
+function io.open(filename, mode)
+    for k, v in pairs(map) do
+        if filename == k then
+            return embedfile(v)
+        end
+    end
+    return _open(filename, mode)
+end

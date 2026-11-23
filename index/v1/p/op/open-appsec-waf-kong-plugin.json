@@ -1,0 +1,46 @@
+{
+  "kind": "lib",
+  "name": "open-appsec-waf-kong-plugin",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/openappsec/attachment",
+      "license": "Apache",
+      "lua": ">= 2.1",
+      "luarocks": {
+        "date": "Wed, 27 May 2026 11:27:53 GMT",
+        "rockspec": {
+          "date": "Wed, 27 May 2026 11:27:53 GMT",
+          "sha256": "92b0e1999be60a95281706af9c3f0103a2cce08b8b9e363083cf883700a62277",
+          "size": 2815
+        }
+      },
+      "modules": [
+        "kong.plugins.open-appsec-waf-kong-plugin.handler",
+        "kong.plugins.open-appsec-waf-kong-plugin.lib.utils",
+        "kong.plugins.open-appsec-waf-kong-plugin.lib.verdict_handler",
+        "kong.plugins.open-appsec-waf-kong-plugin.lib.verdict_poller",
+        "kong.plugins.open-appsec-waf-kong-plugin.nano_ffi",
+        "kong.plugins.open-appsec-waf-kong-plugin.schema",
+        "lua_attachment_wrapper"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c",
+          "c++"
+        ],
+        "native": "other"
+      },
+      "origin": {
+        "commit": "4c88f6389e301fd1958b0448f0e0ce01888a20c5",
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/openappsec/attachment.git"
+      },
+      "summary": "Kong plugin for scanning headers"
+    }
+  }
+}

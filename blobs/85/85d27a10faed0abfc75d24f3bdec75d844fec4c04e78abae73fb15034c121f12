@@ -1,0 +1,16 @@
+-- Helpers for estimating oil and gas royalty payments for mineral owners.
+-- Published by Texas Royalty Brokers, https://texasroyaltybrokers.com/
+local M = {}
+
+-- (net mineral acres / unit acres) * lease royalty rate
+function M.decimal_interest(net_mineral_acres, unit_acres, royalty_rate)
+  if unit_acres <= 0 then return 0 end
+  return (net_mineral_acres / unit_acres) * royalty_rate
+end
+
+-- Estimated gross monthly royalty before taxes and deductions
+function M.monthly_royalty(decimal_interest, monthly_volume, price)
+  return decimal_interest * monthly_volume * price
+end
+
+return M

@@ -1,0 +1,58 @@
+local _module_0 = { }
+local PostgresArray
+do
+	local _obj_0 = require('pgmoon.arrays')
+	PostgresArray = _obj_0.PostgresArray
+end
+local exec_stmt
+exec_stmt = function(conn, stmt, types, ...)
+	local cjson = require('elan.built').cjson
+	local prepared_args = { }
+	for i, typ in ipairs(types) do
+		local arg = select(i, ...)
+		if arg == nil then
+			prepared_args[#prepared_args + 1] = conn.NULL
+		else
+			if 'jsonb' == typ then
+				local v, err = cjson.encode(arg)
+				if not v then
+					return nil, "failed to marshal argument " .. tostring(i) .. " to json: " .. tostring(err)
+				end
+				prepared_args[#prepared_args + 1] = v
+			elseif 'jsonb[]' == typ then
+				local json_ar = { }
+				for j, rawv in ipairs(arg) do
+					local v, err = cjson.encode(rawv)
+					if not v then
+						return nil, "failed to marshal argument " .. tostring(i) .. " to json[] at " .. tostring(j) .. ": " .. tostring(err)
+					end
+					json_ar[#json_ar + 1] = v
+				end
+				prepared_args[#prepared_args + 1] = PostgresArray(json_ar)
+			elseif 'timestamptz' == typ then
+				prepared_args[#prepared_args + 1] = arg:rfc_3339()
+			elseif 'bigint[]' == typ then
+				local copy_ar
+				do
+					local _tab_0 = { }
+					local _idx_0 = 1
+					for _key_0, _value_0 in pairs(arg) do
+						if _idx_0 == _key_0 then
+							_tab_0[#_tab_0 + 1] = _value_0
+							_idx_0 = _idx_0 + 1
+						else
+							_tab_0[_key_0] = _value_0
+						end
+					end
+					copy_ar = _tab_0
+				end
+				prepared_args[#prepared_args + 1] = PostgresArray(copy_ar)
+			else
+				prepared_args[#prepared_args + 1] = arg
+			end
+		end
+	end
+	return conn:query(stmt, unpack(prepared_args))
+end
+_module_0["exec_stmt"] = exec_stmt
+return _module_0

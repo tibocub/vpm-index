@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "oauth-token-validate",
+  "versions": {
+    "1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/oauth-token-validate/handler.lua": {
+          "sha256": "5b02b377f9ac967cf5689a0e45ec5701ca01f69a80c7e35a8525973a737cc988",
+          "size": 718,
+          "url": "https://raw.githubusercontent.com/vikaskmr1008/oauth-token-validate/17323eef61c4a75a0e6c791eaaf8c9e453c7c7fa/src/handler.lua"
+        },
+        "kong/plugins/oauth-token-validate/schema.lua": {
+          "sha256": "31c1bdfca9c0cb6d347b413ffc4993cd4d0c90bc2583b41c899cfa1475a1132f",
+          "size": 127,
+          "url": "https://raw.githubusercontent.com/vikaskmr1008/oauth-token-validate/17323eef61c4a75a0e6c791eaaf8c9e453c7c7fa/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 13 Sep 2017 10:49:14 GMT",
+        "rockspec": {
+          "date": "Wed, 13 Sep 2017 10:49:14 GMT",
+          "sha256": "2d8e70bee8a5ac16583f0957821b8ca148f2bde97f0872b81d8943cd0688069a",
+          "size": 1123
+        },
+        "src": {
+          "date": "Wed, 13 Sep 2017 10:49:15 GMT",
+          "sha256": "52400e9fe144bc24bda47f15a74fd0e6f4fcd3d0729f75b7553df411c114bc4a",
+          "size": 3628,
+          "url": "https://luarocks.org/oauth-token-validate-1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oauth-token-validate.handler",
+        "kong.plugins.oauth-token-validate.schema"
+      ],
+      "origin": {
+        "commit": "17323eef61c4a75a0e6c791eaaf8c9e453c7c7fa",
+        "type": "git",
+        "url": "https://github.com/vikaskmr1008/oauth-token-validate"
+      },
+      "size": 845,
+      "summary": "A Kong plugin, that validate expiry of external oauth token",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.oauth-token-validate.access",
+        "kong.plugins.token-validation.header_filter"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,165 @@
+-- Filesystem and session-path helpers shared by the subagents extension.
+--
+-- Two jobs live here:
+--
+--   1. Config-layer discovery. `config_roots("agents")` returns the
+--      directories profiles (or workflows) are read from, lowest precedence
+--      first, as `<layer>/<name>` for every layer the host reports in
+--      `panto.ext.dirs.layers` (base, user, project, local). The host owns
+--      that list, so this file never reads HOME or the XDG variables itself;
+--      a host that reports no layers yields no roots. `walk` then collects
+--      `**/*.<suffix>` beneath a root.
+--
+--   2. The child session store. `child_store_dir()` derives
+--      `<session_dir>/subagents/<primary session id>` from the host's
+--      `session_info()`, and `ensure_dir` creates it before a store is opened
+--      there. Nothing here duplicates panto's XDG / PANTO_SESSION_DIR /
+--      cwd-encoding logic; the per-cwd session directory arrives ready-made
+--      from the host.
+--
+-- Edge cases: a missing or unreadable directory yields no files rather than an
+-- error, because both config layers are optional. Directory recursion is
+-- capped (MAX_DEPTH) so a symlink cycle cannot hang discovery. Entries whose
+-- type the platform does not report during scandir are stat'ed individually,
+-- which also means a symlinked directory is followed like a real one. Results
+-- are sorted so discovery order — and therefore shadowing — is deterministic.
+--
+-- `luv` is resolved with pcall: only the filesystem helpers need it, so a
+-- host or test run without luv can still use the rest of the extension and
+-- gets a clear error if it actually walks the filesystem.
+
+local ok_uv, uv = pcall(require, "luv")
+
+local MAX_DEPTH = 16
+
+local M = {}
+
+local function host()
+    return require("panto").ext
+end
+
+local function require_uv()
+    if not ok_uv then
+        error("panto-subagents: the 'luv' module is required for filesystem discovery", 2)
+    end
+    return uv
+end
+
+-- Current working directory, i.e. the project root of this panto session.
+function M.cwd()
+    return require_uv().cwd()
+end
+
+-- Extension-less basename of a path: "/a/b/reviewer.md" -> "reviewer".
+function M.stem(path)
+    local base = path:match("[^/]+$") or path
+    return (base:gsub("%.[^.]+$", ""))
+end
+
+-- Whole-file read. Returns nil, err for a file that cannot be opened.
+function M.read_file(path)
+    local fh, err = io.open(path, "r")
+    if not fh then
+        return nil, err or ("could not open " .. path)
+    end
+    local data = fh:read("a")
+    fh:close()
+    if data == nil then
+        return nil, "could not read " .. path
+    end
+    return data
+end
+
+-- One root per host layer, in the host's order: later roots shadow earlier
+-- ones. A layer the host could not resolve is simply absent from its list.
+function M.config_roots(name)
+    local roots = {}
+    local ok, ext = pcall(host)
+    local layers = ok and type(ext) == "table" and ext.dirs and ext.dirs.layers
+    if type(layers) ~= "table" then
+        return roots
+    end
+    for _, layer in ipairs(layers) do
+        if type(layer) == "table" and type(layer.dir) == "string" and layer.dir ~= "" then
+            roots[#roots + 1] = layer.dir .. "/" .. name
+        end
+    end
+    return roots
+end
+
+-- Every file at or below `root` whose name ends with `suffix`, sorted.
+function M.walk(root, suffix)
+    local lib = require_uv()
+    local found = {}
+
+    local function visit(dir, depth)
+        if depth > MAX_DEPTH then
+            return
+        end
+        local req = lib.fs_scandir(dir)
+        if not req then
+            return
+        end
+        while true do
+            local name, kind = lib.fs_scandir_next(req)
+            if not name then
+                break
+            end
+            local path = dir .. "/" .. name
+            if kind ~= "directory" and kind ~= "file" then
+                local stat = lib.fs_stat(path)
+                kind = stat and stat.type or kind
+            end
+            if kind == "directory" then
+                visit(path, depth + 1)
+            elseif kind == "file" and name:sub(-#suffix) == suffix then
+                found[#found + 1] = path
+            end
+        end
+    end
+
+    visit(root, 1)
+    table.sort(found)
+    return found
+end
+
+-- Create `path` and every missing parent, tolerating one that already exists.
+-- A store cannot be opened on a directory that is not there yet, and the child
+-- catalog is two levels below a session directory panto may itself have only
+-- just made. Returns nil, err rather than raising: this runs inside a spawn,
+-- where a failure is the child's failure to report.
+function M.ensure_dir(path)
+    if not ok_uv then
+        return nil, "panto-subagents: the 'luv' module is required to create the child store directory"
+    end
+    if type(path) ~= "string" or path == "" then
+        return nil, "no child store directory to create"
+    end
+    local made = path:sub(1, 1) == "/" and "" or "."
+    for segment in path:gmatch("[^/]+") do
+        made = made .. "/" .. segment
+        if uv.fs_stat(made) == nil then
+            local ok, err = uv.fs_mkdir(made, 493) -- 0755
+            -- A racing writer is fine; only a directory that still is not
+            -- there afterwards is a failure.
+            if not ok and uv.fs_stat(made) == nil then
+                return nil, tostring(err)
+            end
+        end
+    end
+    return true
+end
+
+-- The per-primary child catalog: <session_dir>/subagents/<primary id>.
+-- Returns the directory plus the session info it came from, so a caller that
+-- also needs the owning session id does not ask twice. This is pure string
+-- assembly; `ensure_dir` creates it at spawn time.
+function M.child_store_dir()
+    local info = host().session_info()
+    if type(info) ~= "table" or type(info.session_dir) ~= "string" or type(info.session_id) ~= "string" then
+        return nil, "no primary session information available"
+    end
+    return info.session_dir .. "/subagents/" .. info.session_id, info
+end
+
+return M

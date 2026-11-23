@@ -1,0 +1,37 @@
+--- init
+-- @module bennu
+-- @author José María Alonso
+
+local bennu = {}
+
+local functional = require("bennu.functional")
+
+bennu._COPYRIGHT = "Copyright (c) 2026 José María Alonso"
+bennu._DESCRIPTION = "Some functions"
+bennu._VERSION = "Bennu 0.0.4"
+
+local logger = require("bennu.log")
+bennu.get_log_levels, bennu.create_log, bennu.destroy_log, bennu.set_level, bennu.log = logger()
+bennu.logdebug = functional.bind(bennu.log, bennu.get_log_levels().DEBUG)
+bennu.logwarn = functional.bind(bennu.log, bennu.get_log_levels().WARN)
+
+-- Environment
+-- Options
+bennu.dry_run = false
+
+bennu.language = os.getenv("LANG")
+bennu.config_dir = os.getenv("XDG_CONFIG_HOME")
+bennu.session_type = os.getenv("XDG_SESSION_TYPE")
+bennu.myrepospath = os.getenv("MYREPOSPATH")
+bennu.extrepospath = os.getenv("EXTREPOSPATH")
+bennu.home_dir = os.getenv("HOME")
+bennu.aft_dir = ("%s/android"):format(bennu.home_dir)
+bennu.nut_mount_point = os.getenv("NUTMOUNTPOINT")
+bennu.nut_VG = os.getenv("NUTVG")
+bennu.nut_LV = os.getenv("NUTLV")
+bennu.myrc_mount_point = os.getenv("MYRCMOUNTPOINT")
+
+-- load default language
+require("bennu.languages.es")
+
+return bennu

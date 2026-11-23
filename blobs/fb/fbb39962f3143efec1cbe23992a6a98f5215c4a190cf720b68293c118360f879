@@ -1,0 +1,205 @@
+
+local lua = require 'lrocket.lua'
+local sfs = require 'sfs'
+local utils = require 'lrocket.utils'
+local routines = require 'lrocket.routines'
+local log = require 'lrocket.log'
+
+local Lua = {}
+
+local function parseexpression(substr)
+	local t = {}
+	local i = 1
+	local _, token
+	while i <= #substr do
+		_, i = utils.matchpatterns(substr, i, '%s*')
+
+		token, i = utils.matchpatterns(substr, i,
+			"%b''",
+			'%b""',
+			-- Nested expr
+			"%b()",
+			'%.%.%.',
+			-- All the different operators
+			'[+-*/^]+',
+			'%.%.',
+			-- All the different common function calls
+			'[:%.]?%s*[%a_][%w_]*%s*%b()',
+			"[:%.]?%s*[%a_][%w_]*%s*%b''",
+			'[:%.]?%s*[%a_][%w_]*%s*%b""',
+			'[:%.]?%s*[%a_][%w_]*%s*%b{}',
+			'%b[]%s*%b()',
+			-- Simple reference
+			'%.?%s*[%a_][%w_]*',
+			'%b[]',
+			','
+		)
+
+		if not token then error(string.format("Failed to parse expression '%s' at %d", substr, i), 2) end -- FIXME: Dont just error you idiot
+
+		if token:sub(1, 1) == "'" or token:sub(1, 1) == '"' then
+			t[#t+1] = token:sub(2, -2)
+		elseif token:sub(1, 1) == '(' then
+			t[#t+1] = parseexpression(token:sub(2, -2))
+		elseif token == '...' then
+			t[#t+1] = '?'
+		elseif token == '..' or token:find('^[:%.]') then
+			-- Do nothing
+		elseif token:find '^[%a_]' or token:find '^[:%.]%s*[%a_]' then
+			t[#t+1] = '*'
+		elseif token == ',' then
+			break
+		end
+	end
+
+	return table.concat(t)
+end
+
+local function getline(pos, str)
+	local line = str:sub(1, pos):match "!line (%d+)[^\n]-$"
+
+	if line then
+		return tonumber(line)
+	else
+		return -1
+	end
+end
+
+local function scanrequires(path, fuzzy, modname)
+	log.assert(sfs.isFile(path))
+	return coroutine.wrap(function()
+		local str = log.assert(sfs.read(path))
+
+		local line = 1
+		str = '!line 1:'..str
+			:gsub('\n', function () line = line + 1; return '\n!line '..line..':' end)
+			:gsub("%-%-%s*%[(%=*)%[.-%](%1)%]", "")
+			:gsub("%-%-[^\n]+(\n?)", "%1")
+
+		-- Non globs
+		for pos, content in utils.patterns(str, "()require%s*(%b'')", '()require%s*(%b"")') do
+			local mod = content:sub(2, -2)
+			if mod ~= '' then
+				coroutine.yield(mod, getline(pos, str), false)
+			end
+		end
+
+		for pos, type, expr in utils.patterns(str, "()(require)%s*(%b())", "()(x?pcall)%s*(%b())") do
+			local isopt = false
+			if type == 'pcall' then
+				expr = expr:match "^%(%s*require%s*,%s*(.-)$"
+				expr = expr and "("..expr or nil
+				isopt = true
+			elseif type == 'xpcall' then
+				expr = expr:match "^%(%s*require%s*,[^,]*,(.-)$"
+				expr = expr and "("..expr or nil
+				isopt = true
+			end
+
+			if expr then
+				local glob = parseexpression(expr):gsub("?", modname)
+				if glob:find "^[%a_]" then
+					if fuzzy or not glob:find '%*' then
+						coroutine.yield(glob, getline(pos, str), isopt)
+					end
+				end
+			end
+		end
+	end)
+end
+
+local function scanembeds(path)
+	local str = log.assert(sfs.read(path, true))
+
+	local line = 1
+	local comments = '!line 1:'..str
+		:gsub('\n', function () line = line + 1; return '\n!line '..line..':' end)
+		:gsub("%[(%=*)%[.-%](%1)%]", "")
+
+	local function eachembed()
+		for pos, description in comments:gmatch "()%-%-lr:embed([^\n]+)" do
+			local mod, embedpath = description:match "^%s*(@[^:]*):%s*(.-)%s*$"
+			if not mod then
+				mod, embedpath = "", description:match "^%s*(.-)%s*$"
+			end
+			coroutine.yield(mod, getline(pos, comments), embedpath)
+		end
+	end
+
+	return coroutine.wrap(eachembed)
+end
+
+local function scan(sourcemodname, path)
+	---@type lrocket.RequireInfo[]
+	local deps = {}
+	for modname, line, isopt in scanrequires(path, true, sourcemodname) do
+		deps[#deps+1] = {
+			modname = modname,
+			constraint = isopt and 'opt' or 'required',
+			source = path..(line ~= -1 and ":"..line or '')
+		}
+		deps[modname] = deps[#deps]
+	end
+
+	local embeds = {}
+	for scope, line, lrpath in Lua.scanresources(path) do
+		embeds[#embeds+1] = {
+			lrpath = lrpath,
+			scope = scope,
+			source = path..(line ~= -1 and ":"..line or '')
+		}
+		embeds[scope] = lrpath
+	end
+
+	---@type lrocket.ModInfo
+	return {
+		lang = 'lua',
+		resources = embeds,
+		requires = deps,
+		chunkname = lua.chunkname(path, sourcemodname),
+		embed = function (info, lra, flags)
+			routines.writelua(lra, info.path, string.format("lua_modules/%s.lua", sourcemodname:gsub("%.", "/")), info.chunkname, not not flags:find 'g')
+		end,
+		modname = sourcemodname,
+		path = path,
+	}
+end
+
+Lua.scan = scan
+
+function Lua.expandpath(path)
+	return (path:gsub("([^;]+)%?%?", "%1/?.lua;%1/?/init.lua"))
+end
+
+function Lua.searchpath(glob, path)
+	path = Lua.expandpath(path)
+	for subpath in path:gmatch "[^;]+" do
+		local subpath = sfs.normalize(subpath)
+		local globpath = subpath:gsub("%?", (glob:gsub("%.", "/")))
+		local revglob = subpath:gsub("%p", "%%%1"):gsub("%%%?", "(.-)"):gsub("^.*$", "^%1$")
+
+		for file in sfs.glob(globpath) do
+			local modpart = file:match(revglob)
+			local modname = sfs.normalize(modpart):gsub("^%.[/\\]", ""):gsub("[/\\]+", ".")
+
+			coroutine.yield(modname, scan(modname, file))
+		end
+	end
+end
+
+function Lua.defaultpath(trees)
+	local res = {}
+	for _, tree in ipairs(trees) do
+		if lua.LUA_VERSION == 'jit' then
+			res[#res+1] = sfs.combine(tree, "share/luajit-2.1/??")
+		end
+		res[#res+1] = sfs.combine(tree, "share/lua", lua.PUC_LUA_VERSION, "??")
+	end
+	return lua.insertdefaults(lua.LUA_PATH, res)
+end
+
+Lua.scanresources = scanembeds
+Lua.scanrequires = scanrequires
+
+return Lua
+

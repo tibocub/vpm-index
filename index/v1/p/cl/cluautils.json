@@ -1,0 +1,162 @@
+{
+  "kind": "lib",
+  "name": "cluautils",
+  "versions": {
+    "1.19-0": {
+      "bin": [],
+      "deps": [
+        "json-lua >= 0.1"
+      ],
+      "files": {
+        "cluautils/cobject.lua": {
+          "sha256": "dfec611c3a54f2d83f4c84fb50bfefac368523aeff84e90d286234501a9d1c7c",
+          "size": 1344,
+          "url": "blob:dfec611c3a54f2d83f4c84fb50bfefac368523aeff84e90d286234501a9d1c7c"
+        },
+        "cluautils/datastructures/hashmap.lua": {
+          "sha256": "9e686d7eb413d4c93ba7ae9cdeada1e16425973a06f778d3464927346e84a16c",
+          "size": 2542,
+          "url": "blob:9e686d7eb413d4c93ba7ae9cdeada1e16425973a06f778d3464927346e84a16c"
+        },
+        "cluautils/datastructures/linkedlist.lua": {
+          "sha256": "14c9249fabc2b240e4fb2a11cc99f5f33b9cb3c485ce124395288e8d5db1f91f",
+          "size": 6381,
+          "url": "blob:14c9249fabc2b240e4fb2a11cc99f5f33b9cb3c485ce124395288e8d5db1f91f"
+        },
+        "cluautils/datastructures/pair.lua": {
+          "sha256": "d7b6b4966983e836e061691e5b43916894853975a875b39ed875c76edd104a7a",
+          "size": 378,
+          "url": "blob:d7b6b4966983e836e061691e5b43916894853975a875b39ed875c76edd104a7a"
+        },
+        "cluautils/file_manager.lua": {
+          "sha256": "c0e419440a50488d9ae3ca765cee44c56e897edb89fcc832c9260e4681bc2833",
+          "size": 3820,
+          "url": "blob:c0e419440a50488d9ae3ca765cee44c56e897edb89fcc832c9260e4681bc2833"
+        },
+        "cluautils/functions.lua": {
+          "sha256": "e5f0869d4f08dba877a1598460efe0aff7c4fcea6d9b504e7c81caeb02803bfe",
+          "size": 1216,
+          "url": "blob:e5f0869d4f08dba877a1598460efe0aff7c4fcea6d9b504e7c81caeb02803bfe"
+        },
+        "cluautils/json.lua": {
+          "sha256": "96468f9360b9e26ba6eab82719057d2cc71756c7c554f04cdb1a1b344b622ca0",
+          "size": 950,
+          "url": "blob:96468f9360b9e26ba6eab82719057d2cc71756c7c554f04cdb1a1b344b622ca0"
+        },
+        "cluautils/string_utils.lua": {
+          "sha256": "7944de021b57399b2b9ab92d3e72519f735e6dc16ba062eff610afff53907f46",
+          "size": 1244,
+          "url": "blob:7944de021b57399b2b9ab92d3e72519f735e6dc16ba062eff610afff53907f46"
+        },
+        "cluautils/table_utils.lua": {
+          "sha256": "390499b28c3e68cf603c8ac402c63f31aaf13a2de8fc27129735070a96d2f949",
+          "size": 3016,
+          "url": "blob:390499b28c3e68cf603c8ac402c63f31aaf13a2de8fc27129735070a96d2f949"
+        },
+        "cluautils/tests.lua": {
+          "sha256": "b87c39cf1655210ab3ba4d24fd31a4a46ca27bdd19cb878058df1a17050bfab8",
+          "size": 1944,
+          "url": "blob:b87c39cf1655210ab3ba4d24fd31a4a46ca27bdd19cb878058df1a17050bfab8"
+        },
+        "cluautils/tests/base_test_case.lua": {
+          "sha256": "1078831e1fb887918f697fa08c8c5ff8872ba98d617400d137dfdb9b87a50a5b",
+          "size": 1914,
+          "url": "blob:1078831e1fb887918f697fa08c8c5ff8872ba98d617400d137dfdb9b87a50a5b"
+        }
+      },
+      "homepage": "*** please enter a project homepage ***",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 06 May 2025 04:41:32 GMT",
+        "rockspec": {
+          "date": "Tue, 06 May 2025 04:41:32 GMT",
+          "sha256": "66c05707695d3cfdc2520d33a3e04f6d9247a52fd4916b6cfc82326cfb8b891c",
+          "size": 1757
+        },
+        "src": {
+          "date": "Tue, 06 May 2025 04:41:32 GMT",
+          "sha256": "964ba3d0a9f826af542f77eb7c30070f32d1dcf2f5d157cd75a8630e6fe4c696",
+          "size": 43046,
+          "url": "https://luarocks.org/cluautils-1.19-0.src.rock"
+        }
+      },
+      "modules": [
+        "cluautils.cobject",
+        "cluautils.datastructures.hashmap",
+        "cluautils.datastructures.linkedlist",
+        "cluautils.datastructures.pair",
+        "cluautils.file_manager",
+        "cluautils.functions",
+        "cluautils.json",
+        "cluautils.memory",
+        "cluautils.os",
+        "cluautils.string_utils",
+        "cluautils.table_utils",
+        "cluautils.tests",
+        "cluautils.tests.base_test_case",
+        "cluautils.thread"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "./internal"
+              ],
+              "name": "cluautils.memory",
+              "sources": [
+                "./src/memory/memory.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "./internal"
+              ],
+              "name": "cluautils.os",
+              "sources": [
+                "./src/os/os.c"
+              ]
+            },
+            {
+              "incdirs": [
+                "./internal",
+                "src/threads/internal/"
+              ],
+              "libdirs": [
+                "src/threads/bin/"
+              ],
+              "name": "cluautils.thread",
+              "sources": [
+                "src/threads/thread.c",
+                "src/threads/internal/cthread.c",
+                "src/threads/internal/queue.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 06 May 2025 04:41:32 GMT",
+        "sha256": "964ba3d0a9f826af542f77eb7c30070f32d1dcf2f5d157cd75a8630e6fe4c696",
+        "size": 43046,
+        "type": "luarocks",
+        "url": "https://luarocks.org/cluautils-1.19-0.src.rock"
+      },
+      "size": 24749,
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 14,
+        "status": "ok",
+        "total": 14
+      }
+    }
+  }
+}

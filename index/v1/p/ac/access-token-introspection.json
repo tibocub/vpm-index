@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "access-token-introspection",
+  "versions": {
+    "1.0.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/access-token-introspection/access.lua": {
+          "sha256": "800a327bf927ae834e929f447199dab494ed888b3fec89ea6906676b45cbbb9f",
+          "size": 3371,
+          "url": "https://raw.githubusercontent.com/VentaApps/kong-token-introspection/1fe9718c255395f7d7a8211fa8f9cfdea8c691fd/kong/plugins/access-token-introspection/access.lua"
+        },
+        "kong/plugins/access-token-introspection/handler.lua": {
+          "sha256": "592d8d88e34fdd50406639465f6a44334c9eab64800c16f7e81c1e0643bc8abc",
+          "size": 381,
+          "url": "https://raw.githubusercontent.com/VentaApps/kong-token-introspection/1fe9718c255395f7d7a8211fa8f9cfdea8c691fd/kong/plugins/access-token-introspection/handler.lua"
+        },
+        "kong/plugins/access-token-introspection/schema.lua": {
+          "sha256": "fce9cf5a1f661334b7c335a889e3e18362c2b8627b8b7adf83ae25112c876fdf",
+          "size": 1050,
+          "url": "https://raw.githubusercontent.com/VentaApps/kong-token-introspection/1fe9718c255395f7d7a8211fa8f9cfdea8c691fd/kong/plugins/access-token-introspection/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/VentaApps/kong-token-introspection",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 27 Mar 2020 19:09:49 GMT",
+        "rockspec": {
+          "date": "Fri, 27 Mar 2020 19:09:49 GMT",
+          "sha256": "d51d9665edf7505458871b9e8fbabccd86edf8037362772ea76e92323dc63b8e",
+          "size": 977
+        },
+        "src": {
+          "date": "Fri, 27 Mar 2020 19:09:50 GMT",
+          "sha256": "3cd5a38f5ab3949c38210bfa6ea2db4de6546d95b36455074f53d6a56b0ced18",
+          "size": 6251,
+          "url": "https://luarocks.org/access-token-introspection-1.0.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.access-token-introspection.access",
+        "kong.plugins.access-token-introspection.handler",
+        "kong.plugins.access-token-introspection.schema"
+      ],
+      "origin": {
+        "commit": "1fe9718c255395f7d7a8211fa8f9cfdea8c691fd",
+        "type": "git",
+        "url": "https://github.com/VentaApps/kong-token-introspection.git"
+      },
+      "size": 4802,
+      "summary": "0 JWT access-token, added to request header.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "pl.stringx",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

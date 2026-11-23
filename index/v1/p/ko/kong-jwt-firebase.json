@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "kong-jwt-firebase",
+  "versions": {
+    "2.0.0-24": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-firebase/constants.lua": {
+          "sha256": "a65f7f471672bd146383c942f3629a0fc6e6140965be685d32a2e34a61b6af1b",
+          "size": 112,
+          "url": "https://raw.githubusercontent.com/simantakaushik/kong-plugin-jwt-firebase/935a85d01a8b1adffb88e3cffa52b954ca7855a7/kong/plugins/jwt-firebase/constants.lua"
+        },
+        "kong/plugins/jwt-firebase/handler.lua": {
+          "sha256": "71fb6e3edf5e3dbed16682c6b4935e8e62a04d7d88321c75df2528456f4c3717",
+          "size": 11614,
+          "url": "https://raw.githubusercontent.com/simantakaushik/kong-plugin-jwt-firebase/935a85d01a8b1adffb88e3cffa52b954ca7855a7/kong/plugins/jwt-firebase/handler.lua"
+        },
+        "kong/plugins/jwt-firebase/schema.lua": {
+          "sha256": "34c8073dce5678ae1deaf3d9800f2de3f7acf3bfb49456b0ea2fad57b9f70b63",
+          "size": 1135,
+          "url": "https://raw.githubusercontent.com/simantakaushik/kong-plugin-jwt-firebase/935a85d01a8b1adffb88e3cffa52b954ca7855a7/kong/plugins/jwt-firebase/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 03 Feb 2022 02:54:21 GMT",
+        "rockspec": {
+          "date": "Thu, 03 Feb 2022 02:54:21 GMT",
+          "sha256": "1f86d4760b41321cc0acd51f75939940909dfe1799e46d9e07d4ca76af52c3d0",
+          "size": 610
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-firebase.constants",
+        "kong.plugins.jwt-firebase.handler",
+        "kong.plugins.jwt-firebase.schema"
+      ],
+      "origin": {
+        "commit": "935a85d01a8b1adffb88e3cffa52b954ca7855a7",
+        "type": "git",
+        "url": "https://github.com/simantakaushik/kong-plugin-jwt-firebase"
+      },
+      "size": 12861,
+      "summary": "This plugin allows Kong 2.0+ to verify JWT Firebase Token.",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "kong.plugins.jwt.jwt_parser",
+        "openssl.pkey"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

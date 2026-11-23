@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "riemoon",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://git.madhouse-project.org/algernon/riemoon#user-content-riemoon",
+      "license": "LGPL3+",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 16 Apr 2022 17:33:05 GMT",
+        "src": {
+          "date": "Sat, 16 Apr 2022 17:33:05 GMT",
+          "sha256": "8a44d13d12ab9e8689bf076d618349d8cc392a7865d2f60374a7d0d84c358314",
+          "size": 24385,
+          "url": "https://luarocks.org/riemoon-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "riemoon"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBRIEMANN_CLIENT"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBRIEMANN_CLIENT": {
+              "header": "riemann/riemann-client.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "${LIBRIEMANN_CLIENT_INCDIR}"
+              ],
+              "libdirs": [
+                "${LIBRIEMANN_CLIENT_LIBDIR}"
+              ],
+              "libraries": [
+                "riemann-client"
+              ],
+              "name": "riemoon",
+              "sources": [
+                "lib/riemoon.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 16 Apr 2022 17:33:05 GMT",
+        "sha256": "8a44d13d12ab9e8689bf076d618349d8cc392a7865d2f60374a7d0d84c358314",
+        "size": 24385,
+        "type": "luarocks",
+        "url": "https://luarocks.org/riemoon-0.1.0-1.src.rock"
+      },
+      "summary": "A Riemann client library.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

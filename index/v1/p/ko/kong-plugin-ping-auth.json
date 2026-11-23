@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-ping-auth",
+  "versions": {
+    "1.2.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/ping-auth/access.lua": {
+          "sha256": "0bf5a3436cb9c2c4bd77bfc1800ff48e15aca49586648543f759a62f0aa90482",
+          "size": 14143,
+          "url": "https://raw.githubusercontent.com/pingidentity/kong-plugin-ping-auth/db6c7512d82ab93cecf594ce28252fc4343fbc96/ping-auth/access.lua"
+        },
+        "kong/plugins/ping-auth/handler.lua": {
+          "sha256": "465a63947e2f6c5e995fa6b3e5d66a3edb8d937bde51f6235f3db51c34afe46b",
+          "size": 1786,
+          "url": "https://raw.githubusercontent.com/pingidentity/kong-plugin-ping-auth/db6c7512d82ab93cecf594ce28252fc4343fbc96/ping-auth/handler.lua"
+        },
+        "kong/plugins/ping-auth/network_handler.lua": {
+          "sha256": "722f7a507d7a13dfb1d1b4bc0784f30ff3ea862daca7504424e7c34dfaea7a39",
+          "size": 8875,
+          "url": "https://raw.githubusercontent.com/pingidentity/kong-plugin-ping-auth/db6c7512d82ab93cecf594ce28252fc4343fbc96/ping-auth/network_handler.lua"
+        },
+        "kong/plugins/ping-auth/response.lua": {
+          "sha256": "b32dd0c97eb955083dfaf6aefaaddddcc85356ca20afae049188112fd5c01b3a",
+          "size": 6785,
+          "url": "https://raw.githubusercontent.com/pingidentity/kong-plugin-ping-auth/db6c7512d82ab93cecf594ce28252fc4343fbc96/ping-auth/response.lua"
+        },
+        "kong/plugins/ping-auth/schema.lua": {
+          "sha256": "9f55e5af04528e1ab932621e86700cf58ab9e491cade4c33321ca2fa74be564e",
+          "size": 2068,
+          "url": "https://raw.githubusercontent.com/pingidentity/kong-plugin-ping-auth/db6c7512d82ab93cecf594ce28252fc4343fbc96/ping-auth/schema.lua"
+        }
+      },
+      "homepage": "https://support.pingidentity.com/s/marketplace-integration/a7i8Z000000bsRIQAY/external-authorization-for-kong-gateway",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 14 Mar 2025 18:58:23 GMT",
+        "rockspec": {
+          "date": "Fri, 14 Mar 2025 18:58:23 GMT",
+          "sha256": "a69765a03d27e859b94cf2368b9a3b3b7224807036772839e5a3b9f8086f0b02",
+          "size": 1045
+        },
+        "src": {
+          "date": "Fri, 14 Mar 2025 18:58:24 GMT",
+          "sha256": "ebef96d600bff789a9f37d8be3b7df94aabf8fb91c6939b08c61d1fb786790da",
+          "size": 17794,
+          "url": "https://luarocks.org/kong-plugin-ping-auth-1.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.ping-auth.access",
+        "kong.plugins.ping-auth.handler",
+        "kong.plugins.ping-auth.network_handler",
+        "kong.plugins.ping-auth.response",
+        "kong.plugins.ping-auth.schema"
+      ],
+      "origin": {
+        "commit": "db6c7512d82ab93cecf594ce28252fc4343fbc96",
+        "type": "git",
+        "url": "https://github.com/pingidentity/kong-plugin-ping-auth"
+      },
+      "size": 33657,
+      "summary": "A Kong plugin to integrate Ping products.",
+      "undeclared_requires": [
+        "resty.http",
+        "resty.openssl.x509"
+      ],
+      "vlr": {
+        "cause": "missing global: kong",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

@@ -1,0 +1,277 @@
+local datafile = require "datafile"
+local dir = require "pl.dir"
+local path = require "pl.path"
+
+local term = require "volksdata.term"
+local nsm = require "volksdata.namespace"
+
+local pkar = require "pocket_archive"
+local flags = require "pocket_archive.flags"
+
+local logger = pkar.logger
+local NT = pkar.NT
+
+--- Property defaults.
+local prop_defaults = {
+    type = "string",
+    flags = 0,
+    min_cardinality = 0,
+    max_cardinality = math.maxinteger,
+}
+
+--- Pre-ordered properties that precede alphabetically-ordered ones.
+local preordered_props = {"content_type", "id", "source_path"}
+
+--- Default schema path.
+local SCHEMA_PATH = path.join(pkar.config_path, "schema")
+
+-- Attributes that do not get inherited.
+local NO_INHERIT = {
+    abstract = true,
+    -- FIXME this conflicts with "description" property and does not include it in the schema.
+    --description = true,
+}
+
+
+local M = {
+    RSRC_NS = "par",  --- Namespace prefix for all resources.
+
+    ID_LEN = pkar.config.model.id_len or 16,
+    DATATYPES = pkar.config.model.datatypes,
+    --- The submission process attempts to cast these types to numbers.
+    NUM_TYPES = {
+        integer     = true,
+        decimal     = true,
+        float       = true,
+        boolean     = true,
+        timestamp   = true,
+    },
+    DEFAULT_LANG = pkar.config.model.default_lang,
+
+    --- Parsed typedef configurations.
+    schemata = {},
+
+    --- All properties across the model.
+    --  Note that if a property is defined in more than one schema and some of
+    --  its attributes are differently defined, inconsistencies may occur.
+    properties = {
+        --- Property order.
+        --  Order is kept in encoding laundry lists. The preordered keys come
+        --  first, all others are harvested from the typedef configuration and
+        --  ordered alphabetically.
+        order = {},
+
+        --- Property metadata indexed by ID.
+        idx = {},
+    },
+
+    --- Term-to-URI map. URIs are volksdata.Term objects.
+    uri_map = {},
+
+    --- URI-to-term map. Keys are URI strings, not volksdata.Term objects,
+    --  because key comparison wouldn't work with them.
+    cname_map = {},
+}
+
+--- Resource namespace prefix including colon separator.
+M.RSRC_PFX = M.RSRC_NS .. ":"
+
+
+--[[-- Get a schema from a content type URI.
+
+@tparam volksdata.Term type_uri Content type URI.
+
+@treturn table Schema definition for the given type.
+]]
+function M.from_uri(type_uri)
+    assert(type_uri, "No URI provided.")
+    return M.schemata[M.cname_map[nsm.denormalize_uri(type_uri.data)]]
+end
+
+
+--[[--
+Convert a resource ID to an URI.
+
+@tparam string id ID of the resource.
+
+@treturn volksdata.Term new URI.
+]]
+function M.id_to_uri(id) return term.new_iriref_ns(M.RSRC_PFX .. id) end
+
+
+--[[--
+Convert a resource URI string to a bare ID.
+
+@tpraram string uri The URI string, either fully qualified or
+    namespace-prefixed.
+]]
+function M.uri_to_id(uri_str)
+    return uri_str:gsub(nsm.get_ns(M.RSRC_NS), ""):gsub("^" .. M.RSRC_PFX, "")
+end
+
+-- For idgen(). Makes a 60-character pool with ~5.9 bits of entropy per char.
+local chpool = {}
+for i = 48, 57  do table.insert(chpool, i) end  -- 0-9
+for i = 65, 90  do table.insert(chpool, i) end  -- A-Z
+for i = 97, 122 do table.insert(chpool, i) end  -- a-z
+
+
+--[[
+Generate a random, reader-friendly ID.
+
+A 16-character ID with the above defined #chpool of 60 smybols has an entropy
+of 94.5 bits, which should be plenty for a medium-sized repository.
+]]
+function M.idgen(len)
+    local charlist = {}
+    for i = 1, (len or M.ID_LEN) do
+        table.insert(charlist, string.char(chpool[math.random(1, #chpool)]))
+    end
+
+    return table.concat(charlist)
+end
+
+
+local function add_term(id, uri_str)
+    if not uri_str then return end
+    local uri = term.new_iriref_ns(uri_str)
+    if not M.uri_map[id] then M.uri_map[id] = uri end
+    if not M.cname_map[uri_str] then M.cname_map[uri_str] = id end
+end
+
+
+local function parse_schema(type_id)
+    local hierarchy = {}
+
+    local function traverse(type_id)
+        logger:debug("traversing schema: " .. type_id)
+        local schema_path = path.join(SCHEMA_PATH, type_id .. ".lua")
+        -- If the schema is not found in the user config, look at the core
+        -- schema.
+        if not path.isfile(schema_path) then
+            schema_path = datafile.path("core_schema/" .. type_id .. ".lua")
+        end
+        if not schema_path or not path.isfile(schema_path) then
+            error("Schema definition file not found for " .. type_id)
+        end
+        local schema = dofile(schema_path)
+        --schema.id = type_id
+        --print("Model: ")
+        --for k, v in pairs(schema) do print (k, v) end
+
+        -- Prepend to hierarchy.
+        schema.id = type_id
+
+        -- Store term-to-URI and URI-to-term mappings.
+        add_term(schema.id, schema.uri)
+        for prop, pdata in pairs(schema.properties or NT) do
+            add_term(prop, pdata.uri) end
+
+        table.insert(hierarchy, 1, schema)
+
+        if schema.broader then traverse(schema.broader) end
+    end
+
+    local function merge(src, dest)
+        for k, v in pairs(src) do
+            if NO_INHERIT[k] then goto continue end
+            if type(v) == "table" then
+                dest[k] = dest[k] or {}
+                assert(type(dest[k]) == "table")
+                merge(v, dest[k])
+            else
+                dest[k] = v
+            end
+            ::continue::
+        end
+    end
+
+    -- Pass 1: collect the hierarchy of schemata.
+    traverse(type_id)
+
+    local lineage = {}  -- Ordered lineage of schemata, from ancestor to leaf.
+    local types = {}  -- Set of all types.
+    for _, mod in ipairs(hierarchy) do
+        table.insert(lineage, mod.id)
+        types[mod.id] = true
+    end
+    local schema = {lineage = lineage, types = types}
+
+    -- Pass 2: merge types according to lineage.
+    for _, src_config in ipairs(hierarchy) do
+        merge(src_config, schema)
+    end
+
+    -- Apply defaults on unassigned property values.
+    for prop, pdata in pairs(schema.properties or {}) do
+        for k, v in pairs(prop_defaults) do pdata[k] = pdata[k] or v end
+    end
+
+    return schema
+end
+
+
+--- Initialize content model from configuration files.
+local function setup_model()
+    -- Temp store (set) for property names.
+    local pnames = {}
+
+    -- Collect all type names from config file names.
+    for _, fpath in ipairs(dir.getfiles(SCHEMA_PATH, "*.lua")) do
+        local mname = path.basename(fpath):gsub(".lua$", "")
+        M.schemata[mname] = true
+    end
+    -- Add core schemata that were not extended by user config.
+    for _, fpath in ipairs(
+        dir.getfiles(datafile.path("core_schema"), "*.lua"
+    )) do
+        local mname = path.basename(fpath):gsub(".lua$", "")
+        M.schemata[mname] = true
+    end
+
+    for mname in pairs(M.schemata) do
+        local schema = parse_schema(mname)
+
+        -- Store parsed schema configurations.
+        M.schemata[mname] = schema
+
+        -- Store unique prop names and metadata.
+        for pn, pdata in pairs(schema.properties or NT) do
+            if pdata.flags & flags.PROP_PROTECTED == 0 then
+                pnames[pn] = true end
+
+            -- Check vocab range (shallow: do not create a circular dependency
+            -- with the vocab module, which requires repo, which requires model)
+            if pdata.type == "vocab" then
+                if type(pdata.range) ~= "string" then error(
+                    ("Schema error: property %s is a vocabulary \z
+                    missing a proper range definition: it must be a \z
+                    single string."):format(pn)
+                ) end
+            end
+            M.properties.idx[pn] = pdata
+        end
+    end
+
+    -- Remove preorderd prop names, reorder, and append to module's properties.order.
+    for _, preordered in ipairs(preordered_props) do
+        pnames[preordered] = nil
+    end
+    for pn in pairs(pnames) do
+        table.insert(M.properties.order, pn)
+    end
+    table.sort(M.properties.order)
+
+    -- Add predefined properties at the head.
+    for i, v in ipairs(preordered_props) do
+        table.insert(M.properties.order, i, v)
+    end
+    logger:debug(
+            ("Property names ordered: %s"):format(
+                table.concat(M.properties.order, ", ")))
+end
+
+
+setup_model()
+
+return M

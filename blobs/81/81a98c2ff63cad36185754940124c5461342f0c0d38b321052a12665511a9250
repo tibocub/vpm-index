@@ -1,0 +1,576 @@
+-- ============================================================
+-- Shiva Collection
+-- Laravel-inspired collection class for Lua 5.4.
+-- Method chaining, dot notation, conditional pipelines.
+-- ============================================================
+
+---@class Collection
+---@field private _items any[]
+local Collection = {}
+Collection.__index = Collection
+
+--- Create a new Collection
+---@param items? any[]
+---@return Collection
+function Collection.new(items)
+    local self = setmetatable({}, Collection)
+    self._items = items or {}
+    return self
+end
+
+--- Global helper to create a Collection
+---@param items? any[]
+---@return Collection
+function collect(items)
+    return Collection.new(items)
+end
+
+-- ========================
+-- Internal: Dot notation
+-- ========================
+
+---@param item table
+---@param key string|number
+---@return any
+local function resolveKey(item, key)
+    if type(key) ~= 'string' then return item[key] end
+    local current = item
+    for segment in key:gmatch('[^%.]+') do
+        if type(current) ~= 'table' then return nil end
+        current = current[segment]
+    end
+    return current
+end
+
+-- ========================
+-- Retrieval
+-- ========================
+
+--- Get all items as a raw table
+---@return any[]
+function Collection:all()
+    return self._items
+end
+
+--- Get the number of items
+---@return integer
+function Collection:count()
+    return #self._items
+end
+
+--- Get the first item, optionally matching a predicate
+---@param fn? fun(item: any): boolean
+---@return any|nil
+function Collection:first(fn)
+    if fn then
+        for _, item in ipairs(self._items) do
+            if fn(item) then return item end
+        end
+        return nil
+    end
+    return self._items[1]
+end
+
+--- Get the last item, optionally matching a predicate
+---@param fn? fun(item: any): boolean
+---@return any|nil
+function Collection:last(fn)
+    if fn then
+        for i = #self._items, 1, -1 do
+            if fn(self._items[i]) then return self._items[i] end
+        end
+        return nil
+    end
+    return self._items[#self._items]
+end
+
+--- Get item by index
+---@param index integer
+---@return any|nil
+function Collection:get(index)
+    return self._items[index]
+end
+
+--- Find the first item where key equals value
+---@param key string
+---@param value any
+---@return any|nil
+function Collection:find(key, value)
+    for _, item in ipairs(self._items) do
+        if resolveKey(item, key) == value then return item end
+    end
+    return nil
+end
+
+--- Check if collection contains an item matching criteria
+---@param key_or_fn string|fun(item: any): boolean
+---@param value? any
+---@return boolean
+function Collection:contains(key_or_fn, value)
+    if type(key_or_fn) == 'function' then
+        for _, item in ipairs(self._items) do
+            if key_or_fn(item) then return true end
+        end
+        return false
+    end
+    for _, item in ipairs(self._items) do
+        if resolveKey(item, key_or_fn) == value then return true end
+    end
+    return false
+end
+
+--- Check if collection is empty
+---@return boolean
+function Collection:isEmpty()
+    return #self._items == 0
+end
+
+--- Check if collection is not empty
+---@return boolean
+function Collection:isNotEmpty()
+    return #self._items > 0
+end
+
+-- ========================
+-- Filtering
+-- ========================
+
+--- Filter items by predicate
+---@param fn fun(item: any): boolean
+---@return Collection
+function Collection:filter(fn)
+    local result = {}
+    for _, item in ipairs(self._items) do
+        if fn(item) then result[#result + 1] = item end
+    end
+    return Collection.new(result)
+end
+
+--- Reject items matching predicate (inverse of filter)
+---@param fn fun(item: any): boolean
+---@return Collection
+function Collection:reject(fn)
+    local result = {}
+    for _, item in ipairs(self._items) do
+        if not fn(item) then result[#result + 1] = item end
+    end
+    return Collection.new(result)
+end
+
+--- Filter by key/value with optional operator
+---@param key string
+---@param op_or_value string|any
+---@param value? any
+---@return Collection
+function Collection:where(key, op_or_value, value)
+    local operator, compareValue
+    if value ~= nil then
+        operator = op_or_value
+        compareValue = value
+    else
+        operator = '=='
+        compareValue = op_or_value
+    end
+
+    return self:filter(function(item)
+        local v = resolveKey(item, key)
+        if operator == '==' then return v == compareValue
+        elseif operator == '~=' or operator == '!=' then return v ~= compareValue
+        elseif operator == '>'  then return v > compareValue
+        elseif operator == '<'  then return v < compareValue
+        elseif operator == '>=' then return v >= compareValue
+        elseif operator == '<=' then return v <= compareValue
+        end
+        return false
+    end)
+end
+
+--- Filter where key value is in the given list
+---@param key string
+---@param values any[]
+---@return Collection
+function Collection:whereIn(key, values)
+    local lookup = {}
+    for _, v in ipairs(values) do lookup[v] = true end
+    return self:filter(function(item)
+        return lookup[resolveKey(item, key)] == true
+    end)
+end
+
+--- Filter where key is not nil
+---@param key string
+---@return Collection
+function Collection:whereNotNil(key)
+    return self:filter(function(item)
+        return resolveKey(item, key) ~= nil
+    end)
+end
+
+--- Filter where key value is between min and max (inclusive)
+---@param key string
+---@param min number
+---@param max number
+---@return Collection
+function Collection:whereBetween(key, min, max)
+    return self:filter(function(item)
+        local v = resolveKey(item, key)
+        return v ~= nil and v >= min and v <= max
+    end)
+end
+
+-- ========================
+-- Transformation
+-- ========================
+
+--- Transform each item
+---@param fn fun(item: any, index?: integer): any
+---@return Collection
+function Collection:map(fn)
+    local result = {}
+    for i, item in ipairs(self._items) do
+        result[#result + 1] = fn(item, i)
+    end
+    return Collection.new(result)
+end
+
+--- Map and flatten results
+---@param fn fun(item: any): any[]|any
+---@return Collection
+function Collection:flatMap(fn)
+    local result = {}
+    for _, item in ipairs(self._items) do
+        local mapped = fn(item)
+        if type(mapped) == 'table' then
+            for _, v in ipairs(mapped) do result[#result + 1] = v end
+        else
+            result[#result + 1] = mapped
+        end
+    end
+    return Collection.new(result)
+end
+
+--- Extract a single key from each item
+---@param key string
+---@return Collection
+function Collection:pluck(key)
+    return self:map(function(item) return resolveKey(item, key) end)
+end
+
+--- Remove duplicate items
+---@param key? string
+---@return Collection
+function Collection:unique(key)
+    local seen = {}
+    local result = {}
+    for _, item in ipairs(self._items) do
+        local v = key and resolveKey(item, key) or item
+        local sv = tostring(v)
+        if not seen[sv] then
+            seen[sv] = true
+            result[#result + 1] = item
+        end
+    end
+    return Collection.new(result)
+end
+
+--- Key the collection by a field value
+---@param key string
+---@return table<any, any>
+function Collection:keyBy(key)
+    local result = {}
+    for _, item in ipairs(self._items) do
+        local k = resolveKey(item, key)
+        if k ~= nil then result[k] = item end
+    end
+    return result
+end
+
+--- Group items by a key or function
+---@param key_or_fn string|fun(item: any): string
+---@return table<string, Collection>
+function Collection:groupBy(key_or_fn)
+    local groups = {}
+    local order = {}
+    for _, item in ipairs(self._items) do
+        local k
+        if type(key_or_fn) == 'function' then
+            k = key_or_fn(item)
+        else
+            k = resolveKey(item, key_or_fn)
+        end
+        k = tostring(k)
+        if not groups[k] then
+            groups[k] = {}
+            order[#order + 1] = k
+        end
+        groups[k][#groups[k] + 1] = item
+    end
+    local result = {}
+    for _, k in ipairs(order) do
+        result[k] = Collection.new(groups[k])
+    end
+    return result
+end
+
+--- Split collection into chunks of given size
+---@param size integer
+---@return Collection Collection of Collections
+function Collection:chunk(size)
+    local chunks = {}
+    local current = {}
+    for _, item in ipairs(self._items) do
+        current[#current + 1] = item
+        if #current >= size then
+            chunks[#chunks + 1] = Collection.new(current)
+            current = {}
+        end
+    end
+    if #current > 0 then
+        chunks[#chunks + 1] = Collection.new(current)
+    end
+    return Collection.new(chunks)
+end
+
+-- ========================
+-- Sorting
+-- ========================
+
+--- Sort with custom comparator
+---@param fn fun(a: any, b: any): boolean
+---@return Collection
+function Collection:sort(fn)
+    local copy = {}
+    for i, v in ipairs(self._items) do copy[i] = v end
+    table.sort(copy, fn)
+    return Collection.new(copy)
+end
+
+--- Sort ascending by key
+---@param key string
+---@return Collection
+function Collection:sortBy(key)
+    return self:sort(function(a, b)
+        local va, vb = resolveKey(a, key), resolveKey(b, key)
+        if va == nil then return false end
+        if vb == nil then return true end
+        return va < vb
+    end)
+end
+
+--- Sort descending by key
+---@param key string
+---@return Collection
+function Collection:sortByDesc(key)
+    return self:sort(function(a, b)
+        local va, vb = resolveKey(a, key), resolveKey(b, key)
+        if va == nil then return false end
+        if vb == nil then return true end
+        return va > vb
+    end)
+end
+
+--- Reverse the collection
+---@return Collection
+function Collection:reverse()
+    local result = {}
+    for i = #self._items, 1, -1 do result[#result + 1] = self._items[i] end
+    return Collection.new(result)
+end
+
+-- ========================
+-- Aggregation
+-- ========================
+
+--- Sum values
+---@param key? string
+---@return number
+function Collection:sum(key)
+    local total = 0
+    for _, item in ipairs(self._items) do
+        local v = key and resolveKey(item, key) or item
+        total = total + (tonumber(v) or 0)
+    end
+    return total
+end
+
+--- Average values
+---@param key? string
+---@return number
+function Collection:avg(key)
+    if #self._items == 0 then return 0 end
+    return self:sum(key) / #self._items
+end
+
+--- Minimum value
+---@param key? string
+---@return any|nil
+function Collection:min(key)
+    local result = nil
+    for _, item in ipairs(self._items) do
+        local v = key and resolveKey(item, key) or item
+        if v ~= nil and (result == nil or v < result) then result = v end
+    end
+    return result
+end
+
+--- Maximum value
+---@param key? string
+---@return any|nil
+function Collection:max(key)
+    local result = nil
+    for _, item in ipairs(self._items) do
+        local v = key and resolveKey(item, key) or item
+        if v ~= nil and (result == nil or v > result) then result = v end
+    end
+    return result
+end
+
+--- Reduce to a single value
+---@param fn fun(accumulator: any, item: any, index?: integer): any
+---@param initial any
+---@return any
+function Collection:reduce(fn, initial)
+    local accumulator = initial
+    for i, item in ipairs(self._items) do
+        accumulator = fn(accumulator, item, i)
+    end
+    return accumulator
+end
+
+-- ========================
+-- Iteration
+-- ========================
+
+--- Execute callback on each item (returns self for chaining)
+---@param fn fun(item: any, index?: integer)
+---@return Collection self
+function Collection:each(fn)
+    for i, item in ipairs(self._items) do fn(item, i) end
+    return self
+end
+
+--- Tap into the chain for debugging (returns self)
+---@param fn fun(collection: Collection)
+---@return Collection self
+function Collection:tap(fn)
+    fn(self)
+    return self
+end
+
+-- ========================
+-- Conditional
+-- ========================
+
+--- Apply a transformation only when condition is truthy
+---@param condition any
+---@param fn_true fun(collection: Collection): Collection?
+---@param fn_false? fun(collection: Collection): Collection?
+---@return Collection
+function Collection:when(condition, fn_true, fn_false)
+    if condition then
+        return fn_true(self) or self
+    elseif fn_false then
+        return fn_false(self) or self
+    end
+    return self
+end
+
+--- Apply a transformation only when condition is falsy
+---@param condition any
+---@param fn_true fun(collection: Collection): Collection?
+---@param fn_false? fun(collection: Collection): Collection?
+---@return Collection
+function Collection:unless(condition, fn_true, fn_false)
+    return self:when(not condition, fn_true, fn_false)
+end
+
+-- ========================
+-- Slicing
+-- ========================
+
+--- Take the first n items
+---@param n integer
+---@return Collection
+function Collection:take(n)
+    local result = {}
+    for i = 1, math.min(n, #self._items) do result[#result + 1] = self._items[i] end
+    return Collection.new(result)
+end
+
+--- Skip the first n items
+---@param n integer
+---@return Collection
+function Collection:skip(n)
+    local result = {}
+    for i = n + 1, #self._items do result[#result + 1] = self._items[i] end
+    return Collection.new(result)
+end
+
+--- Get a page of results
+---@param page integer
+---@param perPage integer
+---@return Collection
+function Collection:forPage(page, perPage)
+    local start = ((page - 1) * perPage) + 1
+    local result = {}
+    for i = start, math.min(start + perPage - 1, #self._items) do
+        result[#result + 1] = self._items[i]
+    end
+    return Collection.new(result)
+end
+
+-- ========================
+-- Combining
+-- ========================
+
+--- Merge another collection or table into this one
+---@param other Collection|any[]
+---@return Collection
+function Collection:merge(other)
+    local result = {}
+    for _, item in ipairs(self._items) do result[#result + 1] = item end
+    local otherItems = type(other) == 'table' and (other._items or other) or {}
+    for _, item in ipairs(otherItems) do result[#result + 1] = item end
+    return Collection.new(result)
+end
+
+-- ========================
+-- Utility
+-- ========================
+
+--- Join items into a string
+---@param separator string
+---@param key? string
+---@return string
+function Collection:implode(separator, key)
+    local parts = {}
+    for _, item in ipairs(self._items) do
+        local v = key and resolveKey(item, key) or item
+        parts[#parts + 1] = tostring(v)
+    end
+    return table.concat(parts, separator)
+end
+
+--- Debug print the collection
+---@return Collection self
+function Collection:dump()
+    print('Collection(' .. #self._items .. '):')
+    for i, item in ipairs(self._items) do
+        if type(item) == 'table' then
+            local parts = {}
+            for k, v in pairs(item) do
+                if type(v) ~= 'table' then
+                    parts[#parts + 1] = k .. '=' .. tostring(v)
+                else
+                    parts[#parts + 1] = k .. '={...}'
+                end
+            end
+            print('  [' .. i .. '] { ' .. table.concat(parts, ', ') .. ' }')
+        else
+            print('  [' .. i .. '] ' .. tostring(item))
+        end
+    end
+    return self
+end
+
+return Collection

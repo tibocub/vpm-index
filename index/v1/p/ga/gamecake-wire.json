@@ -1,0 +1,102 @@
+{
+  "kind": "lib",
+  "name": "gamecake-wire",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [
+        "djon"
+      ],
+      "files": {
+        "wetgenes/getsql.lua": {
+          "sha256": "8e695ab48c07d1344521e0384d90382c036fec483d40d0d1bdc7cd3e5c25b645",
+          "size": 5593,
+          "url": "blob:8e695ab48c07d1344521e0384d90382c036fec483d40d0d1bdc7cd3e5c25b645"
+        },
+        "wetgenes/wire.lua": {
+          "sha256": "81a644c22810e49f9c20f0c7d82eb77392bfe5c771a7686aad57adb30d2340a7",
+          "size": 35532,
+          "url": "blob:81a644c22810e49f9c20f0c7d82eb77392bfe5c771a7686aad57adb30d2340a7"
+        },
+        "wetgenes/wiretasks.lua": {
+          "sha256": "eef0224a453df6a6850245bea30ab0561a2377e4b614b11b78545f45c0faf91f",
+          "size": 13172,
+          "url": "blob:eef0224a453df6a6850245bea30ab0561a2377e4b614b11b78545f45c0faf91f"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT / Two-clause BSD",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:26:53 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:26:53 GMT",
+          "sha256": "55315c0aa6d8ca5baa03ea681fc6b80cc561f7ccbcf0a134febf596deca9c0e0",
+          "size": 2343
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:26:53 GMT",
+          "sha256": "dfe3bfbbfea535362e5fdf2a645dd2362f7bfa95d256f1edd213ce5b3a9da455",
+          "size": 68523,
+          "url": "https://luarocks.org/gamecake-wire-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.getsql",
+        "wetgenes.wire",
+        "wetgenes.wire.core",
+        "wetgenes.wiretasks"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "lua_wire",
+                "lua_wire/c11threads/git"
+              ],
+              "name": "wetgenes.wire.core",
+              "sources": [
+                "lua_wire/code/lua_wire.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:26:53 GMT",
+        "sha256": "dfe3bfbbfea535362e5fdf2a645dd2362f7bfa95d256f1edd213ce5b3a9da455",
+        "size": 68523,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-wire-0.9-261005.src.rock"
+      },
+      "size": 54297,
+      "summary": "C11 threads and FIFOs across lua states",
+      "undeclared_requires": [
+        "global",
+        "lsqlite3",
+        "ltn12",
+        "modname",
+        "socket.http",
+        "wetgenes.gamecake.core",
+        "wetgenes.logs",
+        "wetgenes.win.core"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

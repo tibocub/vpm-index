@@ -1,0 +1,96 @@
+{
+  "kind": "lib",
+  "name": "upcache",
+  "versions": {
+    "2.7.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-jwt = 0.2.3",
+        "lua-resty-string >= 0.09",
+        "lua-messagepack >= 0.5.3"
+      ],
+      "files": {
+        "upcache.lua": {
+          "sha256": "894a158c6824e0aac799e98924d36542d9b836ef2c9d2f046e2ac9eb8efeb484",
+          "size": 1662,
+          "url": "https://raw.githubusercontent.com/kapouer/upcache/0c2e9be46dbed1cb2f400b9e565744f203f9e42c/upcache.lua"
+        },
+        "upcache/common.lua": {
+          "sha256": "018c668339f4e0cc8fc610e8c267c89b38e995994c17ca1ea384f2fa6e09552d",
+          "size": 1272,
+          "url": "https://raw.githubusercontent.com/kapouer/upcache/0c2e9be46dbed1cb2f400b9e565744f203f9e42c/upcache/common.lua"
+        },
+        "upcache/lock.lua": {
+          "sha256": "337c931a53763cb8c222e05eb3407a5e92b864585bbb305c73651cb4b12aec89",
+          "size": 3929,
+          "url": "https://raw.githubusercontent.com/kapouer/upcache/0c2e9be46dbed1cb2f400b9e565744f203f9e42c/upcache/lock.lua"
+        },
+        "upcache/map.lua": {
+          "sha256": "5871e8308365357f1a7594495f6df6e14a07715f97e52cbe8221b57047bb1d18",
+          "size": 665,
+          "url": "https://raw.githubusercontent.com/kapouer/upcache/0c2e9be46dbed1cb2f400b9e565744f203f9e42c/upcache/map.lua"
+        },
+        "upcache/tag.lua": {
+          "sha256": "006d76b95df26fa5e3c87c0b195279557c64632b545936a8f65a59eab68f5f12",
+          "size": 1373,
+          "url": "https://raw.githubusercontent.com/kapouer/upcache/0c2e9be46dbed1cb2f400b9e565744f203f9e42c/upcache/tag.lua"
+        },
+        "upcache/vary.lua": {
+          "sha256": "f2313382db74d85c1f5eee49c25e32e5e1d60b361ac2ca543da53494e069d2fd",
+          "size": 2156,
+          "url": "https://raw.githubusercontent.com/kapouer/upcache/0c2e9be46dbed1cb2f400b9e565744f203f9e42c/upcache/vary.lua"
+        }
+      },
+      "homepage": "https://github.com/kapouer/upcache",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 15 Oct 2023 15:48:37 GMT",
+        "rockspec": {
+          "date": "Sun, 15 Oct 2023 15:48:37 GMT",
+          "sha256": "def0e180cfbd13b7ce7525d2c3ee199f02b8a79983c3a978e028822741dd7609",
+          "size": 860
+        },
+        "src": {
+          "date": "Sun, 15 Oct 2023 15:48:39 GMT",
+          "sha256": "b591965962c04de2c23353e0399bede3078fd1062b88bc9bdc205d614616d023",
+          "size": 43421,
+          "url": "https://luarocks.org/upcache-2.7.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "upcache",
+        "upcache.common",
+        "upcache.lock",
+        "upcache.map",
+        "upcache.tag",
+        "upcache.vary"
+      ],
+      "origin": {
+        "commit": "0c2e9be46dbed1cb2f400b9e565744f203f9e42c",
+        "type": "git",
+        "url": "https://github.com/kapouer/upcache.git"
+      },
+      "size": 11057,
+      "summary": "Scope and Tag cache protocols for application - proxy cache keys management.",
+      "undeclared_requires": [
+        "resty.jwt",
+        "resty.jwt-validators"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

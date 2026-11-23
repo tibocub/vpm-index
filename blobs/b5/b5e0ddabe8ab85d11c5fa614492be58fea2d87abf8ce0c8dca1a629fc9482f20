@@ -1,0 +1,94 @@
+-- Minimal AWS Signature Version 4 signer for the Kinesis JSON API
+-- (application/x-amz-json-1.1, single POST to "/" with no query string).
+-- Built on the `openssl` luarocks binding already used elsewhere in this
+-- project, rather than an FFI binding to libssl (HAProxy's embedded Lua is
+-- PUC-Lua, not LuaJIT, so no FFI is available).
+
+local openssl = require 'openssl'
+
+local aws_sigv4 = {}
+
+local function hmac_sha256(key, data)
+    return openssl.hmac.hmac('sha256', data, key, true)
+end
+
+local function sha256_hex(data)
+    return openssl.hex(openssl.digest.digest('sha256', data, true))
+end
+
+local function signing_key(secret_key, date, region, service)
+    local k_date = hmac_sha256("AWS4" .. secret_key, date)
+    local k_region = hmac_sha256(k_date, region)
+    local k_service = hmac_sha256(k_region, service)
+    return hmac_sha256(k_service, "aws4_request")
+end
+
+-- Builds the SigV4 `Authorization` header (plus the other headers that must
+-- accompany it) for a POST to `host` with the given JSON `body`.
+--
+-- `params`:
+--   host        - e.g. "kinesis.eu-west-1.amazonaws.com"
+--   region      - e.g. "eu-west-1"
+--   service     - e.g. "kinesis"
+--   target      - the X-Amz-Target header value, e.g. "Kinesis_20131202.PutRecords"
+--   body        - the raw JSON request body to sign
+--   access_key  - AWS access key id
+--   secret_key  - AWS secret access key
+--   now         - (optional, for testing) UTC time as an object with :date(fmt)-compatible
+--                 os.date-style strings; defaults to the current time
+--
+-- Returns a table of headers to send with the request, including
+-- Content-Type, X-Amz-Date, X-Amz-Target and Authorization.
+function aws_sigv4.sign_request(params)
+    local now = params.now or os.time()
+    local amz_date = os.date("!%Y%m%dT%H%M%SZ", now)
+    local date_stamp = os.date("!%Y%m%d", now)
+
+    local headers = {
+        ["host"] = params.host,
+        ["content-type"] = "application/x-amz-json-1.1",
+        ["x-amz-date"] = amz_date,
+        ["x-amz-target"] = params.target,
+    }
+
+    local header_names = {}
+    for name in pairs(headers) do
+        header_names[#header_names + 1] = name
+    end
+    table.sort(header_names)
+
+    local canonical_headers = ""
+    for _, name in ipairs(header_names) do
+        canonical_headers = canonical_headers .. name .. ":" .. headers[name] .. "\n"
+    end
+    local signed_headers = table.concat(header_names, ";")
+
+    local canonical_request = table.concat({
+        "POST",
+        "/",
+        "",
+        canonical_headers,
+        signed_headers,
+        sha256_hex(params.body),
+    }, "\n")
+
+    local scope = table.concat({ date_stamp, params.region, params.service, "aws4_request" }, "/")
+    local string_to_sign = table.concat({
+        "AWS4-HMAC-SHA256",
+        amz_date,
+        scope,
+        sha256_hex(canonical_request),
+    }, "\n")
+
+    local key = signing_key(params.secret_key, date_stamp, params.region, params.service)
+    local signature = openssl.hex(hmac_sha256(key, string_to_sign))
+
+    headers["authorization"] = string.format(
+        "AWS4-HMAC-SHA256 Credential=%s/%s, SignedHeaders=%s, Signature=%s",
+        params.access_key, scope, signed_headers, signature
+    )
+
+    return headers
+end
+
+return aws_sigv4

@@ -1,0 +1,960 @@
+{
+  "kind": "lib",
+  "name": "obsidian.nvim",
+  "versions": {
+    "3.16.7-1": {
+      "bin": [],
+      "deps": [
+        "plenary.nvim"
+      ],
+      "files": {
+        "obsidian/actions.lua": {
+          "sha256": "d420416b7c966e5697376cfa1f1135df6b45bcb59f2eedd6037e248902abbef9",
+          "size": 41029,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/actions.lua"
+        },
+        "obsidian/api.lua": {
+          "sha256": "d8ad407d56d9f40a99a3b1cf8ce2db9676c5468062143e34f088482dbe1b955a",
+          "size": 19217,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/api.lua"
+        },
+        "obsidian/async.lua": {
+          "sha256": "5479e0e9c1e5d1189746e04d4262c2feceb26f5d2253abb8a19198825364f61b",
+          "size": 6199,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/async.lua"
+        },
+        "obsidian/attachment.lua": {
+          "sha256": "a6eaa802fd7a2f85156f48900132751b4ef348a400e62f546eb008403a964ff9",
+          "size": 8583,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/attachment.lua"
+        },
+        "obsidian/autocmds.lua": {
+          "sha256": "902ae8456c98601645d8935e4a9cf14e2b2b136130bd3b74743c09c7460f904b",
+          "size": 4730,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/autocmds.lua"
+        },
+        "obsidian/bookmarks.lua": {
+          "sha256": "302435cfc74c48ca1dc54269f3f983b815ca935030ad0b5c121903a657999bc2",
+          "size": 11634,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/bookmarks.lua"
+        },
+        "obsidian/builtin.lua": {
+          "sha256": "d6dc5ea90c6fcba7a4f9a7b37c1367e0de61919336631e920c786026efaea453",
+          "size": 4516,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/builtin.lua"
+        },
+        "obsidian/cache/init.lua": {
+          "sha256": "91c666205176fbc87dfcb7d61dd99b28ac4690e9a153ab0816fa3c52125c8292",
+          "size": 14040,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/cache/init.lua"
+        },
+        "obsidian/cache/json_backend.lua": {
+          "sha256": "bccef2c84c60f9451ac243ca584b7b65e4879f9d934418dcab8121b1704598e2",
+          "size": 1647,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/cache/json_backend.lua"
+        },
+        "obsidian/cache/memory_backend.lua": {
+          "sha256": "5cc3474c3713815c6234292fe8548999469d6de02f18f9fd91f0d481e5fe7997",
+          "size": 614,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/cache/memory_backend.lua"
+        },
+        "obsidian/cache/note.lua": {
+          "sha256": "e09305da76434cbecc7ca23d78ef4ebcb7c24becc8cbc3b0501b750983fe2fc2",
+          "size": 4030,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/cache/note.lua"
+        },
+        "obsidian/cli.lua": {
+          "sha256": "5365ba47fe0fb4e97801574c5040ffe0ee8596031e9dc2c73171b7e7f0df9cac",
+          "size": 1312,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/cli.lua"
+        },
+        "obsidian/client.lua": {
+          "sha256": "3b42fea869261f1a357faea43fe8944a3bf17f99d583a2bd5048da7931fd7172",
+          "size": 688,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/client.lua"
+        },
+        "obsidian/commands/backlinks.lua": {
+          "sha256": "86864dc4ec63cdc330c6404d54c127f4154c65487de3169aecaf4abb311d19ed",
+          "size": 928,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/backlinks.lua"
+        },
+        "obsidian/commands/bookmarks.lua": {
+          "sha256": "206458751c5c7f0bf15f93587fdaab50cd38d0af6aa68940250947f84f25fc26",
+          "size": 330,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/bookmarks.lua"
+        },
+        "obsidian/commands/check.lua": {
+          "sha256": "a81bbbb200d1b15da2ba914465ee22ab30f92b2cb5fa77bc493579c0692139d0",
+          "size": 1494,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/check.lua"
+        },
+        "obsidian/commands/dailies.lua": {
+          "sha256": "c76693c02f48b6de7bedae76c6015f4b4cce355daec96e404a2274bd489b4756",
+          "size": 1324,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/dailies.lua"
+        },
+        "obsidian/commands/extract_note.lua": {
+          "sha256": "ad0a27923a17949a37932efbfcb1f92c8bec7dbd1f97a2811f6e5aaaf9031bd2",
+          "size": 138,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/extract_note.lua"
+        },
+        "obsidian/commands/follow_link.lua": {
+          "sha256": "07fea441477d453837338c1729cf9e30be8885e7ac1f0f9602e3a76cde848af9",
+          "size": 1726,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/follow_link.lua"
+        },
+        "obsidian/commands/footnotes.lua": {
+          "sha256": "ab1cab10a6cb74b628f3d3dd4d3a4a911ff81919a7428b46e630b228f42db497",
+          "size": 61,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/footnotes.lua"
+        },
+        "obsidian/commands/help.lua": {
+          "sha256": "bdaaca0fd739b07c0a696720f791527a712e6e90e95222faff1b7521ce7ea097",
+          "size": 706,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/help.lua"
+        },
+        "obsidian/commands/helpgrep.lua": {
+          "sha256": "a25fc5ad60d374e633d6b57a6605bfccaa5a4ce14f6c0a095f0517fd9e07d20c",
+          "size": 356,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/helpgrep.lua"
+        },
+        "obsidian/commands/init-legacy.lua": {
+          "sha256": "2508194633a088ede95608f79aa9be0009b49f22444806382865532092a4589f",
+          "size": 6426,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/init-legacy.lua"
+        },
+        "obsidian/commands/init.lua": {
+          "sha256": "670ade17be96448ab2fc196747dedcd84e05e36b0855a7df2b5548b90fb4a76d",
+          "size": 8868,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/init.lua"
+        },
+        "obsidian/commands/link.lua": {
+          "sha256": "6e568e4ff8a6f2f6e812d310df8c9779dfb67882ac697fdea742e9b1ba0a73eb",
+          "size": 81,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/link.lua"
+        },
+        "obsidian/commands/link_new.lua": {
+          "sha256": "7011a40602da61fc7536991d38644c8d037505404c9b4f75ef20e0ae156c3a29",
+          "size": 134,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/link_new.lua"
+        },
+        "obsidian/commands/links.lua": {
+          "sha256": "0ccb154322c4558e9b548b185e9b33adb190fc87020ec4478e406922145ffe46",
+          "size": 517,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/links.lua"
+        },
+        "obsidian/commands/new.lua": {
+          "sha256": "af670ed84cf180b509894670273d9f670bdef66c33b2316eb8facf130179b5a1",
+          "size": 206,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/new.lua"
+        },
+        "obsidian/commands/new_from_template.lua": {
+          "sha256": "b9b4cc02bcd81c688ab589b2ffffe64ed79b2ee2def3042c8e5a6393b1dcaa6f",
+          "size": 282,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/new_from_template.lua"
+        },
+        "obsidian/commands/open.lua": {
+          "sha256": "61097c51c21f90f294c0ed6ea14f994ac6eb536819e7e8155f2bebc0802322f4",
+          "size": 2498,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/open.lua"
+        },
+        "obsidian/commands/paste_img.lua": {
+          "sha256": "fb5c468422a63631b057243846f8c11d072225434cbdb2fe2d8cc99505b58e4e",
+          "size": 1032,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/paste_img.lua"
+        },
+        "obsidian/commands/quick_switch.lua": {
+          "sha256": "28706f634ee5a7cadd4db506cc2b9d11371a05240f621f33d4648bf55151be85",
+          "size": 215,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/quick_switch.lua"
+        },
+        "obsidian/commands/rebuild_cache.lua": {
+          "sha256": "ee6162bf57b8d0666566e2e91ebde5b2376b839b41b45548042e62eda0d23796",
+          "size": 341,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/rebuild_cache.lua"
+        },
+        "obsidian/commands/rename.lua": {
+          "sha256": "9d6e60672e529d620162a16050785a460abfd4ee7ad172ce1277917514827dd0",
+          "size": 201,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/rename.lua"
+        },
+        "obsidian/commands/search.lua": {
+          "sha256": "d9ce17ddeb752b290095f8685f1264b5f1feaa71ea292237ccb776a0301a78e2",
+          "size": 153,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/search.lua"
+        },
+        "obsidian/commands/sync.lua": {
+          "sha256": "fa26e8e6bbf8a005d4d35537a0d130433d0cb27de5772ef1f6558b12c15d13ee",
+          "size": 615,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/sync.lua"
+        },
+        "obsidian/commands/tags.lua": {
+          "sha256": "27d013e2bb7241bc92dc4f815bc270b56d6bc0260c296ae9912fe96962d0588a",
+          "size": 142,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/tags.lua"
+        },
+        "obsidian/commands/template.lua": {
+          "sha256": "c7d95cd505ad6c3ad3cd55f5c9dee6802c5d9e5daa8e88849527d6f9e6f273bf",
+          "size": 227,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/template.lua"
+        },
+        "obsidian/commands/toc.lua": {
+          "sha256": "b8dd35de3c1e3d13a0518a3554597a4509f75f5635b9e3cd7048530323b8c575",
+          "size": 772,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/toc.lua"
+        },
+        "obsidian/commands/today.lua": {
+          "sha256": "358c030011de2e4c28b847baf60a4d5cdbcb2ee9e565226c0f08dd86d46c5a88",
+          "size": 1081,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/today.lua"
+        },
+        "obsidian/commands/toggle_checkbox.lua": {
+          "sha256": "3c70a0c057372bc68d08ad3dfc467fc85257feac0c88136c3434e8f07cdbdb5a",
+          "size": 132,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/toggle_checkbox.lua"
+        },
+        "obsidian/commands/tomorrow.lua": {
+          "sha256": "31b6fbe5d35d2aa4ee084dce3072ffddbe16000f55309e600b06ba3f89b555ff",
+          "size": 139,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/tomorrow.lua"
+        },
+        "obsidian/commands/unique_note.lua": {
+          "sha256": "18d5c756bf4a39d977f9c0c1d3c2a65e94739b1a0f4962a0e65d9323773adb0a",
+          "size": 66,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/unique_note.lua"
+        },
+        "obsidian/commands/workspace.lua": {
+          "sha256": "a271ecea1cb486b2c733f8c43dbadbfd96c511ffd9fff55511ae79a5605d8b45",
+          "size": 869,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/workspace.lua"
+        },
+        "obsidian/commands/yesterday.lua": {
+          "sha256": "302632160a516913068a9f1984dec4316e6b9b7401f3d8cbbc8d70b0a43a3932",
+          "size": 140,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/commands/yesterday.lua"
+        },
+        "obsidian/completion/footnotes.lua": {
+          "sha256": "83b3deacd8a2820f6f27c2f563204495e286cc46b14536d35aa2e6fb7480ef28",
+          "size": 1100,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/completion/footnotes.lua"
+        },
+        "obsidian/completion/refs.lua": {
+          "sha256": "ae48926625c43c831ad78606a40e2106c60c054ae65639a7e4d163bc74611bf0",
+          "size": 3911,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/completion/refs.lua"
+        },
+        "obsidian/completion/sources/footnotes.lua": {
+          "sha256": "ea44c1737c49319e7fdcb86b0f38e2364c49bcb3a5da5ef9ec3ae49740f4d66e",
+          "size": 4105,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/completion/sources/footnotes.lua"
+        },
+        "obsidian/completion/sources/new.lua": {
+          "sha256": "ecfc36f83ca6a1e952979f315f2cf0bd16ee76ac023bf86ea07d863dd7cd0963",
+          "size": 6351,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/completion/sources/new.lua"
+        },
+        "obsidian/completion/sources/refs.lua": {
+          "sha256": "d1e9e6638bd5facce2a12458d8d5a06d2f600b13e891378f48f94500f197db7e",
+          "size": 29464,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/completion/sources/refs.lua"
+        },
+        "obsidian/completion/sources/tags.lua": {
+          "sha256": "dae77102cb07fcd33278a1478e80689628368ffd81466aa7615a7aaeb6f188ab",
+          "size": 2564,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/completion/sources/tags.lua"
+        },
+        "obsidian/completion/tags.lua": {
+          "sha256": "a9aa7388bbddb0304792866794d95985a91b837d33826f9e90a9bcd69f709345",
+          "size": 2898,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/completion/tags.lua"
+        },
+        "obsidian/config/default.lua": {
+          "sha256": "41d976921322866e9846f683021ac6b66b1e41f1605974afcd91d764ca371892",
+          "size": 15201,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/config/default.lua"
+        },
+        "obsidian/config/init.lua": {
+          "sha256": "eb08c395ee02ed25e81ffcccbb96ac507069dc116c307c93dc33af16b6359100",
+          "size": 3161,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/config/init.lua"
+        },
+        "obsidian/config/removed.lua": {
+          "sha256": "9c10cb525ce285777ba7d7dc002ed79563d56f7429081ae5f19e1c799097dc31",
+          "size": 7445,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/config/removed.lua"
+        },
+        "obsidian/config/validate.lua": {
+          "sha256": "279b701ea1dc1730d3f14c75950b89cf64ecb04aba36d0cafbf38fdda71bba28",
+          "size": 14854,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/config/validate.lua"
+        },
+        "obsidian/core-plugins/audio_recorder.lua": {
+          "sha256": "970cc86bd6f97ab3976c27a61cb2be823d0683beafa071aebcceeb69f5106ce9",
+          "size": 6477,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/core-plugins/audio_recorder.lua"
+        },
+        "obsidian/daily/init.lua": {
+          "sha256": "7285bea74a95a09dfab2991ae103644c662d494e6c8b047bb901560e7f9c9dc6",
+          "size": 4568,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/daily/init.lua"
+        },
+        "obsidian/footer/init.lua": {
+          "sha256": "5952178d61d5827864ae7d7a94c4e7607b6c2f9fc14bf42620077541399c3425",
+          "size": 5367,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/footer/init.lua"
+        },
+        "obsidian/footnotes.lua": {
+          "sha256": "a33725749ac35b4ba0de505838be83ab237f674bd71dddaf78ad9ffeb37cfd6c",
+          "size": 4999,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/footnotes.lua"
+        },
+        "obsidian/frontmatter/init.lua": {
+          "sha256": "e71da17106e6d87e5615c22c55588c9b3908413cdc7850a7aa8e025b2035c30d",
+          "size": 1947,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/frontmatter/init.lua"
+        },
+        "obsidian/frontmatter/validator.lua": {
+          "sha256": "aec2117f1d3541c847d014b93126e5c027e3cb88a621d7d9cc906b5b2f03c7dd",
+          "size": 2271,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/frontmatter/validator.lua"
+        },
+        "obsidian/fs.lua": {
+          "sha256": "c681cc5016fc920924e4c8e57e6e27384ec6fc1e8afbf23635d74ddb524584a8",
+          "size": 10067,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/fs.lua"
+        },
+        "obsidian/health.lua": {
+          "sha256": "4cae67c50835a82a707d912cdb7d7ccea742494f7140c4441062c9c0e6293d03",
+          "size": 6991,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/health.lua"
+        },
+        "obsidian/icons.lua": {
+          "sha256": "091489bb45ae1142bd042452f4595af7515743e7af1fee82c6fe1b86cb8b63b2",
+          "size": 3520,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/icons.lua"
+        },
+        "obsidian/ignore.lua": {
+          "sha256": "700b555f31731b7cc3f3be841b6b7d273862c0f2b3b4a426cecdd070bf669da1",
+          "size": 3138,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/ignore.lua"
+        },
+        "obsidian/img_paste.lua": {
+          "sha256": "71efb7276a60b9a2a335e8eae7b48dd3e1fa8c3986a2f792aa2a460f38bc6baf",
+          "size": 5986,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/img_paste.lua"
+        },
+        "obsidian/init.lua": {
+          "sha256": "bd7866c8508af47246039b4c1809d6f969694d70ee3359a16047cf2df7655366",
+          "size": 3901,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/init.lua"
+        },
+        "obsidian/inlay_hints.lua": {
+          "sha256": "03e8243306c391125b2e918e90954ab97df9a176644a1a521ee4e1867180c01f",
+          "size": 6159,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/inlay_hints.lua"
+        },
+        "obsidian/lib/glob.lua": {
+          "sha256": "52f954e7416a0af513cafac22f9a767cd2ce0b43cea498c4a46f92945fe8f5eb",
+          "size": 15907,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lib/glob.lua"
+        },
+        "obsidian/lib/moment.lua": {
+          "sha256": "85e576603729d8b761d159700436eef916032994a428fdeee01d6851040a7835",
+          "size": 107,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lib/moment.lua"
+        },
+        "obsidian/lib/moment/format.lua": {
+          "sha256": "cf4b2b8deb3738c23c9295e69d7b0f040d8365ad383ecebfe153c4151a34acf1",
+          "size": 7706,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lib/moment/format.lua"
+        },
+        "obsidian/lib/moment/parse.lua": {
+          "sha256": "1fa92ff9831a29b9d4b549598863025e6c9c0c6339078fbce9f13142e10e6aa8",
+          "size": 16685,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lib/moment/parse.lua"
+        },
+        "obsidian/link.lua": {
+          "sha256": "4e9d87588576308e9baf41a03145b054817a261b3e3d8c5a73bd9a0954240bb6",
+          "size": 3055,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/link.lua"
+        },
+        "obsidian/log.lua": {
+          "sha256": "2a3da08e8141132e7c01d79e5d88bca0032edf86abd5635c479fc282780f0632",
+          "size": 3014,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/log.lua"
+        },
+        "obsidian/lsp/handlers.lua": {
+          "sha256": "a272669360a548440c5cfc6d572a55390f8f25dd46cf13ec1eb89190322bc544",
+          "size": 1305,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers.lua"
+        },
+        "obsidian/lsp/handlers/_code_action.lua": {
+          "sha256": "626e7ecc5cd8b96630618710d89e4e5da1e725f9d377c05bd6686f199d00a299",
+          "size": 3349,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/_code_action.lua"
+        },
+        "obsidian/lsp/handlers/_definition.lua": {
+          "sha256": "cd3d5b2088ced52e259149737fe4082fedc347c2052011136dc6a38db45f8a25",
+          "size": 8517,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/_definition.lua"
+        },
+        "obsidian/lsp/handlers/_references.lua": {
+          "sha256": "29b84c29628aa1e80b8baefaf629f2df12934a15f87bc5c42ca513c1c9a455e5",
+          "size": 6569,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/_references.lua"
+        },
+        "obsidian/lsp/handlers/_workspace_symbol.lua": {
+          "sha256": "bec9902626616637046c7c62adde477d19dea3c95181da4423cb6b45f2eb2049",
+          "size": 4062,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/_workspace_symbol.lua"
+        },
+        "obsidian/lsp/handlers/code_action.lua": {
+          "sha256": "31fc916e6d2b9271fd502b08dbbf2d9c0651237a6c9e6bc36b05d3dc5a5a11a4",
+          "size": 1150,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/code_action.lua"
+        },
+        "obsidian/lsp/handlers/completion.lua": {
+          "sha256": "c20110044b4633439120b142e62125f7fec176c267b5aef55454ded95fdeb31d",
+          "size": 3719,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/completion.lua"
+        },
+        "obsidian/lsp/handlers/definition.lua": {
+          "sha256": "c52f56b19b7479d41f005bdb91ed68796c84313caba99ac53b30022b01648a56",
+          "size": 507,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/definition.lua"
+        },
+        "obsidian/lsp/handlers/did_change_watched_files.lua": {
+          "sha256": "b42e3c8ad2e3a5a2a2732c4d95f49c57a1b917ba2f8a9d7dc89c0169f9068e53",
+          "size": 198,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/did_change_watched_files.lua"
+        },
+        "obsidian/lsp/handlers/did_rename_files.lua": {
+          "sha256": "d46368a25f3ef7fd67360c20b8308420e7c3a844e0bfc9c6c187798fd932d4e4",
+          "size": 2564,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/did_rename_files.lua"
+        },
+        "obsidian/lsp/handlers/did_save.lua": {
+          "sha256": "5417aa0ae38100e134ecde6e945f18405310ac35eb15311ae9c725c1d9cee711",
+          "size": 451,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/did_save.lua"
+        },
+        "obsidian/lsp/handlers/document_symbol.lua": {
+          "sha256": "d5889413dcbe6e2f7a34e508482dc52261e3a7409637121a70e598dbb8ed7802",
+          "size": 829,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/document_symbol.lua"
+        },
+        "obsidian/lsp/handlers/folding_range.lua": {
+          "sha256": "e382588caa142345ecde3b4fdbd7bf71a8366c62e5896845cb5a094dabc08f68",
+          "size": 1116,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/folding_range.lua"
+        },
+        "obsidian/lsp/handlers/initialize.lua": {
+          "sha256": "f92efa803d32eddf9c113e14271c36b8d50f2572e94c3ae1709ccc64f288b402",
+          "size": 2282,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/initialize.lua"
+        },
+        "obsidian/lsp/handlers/initialized.lua": {
+          "sha256": "ecb0455b7ba75124a866d85363656171e55e85babf212eba2d62156179e14bae",
+          "size": 660,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/initialized.lua"
+        },
+        "obsidian/lsp/handlers/inlay_hint.lua": {
+          "sha256": "66280ce2a0adb69ead188ec30747b01879ad39517ad88c423b9fa5fb63c2e17d",
+          "size": 711,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/inlay_hint.lua"
+        },
+        "obsidian/lsp/handlers/prepare_rename.lua": {
+          "sha256": "e561e636fe0265af3cc501476755bc83ade4fc879b5076f9459d7774d8d04a77",
+          "size": 608,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/prepare_rename.lua"
+        },
+        "obsidian/lsp/handlers/references.lua": {
+          "sha256": "009acda4fbd5eadb0468b38c47c6eefe9e6029d3f5f90994622f6b662201c258",
+          "size": 413,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/references.lua"
+        },
+        "obsidian/lsp/handlers/rename.lua": {
+          "sha256": "f33872f6c186b3974594e0e2f3a19f71b143b72b7844adbc7a56deb868f79854",
+          "size": 1483,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/rename.lua"
+        },
+        "obsidian/lsp/handlers/workspace_execute_command.lua": {
+          "sha256": "e20678d623126e75235f645bce9c95a4325b008601cc83328eb5ccc78de96c29",
+          "size": 875,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/workspace_execute_command.lua"
+        },
+        "obsidian/lsp/handlers/workspace_symbol.lua": {
+          "sha256": "40795d4843ff3aef5bcd966376582341abc96c0bad3357066285618af8409fad",
+          "size": 258,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/handlers/workspace_symbol.lua"
+        },
+        "obsidian/lsp/init.lua": {
+          "sha256": "08ce29cd4f69686bd3a7aa3ac35a0f03e12d396b0c84aba9a10569b749821e9b",
+          "size": 1318,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/init.lua"
+        },
+        "obsidian/lsp/inlay_hints/link.lua": {
+          "sha256": "6c1832300c3ba5727acda10c6183b3c3becd39a032209af5b5511839deb8d728",
+          "size": 2776,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/inlay_hints/link.lua"
+        },
+        "obsidian/lsp/server.lua": {
+          "sha256": "02b676b8b07919bff4d475d8894711924fa8f4100cbf8af5ad0ac251c6208e24",
+          "size": 2150,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/server.lua"
+        },
+        "obsidian/lsp/util.lua": {
+          "sha256": "40a45124ac12408eaa38b2e9ce7d6002a561d737ae4bb90b7c083268759e390c",
+          "size": 2087,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/util.lua"
+        },
+        "obsidian/lsp/watchfiles.lua": {
+          "sha256": "5942be077783586229d1845bde6e1b2d1cb5025df3794197cd34f30637024dec",
+          "size": 1782,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/lsp/watchfiles.lua"
+        },
+        "obsidian/note.lua": {
+          "sha256": "1dc3450014eae04426404a6f91d5a809832ca68911a6a4e21b157537d46e818a",
+          "size": 53016,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/note.lua"
+        },
+        "obsidian/note/link_suggestion.lua": {
+          "sha256": "002d7ea3cbceaae6f5eb6dc7ddf58a02f8d319f5bb9cef59fa7ec58d689750b7",
+          "size": 10549,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/note/link_suggestion.lua"
+        },
+        "obsidian/note/rename.lua": {
+          "sha256": "e1cdc539cd86e54732e08eb23249cbdc2c84cd8d82ee239e4c5e2f9096262010",
+          "size": 11569,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/note/rename.lua"
+        },
+        "obsidian/parse/block_id.lua": {
+          "sha256": "6470484bf5773ec3428d831040bbe50f5ef75a2382c6f0c7043f3f5bf354f01e",
+          "size": 768,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/parse/block_id.lua"
+        },
+        "obsidian/parse/refs.lua": {
+          "sha256": "794d73c26ea54074fc33cd825ec5e1012c4be21a0646571f91df0fa097c1c1c0",
+          "size": 5375,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/parse/refs.lua"
+        },
+        "obsidian/parse/tags.lua": {
+          "sha256": "0e6b9db6995a687bef6c002744609d4ec21c5bc48b499ad9f7e8b0e01eedf7d0",
+          "size": 3754,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/parse/tags.lua"
+        },
+        "obsidian/parse/types.lua": {
+          "sha256": "348066c4634dabba2a7f8d0c078cabc44e19e88a786d48a7e0442b7ae250ea67",
+          "size": 250,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/parse/types.lua"
+        },
+        "obsidian/path.lua": {
+          "sha256": "1cea16248e27f09395f53c742c8cb92831cf08d53a2622f0e85887b599d1d442",
+          "size": 11231,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/path.lua"
+        },
+        "obsidian/picker/default.lua": {
+          "sha256": "6b192274245f84610f47d4e52de7fccbe9cd029f5a90607271c36f2639ba2cb4",
+          "size": 1768,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/default.lua"
+        },
+        "obsidian/picker/fzf.lua": {
+          "sha256": "7e274f8ef53b11ed1ca0033ad76734cd3f1d02c9a4d97070c413fad541385bae",
+          "size": 8766,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/fzf.lua"
+        },
+        "obsidian/picker/init.lua": {
+          "sha256": "764b596c3b66950221f9c08b94f5a42b3bcb0861ff2dd2d271915a85a11e2d7c",
+          "size": 16100,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/init.lua"
+        },
+        "obsidian/picker/mappings.lua": {
+          "sha256": "0c8f253c4c6e268b6889ffc640b5b08b4eec20c5c8e8bfd27ffb4c1e34e22309",
+          "size": 1996,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/mappings.lua"
+        },
+        "obsidian/picker/mini.lua": {
+          "sha256": "98d4b2a79832d89decb966165d17cabdf2f4c4b5b8deab42caa32ad585e1d2e7",
+          "size": 3407,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/mini.lua"
+        },
+        "obsidian/picker/snacks.lua": {
+          "sha256": "09213fdab532046e3bd34f42f3492fe742a6c729d0990814dace5f17dd48debb",
+          "size": 6531,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/snacks.lua"
+        },
+        "obsidian/picker/telescope.lua": {
+          "sha256": "5c69b137f7cf278ba9b5bc758ace933739f6d5f07f484832c052b5bcc35d4016",
+          "size": 8629,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/telescope.lua"
+        },
+        "obsidian/picker/ui.lua": {
+          "sha256": "cc06e7ed43a3d5a53310c684b0c737236a369c1cfed3d8d976d70755c5b42586",
+          "size": 17495,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/ui.lua"
+        },
+        "obsidian/picker/util.lua": {
+          "sha256": "1a4cd20ef3f96a71a493207ab51a37ffe71809a639253ae0d2d55ce3091f4ace",
+          "size": 3475,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/picker/util.lua"
+        },
+        "obsidian/range.lua": {
+          "sha256": "73924bb29486d91cb101df6e5a59519846f894219630d4dd527ea8f8313aab52",
+          "size": 3578,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/range.lua"
+        },
+        "obsidian/resolvers.lua": {
+          "sha256": "ccd0df1f361f8a18a0670e38042bf973e85bc4f472055311cf1458dd83c02b14",
+          "size": 6114,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/resolvers.lua"
+        },
+        "obsidian/search/init.lua": {
+          "sha256": "9e057f61558eea652b1bd4932cb36a617c74145ab311099540503cea1f3ffc0b",
+          "size": 31525,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/search/init.lua"
+        },
+        "obsidian/search/opts.lua": {
+          "sha256": "fad234dae439d8aad923e62789c9a9a487b8663fb5841401a63d26d422cd9900",
+          "size": 2350,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/search/opts.lua"
+        },
+        "obsidian/search/ripgrep.lua": {
+          "sha256": "1640579a6ce32d9809886efcfbaaf4c90b9b970680d9c7b4ab003aab91c73f87",
+          "size": 3476,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/search/ripgrep.lua"
+        },
+        "obsidian/section.lua": {
+          "sha256": "f168de6a376b230f61b4fc06c86e01b6971baca9eeb040d320254f9e8f43719c",
+          "size": 14087,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/section.lua"
+        },
+        "obsidian/slides/init.lua": {
+          "sha256": "d1a0cf6a583184c9c0517f4675b611c14defa21f1562acfce177d4118aff9f19",
+          "size": 5432,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/slides/init.lua"
+        },
+        "obsidian/slides/parse.lua": {
+          "sha256": "3055092f69a4e6c4004d677c4cbf8494b4d48ecdbcf5be8b749c87da288cc43e",
+          "size": 5087,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/slides/parse.lua"
+        },
+        "obsidian/sync/backends/obsidian.lua": {
+          "sha256": "6d94ed05283c95c86e9b57729081625e21c3f8331d113d24541ffc6f2324b935",
+          "size": 6952,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/sync/backends/obsidian.lua"
+        },
+        "obsidian/sync/client.lua": {
+          "sha256": "707d841e858435db257c438ac035c452672c06b58c5333aa556661feb07522f0",
+          "size": 13094,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/sync/client.lua"
+        },
+        "obsidian/sync/init.lua": {
+          "sha256": "dea23fbf82d97be443e768d75cd7499b7009cfd284a717e0b178a50b76a1e481",
+          "size": 5529,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/sync/init.lua"
+        },
+        "obsidian/sync/manage.lua": {
+          "sha256": "bfda87bde99b43ad3681a4752ce5813ea1a29e61a52323a7b9cf38d33024c43e",
+          "size": 1903,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/sync/manage.lua"
+        },
+        "obsidian/sync/runner.lua": {
+          "sha256": "edbfe1840c79e49fc29384414921d4d8806d0325d5435e8d6468674f7716ef21",
+          "size": 3854,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/sync/runner.lua"
+        },
+        "obsidian/sync/status.lua": {
+          "sha256": "08804905e91405e9e5be774c476491281d8f02378320ce1420bed995054f82e8",
+          "size": 1664,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/sync/status.lua"
+        },
+        "obsidian/templates.lua": {
+          "sha256": "5a8072fd7ac7b438342b676fde0b1162d43fad1c5376c33ed13c79196a14e04a",
+          "size": 5914,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/templates.lua"
+        },
+        "obsidian/types.lua": {
+          "sha256": "d2b91a74832ad2303289ff7cfaba210ba06442344180962deba6bb48d019b2a5",
+          "size": 6360,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/types.lua"
+        },
+        "obsidian/ui.lua": {
+          "sha256": "29f4d32af41123d41b21955e4ddf1e8df73e04ddbc8bbb366aa9955c6431dda8",
+          "size": 20180,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/ui.lua"
+        },
+        "obsidian/unique.lua": {
+          "sha256": "5dad991f158a0592b1ce1a5030f5a0522369493b26492fea2e447d1f718f113e",
+          "size": 5518,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/unique.lua"
+        },
+        "obsidian/util.lua": {
+          "sha256": "aa373cfb5e25f2af6c7925bbb91e2e395aaed4f509fcb54dede45ed7722ce7be",
+          "size": 17139,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/util.lua"
+        },
+        "obsidian/util/fs.lua": {
+          "sha256": "ff019789f182d79a2c6bb8d303f7ff4f02350104775ebe8c29e4c50c3ed76621",
+          "size": 1790,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/util/fs.lua"
+        },
+        "obsidian/util/text_insertion.lua": {
+          "sha256": "190b766fc3e9d89033c1e884c6b19d2322ba4a4a3fe82e6145e66f5a26cdb4d5",
+          "size": 7793,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/util/text_insertion.lua"
+        },
+        "obsidian/version.lua": {
+          "sha256": "fb1d3212bd28e5335c58fdc969f572492dcebefadf339ae180324d076bb22470",
+          "size": 16,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/version.lua"
+        },
+        "obsidian/workspace.lua": {
+          "sha256": "1e0f4bb4da8d67fb7cc79d56955ddc9e467b859bb0a477b6833a5ebf738d4c77",
+          "size": 7328,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/workspace.lua"
+        },
+        "obsidian/yaml/init.lua": {
+          "sha256": "57e8d1abb1a2afef6ed163919e0c0eb088e70d36df1685e7ea70ac0044d5f3ac",
+          "size": 6045,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/yaml/init.lua"
+        },
+        "obsidian/yaml/line.lua": {
+          "sha256": "9c44c9403ef04d5fc10d7dd9a015ae0ad332509e0d15631fb458c8c70664dc77",
+          "size": 1150,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/yaml/line.lua"
+        },
+        "obsidian/yaml/parser.lua": {
+          "sha256": "bb21b16fa85cca42c7d38874023162cf400de3eff6703b130181a0ee0f9d873d",
+          "size": 19508,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/yaml/parser.lua"
+        },
+        "obsidian/yaml/util.lua": {
+          "sha256": "1fa5264ef662e08a2a435501cbaa576dc0927c50b513d113fe98aeb321b585f7",
+          "size": 3317,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/yaml/util.lua"
+        },
+        "obsidian/yaml/yq.lua": {
+          "sha256": "9b6f3893fa5c9b8f1276bc672986beb7d26944c856101f9447c617fb381add1f",
+          "size": 239,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/obsidian/yaml/yq.lua"
+        },
+        "telescope/_extensions/obsidian_files.lua": {
+          "sha256": "e07b4d91388b6df48c3aa6258bac65ed8f68aabe0ab317226dc980024de6b1c6",
+          "size": 563,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/telescope/_extensions/obsidian_files.lua"
+        },
+        "telescope/_extensions/obsidian_grep.lua": {
+          "sha256": "26229a7538da96582665e7969898810b47fc523f4c146eebd85d184ebe6d716a",
+          "size": 380,
+          "url": "https://raw.githubusercontent.com/obsidian-nvim/obsidian.nvim/v3.16.7/lua/telescope/_extensions/obsidian_grep.lua"
+        }
+      },
+      "homepage": "https://github.com/obsidian-nvim/obsidian.nvim",
+      "host": "nvim",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 01 Sep 2026 16:21:22 GMT",
+        "rockspec": {
+          "date": "Tue, 01 Sep 2026 16:21:22 GMT",
+          "sha256": "31b8320de03c60760e1468c5e73aeb2f87dad827be66e95a3ef1fe5cb6063b41",
+          "size": 775
+        },
+        "src": {
+          "date": "Tue, 01 Sep 2026 16:21:23 GMT",
+          "sha256": "a5755c6d9cec217c482ac7ea6c3a03b5e6f48274f3354044b7f4c615eae85b20",
+          "size": 480308,
+          "url": "https://luarocks.org/obsidian.nvim-3.16.7-1.src.rock"
+        }
+      },
+      "modules": [
+        "obsidian",
+        "obsidian.actions",
+        "obsidian.api",
+        "obsidian.async",
+        "obsidian.attachment",
+        "obsidian.autocmds",
+        "obsidian.bookmarks",
+        "obsidian.builtin",
+        "obsidian.cache",
+        "obsidian.cache.json_backend",
+        "obsidian.cache.memory_backend",
+        "obsidian.cache.note",
+        "obsidian.cli",
+        "obsidian.client",
+        "obsidian.commands",
+        "obsidian.commands.backlinks",
+        "obsidian.commands.bookmarks",
+        "obsidian.commands.check",
+        "obsidian.commands.dailies",
+        "obsidian.commands.extract_note",
+        "obsidian.commands.follow_link",
+        "obsidian.commands.footnotes",
+        "obsidian.commands.help",
+        "obsidian.commands.helpgrep",
+        "obsidian.commands.init-legacy",
+        "obsidian.commands.link",
+        "obsidian.commands.link_new",
+        "obsidian.commands.links",
+        "obsidian.commands.new",
+        "obsidian.commands.new_from_template",
+        "obsidian.commands.open",
+        "obsidian.commands.paste_img",
+        "obsidian.commands.quick_switch",
+        "obsidian.commands.rebuild_cache",
+        "obsidian.commands.rename",
+        "obsidian.commands.search",
+        "obsidian.commands.sync",
+        "obsidian.commands.tags",
+        "obsidian.commands.template",
+        "obsidian.commands.toc",
+        "obsidian.commands.today",
+        "obsidian.commands.toggle_checkbox",
+        "obsidian.commands.tomorrow",
+        "obsidian.commands.unique_note",
+        "obsidian.commands.workspace",
+        "obsidian.commands.yesterday",
+        "obsidian.completion.footnotes",
+        "obsidian.completion.refs",
+        "obsidian.completion.sources.footnotes",
+        "obsidian.completion.sources.new",
+        "obsidian.completion.sources.refs",
+        "obsidian.completion.sources.tags",
+        "obsidian.completion.tags",
+        "obsidian.config",
+        "obsidian.config.default",
+        "obsidian.config.removed",
+        "obsidian.config.validate",
+        "obsidian.core-plugins.audio_recorder",
+        "obsidian.daily",
+        "obsidian.footer",
+        "obsidian.footnotes",
+        "obsidian.frontmatter",
+        "obsidian.frontmatter.validator",
+        "obsidian.fs",
+        "obsidian.health",
+        "obsidian.icons",
+        "obsidian.ignore",
+        "obsidian.img_paste",
+        "obsidian.inlay_hints",
+        "obsidian.lib.glob",
+        "obsidian.lib.moment",
+        "obsidian.lib.moment.format",
+        "obsidian.lib.moment.parse",
+        "obsidian.link",
+        "obsidian.log",
+        "obsidian.lsp",
+        "obsidian.lsp.handlers",
+        "obsidian.lsp.handlers._code_action",
+        "obsidian.lsp.handlers._definition",
+        "obsidian.lsp.handlers._references",
+        "obsidian.lsp.handlers._workspace_symbol",
+        "obsidian.lsp.handlers.code_action",
+        "obsidian.lsp.handlers.completion",
+        "obsidian.lsp.handlers.definition",
+        "obsidian.lsp.handlers.did_change_watched_files",
+        "obsidian.lsp.handlers.did_rename_files",
+        "obsidian.lsp.handlers.did_save",
+        "obsidian.lsp.handlers.document_symbol",
+        "obsidian.lsp.handlers.folding_range",
+        "obsidian.lsp.handlers.initialize",
+        "obsidian.lsp.handlers.initialized",
+        "obsidian.lsp.handlers.inlay_hint",
+        "obsidian.lsp.handlers.prepare_rename",
+        "obsidian.lsp.handlers.references",
+        "obsidian.lsp.handlers.rename",
+        "obsidian.lsp.handlers.workspace_execute_command",
+        "obsidian.lsp.handlers.workspace_symbol",
+        "obsidian.lsp.inlay_hints.link",
+        "obsidian.lsp.server",
+        "obsidian.lsp.util",
+        "obsidian.lsp.watchfiles",
+        "obsidian.note",
+        "obsidian.note.link_suggestion",
+        "obsidian.note.rename",
+        "obsidian.parse.block_id",
+        "obsidian.parse.refs",
+        "obsidian.parse.tags",
+        "obsidian.parse.types",
+        "obsidian.path",
+        "obsidian.picker",
+        "obsidian.picker.default",
+        "obsidian.picker.fzf",
+        "obsidian.picker.mappings",
+        "obsidian.picker.mini",
+        "obsidian.picker.snacks",
+        "obsidian.picker.telescope",
+        "obsidian.picker.ui",
+        "obsidian.picker.util",
+        "obsidian.range",
+        "obsidian.resolvers",
+        "obsidian.search",
+        "obsidian.search.opts",
+        "obsidian.search.ripgrep",
+        "obsidian.section",
+        "obsidian.slides",
+        "obsidian.slides.parse",
+        "obsidian.sync",
+        "obsidian.sync.backends.obsidian",
+        "obsidian.sync.client",
+        "obsidian.sync.manage",
+        "obsidian.sync.runner",
+        "obsidian.sync.status",
+        "obsidian.templates",
+        "obsidian.types",
+        "obsidian.ui",
+        "obsidian.unique",
+        "obsidian.util",
+        "obsidian.util.fs",
+        "obsidian.util.text_insertion",
+        "obsidian.version",
+        "obsidian.workspace",
+        "obsidian.yaml",
+        "obsidian.yaml.line",
+        "obsidian.yaml.parser",
+        "obsidian.yaml.util",
+        "obsidian.yaml.yq",
+        "telescope._extensions.obsidian_files",
+        "telescope._extensions.obsidian_grep"
+      ],
+      "origin": {
+        "sha256": "684013702c434fc92645858560eaf20837fc460de24e4ce97497744e87f10977",
+        "type": "archive",
+        "url": "https://github.com/obsidian-nvim/obsidian.nvim/archive/v3.16.7.zip"
+      },
+      "size": 777661,
+      "summary": "Obsidian + Neovim",
+      "undeclared_requires": [
+        "blink.cmp",
+        "blink.cmp.config",
+        "cmp",
+        "cmp.config",
+        "conceallevel",
+        "fzf-lua",
+        "fzf-lua.actions",
+        "fzf-lua.path",
+        "fzf-lua.previewer.builtin",
+        "mini.pick",
+        "snacks.picker",
+        "snacks.picker.config.sources",
+        "telescope",
+        "telescope.actions",
+        "telescope.actions.state",
+        "telescope.builtin",
+        "telescope.config",
+        "telescope.finders",
+        "telescope.pickers",
+        "telescope.previewers"
+      ],
+      "vlr": {
+        "cause": "missing global: vim",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 35,
+        "status": "partial",
+        "total": 148
+      }
+    }
+  }
+}

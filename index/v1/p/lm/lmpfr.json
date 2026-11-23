@@ -1,0 +1,91 @@
+{
+  "kind": "lib",
+  "name": "lmpfr",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/alexshpilkin/lmpfr",
+      "license": "CC0",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Sat, 02 Jul 2022 21:17:36 GMT",
+        "rockspec": {
+          "date": "Sat, 02 Jul 2022 21:17:36 GMT",
+          "sha256": "c7bf953488c76865954a816a0eb6a707eb33119d0ac8c7b3fae7d50194b5c0ed",
+          "size": 1014
+        },
+        "src": {
+          "date": "Sat, 02 Jul 2022 21:17:38 GMT",
+          "sha256": "73f3cf9f2da007b30e929a54bba52af770615837f88946903f26d0bc2beb1caf",
+          "size": 12301,
+          "url": "https://luarocks.org/lmpfr-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "mpfr"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "GMP",
+          "MPFR"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "GMP": {
+              "header": "gmp",
+              "library": "gmp"
+            },
+            "MPFR": {
+              "header": "mpfr",
+              "library": "mpfr"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(GMP_INCDIR)",
+                "$(MPFR_INCDIR)"
+              ],
+              "libdirs": [
+                "$(GMP_LIBDIR)",
+                "$(MPFR_LIBDIR)"
+              ],
+              "libraries": [
+                "mpfr",
+                "gmp"
+              ],
+              "name": "mpfr",
+              "sources": [
+                "mpfr.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 02 Jul 2022 21:17:38 GMT",
+        "sha256": "73f3cf9f2da007b30e929a54bba52af770615837f88946903f26d0bc2beb1caf",
+        "size": 12301,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lmpfr-0.1.0-1.src.rock"
+      },
+      "summary": "LGMP-compatible Lua C API bindings for GNU MPFR",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+-- Error types for htb.
+--
+-- Lua has no exception hierarchy, so errors are lightweight tables carrying a
+-- `msg` and a `kind`. Raise them with `error(err, 0)` or the helpers below.
+-- The CLI catches them by checking `err.kind` (or `err` being a table from here).
+
+local M = {}
+
+-- Base error.
+local Error = {}
+Error.__index = Error
+M.Error = Error
+
+function M.Error.new(kind, msg)
+    return setmetatable({ kind = kind, msg = msg }, Error)
+end
+
+function Error:__tostring()
+    return self.kind .. ": " .. self.msg
+end
+
+function Error:raise()
+    error(self, 0)
+end
+
+-- Specific error kinds.
+function M.newConfigError(msg)
+    return M.Error.new("ConfigError", msg)
+end
+
+function M.newResolveError(msg)
+    return M.Error.new("ResolveError", msg)
+end
+
+function M.newAutoError(msg)
+    return M.Error.new("AutoError", msg)
+end
+
+-- True when `e` is an error produced by this module.
+function M.isHtbError(e)
+    return type(e) == "table" and type(e.kind) == "string" and e.kind ~= nil
+end
+
+return M

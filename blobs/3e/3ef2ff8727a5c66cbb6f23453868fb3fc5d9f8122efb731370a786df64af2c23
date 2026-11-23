@@ -1,0 +1,913 @@
+-- nvim_vale_tools/lua/vocabularies.lua
+
+local M = {}
+local utils = require("nvim_vale_tools.utils")
+local config = require("nvim_vale_tools.config")
+local vale_utils = require("nvim_vale_tools.vale_utils")
+
+--- Get the path to the vocabularies directory (<StylesPath>/config/vocabularies/).
+---@return string Absolute path to the vocabularies directory
+function M.get_vocab_dir()
+	local styles_path = config.get_config().config_options.StylesPath
+	return vim.fs.joinpath(styles_path, "config", "vocabularies")
+end
+
+---
+--- Helper function to ensure a directory exists (local to this module).
+---@param dir_path string Directory path
+function M._ensure_dir(dir_path)
+	if vim.fn.isdirectory(dir_path) == 0 then
+		vim.fn.mkdir(dir_path, "p")
+	end
+end
+
+--- Path to the Git metadata file (stores repo URL and branch for each vocabulary).
+---@return string Absolute path to the Git metadata file
+function M._get_git_metadata_path()
+	return vim.fs.joinpath(M.get_vocab_dir(), ".vale_git_metadata.json")
+end
+
+--- Load Git metadata for vocabularies (URL and branch).
+---@return {url: string|nil, vocabularies: table<string, string>} Metadata table
+function M._load_git_metadata()
+	local metadata_path = M._get_git_metadata_path()
+	if vim.fn.filereadable(metadata_path) == 0 then
+		return { url = nil, vocabularies = {} }
+	end
+	local file = io.open(metadata_path, "r")
+	if not file then
+		return { url = nil, vocabularies = {} }
+	end
+	local content = file:read("*a")
+	file:close()
+	local ok, metadata = pcall(vim.json.decode, content)
+	if not ok or type(metadata) ~= "table" then
+		return { url = nil, vocabularies = {} }
+	end
+	return metadata
+end
+
+--- Save Git metadata for vocabularies.
+---@param vocab_name string Name of the vocabulary
+---@param git_url string Git repository URL
+---@param branch string Git branch
+function M._save_git_metadata(vocab_name, git_url, branch)
+	local metadata = M._load_git_metadata()
+	metadata.url = git_url
+	metadata.vocabularies[vocab_name] = branch
+	local metadata_path = M._get_git_metadata_path()
+	local file = io.open(metadata_path, "w")
+	if file then
+		-- Pretty-print JSON
+		local json_str = vim.json.encode(metadata)
+		json_str = json_str
+			:gsub("},{", "},\n  {")
+			:gsub("{%[^%s]", "{\n  ")
+			:gsub("%]%}", "\n}")
+			:gsub("^%{", "{\n  ")
+			:gsub("%}$", "\n}")
+		file:write(json_str)
+		file:close()
+	else
+		vim.notify(string.format("Failed to save Git metadata for vocabulary '%s'.", vocab_name), vim.log.levels.ERROR)
+	end
+end
+
+--- Remove Git metadata for a vocabulary.
+---@param vocab_name string Name of the vocabulary
+function M._remove_git_metadata(vocab_name)
+	local metadata = M._load_git_metadata()
+	metadata.vocabularies[vocab_name] = nil
+	local metadata_path = M._get_git_metadata_path()
+	local file = io.open(metadata_path, "w")
+	if file then
+		local json_str = vim.json.encode(metadata)
+		json_str = json_str
+			:gsub("},{", "},\n  {")
+			:gsub("{%[^%s]", "{\n  ")
+			:gsub("%]%}", "\n}")
+			:gsub("^%{", "{\n  ")
+			:gsub("%}$", "\n}")
+		file:write(json_str)
+		file:close()
+	end
+end
+
+---
+--- Install a vocabulary from a Git repository (one repo, multiple branches).
+---@param git_url string URL of the Git repository
+---@param branch string Branch name (default: vocab_name)
+function M.clone_vocabulary_from_git(git_url, branch)
+	-- If no branch is provided, use the last part of the URL as the vocabulary name
+	local vocab_name = branch or git_url:match("([^/%.]+)%.git$") or git_url:match("([^/%.]+)$")
+	if not vocab_name then
+		vim.notify("Failed to extract vocabulary name from URL.", vim.log.levels.ERROR)
+		return
+	end
+
+	-- Check if vocabulary already exists
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+	if vim.fn.isdirectory(vocab_dir) == 1 then
+		vim.notify(
+			string.format("Vocabulary '%s' already exists at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.WARN
+		)
+		return
+	end
+
+	-- Create a temporary directory for cloning
+	local temp_dir = vim.fn.tempname() .. "_vale_vocab_git"
+	M._ensure_dir(temp_dir)
+
+	-- Clone the repository (full clone)
+	vim.notify(
+		string.format("Cloning vocabulary '%s' from %s (branch: %s)...", vocab_name, git_url, branch),
+		vim.log.levels.INFO
+	)
+	vim.fn.jobstart(string.format("git clone %s %s", vim.fn.shellescape(git_url), vim.fn.shellescape(temp_dir)), {
+		on_exit = function(_, clone_exit_code)
+			if clone_exit_code ~= 0 then
+				vim.notify(
+					string.format("Failed to clone repository: %s (exit code: %d).", git_url, clone_exit_code),
+					vim.log.levels.ERROR
+				)
+				vim.fn.delete(temp_dir, "rf")
+				return
+			end
+
+			-- Checkout the branch for this vocabulary
+			vim.fn.jobstart(
+				string.format("cd %s && git checkout %s", vim.fn.shellescape(temp_dir), vim.fn.shellescape(branch)),
+				{
+					on_exit = function(_, checkout_exit_code)
+						if checkout_exit_code ~= 0 then
+							vim.notify(
+								string.format("Failed to checkout branch '%s' in repository %s.", branch, git_url),
+								vim.log.levels.ERROR
+							)
+							vim.fn.delete(temp_dir, "rf")
+							return
+						end
+
+						-- Check if the branch contains a folder with the vocabulary name
+						local vocab_source_dir = vim.fs.joinpath(temp_dir, vocab_name)
+						if vim.fn.isdirectory(vocab_source_dir) == 0 then
+							vim.notify(
+								string.format(
+									"Branch '%s' does not contain a folder named '%s' in %s.",
+									branch,
+									vocab_name,
+									git_url
+								),
+								vim.log.levels.ERROR
+							)
+							vim.fn.delete(temp_dir, "rf")
+							return
+						end
+
+						-- Check if accept.txt and reject.txt exist in the vocabulary folder
+						local accept_path = vim.fs.joinpath(vocab_source_dir, "accept.txt")
+						local reject_path = vim.fs.joinpath(vocab_source_dir, "reject.txt")
+						if vim.fn.filereadable(accept_path) == 0 or vim.fn.filereadable(reject_path) == 0 then
+							vim.notify(
+								string.format(
+									"Folder '%s' in branch '%s' is missing accept.txt or reject.txt.",
+									vocab_name,
+									branch
+								),
+								vim.log.levels.ERROR
+							)
+							vim.fn.delete(temp_dir, "rf")
+							return
+						end
+
+						-- Create the local vocabulary directory
+						M._ensure_dir(vocab_dir)
+
+						-- Copy accept.txt and reject.txt to the local vocabulary directory
+						vim.fn.system(
+							string.format("cp %s %s", vim.fn.shellescape(accept_path), vim.fn.shellescape(vocab_dir))
+						)
+						vim.fn.system(
+							string.format("cp %s %s", vim.fn.shellescape(reject_path), vim.fn.shellescape(vocab_dir))
+						)
+
+						-- Save Git metadata (URL and branch)
+						M._save_git_metadata(vocab_name, git_url, branch)
+
+						-- Update .vale.ini
+						M._update_vale_ini(vocab_name)
+
+						-- Clean up the temporary directory
+						vim.fn.delete(temp_dir, "rf")
+
+						vim.notify(
+							string.format(
+								"Vocabulary '%s' installed from %s (branch: %s).",
+								vocab_name,
+								git_url,
+								branch
+							),
+							vim.log.levels.INFO
+						)
+					end,
+				}
+			)
+		end,
+	})
+end
+
+---
+--- Update a vocabulary from its Git repository branch.
+---@param vocab_name string Name of the vocabulary
+function M.update_vocabulary_from_git(vocab_name)
+	-- Load Git metadata
+	local metadata = M._load_git_metadata()
+	if not metadata.vocabularies or not metadata.vocabularies[vocab_name] then
+		vim.notify(
+			string.format("Vocabulary '%s' is not installed from Git or does not exist.", vocab_name),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	local git_url = metadata.url
+	if not git_url then
+		vim.notify(
+			string.format("No Git repository URL configured for vocabulary '%s'.", vocab_name),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	local branch = metadata.vocabularies[vocab_name]
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+
+	-- Create a temporary directory for cloning
+	local temp_dir = vim.fn.tempname() .. "_vale_vocab_update"
+	M._ensure_dir(temp_dir)
+
+	-- Clone the repository
+	vim.notify(
+		string.format("Updating vocabulary '%s' from %s (branch: %s)...", vocab_name, git_url, branch),
+		vim.log.levels.INFO
+	)
+	vim.fn.jobstart(
+		string.format(
+			"git clone %s %s && cd %s && git checkout %s",
+			vim.fn.shellescape(git_url),
+			vim.fn.shellescape(temp_dir),
+			vim.fn.shellescape(temp_dir),
+			vim.fn.shellescape(branch)
+		),
+		{
+			on_exit = function(_, exit_code)
+				if exit_code ~= 0 then
+					vim.notify(
+						string.format("Failed to update vocabulary '%s' (exit code: %d).", vocab_name, exit_code),
+						vim.log.levels.ERROR
+					)
+					vim.fn.delete(temp_dir, "rf")
+					return
+				end
+
+				-- Check if the branch contains the vocabulary folder
+				local vocab_source_dir = vim.fs.joinpath(temp_dir, vocab_name)
+				if vim.fn.isdirectory(vocab_source_dir) == 0 then
+					vim.notify(
+						string.format(
+							"Branch '%s' does not contain a folder named '%s' in %s.",
+							branch,
+							vocab_name,
+							git_url
+						),
+						vim.log.levels.ERROR
+					)
+					vim.fn.delete(temp_dir, "rf")
+					return
+				end
+
+				-- Check if accept.txt and reject.txt exist
+				local accept_path = vim.fs.joinpath(vocab_source_dir, "accept.txt")
+				local reject_path = vim.fs.joinpath(vocab_source_dir, "reject.txt")
+				if vim.fn.filereadable(accept_path) == 0 or vim.fn.filereadable(reject_path) == 0 then
+					vim.notify(
+						string.format(
+							"Folder '%s' in branch '%s' is missing accept.txt or reject.txt.",
+							vocab_name,
+							branch
+						),
+						vim.log.levels.ERROR
+					)
+					vim.fn.delete(temp_dir, "rf")
+					return
+				end
+
+				-- Copy accept.txt and reject.txt to the local vocabulary directory
+				vim.fn.system(string.format("cp %s %s", vim.fn.shellescape(accept_path), vim.fn.shellescape(vocab_dir)))
+				vim.fn.system(string.format("cp %s %s", vim.fn.shellescape(reject_path), vim.fn.shellescape(vocab_dir)))
+
+				-- Clean up the temporary directory
+				vim.fn.delete(temp_dir, "rf")
+
+				vim.notify(
+					string.format("Vocabulary '%s' updated from %s (branch: %s).", vocab_name, git_url, branch),
+					vim.log.levels.INFO
+				)
+			end,
+		}
+	)
+end
+
+---
+--- Update all vocabularies installed from Git (branch-based).
+function M.update_all_vocabularies_from_git()
+	local metadata = M._load_git_metadata()
+	if vim.tbl_isempty(metadata.vocabularies) then
+		vim.notify("No Git vocabularies to update.", vim.log.levels.INFO)
+		return
+	end
+
+	vim.notify("Updating all Git vocabularies...", vim.log.levels.INFO)
+	for vocab_name, _ in pairs(metadata.vocabularies) do
+		M.update_vocabulary_from_git(vocab_name)
+	end
+end
+
+---
+--- Delete a vocabulary installed from Git (branch-based).
+---@param vocab_name string Name of the vocabulary to delete
+function M.delete_vocabulary_from_git(vocab_name)
+	-- Check if vocabulary exists locally
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' does not exist at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	-- Check if vocabulary is tracked as a Git vocabulary
+	local metadata = M._load_git_metadata()
+	if not metadata.vocabularies or not metadata.vocabularies[vocab_name] then
+		vim.notify(
+			string.format("Vocabulary '%s' is not installed from Git. Use ':ValeVocab del' to delete it.", vocab_name),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	-- Ask for confirmation using vim.ui.select
+	vim.ui.select({ "Yes", "No" }, {
+		prompt = string.format("Delete Git vocabulary '%s' from %s?", vocab_name, vale_utils.shorten_path(vocab_dir)),
+	}, function(choice)
+		if choice == "Yes" then
+			-- Delete the vocabulary directory
+			vim.fn.delete(vocab_dir, "rf")
+
+			-- Remove from .vale.ini
+			M._update_vale_ini_on_delete(vocab_name)
+
+			-- Remove Git metadata
+			M._remove_git_metadata(vocab_name)
+
+			vim.notify(
+				string.format(
+					"Vocabulary '%s' (from Git) deleted from %s.",
+					vocab_name,
+					vale_utils.shorten_path(vocab_dir)
+				),
+				vim.log.levels.INFO
+			)
+		else
+			vim.notify("Deletion cancelled.", vim.log.levels.INFO)
+		end
+	end)
+end
+
+---
+--- Push local changes (accept.txt and reject.txt) to the Git repository branch.
+---@param vocab_name string Name of the vocabulary
+function M.push_vocabulary_to_git(vocab_name)
+	-- Load Git metadata
+	local metadata = M._load_git_metadata()
+	if not metadata.vocabularies or not metadata.vocabularies[vocab_name] then
+		vim.notify(
+			string.format("Vocabulary '%s' is not installed from Git or does not exist.", vocab_name),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	local git_url = metadata.url
+	if not git_url then
+		vim.notify(
+			string.format("No Git repository URL configured for vocabulary '%s'.", vocab_name),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	local branch = metadata.vocabularies[vocab_name]
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+
+	-- Check if the vocabulary directory exists
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' does not exist at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	-- Check if accept.txt and reject.txt exist
+	local accept_path = vim.fs.joinpath(vocab_dir, "accept.txt")
+	local reject_path = vim.fs.joinpath(vocab_dir, "reject.txt")
+	if vim.fn.filereadable(accept_path) == 0 or vim.fn.filereadable(reject_path) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' is missing accept.txt or reject.txt.", vocab_name),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	-- Create a temporary directory for pushing
+	local temp_dir = vim.fn.tempname() .. "_vale_vocab_push_" .. vim.fn.strftime("%s")
+	M._ensure_dir(temp_dir)
+
+	-- Clone the repository
+	vim.notify(
+		string.format("Pushing changes for '%s' to %s (branch: %s)...", vocab_name, git_url, branch),
+		vim.log.levels.INFO
+	)
+	vim.fn.jobstart(
+		string.format(
+			"git clone %s %s && cd %s && git checkout %s",
+			vim.fn.shellescape(git_url),
+			vim.fn.shellescape(temp_dir),
+			vim.fn.shellescape(temp_dir),
+			vim.fn.shellescape(branch)
+		),
+		{
+			on_exit = function(_, clone_exit_code)
+				if clone_exit_code ~= 0 then
+					vim.notify(
+						string.format("Failed to clone repository: %s (exit code: %d).", git_url, clone_exit_code),
+						vim.log.levels.ERROR
+					)
+					vim.fn.delete(temp_dir, "rf")
+					return
+				end
+
+				-- Create the vocabulary folder in the temp directory (if it doesn't exist)
+				local vocab_temp_dir = vim.fs.joinpath(temp_dir, vocab_name)
+				M._ensure_dir(vocab_temp_dir)
+
+				-- Copy local accept.txt and reject.txt to the temporary vocabulary folder
+				local temp_accept = vim.fs.joinpath(vocab_temp_dir, "accept.txt")
+				local temp_reject = vim.fs.joinpath(vocab_temp_dir, "reject.txt")
+				vim.fn.system(
+					string.format("cp %s %s", vim.fn.shellescape(accept_path), vim.fn.shellescape(temp_accept))
+				)
+				vim.fn.system(
+					string.format("cp %s %s", vim.fn.shellescape(reject_path), vim.fn.shellescape(temp_reject))
+				)
+
+				-- Stage, commit, and push changes to the branch
+				vim.fn.jobstart(
+					string.format(
+						"cd %s && git add %s/accept.txt %s/reject.txt && git commit -m 'Update vocabulary %s via nvim-vale-tools' && git push origin %s",
+						vim.fn.shellescape(temp_dir),
+						vim.fn.shellescape(vocab_name),
+						vim.fn.shellescape(vocab_name),
+						vim.fn.shellescape(vocab_name),
+						vim.fn.shellescape(branch)
+					),
+					{
+						on_exit = function(_, push_exit_code)
+							vim.fn.delete(temp_dir, "rf")
+							if push_exit_code == 0 then
+								vim.notify(
+									string.format(
+										"Successfully pushed changes for vocabulary '%s' to %s (branch: %s).",
+										vocab_name,
+										git_url,
+										branch
+									),
+									vim.log.levels.INFO
+								)
+							else
+								vim.notify(
+									string.format(
+										"Failed to push changes for vocabulary '%s' (exit code: %d).",
+										vocab_name,
+										push_exit_code
+									),
+									vim.log.levels.ERROR
+								)
+							end
+						end,
+					}
+				)
+			end,
+		}
+	)
+end
+
+---
+--- Create a new vocabulary (folder + accept.txt/reject.txt).
+---@param vocab_name string Name of the vocabulary
+---@return boolean true if created, false if already exists
+function M.create_vocabulary(vocab_name)
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+
+	if vim.fn.isdirectory(vocab_dir) == 1 then
+		vim.notify(
+			string.format("Vocabulary '%s' already exists at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.WARN
+		)
+		return false
+	end
+
+	utils.ensure_dir(vocab_dir)
+	local accept_path = vim.fs.joinpath(vocab_dir, "accept.txt")
+	local reject_path = vim.fs.joinpath(vocab_dir, "reject.txt")
+	utils.write_file(accept_path, "")
+	utils.write_file(reject_path, "")
+
+	M._update_vale_ini(vocab_name)
+	vim.notify(
+		string.format("Vocabulary '%s' created at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+		vim.log.levels.INFO
+	)
+	return true
+end
+
+---
+--- Delete a vocabulary (folder + accept.txt/reject.txt).
+---@param vocab_name string Name of the vocabulary
+---@return boolean true if deleted, false if not found
+function M.delete_vocabulary(vocab_name)
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' does not exist at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.ERROR
+		)
+		return false
+	end
+
+	vim.fn.delete(vocab_dir, "rf")
+	M._update_vale_ini_on_delete(vocab_name)
+	vim.notify(
+		string.format("Vocabulary '%s' deleted from %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+		vim.log.levels.INFO
+	)
+	return true
+end
+
+---
+--- Sort terms in accept.txt and reject.txt for a vocabulary.
+---@param vocab_name string Name of the vocabulary
+function M.sort_vocabulary(vocab_name)
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' does not exist at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.ERROR
+		)
+		return false
+	end
+
+	local accept_path = vim.fs.joinpath(vocab_dir, "accept.txt")
+	utils.read_file(accept_path, function(accept_content)
+		local accept_lines = {}
+		for line in accept_content:gmatch("[^\r\n]+") do
+			if line ~= "" then
+				table.insert(accept_lines, line)
+			end
+		end
+		table.sort(accept_lines)
+		utils.write_file(accept_path, table.concat(accept_lines, "\n") .. "\n")
+	end)
+
+	local reject_path = vim.fs.joinpath(vocab_dir, "reject.txt")
+	utils.read_file(reject_path, function(reject_content)
+		local reject_lines = {}
+		for line in reject_content:gmatch("[^\r\n]+") do
+			if line ~= "" then
+				table.insert(reject_lines, line)
+			end
+		end
+		table.sort(reject_lines)
+		utils.write_file(reject_path, table.concat(reject_lines, "\n") .. "\n")
+		vim.notify(
+			string.format("Vocabulary '%s' sorted (accept.txt and reject.txt).", vocab_name),
+			vim.log.levels.INFO
+		)
+	end)
+end
+
+---
+--- Show the content of accept.txt or reject.txt for a vocabulary in a floating window.
+---@param vocab_name string Name of the vocabulary
+---@param file_type string "accept" or "reject"
+function M.show_vocabulary_file(vocab_name, file_type)
+	-- Validate file type
+	if file_type ~= "accept" and file_type ~= "reject" then
+		vim.notify("Invalid file type. Use 'accept' or 'reject'.", vim.log.levels.ERROR)
+		return
+	end
+
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+
+	-- Check if vocabulary exists
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' does not exist at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	local file_path = vim.fs.joinpath(vocab_dir, file_type .. ".txt")
+
+	-- Read the file synchronously
+	local file = io.open(file_path, "r")
+	if not file then
+		vim.notify(string.format("Failed to open file: %s", vale_utils.shorten_path(file_path)), vim.log.levels.ERROR)
+		return
+	end
+
+	local content = file:read("*a")
+	file:close()
+
+	if content == "" then
+		vim.notify(
+			string.format("File %s.txt is empty for vocabulary '%s'.", file_type, vocab_name),
+			vim.log.levels.INFO
+		)
+		return
+	end
+
+	-- Create a new scratch buffer
+	local buf = vim.api.nvim_create_buf(false, true)
+	if not buf then
+		vim.notify("Failed to create temporary buffer.", vim.log.levels.ERROR)
+		return
+	end
+
+	-- Set buffer lines
+	local lines = vim.split(content, "\n")
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+	-- Set buffer options
+	vim.api.nvim_buf_set_option(buf, "modifiable", false)
+	vim.api.nvim_buf_set_option(buf, "filetype", "text")
+	vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
+	vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
+	vim.api.nvim_buf_set_name(buf, string.format("[ValeVocab: %s/%s.txt]", vocab_name, file_type))
+
+	-- Calculate window dimensions
+	local max_width = 0
+	for _, line in ipairs(lines) do
+		max_width = math.max(max_width, #line)
+	end
+	local width = math.min(80, math.max(40, max_width + 4))
+	local height = math.min(20, math.max(5, #lines + 2))
+
+	-- Center the floating window
+	local win = vim.api.nvim_open_win(buf, true, {
+		relative = "editor",
+		width = width,
+		height = height,
+		col = math.floor((vim.o.columns - width) / 2),
+		row = math.floor((vim.o.lines - height) / 2 - 1),
+		style = "minimal",
+		border = "rounded",
+		title = string.format(" %s/%s.txt ", vocab_name, file_type),
+		title_pos = "center",
+	})
+
+	-- Set window options for readability
+	vim.api.nvim_win_set_option(win, "wrap", true)
+	vim.api.nvim_win_set_option(win, "linebreak", true)
+	vim.api.nvim_win_set_option(win, "number", false)
+	vim.api.nvim_win_set_option(win, "relativenumber", false)
+	vim.api.nvim_win_set_option(win, "cursorline", true)
+	vim.api.nvim_win_set_option(win, "foldenable", false)
+
+	-- Set keymaps to close the window
+	vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			vim.api.nvim_win_close(win, true)
+		end,
+		desc = "Close window",
+	})
+
+	vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			vim.api.nvim_win_close(win, true)
+		end,
+		desc = "Close window",
+	})
+
+	-- Focus the window
+	vim.api.nvim_set_current_win(win)
+end
+
+---
+--- Add a term to accept.txt or reject.txt.
+---@param vocab_name string Name of the vocabulary
+---@param term string Term to add
+---@param term_type string "accept" or "reject"
+function M.add_term(vocab_name, term, term_type)
+	if term_type ~= "accept" and term_type ~= "reject" then
+		vim.notify("Invalid term type. Use 'accept' or 'reject'.", vim.log.levels.ERROR)
+		return
+	end
+
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' does not exist at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	local file_path = vim.fs.joinpath(vocab_dir, term_type .. ".txt")
+	utils.read_file(file_path, function(existing_content)
+		if
+			not existing_content:match("\n" .. term .. "\n")
+			and not existing_content:match("^" .. term .. "\n")
+			and not existing_content:match("\n" .. term .. "$")
+			and not existing_content:match("^" .. term .. "$")
+		then
+			local new_content = existing_content .. term .. "\n"
+			utils.write_file(file_path, new_content)
+			vim.notify(string.format("Term '%s' added to %s/%s.txt", term, vocab_name, term_type), vim.log.levels.INFO)
+		else
+			vim.notify(
+				string.format("Term '%s' already exists in %s/%s.txt", term, vocab_name, term_type),
+				vim.log.levels.WARN
+			)
+		end
+	end)
+end
+
+---
+--- Remove a term from accept.txt or reject.txt.
+---@param vocab_name string Name of the vocabulary
+---@param term string Term to remove
+---@param term_type string "accept" or "reject"
+function M.remove_term(vocab_name, term, term_type)
+	if term_type ~= "accept" and term_type ~= "reject" then
+		vim.notify("Invalid term type. Use 'accept' or 'reject'.", vim.log.levels.ERROR)
+		return
+	end
+
+	local vocab_dir = vim.fs.joinpath(M.get_vocab_dir(), vocab_name)
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		vim.notify(
+			string.format("Vocabulary '%s' does not exist at %s", vocab_name, vale_utils.shorten_path(vocab_dir)),
+			vim.log.levels.ERROR
+		)
+		return
+	end
+
+	local file_path = vim.fs.joinpath(vocab_dir, term_type .. ".txt")
+	utils.read_file(file_path, function(content)
+		local lines = vim.split(content, "\n")
+		local new_lines = {}
+		local removed = false
+		for _, line in ipairs(lines) do
+			if line ~= term then
+				table.insert(new_lines, line)
+			else
+				removed = true
+			end
+		end
+
+		if removed then
+			utils.write_file(file_path, table.concat(new_lines, "\n"))
+			vim.notify(
+				string.format("Term '%s' removed from %s/%s.txt", term, vocab_name, term_type),
+				vim.log.levels.INFO
+			)
+		else
+			vim.notify(
+				string.format("Term '%s' not found in %s/%s.txt", term, vocab_name, term_type),
+				vim.log.levels.WARN
+			)
+		end
+	end)
+end
+
+---
+--- Update .vale.ini to include the vocabulary in the "Vocab" key.
+---@param vocab_name string Name of the vocabulary
+function M._update_vale_ini(vocab_name)
+	local vale_ini_path = vim.fs.joinpath(config.get_config().vale_dir, config.get_config().config_file)
+	utils.read_file(vale_ini_path, function(content)
+		local vocabs = {}
+		for vocab in content:gmatch("Vocab%s*=%s*([^\n]+)") do
+			for v in vocab:gmatch("[^,%s]+") do
+				table.insert(vocabs, v)
+			end
+		end
+
+		for _, v in ipairs(vocabs) do
+			if v == vocab_name then
+				return
+			end
+		end
+
+		table.insert(vocabs, vocab_name)
+		local new_vocab_line = "Vocab = " .. table.concat(vocabs, ", ") .. "\n\n"
+
+		local new_content = content:gsub("Vocab%s*=%s*[^\n]+\n?", "")
+		new_content = new_content:gsub("\n\n+", "\n\n")
+
+		local first_section_pos = new_content:find("%[.+%]")
+		if first_section_pos then
+			new_content = new_content:sub(1, first_section_pos - 1)
+				.. new_vocab_line
+				.. new_content:sub(first_section_pos)
+		else
+			new_content = new_content .. "\n" .. new_vocab_line
+		end
+
+		utils.write_file(vale_ini_path, new_content)
+	end)
+end
+
+---
+--- Update .vale.ini to remove a vocabulary from the "Vocab" key.
+---@param vocab_name string Name of the vocabulary to remove
+function M._update_vale_ini_on_delete(vocab_name)
+	local vale_ini_path = vim.fs.joinpath(config.get_config().vale_dir, config.get_config().config_file)
+	utils.read_file(vale_ini_path, function(content)
+		local vocabs = {}
+		for vocab in content:gmatch("Vocab%s*=%s*([^\n]+)") do
+			for v in vocab:gmatch("[^,%s]+") do
+				table.insert(vocabs, v)
+			end
+		end
+
+		local new_vocabs = {}
+		for _, v in ipairs(vocabs) do
+			if v ~= vocab_name then
+				table.insert(new_vocabs, v)
+			end
+		end
+
+		if #new_vocabs == 0 then
+			local new_content = content:gsub("Vocab%s*=%s*[^\n]+\n?", "")
+			new_content = new_content:gsub("\n\n+", "\n\n")
+			utils.write_file(vale_ini_path, new_content)
+			return
+		end
+
+		local new_vocab_line = "Vocab = " .. table.concat(new_vocabs, ", ") .. "\n\n"
+		local new_content = content:gsub("Vocab%s*=%s*[^\n]+\n?", "")
+		new_content = new_content:gsub("\n\n+", "\n\n")
+
+		local first_section_pos = new_content:find("%[.+%]")
+		if first_section_pos then
+			new_content = new_content:sub(1, first_section_pos - 1)
+				.. new_vocab_line
+				.. new_content:sub(first_section_pos)
+		else
+			new_content = new_content .. "\n" .. new_vocab_line
+		end
+
+		utils.write_file(vale_ini_path, new_content)
+	end)
+end
+
+---
+--- List all available vocabularies (excluding hidden files like .vale_git_metadata.json).
+---@return table List of vocabulary names
+function M.list_vocabularies()
+	local vocab_dir = M.get_vocab_dir()
+	if vim.fn.isdirectory(vocab_dir) == 0 then
+		return {}
+	end
+	local all_files = vim.fn.readdir(vocab_dir)
+	local filtered = {}
+	for _, file in ipairs(all_files) do
+		-- Skip hidden files (starting with .)
+		if not file:match("^%.") then
+			table.insert(filtered, file)
+		end
+	end
+	return filtered
+end
+
+return M

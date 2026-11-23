@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-crafter-for-ee",
+  "versions": {
+    "1.1-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "inspect ~> 3.1.0",
+        "lua-resty-jwt >= 0.1.10-1"
+      ],
+      "files": {
+        "kong/plugins/jwt-crafter/handler.lua": {
+          "sha256": "19ba677079e974a936336168f3d99b2b2c2a8184857afb8ff8a643e25535dcfa",
+          "size": 2593,
+          "url": "https://raw.githubusercontent.com/nragokong/kong-plugin-jwt-crafter-for-ee/a4c51d2d13715955298b9cc6a198fff2874f3ec8/src/handler.lua"
+        },
+        "kong/plugins/jwt-crafter/schema.lua": {
+          "sha256": "10a2a1fc18d7d73b10651c3c65cacbbb4c46d94a490598d64a7237fa15445137",
+          "size": 88,
+          "url": "https://raw.githubusercontent.com/nragokong/kong-plugin-jwt-crafter-for-ee/a4c51d2d13715955298b9cc6a198fff2874f3ec8/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 02 Apr 2019 15:00:24 GMT",
+        "rockspec": {
+          "date": "Tue, 02 Apr 2019 15:00:24 GMT",
+          "sha256": "56ef3f301ed4a17754c765e520b7d0db89efa8ad553646817801824d0157cbdf",
+          "size": 563
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-crafter.handler",
+        "kong.plugins.jwt-crafter.schema"
+      ],
+      "origin": {
+        "commit": "a4c51d2d13715955298b9cc6a198fff2874f3ec8",
+        "ref": "v1.1",
+        "type": "git",
+        "url": "https://github.com/nragokong/kong-plugin-jwt-crafter-for-ee"
+      },
+      "size": 2681,
+      "summary": "Crafts JWT plugin for succesfully authenticated requests based on consumer JWT credential.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

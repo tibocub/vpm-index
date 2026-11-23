@@ -1,0 +1,96 @@
+{
+  "kind": "lib",
+  "name": "flu",
+  "versions": {
+    "20181218-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://piratery.net/flu/",
+      "license": "MIT",
+      "lua": ">= 5.1, < 6",
+      "luarocks": {
+        "date": "Tue, 18 Dec 2018 08:35:42 GMT",
+        "rockspec": {
+          "date": "Tue, 18 Dec 2018 08:35:42 GMT",
+          "sha256": "f34e7c580ed73b9ddcb2788948e15703ef9daa21ab46fee6797f4f6f98fe237d",
+          "size": 855
+        },
+        "src": {
+          "date": "Tue, 18 Dec 2018 08:35:46 GMT",
+          "sha256": "221ba8f8d3abbf12d5fc217dbb965605391892eb314eff1cd9c7beca90fe9887",
+          "size": 55852,
+          "url": "https://luarocks.org/flu-20181218-1.src.rock"
+        }
+      },
+      "modules": [
+        "flu"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "ATTR",
+          "FUSE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "ATTR": {
+              "header": "sys/xattr.h"
+            },
+            "FUSE": {
+              "library": "fuse"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "FUSE_USE_VERSION=26",
+                "FLU_API=LUALIB_API",
+                "luaopen_module=luaopen_flu"
+              ],
+              "incdirs": [
+                "$(FUSE_INCDIR)",
+                "$(ATTR_INCDIR)"
+              ],
+              "libdirs": [
+                "$(FUSE_LIBDIR)"
+              ],
+              "libraries": [
+                "fuse"
+              ],
+              "name": "flu",
+              "sources": [
+                "flu.c",
+                "errno.c",
+                "posix_structs.c",
+                "compat.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "doub-flu-63f077a988cd"
+      },
+      "origin": {
+        "date": "Tue, 18 Dec 2018 08:35:46 GMT",
+        "sha256": "221ba8f8d3abbf12d5fc217dbb965605391892eb314eff1cd9c7beca90fe9887",
+        "size": 55852,
+        "type": "luarocks",
+        "url": "https://luarocks.org/flu-20181218-1.src.rock"
+      },
+      "summary": "Filesystems in Lua Userspace.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

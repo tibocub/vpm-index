@@ -1,0 +1,97 @@
+{
+  "kind": "lib",
+  "name": "scalable-rate-limiter",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/scalable-rate-limiter/expiration.lua": {
+          "sha256": "d689b8f32199300ba295ce900939f3d80058c71a6f03265652b669f491670e56",
+          "size": 77,
+          "url": "https://raw.githubusercontent.com/dream11/kong-scalable-rate-limiter/acadc67c18a7e69be15683c4278f67cf3c986a9c/kong/plugins/scalable-rate-limiter/expiration.lua"
+        },
+        "kong/plugins/scalable-rate-limiter/handler.lua": {
+          "sha256": "2c302c20c481a5d539889194c80649a9ec3416e969c13df8590df0c8e230083b",
+          "size": 2865,
+          "url": "https://raw.githubusercontent.com/dream11/kong-scalable-rate-limiter/acadc67c18a7e69be15683c4278f67cf3c986a9c/kong/plugins/scalable-rate-limiter/handler.lua"
+        },
+        "kong/plugins/scalable-rate-limiter/policies/connection.lua": {
+          "sha256": "307942754e41ab993297e1d75ba3c92ca453cbd4620a5496920172bb53804384",
+          "size": 3258,
+          "url": "https://raw.githubusercontent.com/dream11/kong-scalable-rate-limiter/acadc67c18a7e69be15683c4278f67cf3c986a9c/kong/plugins/scalable-rate-limiter/policies/connection.lua"
+        },
+        "kong/plugins/scalable-rate-limiter/policies/init.lua": {
+          "sha256": "c8a2114a468409fb9047c16081857b611f106b726f105190a9b70b303d30916e",
+          "size": 5486,
+          "url": "https://raw.githubusercontent.com/dream11/kong-scalable-rate-limiter/acadc67c18a7e69be15683c4278f67cf3c986a9c/kong/plugins/scalable-rate-limiter/policies/init.lua"
+        },
+        "kong/plugins/scalable-rate-limiter/schema.lua": {
+          "sha256": "34bc1121a1f20c9031a951ffb76b4bff1a5b609d1e75068ebc8c4ac11ef97ab4",
+          "size": 6432,
+          "url": "https://raw.githubusercontent.com/dream11/kong-scalable-rate-limiter/acadc67c18a7e69be15683c4278f67cf3c986a9c/kong/plugins/scalable-rate-limiter/schema.lua"
+        },
+        "resty/rediscluster.lua": {
+          "sha256": "c3c399d086dd121ee287cea43879aa0c6e4fe77d4f755522f0fd4cb2eb6874b6",
+          "size": 27235,
+          "url": "https://raw.githubusercontent.com/dream11/kong-scalable-rate-limiter/acadc67c18a7e69be15683c4278f67cf3c986a9c/kong/plugins/scalable-rate-limiter/resty-redis-cluster/rediscluster.lua"
+        },
+        "resty/xmodem.lua": {
+          "sha256": "32fab105c908ee9ba0fd5cd297feae932bd7792e8ccdce75fad403d6e7f7153c",
+          "size": 3211,
+          "url": "https://raw.githubusercontent.com/dream11/kong-scalable-rate-limiter/acadc67c18a7e69be15683c4278f67cf3c986a9c/kong/plugins/scalable-rate-limiter/resty-redis-cluster/xmodem.lua"
+        }
+      },
+      "host": "openresty",
+      "luarocks": {
+        "date": "Wed, 30 Jun 2021 07:38:18 GMT",
+        "rockspec": {
+          "date": "Wed, 30 Jun 2021 07:38:18 GMT",
+          "sha256": "04c415c05c4589ac9c8cfaa19627265d45dae1b0e29def3062af8e5ff8dc2fab",
+          "size": 1133
+        },
+        "src": {
+          "date": "Wed, 30 Jun 2021 07:38:19 GMT",
+          "sha256": "7ea88fe3fc9de7f20e6720e9c2da7df93ad6bc98317f154ba51853c714316a88",
+          "size": 48008,
+          "url": "https://luarocks.org/scalable-rate-limiter-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.scalable-rate-limiter.expiration",
+        "kong.plugins.scalable-rate-limiter.handler",
+        "kong.plugins.scalable-rate-limiter.policies",
+        "kong.plugins.scalable-rate-limiter.policies.connection",
+        "kong.plugins.scalable-rate-limiter.schema",
+        "resty.rediscluster",
+        "resty.xmodem"
+      ],
+      "origin": {
+        "commit": "acadc67c18a7e69be15683c4278f67cf3c986a9c",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/dream11/kong-scalable-rate-limiter"
+      },
+      "size": 48564,
+      "summary": "Scalable Rate Limiter plugin for Kong API Gateway",
+      "undeclared_requires": [
+        "bit",
+        "inspect",
+        "kong.db.schema.typedefs",
+        "kong.plugins.app-config.config",
+        "kong.tools.timestamp",
+        "resty.lock",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.timestamp",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 7
+      }
+    }
+  }
+}

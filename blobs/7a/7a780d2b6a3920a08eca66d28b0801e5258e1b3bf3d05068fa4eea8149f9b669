@@ -1,0 +1,44 @@
+local commands = require("rockydocs.commands")
+local M = {}
+
+--- Default configuration for the Rockydocs plugin
+local default_config = {
+	keymap_serve = "<leader>rds", -- Keymap to start the Rockydocs server
+	keymap_stop = "<leader>rdx", -- Keymap to stop the Rockydocs server
+	keymap_build = "<leader>rdb", -- Keymap to build the Rockydocs project
+	keymap_open = "<leader>rdo", -- Keymap to open Rockydocs in the browser
+	command_serve = "mkdocs serve --livereload",
+	command_build = "mkdocs build",
+	uvx_paths = {
+		"~/.local/bin/uvx", -- User-local binary path
+		"/usr/bin/uvx", -- System-wide binary path
+		"/usr/local/bin/uvx", -- Alternative system-wide binary path
+	},
+	uvx_deps = {
+		"mkdocs-awesome-pages-plugin",
+		"mkdocs-git-revision-date-localized-plugin==1.3.0",
+		"mkdocs-material==9.6.7",
+		"mkdocs-redirects",
+		"mkdocs-static-i18n==1.3.0",
+		"babel==2.17.0",
+		"Pillow", -- Required for mkdocs-material[imaging]
+		"mkdocs-minify-plugin",
+		"mike",
+		"jieba",
+	},
+}
+
+--- Plugin setup function
+--- @param opts table|nil User-provided configuration options (optional)
+function M.setup(opts)
+	-- Deep merge user options with default configuration
+	local config = vim.tbl_deep_extend("force", default_config, opts or {})
+
+	-- Set the paths for `uvx` in the utils module
+	require("rockydocs.utils").set_uvx_paths(config.uvx_paths, config.uvx_deps)
+
+	-- Initialize commands and keymaps
+	commands.setup_commands(config)
+end
+
+return M

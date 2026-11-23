@@ -1,0 +1,97 @@
+local async = require('panto_mcp.async')
+local results = require('panto_mcp.results')
+local validate = require('panto_mcp.validate')
+local json = require('panto').ext.json
+local M = {}
+function M.status(manager,warnings)
+    local lines={}
+    for _,warning in ipairs(warnings or {}) do lines[#lines+1]='Config warning: ' .. warning end
+    for _,s in ipairs(manager:servers()) do
+        lines[#lines+1]=string.format('%s: %s · %s · %s · tools=%d prompts=%d resources=%d templates=%d',
+            s.name,s.state,s.era or 'unknown era',s.transport=='http' and 'HTTP URL' or s.transport,s.tools,s.prompts,s.resources,s.templates)
+        if s.auth then lines[#lines+1]='  auth: '..s.auth end
+        if s.notification_warning then lines[#lines+1]='  warning: '..s.notification_warning end
+        if s.error then lines[#lines+1]='  error: ' .. s.error end
+        if s.cache_error then lines[#lines+1]='  cache: ' .. tostring(s.cache_error) end
+        if s.stderr~='' then lines[#lines+1]='  stderr: '..s.stderr:sub(-2048):gsub('[%z\1-\8\11\12\14-\31\127]','?') end
+    end
+    return #lines>0 and table.concat(lines,'\n') or 'No enabled MCP servers.'
+end
+local function checked(input,schema)
+    local ok,errors=validate.check(input,schema)
+    if not ok then error(table.concat(errors,'\n'),0) end
+end
+local function mapped(result)
+    if result.is_error then error(result.text,0) end
+    return {text=result.text,attachments=result.attachments}
+end
+local base={server={type='string'},tool={type='string'},input={},uri={type='string'},
+    query={type='string'},limit={type='integer',minimum=1,maximum=100}}
+function M.register_resource(ext,manager)
+    local schema={type='object',properties={server=base.server,uri=base.uri},required={'server','uri'}}
+    local ok,err=ext.register_tool({name='mcp.read_resource',
+        description='Read an MCP resource URI on its originating server (including resource_link results). Does not fetch arbitrary web URLs.',
+        schema=schema,handler=function(input) checked(input,schema); return mapped(manager:read_resource(input.server,input.uri)) end})
+    if not ok and err then io.stderr:write('panto-mcp: cannot register mcp.read_resource: ',tostring(err),'\n') end
+    return ok
+end
+function M.register(ext,manager,warnings,include_search,include_resource)
+    if include_search ~= false then
+        for _,spec in ipairs({
+            {name='mcp.search',description='Search MCP tools/resources/templates. Omit query to browse. Returns exact names and full tool input schemas; warm metadata search starts no servers.',
+                schema={type='object',properties={query=base.query,server=base.server,limit=base.limit}},
+                handler=function(input)
+                    local value,err=manager:search(input.query,{server=input.server,limit=input.limit})
+                    if not value then error(err,0) end
+                    return results.cap(json.encode(value))
+                end},
+            {name='mcp.call',description='Call one MCP tool by exact server/tool names, with input matching the live inputSchema returned by mcp.search. No fuzzy execution.',
+                schema={type='object',properties={server=base.server,tool=base.tool,input=base.input},required={'server','tool'}},
+                handler=function(input) return mapped(manager:call(input.server,input.tool,input.input)) end},
+        }) do
+            local handler=spec.handler
+            spec.handler=function(input) checked(input,spec.schema); return handler(input) end
+            ext.register_tool(spec)
+        end
+    end
+    if include_resource then M.register_resource(ext,manager) end
+    M.register_status(ext,manager,warnings)
+end
+function M.register_status(ext,manager,warnings)
+    ext.register_command({name='mcp-login',description='Log in to an HTTP MCP server: /mcp-login <server> [callback-url | --reregister]',handler=function(args)
+        local name,callback_url=(args or ''):match('^%s*(%S+)%s*(.-)%s*$')
+        if not name or callback_url:find('%s') then return 'Usage: /mcp-login <server> [callback-url | --reregister]' end
+        return manager:login(name,callback_url~='' and callback_url~='--reregister' and callback_url or nil,callback_url=='--reregister')
+    end})
+    ext.register_command({name='mcp',description='MCP status; /mcp refresh [server] starts a metadata refresh.',handler=function(args)
+        args=args or ''
+        if args=='' then return M.status(manager,warnings) end
+        local cmd,name=args:match('^(%S+)%s*(.-)%s*$')
+        if cmd~='refresh' or name:find('%s') then return 'Usage: /mcp [refresh [server]]' end
+        if name=='' then name=nil end
+        if name then local s,err=manager:lookup(name); if not s then return err end end
+        async.run(function() manager:refresh(name) end)
+        return 'MCP refresh started; /mcp shows current status.'
+    end})
+end
+function M.hint(ext,servers)
+    local names={}; local search_enabled=false
+    for n,c in pairs(servers) do names[#names+1]=n; search_enabled=search_enabled or c.expose=='search' end
+    table.sort(names)
+    local lines={'## MCP'}
+    if search_enabled then
+        lines[#lines+1]='Find tools/resources with mcp.search; call exact names with mcp.call. '
+            ..'std.lua reference: require("panto_mcp.docs").discovery (also .calls, .resources, .prompts).'
+    else
+        lines[#lines+1]='Eager MCP tools are registered as mcp.<server>.<tool>; '
+            ..'std.lua reference: require("panto_mcp.docs").discovery (also .calls, .resources, .prompts).'
+    end
+    for _,n in ipairs(names) do
+        local c=servers[n]; lines[#lines+1]=n .. ': ' .. (c.transport=='http' and 'HTTP URL' or 'stdio') .. ', ' .. c.expose
+    end
+    ext.on('session_ready',function()
+        local agent=ext.agent
+        if agent and type(agent.add_system_message)=='function' then agent:add_system_message(table.concat(lines,'\n')) end
+    end)
+end
+return M

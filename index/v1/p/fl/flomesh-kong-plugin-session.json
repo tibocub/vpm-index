@@ -1,0 +1,99 @@
+{
+  "kind": "lib",
+  "name": "flomesh-kong-plugin-session",
+  "versions": {
+    "2.1.2-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-session == 2.24"
+      ],
+      "files": {
+        "kong/plugins/session/access.lua": {
+          "sha256": "483db326abf19dfb2223b93557cbeeddd01547e862b4427a8a9fb369fce6f1b6",
+          "size": 2088,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/access.lua"
+        },
+        "kong/plugins/session/daos.lua": {
+          "sha256": "eda860887cf65bd4d33dfadce1dd9ed9324e42991e0275d70b24a60ed8685b5a",
+          "size": 440,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/daos.lua"
+        },
+        "kong/plugins/session/handler.lua": {
+          "sha256": "1c0804a7509f4d84df725198e9c5b34417a9259251e0ebbd7f0040d6feab0ce4",
+          "size": 1298,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/handler.lua"
+        },
+        "kong/plugins/session/migrations/000_base_session.lua": {
+          "sha256": "d27818c63ca3f5c525f9777739219a3c29fe63f76e6927dc5ae515ea7403fc35",
+          "size": 939,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/migrations/000_base_session.lua"
+        },
+        "kong/plugins/session/migrations/init.lua": {
+          "sha256": "6f989d26242b4ecee011011e93f886c028a8068f32635331b069f8b27925f8fa",
+          "size": 32,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/migrations/init.lua"
+        },
+        "kong/plugins/session/schema.lua": {
+          "sha256": "0ec74c7c8d49a651321e44725087110a8879bcc44a0d19ddd76853dcbd7bdf43",
+          "size": 2524,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/schema.lua"
+        },
+        "kong/plugins/session/session.lua": {
+          "sha256": "462b46716fc81e53b1ecac63e269542b8a9de95c8622993dd2179baead841a1c",
+          "size": 2952,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/session.lua"
+        },
+        "kong/plugins/session/storage/kong.lua": {
+          "sha256": "4fcc8ed133d8ae50eece48080ce3dc64807ad598d504cdbee4ecb50271185763",
+          "size": 3476,
+          "url": "https://raw.githubusercontent.com/polaristech-io/flomesh-kong-plugin-session/6cf8c0fb5724fa8007b0a5622f988b139140df31/kong/plugins/session/storage/kong.lua"
+        }
+      },
+      "homepage": "http://konghq.com",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 01 Mar 2022 12:52:50 GMT",
+        "rockspec": {
+          "date": "Tue, 01 Mar 2022 12:52:50 GMT",
+          "sha256": "1915ea654cea63cadbc4510a59b39170c6bbe9bfced0af35a689f69f956bb9e1",
+          "size": 1158
+        }
+      },
+      "modules": [
+        "kong.plugins.session.access",
+        "kong.plugins.session.daos",
+        "kong.plugins.session.handler",
+        "kong.plugins.session.migrations",
+        "kong.plugins.session.migrations.000_base_session",
+        "kong.plugins.session.schema",
+        "kong.plugins.session.session",
+        "kong.plugins.session.storage.kong"
+      ],
+      "origin": {
+        "commit": "6cf8c0fb5724fa8007b0a5622f988b139140df31",
+        "ref": "2.1.2",
+        "type": "git",
+        "url": "https://github.com/polaristech-io/flomesh-kong-plugin-session"
+      },
+      "size": 13749,
+      "summary": "A Kong plugin to support implementing sessions for auth plugins.",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

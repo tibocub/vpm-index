@@ -1,0 +1,67 @@
+local constants = require 'netacea_constants'
+local util = require 'netacea_util'
+
+local protector = {}
+
+local function call_protector_api(session, config)
+    local httpclient = core.httpclient()
+    local headers = {
+        ["x-netacea-api-key"] = { config.api_key },
+        ["user-agent"] = { session.user_agent },
+        ["x-netacea-client-ip"] = { session.client_ip },
+        ["x-netacea-userid"] = { session.user_id },
+        ["x-netacea-Request-Id"] = { session.request_id }
+    }
+
+    if session.customer_session_id then
+        headers["x-netacea-customer-session-id"] = { session.customer_session_id }
+    end
+
+    -- config.protector_api_url is always normalized to "scheme://host/" (see
+    -- netacea_config.lua's base_url()), so the query marker can always be
+    -- appended with "?" rather than needing to detect an existing path or
+    -- query string.
+    local url = (config.protector_api_url or "") .. "?netaceaHeaders=Request-Id"
+
+    local res = httpclient:get{
+        url = url,
+        headers = headers,
+        timeout = config.protector_api_timeout_ms
+    }
+    return res
+end
+
+-- Calls the protector API unless the session's mode is INGEST (ingest-only
+-- traffic never needs a verdict), and folds the response headers into
+-- `session`.
+function protector.fetch_verdict(session, config)
+    if session.mode == "INGEST" then
+        return
+    end
+
+    if not session.should_revalidate then
+        return
+    end
+
+    local res = util.safe_call(function() return call_protector_api(session, config) end)
+    if not res then
+        core.Info("netacea bot lua module failed to call the protector API")
+        session.protector_error = true
+        return
+    end
+
+    local status_code = tonumber(res.status)
+    session.protector_status = res.status
+
+    if status_code ~= 200 then
+        session.protector_error = true
+        return
+    end
+
+    session.match = util.header_value(res.headers, "x-netacea-match", constants.idTypes.NONE)
+    session.mitigate = util.header_value(res.headers, "x-netacea-mitigate", constants.mitigationTypes.NONE)
+    session.captcha = util.header_value(res.headers, "x-netacea-captcha", constants.captchaStates.NONE)
+    session.redirect_host = util.header_value(res.headers, "x-netacea-redirect-host", nil)
+end
+
+return protector

@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "gamecake-zip",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:26:55 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:26:55 GMT",
+          "sha256": "fdc23e8b3feaa125130d31030eef809013d9b870950c56482bd6f88bd4966347",
+          "size": 1163
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:26:56 GMT",
+          "sha256": "2ca9a780ddea2108ead59b1433c8ce4a905690f8df86a26bc3679f1b8166ce9e",
+          "size": 61311,
+          "url": "https://luarocks.org/gamecake-zip-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.zip"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "ZZIP"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "ZZIP": {
+              "header": "zzip.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "lua_zip/src",
+                "lib_hacks/code",
+                "$(ZZIP_INCDIR)"
+              ],
+              "libdirs": [
+                "$(ZZIP_LIBDIR)"
+              ],
+              "libraries": [
+                "zzip"
+              ],
+              "name": "wetgenes.zip",
+              "sources": [
+                "lua_zip/src/luazip.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:26:56 GMT",
+        "sha256": "2ca9a780ddea2108ead59b1433c8ce4a905690f8df86a26bc3679f1b8166ce9e",
+        "size": 61311,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-zip-0.9-261005.src.rock"
+      },
+      "summary": "modified version of luazip",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

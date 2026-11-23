@@ -1,0 +1,380 @@
+-------------------------------------------------------------------------------
+-- This module implements a function that traverses all live objects.
+-- You can implement your own function to pass as a parameter of traverse
+-- and give you the information you want. As an example we have implemented
+-- countreferences and findallpaths
+--
+-- Alexandra Barros - 2006.03.15
+-------------------------------------------------------------------------------
+
+--luacheck: ignore 143/debug 113/getfenv
+
+local List = {}
+
+function List.new ()
+	return {first = 0, last = -1}
+end
+
+function List.push (list, value)
+	local last = list.last + 1
+    list.last = last
+    list[last] = value
+end
+
+function List.pop (list)
+    local first = list.first
+    if first > list.last then error("list is empty") end
+    local value = list[first]
+    list[first] = nil
+    list.first = first + 1
+    return value
+end
+
+function List.isempty (list)
+	return list.first > list.last
+end
+
+local traverse, edge;
+local types = {};
+local get_metatable, get_environment, get_registry, get_locals, upvalues
+
+
+-- select implementation of get_metatable depending on available API
+if type( debug ) == "table" and
+   type( debug.getmetatable ) == "function" then
+
+  local get_mt = debug.getmetatable
+  function get_metatable( val, enabled )
+    if enabled then return get_mt( val ) end
+  end
+
+elseif type( getmetatable ) == "function" then
+
+  function get_metatable( val, enabled )
+    if enabled then return getmetatable( val ) end
+  end
+
+else
+
+  function get_metatable() end
+
+end
+
+
+-- select implementation of get_environment depending on available API
+if type( debug ) == "table" and
+   type( debug.getfenv ) == "function" then
+
+  local get_fe = debug.getfenv
+  function get_environment( val, n, enabled )
+    if enabled and n == 1 then
+      local uv = get_fe( val )
+      return uv, uv ~= nil
+    end
+    return nil, false
+  end
+
+elseif type( debug ) == "table" and
+       type( debug.getuservalue ) == "function" then
+
+  local get_uv = debug.getuservalue
+  if _VERSION < "Lua 5.4" then
+    local get_uv_noindex = get_uv
+    function get_uv( val, n )
+      if n == 1 then
+        local uv = get_uv_noindex( val )
+        return uv, uv ~= nil
+      end
+      return nil, false
+    end
+  end
+  function get_environment( val, n, enabled )
+    if enabled then
+      -- getuservalue in Lua 5.2 throws on light userdata!
+      local ok, res1, res2 = pcall( get_uv, val, n )
+      if ok then return res1, res2 end
+      return nil, false
+    end
+  end
+
+elseif type( getfenv ) == "function" then
+
+  function get_environment( val, n, enabled )
+    if enabled and n == 1 and type( val ) == "function" then
+      local uv = getfenv( val )
+      return uv, uv ~= nil
+    end
+    return nil, false
+  end
+
+else
+
+  function get_environment() return nil, false end
+
+end
+
+
+-- select implementation of get_registry
+if type( debug ) == "table" and
+   type( debug.getregistry ) == "function" then
+  get_registry = debug.getregistry
+else
+  function get_registry() end
+end
+
+
+-- select implementation of get_locals
+-- locs = {
+--   {
+--      name = "example_function";
+--      func = <function>;
+--      [1] = { "local_name", <local value> };
+--      [2] = ...;
+--   };
+-- }
+if type( debug ) == "table" and
+   type( debug.getinfo ) == "function" and
+   type( debug.getlocal ) == "function" then
+
+  local getinfo, getlocal = debug.getinfo, debug.getlocal
+
+  local function getinfo_nothread( _, func, what )
+    return getinfo( func, what )
+  end
+
+  local function getlocal_nothread( _, level, loc )
+    return getlocal( level, loc )
+  end
+
+  function get_locals( thread, enabled )
+    if enabled then
+      local locs = {}
+      local start = 1
+      local gi, gl = getinfo, getlocal
+      if not thread then
+        gi, gl = getinfo_nothread, getlocal_nothread
+      end
+      local info, i = gi( thread, 0, "nf" ), 0
+      while info do
+        local t = { name = info.name, func = info.func }
+        local j, n,v = 1, gl( thread, i, 1 )
+        while n ~= nil do
+          t[ j ] = { n, v }
+          j = j + 1
+          n,v = gl( thread, i, j )
+        end
+        i = i + 1
+        locs[ i ] = t
+        -- We skip the currently-executing traverse() function
+        -- and anything that is only referenced through it
+        if info.func == traverse then start = i+1 end
+        info = gi( thread, i, "nf" )
+      end
+      return locs, start
+    end
+  end
+
+else
+
+  function get_locals() end
+
+end
+
+
+-- select implementation of upvalues depending on available API
+local function dummy_iter() end
+if type( debug ) == "table" and
+   type( debug.getupvalue ) == "function" then
+
+  local get_up, uv_iter = debug.getupvalue
+  if _VERSION == "Lua 5.1" then
+
+    function uv_iter( state )
+      local name, uv = get_up( state.value, state.n )
+      state.n = state.n + 1
+      return name, uv, nil
+    end
+
+  else -- Lua 5.2 (and later) mixes upvalues and environments
+
+    local get_upid
+    if type( debug.upvalueid ) == "function" then
+      get_upid = debug.upvalueid
+    end
+
+    function uv_iter( state )
+      local name, uv = get_up( state.value, state.n )
+      state.n = state.n + 1
+      if name == "_ENV" and not state.show_env then
+        return uv_iter( state )
+      end
+      local id = nil
+      if get_upid ~= nil and name ~= nil then
+        id = get_upid( state.value, state.n - 1 )
+      end
+      return name, uv, id
+    end
+  end
+
+  function upvalues( val, enabled, show_env )
+    if enabled then
+      return uv_iter, { value = val, n = 1, show_env = show_env }
+    else
+      return dummy_iter
+    end
+  end
+
+else
+
+  function upvalues()
+    return dummy_iter
+  end
+
+end
+
+local function handle_metatable(env, obj)
+	local mtable = get_metatable(obj)
+	if mtable ~= nil then
+		edge(env, obj, mtable, "ismetatable", nil)
+	end
+end
+
+local function handle_environment(env, obj)
+	local n = 0
+	repeat
+		n = n + 1
+		local fenv, has_env = get_environment(obj, n)
+		if has_env and fenv ~= nil then
+			edge(env, obj, fenv, "environment", nil)
+		end
+	until not has_env
+end
+
+local function handle_locals(env, obj)
+	local stack = get_locals(obj);
+	if not stack then return; end
+	for _, frame in ipairs(stack) do
+		for local_entry in ipairs(frame) do
+			local local_name, local_value = local_entry[1], local_entry[2];
+			edge(env, obj, local_name, "isname", nil);
+			edge(env, obj, local_value, "local", local_name);
+		end
+	end
+end
+
+-- Main function
+-- 'funcs' is a table that contains a funcation for every lua type and also the
+-- function edge edge (traverseedge).
+function traverse(funcs, ignoreobjs, seenobjs)
+
+	-- The keys of the marked table are the objects (for example, table: 00442330).
+	-- The value of each key is true if the object has been found and false
+	-- otherwise.
+	local env = {marked = seenobjs or {}, list=List.new(), funcs=funcs}
+
+	if ignoreobjs then
+		for i=1, #ignoreobjs do
+			env.marked[ignoreobjs[i]] = true
+		end
+	end
+
+	env.marked["traverse"] = true
+	env.marked[traverse] = true
+
+	-- marks and inserts on the list
+	edge(env, nil, "_G", "isname", nil)
+	edge(env, nil, _G, "value", "_G")
+
+	-- traverse the registry
+	local registry = get_registry();
+	if registry ~= nil then
+		edge(env, nil, registry, "value", "REGISTRY");
+	end
+
+	-- traverses the active thread
+	-- inserts the local variables
+	-- interates over the function on the stack, starting from the one that
+	-- called traverse
+	handle_locals(env, nil);
+
+	while not List.isempty(env.list) do
+
+		local obj = List.pop(env.list)
+		local t = type(obj)
+		types[t](env, obj)
+
+	end
+end
+
+function types.table(env, obj)
+	local f = env.funcs.table
+	if f then f(obj) end
+
+	for key, value in pairs(obj) do
+		edge(env, obj, key, "key", nil)
+		edge(env, obj, value, "value", key)
+	end
+
+	handle_metatable(env, obj)
+end
+
+function types.string(env, obj)
+	local f = env.funcs.string
+	if f then f(obj) end
+end
+
+function types.userdata(env, obj)
+	local f = env.funcs.userdata
+	if f then f(obj) end
+
+	handle_metatable(env, obj)
+	handle_environment(env, obj)
+end
+
+types["function"] = function (env, obj)
+	local f = env.funcs.func
+	if f then f(obj) end
+
+	handle_environment(env, obj)
+
+	-- handle upvalues
+	for name, value in upvalues(obj, true, true) do
+		edge(env, obj, name, "isname", nil)
+		edge(env, obj, value, "upvalue", name)
+	end
+end
+
+function types.thread(env, t)
+	local f = env.funcs.thread
+	if f then f(t) end
+
+	handle_environment(env, t)
+	handle_locals(env, t);
+
+end
+
+
+-- 'how' is a string that identifies the content of 'to' and 'value':
+-- 		if 'how' is "key", then 'to' is a key and 'name' is nil.
+-- 		if 'how' is "value", then 'to' is an object and 'name' is the name of the
+--		key.
+function edge(env, from, to, how, name)
+
+	local t = type(to)
+
+	if to and (t~="boolean") and (t~="number") and (t~="new") then
+		-- If the destination object has not been found yet
+		if not env.marked[to] then
+			env.marked[to] = true
+			List.push(env.list, to) -- puts on the list to be traversed
+		end
+
+		local f = env.funcs.edge
+		if f then f(from, to, how, name) end
+
+	end
+end
+
+return {
+	traverse = traverse;
+};

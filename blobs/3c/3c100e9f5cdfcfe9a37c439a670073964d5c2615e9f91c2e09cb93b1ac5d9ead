@@ -1,0 +1,72 @@
+local Collection = {}
+Collection.__index = Collection
+
+function Collection.new()
+  return setmetatable({
+    _map = {},
+    _size = 0,
+  }, Collection)
+end
+
+function Collection:set(key, value)
+  if self._map[key] == nil then
+    self._size = self._size + 1
+  end
+  self._map[key] = value
+  return value
+end
+
+function Collection:get(key)
+  return self._map[key]
+end
+
+function Collection:has(key)
+  return self._map[key] ~= nil
+end
+
+function Collection:delete(key)
+  if self._map[key] ~= nil then
+    self._map[key] = nil
+    self._size = self._size - 1
+    return true
+  end
+  return false
+end
+
+function Collection:clear()
+  self._map = {}
+  self._size = 0
+end
+
+function Collection:size()
+  return self._size
+end
+
+function Collection:values()
+  local out = {}
+  local i = 1
+  for _, value in pairs(self._map) do
+    out[i] = value
+    i = i + 1
+  end
+  return out
+end
+
+function Collection:keys()
+  local out = {}
+  local i = 1
+  for key in pairs(self._map) do
+    out[i] = key
+    i = i + 1
+  end
+  return out
+end
+
+function Collection:forEach(fn)
+  for key, value in pairs(self._map) do
+    fn(value, key)
+  end
+end
+
+return Collection
+

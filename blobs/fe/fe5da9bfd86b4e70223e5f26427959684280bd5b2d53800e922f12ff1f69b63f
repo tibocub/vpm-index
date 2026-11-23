@@ -1,0 +1,895 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 08-11-2023 @author Swarg
+local M = {}
+--
+local su = require("cmd4lua.utils.str")
+local base = require("cmd4lua.base")
+local conf = require('cmd4lua.settings')
+
+local dprint = conf.dprint
+
+local not_empty_or_nil = base.not_empty_or_nil
+
+
+
+-- fold
+---@param desc string
+---@param left number
+---@param left2 number
+local function split_desc(desc, left, left2)
+  left = left or 0
+  left2 = left2 or 0
+  local rem = conf.WIDTH - left
+  local rem1 = rem - left2
+
+  -- desc fits into remaining space
+  if not desc or #desc < rem1 or rem < 5 then
+    return desc, nil
+  end
+
+  local i = su.back_indexof(desc, 1, rem1, ' ') - 1
+  local first_line, lines = desc:sub(1, i), {}
+
+  -- dprint('#desc:', #desc, 'left', left, 'left2:', left2, 'rem:', rem, 'rem1:', rem1, 'i:', i, start)
+
+  if #desc - i <= rem1 then -- if remains of desc fit to a one line
+    local line = desc:sub(i + 1)
+    lines = { string.format("%-" .. (left + left2 + 4) .. 's%s', ' ', line) }
+    return first_line, lines
+    --
+  end
+
+  -- splitting the remainder of the description into several lines
+  local prev = i + 1
+
+  while prev <= #desc do
+    local next = prev + (rem - 4)
+    -- i = (cond) ? true : false
+    i = (next >= #desc) and (#desc + 1) or su.back_indexof(desc, prev, next, ' ')
+
+    local line = desc:sub(prev + 1, i - 1)
+
+    if line == '' then break end
+    -- 4 is for '  -  '
+    lines[#lines + 1] = string.format("%-" .. (left + 4) .. 's %s', ' ', line)
+
+    prev = i
+  end
+  return first_line, lines
+end
+
+---@param tbl table cmds or opts
+---@param lines table
+---@param lmax number
+---@param props table
+---@param pmax number
+---@param tmax number
+local function build_elements_desc(tbl, lines, lmax, props, pmax, tmax)
+  local i, help = 1, ''
+  dprint('lmax:', lmax, 'pmax:', pmax)
+  for _, e in pairs(tbl) do
+    -- prop - envvar + type
+    -- def - tag + def in same section as desc
+    local line, prop, desc = lines[i], props[i], '  -  '
+    local desc_lines = nil
+
+    if e.tag and e.tag ~= '' then
+      -- desc = desc .. '"' .. e.tag .. '"'
+      tmax = tmax or #e.tag
+      desc = desc .. string.format('"%-' .. (tmax + 1) .. 's', e.tag .. '"')
+    end
+
+    if e.has_default then
+      if #desc > 5 then desc = desc .. ' ' end
+      desc = desc .. '[' .. tostring(e.default_value) .. ']'
+    end
+
+    if e.description then
+      if #desc > 5 then desc = desc .. '  ' end
+      desc = desc .. e.description
+      desc, desc_lines = split_desc(desc, lmax, pmax)
+    end
+
+    local lmax0, pmax0 = lmax, pmax
+    if #desc == 5 then
+      desc = ''; pmax0 = 0
+    end
+
+    if prop == '' and pmax0 == 0 and #desc == 0 then lmax0 = 0 end
+    help = help .. string.format("%-" .. lmax0 .. "s%-" .. pmax0 .. "s%s\n",
+      line, prop, desc
+    )
+    -- fold a big desc
+    if desc_lines then
+      for _, dline in pairs(desc_lines) do
+        if dline ~= '' then
+          help = help .. dline .. "\n"
+        end
+      end
+    end
+    i = i + 1
+  end
+  return help
+end
+
+---@param line string
+---@param desc string
+---@param marks string|nil
+local function build_line_description(line, desc, marks)
+  if desc and desc ~= '' then
+    marks = marks or ''
+    line = line .. '  -  ' .. tostring(marks) .. desc
+    -- todo fold long description to multiple lines
+    -- todo if without marks cmd.description fits in one line - omit it
+  else
+    if marks and marks ~= '' then
+      line = line .. '  -  ' .. marks
+    end
+    line = line:gsub("^(.-)%s*$", "%1") -- trim spaces from right
+  end
+  return line
+end
+
+--
+-- a number of optional elements (elm.required ~= true
+-- for args and opts
+--
+---@param tbl table
+local function get_unrequired_cnt(tbl)
+  local cnt = 0
+  if tbl then
+    for _, d in pairs(tbl) do
+      if not d.required then
+        cnt = cnt + 1
+      end
+    end
+  end
+  return cnt
+end
+
+---@param tbl table<string,table>  -- list of pairs key->value
+---@return table<table>            -- list of values in order sorted by name
+local function sort_by_name(tbl)
+  local t = {}
+  for _, entry in pairs(tbl) do
+    t[#t + 1] = entry
+  end
+
+  table.sort(t, function(a, b)
+    return a.name:upper() < b.name:upper()
+  end)
+  return t
+end
+
+
+---@param d table {required}
+local function get_required_char(d)
+  -- for arguments required is a defualt property do not mark
+  if d then
+    if d.ai ~= nil then                                  -- is arg
+      if d.required then return '' else return '*' end
+    elseif d and d.name and d.name:sub(1, 1) == '-' then -- is opt
+      if d.required then return '*' else return '' end
+    end
+  end
+  return ''
+end
+
+---@param d table {.., group{name, type}}
+---@return string|nil
+local function get_short_group_name(d, tab)
+  if d then
+    local n = ''
+    -- TODO: another labels
+    -- '*' - a "required" label
+    n = n .. get_required_char(d)
+
+    if d.group and type(d.group.name) == 'string' then
+      n = n .. tostring(d.group.name:sub(1, 1))
+      if type(d.group.type) == 'number' then
+        n = n .. tostring(d.group.type)
+      end
+    end
+    if n ~= '' and tab then
+      n = tab .. n
+    end
+    return n
+  end
+end
+
+
+
+-- Check is given table of the elements(args [or opts]) has some custom data
+--  group, required, description, default_value
+--
+---@param tbl table
+local function has_metadata(tbl)
+  assert(type(tbl) == 'table', 'tbl')
+
+  for _, e in pairs(tbl) do
+    if e.tag and e.tag ~= '' or
+        e.group or
+        e.ai and e.required ~= true or -- optional arg
+        e.description and e.description ~= '' or
+        e.default_value and e.default_value ~= '' then
+      return true
+    end
+  end
+  return false
+end
+
+local function build_wrong_value_desc(fullname, msg, value)
+  local line = fullname
+  if value == nil then
+    line = line .. ' Not Defined (nil)\n'
+  else
+    line = line .. string.format(" %s: '%s'\n",
+      msg or 'contains invalid value', tostring(value))
+  end
+  return line
+end
+
+---@param arg table
+local function get_full_argname(arg)
+  if arg and arg.tag then
+    return tostring(arg.ai) .. ' "' .. tostring(arg.tag) .. '"'
+  elseif arg and arg.ai then
+    return 'Arg' .. tostring(arg.ai or 1)
+  else
+    return 'arg?'
+  end
+end
+
+
+---@param opt table
+---@param envvar_after boolean|nil -- flag to place envar after opt key names
+---@return string?, string? -- optkeys, tag, envvar
+local function get_opt_names(opt, envvar_after)
+  if opt then
+    local optkeys, envvar, sn
+
+    optkeys = opt.name or '?'
+    envvar = ''
+
+    sn = not_empty_or_nil(opt.shortname)
+    if sn then optkeys = sn .. ', ' .. optkeys end -- short opt name
+
+    if opt.envvar_name and opt.envvar_name ~= '' then
+      if envvar_after then
+        envvar = ' or ${' .. opt.envvar_name .. '}'
+      else
+        envvar = '${' .. opt.envvar_name .. '} or '
+      end
+    end
+    return optkeys, envvar
+  else
+    return 'opt?'
+  end
+end
+
+-----------------------------------------------------------------------------
+--                          Build Help
+-----------------------------------------------------------------------------
+
+---@param obj Cmd4Lua
+local function build_missing_required_args(obj)
+  local msg = ''
+  local targs = obj.collector:get_thelp_args()
+  local missing_args = obj.collector:get_missing_required_cnt(targs)
+
+  if missing_args > 0 and targs then
+    if missing_args > 1 then
+      msg = msg .. "Not specified the required Arguments:\n"
+    end
+
+    local fmt = "  %s is missing%s\n"
+    if missing_args == 1 then
+      fmt = "The expected argument %s is missing.%s\n"
+    end
+    for _, arg in pairs(targs) do
+      if arg.missing and not obj.collector:is_provided_from_group(arg) then
+        local fullname, req_group
+        fullname = get_full_argname(arg)
+        req_group = get_short_group_name(arg, '  ')
+        msg = msg .. string.format(fmt, fullname, req_group or '')
+      end
+    end
+  end
+  return msg
+end
+
+--
+---@param obj Cmd4Lua
+local function build_missing_required_opts(obj)
+  local c = obj.collector
+  local msg = ''
+
+  local opts = c:get_thelp_opts()
+  local missing_opts = c:get_missing_required_cnt(opts)
+  if missing_opts > 0 then -- obj:has_missing_required_opts()
+    if missing_opts > 1 then
+      msg = msg .. "Not specified the required OptKeys:\n"
+    end
+    local fmt = "  %s%sOptKey: %s is missing%s\n"
+    if missing_opts == 1 then
+      fmt = "The expected %s%sOptKey: %s is missing%s\n" -- Opt of EnvVar
+    end
+
+    ---@cast opts table
+    for _, opt in pairs(opts) do
+      if opt.missing and not c:is_provided_from_group(opt) then
+        local tag, req_group = '', nil
+        local optkeys, envvar = get_opt_names(opt)
+
+        if opt.tag and opt.tag ~= '' then
+          tag = '"' .. opt.tag .. '" '
+        end
+
+        req_group = get_short_group_name(opt, '  ')
+
+        msg = msg ..
+            string.format(fmt, tag, envvar, optkeys, req_group or '')
+      end
+    end
+  end
+  return msg
+end
+
+-- illegal value triggered by value_validator_callback
+---@return string
+---@param obj Cmd4Lua
+local function build_invalid_opt_values(obj)
+  local msg = ''
+  if obj.collector:has_invalid_opt_values() then
+    msg = msg .. "OptKeys with Invalid values:\n"
+    local opts = obj.collector:get_thelp_opts()
+    ---@cast opts table
+    for _, t in pairs(opts) do
+      if t.has_invalid_value and not t.missing then
+        local fullname = base.get_opt_name(t)
+        if t.tag then
+          fullname = fullname .. ' "' .. t.tag .. '"'
+        end
+        msg = msg .. "  " .. build_wrong_value_desc(
+          fullname,
+          t.errmsg or false,
+          t.invalid_value
+        )
+      end
+    end
+  end
+  return msg
+end
+
+---@return string
+---@param obj Cmd4Lua
+local function build_invalid_arg_values(obj)
+  local msg = ''
+  local targs = obj.collector:get_thelp_args()
+  if targs and obj.collector:has_invalid_arg_values() then
+    for _, t in pairs(targs) do
+      if t.invalid_value then
+        msg = msg .. build_wrong_value_desc(
+          get_full_argname(t),
+          t.errmsg or false,
+          t.invalid_value
+        )
+      end
+    end
+  end
+  return msg
+end
+
+--
+---@param obj Cmd4Lua
+local function build_invalid_groups(obj)
+  local msg = ''
+  if obj.collector.thelp and obj.collector.thelp.groups then
+    for _, group in pairs(obj.collector.thelp.groups) do
+      local gtype = group.type
+      local name = group.name
+      local n = #group.elements
+      -- one of group
+      if gtype == 1 then
+        -- allow to has only one
+        if n ~= 1 then
+          msg = msg .. string.format(
+            "Radio-button Group(1) [%s] must has exactly one element, has: %s\n",
+            name, n
+          )
+          if n == 0 then
+            msg = msg .. string.format(
+              "You should specify one of the following elements:\n")
+            -- the missing elements(varianst) will be printed by
+            -- build_missing_required_args()
+            -- build_missing_required_opts()
+          end
+        end
+        -- non of group
+      elseif gtype == 0 then
+        if n > 0 then
+          msg = msg .. string.format(
+            "Specified the element from Blocked Group(0) [%s]\n",
+            name, n
+          )
+        end
+      elseif gtype == 8 then
+        if n <= 0 then
+          msg = msg .. string.format("Many Group(8) [%s] is empty\n", name)
+        end
+      end
+    end
+  end
+  return msg
+end
+
+--
+-- untouched options are considered unknown and unexpected
+--
+-- untouched means that there is no mention of these options in the code of
+-- the command handler itself
+--
+-- the --help and -h is already checked in unchecked_opts()
+--
+---@param obj Cmd4Lua
+---@return string
+local function build_unknown_opts(obj)
+  local msg = ''
+  local unknown = obj.collector:unchecked_opts()
+
+  if unknown and #unknown > 0 then
+    -- M.show_internal('unknown opts ', unknown)
+
+    for _, name in pairs(unknown) do
+      msg = msg .. ' ' .. name
+    end
+
+    local prefix, sep = "Unknown Input: Opts:", ' '
+    if #prefix + #msg > conf.WIDTH then
+      sep = "\n"
+    end
+    if #msg > 0 then
+      msg = prefix .. sep .. msg .. "\n"
+    end
+  end
+
+  return msg
+end
+
+--
+-- All arguments that are not accessed in the code when processing a command
+-- are considered unexpected and unnecessary. And triggers input error
+--
+---@param obj Cmd4Lua
+---@return string
+local function build_unexpected_args(obj)
+  dprint(1, 'build_unexpected_args >')
+  local cnt, line, targs = 0, '', obj.collector:get_thelp_args()
+
+  local function is_helpcmd0(ai, arg)
+    return obj.ai == ai and base._is_helpcmd(arg)
+  end
+
+  local lvl_deep = obj.collector.lvl_deep
+  local cmd_unknown = obj.collector.cmd_unknown
+
+  if targs then
+    dprint('has touched arguments')
+    for ai = lvl_deep, #obj.args do
+      -- in cmd line index from 0 in table from 1
+      local offset = ai - lvl_deep + 1
+      local touched_arg = targs[offset]
+      dprint('ai ', offset, 'arg:', touched_arg)
+      if not touched_arg then
+        local arg = obj.args[ai] -- actual arg
+        -- do not duplicate error message. give priority to the unknown command
+        if arg and arg ~= cmd_unknown and not is_helpcmd0(ai, arg) then
+          if (cnt > 0) then line = line .. ' ' end
+          line = line .. "'" .. tostring(obj.args[ai]) .. "'"
+          cnt = cnt + 1
+        end
+      end
+    end
+  else
+    dprint('no one argument has yet been touched')
+
+    for ai = lvl_deep, #obj.args do
+      local arg = obj.args[ai]
+      -- do not duplicate error message. give priority to the unknown command
+
+      if arg and arg ~= cmd_unknown and not is_helpcmd0(ai, arg)
+          -- if arg is not a known command
+          and not obj.collector:_find_command_for(arg)
+      then
+        if (cnt > 0) then line = line .. ' ' end
+        line = line .. "'" .. tostring(obj.args[ai]) .. "'"
+        cnt = cnt + 1
+      end
+    end
+  end
+
+  if cnt > 0 and line ~= '' then
+    local prefix, sep = "Has unexpected Arguments:", "\n"
+    if #line + #prefix < conf.WIDTH then
+      sep = ' '
+    end
+    line = prefix .. sep .. line .. "\n"
+  end
+
+  return line
+end
+
+--
+---@param obj Cmd4Lua
+---@return string
+function M.build_cmdpath(obj)
+  if obj.collector._cmds_path then
+    local line = ''
+    for _, cmd in pairs(obj.collector._cmds_path) do
+      line = line .. ' ' .. cmd
+    end
+    return line
+  end
+  return ''
+end
+
+--
+---@param obj Cmd4Lua
+---@param prefix string|nil
+function M.build_usage_line(obj, prefix)
+  local line = M.build_cmdpath(obj)
+  local order = obj.collector:get_access_queue()
+
+  local function get_elm_name(d0)
+    if d0.group and d0.group.name then
+      return tostring(d0.elm_type) .. '-' .. tostring(d0.group.name)
+    else
+      return tostring(d0.elm_type)
+    end
+  end
+
+  local last_etype -- elmt type + group name if has
+  for _, d in pairs(order) do
+    local curr = get_elm_name(d)
+    if d.elm_type == 'Argument' then
+      line = line .. ' ' .. base.get_arg_name(d)
+    end
+    if curr ~= last_etype then
+      last_etype = curr
+      if d.elm_type == 'Options' then
+        line = line .. ' [' .. curr .. ']'
+        -- TODO if all avaible options of this group is required then use <>
+      elseif d.elm_type == 'Command' then
+        line = line .. ' <' .. curr .. '>'
+      end
+      -- each Argument is already added
+    end
+  end
+
+  if #line > 0 then
+    return (prefix or "Usage:\n") .. line .. "\n"
+  end
+  return line
+end
+
+local function build_command_state(obj)
+  local msg = ''
+  local actual_cmd = obj.collector:get_actual_cmd()
+
+  dprint(3, 'build_command_state ai:', obj.ai,
+    'lvl_deep:', obj.collector.lvl_deep,
+    'actual_cmd:', actual_cmd,
+    'cmd_expected:', obj.collector.cmd_expected,
+    'cmd_found:', obj.cmd_found
+  )
+
+  if actual_cmd then
+    if base._is_helpcmd(actual_cmd) then
+      obj.collector.cmd_expected = false
+    else
+      obj.collector.cmd_unknown = actual_cmd
+      msg = msg .. "Unknown Command: '" .. tostring(actual_cmd) .. "'\n"
+    end
+  end
+
+  if obj.collector.cmd_expected and not obj.collector.cmd_unknown then
+    msg = msg .. "The command is expected\n"
+  end
+  return msg
+end
+
+--
+---@param obj Cmd4Lua
+local function build_help_commands(obj)
+  local cmds = obj.collector:get_thelp_cmds()
+  dprint("build_help_commands", cmds ~= nil)
+
+  if cmds then
+    -- TODO split by groups
+    cmds = sort_by_name(cmds)
+
+    local mn, msn, mn3 = base.get_max_str_leng(cmds, 'name', 'shortname', 'name3')
+    mn = mn + 2
+    if msn > 0 then msn = msn + 1 end
+    if mn3 > 0 then mn3 = mn3 + 1 end
+    local fmt = "%s %" .. msn .. "s %-" .. mn .. "s%-" .. mn3 .. "s"
+
+    -- dprint('max n,sn,n3 = ', mn, msn, mn3, "\n", fmt,
+    --   'default-cmd:', obj.collector.cmd_default
+    -- )
+
+    local res = ''
+
+    for _, cmd in pairs(cmds) do
+      local sn, n3, flag, marks = cmd.shortname, cmd.name3, ' ', ''
+      if obj.collector.cmd_default == cmd.name then
+        flag = '*'
+        marks = '[Default] '
+      end
+      if not sn then sn = '' end
+      if not n3 then n3 = '' end
+      local line = string.format(fmt, flag, sn, cmd.name, n3)
+      line = build_line_description(line, cmd.description or '', marks)
+      res = res .. line .. "\n"
+    end
+
+    return "Commands:\n" .. res
+  end
+  return ''
+end
+
+--
+---@param obj Cmd4Lua
+---@return string
+local function build_help_arguments(obj)
+  local targs = obj.collector:get_thelp_args()
+  -- arguments only if has any descriptions or defaults values
+  if targs and has_metadata(targs) then
+    local res, pad = '', 0
+    -- max string lengs
+    local mtag, mtype, mdef =
+        base.get_max_str_leng(targs, 'tag', 'type', 'default_value')
+
+    local optcnt = get_unrequired_cnt(targs)
+
+    if mtag > 0 then mtag = mtag + 1 end
+    if mtype > 0 then mtype = mtype + 3 end
+    if mdef > 0 then
+      if mdef > 16 then
+        mdef = 16
+      else
+        mdef = mdef + 12 -- '[Default:..]'
+      end
+    else
+      if optcnt > 0 then
+        mdef = #'[Optional]'
+      end
+    end
+    pad = mtag + mtype + mdef + 5 -- 5 is a number of spaces in fmt
+    local fmt = "%s%-2s %-" .. mtag .. "s%-" .. mtype .. "s %" .. mdef .. "s"
+
+    dprint('max tag,type,def = ', mtag, mtype, mdef, "\n", fmt,
+      'default-cmd:', obj.collector.cmd_default
+    )
+
+    for ai, targ in pairs(targs) do
+      local atype, def, flag, extra_line = '', '', ' ', nil
+
+      if targ.required == false then
+        flag = '*' -- mark that this arg is an optional
+      end
+
+      if targ.type and targ.type ~= '' and targ.type ~= 'string' then
+        atype = '(' .. targ.type .. ')'
+      end
+
+      if targ.default_value and targ.default_value ~= '' then
+        def = '[Default:' .. tostring(targ.default_value) .. ']'
+        -- move to a next line
+        if #def > 16 and #def > mdef then
+          local desc = targ.description
+          if desc and #desc + #def + pad > conf.WIDTH then
+            extra_line = def
+            def = ''
+          end
+        end
+      elseif targ.required == false then
+        def = '[Optional]'
+      end
+
+      if targ.group and targ.group.name then
+        flag = flag .. get_short_group_name(targ) .. ' '
+      end
+
+      local line = string.format(fmt, flag, ai, targ.tag or '', atype, def)
+      line = build_line_description(line, targ.description)
+
+      res = res .. line .. "\n"
+      if extra_line then
+        res = res .. '  ' .. extra_line .. "\n"
+      end
+    end
+    return "Arguments:\n" .. res
+  end
+  return ''
+end
+
+--
+---@param obj Cmd4Lua
+---@return string
+local function build_help_options(obj)
+  local opts = obj.collector:get_thelp_opts()
+  if opts then
+    local has_required, has_req_group, has_default = false, false, false
+    local lines, props, lmax, pmax, tmax = {}, {}, 0, 0, 0
+
+    opts = sort_by_name(opts)
+
+    for _, opt in pairs(opts) do
+      local otype, sgn = '', nil
+      sgn = get_short_group_name(opt) or '  '
+
+      if opt.required then
+        has_required = true
+        has_req_group = opt.group ~= nil and opt.group.name ~= nil
+      end
+      local ot = opt.type
+      if ot and ot ~= '' and ot ~= 'string' and ot ~= 'any' then
+        otype = ' (' .. opt.type .. ')'
+      end
+
+      local optkeys, envvar = get_opt_names(opt, true)
+      -- sgn, tag, optkeys, envvar, otype, def
+      local line = string.format("%-3s %s", sgn, optkeys)
+      local prop = string.format("%s%s", envvar, otype)
+
+      if #line > lmax then lmax = #line end
+      if #prop > pmax then pmax = #prop end
+      if opt.tag and #opt.tag > tmax then tmax = #opt.tag end
+      has_default = has_default or opt.has_default
+
+      table.insert(lines, line) -- sgn tag key +[env] +[type]
+      table.insert(props, prop)
+    end
+
+
+    local title = '' -- build title with "TAG" and [Default]
+    if tmax > 0 or has_default then
+      local max = lmax + pmax
+      title = string.format("%-" .. (max - 3) .. "s", ' ')
+      if tmax > 0 then
+        if has_default then
+          title = title .. string.format("%-" .. (tmax + 3) .. "s", '"TAG"')
+        else
+          title = title .. '"TAG"'
+        end
+      end
+      if has_default then
+        title = title .. '[Default]'
+      end
+    end
+
+    -- add descriptions
+    local msg = "Options:" .. title .. "\n" ..
+        build_elements_desc(opts, lines, lmax, props, pmax, tmax)
+
+    if conf.show_help_hints then
+      if has_req_group then
+        msg = msg .. "\n*?n - Groups. " .. conf.hint_notations .. "\n"
+      elseif has_required then
+        msg = msg .. "\n* - Required|Optional. " .. conf.hint_notations .. "\n"
+      end
+    end
+    return msg
+  end
+  return ''
+end
+
+--
+-- By design, this is a way to add examples of using the current command context
+-- This is used when building help
+--
+---@param obj Cmd4Lua
+---@return string
+function M.get_usage_examples(obj)
+  local usage_examples = obj.collector.thelp.usage_examples
+  if usage_examples and usage_examples ~= '' then
+    return usage_examples
+  end
+  return ''
+end
+
+---@param obj Cmd4Lua
+---@return string
+local function build_level_description(obj)
+  local t = obj.collector.thelp
+  if t.cmd_lvl_description and t.cmd_lvl_description ~= '' then
+    return t.cmd_lvl_description .. '\n'
+  elseif t.parent_desc and t.parent_desc ~= '' then
+    return t.parent_desc .. '\n'
+  end
+  return ''
+end
+
+--
+-- to show what is wrong, where is the mistake
+function M.build_input_error_msg(obj)
+  local msg =
+      build_command_state(obj) ..
+
+      build_invalid_groups(obj) ..
+      build_missing_required_args(obj) ..
+      build_missing_required_opts(obj) ..
+
+      build_invalid_opt_values(obj) ..
+      build_invalid_arg_values(obj) ..
+
+      build_unknown_opts(obj) ..
+      build_unexpected_args(obj)
+
+  if msg ~= '' then msg = msg .. "\n" end
+  return msg
+end
+
+--
+-- Build help text based on collected date from in-code annotations
+--
+-- WARN: this method triggers clear_level_help which clears all collected data
+-- to build help so this method can only be called once
+--
+---@param prefix string|nil
+---@return string
+function M.build_help(obj, prefix)
+  dprint('build_help  help_showed:', obj.help_showed)
+
+  local help =
+      M.build_input_error_msg(obj) ..
+      build_level_description(obj) ..
+      M.build_usage_line(obj, prefix) ..
+      build_help_commands(obj) ..
+      build_help_arguments(obj) ..
+      build_help_options(obj) ..
+      M.get_usage_examples(obj)
+
+  if conf.devmode and obj.help_showed then error('help already requested') end
+
+  -- prevents attempts to re-show help in a hierarchy of nested commands
+  obj.help_showed = true
+
+  return help
+end
+
+--------------------------------------------------------------------------------
+
+--
+--
+if _TEST then
+  --   -- setup test alias for private elements using a modified name
+  M._build_unknown_opts = build_unknown_opts
+  M._build_help_commands = build_help_commands
+  M._build_help_arguments = build_help_arguments
+  M._build_help_options = build_help_options
+  M._build_unknown_opts = build_unknown_opts
+  M._build_elements_desc = build_elements_desc
+  M._build_level_description = build_level_description
+  M._split_desc = split_desc
+end
+
+return M

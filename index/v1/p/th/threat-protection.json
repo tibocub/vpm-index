@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "threat-protection",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "multipart >= 0.5.9-1",
+        "urlencode >= 0.0.2-0",
+        "xml2lua >= 1.4",
+        "lua-cjson >= 2.1"
+      ],
+      "files": {
+        "kong/plugins/threat-protection/handler.lua": {
+          "sha256": "dcbe603a421ff1ec5e885eddcf42798fa9abacb759f331d01bd7831a2d6e53f9",
+          "size": 5443,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-threat-protection/7ec283c4150bfc75e61ce99197117ca982c3b542/kong/plugins/threat-protection/handler.lua"
+        },
+        "kong/plugins/threat-protection/schema.lua": {
+          "sha256": "b42553e6ad3fd16164c2eb965857ec70051ed00edeb1a1be60cd4894789809a2",
+          "size": 659,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-threat-protection/7ec283c4150bfc75e61ce99197117ca982c3b542/kong/plugins/threat-protection/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/msangameshwar/kong-plugin-threat-protection",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 26 Oct 2023 07:13:45 GMT",
+        "rockspec": {
+          "date": "Thu, 26 Oct 2023 07:13:45 GMT",
+          "sha256": "69fb50d67df2789f94b45c6653ad466ecaaaf778805d77fed087af638efb621f",
+          "size": 1139
+        }
+      },
+      "modules": [
+        "kong.plugins.threat-protection.handler",
+        "kong.plugins.threat-protection.schema"
+      ],
+      "origin": {
+        "commit": "7ec283c4150bfc75e61ce99197117ca982c3b542",
+        "ref": "dev",
+        "type": "git",
+        "url": "https://github.com/msangameshwar/kong-plugin-threat-protection.git"
+      },
+      "size": 6102,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

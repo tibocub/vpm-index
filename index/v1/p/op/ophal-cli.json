@@ -1,0 +1,64 @@
+{
+  "kind": "app",
+  "name": "ophal-cli",
+  "versions": {
+    "0.1-1": {
+      "bin": {
+        "ophal": "bin/ophal"
+      },
+      "blocked_by": {
+        "name": "luasocket",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "seawolf"
+      ],
+      "files": {
+        "bin/ophal": {
+          "sha256": "3dc4347f368a00c6306c484984cb0b0aca5fb50a3fe74c509f6218676353b9fd",
+          "size": 70,
+          "url": "https://raw.githubusercontent.com/ophal/cli/master/ophal"
+        },
+        "ophal_cli.lua": {
+          "sha256": "2c5d3cb755bcf748fde1092079361de899054e7a25c7d55d290a7b7bfa22a98d",
+          "size": 3634,
+          "url": "https://raw.githubusercontent.com/ophal/cli/master/ophal_cli.lua"
+        }
+      },
+      "homepage": "https://github.com/ophal/cli",
+      "license": "GPL-3",
+      "lua": "= 5.1",
+      "luarocks": {
+        "date": "Fri, 27 Mar 2026 07:30:17 GMT",
+        "rockspec": {
+          "date": "Fri, 27 Mar 2026 07:30:17 GMT",
+          "sha256": "cdcf4f0d9693976aedcb8c57373a51ef9007df9e313f0ccd9ffac20b01a6d3fc",
+          "size": 609
+        }
+      },
+      "modules": [
+        "ophal_cli"
+      ],
+      "origin": {
+        "sha256": "17f92cc9db5515490974167c61511b5aad19bd99d50edf38faac2069003b2acc",
+        "type": "archive",
+        "url": "https://github.com/ophal/cli/archive/refs/heads/master.tar.gz"
+      },
+      "size": 3704,
+      "summary": "Ophal command-line interface - HEAD.",
+      "undeclared_requires": [
+        "sha1",
+        "uuid"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

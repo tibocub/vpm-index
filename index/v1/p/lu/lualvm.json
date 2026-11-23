@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "lualvm",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "license": "LGPLv3",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Sat, 14 Jan 2017 23:40:03 GMT",
+        "rockspec": {
+          "date": "Sat, 14 Jan 2017 23:40:03 GMT",
+          "sha256": "28ff749ba6395156471a8ac6449b60b2e77335bf4eb51ea54896a8212f9219cf",
+          "size": 631
+        },
+        "src": {
+          "date": "Sat, 14 Jan 2017 23:40:14 GMT",
+          "sha256": "3d0d397d7414de66e7d6a84bf81edf13924196a64e8d87c261a269bb25cd70d7",
+          "size": 44649,
+          "url": "https://luarocks.org/lualvm-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "cmake",
+        "external": [
+          "LIBLLVM"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "cmake": {
+            "variables": {
+              "CMAKE_INSTALL_PREFIX": "$(PREFIX)",
+              "LIBDIR": "$(LIBDIR)",
+              "LUADIR": "$(LUADIR)"
+            }
+          },
+          "external": {
+            "LIBLLVM": {
+              "header": "llvm-c/Core.h"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sat, 14 Jan 2017 23:40:14 GMT",
+        "sha256": "3d0d397d7414de66e7d6a84bf81edf13924196a64e8d87c261a269bb25cd70d7",
+        "size": 44649,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lualvm-1.0.0-1.src.rock"
+      },
+      "summary": "Lua wrapper for the LLVM-C API",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

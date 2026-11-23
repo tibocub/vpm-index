@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "external-oauth2",
+  "versions": {
+    "1.2-6": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/external-oauth2/access.lua": {
+          "sha256": "bca3804e8d9e8a09a37bda0cd2516246dd074a1b5d9754da62a362332beb959a",
+          "size": 6820,
+          "url": "https://raw.githubusercontent.com/jackong/kong-external-oauth/9ffac00646f650408861e79ae3cfe85a4c21b35e/src/access.lua"
+        },
+        "kong/plugins/external-oauth2/handler.lua": {
+          "sha256": "b266d4298025813e7e07e0262b322c1513f59b95c5db8b289b8c04111f1f58d2",
+          "size": 969,
+          "url": "https://raw.githubusercontent.com/jackong/kong-external-oauth/9ffac00646f650408861e79ae3cfe85a4c21b35e/src/handler.lua"
+        },
+        "kong/plugins/external-oauth2/schema.lua": {
+          "sha256": "7663896dc5afea80f1cc41dfdae0e0b1a3a4dfef4f0635dedee85934b74d15f7",
+          "size": 1044,
+          "url": "https://raw.githubusercontent.com/jackong/kong-external-oauth/9ffac00646f650408861e79ae3cfe85a4c21b35e/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 09 Jan 2018 05:36:00 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Jan 2018 05:36:00 GMT",
+          "sha256": "afcbf955d96b2eaa4e9073e74d5b1d4b1ffa9c91d801d7da9b8a6d6434612df3",
+          "size": 587
+        }
+      },
+      "modules": [
+        "kong.plugins.external-oauth2.access",
+        "kong.plugins.external-oauth2.handler",
+        "kong.plugins.external-oauth2.schema"
+      ],
+      "origin": {
+        "commit": "9ffac00646f650408861e79ae3cfe85a4c21b35e",
+        "type": "git",
+        "url": "https://github.com/jackong/kong-external-oauth.git"
+      },
+      "size": 8833,
+      "summary": "A Kong plugin, that let you use an external Oauth 2.0 provider to protect your API",
+      "undeclared_requires": [
+        "crypto",
+        "kong.plugins.base_plugin",
+        "pl.stringx",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.stringx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

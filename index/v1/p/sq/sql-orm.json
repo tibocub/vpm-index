@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "sql-orm",
+  "versions": {
+    "0.7.20230709-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "sql-orm.lua": {
+          "sha256": "cc8a35e2af38e7506495e76494f8ee37f0ae7489f640bafdb566ba9987a67369",
+          "size": 40299,
+          "url": "blob:cc8a35e2af38e7506495e76494f8ee37f0ae7489f640bafdb566ba9987a67369"
+        }
+      },
+      "homepage": "https://github.com/lalawue/Lua4DaysORM.git",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 09 Jul 2023 04:36:54 GMT",
+        "rockspec": {
+          "date": "Sun, 09 Jul 2023 04:36:54 GMT",
+          "sha256": "04b7becc680b9070f990e750a48ab1d3e3fab53e648c35fac79cb5c608532c8b",
+          "size": 848
+        },
+        "src": {
+          "date": "Sun, 09 Jul 2023 04:36:56 GMT",
+          "sha256": "a78fbcbb33326e63216c84f071af4d996e8d7331dad6c75f90437ec1b263fce2",
+          "size": 54027,
+          "url": "https://luarocks.org/sql-orm-0.7.20230709-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.sqlite3",
+        "sql-orm"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SQLITE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SQLITE": {
+              "header": "sqlite3.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(SQLITE_INCDIR)"
+              ],
+              "libdirs": [
+                "$(SQLITE_LIBDIR)"
+              ],
+              "libraries": [
+                "sqlite3"
+              ],
+              "name": "luasql.sqlite3",
+              "sources": [
+                "src/luasql.c",
+                "src/ls_sqlite3.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 09 Jul 2023 04:36:56 GMT",
+        "sha256": "a78fbcbb33326e63216c84f071af4d996e8d7331dad6c75f90437ec1b263fce2",
+        "size": 54027,
+        "type": "luarocks",
+        "url": "https://luarocks.org/sql-orm-0.7.20230709-1.src.rock"
+      },
+      "size": 40299,
+      "summary": "Lua SQL ORM",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

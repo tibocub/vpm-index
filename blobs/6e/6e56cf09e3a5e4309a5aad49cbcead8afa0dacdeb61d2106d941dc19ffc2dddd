@@ -1,0 +1,276 @@
+-- nvim_vale_tools/lua/commands.lua
+
+local M = {}
+local config = require("nvim_vale_tools.config")
+local vocabularies = require("nvim_vale_tools.vocabularies")
+local vale_utils = require("nvim_vale_tools.vale_utils")
+
+--- Setup Vale commands.
+---@param vale_config table Vale configuration
+function M.setup_commands(vale_config)
+	-- Vale main command (setup | sync)
+	vim.api.nvim_create_user_command("Vale", function(opts)
+		local subcommand = opts.args
+		if subcommand == "setup" then
+			local config_created = config.create_vale_config(vale_config)
+			if config_created then
+				vim.notify(
+					"Vale configuration created in " .. vale_utils.shorten_path(vale_config.vale_dir),
+					vim.log.levels.INFO
+				)
+			end
+		elseif subcommand == "sync" then
+			M.sync_vale(vale_config)
+		else
+			vim.notify(
+				string.format("Unknown subcommand: '%s'. Use 'setup' or 'sync'.", subcommand),
+				vim.log.levels.ERROR
+			)
+		end
+	end, {
+		nargs = 1,
+		complete = function()
+			return { "setup", "sync" }
+		end,
+		desc = "Vale tools: setup | sync",
+	})
+
+	--- Vocabulary commands: ValeVocab <subcommand> [args]
+	vim.api.nvim_create_user_command("ValeVocab", function(opts)
+		local args = vim.split(opts.args, " ")
+		local subcommand = args[1]
+
+		if not subcommand then
+			vim.notify(
+				"Usage: ValeVocab <subcommand> [args]. Subcommands: add, del, list, sort, show, git",
+				vim.log.levels.ERROR
+			)
+			return
+		end
+
+		if subcommand == "add" then
+			if #args < 2 then
+				vim.notify("Usage: ValeVocab add <vocabulary_name>", vim.log.levels.ERROR)
+				return
+			end
+			local vocab_name = args[2]
+			vocabularies.create_vocabulary(vocab_name)
+		elseif subcommand == "del" then
+			if #args < 2 then
+				vim.notify("Usage: ValeVocab del <vocabulary_name>", vim.log.levels.ERROR)
+				return
+			end
+			local vocab_name = args[2]
+			vocabularies.delete_vocabulary(vocab_name)
+		elseif subcommand == "list" then
+			local vocabs = vocabularies.list_vocabularies()
+			if #vocabs == 0 then
+				vim.notify("No vocabularies found.", vim.log.levels.INFO)
+			else
+				local indented_vocabs = {}
+				for _, vocab in ipairs(vocabs) do
+					table.insert(indented_vocabs, "  " .. vocab)
+				end
+				vim.notify("Vocabularies:\n" .. table.concat(indented_vocabs, "\n"), vim.log.levels.INFO)
+			end
+		elseif subcommand == "sort" then
+			if #args < 2 then
+				vim.notify("Usage: ValeVocab sort <vocabulary_name>", vim.log.levels.ERROR)
+				return
+			end
+			local vocab_name = args[2]
+			vocabularies.sort_vocabulary(vocab_name)
+		elseif subcommand == "show" then
+			if #args < 3 then
+				vim.notify("Usage: ValeVocab show <vocabulary_name> <accept|reject>", vim.log.levels.ERROR)
+				return
+			end
+			local vocab_name, file_type = args[2], args[3]
+			vocabularies.show_vocabulary_file(vocab_name, file_type)
+		elseif subcommand == "git" then
+			if #args < 2 then
+				vim.notify("Usage: ValeVocab git <add|del|update|update-all|push> [args]", vim.log.levels.ERROR)
+				return
+			end
+
+			local git_subcommand = args[2]
+			if git_subcommand == "add" then
+				if #args < 3 then
+					vim.notify("Usage: ValeVocab git add <repository_url> [branch]", vim.log.levels.ERROR)
+					return
+				end
+				local git_url = args[3]
+				local branch = args[4] or nil -- If not provided, use the last part of the URL as branch
+				vocabularies.clone_vocabulary_from_git(git_url, branch)
+			elseif git_subcommand == "del" then
+				if #args < 3 then
+					vim.notify("Usage: ValeVocab git del <vocabulary_name>", vim.log.levels.ERROR)
+					return
+				end
+				local vocab_name = args[3]
+				vocabularies.delete_vocabulary_from_git(vocab_name)
+			elseif git_subcommand == "update" then
+				if #args < 3 then
+					vim.notify("Usage: ValeVocab git update <vocabulary_name>", vim.log.levels.ERROR)
+					return
+				end
+				local vocab_name = args[3]
+				vocabularies.update_vocabulary_from_git(vocab_name)
+			elseif git_subcommand == "update-all" then
+				vocabularies.update_all_vocabularies_from_git()
+			elseif git_subcommand == "push" then
+				if #args < 3 then
+					vim.notify("Usage: ValeVocab git push <vocabulary_name>", vim.log.levels.ERROR)
+					return
+				end
+				local vocab_name = args[3]
+				vocabularies.push_vocabulary_to_git(vocab_name)
+			else
+				vim.notify(
+					string.format(
+						"Unknown Git subcommand: '%s'. Use 'add', 'del', 'update', 'update-all', or 'push'.",
+						git_subcommand
+					),
+					vim.log.levels.ERROR
+				)
+			end
+		else
+			vim.notify(
+				string.format(
+					"Unknown subcommand: '%s'. Use 'add', 'del', 'list', 'sort', 'show', or 'git'.",
+					subcommand
+				),
+				vim.log.levels.ERROR
+			)
+		end
+	end, {
+		nargs = "+",
+		complete = function(arg_lead, cmd_line)
+			local args = vim.split(cmd_line, " ")
+			-- If we're completing the subcommand (e.g., ":ValeVocab s")
+			if #args == 2 then
+				return vim.tbl_filter(function(s)
+					return s:find(arg_lead, 1, true) ~= nil
+				end, { "add", "del", "list", "sort", "show", "git" })
+			end
+
+			-- If subcommand is "show" and we're completing the vocabulary name (e.g., ":ValeVocab show neov")
+			if #args == 3 and args[2] == "show" then
+				local vocabs = vocabularies.list_vocabularies()
+				return vim.tbl_filter(function(v)
+					return v:find(arg_lead, 1, true) ~= nil
+				end, vocabs)
+			end
+
+			-- If subcommand is "show" and we're completing the file type (e.g., ":ValeVocab show neovim acc")
+			if #args == 4 and args[2] == "show" then
+				return vim.tbl_filter(function(t)
+					return t:find(arg_lead, 1, true) ~= nil
+				end, { "accept", "reject" })
+			end
+
+			-- If subcommand is "add", "del", or "sort" and we're completing the vocabulary name
+			if #args == 3 and (args[2] == "add" or args[2] == "del" or args[2] == "sort") then
+				local vocabs = vocabularies.list_vocabularies()
+				return vim.tbl_filter(function(v)
+					return v:find(arg_lead, 1, true) ~= nil
+				end, vocabs)
+			end
+
+			-- If subcommand is "git" and we're completing the Git subcommand
+			if #args == 3 and args[2] == "git" then
+				return vim.tbl_filter(function(s)
+					return s:find(arg_lead, 1, true) ~= nil
+				end, { "add", "del", "update", "update-all", "push" })
+			end
+
+			-- If subcommand is "git del", "git update", or "git push" and we're completing the vocabulary name
+			if #args == 4 and args[2] == "git" and (args[3] == "del" or args[3] == "update" or args[3] == "push") then
+				local vocabs = vocabularies.list_vocabularies()
+				return vim.tbl_filter(function(v)
+					return v:find(arg_lead, 1, true) ~= nil
+				end, vocabs)
+			end
+
+			return {}
+		end,
+		desc = "Manage Vale vocabularies: add | del | list | sort | show | git",
+	})
+
+	--- Term commands: ValeTerm <subcommand> <vocabulary_name> <term> <accept|reject>
+	vim.api.nvim_create_user_command("ValeTerm", function(opts)
+		local args = vim.split(opts.args, " ")
+		local subcommand = args[1]
+
+		if not subcommand then
+			vim.notify("Usage: ValeTerm <subcommand> <vocabulary_name> <term> <accept|reject>", vim.log.levels.ERROR)
+			return
+		end
+
+		if subcommand == "add" then
+			if #args < 4 then
+				vim.notify("Usage: ValeTerm add <vocabulary_name> <term> <accept|reject>", vim.log.levels.ERROR)
+				return
+			end
+			local vocab_name, term, term_type = args[2], args[3], args[4]
+			vocabularies.add_term(vocab_name, term, term_type)
+		elseif subcommand == "del" then
+			if #args < 4 then
+				vim.notify("Usage: ValeTerm del <vocabulary_name> <term> <accept|reject>", vim.log.levels.ERROR)
+				return
+			end
+			local vocab_name, term, term_type = args[2], args[3], args[4]
+			vocabularies.remove_term(vocab_name, term, term_type)
+		else
+			vim.notify(string.format("Unknown subcommand: '%s'. Use 'add' or 'del'.", subcommand), vim.log.levels.ERROR)
+		end
+	end, {
+		nargs = "+",
+		complete = function(arg_lead, cmd_line)
+			local args = vim.split(cmd_line, " ")
+			-- If we're completing the subcommand (e.g., ":ValeTerm a")
+			if #args == 2 then
+				return vim.tbl_filter(function(s)
+					return s:find(arg_lead, 1, true) ~= nil
+				end, { "add", "del" })
+			end
+
+			-- If subcommand is "add" or "del" and we're completing the vocabulary name (e.g., ":ValeTerm add neov")
+			if #args == 3 and (args[2] == "add" or args[2] == "del") then
+				local vocabs = vocabularies.list_vocabularies()
+				return vim.tbl_filter(function(v)
+					return v:find(arg_lead, 1, true) ~= nil
+				end, vocabs)
+			end
+
+			-- If subcommand is "add" or "del" and we're completing the file type (e.g., ":ValeTerm add neovim term acc")
+			if #args == 5 and (args[2] == "add" or args[2] == "del") then
+				return vim.tbl_filter(function(t)
+					return t:find(arg_lead, 1, true) ~= nil
+				end, { "accept", "reject" })
+			end
+
+			-- No completion for the term itself (args[4] for add/del)
+			return {}
+		end,
+		desc = "Manage Vale terms: add | del",
+	})
+
+	-- Set VALE_CONFIG_PATH at startup (if not already set)
+	if vale_config.set_env_var then
+		local config_file_path = vim.fs.joinpath(vale_config.vale_dir, vale_config.config_file)
+		vale_utils.set_vale_config_path(config_file_path)
+		-- only for debug
+		-- vim.notify("VALE_CONFIG_PATH set to: " .. vale_utils.shorten_path(config_file_path), vim.log.levels.INFO)
+	end
+end
+
+--- Run 'vale sync' to download packages into styles/.
+---@param vale_config table Vale configuration
+function M.sync_vale(vale_config)
+	local vale_dir = vale_config.vale_dir
+	local config_file_path = vim.fs.joinpath(vale_dir, vale_config.config_file)
+	vale_utils.sync_vale_packages(vale_dir, config_file_path)
+end
+
+return M

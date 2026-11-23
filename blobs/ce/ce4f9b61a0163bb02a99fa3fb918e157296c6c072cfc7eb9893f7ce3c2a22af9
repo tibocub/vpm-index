@@ -1,0 +1,43 @@
+--[[
+  In this file avoid the usage of dynamic naming for variables. This will cause compatibility issues with Kong Konnect.
+    -- good
+      local plugin_name = "datadome"
+    -- bad
+      local plugin_name = ({...})[1]:match("^kong%.plugins%.([^%.]+)")
+--]]
+
+local typedefs = require "kong.db.schema.typedefs"
+
+local schema = {
+  name = "datadome",
+  fields = {
+    { consumer = typedefs.no_consumer },
+    { protocols = typedefs.protocols_http },
+    { config = {
+        type = "record",
+        fields = {
+          { datadome_server_side_key = {
+              type = "string",
+              required = true,
+              referenceable = true,
+              default = "{vault://datadome/server_side_key}"
+            }
+          },
+          { datadome_endpoint = {type = "string", required = false } },
+          { datadome_timeout = { type = "integer", required = false } },
+          { datadome_url_pattern_inclusion = { type = "string", required = false } },
+          { datadome_url_pattern_exclusion = { type = "string", required = false } },
+          { datadome_use_x_forwarded_host = { type = "boolean", required = false } },
+          { datadome_enable_graphql_support = { type = "boolean", required = false } },
+          -- comma-separated list of path fragments, e.g. "/graphql,/gql"
+          { datadome_graphql_endpoint = { type = "string", required = false } },
+          { datadome_graphql_max_body_size = { type = "integer", required = false } },
+        },
+        entity_checks = {},
+      },
+    },
+  },
+}
+
+
+return schema

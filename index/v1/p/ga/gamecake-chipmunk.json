@@ -1,0 +1,111 @@
+{
+  "kind": "lib",
+  "name": "gamecake-chipmunk",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/chipmunk.lua": {
+          "sha256": "2567d4b74b540e174e9e3789f42336162ef8083892861d0680d01073841eef6c",
+          "size": 35665,
+          "url": "blob:2567d4b74b540e174e9e3789f42336162ef8083892861d0680d01073841eef6c"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:25:23 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:25:23 GMT",
+          "sha256": "83cdbd57827b1ca87cada6f3d91df2e3cb589864d8f6b9e72b18163593948f10",
+          "size": 3000
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:25:24 GMT",
+          "sha256": "a8770c731a290ad945f99a50a7c7360de41c3ca256cccdf3b429dcf7f732da27",
+          "size": 1377748,
+          "url": "https://luarocks.org/gamecake-chipmunk-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.chipmunk",
+        "wetgenes.chipmunk.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "NDEBUG=1"
+              ],
+              "incdirs": [
+                "lua_chipmunk",
+                "lua_chipmunk/master/include"
+              ],
+              "name": "wetgenes.chipmunk.core",
+              "sources": [
+                "lua_chipmunk/code/lua_chipmunk.c",
+                "lua_chipmunk/master/src/chipmunk.c",
+                "lua_chipmunk/master/src/cpArbiter.c",
+                "lua_chipmunk/master/src/cpArray.c",
+                "lua_chipmunk/master/src/cpBBTree.c",
+                "lua_chipmunk/master/src/cpBody.c",
+                "lua_chipmunk/master/src/cpCollision.c",
+                "lua_chipmunk/master/src/cpConstraint.c",
+                "lua_chipmunk/master/src/cpDampedRotarySpring.c",
+                "lua_chipmunk/master/src/cpDampedSpring.c",
+                "lua_chipmunk/master/src/cpGearJoint.c",
+                "lua_chipmunk/master/src/cpGrooveJoint.c",
+                "lua_chipmunk/master/src/cpHashSet.c",
+                "lua_chipmunk/master/src/cpMarch.c",
+                "lua_chipmunk/master/src/cpPinJoint.c",
+                "lua_chipmunk/master/src/cpPivotJoint.c",
+                "lua_chipmunk/master/src/cpPolyline.c",
+                "lua_chipmunk/master/src/cpPolyShape.c",
+                "lua_chipmunk/master/src/cpRatchetJoint.c",
+                "lua_chipmunk/master/src/cpRobust.c",
+                "lua_chipmunk/master/src/cpRotaryLimitJoint.c",
+                "lua_chipmunk/master/src/cpShape.c",
+                "lua_chipmunk/master/src/cpSimpleMotor.c",
+                "lua_chipmunk/master/src/cpSlideJoint.c",
+                "lua_chipmunk/master/src/cpSpace.c",
+                "lua_chipmunk/master/src/cpSpaceComponent.c",
+                "lua_chipmunk/master/src/cpSpaceDebug.c",
+                "lua_chipmunk/master/src/cpSpaceHash.c",
+                "lua_chipmunk/master/src/cpSpaceQuery.c",
+                "lua_chipmunk/master/src/cpSpaceStep.c",
+                "lua_chipmunk/master/src/cpSpatialIndex.c",
+                "lua_chipmunk/master/src/cpSweep1D.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:25:24 GMT",
+        "sha256": "a8770c731a290ad945f99a50a7c7360de41c3ca256cccdf3b429dcf7f732da27",
+        "size": 1377748,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-chipmunk-0.9-261005.src.rock"
+      },
+      "size": 35665,
+      "summary": "chipmunk",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

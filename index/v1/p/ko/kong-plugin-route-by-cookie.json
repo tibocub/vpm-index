@@ -1,0 +1,60 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-route-by-cookie",
+  "versions": {
+    "0.2.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/route-by-cookie/handler.lua": {
+          "sha256": "f16c21df6f6760abef09aa5c3540eff5afab53fb7c9ac81eea5c61df5d32e291",
+          "size": 535,
+          "url": "https://raw.githubusercontent.com/redhoyasa/kong-plugin-route-by-cookie/48f42fd6f20763d434df6e137a2c20d7692c4baf/kong/plugins/route-by-cookie/handler.lua"
+        },
+        "kong/plugins/route-by-cookie/schema.lua": {
+          "sha256": "1158fcb2d979709fea86daf10f97c19280d6f7ff39fe2658ff92f429bb9aba46",
+          "size": 484,
+          "url": "https://raw.githubusercontent.com/redhoyasa/kong-plugin-route-by-cookie/48f42fd6f20763d434df6e137a2c20d7692c4baf/kong/plugins/route-by-cookie/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/redhoyasa/kong-plugin-route-by-cookie",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 20 Dec 2020 12:06:20 GMT",
+        "rockspec": {
+          "date": "Sun, 20 Dec 2020 12:06:20 GMT",
+          "sha256": "b780d93e9c72cbb0e574d01021b77f921ec5c36f76fddac41d1857212d9284b9",
+          "size": 644
+        }
+      },
+      "modules": [
+        "kong.plugins.route-by-cookie.handler",
+        "kong.plugins.route-by-cookie.schema"
+      ],
+      "origin": {
+        "commit": "48f42fd6f20763d434df6e137a2c20d7692c4baf",
+        "ref": "v0.2.0",
+        "type": "git",
+        "url": "https://github.com/redhoyasa/kong-plugin-route-by-cookie.git"
+      },
+      "size": 1019,
+      "summary": "This kong plugin allows you to dynamically change upstream url based on cookies.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "resty.cookie"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

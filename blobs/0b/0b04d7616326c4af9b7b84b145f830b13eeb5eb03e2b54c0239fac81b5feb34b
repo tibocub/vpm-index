@@ -1,0 +1,13 @@
+local glum = require("glum")
+local glumu = require("glum.uglify")
+local filename = ...
+local file = assert(io.open(filename,"r"))
+local filedata = file:read("*a")
+file:close()
+local a = glum.minify(filedata,filename)
+local b = glumu.uglify(a)
+if string.len(a) < string.len(b) then
+	print(a)
+else
+	print(b)
+end

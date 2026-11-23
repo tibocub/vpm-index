@@ -1,0 +1,630 @@
+local cbor = require "cbor"
+
+-- Default maximum number of body bytes captured into an inspection RPC message
+-- (request or response). The body is truncated to this size and the message's
+-- truncated_body flag is set. Callers can override per-call via the
+-- max_body_size argument to newReqMsg/newResMsg (e.g. from a plugin config);
+-- 10 KB matches the platform's `api` inspection profile.
+local DEFAULT_MAX_BODY_SIZE = 10000
+
+--- Current time as an RFC3339 string with microsecond resolution and a 'Z'
+--- (UTC) suffix, matching the nginx module's ngx_impart_get_time_literal and
+--- the platform's microsecond timestamp standard. A caller may inject the current
+--- time as (sec, usec) for a runtime whose clock the generic SDK should not reach
+--- for directly (e.g. the HAProxy plugin's core.now()); otherwise OpenResty/Kong's
+--- ngx.now() supplies sub-second precision and plain Lua falls back to os.time()
+--- at second resolution.
+---@param sec integer? injected epoch seconds (skips ngx/os.time when provided)
+---@param usec integer? injected microseconds (defaults to 0)
+---@return string
+local function currentTimestamp(sec, usec)
+  if not sec then
+    if ngx and ngx.now then
+      local t = ngx.now()
+      sec = math.floor(t)
+      usec = math.floor((t - sec) * 1000000 + 0.5)
+      -- Guard the rare rounding carry into the next whole second.
+      if usec >= 1000000 then
+        sec = sec + 1
+        usec = 0
+      end
+    else
+      sec = os.time()
+      usec = 0
+    end
+  end
+
+  return string.format("%s.%06dZ", os.date("!%Y-%m-%dT%H:%M:%S", sec), usec or 0)
+end
+
+---@class CBORString_mt
+local CBORString_mt = {
+  __tocbor = function(s) return cbor.type_encoders.utf8string(s.v) end,
+  __tostring = function(s) return s.v end,
+  __eq = function(a, b) return a.v == b.v end,
+  __lt = function(a, b) return a.v < b.v end,
+  __le = function(a, b) return a.v <= b.v end,
+  __concat = function(a, b) return a.v .. b.v end,
+  __len = function(s) return #s.v end,
+
+}
+
+---@param v string
+---@return CBORString_mt
+local function newCBORString(v)
+  return setmetatable({ v = v }, CBORString_mt)
+end
+
+local keys = {
+  body = newCBORString("body"),
+  cookie_keys = newCBORString("cookie_keys"),
+  cookie_values = newCBORString("cookie_values"),
+  header_keys = newCBORString("header_keys"),
+  header_values = newCBORString("header_values"),
+  host = newCBORString("host"),
+  method = newCBORString("method"),
+  module_info = newCBORString("module_info"),
+  request_id = newCBORString("request_id"),
+  status_code = newCBORString("status_code"),
+  tls = newCBORString("tls"),
+  truncated_body = newCBORString("truncated_body"),
+  url_path = newCBORString("url_path"),
+  url_raw_query = newCBORString("url_raw_query"),
+  remote_addr = newCBORString("remote_addr"),
+  timestamp = newCBORString("timestamp"),
+  profiles_hash = newCBORString("profiles_hash"),
+}
+
+---@class ReqMsg
+local ReqMsg = {}
+ReqMsg.__index = ReqMsg
+
+---@return boolean tls
+function ReqMsg:TLS()
+  return self[keys.tls]
+end
+
+---@return string host
+function ReqMsg:Host()
+  return self[keys.host].v or ""
+end
+
+---@return string method
+function ReqMsg:Method()
+  return self[keys.method].v or ""
+end
+
+---@return string body
+function ReqMsg:Body()
+  return self[keys.body]
+end
+
+---@return boolean truncatedBody
+function ReqMsg:TruncatedBody()
+  return self[keys.truncated_body]
+end
+
+---@return string URLPath
+function ReqMsg:URLPath()
+  return self[keys.url_path].v or ""
+end
+
+---@return string[] headerKeys
+function ReqMsg:HeaderKeys()
+  local headerKeys = self[keys.header_keys]
+  local res = {}
+  for _, v in ipairs(headerKeys) do
+    table.insert(res, v.v)
+  end
+  return res
+end
+
+---@return string[] headerValues
+function ReqMsg:HeaderValues()
+  local headerValues = self[keys.header_values]
+  local res = {}
+  for _, v in ipairs(headerValues) do
+    table.insert(res, v.v)
+  end
+  return res
+end
+
+---@return string[] cookieKeys
+function ReqMsg:CookieKeys()
+  local cookieKeys = self[keys.cookie_keys]
+  local res = {}
+  for _, v in ipairs(cookieKeys) do
+    table.insert(res, v.v)
+  end
+  return res
+end
+
+---@return string[] cookieValues
+function ReqMsg:CookieValues()
+  local cookieValues = self[keys.cookie_values]
+  local res = {}
+  for _, v in ipairs(cookieValues) do
+    table.insert(res, v.v)
+  end
+  return res
+end
+
+---@return string URLRawQuery
+function ReqMsg:URLRawQuery()
+  return self[keys.url_raw_query].v or ""
+end
+
+---@return string remoteAddr
+function ReqMsg:RemoteAddr()
+  return self[keys.remote_addr].v or ""
+end
+
+---@return string timestamp
+function ReqMsg:Timestamp()
+  local v = self[keys.timestamp]
+  if type(v) == "table" then
+    return v.v
+  end
+
+  return v
+end
+
+---@return string moduleInfo
+function ReqMsg:ModuleInfo()
+  local v = self[keys.module_info]
+  if v then
+    return v.v or ""
+  end
+  return ""
+end
+
+--- @class HTTPRequestInterface
+local HTTPRequestInterface = {}
+HTTPRequestInterface.__index = HTTPRequestInterface
+
+---@param impl table
+---@return HTTPRequestInterface
+local function extendHTTPRequestInterface(impl)
+  local v = setmetatable(impl, HTTPRequestInterface)
+  return v
+end
+
+---@param _ HTTPRequestInterface self
+---@return table<string, string|string[]> headers
+function HTTPRequestInterface.get_headers(_)
+  error("get_headers not implemented")
+end
+
+--- Optional: return request headers as an ordered list of { name, value } pairs in
+--- wire order, preserving duplicates. Implementations that can supply wire order
+--- (e.g. the Kong plugin parsing ngx.req.raw_header) override this; the default
+--- returns nil and newReqMsg falls back to the unordered get_headers() hash.
+--- Order is load-bearing for rules like header-analysis (UA / header-order
+--- fingerprinting).
+---@param _ HTTPRequestInterface self
+---@return string[][]? orderedHeaders array of { name, value } pairs, or nil
+function HTTPRequestInterface.get_ordered_headers(_)
+  return nil
+end
+
+--- Optional: return the current time as (sec, usec) for the inspection timestamp.
+--- Implementations whose runtime exposes a clock the generic SDK should not
+--- reference directly (e.g. the HAProxy plugin's core.now()) override this; the
+--- default returns nil and newReqMsg falls back to ngx.now() / os.time().
+---@param _ HTTPRequestInterface self
+---@return integer? sec epoch seconds, or nil to use the SDK default
+---@return integer? usec microseconds
+function HTTPRequestInterface.get_now(_)
+  return nil
+end
+
+---@param _ HTTPRequestInterface self
+---@return string? chunk the next chunk of the body, or nil if there is no more data to read.
+---@return boolean? more true if there is more data to read.
+function HTTPRequestInterface.get_body_chunk(_)
+  error("get_body_chunk not implemented")
+end
+
+---@param _ HTTPRequestInterface self
+---@return string scheme
+function HTTPRequestInterface.get_scheme(_)
+  error("get_scheme not implemented")
+end
+
+---@param _ HTTPRequestInterface self
+---@return string host
+function HTTPRequestInterface.get_host(_)
+  error("get_host not implemented")
+end
+
+---@param _ HTTPRequestInterface self
+---@return string method
+function HTTPRequestInterface.get_method(_)
+  error("get_method not implemented")
+end
+
+---@param _ HTTPRequestInterface self
+---@return string path
+function HTTPRequestInterface.get_path(_)
+  error("get_path not implemented")
+end
+
+---@param _ HTTPRequestInterface self
+---@return string query
+function HTTPRequestInterface.get_raw_query(_)
+  error("get_raw_query not implemented")
+end
+
+---@param _ HTTPRequestInterface self
+---@return string ip
+function HTTPRequestInterface.get_remote_ip(_)
+  error("get_remote_ip not implemented")
+end
+
+---@param r HTTPRequestInterface
+---@param module_info string? optional module info key-value string
+---@param max_body_size integer? max body bytes to capture (default DEFAULT_MAX_BODY_SIZE)
+---@return ReqMsg
+local function newReqMsg(r, module_info, max_body_size)
+  -- Guard against nil or a negative override: a negative size would make
+  -- chunk:sub(1, max_body_size) index from the end and fail to truncate, so fall
+  -- back to the default rather than capture an unbounded body. A resolved profile
+  -- may legitimately set 0 ("capture nothing"); keep it (chunk:sub(1, 0) == "").
+  if not max_body_size or max_body_size < 0 then
+    max_body_size = DEFAULT_MAX_BODY_SIZE
+  end
+
+  local headerKeys = {}
+  local headerValues = {}
+
+  -- Prefer wire-ordered headers when the implementation can supply them (Kong via
+  -- raw_header); this preserves order + duplicates, which order-sensitive rules
+  -- (header-analysis) depend on. Fall back to the unordered get_headers() hash.
+  local ordered = r:get_ordered_headers()
+  if ordered then
+    for _, pair in ipairs(ordered) do
+      table.insert(headerKeys, newCBORString(pair[1]))
+      table.insert(headerValues, newCBORString(pair[2]))
+    end
+  else
+    for k, v in pairs(r:get_headers()) do
+      for _, vv in ipairs(type(v) == "table" and v or { v }) do
+        table.insert(headerKeys, newCBORString(k))
+        --- vv is a string.
+        ---@diagnostic disable-next-line: param-type-mismatch
+        table.insert(headerValues, newCBORString(vv))
+      end
+    end
+  end
+
+  local truncatedBody = false
+  local body = {}
+  local read = 0
+  repeat
+    local chunk, more = r:get_body_chunk()
+    if not chunk then
+      break
+    end
+
+    if #chunk > max_body_size then
+      chunk = chunk:sub(1, max_body_size)
+      truncatedBody = true
+      table.insert(body, chunk)
+      break
+    end
+
+    local remaining = max_body_size - read
+    if #chunk > remaining then
+      chunk = chunk:sub(1, remaining)
+      truncatedBody = true
+    end
+
+    read = read + #chunk
+    table.insert(body, chunk)
+  until not more or read >= max_body_size
+
+  local res = {
+    [keys.tls]            = string.lower(r:get_scheme()) == "https",
+    [keys.host]           = newCBORString(r:get_host()),
+    [keys.method]         = newCBORString(r:get_method()),
+    [keys.truncated_body] = truncatedBody,
+    [keys.body]           = table.concat(body),
+    [keys.header_keys]    = headerKeys,
+    [keys.header_values]  = headerValues,
+    [keys.cookie_keys]    = {},
+    [keys.cookie_values]  = {},
+    [keys.url_path]       = newCBORString(r:get_path()),
+    [keys.url_raw_query]  = newCBORString(r:get_raw_query()),
+    [keys.remote_addr]    = newCBORString(r:get_remote_ip()),
+    [keys.timestamp]      = newCBORString(currentTimestamp(r:get_now())),
+  }
+
+  -- Add module_info if provided
+  if module_info and module_info ~= "" then
+    res[keys.module_info] = newCBORString(module_info)
+  end
+
+  return setmetatable(res, ReqMsg)
+end
+
+function ReqMsg:encode()
+  return cbor.encode(self)
+end
+
+--- @class ReqMsgResponse
+--- @field error string?
+--- @field block boolean
+--- @field request_id string
+--- @field status_code number?
+--- @field redirect_url string?
+--- @field body string?
+--- @field additional_header_keys string[]?
+--- @field additional_header_values string[]?
+--- @field deleted_header_keys string[]?
+--- @field tags string[]
+--- @field host_name string
+--- @field host_port string
+--- @field base_path string
+local ReqMsgResponse = {}
+
+---@param b string the encoded message
+---@return ReqMsgResponse
+---@return string? err
+local function decodeReqMsgResponse(b)
+  local success, decoded = pcall(cbor.decode, b)
+  if success then
+    return setmetatable(decoded, ReqMsgResponse)
+  else
+    return ReqMsgResponse, decoded
+  end
+end
+
+--- SettingsMsg is the body a module sends after the 16-byte SettingsRPC header.
+--- It carries the module's last-known profiles hash so the Inspector can skip
+--- re-sending an unchanged profile set (a conditional, 304-style fetch). Mirrors
+--- the Go sdk.SettingsRPCRequest ({ "profiles_hash": "<hex>" }).
+---@class SettingsMsg
+local SettingsMsg = {}
+SettingsMsg.__index = SettingsMsg
+
+function SettingsMsg:encode()
+  return cbor.encode(self)
+end
+
+---@param profilesHash string? the last-known profiles hash (empty/nil on first
+---   fetch or after an inline correction, forcing a full resend)
+---@return SettingsMsg
+local function newSettingsMsg(profilesHash)
+  local res = {
+    [keys.profiles_hash] = newCBORString(profilesHash or ""),
+  }
+
+  return setmetatable(res, SettingsMsg)
+end
+
+--- @class SettingsRPCResponse
+--- @field profiles_hash string the hash of the Inspector's current profile set
+--- @field profiles table[]? the profile list; absent when the sent hash matched
+local SettingsRPCResponse = {}
+
+-- True for a Lua table whose keys are exactly 1..#t (an array, possibly empty).
+-- A CBOR array decodes to such a table; a CBOR map does not. Used to reject a
+-- map-shaped `profiles` that would otherwise empty the cache via ipairs().
+local function isArrayLike(t)
+  local n = 0
+  for k in pairs(t) do
+    if type(k) ~= "number" or k % 1 ~= 0 or k < 1 then
+      return false
+    end
+    n = n + 1
+  end
+
+  return n == #t
+end
+
+--- Decode a SettingsRPC response body. Returns the raw decoded table (with
+--- snake_case keys mirroring sdk.SettingsRPCResponse / sdk.InspectionProfile);
+--- the profiles resolver consumes the plain profile tables directly.
+---@param b string the encoded response body
+---@return SettingsRPCResponse? res
+---@return string? err
+local function decodeSettingsResponse(b)
+  local success, decoded = pcall(cbor.decode, b)
+  if not success then
+    return nil, decoded
+  end
+
+  -- Guard against a malformed or misaligned read: setmetatable would raise on a
+  -- scalar, and a table-shaped-but-wrong payload could be mistaken for a valid
+  -- response and leave the poller on stale settings. profiles_hash is always
+  -- present in a real SettingsRPCResponse, so require it as a string.
+  if type(decoded) ~= "table" or type(decoded.profiles_hash) ~= "string" then
+    return nil, "malformed settings response (missing profiles_hash)"
+  end
+
+  -- profiles, when present, must be an array (the Inspector sends a CBOR array).
+  -- Reject a non-array (e.g. a CBOR map) so ProfileCache:replace's ipairs() can't
+  -- silently empty the cache on a misaligned read.
+  if decoded.profiles ~= nil and not (type(decoded.profiles) == "table" and isArrayLike(decoded.profiles)) then
+    return nil, "malformed settings response (profiles is not an array)"
+  end
+
+  return setmetatable(decoded, { __index = SettingsRPCResponse }), nil
+end
+
+-- Define the interface
+---@class HTTPResponseInterface
+local HTTPResponseInterface = {}
+HTTPResponseInterface.__index = HTTPResponseInterface
+
+---@param impl table
+---@return HTTPResponseInterface
+local function extendHTTPResponseInterface(impl)
+  return setmetatable(impl, HTTPResponseInterface)
+end
+
+---@param _ HTTPResponseInterface self
+---@return table<string, string|string[]> headers
+function HTTPResponseInterface.get_headers(_)
+  error("get_headers not implemented")
+end
+
+---@param _ HTTPResponseInterface self
+---@return string? chunk the next chunk of the body, or nil if there is no more data to read.
+---@return boolean? more true if there is more data to read.
+function HTTPResponseInterface.get_body_chunk(_)
+  error("get_body_chunk not implemented")
+end
+
+---@param _ HTTPResponseInterface self
+---@return integer status
+function HTTPResponseInterface.get_status(_)
+  error("get_status not implemented")
+end
+
+---@class ResMsg
+local ResMsg = { __tocbor = cbor.type_encoders.ordered_map }
+ResMsg.__index = ResMsg
+
+---@return boolean truncatedBody
+function ResMsg:TruncatedBody()
+  return self[keys.truncated_body]
+end
+
+---@return string requestID
+function ResMsg:RequestID()
+  return self[keys.request_id].v or ""
+end
+
+---@return string body
+function ResMsg:Body()
+  return self[keys.body]
+end
+
+---@return string[] headerKeys
+function ResMsg:HeaderKeys()
+  local headerKeys = self[keys.header_keys]
+  local res = {}
+  for _, v in ipairs(headerKeys) do
+    table.insert(res, v.v)
+  end
+  return res
+end
+
+---@return string[] headerValues
+function ResMsg:HeaderValues()
+  local headerValues = self[keys.header_values]
+  local res = {}
+  for _, v in ipairs(headerValues) do
+    table.insert(res, v.v)
+  end
+  return res
+end
+
+---@return integer statusCode
+function ResMsg:StatusCode()
+  return self[keys.status_code]
+end
+
+---@param r HTTPResponseInterface
+---@param requestID string
+---@param max_body_size integer? max body bytes to capture (default DEFAULT_MAX_BODY_SIZE)
+---@return ResMsg
+local function newResMsg(r, requestID, max_body_size)
+  -- See newReqMsg: guard against nil or a negative override; 0 means "capture
+  -- nothing" and is kept.
+  if not max_body_size or max_body_size < 0 then
+    max_body_size = DEFAULT_MAX_BODY_SIZE
+  end
+
+  local headerKeys = {}
+  local headerValues = {}
+
+  for k, v in pairs(r:get_headers()) do
+    for _, vv in ipairs(type(v) == "table" and v or { v }) do
+      table.insert(headerKeys, newCBORString(k))
+      --- vv is a string.
+      ---@diagnostic disable-next-line: param-type-mismatch
+      table.insert(headerValues, newCBORString(vv))
+    end
+  end
+
+  local truncatedBody = false
+  local body = {}
+  local read = 0
+  repeat
+    local chunk, more = r:get_body_chunk()
+    if not chunk then
+      break
+    end
+
+    if #chunk > max_body_size then
+      chunk = chunk:sub(1, max_body_size)
+      truncatedBody = true
+      table.insert(body, chunk)
+      break
+    end
+
+    local remaining = max_body_size - read
+    if #chunk > remaining then
+      chunk = chunk:sub(1, remaining)
+      truncatedBody = true
+    end
+
+    read = read + #chunk
+    table.insert(body, chunk)
+  until not more or read >= max_body_size
+
+  local res = {
+    [keys.truncated_body] = truncatedBody,
+    [keys.body] = table.concat(body),
+    [keys.header_keys] = headerKeys,
+    [keys.header_values] = headerValues,
+    [keys.status_code] = r:get_status(),
+    [keys.request_id] = newCBORString(requestID),
+  }
+
+
+  return setmetatable(res, ResMsg)
+end
+
+
+function ResMsg:encode()
+  return cbor.encode(self)
+end
+
+--- @class ResMsgResponse
+--- @field error string?
+--- @field block boolean
+--- @field status_code number?
+--- @field redirect_url string?
+--- @field body string?
+--- @field additional_header_keys string[]?
+--- @field additional_header_values string[]?
+--- @field deleted_header_keys string[]?
+--- @field tags string[]
+local ResMsgResponse = {}
+
+---@param b string the encoded message
+---@return ResMsgResponse
+---@return string? err
+local function decodeResMsgResponse(b)
+  local success, decoded = pcall(cbor.decode, b)
+  if success then
+    return setmetatable(decoded, ResMsgResponse)
+  else
+    return ResMsgResponse, decoded
+  end
+end
+
+return {
+  newReqMsg = newReqMsg,
+  newResMsg = newResMsg,
+  newSettingsMsg = newSettingsMsg,
+  decodeReqMsgResponse = decodeReqMsgResponse,
+  decodeResMsgResponse = decodeResMsgResponse,
+  decodeSettingsResponse = decodeSettingsResponse,
+
+  extendHTTPRequestInterface = extendHTTPRequestInterface,
+  extendHTTPResponseInterface = extendHTTPResponseInterface,
+}

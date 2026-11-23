@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-header-access-control",
+  "versions": {
+    "1.0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/header-access-control/handler.lua": {
+          "sha256": "657e8711081e6a1bed20c77106022a16b44b12371ac4733c4a01bf0c8a53001e",
+          "size": 1894,
+          "url": "https://raw.githubusercontent.com/gumtreeuk/kong-header-access-control/3687de1a32a511cb2024f0c6ac9d1fb014528c66/src/handler.lua"
+        },
+        "kong/plugins/header-access-control/migrations/cassandra.lua": {
+          "sha256": "81156275ec8929428465afc27f325cc0d7ee607002f329811ba3d01053211801",
+          "size": 730,
+          "url": "https://raw.githubusercontent.com/gumtreeuk/kong-header-access-control/3687de1a32a511cb2024f0c6ac9d1fb014528c66/src/migrations/cassandra.lua"
+        },
+        "kong/plugins/header-access-control/schema.lua": {
+          "sha256": "be974944219a12923957846837f8b6866c92af04d81cdf341e9de159fe4af6b0",
+          "size": 1676,
+          "url": "https://raw.githubusercontent.com/gumtreeuk/kong-header-access-control/3687de1a32a511cb2024f0c6ac9d1fb014528c66/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/gumtreeuk/kong-header-access-control",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Thu, 01 Feb 2018 14:32:42 GMT",
+        "rockspec": {
+          "date": "Thu, 01 Feb 2018 14:32:42 GMT",
+          "sha256": "99fa85c639c230c0602bdc70dd15117d726b15d982214d3a65b8c23507fce5b2",
+          "size": 690
+        },
+        "src": {
+          "date": "Thu, 01 Feb 2018 14:32:43 GMT",
+          "sha256": "14ac65967d806f9c99efb6a75a10923e0747eee9080d17cb9b3c68469b37d51b",
+          "size": 13548,
+          "url": "https://luarocks.org/kong-header-access-control-1.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.header-access-control.handler",
+        "kong.plugins.header-access-control.migrations.cassandra",
+        "kong.plugins.header-access-control.schema"
+      ],
+      "origin": {
+        "commit": "3687de1a32a511cb2024f0c6ac9d1fb014528c66",
+        "ref": "1.0.2",
+        "type": "git",
+        "url": "https://github.com/gumtreeuk/kong-header-access-control"
+      },
+      "size": 4300,
+      "summary": "A plugin for Kong to whitelist / blacklist requests based on values set in a header",
+      "undeclared_requires": [
+        "kong.dao.errors",
+        "kong.plugins.base_plugin",
+        "kong.tools.responses",
+        "resty.iputils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

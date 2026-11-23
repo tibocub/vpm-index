@@ -1,0 +1,22 @@
+-- GptImage2App (Lua module)
+-- GPT Image 2 official website backlink rock.
+
+local M = {}
+
+M.VERSION = "0.1.0"
+M.WEBSITE = "https://www.gpt-image-2.app"
+
+function M.info()
+  return {
+    name = "GptImage2App",
+    version = M.VERSION,
+    website = M.WEBSITE,
+    description = "GPT Image 2 official website backlink rock."
+  }
+end
+
+function M.website()
+  return M.WEBSITE
+end
+
+return M

@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-adi-sanction-lists",
+  "versions": {
+    "1.0.14-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-http",
+        "lua-cjson"
+      ],
+      "files": {
+        "kong/plugins/adi-sanction-lists/handler.lua": {
+          "sha256": "fdfc8a2783d5f0540c3a2e25b6c5445efa1301efdd5f5bab5eac557a0517ca87",
+          "size": 5941,
+          "url": "https://raw.githubusercontent.com/alkeicam/kong-adi-sanction-lists/7480588f9ec609a43d12bedb5dd00b974f6ba29e/kong/plugins/adi-sanction-lists/handler.lua"
+        },
+        "kong/plugins/adi-sanction-lists/schema.lua": {
+          "sha256": "983d59331adb0bb6b4e922d1184c9dc69e1033d818fc7979bfe9f7ffbcecbcca",
+          "size": 688,
+          "url": "https://raw.githubusercontent.com/alkeicam/kong-adi-sanction-lists/7480588f9ec609a43d12bedb5dd00b974f6ba29e/kong/plugins/adi-sanction-lists/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/alkeicam/kong-adi-sanction-lists",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Wed, 08 Jan 2025 19:50:49 GMT",
+        "rockspec": {
+          "date": "Wed, 08 Jan 2025 19:50:49 GMT",
+          "sha256": "02b83750aa2597009f038c87e9ef00c1d22ae2daa026f0a8ecd2a05264ceca24",
+          "size": 1364
+        },
+        "src": {
+          "date": "Wed, 08 Jan 2025 19:50:50 GMT",
+          "sha256": "558ecf982409fdcb88e1839cda188fd197334dab6c264339aa59ad6ebc53b851",
+          "size": 7843,
+          "url": "https://luarocks.org/kong-adi-sanction-lists-1.0.14-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.adi-sanction-lists.handler",
+        "kong.plugins.adi-sanction-lists.schema"
+      ],
+      "origin": {
+        "commit": "7480588f9ec609a43d12bedb5dd00b974f6ba29e",
+        "ref": "v1.0.14",
+        "type": "git",
+        "url": "https://github.com/alkeicam/kong-adi-sanction-lists"
+      },
+      "size": 6629,
+      "summary": "Abee Digital ID Sanction Lists Kong plugin.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

@@ -1,0 +1,2493 @@
+--imports
+local tablex = require("pl.tablex")
+local pathx = require("pl.path")
+local stringx = require("pl.stringx")
+local TokenType = require("dogma.lex.TokenType")
+local Annot = require("dogma.lex._.Annotation")
+local SentType = require("dogma.syn.SentType")
+local SubParser = require("dogma.syn._.SubParser")
+local BlockParser = require("dogma.syn._.BlockParser")
+local BreakStmt = require("dogma.syn._.BreakStmt")
+local EnumStmt = require("dogma.syn._.EnumStmt")
+local NextStmt = require("dogma.syn._.NextStmt")
+local ReturnStmt = require("dogma.syn._.ReturnStmt")
+local UseStmt = require("dogma.syn._.UseStmt")
+local FromStmt = require("dogma.syn._.FromStmt")
+local WhileStmt = require("dogma.syn._.WhileStmt")
+local UntilStmt = require("dogma.syn._.UntilStmt")
+local DoStmt = require("dogma.syn._.DoStmt")
+local ForEachStmt = require("dogma.syn._.ForEachStmt")
+local ForStmt = require("dogma.syn._.ForStmt")
+local CatchCl = require("dogma.syn._.CatchCl")
+local FinallyCl = require("dogma.syn._.FinallyCl")
+local FnStmt = require("dogma.syn._.FnStmt")
+local ProcStmt = require("dogma.syn._.ProcStmt")
+local TypeStmt = require("dogma.syn._.TypeStmt")
+local TypeDefStmt = require("dogma.syn._.TypeDefStmt")
+local StructStmt = require("dogma.syn._.StructStmt")
+local IntfStmt = require("dogma.syn._.IntfStmt")
+local Param = require("dogma.syn._.Param")
+local Params = require("dogma.syn._.Params")
+local AsyncStmt = require("dogma.syn._.AsyncStmt")
+local IfStmt = require("dogma.syn._.IfStmt")
+local TerminalType = require("dogma.syn.TerminalType")
+local NodeType = require("dogma.syn.NodeType")
+local PubStmt = require("dogma.syn._.PubStmt")
+local ExportStmt = require("dogma.syn._.ExportStmt")
+local WithStmt = require("dogma.syn._.WithStmt")
+local YieldStmt = require("dogma.syn._.YieldStmt")
+local VarStmtParser = require("dogma.syn._.VarStmtParser")
+local Exp = require("dogma.syn._.Exp")
+local Terminal = require("dogma.syn._.Terminal")
+local Annots = require("dogma.syn._.Annots")
+
+--Parser for the Dogma statements.
+local StmtParser = {}
+StmtParser.__index = StmtParser
+setmetatable(StmtParser, {__index = SubParser})
+package.loaded[...] = StmtParser
+
+--Constructor.
+--
+--@param parser:Parser  Parser to use.
+function StmtParser.new(parser)
+  local self
+
+  --(1) create
+  self = setmetatable(SubParser.new(parser), StmtParser)
+  self._.expParser = parser._.expParser
+  self._.varParser = VarStmtParser.new(parser)
+
+  --(2) return
+  return self
+end
+
+--Return the next var statement.
+--
+--@return VarStmt
+function StmtParser:nextVar()
+  return self._.varParser:nextVar()
+end
+
+--Return the next const statement.
+--
+--@return ConstStmt
+function StmtParser:nextConst()
+  return self._.varParser:nextConst()
+end
+
+--Read a break statement.
+--
+--@return BreakStmt
+function StmtParser:nextBreak()
+  local lex = self._.lexer
+  local tok, ln, col, loop
+
+  --(1) read
+  tok = lex:nextKeyword("break")
+  ln, col = tok.line, tok.col
+
+  if lex:skipKeyword("for") then
+    if lex:skipKeyword("each") then
+      loop = "for each"
+    else
+      loop = "for"
+    end
+  elseif lex:skipKeyword("while") then
+    loop = "while"
+  elseif lex:skipKeyword("until") then
+    loop = "until"
+  end
+
+  --(2) get end of line
+  lex:nextNewline()
+
+  --(3) return
+  return BreakStmt.new(ln, col, loop)
+end
+
+--Read a next statement.
+--
+--@return NextStmt
+function StmtParser:nextNext()
+  local lexer = self._.lexer
+  local tok, stmt
+
+  --(1) read
+  tok = lexer:next(TokenType.KEYWORD, "next")
+  stmt = NextStmt.new(tok.line, tok.col)
+
+  --(2) get end of line
+  lexer:next(TokenType.EOL)
+
+  --(3) return
+  return stmt
+end
+
+--Read a return statement.
+--
+--@return ReturnStmt
+function StmtParser:nextReturn()
+  local lex, exper = self._.lexer, self._.expParser
+  local tok, stmt
+
+  --(1) read
+  tok = lex:next(TokenType.KEYWORD, "return")
+  stmt = ReturnStmt.new(tok.line, tok.col)
+
+  --(2) get values
+  tok = lex:advance()
+
+  if tok.type ~= TokenType.EOL then
+    stmt:insert(exper:next())
+  end
+
+  lex:next(TokenType.EOL)
+
+  --(3) return
+  return stmt
+end
+
+--Read a yield statement.
+--
+--@return YieldStmt
+function StmtParser:nextYield()
+  local lex, exper = self._.lexer, self._.expParser
+  local tok, ln, col, val
+
+  --(1) read
+  tok = lex:next(TokenType.KEYWORD, "yield")
+  ln, col = tok.line, tok.col
+  val = exper:next()
+  lex:next(TokenType.EOL)
+
+  --(3) return
+  return YieldStmt.new(ln, col, val)
+end
+
+--Read the next module paths when internal import.
+--
+--@return {path, name}[]
+function StmtParser:_nextModulePaths()
+  local lex = self._.lexer
+  local paths = {}
+
+  --(1) read up to { or end
+  local path, name, tok
+
+  tok = lex:next()
+
+  if tok:isSymbol("..") then
+    path = ".."
+  elseif tok:isName() then
+    name = tok.value
+    path = "./" .. name
+  else
+    self:_raise("'alias://', 'dep://', name, literal text, '~' or '..' expected.", tok)
+  end
+
+  while true do
+    if not lex:skipSymbol("/") then
+      table.insert(paths, {name = name, path = path})
+      break
+    end
+
+    path = path .. "/"
+
+    if lex:skipSymbol("{") then
+      while true do
+        name = lex:nextName().value
+
+        table.insert(paths, {name = name, path = path .. name})
+
+        if lex:skipSymbol("}") then
+          break
+        end
+
+        lex:nextSymbol(",")
+      end
+
+      break
+    elseif lex:advance():isId() or lex:advance():isSymbol("..") then
+      name = lex:next().value
+      path = path .. name
+    else
+      table.insert(paths, {path = path})
+      break
+    end
+  end
+
+  --(2) return
+  return paths
+end
+
+--Read the next module path.
+--
+--@return {path:string, name:string}
+function StmtParser:_nextModulePath()
+  local lex = self._.lexer
+  local name, path, tok
+  local aliases = self._.parser._.options.imports or {}
+
+  --(1) read
+  tok = lex:advance()
+
+  if tok:isName("dep") then
+    lex:nextName("dep")
+    lex:nextSymbol(":")
+    lex:nextSymbol("/")
+    lex:nextSymbol("/")
+
+    path = ""
+    while true do
+      --name
+      while true do
+        path = path .. lex:nextId().value
+
+        tok = lex:advance()
+        if tok:isSymbol("-") or tok:isSymbol(".") then
+          lex:next()
+          path = path .. tok.value
+        else
+          break
+        end
+      end
+
+      --separator
+      if lex:skipSymbol("/") then
+        path = path .. "/"
+      else
+        break
+      end
+    end
+  elseif tok:isName("alias") then
+    lex:nextName("alias")
+    lex:nextSymbol(":")
+    lex:nextSymbol("/")
+    lex:nextSymbol("/")
+    name = lex:nextId().value
+
+    if tablex.size(aliases) == 0 then --used when only linter
+      path = name
+    else                              --used when transpiler
+      path = aliases[name]
+
+      if path == nil then
+        self:_raise(string.format("unknown module alias: %s.", name), tok)
+      end
+    end
+  elseif tok:isText() then
+    path = lex:next().value
+  elseif tok:isName() then
+    path = "./" .. lex:next().value
+
+    while true do
+      if not lex:skipSymbol("/") then
+        break
+      end
+
+      path = path .. "/" .. lex:nextId().value
+    end
+  elseif tok:isSymbol("..") then
+    path = ""
+
+    while true do
+      tok = lex:advance()
+      if not tok:isSymbol("..") then
+        break
+      end
+
+      lex:nextSymbol("..")
+      lex:nextSymbol("/")
+      path = path .. "../"
+    end
+
+    while true do
+      if not lex:advance():isId() then
+        break
+      end
+
+      path = path .. lex:nextId().value
+
+      tok = lex:advance()
+      if not tok:isSymbol("/") then
+        break
+      end
+
+      lex:next()
+      path = path .. "/"
+    end
+  elseif tok:isSymbol("~") then
+    lex:nextSymbol("~")
+
+    path = ""
+
+    if lex:skipSymbol("/") then
+      path = "/"
+
+      while true do
+        path = path .. lex:nextId().value
+
+        if lex:skipSymbol("/") then
+          path = path .. "/"
+        else
+          break
+        end
+      end
+    end
+
+    path = string.rep("..", stringx.count(pathx.relpath(lex._.file), "/"), "/") .. path
+  end
+
+  --(2) return
+  return path, name
+end
+
+--Read a use stament.
+--
+--@return UseStmt
+function StmtParser:nextUse()
+  local lex = self._.lexer
+  local tok, stmt, paren
+
+  --(1) read
+  tok = lex:nextKeyword("use")
+  stmt = UseStmt.new(tok.line, tok.col)
+
+  --(2) read
+  --( if existing
+  paren = not not lex:skipSymbol("(")
+
+  if paren then
+    lex:nextEol()
+  end
+
+  self:_skipEols()
+
+  --imports
+  while true do
+    local path, name
+
+    --in block?
+    tok = lex:advance()
+
+    if tok == nil or (not paren and tok.col <= stmt.col) then
+      break
+    end
+
+    --path
+    if tok:isName() and lex:advance(2):isSymbol("<") then
+      lex:nextName()
+      lex:nextSymbol("<")
+      lex:nextName("T")
+      lex:nextSymbol(">")
+    elseif tok:isName() and lex:advance(2):isSymbol("=") then
+      name = lex:nextName().value
+      lex:nextSymbol("=")
+      path = self:_nextModulePath()
+      stmt:insert(path, name)
+    elseif tok:isSymbol("{") then
+      local uVars = self:_nextUnpackMapVars()
+      lex:nextSymbol("=")
+      path = self:_nextModulePath()
+      name = nil
+      stmt:insert(path, name, uVars)
+    elseif tok:isName("dep") or tok:isName("alias") or tok:isSymbol("~") or tok:isText() then
+      path, name = self:_nextModulePath()
+      if lex:skipKeyword("as") then
+        name = lex:nextName().value
+      end
+      stmt:insert(path, name)
+    else
+      for _, i in ipairs(self:_nextModulePaths()) do
+        stmt:insert(i.path, i.name)
+      end
+    end
+
+    --read separator
+    tok = lex:advance()
+
+    if not tok then
+      break
+    elseif tok:isSymbol(",") then
+      lex:nextSymbol(",")
+      self:_skipEols()
+    elseif tok:isEol() then
+      self:_skipEols()
+
+      tok = lex:advance()
+      if tok and lex:advance():isSymbol(")") then
+        break
+      end
+    else
+      self:_raise("',' or end of line expected.", tok)
+    end
+  end
+
+  --) if needed
+  if paren then
+    lex:nextSymbol(")")
+  end
+
+  --(4) return
+  return stmt
+end
+
+--Read {variable, variable...}.
+--A variable can be imported as: name as alias.
+--
+--@return string[]
+function StmtParser:_nextUnpackMapVars()
+  local lex = self._.lexer
+  local vars = {}
+
+  --(1) read {
+  lex:nextSymbol("{")
+
+  --(2) read vars
+  while true do
+    local name = lex:nextName().value
+
+    if lex:skipKeyword("as") then
+      table.insert(vars, {name = name, as = lex:nextName().value})
+    else
+      table.insert(vars, name)
+    end
+
+    if not lex:skipSymbol(",") then
+      break
+    end
+  end
+
+  --(3) read }
+  lex:nextSymbol("}")
+
+  --(4) return
+  return vars
+end
+
+--Read a from statement.
+--
+--@return FromStmt
+function StmtParser:nextFrom()
+  local lex = self._.lexer
+  local tok, ln, col, stmt, paren
+
+  --(1) read module
+  tok = lex:nextKeyword("from")
+  ln, col = tok.line, tok.col
+  stmt = FromStmt.new(ln, col, self:_nextModulePath())
+
+  --(2) items
+  lex:nextKeyword("use")
+
+  paren = not not lex:skipSymbol("(")
+
+  if paren then
+    lex:nextEol()
+  end
+
+  while true do
+    local name, as, uVars
+
+    --item
+    name = lex:nextName().value
+
+    if lex:skipKeyword("as") then
+      as = lex:nextName().value
+    else
+      as = nil
+    end
+
+    if lex:skipSymbol("=>") then
+      uVars = self:_nextUnpackMapVars()
+    else
+      uVars = nil
+    end
+
+    stmt:insert(name, as, uVars)
+
+    --end?
+    if paren then
+      local eol = not not lex:skipEol()
+
+      if lex:skipSymbol(")") then
+        break
+      else
+        if not eol then
+          lex:nextSymbol(",")
+          lex:skipEol()
+        end
+      end
+    else
+      if lex:advance() == nil or lex:skipEol() then
+        break
+      else
+        lex:nextSymbol(",")
+      end
+    end
+  end
+
+  --(3) return
+  return stmt
+end
+
+--Read a next statement.
+--
+--@return EnumStmt
+function StmtParser:nextEnum(annots)
+  local lexer = self._.lexer
+  local tok, ln, col, visib, name, stmt, sep
+
+  --(1) create stmt
+  tok = lexer:advance()
+  ln, col = tok.line, tok.col
+
+  --visibility
+  if tok:isKeyword() then
+    if tok.value == "export" or tok.value == "pub" then
+      lexer:next()
+      visib = tok.value
+    end
+  end
+
+  --enum Name
+  lexer:nextKeyword("enum")
+  name = lexer:nextName().value
+
+  --create
+  stmt = EnumStmt.new(ln, col, annots, visib, name)
+
+  --(2) read items
+  tok = lexer:next()
+
+  if tok:isSymbol("{") then
+    sep = ","
+  elseif tok:isEol() then
+    sep = "\n"
+  else
+    self:_raise("invalid token.", tok)
+  end
+
+  while true do
+    local item, value
+
+    tok = lexer:advance()
+
+    if tok == nil then
+      break
+    end
+
+    if sep == "\n" and tok.col <= stmt.col then
+      break
+    end
+
+    --name
+    lexer:skipEol()
+    item = lexer:nextName().value
+
+    --value
+    tok = lexer:advance()
+
+    if tok:isSymbol("=") then
+      lexer:next()  --=
+      value = lexer:next(TokenType.LITERAL).value
+    else
+      value = nil
+    end
+
+    --insert
+    stmt:insert(item, value)
+
+    --separator
+    if sep == "," then
+      tok = lexer:advance()
+
+      if tok:isSymbol("}") then
+        lexer:next()
+        break
+      else
+        lexer:nextSymbol(",")
+      end
+    else
+      lexer:nextEol()
+      self:_skipEols()
+    end
+  end
+
+  --(3) return
+  return stmt
+end
+
+--Read a while statement.
+--
+--@return WhileStmt
+function StmtParser:nextWhile()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, btype, decl, val, cond, body, el, catch, fin
+
+  --(1) read while keyword
+  tok = lex:nextKeyword("while")
+  ln, col = tok.line, tok.col
+
+  --(2) variable declaration  if possible
+  decl, val = self:_nextInlineVarDefIfPossible()
+
+  --(3) read condition
+  if (decl and lex:skipSymbol(";")) or not decl then
+    cond = parser:nextExp()
+  end
+
+  --(4) read do keyword
+  lex:nextKeyword("do")
+
+  tok = lex:advance()
+  if tok:isNewline() then
+    lex:next()
+    btype = 2
+  else
+    btype = 1
+  end
+
+  --(5) read body
+  body = self:_readBody(btype, col)
+
+  --(6) else if needed
+  self:_skipEols()
+
+  tok = lex:advance()
+  if tok and tok:isKeyword("else") and tok.col == col then
+    lex:nextKeyword("else")
+    el = self:_readBody(btype, col)
+  end
+
+  --(7) error handling if needed
+  self:_skipEols()
+  catch = self:_readCatch(col)
+  fin = self:_readFinally(col)
+
+  --(8) return
+  return WhileStmt.new(ln, col, decl, val, cond, body, el, catch, fin)
+end
+
+--Read an until statement.
+--
+--@return UntilStmt
+function StmtParser:nextUntil()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, btype, decl, val, cond, body, el, catch, fin
+
+  --(1) read while keyword
+  tok = lex:nextKeyword("until")
+  ln, col = tok.line, tok.col
+
+  --(2) read variable declarationif possible
+  decl, val = self:_nextInlineVarDefIfPossible()
+
+  --(3) read condition
+  if (decl and lex:skipSymbol(";")) or not decl then
+    cond = parser:nextExp()
+  end
+
+  --(4) read do
+  lex:nextKeyword("do")
+
+  tok = lex:advance()
+  if tok:isNewline() then
+    lex:next()
+    btype = 2
+  else
+    btype = 1
+  end
+
+  --(5) read body
+  body = self:_readBody(btype, col)
+
+  --(6) else
+  self:_skipEols()
+
+  tok = lex:advance()
+  if tok and tok:isKeyword("else") and tok.col == col then
+    lex:nextKeyword("else")
+    el = self:_readBody(btype, col)
+  end
+
+  --(7) error handling
+  self:_skipEols()
+  catch = self:_readCatch(col)
+  fin = self:_readFinally(col)
+
+  --(8) return
+  return UntilStmt.new(ln, col, decl, val, cond, body, el, catch, fin)
+end
+
+--Read a do statement.
+--
+--@return Dotmt
+function StmtParser:nextDo()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, vars, cond, body, catch, fin
+
+  --(1) read while keyword
+  tok = lex:nextKeyword("do")
+  ln, col = tok.line, tok.col
+
+  --(2) read vars
+  vars = {}
+
+  if lex:advance():isName() then
+    while true do
+      local name, kind, value
+
+      name = lex:nextName().value
+
+      if lex:skipSymbol(":=") then
+        kind = "var"
+        value = parser:nextExp()
+      elseif lex:skipSymbol("::=") then
+        kind = "const"
+        value = parser:nextExp()
+      else
+        self:_raise("':=' or '::=' expected.", lex:advance())
+      end
+
+      table.insert(vars, {name = name, kind = kind, value = value})
+
+      if not lex:skipSymbol(",") then
+        lex:nextEol()
+        break
+      end
+    end
+  end
+
+  --(3) read body
+  body = self:_readBody(2, col)
+
+  --(4) read condition if existing
+  if lex:skipKeyword("while") then
+    cond = parser:nextExp()
+    lex:nextEol()
+  end
+
+  --(5) read rest
+  catch = self:_readCatch(col)
+  fin = self:_readFinally(col)
+
+  --(6) return
+  return DoStmt.new(ln, col, vars, body, cond, catch, fin)
+end
+
+--Read for statement.
+--
+--@return ForStmt
+function StmtParser:nextFor()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, def, cond, iter, btype, body, el, catch, fin
+
+  --(1) read for keyword
+  tok = lex:nextKeyword("for")
+  ln, col = tok.line, tok.col
+
+  --(2) variables
+  def = {}
+
+  while true do
+    local name, val
+
+    --name [= value]
+    name = lex:nextName().value
+
+    tok = lex:advance()
+    if tok:isSymbol("=") then
+      lex:next()
+      val = parser:nextExp()
+    else
+      val = nil
+    end
+
+    table.insert(def, {name = name, value = val})
+
+    --end?
+    tok = lex:advance()
+
+    if not tok:isSymbol(",") then
+      break
+    end
+
+    lex:nextSymbol(",")
+  end
+
+  lex:nextSymbol(";")
+
+  --(3) cond
+  cond = parser:nextExp()
+
+  --(4) iter
+  tok = lex:advance()
+  if tok:isSymbol(";") then
+    lex:next()
+    iter = parser:nextExp()
+  end
+
+  --(5) body
+  lex:nextKeyword("do")
+
+  tok = lex:advance()
+  if tok:isNewline() then
+    lex:next()
+    btype = 2
+  else
+    btype = 1
+  end
+
+  body = self:_readBody(btype, col)
+
+  --(6) else?
+  self:_skipEols()
+
+  tok = lex:advance()
+  if tok and tok:isKeyword("else") and tok.col == col then
+    lex:nextKeyword("else")
+    el = self:_readBody(btype, col)
+  end
+
+  --(7) exception handler
+  catch = self:_readCatch(col)
+  fin = self:_readFinally(col)
+
+  --(8) return
+  return ForStmt.new(ln, col, def, cond, iter, body, el, catch, fin)
+end
+
+--Read for each statement.
+--
+--@return ForEachStmt
+function StmtParser:nextForEach()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, await, decl, key, keyType, val, valType, iter, btype, body, el, catch, fin
+
+  --(1) read for each keywords
+  tok = lex:nextKeyword()
+
+  if tok:isKeyword("await") then
+    await = true
+    lex:nextKeyword("for")
+  else
+    await = false
+  end
+
+  lex:nextKeyword("each")
+  ln, col = tok.line, tok.col
+
+  --key
+  key = lex:nextName().value
+
+  if lex:skipSymbol(":") then
+    keyType = lex:nextName().value
+  end
+
+  --value
+  tok = lex:advance()
+
+  if tok:isSymbol(",") then
+    lex:next()
+    val = lex:nextName().value
+
+    if lex:skipSymbol(":") then
+      valType = lex:nextName().value
+    end
+  else
+    val, valType, key, keyType = key, keyType, nil, nil
+  end
+
+  --(3) read iter
+  tok = lex:advance()
+
+  if tok:isKeyword("in") or tok:isSymbol("::=") then
+    lex:next()
+    decl = "const"
+  elseif tok:isSymbol(":=") then
+    lex:nextSymbol(":=")
+    decl = "var"
+  else
+    self:_raise("':=', '::=' or 'in' expected.", tok)
+  end
+
+  iter = parser:nextExp()
+
+  --(4) read rest
+  lex:nextKeyword("do")
+
+  tok = lex:advance()
+  if tok:isEol() then
+    lex:next()
+    btype = 2
+  else
+    btype = 1
+  end
+
+  body = self:_readBody(btype, col)
+
+  --(5) else?
+  self:_skipEols()
+
+  tok = lex:advance()
+  if tok and tok:isKeyword("else") and tok.col == col then
+    lex:nextKeyword("else")
+    el = self:_readBody(btype, col)
+  end
+
+  --(6) exception handler
+  catch = self:_readCatch(col)
+  fin = self:_readFinally(col)
+
+  --(7) return
+  return ForEachStmt.new(ln, col, await, decl, key, keyType, val, valType, iter, body, el, catch, fin)
+end
+
+--Read a body statement as, fo example, while, for, if, etc.
+--
+--@param btype:number Body type: 1, one line; 2, block; 3, between {}.
+--@param col:number   Column line where it starts.
+--
+--@return Sent[]
+function StmtParser:_readBody(btype, col)
+  local parser = self._.parser
+  local body
+
+  --(1) read body
+  if btype == 1 then
+    body = {parser:next()}
+  elseif btype == 2 then
+    body = BlockParser.new(parser, col):next()
+  elseif btype == 3 then
+    body = BlockParser.new(parser):next()
+  end
+
+  --(2) return
+  return body
+end
+
+--Read a catch clause.
+--
+--@param col:number Column number where this must start.
+--@return CatchCl
+function StmtParser:_readCatch(col)
+  local lexer, parser = self._.lexer, self._.parser
+  local tok, var, body
+
+  --(1) read catch keyword
+  tok = lexer:advance()
+
+  if tok == nil or not (tok.type == TokenType.KEYWORD and tok.value == "catch" and tok.col == col) then
+    return
+  end
+
+  lexer:next()
+
+  --(2) read error variable name
+  tok = lexer:advance()
+
+  if tok.type == TokenType.NAME then
+    lexer:next()
+    var = tok.value
+  end
+
+  lexer:next(TokenType.EOL)
+
+  --(3) read body
+  body = BlockParser.new(parser, col):next()
+
+  --(4) return
+  return CatchCl.new(var, body)
+end
+
+--Read a finally clause.
+--
+--@param col:number Column number where this must start.
+--@return FinallyCl
+function StmtParser:_readFinally(col)
+  local lexer, parser = self._.lexer, self._.parser
+  local tok, body
+
+  --(1) read finally keyword
+  tok = lexer:advance()
+
+  if tok == nil or not (tok.type == TokenType.KEYWORD and tok.value == "finally" and tok.col == col) then
+    return
+  end
+
+  lexer:next()
+  lexer:next(TokenType.EOL)
+
+  --(2) read body
+  body = BlockParser.new(parser, col):next()
+
+  --(4) return
+  return FinallyCl.new(body)
+end
+
+--Read a fn statement.
+--
+--@return FnStmt
+function StmtParser:nextFn(annots, itype)
+  local lex = self._.lexer
+  local tok, ln, col, visib, static, async, name, params, subparams, rtype, rvar, body, catch, fin
+
+  --(1) read visibility
+  tok = lex:advance()
+  ln, col = tok.line, tok.col
+
+  if itype then
+    visib = lex:next().value
+  else
+    if tok:isKeyword("export") or tok:isKeyword("pub") then
+      lex:next()
+      visib = tok.value
+    end
+  end
+
+  --(2) read static and async
+  static = not not lex:skipKeyword("static")
+  async = not not lex:skipKeyword("async")
+
+  --(3) read fn type.name
+  lex:nextKeyword("fn")
+
+  name = lex:skipName()
+  if name then
+    name = name.value
+  else
+    if visib == "export" then
+      name = "__anonymous__"
+    else
+      self:_raise("name expected.", lex:advance())
+    end
+  end
+
+  if not itype then
+    tok = lex:advance()
+
+    if tok:isSymbol() and tablex.find({".", ":", "!"}, tok.value) then
+      lex:next()
+
+      if tok.value == "." then
+        visib = "pub"
+      elseif tok.value == ":" then
+        visib = "intl"
+      else
+        visib = "pvt"
+      end
+
+      itype = name
+      name = lex:nextName().value
+    end
+  end
+
+  --(4) read rest
+  tok = lex:advance()
+
+  if tok:isSymbol("=") then
+    annots:insert(Annot.new(ln, col, "prop"))
+    params = Params.new()
+
+    lex:nextSymbol("=")
+    body = {self._.expParser:next()}
+    if #body > 0 and (body[1].type == SentType.EXP or body[1].type == SentType.XML_EXP) then
+      local exp = body[1]
+
+      body[1] = ReturnStmt.new(exp.line, exp.col)
+      body[1]:insert(exp)
+    end
+  else
+    if tok:isSymbol("(") then
+      params, subparams = self:_readRoutineParams({subparams = true})
+    else
+      annots:insert(Annot.new(ln, col, "prop"))
+      params = Params.new()
+    end
+
+    rvar = self:_readFnReturnVar()
+    rtype = self:_readFnType()
+
+    --read body
+    tok = lex:advance()
+
+    if tok:isSymbol("=") then
+      lex:next()
+      body = {self._.expParser:next()}
+
+      if #body > 0 and (body[1].type == SentType.EXP or body[1].type == SentType.XML_EXP) then
+        local exp = body[1]
+
+        body[1] = ReturnStmt.new(exp.line, exp.col)
+        body[1]:insert(exp)
+      end
+    else
+      lex:skipEol()
+      body = self:_readBody(2, col)
+    end
+
+    --read rest
+    catch = self:_readCatch(col)
+    fin = self:_readFinally(col)
+  end
+
+  --(5) return
+  return FnStmt.new(
+    ln, col,
+    annots,
+    visib, static, async, itype, name, params, subparams, rtype, rvar, body, catch, fin
+  )
+end
+
+--Read a proc statement.
+--
+--@return ProcStmt
+function StmtParser:nextProc(annots, itype)
+  local lex = self._.lexer
+  local tok, ln, col, visib, static, async, name, params, body, catch, fin
+
+  --(1) read visibility
+  tok = lex:advance()
+  ln, col = tok.line, tok.col
+
+  if itype then
+    visib = lex:next().value
+  else
+    if tok:isKeyword("export") or tok:isKeyword("pub") then
+      lex:next()
+      visib = tok.value
+    end
+  end
+
+  --(2) read static and async
+  static = not not lex:skipKeyword("static")
+  async = not not lex:skipKeyword("async")
+
+  --(3) read proc type.name
+  if not lex:skipKeyword("pr") then
+    lex:nextKeyword("proc")
+  end
+
+  name = lex:skipName()
+
+  if name then
+    name = name.value
+  else
+    if visib == "export" then
+      name = "__anonymous__"
+    else
+      self:_raise("name expected.", lex:advance())
+    end
+  end
+
+  if not itype then
+    tok = lex:advance()
+    if tok:isSymbol() and tablex.find({".", ":", "!"}, tok.value) then
+      lex:next()
+
+      if tok.value == "." then
+        visib = "pub"
+      elseif tok.value == ":" then
+        visib = "intl"
+      else
+        visib = "pvt"
+      end
+
+      itype = name
+      name = lex:nextName().value
+    end
+  end
+
+  --(3) read parameters
+  params = self:_readRoutineParams()
+
+  --(4) read body
+  lex:skipEol()
+  body = self:_readBody(2, col)
+
+  --(5) read rest
+  catch = self:_readCatch(col)
+  fin = self:_readFinally(col)
+
+  --(6) return
+  return ProcStmt.new(ln, col, annots, visib, static, async, itype, name, params, body, catch, fin)
+end
+
+--Read the routine parameters.
+--
+--@param opts Read options: subparams (must be read?).
+--
+--@return Param[]
+function StmtParser:_readRoutineParams(opts)
+  local lex = self._.lexer
+
+  --(0) args
+  opts = opts or {}
+  
+  --(1) read params
+  local params = Params.new()
+
+  lex:nextSymbol("(")
+  self:_skipEols()
+
+  while lex:advance() and not lex:advance():isSymbol(")") do
+    params:insert(self:_readFnParam())
+
+    if not lex:skipSymbol(",") and not lex:skipEol() then
+      break
+    end
+
+    self:_skipEols()
+  end
+
+  lex:nextSymbol(")")
+
+  --(2) read subparams if existing and needed
+  local subparams = {}
+
+  if opts.subparams then
+    while lex:advance():isSymbol("(") do
+      table.insert(subparams, self:_readRoutineParams())
+    end
+  end
+
+  --(3) return
+  if opts.subparams then
+    return params, subparams
+  else
+    return params
+  end
+end
+
+--Read a fn parameter.
+function StmtParser:_readFnParam()
+  local lex = self._.lexer
+  local tok, const, mod, name, opt, dtype, val, uvars, byCopy
+
+  --(1) const?
+  const = not not lex:skipKeyword("const")
+
+  --(2) . or : or ...?
+  tok = lex:advance()
+
+  if tok:isKeyword("pub") or tok:isSymbol(".") then
+    lex:next()
+    mod = "."
+  elseif tok:isKeyword("pvt") or tok:isSymbol("!") then
+    lex:next()
+    mod = "!"
+  elseif tok:isKeyword("intl") or tok:isSymbol(":") then
+    lex:next()
+    mod = ":"
+  elseif tok:isSymbol("...") then
+    lex:next()
+    mod = "..."
+  else
+    mod = nil
+  end
+
+  --(3) name
+  name = lex:nextName().value
+
+  --(4) optional?
+  opt = not not lex:skipSymbol("?")
+
+  --(5) data type
+  if lex:skipSymbol(":") then
+    byCopy = not not lex:skipSymbol("*")
+    dtype = self:_readDataType()
+  elseif lex:skipSymbol(":>") then
+    if not lex:advance():isSymbol("{") then
+      self:_raise("'{' expected.", lex:advance())
+    end
+
+    uvars = {}
+    dtype = self:_readDataType()
+
+    for _, var in ipairs(dtype.fields) do
+      table.insert(uvars, var.name)
+    end
+  end
+
+  --(6) unpack?
+  if uvars == nil and lex:skipSymbol("=>") then
+    uvars = {}
+
+    --read vars
+    if lex:skipSymbol("[") then
+      dtype = {kind="be", type={kind="type", name="list"}}
+    elseif lex:skipSymbol("{") then
+      if not dtype then
+        dtype = {kind="be", type={kind="type", name="map"}}
+      end
+      -- if dtype and dtype.kind ~= "map" and (dtype.kind == "be" and dtype.type.name ~= "map") then
+      --   dtype = {kind="be", type={kind="type", name="map"}}
+      -- end
+    else
+      self:_raise("'[' or '{' expected.", lex:advance())
+    end
+
+    table.insert(uvars, lex:nextId().value)
+    while lex:skipSymbol(",") do
+      table.insert(uvars, lex:nextId().value)
+    end
+
+    if dtype and dtype.kind == "be" and dtype.type.name == "list" then
+      lex:nextSymbol("]")
+    else
+      lex:nextSymbol("}")
+    end
+  end
+
+  --(7) default value
+  if not opt then
+    tok = lex:advance()
+
+    if tok:isSymbol("=") then
+      opt = true
+      val = self:_readFnParamValue()
+    elseif tok:isSymbol(":=") then
+      opt = true
+      val, dtype = self:_readFnParamValueWithInference()
+    end
+  end
+
+  --return
+  return Param.new(const, name, mod, opt, byCopy, dtype, uvars, val)
+end
+
+--Read the parameter value wihtout inference.
+--
+--@return string
+function StmtParser:_readFnParamValue()
+  self._.lexer:nextSymbol("=")
+  return self._.parser:nextExp()
+end
+
+--Read the parameter value using inference.
+--
+--@return val, type
+function StmtParser:_readFnParamValueWithInference()
+  local lex, exper = self._.lexer, self._.expParser
+  local val, dtype
+
+  --(1) read
+  lex:nextSymbol(":=")
+  val = exper:next()
+
+  --(2) infer data type
+  local node = val.tree.root
+
+  if node.type == NodeType.TERMINAL then
+    if node.subtype == TerminalType.TEXT then
+      dtype = {kind="be", type={kind="type", name="text"}}
+    elseif node.subtype == TerminalType.NUM then
+      dtype = {kind="be", type={kind="type", name="num"}}
+    elseif node.subtype == TerminalType.TRUE or node.subtype == TerminalType.FALSE then
+      dtype = {kind="be", type={kind="type", name="bool"}}
+    elseif node.subtype == TerminalType.MAP then
+      dtype = {kind="be", type={kind="type", name="map"}}
+    elseif node.subtype == TerminalType.LIST then
+      dtype = {kind="be", type={kind="type", name="list"}}
+    end
+  end
+
+  if not dtype then
+    self:_raise("for infering type, the default value must be a literal: bool, list, map, num or text.", val)
+  end
+
+  --(2) return
+  return val, dtype
+end
+
+--Read the function return type.
+--
+--@return string
+function StmtParser:_readFnType()
+  local lex = self._.lexer
+  local tok, rtype
+
+  --(1) read
+  tok = lex:advance()
+
+  if tok.type == TokenType.SYMBOL and tok.value == ":" then
+    lex:next()  --:
+    rtype = lex:next(TokenType.NAME).value
+  end
+
+  --(2) return
+  return rtype
+end
+
+--Read the function return variable.
+--
+--@return string
+function StmtParser:_readFnReturnVar()
+  local lex = self._.lexer
+  local tok, rvar
+
+  --(1) read
+  tok = lex:advance()
+
+  if tok.type == TokenType.SYMBOL and tok.value == "->" then
+    lex:next()  -- ->
+    tok = lex:next()
+
+    if tok.type == TokenType.KEYWORD and tok.value == "self" then
+      rvar = "self"
+    elseif tok.type == TokenType.NAME then
+      rvar = tok.value
+    else
+      self:_raise("return value must be 'self' or a name.", tok)
+    end
+  end
+
+  --(2) return
+  return rvar
+end
+
+--Read an intf statement.
+--
+--@return IntfStmt
+function StmtParser:nextIntf(annots)
+  local lex = self._.lexer
+  local tok, ln, col, visib, name, base, fields, meths
+
+  --(1) read visibility
+  tok = lex:advance()
+  ln, col = tok.line, tok.col
+
+  if tok:isKeyword() and (tok.value == "export" or tok.value == "pub") then
+    lex:next()
+    visib = tok.value
+  end
+
+  --(2) read intf name
+  lex:nextKeyword("intf")
+  name = lex:nextName().value
+
+  --(3) base
+  if lex:skipSymbol(":") then
+    base = lex:nextName().value
+  end
+
+  --(4) newline
+  lex:nextNewline()
+  self:_skipEols()
+
+  --(5) read members
+  fields, meths = self:_readIntfMembers(col)
+
+  --(6) return
+  return IntfStmt.new(ln, col, annots, visib, name, base, fields, meths)
+end
+
+--Read the intf members if existing.
+--
+--@param col:number   Column where the intf starts.
+--@return object[]
+function StmtParser:_readIntfMembers(col)
+  local lex = self._.lexer
+
+  --Read a field.
+  local function readField()
+    local name, opt, type
+
+    --(1) id
+    name = lex:nextId().value
+
+    --(2) type
+    opt = not not lex:skipSymbol("?")
+
+    if lex:skipSymbol(":") then
+      type = self:_readDataType()
+    else
+      if opt then
+        self:_raise(':type expected.', lex:current())
+      end
+    end
+
+    --(3) newline
+    lex:nextNewline()
+
+    --(4) return
+    return {name=name, optional=opt, type=type}
+  end
+
+  --Read a method.
+  local function readMethod()
+    local name
+
+    --(1) async fn|proc|pr
+    lex:skipKeyword("async")
+
+    if not lex:skipKeyword("proc") or not lex:skipKeyword("pr") then
+      lex:nextKeyword("fn")
+    end
+
+    --(2) name
+    name = lex:nextName().value
+
+    --(3) parameters
+    lex:nextSymbol("(")
+
+    while true do
+      if not lex:skipName() then
+        break
+      else
+        if not lex:skipSymbol(",") then
+          break
+        end
+      end
+    end
+
+    lex:nextSymbol(")")
+
+    --(4) return type
+    if lex:skipSymbol(":") then
+      lex:skipName()
+    end
+
+    --(5) new line
+    lex:nextNewline()
+
+    --(6) return
+    return {name=name}
+  end
+
+  --(1) read members
+  local fields, meths = {}, {}
+
+  while true do
+    --read end of line
+    self:_skipEols()
+
+    --field
+    local tok = lex:advance()
+
+    if not tok or tok.col <= col then
+      break
+    else
+      if tok:isKeyword("async") or tok:isKeyword("fn") or tok:isKeyword("proc") then
+        table.insert(meths, readMethod())
+      else
+        table.insert(fields, readField())
+      end
+    end
+  end
+
+  --(2) return
+  return fields, meths
+end
+
+--Read the mixin types.
+--
+--@return string[]
+function StmtParser:_readMixinTypes()
+  local lex = self._.lexer
+  local mixins = {}
+
+  --(1) read
+  table.insert(mixins, self:_nextPath())
+
+  while lex:skipSymbol(",") do
+    table.insert(mixins, self:_nextPath())
+  end
+
+  --(2) return
+  return mixins
+end
+
+--Read a struct statement.
+--
+--@return StructStmt
+function StmtParser:nextStruct(annots)
+  local lex = self._.lexer
+  local tok, ln, col, visib, name, btype, mtypes, fields, fns, events
+
+  --(1) read visibility
+  ::START:: tok = lex:advance()
+  ln, col = tok.line, tok.col
+
+  if tok:isKeyword() and (tok.value == "export" or tok.value == "pub") then
+    lex:next()
+    visib = tok.value
+  end
+
+  --(2) read struct name
+  lex:nextKeyword("struct")
+  name = lex:nextName().value
+
+  --(3) read base struct name
+  if annots:has("emitter") then
+    btype = "dogma.EventEmitter"
+  elseif lex:skipSymbol(":") then
+    if lex:advance(1):isName() and lex:advance(2):isSymbol("<") then
+      local file = require("pl.file")
+      local path = require("pl.path")
+      local tmpl, t, def, filename
+
+      --read definition
+      tmpl = lex:nextName().value
+      lex:nextSymbol("<")
+      t = lex:nextName().value
+      lex:nextSymbol(">")
+
+      tok = lex:advance()
+      if not tok:isNewline() then
+        self:_raise("newline expected.", tok)
+      end
+
+      --add @Self if needed
+      if not annots:find("Self") then
+        annots:insert(Annot.new(ln, col, "Self"))
+      end
+
+      --read file
+      local hdr = "struct " .. name
+
+      if visib then
+        hdr = visib .. " " .. hdr
+      end
+
+      filename = path.join(path.dirname(lex._.file), tmpl .. ".dogt")
+      def = file.read(filename)
+      if not def then
+        self:_raise(string.format("file not found: %s.", filename), self._.token)
+      end
+
+      lex:insert(def:gsub("struct " .. tmpl .. "<T>", hdr, 1):gsub("<T>", t), filename)
+      if true then goto START end
+    else
+      btype = self:_nextPath()
+    end
+  end
+
+  --(4) read mixable type
+  if lex:skipSymbol("::") then
+    mtypes = self:_readMixinTypes()
+  end
+
+  --(5) newline
+  lex:nextNewline()
+  self:_skipEols()
+
+  --(6) read members
+  fields, fns, events = self:_readStructMembers(col, name)
+
+  --(6) return
+  return StructStmt.new(ln, col, annots, visib, name, btype, mtypes, fields, fns, events)
+end
+
+--Read the struct members if existing.
+--
+--@param col:number   Column where the struct starts.
+--@param itype:string Struct name.
+--@return object[]
+function StmtParser:_readStructMembers(col, itype)
+  local lex = self._.lexer
+
+  --Read a field.
+  local function readField(annots)
+    local tok, kind, visib, static, name, opt, type, val
+
+    --(1) visib
+    tok = lex:next()
+    visib = tok.value
+
+    --(2) [static] const/var
+    static = not not lex:skipKeyword("static")
+    tok = lex:next()
+    kind = tok.value
+
+    --(3) id
+    name = lex:nextName().value
+
+    --(4) ?
+    opt = not not lex:skipSymbol("?")
+
+    --(5) :type
+    if lex:skipSymbol(":")  then
+      type = self:_readDataType()
+    end
+
+    --(6) default value
+    tok = lex:advance()
+
+    if annots:has("strict") then
+      val = self:_readFnParamValue()
+    elseif tok:isSymbol("=") then
+      val = self:_readFnParamValue()
+    elseif tok:isSymbol(":=") then
+      val, type = self:_readFnParamValueWithInference()
+    end
+
+    if val then
+      opt = true
+    end
+
+    --(7) return
+    return {
+      kind = kind,
+      visib = visib,
+      static = static,
+      name = name,
+      optional = opt,
+      type = type,
+      value = val,
+      annots = annots
+    }
+  end
+
+  --Read a function.
+  local function readFn(annots)
+    return self:nextFn(annots, itype)
+  end
+
+  --Read a procedure.
+  local function readProc(annots)
+    return self:nextProc(annots, itype)
+  end
+
+  --Read an event.
+  local function readEvent(annots)
+    local visib, name, type
+
+    --(1) read visibility
+    visib = lex:nextKeyword("pub").value
+
+    --(2) read name
+    lex:nextKeyword("event")
+    name = lex:nextName().value
+
+    --(3) read type
+    if lex:skipSymbol(":") then
+      type = self:_readDataType()
+    end
+
+    --(4) return
+    return {visib = visib, name = name, type = type}
+  end
+
+  --(1) read members
+  local fields, fns, events = {}, {}, {}
+  local annots = Annots.new()
+
+  while true do
+    --read end of line
+    self:_skipEols()
+
+    --field
+    local tok = lex:advance()
+
+    if not tok or tok.col <= col then
+      break
+    elseif tok:isAnnot() then
+      annots:insert(lex:next())
+    elseif tok:isKeyword() then
+      if not tablex.find({"pub", "pvt", "intl"}, tok.value) then
+        self:_raise("'pub', 'intl' or 'pvt' expected.", tok)
+      end
+
+      tok = lex:advance(2)
+      if tablex.find({"const", "var"}, tok.value) or
+         (tok:isKeyword("static") and tablex.find({"const", "var"}, lex:advance(3).value)) then
+        table.insert(fields, readField(annots))
+        annots = Annots.new()
+      elseif tok:isKeyword("static") then
+        tok = lex:advance(3)
+
+        if tok:isKeyword("async") then
+          tok = lex:advance(4)
+        end
+
+        if tok:isKeyword("fn") then
+          table.insert(fns, readFn(annots))
+          annots = Annots.new()
+        elseif tok:isKeyword("proc") or tok:isKeyword("pr") then
+          table.insert(fns, readProc(annots))
+          annots = Annots.new()
+        else
+          self:_raise("'proc' or 'fn' expected.", tok)
+        end
+      elseif tok:isKeyword("async") then
+        tok = lex:advance(3)
+
+        if tok:isKeyword("fn") then
+          table.insert(fns, readFn(annots))
+          annots = Annots.new()
+        elseif tok:isKeyword("proc") or tok:isKeyword("pr") then
+          table.insert(fns, readProc(annots))
+          annots = Annots.new()
+        else
+          self:_raise("'proc' or 'fn' expected.", tok)
+        end
+      elseif tok:isKeyword("fn") then
+        table.insert(fns, readFn(annots))
+        annots = Annots.new()
+      elseif tok:isKeyword("proc") or tok:isKeyword("pr") then
+        table.insert(fns, readProc(annots))
+        annots = Annots.new()
+      elseif tok:isKeyword("event") then
+        table.insert(events, readEvent(annots))
+        annots = Annots.new()
+      else
+        self:_raise("'const', 'var', 'async', 'fn', 'proc' or 'event' expected.", tok)
+      end
+    else
+      self:_raise("field or method expected.", tok)
+    end
+  end
+
+  --(2) return
+  return fields, fns, events
+end
+
+--Read a type or typedef statement.
+--
+--@return TypeDefStmt|TypeStmt
+function StmtParser:nextType(annots)
+  local lex = self._.lexer
+  local tok, ln, col, visib, name
+
+  --(1) read visibility
+  tok = lex:advance()
+  ln, col = tok.line, tok.col
+
+  if tok:isKeyword() and (tok.value == "export" or tok.value == "pub") then
+    lex:next()
+    visib = tok.value
+  end
+
+  --(2) read type name
+  lex:nextKeyword("type")
+  name = lex:nextName().value
+
+  --(3) read rest of statement
+  if lex:advance():isSymbol("=") then
+    return self:_nextRestOfTypeDef(annots, ln, col, visib, name)
+  else
+    return self:_nextRestOfType(annots, ln, col, visib, name)
+  end
+end
+
+--Read the rest of a typedef statement.
+--
+--@return TypeDefStmt
+function StmtParser:_nextRestOfTypeDef(annots, ln, col, visib, name)
+  local lex = self._.lexer
+  local types, min, max
+
+  --(1) read =
+  lex:nextSymbol("=")
+
+  --(2) read types
+  types = {}
+
+  if lex:skipSymbol("(") then
+    while true do
+      table.insert(types, lex:nextName().value)
+
+      if not lex:skipSymbol(",") then
+        break
+      end
+    end
+
+    lex:nextSymbol(")")
+  else
+    table.insert(types, lex:nextName().value)
+  end
+
+  --(3) read list if possible
+  min, max = self:_readListSpecIfPossible()
+  -- if lex:skipSymbol("[") then
+  --   if lex:skipSymbol("]") then
+  --     min = 0
+  --   else
+  --     min = lex:nextLiteralNum().value
+  --
+  --     if lex:skipSymbol("..") then
+  --       if lex:skipSymbol("*") then
+  --         nop()
+  --       else
+  --         max = lex:nextLiteralNum().value
+  --       end
+  --     else
+  --       max = min
+  --     end
+  --
+  --     lex:nextSymbol("]")
+  --   end
+  -- end
+
+  --(4) return
+  return TypeDefStmt.new(ln, col, annots, visib, name, types, min, max)
+end
+
+--Read a type statement.
+--
+--@return TypeStmt
+function StmtParser:_nextRestOfType(annots, ln, col, visib, name)
+  local lexer, parser = self._.lexer, self._.parser
+  local tok, params, btype, bargs, mtype, margs, body, catch, fin
+
+  --(1) read parameters
+  tok = lexer:advance()
+
+  if tok:isSymbol("(") then
+    if lexer:skipSymbols("(", "...", ")") then
+      params = Params.new()
+    else
+      params = self:_readRoutineParams()
+    end
+
+    --read base type
+    if annots:has("emitter") then
+      btype = "dogma.EventEmitter"
+      bargs = {}
+    elseif lexer:skipSymbol(":") then
+      btype = self:_nextPath()
+
+      if lexer:skipSymbol("(") then
+        bargs = {}
+
+        tok = lexer:advance()
+        local aux = lexer:advance(2)
+        if (tok.type == TokenType.SYMBOL and tok.value == "...") and (aux.type == TokenType.SYMBOL and aux.value == ")") then
+          lexer:next()
+          table.insert(bargs, "...")
+        elseif not (tok.type == TokenType.SYMBOL and tok.value == ")") then
+          while true do
+            table.insert(bargs, parser:nextExp())
+
+            tok = lexer:advance()
+            if not (tok.type == TokenType.SYMBOL and tok.value == ",") then
+              break
+            end
+
+            lexer:next(TokenType.SYMBOL, ",")
+          end
+        end
+
+        lexer:next(TokenType.SYMBOL, ")")
+      end
+    end
+
+    --read mixable type
+    mtype, margs = self:_nextMixinType()
+
+    --read body
+    lexer:next(TokenType.EOL)
+    body = self:_readBody(2, col)
+
+    --read rest
+    catch = self:_readCatch(col)
+    fin = self:_readFinally(col)
+  else
+    mtype, margs = self:_nextMixinType()
+    params = self:_readTypeFields(col)
+  end
+
+  --(2) return
+  return TypeStmt.new(ln, col, annots, visib, name, params, btype, bargs, mtype, margs, body, catch, fin)
+end
+
+--Read the mixin type if existing.
+--
+--@return [mixin, params]
+function StmtParser:_nextMixinType()
+  local mtype, margs
+  local lexer, parser = self._.lexer, self._.parser
+
+  --(1) read
+  if lexer:skipSymbol("::") then
+    mtype = lexer:nextName().value
+    lexer:nextSymbol("(")
+
+    if lexer:skipSymbol(")") then
+      margs = {}
+    elseif lexer:skipSymbols("...", ")") then
+      margs = {"..."}
+    else
+      margs = {}
+
+      while true do
+        table.insert(margs, parser:nextExp())
+
+        local tok = lexer:advance()
+        if not (tok.type == TokenType.SYMBOL and tok.value == ",") then
+          break
+        end
+
+        lexer:nextSymbol(",")
+      end
+
+      lexer:nextSymbol(")")
+    end
+  end
+
+  --(2) return
+  return mtype, margs
+end
+
+--Read the type fields if existing.
+--
+--@param col:number Column where the type starts.
+--@return param[]
+function StmtParser:_readTypeFields(col)
+  local lex = self._.lexer
+  local fields = {}
+
+  local function readField(mod, const)
+    local tok
+    local name, opt, type, val
+
+    --(1) id
+    name = lex:nextName().value
+
+    --(2) optional?
+    tok = lex:advance()
+
+    if tok.type == TokenType.SYMBOL and tok.value == "?" then
+      lex:next()
+      opt = true
+    else
+      opt = false
+    end
+
+    --(3) :type
+    if lex:skipSymbol(":")  then
+      type = self:_readDataType()
+    end
+
+    --(4) default value
+    tok = lex:advance()
+
+    if tok.type == TokenType.SYMBOL and tok.value == "=" then
+      val = self:_readFnParamValue()
+    elseif tok.type == TokenType.SYMBOL and tok.value == ":=" then
+      val, type = self:_readFnParamValueWithInference()
+    end
+
+    --(5) return
+    return {const=const, modifier=mod, name=name, optional=opt, type=type, value=val}
+  end
+
+  --(1) read fields
+  while true do
+    --read end of line
+    lex:nextEol()
+
+    --field
+    local tok = lex:advance()
+
+    if not tok or tok.col <= col then
+      break
+    else
+      local mod, const
+
+      --pub* or pvt
+      if tok.type == TokenType.KEYWORD and tok.value == "pub" then
+        lex:nextKeyword("pub")
+        mod = "."
+      elseif tok.type == TokenType.KEYWORD and tok.value == "pvt" then
+        lex:nextKeyword("pvt")
+        mod = ":"
+      else
+        mod = "."
+      end
+
+      --const or var
+      tok = lex:advance()
+
+      if tok.type == TokenType.KEYWORD and (tok.value == "const" or tok.value == "var") then
+        lex:next()
+        const = (tok.value == "const")
+      else
+        self:_raise("var or const expected.", tok)
+      end
+
+      --read field
+      while true do
+        table.insert(fields, readField(mod, const))
+
+        if not lex:skipSymbol(",") then
+          break
+        end
+      end
+    end
+  end
+
+  --(3) return
+  return fields
+end
+
+--Read an async statement.
+--
+--@return AsyncStmt
+function StmtParser:nextAsync()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, opts, body, catch
+
+  --(1) read async keyword
+  tok = lex:next(TokenType.KEYWORD, "async")
+  ln, col = tok.line, tok.col
+
+  --(2) read options
+  opts = {}
+
+  if lex:skipKeyword("with") then
+    lex:nextSymbol("{")
+
+    while true do
+      local name = lex:nextName()
+
+      if name.value ~= "delay" and name.value ~= "repeat" then
+        self:_raise("delay or repeat expected.", name)
+      end
+
+      if lex:skipSymbol("=") then
+        opts[name.value] = parser:nextExp()
+      else
+        opts[name.value] = Exp.new(name.ln, name.col)
+        opts[name.value]:insert(Terminal.new(TerminalType.NAME, {line=name.ln, col=name.col, value=name.value}))
+      end
+
+      if not lex:skipSymbol(",") then
+        break
+      end
+    end
+
+    lex:nextSymbol("}")
+  end
+
+  --(2) read body
+  tok = lex:advance()
+
+  if tok.type == TokenType.EOL then
+    lex:next()
+    body = self:_readBody(2, col)
+    catch = self:_readCatch(col)
+  else
+    body = self:_readBody(1, col)
+  end
+
+  --(3) return
+  return AsyncStmt.new(ln, col, opts, body, catch)
+end
+
+--Read an inline variable definition if possible.
+--Used with while and until statements.
+--
+--@return ["var"|"const", exp]
+function StmtParser:_nextInlineVarDefIfPossible()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, decl, val
+
+  --(1) read declaration type
+  tok = lex:advance(1)
+
+  if tok:isName() then
+    tok = lex:advance(2)
+
+    if tok:isSymbol(":=") then
+      decl = "var"
+      tok.value = "="
+    elseif tok:isSymbol("::=") then
+      decl = "const"
+      tok.value = "="
+    end
+  end
+
+  --(2) read definition
+  if decl then
+    val = parser:nextExp()
+  end
+
+  --(3) return
+  return decl, val
+end
+
+--Read an if statement.
+--
+--@return IfStmt
+function StmtParser:nextIf()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, decl, val, col, cond, body, elif, el, finished
+
+  --(1) read if keyword
+  tok = lex:nextKeyword("if")
+  ln, col = tok.line, tok.col
+
+  --(2) read 1st exp
+  tok = lex:advance(1)
+
+  if tok:isKeyword() and (tok.value == "var" or tok.value == "const") then
+    decl = tok.value
+    lex:next()
+  elseif tok:isName() then
+    tok = lex:advance(2)
+
+    if tok:isSymbol(":=") then
+      decl = "var"
+      tok.value = "="
+    elseif tok:isSymbol("::=") then
+      decl = "const"
+      tok.value = "="
+    end
+  end
+
+  cond = parser:nextExp()
+
+  --(3) read 2nd exp
+  if decl then
+    val = cond
+
+    if lex:skipSymbol(";") then
+      cond = parser:nextExp()
+    else
+      cond = Exp.new(tok.line, tok.col)
+      cond:insert(Terminal.new(TerminalType.NAME, {line = tok.line, col = tok.col, value = val.tree.root.children[1].data}))
+    end
+  elseif lex:skipSymbol(";") then
+    val = cond
+    cond = parser:nextExp()
+  end
+
+  --(4) read then
+  lex:nextKeyword("then")
+
+  --(5) read body
+  if lex:skipEol() then --body in the next line
+    body = self:_readBody(2, col)
+  else  --body in the same line
+    body = {parser:next()}
+
+    tok = lex:advance()
+    if tok and tok.line == ln and tok:isKeyword("else") then
+      lex:nextKeyword("else")
+      el = {parser:next()}
+      finished = true
+    end
+  end
+
+  --(6) read else and else if
+  if not finished then
+    while true do
+      self:_skipEols()
+
+      tok = lex:advance()
+      if not tok or tok.col ~= col then
+        break
+      end
+
+      if lex:skipKeyword("else") then
+        if lex:skipKeyword("if") then
+          local c, b
+
+          c = parser:nextExp()
+          lex:nextKeyword("then")
+
+          if lex:skipEol() then --body in the next line
+            b = self:_readBody(2, col)
+          else  --body in the same line
+            b = {parser:next()}
+          end
+
+          if elif == nil then
+            elif = {}
+          end
+
+          table.insert(elif, {cond = c, body = b})
+        else
+          el = self:_readBody(2, col)
+        end
+      else
+        break
+      end
+    end
+  end
+
+  --(7) return
+  return IfStmt.new(ln, col, decl, val, cond, body, elif, el)
+end
+
+--Read a pub statement.
+--
+--@return PubStmt
+function StmtParser:nextPub()
+  local lex = self._.lexer
+  local tok, ln, col, use, items, paren
+
+  --(1) read pub keyword
+  tok = lex:nextKeyword("pub")
+  ln, col = tok.line, tok.col
+
+  use = not not lex:skipKeyword("use")
+
+  --(2) pub(...)?
+  if lex:skipSymbol("(") then
+    paren = true
+    self:_skipEols()
+  end
+
+  --(3) read items
+  items = {}
+
+  while true do
+    local item
+
+    --item
+    tok = lex:advance()
+
+    if tok:isText() then
+      lex:next()
+      item = {type="use", value=tok.value}
+    elseif not use and tok:isName() then
+      lex:next()
+      item = {type="pub", value=tok.value}
+    elseif use and (tok:isName() or tok:isSymbol("..")) then
+      local alias
+
+      if tok:isName() and lex:advance(2):isSymbol("=") then
+        alias = lex:nextName().value
+        lex:nextSymbol("=")
+      end
+
+      item = {type="use", value=self:_nextModulePath()}
+
+      if alias then
+        item.alias = alias
+      end
+    else
+      self:_raise("literal text or name expected.", tok)
+    end
+
+    if not item.alias and lex:skipKeyword("as") then
+      item.alias = lex:nextName().value
+    end
+
+    table.insert(items, item)
+
+    --end or next?
+    if lex:skipSymbol(",") then
+      if paren then
+        self:_skipEols()
+      end
+    elseif lex:advance():isEol() then
+      if paren then
+        self:_skipEols()
+
+        tok = lex:advance()
+        if tok:isSymbol(")") then
+          break
+        end
+      else
+        break
+      end
+    else
+      self:_raise("comma or newline expected.", lex:advance())
+    end
+  end
+
+  --(4) read ) if needed
+  if paren then
+    lex:nextSymbol(")")
+  end
+
+  --(5) return
+  return PubStmt.new(ln, col, items)
+end
+
+--Read an export statement.
+--
+--@return ExportStmt
+function StmtParser:nextExport()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, exp
+
+  --(1) read
+  tok = lex:next(TokenType.KEYWORD, "export")
+  ln, col = tok.line, tok.col
+
+  exp = parser:nextExp()
+  lex:next(TokenType.EOL)
+
+  --(2) return
+  return ExportStmt.new(ln, col, exp)
+end
+
+--Read a with statement.
+--
+--@return WithStmt
+function StmtParser:nextWith()
+  local lex, parser = self._.lexer, self._.parser
+  local tok, ln, col, ofType, var, val, ifs, els, catch, fin
+
+  --(1) read with
+  tok = lex:nextKeyword("with")
+  ln, col = tok.line, tok.col
+
+  ofType = not not lex:skipKeyword("type")
+
+  if ofType then
+    lex:nextSymbol("(")
+  end
+
+  if lex:advance(1):isName() and lex:advance(2):isSymbol(":=", "::=")  then
+    var = {
+      name = lex:nextName().value,
+      kind = lex:nextSymbol():isSymbol(":=") and "var" or "const"
+    }
+  end
+
+  val = parser:nextExp()
+
+  if ofType then
+    lex:nextSymbol(")")
+  end
+
+  lex:nextKeyword("do")
+  lex:nextEol()
+
+  --(2) read ifs
+  ifs = {}
+
+  while true do
+    local conds, ifCol, body
+
+    tok = lex:advance()
+    if not (tok and tok:isKeyword("if") and tok.col > col) then
+      break
+    end
+
+    lex:next()  --if
+    ifCol = tok.col
+    conds = {parser:nextExp()}
+    while lex:skipSymbol(",") do
+      table.insert(conds, parser:nextExp())
+    end
+    lex:nextKeyword("then")
+    body = self:_readBody(2, ifCol)
+
+    table.insert(ifs, {conds = conds, body = body})
+  end
+
+  --(3) read else
+  tok = lex:advance()
+
+  if tok and tok:isKeyword("else") and tok.col > col then
+    lex:next()
+    els = self:_readBody(2, tok.col)
+  end
+
+  --(4) error handling if needed
+  self:_skipEols()
+  catch = self:_readCatch(col)
+  fin = self:_readFinally(col)
+
+  --(5) return
+  return WithStmt.new(ln, col, ofType, var, val, ifs, els, catch, fin)
+end

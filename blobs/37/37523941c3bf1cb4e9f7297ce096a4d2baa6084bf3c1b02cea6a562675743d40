@@ -1,0 +1,15 @@
+local patok   = require 'patok'
+
+return function ()
+	return patok {
+		WS = '[ \t]+',
+		NL = '\r?\n',
+		equals = '=',
+		lbrack = '%[',
+		rbrack = '%]',
+		comment = '[#;][^\r\n]*',
+		raw = '`[^`]-`', -- handle ``s in post as adjacent raws
+	}{
+		word = '[^ \t\r\n=%[%]#;`]+',
+	}()
+end

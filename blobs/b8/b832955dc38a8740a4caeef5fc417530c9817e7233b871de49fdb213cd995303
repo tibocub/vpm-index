@@ -1,0 +1,22 @@
+-- Grokimagine2Com (Lua module)
+-- Grok Imagine 2.0 official website backlink rock.
+
+local M = {}
+
+M.VERSION = "0.1.0"
+M.WEBSITE = "https://www.grokimagine-2.com"
+
+function M.info()
+  return {
+    name = "Grokimagine2Com",
+    version = M.VERSION,
+    website = M.WEBSITE,
+    description = "Grok Imagine 2.0 official website backlink rock."
+  }
+end
+
+function M.website()
+  return M.WEBSITE
+end
+
+return M

@@ -1,0 +1,80 @@
+local config = require("rsvp.config")
+local Player = require("rsvp.player").Player
+
+local function activate()
+    local panto = require("panto")
+    local ext = panto.ext
+    local settings, err = config.read(ext.config and ext.config.rsvp)
+    if not settings then error("panto-rsvp: " .. err) end
+    local restored, state_err
+    local state_ok, saved_wpm, read_err = pcall(function() return ext.state.get("rsvp.wpm") end)
+    if not state_ok then
+        state_err = "WPM restore failed: " .. tostring(saved_wpm)
+    elseif read_err ~= nil then
+        state_err = "WPM restore failed: " .. tostring(read_err)
+    elseif type(saved_wpm) == "number" and saved_wpm == saved_wpm and saved_wpm > 0
+        and saved_wpm < math.huge then
+        restored = math.max(settings.min_wpm, saved_wpm)
+    end
+    if restored then settings.wpm = restored end
+    local uv = require("luv")
+
+    local player = Player.new {
+        settings = settings,
+        persistence_error = state_err,
+        save_wpm = function(speed) return ext.state.set("rsvp.wpm", speed) end,
+        highlight = function(body) return ext.highlight(body, "markdown") end,
+        width = panto.text.width,
+        truncate = panto.text.truncate,
+        style = function() return ext.style() end,
+        new_timer = function() return uv.new_timer() end,
+        mount = function(component, placement) return ext.mount(component, placement) end,
+        input_mode = function(spec) return ext.input_mode(spec) end,
+    }
+
+    local function subscribe(name, handler)
+        ext.on(name, handler)
+    end
+
+    subscribe("session_ready", function()
+        local ok, text = pcall(function()
+            local latest
+            for _, message in ipairs(ext.agent:conversation():messages()) do
+                if message.role == "assistant" then
+                    for _, block in ipairs(message.blocks or {}) do
+                        if block.type == "text" then latest = block.text or "" end
+                    end
+                end
+            end
+            return latest or ""
+        end)
+        player:snapshot_source(ok and text or "")
+    end)
+    subscribe("render_assistant_text", function(event)
+        player:set_source(event.text or "", false, event.index)
+    end)
+    subscribe("render_assistant_text_delta", function(event)
+        if event.text ~= nil then player:update_source(event.text, false, event.index) end
+    end)
+    subscribe("render_assistant_text_complete", function(event)
+        player:update_source(event.text or "", true, event.index)
+    end)
+    subscribe("suspend", function() player:suspend() end)
+    subscribe("turn_start", function() player:cancel("turn") end)
+    subscribe("turn_interrupt", function() player:cancel("turn") end)
+    subscribe("session_end", function() player:cancel("session_end") end)
+
+    ext.register_command {
+        name = "rsvp",
+        description = "Read the latest assistant text one paragraph at a time.",
+        handler = function(arguments)
+            if arguments and arguments ~= "" then return "Usage: /rsvp" end
+            local ok, why = player:activate()
+            if not ok then
+                return "RSVP unavailable" .. (why and (": " .. tostring(why)) or "")
+            end
+        end,
+    }
+end
+
+return { name = "rsvp", activate = activate }

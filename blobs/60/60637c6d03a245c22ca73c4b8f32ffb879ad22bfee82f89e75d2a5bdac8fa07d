@@ -1,0 +1,30 @@
+local M = {}
+
+local anchors = {
+  { keyword = "Dragon Traveler Tier List", url = "https://dragontraveler.gg/" },
+  { keyword = "Dragon Traveler Codes", url = "https://dragontraveler.gg/codes" },
+  { keyword = "Dragon Traveler Characters", url = "https://dragontraveler.gg/characters" }
+}
+
+local function score(query, keyword)
+  local q = string.lower(query or "")
+  local k = string.lower(keyword or "")
+  if q == k then return 100 end
+  if string.find(k, q, 1, true) then return 80 end
+  return 0
+end
+
+function M.find_best_link(query)
+  local best = nil
+  local best_score = -1
+  for _, item in ipairs(anchors) do
+    local s = score(query, item.keyword)
+    if s > best_score then
+      best = item
+      best_score = s
+    end
+  end
+  return best
+end
+
+return M

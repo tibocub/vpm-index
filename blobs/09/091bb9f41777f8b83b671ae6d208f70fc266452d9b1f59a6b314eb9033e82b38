@@ -1,0 +1,176 @@
+local json = require('panto').ext.json
+local M = {}
+local function string_ok(v) return type(v) == 'string' and not v:find('%z') end
+function M.expand(s, root, getenv)
+    return (s:gsub('%${env:([%w_]+)}', function(k) return (getenv or os.getenv)(k) or '' end)
+        :gsub('%${project_root}', function() return root end))
+end
+function M.canonical(v) return json.encode(v) end
+function M.hash(s)
+    local h = 2166136261
+    for i = 1, #s do h = ((h ~ s:byte(i)) * 16777619) & 0xffffffff end
+    return string.format('%08x', h)
+end
+function M.fingerprint(s)
+    return M.hash(M.canonical({url=s.url, command=s.command, args=s.args, env=s.env,
+        cwd=s.cwd, headers=s.headers, auth=s.auth, oauth=s.oauth}))
+end
+local function tool_hash(name) return M.hash(name)..M.hash(name:reverse()) end
+function M.valid_name(s)
+    return type(s)=='string' and s:match('^[A-Za-z0-9_-]+$')~=nil
+        and not s:find('__',1,true) and s:sub(-1)~='_'
+end
+function M.tool_name(server,name)
+    local server_part=server
+    if #server_part>32 then server_part=server_part:sub(1,15)..'-'..tool_hash(server_part) end
+    local prefix='mcp.'..server_part..'.'
+    local stem=name:gsub('[^A-Za-z0-9_-]','_'):gsub('__+','_')
+    local available=64-(#prefix+2)
+    -- Reserve encoded-looking suffixes so a literal name cannot impersonate a sanitized one.
+    if stem:match('%-'..string.rep('%x',16)..'$') then stem=stem..'_' end
+    if stem==name and #stem<=available then return prefix..stem end
+    local suffix='-'..tool_hash(name)
+    stem=stem:sub(1,math.max(1,available-#suffix))
+    return prefix..stem..suffix
+end
+local function list(v, field)
+    if v == nil then return {} end
+    assert(type(v)=='table', field .. ' must be an array')
+    local count = 0
+    for k,x in pairs(v) do
+        assert(type(k)=='number' and k>=1 and k%1==0 and string_ok(x), field .. ' must contain strings')
+        count = count+1
+    end
+    assert(count == #v, field .. ' must be dense')
+    return v
+end
+local function map(v, field)
+    if v == nil then return {} end
+    assert(type(v)=='table', field .. ' must be a table')
+    for k,x in pairs(v) do assert(string_ok(k) and string_ok(x), field .. ' must map strings to strings') end
+    return v
+end
+local forbidden_headers={host=true,connection=true,['content-length']=true,['transfer-encoding']=true,
+    expect=true,upgrade=true,te=true,['keep-alive']=true,['proxy-connection']=true}
+local sensitive_headers={authorization=true,['proxy-authorization']=true,cookie=true,['x-api-key']=true,
+    ['api-key']=true,['x-auth-token']=true,['x-access-token']=true}
+local function loopback_url(url)
+    local authority=url:match('^[Hh][Tt][Tt][Pp]://([^/?#]+)')
+    if not authority then return false end
+    authority=authority:match('@(.+)$') or authority
+    local host
+    if authority:sub(1,1)=='[' then host=authority:match('^(%b[])')
+    else host=authority:match('^([^:]+)') end
+    if not host then return false end
+    local lower=host:lower()
+    if lower=='localhost' or lower=='[::1]' or lower=='::1' then return true end
+    local a,b,c,d=lower:match('^(%d+)%.(%d+)%.(%d+)%.(%d+)$')
+    if not a then return false end
+    for _,octet in ipairs({a,b,c,d}) do if #octet>1 and octet:sub(1,1)=='0' then return false end end
+    a,b,c,d=tonumber(a),tonumber(b),tonumber(c),tonumber(d)
+    return a==127 and b<256 and c<256 and d<256
+end
+local function header_token(s)
+    if type(s)~='string' or s=='' then return false end
+    for i=1,#s do
+        local c=s:sub(i,i)
+        if not c:match('^[A-Za-z0-9]$') and not ("!#$%&'*+-.^_`|~"):find(c,1,true) then return false end
+    end
+    return true
+end
+local function empty_env_expansion(value,getenv)
+    for key in value:gmatch('%${env:([%w_]+)}') do
+        local expanded=(getenv or os.getenv)(key)
+        if expanded==nil or expanded=='' then return true end
+    end
+    return false
+end
+local function glob(pattern, s)
+    local p = pattern:gsub('([%^%$%(%)%%%.%[%]%+%-])', '%%%1'):gsub('%*', '.*'):gsub('%?', '.')
+    return s:match('^' .. p .. '$') ~= nil
+end
+function M.tool_enabled(cfg, name)
+    local enabled = #cfg.enabled_tools == 0
+    for _,p in ipairs(cfg.enabled_tools) do if glob(p,name) then enabled = true end end
+    for _,p in ipairs(cfg.disabled_tools) do if glob(p,name) then return false end end
+    return enabled
+end
+function M.parse(raw, dirs, getenv)
+    local warnings, servers = {}, {}
+    if raw~=nil and type(raw)~='table' then warnings[#warnings+1]='mcp must be a table' end
+    raw = type(raw)=='table' and raw or {}
+    local settings = {}
+    for k,default in pairs({startup_timeout_ms=30000, call_timeout_ms=300000, idle_timeout_ms=60000}) do
+        local v = raw[k] or default
+        if type(v)~='number' or v<1 or v%1~=0 then warnings[#warnings+1]=k .. ': using default'; v=default end
+        settings[k]=v
+    end
+    local root = (dirs and dirs.project_root) or require('luv').cwd()
+    local function expand(v) return M.expand(v, root, getenv) end
+    if raw.servers ~= nil and type(raw.servers)~='table' then warnings[#warnings+1]='servers must be a table'; return settings,servers,warnings end
+    for name, raw_server in pairs(raw.servers or {}) do
+        local ok, s = pcall(function()
+            assert(M.valid_name(name), 'invalid server name')
+            assert(type(raw_server)=='table', 'server must be a table')
+            local r = raw_server
+            assert(r.enabled == nil or type(r.enabled)=='boolean', 'enabled must be boolean')
+            if r.enabled == false then return nil end
+            assert((r.url~=nil) ~= (r.command~=nil), 'configure exactly one of url / command')
+            local c = {name=name, expose=r.expose or 'search', enabled=true}
+            assert(c.expose=='search' or c.expose=='eager', 'expose must be search or eager')
+            for _,k in ipairs({'url','command','cwd','auth'}) do
+                if r[k]~=nil then assert(string_ok(r[k]) and r[k]~='', k .. ' must be a nonempty string'); c[k]=expand(r[k]) end
+            end
+            if c.command then assert(c.command~='', 'command expanded to empty') end
+            if c.url then assert(c.url:match('^https?://'), 'url must use http(s)') end
+            if c.url and c.url:match('^http://') and c.auth and not loopback_url(c.url) then
+                warnings[#warnings+1]=name .. ': named auth on non-loopback HTTP is forbidden; server ignored'
+                return nil
+            end
+            if r.oauth~=nil then
+                assert(c.url and type(r.oauth)=='table', 'oauth requires an HTTP server and a table')
+                c.oauth={scopes=list(r.oauth.scopes,'oauth.scopes')}
+                for _,key in ipairs({'client_id','client_secret','issuer'}) do
+                    if r.oauth[key]~=nil then
+                        assert(string_ok(r.oauth[key]) and r.oauth[key]~='', 'oauth.'..key..' must be a nonempty string')
+                        c.oauth[key]=expand(r.oauth[key])
+                        assert(c.oauth[key]~='', 'oauth.'..key..' expanded to empty')
+                    end
+                end
+                assert(not c.oauth.client_secret or c.oauth.client_id, 'oauth.client_secret requires client_id')
+                assert(not c.oauth.client_id or c.oauth.issuer, 'oauth.client_id requires oauth.issuer')
+            end
+            c.args={}; for _,v in ipairs(list(r.args,'args')) do c.args[#c.args+1]=expand(v) end
+            c.env={}; for k,v in pairs(map(r.env,'env')) do
+                assert(k~='' and not k:find('=',1,true), 'invalid environment name'); c.env[k]=expand(v)
+            end
+            c.headers={}
+            for k,v in pairs(map(r.headers,'headers')) do
+                local lower=k:lower()
+                if not header_token(k) then warnings[#warnings+1]=name .. ': invalid HTTP header name ignored'
+                elseif forbidden_headers[lower] or (lower=='authorization' and c.auth~=nil) then warnings[#warnings+1]=name .. ': core-forbidden HTTP header ignored'
+                elseif c.url and c.url:match('^http://') and not loopback_url(c.url) and sensitive_headers[lower] then
+                    warnings[#warnings+1]=name .. ': sensitive header on non-loopback HTTP ignored'
+                elseif empty_env_expansion(v,getenv) then warnings[#warnings+1]=name .. ': header has an empty env expansion and was ignored'
+                else
+                    local value=expand(v)
+                    if (k..value):find('[\r\n]') then warnings[#warnings+1]=name .. ': unsafe HTTP header ignored'
+                    else c.headers[k]=value end
+                end
+            end
+            c.enabled_tools=list(r.enabled_tools,'enabled_tools'); c.disabled_tools=list(r.disabled_tools,'disabled_tools')
+            c.cwd=c.cwd or root
+            if c.cwd:sub(1,1)~='/' then c.cwd=root .. '/' .. c.cwd end
+            c.transport=c.url and 'http' or 'stdio'
+            c.fingerprint=M.fingerprint(c)
+            return c
+        end)
+        if not ok then warnings[#warnings+1]=tostring(name) .. ': ' .. tostring(s)
+        elseif s then
+            servers[name]=s
+
+        end
+    end
+    return settings, servers, warnings
+end
+return M

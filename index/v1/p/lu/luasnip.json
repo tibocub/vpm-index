@@ -1,0 +1,540 @@
+{
+  "kind": "lib",
+  "name": "luasnip",
+  "versions": {
+    "2.5.0-1": {
+      "bin": [],
+      "deps": [
+        "jsregexp >= 0.0.5, <= 0.1.0"
+      ],
+      "files": {
+        "luasnip/_types.lua": {
+          "sha256": "ca578a93d77a66d93486697b07d0b933db2fe0c2f1e163e74847887c5306a211",
+          "size": 813,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/_types.lua"
+        },
+        "luasnip/config.lua": {
+          "sha256": "c266b5eaeded5fb207c8f97a9edb8af16bea58a94b4a613f9ab752eb27760221",
+          "size": 4469,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/config.lua"
+        },
+        "luasnip/default_config.lua": {
+          "sha256": "1cba84f3ba6697937503a77396a4da5b7cfcf86550cd70fa02feb04335709fda",
+          "size": 6723,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/default_config.lua"
+        },
+        "luasnip/extras/_extra_types.lua": {
+          "sha256": "3013cff47901d61bb0d21643ac7be42a27ded75cdf11f0ba6c007eb9df5616d8",
+          "size": 1458,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/_extra_types.lua"
+        },
+        "luasnip/extras/_lambda.lua": {
+          "sha256": "9511303209097e3bad578f667c99854a21352a117012eeb46f3d220547cb1f5f",
+          "size": 8273,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/_lambda.lua"
+        },
+        "luasnip/extras/_parser_combinator.lua": {
+          "sha256": "f192b6ed7215044e97d1e8017fe38969a4c4722e1157a42c4be6e3c3536c9b22",
+          "size": 2105,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/_parser_combinator.lua"
+        },
+        "luasnip/extras/_treesitter.lua": {
+          "sha256": "5e6a05569cbf5ee4be4e5fb9ebf532666e6a33b14564caa050cbd26a73f0bb08",
+          "size": 12069,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/_treesitter.lua"
+        },
+        "luasnip/extras/conditions/expand.lua": {
+          "sha256": "ccedbe429a31f1bf3c5bb0bad19cc1dbef7d262abf32c04cbd9de31632cf1e38",
+          "size": 2481,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/conditions/expand.lua"
+        },
+        "luasnip/extras/conditions/init.lua": {
+          "sha256": "ac491ec9f88787bdb918653bb8efc38b69285f63f1840822c6bf90403a76c088",
+          "size": 1240,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/conditions/init.lua"
+        },
+        "luasnip/extras/conditions/show.lua": {
+          "sha256": "4e0e28cda714c9d7d86713e076fa04664d86e491bfd6dfcf7e2990ab7517fc4f",
+          "size": 638,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/conditions/show.lua"
+        },
+        "luasnip/extras/expand_conditions.lua": {
+          "sha256": "90d65a93bfe42d26fb9bc0d45ffd94a535fdee533c6133ed78928f7236a1e04f",
+          "size": 51,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/expand_conditions.lua"
+        },
+        "luasnip/extras/filetype_functions.lua": {
+          "sha256": "24189b7bf0b291b91c130c9aa94a048dd20526100659bfdfaef00e34af13ca42",
+          "size": 2303,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/filetype_functions.lua"
+        },
+        "luasnip/extras/fmt.lua": {
+          "sha256": "22681e770b6b90355468db5f83c05a72a7e13ebdcac1ca189a8a450cb031fc9c",
+          "size": 6923,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/fmt.lua"
+        },
+        "luasnip/extras/init.lua": {
+          "sha256": "4b686c090e8c068dea51b445b65eea567e6c45200cf2c1ef779c63afce86a5a5",
+          "size": 3884,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/init.lua"
+        },
+        "luasnip/extras/otf.lua": {
+          "sha256": "6299661f8fc37fe764de3715ef3a445037eb9fd18311d118fb7e7fd840111475",
+          "size": 2188,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/otf.lua"
+        },
+        "luasnip/extras/postfix.lua": {
+          "sha256": "06e1d17cf070762338ebe278975a72c3669678ea52cbf1c7cd0b69e23287ff0d",
+          "size": 1996,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/postfix.lua"
+        },
+        "luasnip/extras/select_choice.lua": {
+          "sha256": "e983808be7c0d5cf1e8b7795eedca94bfaa8c25a8a3a4d2a887ae8ef11465f27",
+          "size": 1329,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/select_choice.lua"
+        },
+        "luasnip/extras/snip_location.lua": {
+          "sha256": "37cc688e4f5ae19591771f5a504966a5e598e062e767dc865b9165ce025afb18",
+          "size": 4957,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/snip_location.lua"
+        },
+        "luasnip/extras/snippet_list.lua": {
+          "sha256": "e2e33fe74ca2c091f12aae664c1eb13a39a7b22f042fd5a58749914e9052d30b",
+          "size": 2260,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/snippet_list.lua"
+        },
+        "luasnip/extras/treesitter_postfix.lua": {
+          "sha256": "b48a5a2e4dfdfd6663be9cd718f8a4ff18c5ebf8c712142fd0b45f15b16b96a3",
+          "size": 8108,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/extras/treesitter_postfix.lua"
+        },
+        "luasnip/health.lua": {
+          "sha256": "f5be5aa1cc9481c88b827e01e85655ca72bdc38e5feb609f219a749cec154bd5",
+          "size": 389,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/health.lua"
+        },
+        "luasnip/init.lua": {
+          "sha256": "a267c940a6d775524a1aed16ec279c874207223379be4db04a08d9d0dfdf1b49",
+          "size": 47622,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/init.lua"
+        },
+        "luasnip/loaders/data.lua": {
+          "sha256": "37aca3194cf88c8176904082d672f5cca852c7db808bb709ace5bd6c4f1e54d1",
+          "size": 836,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/data.lua"
+        },
+        "luasnip/loaders/from_lua.lua": {
+          "sha256": "fa322aafa5f604c3fd7ee4b4993830b5670cc854f2625834233ed43f78589c47",
+          "size": 13502,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/from_lua.lua"
+        },
+        "luasnip/loaders/from_snipmate.lua": {
+          "sha256": "62cd4e5b53399280d8cbded696708c501cf490337a6aa5b95460206f401795b9",
+          "size": 15532,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/from_snipmate.lua"
+        },
+        "luasnip/loaders/from_vscode.lua": {
+          "sha256": "5d8e1eea1e1461bdd9215524392d6265e76a9ce71f8808fa9ad45b8a6222ae15",
+          "size": 18114,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/from_vscode.lua"
+        },
+        "luasnip/loaders/fs_watchers.lua": {
+          "sha256": "fc901286435bcc4722592195d67e80c66f74aafefcfdaf4d2d954c958d1678e7",
+          "size": 20885,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/fs_watchers.lua"
+        },
+        "luasnip/loaders/init.lua": {
+          "sha256": "41bedf4932eccbdcbab35b26e539775068146e13f03dca71828d28a582edbffc",
+          "size": 4531,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/init.lua"
+        },
+        "luasnip/loaders/snippet_cache.lua": {
+          "sha256": "30eceda360c72fd554c6f3588908d042a323fcc68578c7f837a85b6374f6a6e4",
+          "size": 2703,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/snippet_cache.lua"
+        },
+        "luasnip/loaders/types.lua": {
+          "sha256": "87fa2483588323e5658d5402d27b9558dccc59ccb823ca0de75b0eac26446e48",
+          "size": 744,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/types.lua"
+        },
+        "luasnip/loaders/util.lua": {
+          "sha256": "67954d0793430b978b1e612382f9a01599d0184cd75630db310c66916e73c77e",
+          "size": 9197,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/loaders/util.lua"
+        },
+        "luasnip/nodes/absolute_indexer.lua": {
+          "sha256": "2fbcb83f0ecebe44b88ac15c17dfa4392cbb18d1680ab8ac97886337c51d61df",
+          "size": 637,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/absolute_indexer.lua"
+        },
+        "luasnip/nodes/choiceNode.lua": {
+          "sha256": "fd922719c9876cb4c502a9509a31ff3eaa00633987e5a6dd57deeac25b7b9a90",
+          "size": 12763,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/choiceNode.lua"
+        },
+        "luasnip/nodes/duplicate.lua": {
+          "sha256": "4f607cc44f83b62f939bdfd15c410502231f1c14810f66e3593512007fb8505e",
+          "size": 1787,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/duplicate.lua"
+        },
+        "luasnip/nodes/dynamicNode.lua": {
+          "sha256": "3b490695ee131f8ddd9a81c84cdd667d25cff59b1dd3a51f2b39532f897c597f",
+          "size": 14516,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/dynamicNode.lua"
+        },
+        "luasnip/nodes/functionNode.lua": {
+          "sha256": "01737f7fc2057e1fcffaed5ac074ef3dafb9b3b91e998db13c3c94f0d818ca3c",
+          "size": 4821,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/functionNode.lua"
+        },
+        "luasnip/nodes/insertNode.lua": {
+          "sha256": "22d0cd6f2131a6c36029e02ee08f3f746d9944916dcac2ce5a93202d2b50928a",
+          "size": 13092,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/insertNode.lua"
+        },
+        "luasnip/nodes/key_indexer.lua": {
+          "sha256": "88dfc221d8149008f14feec1ae9ad7d652f848b2c5e46023930a85a1be680adb",
+          "size": 174,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/key_indexer.lua"
+        },
+        "luasnip/nodes/multiSnippet.lua": {
+          "sha256": "675a18fd5461e44d496411c0f391280365eb5aee034e39435360fd6f45e9bb20",
+          "size": 3295,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/multiSnippet.lua"
+        },
+        "luasnip/nodes/node.lua": {
+          "sha256": "41ffab328cd2c94bd7a33ee678f9df7e8245e608ebb6afaa10511d7adad22e24",
+          "size": 20669,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/node.lua"
+        },
+        "luasnip/nodes/optional_arg.lua": {
+          "sha256": "64549f088774804a73275940de01bf8b9172de84363653bbe591fbb3f782108e",
+          "size": 174,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/optional_arg.lua"
+        },
+        "luasnip/nodes/restoreNode.lua": {
+          "sha256": "26d860679ab0a837d76a3022c1ac8f6fc6613b91b257891093474f73094477ac",
+          "size": 7900,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/restoreNode.lua"
+        },
+        "luasnip/nodes/snippet.lua": {
+          "sha256": "71cd16ecafde53cf2276a35de66bc1648d53643d7abef25b31bbeb46671efdd1",
+          "size": 47266,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/snippet.lua"
+        },
+        "luasnip/nodes/snippetProxy.lua": {
+          "sha256": "dc7bb295fd019c5f13f8bbd8e3e8315dd185d09d6b826868cd77c71eba43c9f1",
+          "size": 3867,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/snippetProxy.lua"
+        },
+        "luasnip/nodes/textNode.lua": {
+          "sha256": "a14292936a8f1de6e940463727fabf29707053f4ecdc63e408635c21eed5ecee",
+          "size": 1460,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/textNode.lua"
+        },
+        "luasnip/nodes/util.lua": {
+          "sha256": "507dfda53969b0cda7345b56a7f2256f6d5433e1e3cffbb4077aae23bbe55ecb",
+          "size": 35549,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/util.lua"
+        },
+        "luasnip/nodes/util/snippet_string.lua": {
+          "sha256": "40738cae3e63115f674e23589888c81aa23691af9333daf22086e1749aa060b0",
+          "size": 16839,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/util/snippet_string.lua"
+        },
+        "luasnip/nodes/util/trig_engines.lua": {
+          "sha256": "d1f9258cd836a8040b5e4f94d01ca32f3fd4573acdb7dcd2c1480292193a86a1",
+          "size": 3763,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/nodes/util/trig_engines.lua"
+        },
+        "luasnip/session/enqueueable_operations.lua": {
+          "sha256": "9ea14c45f489fb74a8b176163522f562d8303830ab18df759a42049076d86d10",
+          "size": 686,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/session/enqueueable_operations.lua"
+        },
+        "luasnip/session/init.lua": {
+          "sha256": "7460974fb8c4280c8604310bddbdacc89b51849cf095718b878b20411d37bf7f",
+          "size": 1676,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/session/init.lua"
+        },
+        "luasnip/session/snippet_collection/init.lua": {
+          "sha256": "0d543266cf2c84b3f9a5733508689c8a724ed1e28e5f82d062a17dd63e38d60f",
+          "size": 8532,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/session/snippet_collection/init.lua"
+        },
+        "luasnip/session/snippet_collection/source.lua": {
+          "sha256": "05e80289315e5041b64198296f4121cc5695663e0d7362eef747ccc1f3dce9c0",
+          "size": 768,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/session/snippet_collection/source.lua"
+        },
+        "luasnip/util/_builtin_vars.lua": {
+          "sha256": "ac6c6b427868c11c080dd2bab503aa8139a6e3b1aaaac5324ccdc6675787a584",
+          "size": 4957,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/_builtin_vars.lua"
+        },
+        "luasnip/util/auto_table.lua": {
+          "sha256": "935114a8e93cbf842d0ac3bc673586d49484175721c5c382e726ea5688a49f27",
+          "size": 1463,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/auto_table.lua"
+        },
+        "luasnip/util/dict.lua": {
+          "sha256": "0c49a3f394d0bfe95e728a61396c62374187447f60cc65400beaac3611b03b73",
+          "size": 1256,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/dict.lua"
+        },
+        "luasnip/util/directed_graph.lua": {
+          "sha256": "e4e73719bff0e32fc86036ea2da15dc483ca39d4d1d993737b6dc5c8c0f8e174",
+          "size": 7743,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/directed_graph.lua"
+        },
+        "luasnip/util/environ.lua": {
+          "sha256": "c275cb709b135fe06e40d3addd248c2675eadceaa2bfc3dd57aa41976435ae5e",
+          "size": 4063,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/environ.lua"
+        },
+        "luasnip/util/events.lua": {
+          "sha256": "03e30e5ea403fba509626a590d674610662acce999685859c2b13edf89b96dc2",
+          "size": 379,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/events.lua"
+        },
+        "luasnip/util/ext_opts.lua": {
+          "sha256": "a7efa6b13f6f1c35374e983490c202ec7aa88a75fa4559581f7c748d6ef4a0a9",
+          "size": 4486,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/ext_opts.lua"
+        },
+        "luasnip/util/extend_decorator.lua": {
+          "sha256": "5b7123affb125b1fd2006bbfd89f585275bc8b2fbd632ed987f5d5846a9794eb",
+          "size": 2980,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/extend_decorator.lua"
+        },
+        "luasnip/util/feedkeys.lua": {
+          "sha256": "9ab350a79c862805222894883de63e8fef71a46c1a6e54fc8678ef4985e5ed32",
+          "size": 7680,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/feedkeys.lua"
+        },
+        "luasnip/util/functions.lua": {
+          "sha256": "9b35d55a22269c35d98b860fe6f7c30d2d4c13a7a1d49e40eb11e22e0ce41108",
+          "size": 911,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/functions.lua"
+        },
+        "luasnip/util/jsonc.lua": {
+          "sha256": "fb0aaba1cf59dc389b6d101bb9af9edca9c8bf212357f57c4174da3e2e6bad96",
+          "size": 10703,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/jsonc.lua"
+        },
+        "luasnip/util/jsregexp.lua": {
+          "sha256": "8705176b00d08469e69e7c83fa6ac4c132204d0eafd8593a6f50350893113340",
+          "size": 3437,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/jsregexp.lua"
+        },
+        "luasnip/util/lazy_table.lua": {
+          "sha256": "6ba199764084ecf95d7b160da325a43220c4f40825cd6074c705ff5c77593a91",
+          "size": 246,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/lazy_table.lua"
+        },
+        "luasnip/util/log.lua": {
+          "sha256": "980c98687c47302e864b475578bd03c6f54478f3889ddd1136c46270b6300ed6",
+          "size": 5271,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/log.lua"
+        },
+        "luasnip/util/mark.lua": {
+          "sha256": "b9b02fc6abf0aa7185300b48e72fc96f4dda6b451264ae0dafbc95e767df3102",
+          "size": 4699,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/mark.lua"
+        },
+        "luasnip/util/parser/ast_parser.lua": {
+          "sha256": "231e35a946b472169caa968ff0d933e20ddef483911943aef16e9379695e19b0",
+          "size": 10627,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/parser/ast_parser.lua"
+        },
+        "luasnip/util/parser/ast_utils.lua": {
+          "sha256": "1b3f28c590edc5c59422bd237b84d267f236f787fa956ee086bd26db794ce582",
+          "size": 14262,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/parser/ast_utils.lua"
+        },
+        "luasnip/util/parser/init.lua": {
+          "sha256": "0e334a46ff4aad550d9d6cd3b7107fdb9136bb827991cc2a5d9445c583a38d42",
+          "size": 3778,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/parser/init.lua"
+        },
+        "luasnip/util/parser/neovim_ast.lua": {
+          "sha256": "5ff78f57900c3ee849c09f525c9d9afbc84d3a7a8b63408b421758d838879db6",
+          "size": 5405,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/parser/neovim_ast.lua"
+        },
+        "luasnip/util/parser/neovim_parser.lua": {
+          "sha256": "fceaa44639a0553e12ff30adbe31159b62c948ded0189b14931dd99f698a8dd4",
+          "size": 9163,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/parser/neovim_parser.lua"
+        },
+        "luasnip/util/path.lua": {
+          "sha256": "6760e13023f7d634916f42af7738204c1152c5e18bd907c3e0f851170f9020a6",
+          "size": 7184,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/path.lua"
+        },
+        "luasnip/util/pattern_tokenizer.lua": {
+          "sha256": "cc91f6f2ed1959191df3340ae271978942f5e8b0c41a166a4b08f4bf1b00a02d",
+          "size": 3166,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/pattern_tokenizer.lua"
+        },
+        "luasnip/util/select.lua": {
+          "sha256": "d79b53a6bed52c08697d5d404727114082d63cd41e3640bbfeca39bc46d258e3",
+          "size": 4336,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/select.lua"
+        },
+        "luasnip/util/str.lua": {
+          "sha256": "c6b6667216fb337eecf56369f51ff24caa7b693c6339b184d4964f8f99b1e3d8",
+          "size": 7485,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/str.lua"
+        },
+        "luasnip/util/table.lua": {
+          "sha256": "5bef34d77cd437c952a4b659949fccb18d6606338e3867efce00ff5c492dd849",
+          "size": 915,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/table.lua"
+        },
+        "luasnip/util/time.lua": {
+          "sha256": "de35b14d88abead8cfd4c1dede3e4270cc76453c7c3340e94763d61966eddd28",
+          "size": 406,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/time.lua"
+        },
+        "luasnip/util/types.lua": {
+          "sha256": "70856c1f277d7cfa4718c76c1c99b059492084fe377a6d388c2dd4fdffd004de",
+          "size": 533,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/types.lua"
+        },
+        "luasnip/util/util.lua": {
+          "sha256": "74f1e2ad870bc56ead17a49d600584fce196d6de9d3cbd77245e1ad3657d779e",
+          "size": 11858,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/util.lua"
+        },
+        "luasnip/util/vimversion.lua": {
+          "sha256": "15560542028e8925ddb94e1740e94472064d1c93e0a270a0e78aa3097257a25b",
+          "size": 272,
+          "url": "https://raw.githubusercontent.com/L3MON4D3/LuaSnip/v2.5.0/lua/luasnip/util/vimversion.lua"
+        }
+      },
+      "homepage": "https://github.com/L3MON4D3/LuaSnip",
+      "host": "nvim",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 05 Apr 2026 21:35:33 GMT",
+        "rockspec": {
+          "date": "Sun, 05 Apr 2026 21:35:33 GMT",
+          "sha256": "5769d7055ad89ecaa283f04249609f8ac9d5051e2ade15c4069f3e6f4621ede1",
+          "size": 827
+        },
+        "src": {
+          "date": "Sun, 05 Apr 2026 21:35:34 GMT",
+          "sha256": "f80125ee2abb7fbbc76146eaa3baf5254c6efb004d1ffc7125ba88812fc769f4",
+          "size": 495713,
+          "url": "https://luarocks.org/luasnip-2.5.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasnip",
+        "luasnip._types",
+        "luasnip.config",
+        "luasnip.default_config",
+        "luasnip.extras",
+        "luasnip.extras._extra_types",
+        "luasnip.extras._lambda",
+        "luasnip.extras._parser_combinator",
+        "luasnip.extras._treesitter",
+        "luasnip.extras.conditions",
+        "luasnip.extras.conditions.expand",
+        "luasnip.extras.conditions.show",
+        "luasnip.extras.expand_conditions",
+        "luasnip.extras.filetype_functions",
+        "luasnip.extras.fmt",
+        "luasnip.extras.otf",
+        "luasnip.extras.postfix",
+        "luasnip.extras.select_choice",
+        "luasnip.extras.snip_location",
+        "luasnip.extras.snippet_list",
+        "luasnip.extras.treesitter_postfix",
+        "luasnip.health",
+        "luasnip.loaders",
+        "luasnip.loaders.data",
+        "luasnip.loaders.from_lua",
+        "luasnip.loaders.from_snipmate",
+        "luasnip.loaders.from_vscode",
+        "luasnip.loaders.fs_watchers",
+        "luasnip.loaders.snippet_cache",
+        "luasnip.loaders.types",
+        "luasnip.loaders.util",
+        "luasnip.nodes.absolute_indexer",
+        "luasnip.nodes.choiceNode",
+        "luasnip.nodes.duplicate",
+        "luasnip.nodes.dynamicNode",
+        "luasnip.nodes.functionNode",
+        "luasnip.nodes.insertNode",
+        "luasnip.nodes.key_indexer",
+        "luasnip.nodes.multiSnippet",
+        "luasnip.nodes.node",
+        "luasnip.nodes.optional_arg",
+        "luasnip.nodes.restoreNode",
+        "luasnip.nodes.snippet",
+        "luasnip.nodes.snippetProxy",
+        "luasnip.nodes.textNode",
+        "luasnip.nodes.util",
+        "luasnip.nodes.util.snippet_string",
+        "luasnip.nodes.util.trig_engines",
+        "luasnip.session",
+        "luasnip.session.enqueueable_operations",
+        "luasnip.session.snippet_collection",
+        "luasnip.session.snippet_collection.source",
+        "luasnip.util._builtin_vars",
+        "luasnip.util.auto_table",
+        "luasnip.util.dict",
+        "luasnip.util.directed_graph",
+        "luasnip.util.environ",
+        "luasnip.util.events",
+        "luasnip.util.ext_opts",
+        "luasnip.util.extend_decorator",
+        "luasnip.util.feedkeys",
+        "luasnip.util.functions",
+        "luasnip.util.jsonc",
+        "luasnip.util.jsregexp",
+        "luasnip.util.lazy_table",
+        "luasnip.util.log",
+        "luasnip.util.mark",
+        "luasnip.util.parser",
+        "luasnip.util.parser.ast_parser",
+        "luasnip.util.parser.ast_utils",
+        "luasnip.util.parser.neovim_ast",
+        "luasnip.util.parser.neovim_parser",
+        "luasnip.util.path",
+        "luasnip.util.pattern_tokenizer",
+        "luasnip.util.select",
+        "luasnip.util.str",
+        "luasnip.util.table",
+        "luasnip.util.time",
+        "luasnip.util.types",
+        "luasnip.util.util",
+        "luasnip.util.vimversion"
+      ],
+      "origin": {
+        "sha256": "328320990cdc069188737c33b6f4fffbb57c40f899e11a4ce3f11f468a53135b",
+        "type": "archive",
+        "url": "https://github.com/L3MON4D3/LuaSnip/archive/v2.5.0.zip"
+      },
+      "size": 548221,
+      "summary": "Snippet Engine for Neovim written in Lua.",
+      "undeclared_requires": [
+        "cmp",
+        "vim.lsp._snippet"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

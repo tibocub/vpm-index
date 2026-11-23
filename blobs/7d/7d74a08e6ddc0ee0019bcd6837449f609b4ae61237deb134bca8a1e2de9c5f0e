@@ -1,0 +1,2864 @@
+--imports
+local tablex = require("pl.tablex")
+local stringx = require("pl.stringx")
+local path = require("pl.path")
+local dir = require("pl.dir")
+local StmtType = require("dogma.syn.StmtType")
+local transName = require("dogma.trans.js._.util").transName
+local SubTrans = require("dogma.trans.js._.SubTrans")
+local SentType = require("dogma.syn.SentType")
+local DirectiveType = require("dogma.syn.DirectiveType")
+local NodeType = require("dogma.syn.NodeType")
+local NonTerminalType = require("dogma.syn.NonTerminalType")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A statement transformer.
+local StmtTrans = {}
+StmtTrans.__index = StmtTrans
+setmetatable(StmtTrans, {__index = SubTrans})
+package.loaded[...] = StmtTrans
+
+--Constructor.
+--
+--@param trans:Trans  Parent transformer.
+function StmtTrans.new(trans)
+  return setmetatable(SubTrans.new(trans), StmtTrans)
+end
+
+--Transform a statement.
+--
+--@param stmt:Stmt  Statement to transform.
+--@return string
+function StmtTrans:transform(stmt)
+  if stmt.subtype == StmtType.ASYNC then
+    return self:_transAsync(stmt)
+  elseif stmt.subtype == StmtType.BREAK then
+    return self:_transBreak(stmt)
+  elseif stmt.subtype == StmtType.DO then
+    return self:_transDo(stmt)
+  elseif stmt.subtype == StmtType.ENUM then
+    return self:_transEnum(stmt)
+  elseif stmt.subtype == StmtType.EXPORT then
+    return self:_transExport(stmt)
+  elseif stmt.subtype == StmtType.FN then
+    return self:_transFn(stmt)
+  elseif stmt.subtype == StmtType.FOR then
+    return self:_transFor(stmt)
+  elseif stmt.subtype == StmtType.FOR_EACH then
+    return self:_transForEach(stmt)
+  elseif stmt.subtype == StmtType.FROM then
+    return self:_transFrom(stmt)
+  elseif stmt.subtype == StmtType.IF then
+    return self:_transIf(stmt)
+  elseif stmt.subtype == StmtType.INTF then
+    return self:_transIntf(stmt)
+  elseif stmt.subtype == StmtType.NEXT then
+    return self:_transNext(stmt)
+  elseif stmt.subtype == StmtType.PROC then
+    return self:_transProc(stmt)
+  elseif stmt.subtype == StmtType.PUB then
+    return self:_transPub(stmt)
+  elseif stmt.subtype == StmtType.RETURN then
+    return self:_transReturn(stmt)
+  elseif stmt.subtype == StmtType.TYPE then
+    return self:_transType(stmt)
+  elseif stmt.subtype == StmtType.TYPEDEF then
+    return self:_transTypeDef(stmt)
+  elseif stmt.subtype == StmtType.STRUCT then
+    return self:_transStruct(stmt)
+  elseif stmt.subtype == StmtType.UNTIL then
+    return self:_transUntil(stmt)
+  elseif stmt.subtype == StmtType.USE then
+    return self:_transUse(stmt)
+  elseif stmt.subtype == StmtType.VAR then
+    return self:_transVar(stmt)
+  elseif stmt.subtype == StmtType.WHILE then
+    return self:_transWhile(stmt)
+  elseif stmt.subtype == StmtType.WITH then
+    return self:_transWith(stmt)
+  elseif stmt.subtype == StmtType.YIELD then
+    return self:_transYield(stmt)
+  end
+end
+
+--Transform a use statement.
+--
+--@return string
+function StmtTrans:_transUse(stmt)
+  local code = ""
+
+  --(1) transform
+  for _, mod in ipairs(stmt.modules) do
+    if mod.uVars then
+      code = code .. "const {"
+
+      for i, var in ipairs(mod.uVars) do
+        code = code .. (i == 1 and "" or ",")
+
+        if type(var) == "string" then
+          code = code .. var
+        else
+          code = code ..string.format("%s:%s", var.name, var.as)
+        end
+      end
+
+      code = code .. string.format('} = dogma.use(require("%s"));', mod.path)
+    else
+      if stringx.endswith(mod.path, "/") then
+        local baseDir = path.dirname(self._.trans._.parser._.file)
+
+        for _, entry in ipairs(dir.getfiles(path.join(baseDir, mod.path), "*.dog")) do
+          local name = path.basename(entry):sub(1, -5)
+
+          if not stringx.startswith(name, "_") then
+            code = code .. string.format(
+              "const %s = dogma.use(require('%s'));",
+              name,
+              mod.path .. name
+            )
+          end
+        end
+      else
+        code = code .. string.format('const %s = dogma.use(require("%s"));', mod.name, mod.path)
+      end
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a from statement.
+--
+--@return string
+function StmtTrans:_transFrom(stmt)
+  local code
+
+  --(1) transform
+  code = "import {"
+
+  for i, mem in ipairs(stmt.members) do
+    code = code .. (i == 1 and "" or ", ")
+
+    if mem.name == mem.as then
+      code = code .. mem.name
+    else
+      code = code .. string.format("%s as %s", mem.name, mem.as)
+    end
+  end
+
+  code = code .. '} from "' .. stmt.module .. '";'
+
+  for _, mem in ipairs(stmt.members) do
+    if mem.uVars then
+      code = code .. "let {"
+
+      for i, var in ipairs(mem.uVars) do
+        code = code .. (i == 1 and "" or ",") .. var
+      end
+
+      code = code .. string.format("} = %s;", mem.as)
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a break statement.
+--
+--@return string
+function StmtTrans:_transBreak(stmt)
+  if stmt.loop then
+    return "$__break__ = true; break;"
+  else
+    return "break;"
+  end
+end
+
+--Transform a next statement.
+--
+--@return string
+function StmtTrans:_transNext(stmt)
+  return "continue;"
+end
+
+--Transform an enum statement.
+--
+--@return string
+function StmtTrans:_transEnum(enum)
+  local code
+
+  --(1) transform
+  if enum.annots:has("value") then
+    local values = ""
+
+    for i, item in ipairs(enum.items) do
+      values = values .. (i == 1 and "" or ", ") .. string.format(
+        "%s: %s",
+        item.name,
+        (type(item.value) == "string" and string.format("'%s'", item.value) or item.value)
+      )
+    end
+
+    code = string.format(
+      "const %s = Object.freeze({%s});",
+      enum.name,
+      values
+    )
+  else
+    code = string.format([[
+class %s {
+  constructor(name, val) {
+    Object.defineProperty(this, "name", {value: name, enum: true});
+    Object.defineProperty(this, "value", {value: val, enum: true});
+  }
+
+  /* istanbul ignore next */
+  toString() {
+    return this.name;
+  }
+}
+]],
+      enum.name
+    )
+
+    code = code .. self:_transVisib(enum.visib, enum.name)
+
+    for _, item in ipairs(enum.items) do
+      code = code .. string.format(
+        [[Object.defineProperty(%s, "%s", {value: new %s("%s", %s), enum: true});]] .. "\n",
+        enum.name,
+        item.name,
+        enum.name,
+        item.name,
+        (type(item.value) == "string" and string.format([["%s"]], item.value) or item.value)
+      )
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transVisib(visib, item)
+  if visib == "export" then
+    return "module.exports = exports = " .. item .. ";"
+  elseif visib == "pub" then
+    if type(item) == "table" then
+      item = table.concat(item, ", ")
+    end
+
+    return "export {" .. item .. "};"
+  else
+    return ""
+  end
+end
+
+--Transform an async statement.
+--
+--@param node
+--@return string
+function StmtTrans:_transAsync(node)
+  local trans = self._.trans
+  local code
+
+  --(1) get sentences to run
+  if node.catch then
+    code = "{try "
+  else
+    code = ""
+  end
+
+  code = code .. self:_transBody(node.body)
+
+  if node.catch then
+    code = code .. self:_transCatch(node.catch)
+    code = code .. "}"
+  end
+
+  --(2) return
+  if node.opts["repeat"] then
+    return string.format(
+      "dogma.repeatAsyncly(async () => %s, {delay: %s, repeat: %s});",
+      code,
+      node.opts.delay and trans:_trans(node.opts.delay) or "null",
+      trans:_trans(node.opts["repeat"])
+    )
+  elseif node.opts.delay then
+    return string.format("dogma.asyncly(async () => %s, %s);", code, trans:_trans(node.opts.delay))
+  else
+    return string.format("setImmediate(async () => %s);", code)
+  end
+end
+
+--Transform a var statement.
+--
+--@return string
+function StmtTrans:_transVar(stmt)
+  local code
+
+  --(1) transform
+  code = ""
+
+  if #stmt.decls > 0 then
+    for _, decl in ipairs(stmt.decls) do
+      if decl.subtype == "std" then
+        code = code .. self:_transStdDecl(stmt.visib, decl)
+      elseif decl.subtype == "map" then
+        code = code .. self:_transMapDecl(stmt.visib, decl)
+      else
+        code = code .. self:_transListDecl(stmt.visib, decl)
+      end
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transStdDecl(visib, decl)
+  local code
+
+  --(1) transform
+  code = (decl.type == "var" and (visib and "var " or "let ") or "const ")
+
+  if decl.value then
+    code = code .. string.format("%s = %s;", decl.names[1], self._.trans:_trans(decl.value))
+  else
+    code = code .. decl.names[1] .. ";"
+  end
+
+  code = code .. self:_transVisib(visib, decl.names[1])
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transMapDecl(visib, decl)
+  local code
+
+  --(1) transform
+  code = (decl.type == "var" and (visib and "var {" or "let {") or "const {")
+
+  for ix, name in ipairs(decl.names) do
+    code = code .. (ix == 1 and "" or ", ") .. name
+  end
+
+  code = code .. string.format("} = %s;", self._.trans:_trans(decl.value))
+
+  if visib then
+    code = code .. self:_transVisib(visib, decl.names)
+  end
+
+  --(2) return
+  return code;
+end
+
+function StmtTrans:_transListDecl(visib, decl)
+  local code
+
+  --(1) transform
+  code = (decl.type == "var" and (visib and "var [" or "let [") or "const [")
+
+  for ix, name in ipairs(decl.names) do
+    code = code .. (ix == 1 and "" or ", ") .. name
+  end
+
+  code = code .. string.format(
+    "] = dogma.getArrayToUnpack(%s, %s);",
+    self._.trans:_trans(decl.value),
+    #decl.names
+  )
+
+  if visib then
+    code = code .. self:_transVisib(visib, decl.names):gsub("%.%.%.", "")
+  end
+
+  --(2) return
+  return code;
+end
+
+--Transform a while statement.
+--
+--@return string
+function StmtTrans:_transWhile(stmt)
+  if stmt.el then
+    return self:_transWhileWithElse(stmt)
+  else
+    return self:_transWhileWithoutElse(stmt)
+  end
+end
+
+function StmtTrans:_transWhileWithElse(stmt)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if stmt.catch or stmt.finally then
+    code = "try {"
+  else
+    code = "{"
+  end
+
+  code = code .. "let $__break__; "
+
+  if stmt.decl and not stmt.cond then
+    local cond = trans:_trans(stmt.value)
+    local varName = cond:sub(2, cond:find("=")-1)
+
+    code = code .. string.format(
+      "for (let %s; %s; ) ",
+      varName,
+      cond
+    )
+  elseif stmt.decl and stmt.cond then
+    code = code .. string.format(
+      "for (%s %s; %s; ) ",
+      stmt.decl == "const" and "const" or "let",
+      trans:_trans(stmt.value):sub(2, -2),
+      trans:_trans(stmt.cond)
+    )
+  else
+    code = code .. string.format("while (%s) ", trans:_trans(stmt.cond))
+  end
+
+  code = code .. self:_transBody(stmt.body)
+  code = code .. " if (!$__break__) " .. self:_transBody(stmt.el)
+  if stmt.catch or stmt.finally then
+    code = code .. "}"
+  end
+  code = code .. self:_transCatch(stmt.catch)
+  code = code .. self:_transFinally(stmt.finally)
+  if not stmt.catch and not stmt.finally then
+    code = code .. "}"
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transWhileWithoutElse(node)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if node.decl and not node.cond then
+    local cond = trans:_trans(node.value)
+    local varName = cond:sub(2, cond:find("=")-1)
+
+    code = string.format(
+      "for (let %s; %s; ) ",
+      varName,
+      cond
+    )
+  elseif node.decl and node.cond then
+    code = string.format(
+      "for (%s %s; %s; ) ",
+      node.decl == "const" and "const" or "let",
+      trans:_trans(node.value):sub(2, -2),
+      trans:_trans(node.cond)
+    )
+  else
+    code = string.format("while (%s) ", trans:_trans(node.cond))
+  end
+
+  if node.catch or node.finally then
+    code = code .. "try "
+  end
+
+  code = code .. self:_transBody(node.body)
+  code = code .. self:_transCatch(node.catch)
+  code = code .. self:_transFinally(node.finally)
+
+  --(2) return
+  return code
+end
+
+--Transform an until statement.
+--
+--@return string
+function StmtTrans:_transUntil(stmt)
+  if stmt.el then
+    return self:_transUntilWithElse(stmt)
+  else
+    return self:_transUntilWithoutElse(stmt)
+  end
+end
+
+function StmtTrans:_transUntilWithElse(stmt)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if stmt.catch or stmt.finally then
+    code = "try {"
+  else
+    code = "{"
+  end
+
+  code = code .. "let $__break__; "
+
+  if stmt.decl and not stmt.cond then
+    local cond = trans:_trans(stmt.value)
+    local varName = cond:sub(2, cond:find("=")-1)
+
+    code = code .. string.format(
+      "for (let %s; !(%s); ) ",
+      varName,
+      cond
+    )
+  elseif stmt.decl and stmt.cond then
+    code = code .. string.format(
+      "for (%s %s; !(%s); ) ",
+      stmt.decl == "const" and "const" or "let",
+      trans:_trans(stmt.value):sub(2, -2),
+      trans:_trans(stmt.cond)
+    )
+  else
+    code = code .. string.format("while (!(%s)) ", trans:_trans(stmt.cond))
+  end
+
+  code = code .. self:_transBody(stmt.body)
+  code = code .. " if (!$__break__) " .. self:_transBody(stmt.el)
+  if stmt.catch or stmt.finally then
+    code = code .. "}"
+  end
+  code = code .. self:_transCatch(stmt.catch)
+  code = code .. self:_transFinally(stmt.finally)
+  if not stmt.catch and not stmt.finally then
+    code = code .. "}"
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transUntilWithoutElse(node)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if node.decl and not node.cond then
+    local cond = trans:_trans(node.value)
+    local varName = cond:sub(2, cond:find("=")-1)
+
+    code = string.format(
+      "for (let %s; !(%s); ) ",
+      varName,
+      cond
+    )
+  elseif node.decl and node.cond then
+    code = string.format(
+      "for (%s %s; !(%s); ) ",
+      node.decl == "const" and "const" or "let",
+      trans:_trans(node.value):sub(2, -2),
+      trans:_trans(node.cond)
+    )
+  else
+    code = string.format("while (!(%s)) ", trans:_trans(node.cond))
+  end
+
+  if node.catch or node.finally then
+    code = code .. "try "
+  end
+
+  code = code .. self:_transBody(node.body)
+  code = code .. self:_transCatch(node.catch)
+  code = code .. self:_transFinally(node.finally)
+
+  --(2) return
+  return code
+end
+
+--Transform a statement body.
+--
+--@param body The body to transform.
+--@param pre  The prelude.
+--@return string
+function StmtTrans:_transBody(body, pre)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  local sent, covDir, i
+
+  code = "{" .. (pre or "")
+
+  i = 1
+  while i <= #body do
+    sent = body[i]
+
+    if sent.type == SentType.DIRECTIVE and sent.subtype == DirectiveType.COVERAGE then
+      covDir = sent
+      i = i + 1
+      sent = body[i]
+
+      if sent == nil then
+        sent = covDir
+        covDir = nil
+      end
+    else
+      covDir = nil
+    end
+
+    code = code .. trans:_trans(sent, ";", covDir)
+
+    i = i + 1
+  end
+
+  code = code .. "}"
+
+  --(2) return
+  return code
+end
+
+--Transform a catch clause.
+--
+--@return string
+function StmtTrans:_transCatch(catch)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if catch then
+    code = string.format(" catch(%s) {", catch.var or "_")
+
+    for _, sent in ipairs(catch.body) do
+      code = code .. trans:_trans(sent, ";")
+    end
+
+    code = code .. "}"
+  end
+
+  --(2) return
+  return code or ""
+end
+
+--Transform a finally clause.
+--
+--@return string
+function StmtTrans:_transFinally(fin)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if fin then
+    code = " finally {"
+
+    for _, sent in ipairs(fin.body) do
+      code = code .. trans:_trans(sent, ";")
+    end
+
+    code = code .. "}"
+  end
+
+  --(2) return
+  return code or ""
+end
+
+--Transform a do statement.
+--
+--@return string
+function StmtTrans:_transDo(node)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if #node.vars == 0 then
+    code = ""
+  else
+    code = "{"
+
+    for _, var in ipairs(node.vars) do
+      code = code .. string.format("let %s;", var.name)
+    end
+  end
+
+  if node.catch or node.finally then
+    if node.cond then
+      code = code .. "do try "
+    else
+      code = code .. "try "
+    end
+  else
+    code = code .. "do "
+  end
+
+  local pre = ""
+  for _, var in ipairs(node.vars) do
+    pre = pre .. string.format("%s=%s;", var.name, trans:_trans(var.value))
+  end
+
+  code = code .. self:_transBody(node.body, pre)
+
+  code = code .. self:_transCatch(node.catch)
+  code = code .. self:_transFinally(node.finally)
+
+  if node.cond then
+    code = code .. string.format(" while (%s);", trans:_trans(node.cond))
+  end
+
+  if #node.vars > 0 then
+    code = code .. "}"
+  end
+
+  --(2) return
+  return code
+end
+
+--Transfor a for statement.
+--
+--@return string
+function StmtTrans:_transFor(stmt)
+  if stmt.el then
+    return self:_transForWithElse(stmt)
+  else
+    return self:_transForWithoutElse(stmt)
+  end
+end
+
+function StmtTrans:_transForWithoutElse(stmt)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  code = "for (let "
+
+  for i, var in ipairs(stmt.def) do
+    code = code .. (i == 1 and "" or ", ") .. var.name
+
+    if var.value then
+      code = code .. " = " .. trans:_trans(var.value)
+    end
+  end
+
+  code = code .. "; " .. trans:_trans(stmt.cond) .. "; "
+
+  if stmt.iter then
+    code = code .. trans:_trans(stmt.iter)
+  end
+
+  code = code .. ") "
+
+  if stmt.catch or stmt.finally then
+    code = code .. "try "
+  end
+
+  code = code .. self:_transBody(stmt.body)
+  code = code .. self:_transCatch(stmt.catch)
+  code = code .. self:_transFinally(stmt.finally)
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transForWithElse(stmt)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if stmt.catch or stmt.finally then
+    code = "try {"
+  else
+    code = "{"
+  end
+
+  code = code .. "let $__break__; for (let "
+
+  for i, var in ipairs(stmt.def) do
+    code = code .. (i == 1 and "" or ", ") .. var.name
+
+    if var.value then
+      code = code .. " = " .. trans:_trans(var.value)
+    end
+  end
+
+  code = code .. "; " .. trans:_trans(stmt.cond) .. "; "
+
+  if stmt.iter then
+    code = code .. trans:_trans(stmt.iter)
+  end
+
+  code = code .. ") "
+
+  code = code .. self:_transBody(stmt.body)
+  code = code .. " if (!$__break__) " .. self:_transBody(stmt.el)
+  if stmt.catch or stmt.finally then
+    code = code .. "}"
+  end
+  code = code .. self:_transCatch(stmt.catch)
+  code = code .. self:_transFinally(stmt.finally)
+  if not stmt.catch and not stmt.finally then
+    code = code .. "}"
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a for each statement.
+--
+--@return string
+function StmtTrans:_transForEach(stmt)
+  if stmt.el then
+    return self:_transForEachWithElse(stmt)
+  else
+    return self:_transForEachWithoutElse(stmt)
+  end
+end
+
+function StmtTrans:_transForEachWithoutElse(node)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if node.key then
+    code = string.format(
+      "for %s(%s [%s, %s] of Object.entries(%s)) { ",
+      node.await and "await " or "",
+      node.decl == "var" and "let" or "const",
+      node.key,
+      node.value,
+      trans:_trans(node.iter)
+    )
+  else
+    code = string.format(
+      "for %s(%s %s of %s) ",
+      node.await and "await " or "",
+      node.decl == "var" and "let" or "const",
+      node.value,
+      trans:_trans(node.iter)
+    )
+  end
+
+  if node.catch or node.finally then
+    code = code .. "try "
+  end
+
+  code = code .. self:_transBody(node.body, self:_transForEachParamsCheck(node))
+  code = code .. self:_transCatch(node.catch)
+  code = code .. self:_transFinally(node.finally)
+
+  if node.key then
+    code = code .. " }"
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transForEachParamsCheck(stmt)
+  local code = ""
+
+  --(1) transform
+  if stmt.keyType then
+    code = code .. string.format(
+      "/*istanbul ignore next*/dogma.expect('%s', %s, %s);",
+      stmt.key,
+      stmt.key,
+      stmt.keyType
+    )
+  end
+
+  if stmt.valueType then
+    code = code .. string.format(
+      "/*istanbul ignore next*/dogma.expect('%s', %s, %s);",
+      stmt.value,
+      stmt.value,
+      stmt.valueType
+    )
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transForEachWithElse(stmt)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if stmt.catch or stmt.finally then
+    code = "try {"
+  else
+    code = "{"
+  end
+
+  code = code .. "let $__break__; "
+
+  if stmt.key then
+    code = code .. string.format(
+      "for (%s [%s, %s] of Object.entries(%s)) { ",
+      stmt.decl == "var" and "let" or "const",
+      stmt.key,
+      stmt.value,
+      trans:_trans(stmt.iter)
+    )
+  else
+    code = code .. string.format(
+      "for (%s %s of %s) ",
+      stmt.decl == "var" and "let" or "const",
+      stmt.value,
+      trans:_trans(stmt.iter)
+    )
+  end
+
+  code = code .. self:_transBody(stmt.body, self:_transForEachParamsCheck(stmt))
+  code = code .. " if (!$__break__) " .. self:_transBody(stmt.el)
+  if stmt.catch or stmt.finally then
+    code = code .. "}"
+  end
+  code = code .. self:_transCatch(stmt.catch)
+  code = code .. self:_transFinally(stmt.finally)
+  if not stmt.catch and not stmt.finally then
+    code = code .. "}"
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a return statement.
+--
+--@return string
+function StmtTrans:_transReturn(node)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  code = "return"
+
+  if #node.values == 1 then
+    code = code .. " " .. trans:_trans(node.values[1])
+  end
+
+  code = code .. ";"
+
+  --(2) return
+  return code
+end
+
+--Transform a yield statement.
+--
+--@return string
+function StmtTrans:_transYield(node)
+  return "yield" .. " " .. self._.trans:_trans(node.value) .. ";"
+end
+
+--Transform an intf statement.
+--
+--@param stmt:IntfStmt    The statement to transform.
+--@return string
+function StmtTrans:_transIntf(stmt)
+  local code
+
+  --(1) transform
+  --members
+  code = "{"
+
+  for _, fld in ipairs(stmt.fields) do
+    if code ~= "{" then
+      code = code .. ", "
+    end
+
+    code = code .. string.format(
+      "%s: {optional: %s, type: %s}",
+      fld.name,
+      fld.optional,
+      fld.type and self:_transDataType(fld.type) or "null"
+    )
+  end
+
+  for _, meth in ipairs(stmt.methods) do
+    if code ~= "{" then
+      code = code .. ", "
+    end
+
+    code = code .. string.format("%s: {optional: false, type: func}", meth.name)
+  end
+
+  code = code .. "}"
+
+  --base
+  if stmt.base then
+    code = code .. string.format(", %s", stmt.base)
+  end
+
+  --all
+  code = string.format("const %s = dogma.intf('%s', %s);", stmt.name, stmt.name, code)
+
+  --visib
+  if stmt.visib == "export" then
+    code = code .. string.format("module.exports = exports = %s;", stmt.name)
+  elseif stmt.visib == "pub" then
+    code = code .. string.format("module.exports['%s'] = exports['%s'] = %s;", stmt.name, stmt.name, stmt.name)
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a struct statement.
+--
+--@param stmt:StructStmt  The statemento to transform.
+--@return string
+function StmtTrans:_transStruct(stmt)
+  local code
+  local trans = self._.trans
+
+  --(1) transform
+  --name : base
+  code = string.format("const $%s = class %s", stmt.name, stmt.name)
+
+  if stmt.base then
+    code = code .. " extends " .. stmt.base
+  end
+
+  code = code .. " {\n"
+
+  --constructor
+  if stmt.annots:has("mixable") then
+    if stmt.annots:has("abstract") then
+      code = code .. "  /*istanbul ignore next*/\n"
+    end
+
+    code = code .. "  constructor() {\n"
+    code = code .. "    this._constructor(...arguments);\n"
+    code = code .. "  }\n\n"
+
+    if stmt.annots:has("abstract") then
+      code = code .. "  /*istanbul ignore next*/\n"
+    end
+
+    code = code .. "  _constructor(_) {\n"
+  else
+    code = code .. string.format("  constructor(_) {\n")
+
+    if stmt.base then
+      if stmt.base == "dogma.EventEmitter" then
+        code = code .. string.format("    super();\n")
+      else
+        code = code .. string.format("    super(_);\n")
+      end
+    end
+  end
+
+  code = code .. string.format("    /* istanbul ignore next */ if (_ == null) _ = {};\n")
+
+  if stmt.mixins then
+    code = code .. "    " .. self:_transMixinConstructor(stmt) .. "\n"
+  end
+
+  --fields
+  if stmt.annots:has("defer") then
+    code = code .. "    Object.defineProperty(this, '$deferred', {value: [], writable: false, enumerable: false});\n"
+  end
+
+  for _, fld in ipairs(stmt.fields) do
+    if fld.annots:has("abstract") then goto next end
+
+    --common
+    local prefix = self:getVisibPrefix(fld.visib)
+    local writable = fld.kind == "var"
+    local enumerable = not (fld.visib == "intl" or fld.visib == "pvt" or (fld.visib == "pub" and fld.annots:has("hidden")))
+
+    --static
+    if not fld.static then
+      --expect()
+      if fld.optional then
+        if fld.type and not fld.annots:has("strict") then
+          code = code .. string.format(
+            "    /* istanbul ignore next */ if (_['%s'] != null) expect('%s', _['%s'], %s);\n",
+            fld.name,
+            fld.name,
+            fld.name,
+            self:_transDataType(fld.type)
+          )
+        end
+      else
+        code = code .. string.format(
+          "    expect('%s', _['%s'], %s);\n",
+          fld.name,
+          fld.name,
+          fld.type and self:_transDataType(fld.type) or "null"
+        )
+      end
+
+      --define
+      local value, prev
+      if fld.value then
+        value, prev = trans:_transExp(fld.value, true)
+      else
+        value = "null"
+        prev = ""
+      end
+
+      if fld.value and fld.annots:has("strict") then
+        if fld.type then
+          value = string.format(
+            "dogma.expect('%s', %s, %s)",
+            fld.name,
+            value,
+            self:_transDataType(fld.type)
+          )
+        end
+
+        code = code .. string.format(
+          "    %sObject.defineProperty(this, '%s%s', {value: %s, writable: %s, enumerable: %s});\n",
+          prev,
+          prefix,
+          fld.name,
+          value,
+          writable,
+          enumerable
+        )
+      else
+        if fld.type and fld.type.call and fld.type.call.kind == "exclusive" then
+          if fld.optional then
+            code = code .. string.format(
+              "    Object.defineProperty(this, '%s%s', {value: (_['%s'] != null ? (dogma.is(_['%s'], %s) ? _['%s'] : %s(_['%s'])) : null), writable: %s, enumerable: %s});\n",
+              prefix,
+              fld.name,
+              fld.name,
+              fld.name,
+              fld.type.call.object,
+              fld.name,
+              fld.type.call.object,
+              fld.name,
+              writable,
+              enumerable
+            )
+          else
+            code = code .. string.format(
+              "    Object.defineProperty(this, '%s%s', {value: (dogma.is(_['%s'], %s) ? _['%s'] : %s(_['%s'])), writable: %s, enumerable: %s});\n",
+              prefix,
+              fld.name,
+              fld.name,
+              fld.type.call.object,
+              fld.name,
+              fld.type.call.object,
+              fld.name,
+              writable,
+              enumerable
+            )
+          end
+        else
+          code = code .. string.format(
+            "    %sObject.defineProperty(this, '%s%s', {value: coalesce(_['%s'], %s), writable: %s, enumerable: %s});\n",
+            prev,
+            prefix,
+            fld.name,
+            fld.name,
+            value,
+            writable,
+            enumerable
+          )
+        end
+      end
+    end
+
+    --luacov: disable
+    ::next::
+    --luacov: enable
+  end
+
+  --special methods
+  code = code .. string.format(
+    "    /* istanbul ignore next */ if (this.%s__init__ instanceof Function) this.%s__init__(_);\n",
+    self:getVisibPrefix("pvt"),
+    self:getVisibPrefix("pvt")
+  )
+  code = code .. string.format(
+    "    /* istanbul ignore next */ if (this.%s__post__ instanceof Function) this.%s__post__();\n",
+    self:getVisibPrefix("pvt"),
+    self:getVisibPrefix("pvt")
+  )
+  code = code .. string.format(
+    "    /* istanbul ignore next */ if (this.%s__validate__ instanceof Function) this.%s__validate__();\n",
+    self:getVisibPrefix("pvt"),
+    self:getVisibPrefix("pvt")
+  )
+
+  if stmt.annots:has("singleton") then
+    code = code .. string.format(
+      "    Object.defineProperty($%s, '__SINGLETON__', {value: this, writable: false, enumerable: false});\n",
+      stmt.name
+    )
+  end
+
+  code = code .. "  }\n"
+
+  --}
+  code = code .. "};"
+
+  if stmt.mixins then
+    for _, mixin in ipairs(stmt.mixins) do
+      code = code .. string.format("dogma.mixin($%s, %s);", stmt.name, mixin)
+    end
+  end
+
+  code = code .. "\n"
+
+  --class proxy
+  if stmt.annots:has("singleton") then
+    code = code .. string.format(
+      "const %s = new Proxy($%s, { apply(receiver, self, args) { const i = $%s.__SINGLETON__; if (!i) return new $%s(...args); if (%s._pvt_e6eace38db3ac6dfd7468b60ae7a70ae___singleton__ instanceof Function) %s._pvt_e6eace38db3ac6dfd7468b60ae7a70ae___singleton__(i, args); return i; } });",
+      stmt.name,
+      stmt.name,
+      stmt.name,
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  elseif stmt.annots:has("factory") then
+    code = code .. string.format(
+      "const %s = new Proxy($%s, { apply(receiver, self, args) { return %s.%s__factory__(...args); } });",
+      stmt.name,
+      stmt.name,
+      stmt.name,
+      self:getVisibPrefix("pvt")
+    )
+  elseif stmt.annots:has("abstract") then
+    code = code .. string.format(
+      [[const %s = new Proxy($%s, { /* istanbul ignore next */ apply(receiver, self, args) { throw("'%s' is abstract."); } });]],
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  elseif stmt.annots:has("sealed") then
+    code = code .. string.format(
+      "const %s = new Proxy($%s, { apply(receiver, self, args) { return Object.seal(new $%s(...args)); } });",
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  elseif stmt.annots:has("const") then
+    code = code .. string.format(
+      "const %s = new Proxy($%s, { apply(receiver, self, args) { return dogma.immutable(new $%s(...args)); } });",
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  else
+    code = code .. string.format(
+      "const %s = new Proxy($%s, { apply(receiver, self, args) { return new $%s(...args); } });",
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  end
+
+  if stmt.visib == "export" then
+    code = code .. string.format("\nmodule.exports = exports = %s;", stmt.name)
+  elseif stmt.visib == "pub" then
+    code = code .. string.format("\nmodule.exports['%s'] = exports['%s'] = %s;", stmt.name, stmt.name, stmt.name)
+  end
+
+  --Self
+  if stmt.annots:has("Self") then
+    code = code .. string.format("\nconst Self = %s;", stmt.name)
+  end
+
+  --@static and @prop
+  for _, fld in ipairs(stmt.fields) do
+    if fld.annots:has("prop") and fld.visib ~= "pub" then
+      code = code .. string.format(
+        "\nObject.defineProperty(%s.prototype, '%s', {get() { return this.%s%s; }});",
+        stmt.name,
+        fld.name,
+        self:getVisibPrefix(fld.visib),
+        fld.name
+      )
+    elseif fld.static then
+      code = code .. string.format(
+        "\nObject.defineProperty(%s, '%s%s', {value: %s, writable: %s, enumerable: %s});",
+        stmt.name,
+        self:getVisibPrefix(fld.visib),
+        fld.name,
+        trans:_trans(fld.value),
+        fld.kind == "var" and true or false,
+        fld.visib == "pub"
+      )
+    end
+  end
+
+  --methods
+  if #stmt.methods > 0 then
+    if stmt.annots:has("factory") then
+      code = code .. string.format("\n{\nconst $$Class$$ = %s;", stmt.name)
+    end
+
+    for _, meth in ipairs(stmt.methods) do
+      code = code .. "\n"
+
+      if meth.subtype == StmtType.FN then
+        code = code .. self:_transTypeFn(meth, stmt:getInjectableFields())
+      elseif meth.subtype == StmtType.PROC then
+        code = code .. self:_transTypeProc(meth, stmt:getInjectableFields())
+      end
+
+      if meth.annots:find("post") then
+        code = code .. string.format(
+          "\n%s.prototype.%s__post__ = %s.prototype.%s%s;",
+          meth.itype,
+          self:getVisibPrefix("pvt"),
+          meth.itype,
+          self:getVisibPrefix(meth.visib),
+          meth.name
+        )
+      end
+
+      if meth.annots:find("validate") then
+        code = code .. string.format(
+          "\n%s.prototype.%s__validate__ = %s.prototype.%s%s;",
+          meth.itype,
+          self:getVisibPrefix("pvt"),
+          meth.itype,
+          self:getVisibPrefix(meth.visib),
+          meth.name
+        )
+      end
+
+      if meth.annots:find("init") then
+        code = code .. string.format(
+          "\n%s.prototype.%s__init__ = %s.prototype.%s%s;",
+          meth.itype,
+          self:getVisibPrefix("pvt"),
+          meth.itype,
+          self:getVisibPrefix(meth.visib),
+          meth.name
+        )
+      end
+    end
+
+    if stmt.annots:has("factory") then
+      code = code .. "\n}"
+    end
+  end
+
+  if #stmt.events > 0 then
+    code = code .. string.format("\n%s.__events__ = {};", stmt.name);
+  end
+
+  for _, e in ipairs(stmt.events) do
+    code = code .. string.format(
+      '\n%s.__events__["%s"] = {type: %s};',
+      stmt.name,
+      e.name,
+      e.type and self:_transDataType(e.type) or "null"
+    );
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a typedef statement.
+--
+--@param typedef  The typedef statement.
+--@return string
+function StmtTrans:_transTypeDef(typedef)
+  local code
+
+  --(1) build typedef without visibility
+  if typedef.min == nil and #typedef.types == 1 then
+    code = string.format(
+      "const %s = %s;",
+      typedef.name,
+      typedef.types[1]
+    )
+  else
+    code = string.format(
+      "const %s = dogma.TypeDef({name: '%s', types: [%s], min: %s, max: %s});",
+      typedef.name,
+      typedef.name,
+      table.concat(typedef.types, ","),
+      typedef.min ~= nil and typedef.min or "null",
+      typedef.max ~= nil and typedef.max or "null"
+    )
+  end
+
+  --(2) add visibility
+  if typedef.visib == "export" then
+    code = code .. string.format("module.exports = exports = %s;", typedef.name)
+  elseif typedef.visib == "pub" then
+    code = code .. string.format(
+      "module.exports['%s'] = exports['%s'] = %s;",
+      typedef.name,
+      typedef.name,
+      typedef.name
+    )
+  end
+
+  --(3) return
+  return code
+end
+
+--Transform a type statement.
+--
+--@return string
+function StmtTrans:_transType(stmt)
+  if stmt.body then
+    return self:_transTypeWithExplicitConstructor(stmt)
+  else
+    return self:_transTypeWithImplicitConstructor(stmt)
+  end
+end
+
+function StmtTrans:_transTypeWithExplicitConstructor(stmt)
+  local code
+
+  --(1) transform
+  --$class
+  code = string.format("const $%s = class %s", stmt.name, stmt.name)
+  if stmt.base then
+    code = code .. " extends " .. stmt.base
+  end
+
+  code = code .. " {\n"
+
+  if stmt.annots:has("todo") then
+    code = code .. string.format("  constructor() { todo(); }\n")
+  else
+    if stmt.annots:has("mixable") then
+      code = code .. string.format(
+        "  constructor() { this._constructor(...arguments); } _constructor(%s) { ",
+        self:_transParams(stmt.params)
+      )
+    else
+      code = code .. string.format("  constructor(%s) { ", self:_transParams(stmt.params))
+    end
+    code = code .. self:_transParamsCheck(stmt.params, stmt.annots:has("noParamCheck"))
+    code = code .. self:_transParamsTrans(stmt.params)
+    code = code .. self:_transParamsUnpacks(stmt.params)
+    code = code .. self:_transParamsByCopy(stmt.params)
+    code = code .. self:_transSuperConstructor(stmt.bargs)
+    if stmt.annots:has("component") then
+      code = code .. string.format("dogma.autobind(this, $%s);", stmt.name)
+    end
+    if stmt.mixin then
+      code = code .. self:_transMixinConstructor(stmt)
+    end
+    code = code .. self:_transSelfParams(stmt.params)
+    if stmt.catch or stmt.finally then code = code .. " try " end
+    code = code .. self:_transBody(stmt.body)
+    code = code .. self:_transCatch(stmt.catch)
+    code = code .. self:_transFinally(stmt.finally)
+    code = code .. "  }\n"
+  end
+
+  code = code .. "};"
+  if stmt.annots:has("component") then
+    code = code .. string.format(
+      "Object.defineProperty($%s, '__bind__', {value: [], enumerable: false, writable: false});",
+      stmt.name
+    )
+  end
+
+  if stmt.mixin then
+    code = code .. string.format("dogma.mixin($%s, %s);", stmt.name, stmt.mixin)
+  end
+
+  code = code .. "\n"
+
+  --class proxy
+  if stmt.annots:has("abstract") then
+    code = code .. string.format(
+      [[const %s = new Proxy($%s, { /* istanbul ignore next */ apply(receiver, self, args) { throw("'%s' is abstract."); } });]],
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  else
+    code = code .. string.format(
+      "const %s = new Proxy($%s, { apply(receiver, self, args) { return new $%s(...args); } });",
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  end
+
+  if stmt.visib == "export" then
+    code = code .. string.format("module.exports = exports = %s;", stmt.name)
+  end
+
+  --Self
+  if stmt.annots:has("Self") then
+    code = code .. string.format("\nconst Self = %s;", stmt.name)
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transTypeWithImplicitConstructor(stmt)
+  local code
+
+  --(1) transform
+  --$class
+  code = string.format("const $%s = class %s {\n", stmt.name, stmt.name)
+  code = code .. string.format(
+    "  constructor($obj) { %s/* istanbul ignore next */if ($obj == null) $obj = {};",
+    stmt.annots:has("component") and string.format("dogma.autobind(this, $%s);", stmt.name) or ""
+  )
+  if stmt.mixin then
+    code = code .. self:_transMixinConstructor(stmt)
+  end
+  for _, p in ipairs(stmt.params) do
+    if p.optional then
+      if p.type then
+        code = code .. string.format(
+          [[/* istanbul ignore next */if ($obj["%s"] != null) dogma.expect("%s", $obj["%s"], %s);]],
+          p.name,
+          p.name,
+          p.name,
+          self:_transDataType(p.type)
+        )
+      end
+    else  --mandatory
+      if p.value == nil then
+        code = code .. string.format(
+          [[/* istanbul ignore next */ dogma.expect("%s", $obj["%s"], %s);]],
+          p.name,
+          p.name,
+          p.type and self:_transDataType(p.type) or "null"
+        )
+      else
+        code = code .. string.format(
+          [[/* istanbul ignore next */if ($obj["%s"] != null) dogma.expect("%s", $obj["%s"], %s);]],
+          p.name,
+          p.name,
+          p.name,
+          p.type and self:_transDataType(p.type) or "null"
+        )
+      end
+    end
+
+    if p.modifier == "." then
+      code = code .. string.format(
+        [[Object.defineProperty(this, "%s", {value: $obj["%s"]%s, enum: true, writable: %s});]],
+        transName(p.name),
+        transName(p.name),
+        p.value and ("||" .. self._.trans:_trans(p.value)) or "",
+        not p.const
+      )
+    else
+      code = code .. string.format(
+        [[Object.defineProperty(this, "%s%s", {value: $obj["%s"]%s, writable: %s});]],
+        self:getVisibPrefix(p.modifier),
+        p.name,
+        p.name,
+        p.value and ("||" .. self._.trans:_trans(p.value)) or "",
+        not p.const
+      )
+    end
+  end
+  code = code .. "  }\n"
+
+  code = code .. "};"
+  if stmt.annots:has("component") then
+    code = code .. string.format(
+      "Object.defineProperty($%s, '__bind__', {value: [], enumerable: false, writable: false});",
+      stmt.name
+    )
+  end
+
+  if stmt.mixin then
+    code = code .. string.format("dogma.mixin($%s, %s);", stmt.name, stmt.mixin)
+  end
+
+  code = code .. "\n"
+
+  --class proxy
+  if stmt.annots:has("abstract") then
+    code = code .. string.format(
+      [[const %s = new Proxy($%s, { /* istanbul ignore next */ apply(receiver, self, args) { throw("'%s' is abstract."); } });]],
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  else
+    code = code .. string.format(
+      "const %s = new Proxy($%s, { apply(receiver, self, args) { return new $%s(...args); } });",
+      stmt.name,
+      stmt.name,
+      stmt.name
+    )
+  end
+
+  if stmt.visib == "export" then
+    code = code .. string.format("module.exports = exports = %s;", stmt.name)
+  end
+
+  --Self
+  if stmt.annots:has("Self") then
+    code = code .. string.format("\nconst Self = %s;", stmt.name)
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a mixin constructor call.
+--
+--@param stmt type statement.
+--@return string
+function StmtTrans:_transMixinConstructor(stmt)
+  local trans = self._.trans
+
+  --(1) determine args to pass to the constructors
+  local args
+
+  if stmt.margs[1] == "..." then
+    args = "...arguments"
+  elseif stmt.margs[1] == "_" then
+    args = "_"
+  else
+    args = ""
+
+    for _, arg in ipairs(stmt.margs) do
+      args = args .. (args == "" and "" or ", ") .. trans:_trans(arg)
+    end
+  end
+
+  --(2) add constructor code
+  local code = ""
+  local mixins = stmt.mixins or (stmt.mixin and {stmt.mixin}) or {}
+
+  for _, mixin in ipairs(mixins) do
+    code = code .. string.format(
+      "/* istanbul ignore next */ if (%s.prototype._constructor instanceof Function) %s.prototype._constructor.bind(this)(%s);",
+      mixin,
+      mixin,
+      args
+    )
+  end
+
+  --(3) return
+  return code
+end
+
+--Transform function parameters.
+--
+--@return string
+function StmtTrans:_transParams(params)
+  local trans = self._.trans
+  
+  --(1) transform
+  local code = ""
+
+  if #params > 0 then
+    for i, p in ipairs(params) do
+      if i > 1 then
+        code = code .. ", "
+      end
+
+      if p.modifier == "..." then
+        code = code .. "..."
+      end
+
+      code = code .. transName(p.name)
+
+      if p.value then
+        code = code .. " = " .. trans:_trans(p.value)
+      end
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform function subparameters.
+--
+--@param subparams  The subparameters.
+--@param opts       The options to use: prefix (to set).
+--
+--@return string
+function StmtTrans:_transSubparams(subparams, opts)
+  --(0) arguments
+  opts = opts or {}
+
+  --(1) transform
+  local code = ""
+
+  if #subparams > 0 then
+    for i, s in ipairs(subparams) do
+      code = code .. string.format("%s(%s)", (i > 1 and " => " or ""), self:_transParams(s))
+    end
+  end
+
+  if #code > 0 and opts.prefix then
+    code = opts.prefix .. code
+  end
+
+  --(2) return
+  return code
+end
+
+--Return the code for checking the function parameters.
+--
+--@param params       The parameters.
+--@param noParamCheck The @noParamCheck has been set.
+
+--@return string
+function StmtTrans:_transParamsCheck(params, noParamCheck)
+  --(1) transform
+  local code = ""
+
+  if (not noParamCheck and not self:skipParamCheck()) and #params > 0 then
+    for _, p in ipairs(params) do
+      code = code .. (self:_transParamCheck(p) or "")
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Return the code for checking the function subparameters.
+--
+--@param subparams    The subparameters.
+--@param noParamCheck The @noParamCheck has been set.
+
+--@return string
+function StmtTrans:_transSubparamsCheck(subparams, noParamCheck)
+  --(1) transform
+  local code = ""
+
+  if (not noParamCheck and not self:skipParamCheck()) and #subparams > 0 then
+    for _, s in ipairs(subparams) do
+      code = code .. (self:_transParamsCheck(s, noParamCheck))
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a parameter check.
+--
+--@param p  The parameter to transform.
+--
+--@return the expression to eval or nil when parameter must not be checked.
+function StmtTrans:_transParamCheck(p)
+  --(1) tranform
+  local code
+
+  if p.optional then
+    code = self:_transOptionalParamCheck(p)
+  else
+    code = self:_transMandatoryParamCheck(p)
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transOptionalParamCheck(p)
+  local code
+
+  --(1) transform
+  if not p.type then
+    code = "";
+  else
+    code = string.format(
+      [[/* istanbul ignore next */ if (%s != null) dogma.expect("%s", %s, %s);]],
+      p.name,
+      p.name,
+      p.name,
+      self:_transDataType(p.type)
+    )
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transMandatoryParamCheck(p)
+  local code
+
+  --(1) transform
+  if p.modifier ~= "..." then
+    if p.type then
+      code = string.format(
+        '/* istanbul ignore next */ dogma.expect("%s", %s, %s);',
+        transName(p.name),
+        transName(p.name),
+        self:_transDataType(p.type)
+      )
+    else
+      code = string.format(
+        '/* istanbul ignore next */ dogma.expect("%s", %s);',
+        transName(p.name),
+        transName(p.name)
+      )
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Return the code for transforming function parameters.
+--
+--@param params The parameters.
+--@return string
+function StmtTrans:_transParamsTrans(params)
+  local code = ""
+
+  --(1) transform
+  if type(params) == "table" and #params > 0 then
+    for _, param in ipairs(params) do
+      if param.type and param.type.call then
+        if param.type.call.kind == "exclusive" then
+          code = code .. string.format(
+            "if (%s!dogma.is(%s, %s)) %s = %s(%s);",
+            param.optional and string.format("%s != null && ", param.name) or "",
+            param.name,
+            param.type.call.object,
+            param.name,
+            param.type.call.object,
+            param.name
+          )
+        end
+      end
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Return the code for transforming function parameters by copy.
+--
+--@param params The parameters.
+--@return string
+function StmtTrans:_transParamsByCopy(params)
+  local code = ""
+
+  --(1) transform
+  if type(params) == "table" and #params > 0 then
+    local vars = {}
+
+    for _, param in ipairs(params) do
+      if param.byCopy then
+        table.insert(vars, param.name)
+      elseif param.uVars then
+        for _, field in ipairs(param.type.fields or {}) do
+          if field.byCopy then
+            table.insert(vars, field.name)
+          end
+        end
+      end
+    end
+
+    for _, var in ipairs(vars) do
+      code = code .. string.format("%s = dogma.copy(%s);", var, var)
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Return the code for transforming parameter unpacks.
+--
+--@return string
+function StmtTrans:_transParamsUnpacks(params)
+  local code = ""
+
+  --(1) transform
+  if type(params) == "table" and #params > 0 then
+    for _, param in ipairs(params) do
+      if param.uVars and #param.uVars > 0 then
+        local list = (
+          param.type.kind == "be" and
+          param.type.type.kind == "type" and
+          param.type.type.name == "list"
+        )
+
+        code = code .. string.format(
+          "let %s%s%s = %s%s;",
+          list and "[" or "{",
+          table.concat(param.uVars, ","),
+          list and "]" or "}",
+          param.name,
+          param.optional and " || {}" or ""
+        )
+
+        if param.type.kind == "map" and #param.type.fields > 0 then
+          for _, fld in ipairs(param.type.fields) do
+            if fld.type and fld.type.call then
+              if fld.type.call.kind == "exclusive" then
+                code = code .. string.format(
+                  "if (%s!dogma.is(%s, %s)) %s = %s(%s);",
+                  fld.mandatory and "" or string.format("%s != null && ", fld.name),
+                  fld.name,
+                  fld.type.call.object,
+                  fld.name,
+                  fld.type.call.object,
+                  fld.name
+                )
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Return the code for setting . or : attributes from parameters.
+--
+--@return string
+function StmtTrans:_transSelfParams(params)
+  local code
+
+  --(1) transform
+  if #params > 0 then
+    code = ""
+
+    for _, p in ipairs(params) do
+      if p.modifier == "." then
+        code = code .. string.format(
+          [[Object.defineProperty(this, "%s", {value: %s, enum: true, writable: %s});]],
+          transName(p.name),
+          transName(p.name),
+          not p.const
+        )
+      elseif tablex.find({":", "!"}, p.modifier) then
+        code = code .. string.format(
+          [[Object.defineProperty(this, "%s%s", {value: %s, writable: %s});]],
+          self:getVisibPrefix(p.modifier),
+          p.name,
+          p.name,
+          not p.const
+        )
+      end
+    end
+  end
+
+  --(2) return
+  return code or ""
+end
+
+--Return a call to the super constructor.
+--
+--@return string
+function StmtTrans:_transSuperConstructor(bargs)
+  local trans = self._.trans
+  local code
+
+  --(1) Transform
+  if bargs then
+    if #bargs == 0 then
+      code = "super();"
+    elseif #bargs == 1 and bargs[1] == "..." then
+      code = "super(...arguments);"
+    else
+      code = "super("
+
+      for i, a in ipairs(bargs) do
+        code = code .. (i == 1 and "" or ", ") .. trans:_trans(a)
+      end
+
+      code =  code .. ");"
+    end
+  end
+
+  --(2) return
+  return code or ""
+end
+
+--Transform a proc statement.
+--
+--@return string
+function StmtTrans:_transProc(stmt)
+  if stmt.itype then
+    return self:_transTypeProc(stmt)
+  else
+    return self:_transStdProc(stmt)
+  end
+end
+
+function StmtTrans:_transStdProc(fn)
+  local code
+
+  --(0) pre
+  if fn.annots:has("overload") then
+    return ""
+  end
+
+  --(1) transform
+  if fn.annots:has("todo") then
+    code = string.format(
+      "%sfunction%s %s() { todo(); }",
+      fn.async and "async " or "",
+      fn.annots:has("iter") and "*" or "",
+      fn.name
+    )
+  else
+    code = string.format(
+      "%sfunction%s %s(%s) { ",
+      fn.async and "async " or "",
+      fn.annots:has("iter") and "*" or "",
+      fn.name,
+      self:_transParams(fn.params)
+    )
+
+    if fn.annots:has("catch") then
+      code = code .. "try { "
+    end
+
+    code = code .. self:_transInputAnnot(fn)
+    code = code .. self:_transParamsCheck(fn.params, fn.annots:has("noParamCheck"))
+    code = code .. self:_transParamsTrans(fn.params)
+    code = code .. self:_transSelfParams(fn.params)
+    code = code .. self:_transParamsUnpacks(fn.params)
+    if fn.catch or fn.finally then code = code .. " try " end
+    code = code .. self:_transBody(fn.body)
+    code = code .. self:_transCatch(fn.catch)
+    code = code .. self:_transFinally(fn.finally)
+
+    if fn.annots:has("catch") then
+      code = code .. " } catch { }"
+    end
+
+    code = code .. " }"
+  end
+
+  code = code .. self:_transVisib(fn.visib, fn.name)
+
+  --(2) alias
+  if fn.annots:has("alias") then
+    local alias = fn.annots:find("alias").args[1]
+    code = code .. string.format(" const %s = %s;", alias, fn.name)
+    code = code .. self:_transVisib(fn.visib, alias)
+  end
+
+  --(3) return
+  return code
+end
+
+function StmtTrans:_transTypeProc(stmt, injectables)
+  return self:_transMethodProc(stmt, injectables)
+end
+
+function StmtTrans:_transMethodProc(stmt, injectables)
+  local code
+
+  --(0) pre
+  if stmt.annots:has("overload") then
+    return ""
+  end
+
+  --(1) transform
+  if stmt.annots:has("abstract") then
+    if stmt.visib == "pvt" then
+      self:_raise("abstract method can't be private (!).", stmt)
+    end
+
+    code = string.format(
+      "/* istanbul ignore next */ %s.prototype.%s%s = function() { abstract(); };",
+      stmt.itype,
+      self:getVisibPrefix(stmt.visib),
+      stmt.name
+    )
+  else
+    if stmt.static or stmt.annots:has("singleton") then
+      if stmt.annots:has("todo") then
+        code = string.format(
+          "%s.%s%s = %sfunction() { todo(); };",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or ""
+        )
+      else
+        code = string.format(
+          "%s.%s%s = %sfunction(%s) { ",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or "",
+          self:_transParams(stmt.params)
+        )
+
+        if stmt.annots:has("catch") then
+          code = code .. "try { "
+        end
+      end
+
+      if stmt.annots:has("singleton") then
+        code = string.format(
+          "%s.%s__singleton__ = ",
+          stmt.itype,
+          self:getVisibPrefix("pvt")
+        ) .. code
+      end
+    else
+      if stmt.annots:has("todo") then
+        code = string.format(
+          "%s.prototype.%s%s = function() { todo(); };",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name
+        )
+      elseif stmt.annots:has("bind") then
+        code = string.format(
+          "%s.__bind__.push(['%s%s', %sfunction(%s) { ",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or "",
+          self:_transParams(stmt.params)
+        )
+      else
+        code = string.format(
+          "%s.prototype.%s%s = %sfunction(%s) { const self = this;",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or "",
+          self:_transParams(stmt.params)
+        )
+
+        code = code .. self:_transInjectables(injectables)
+
+        if stmt.annots:has("catch") then
+          code = code .. "try { "
+        end
+
+        if stmt.annots:has("alias") then
+          code = string.format("%s.prototype.%s = ", stmt.itype, stmt.annots:find("alias").args[1]) .. code
+        end
+      end
+    end
+
+    if not stmt.annots:has("todo") then
+      code = code .. self:_transInputAnnot(stmt)
+      code = code .. self:_transParamsCheck(stmt.params, stmt.annots:has("noParamCheck"))
+      code = code .. self:_transParamsTrans(stmt.params)
+      code = code .. self:_transParamsUnpacks(stmt.params)
+      code = code .. self:_transSelfParams(stmt.params)
+
+      if stmt.catch or stmt.finally then code = code .. " try " end
+      code = code .. self:_transBody(stmt.body)
+      code = code .. self:_transCatch(stmt.catch)
+      code = code .. self:_transFinally(stmt.finally)
+
+      if stmt.annots:has("catch") then
+        code = code .. " } catch { }"
+      end
+
+      code = code .. " }"
+      if stmt.annots:has("bind") then
+        code = code .. "])"
+      end
+      code = code .. ";"
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a fn statement.
+--
+--@return string
+function StmtTrans:_transFn(stmt)
+  if stmt.itype then
+    return self:_transTypeFn(stmt)
+  else
+    return self:_transStdFn(stmt)
+  end
+end
+
+function StmtTrans:_transStdFn(fn)
+  local code
+
+  --(0) pre
+  if fn.annots:has("overload") then
+    return ""
+  end
+
+  --(1) transform
+  if fn.annots:has("todo") then
+    code = string.format(
+      "%sfunction%s %s() { todo(); }",
+      fn.async and "async " or "",
+      fn.annots:has("iter") and "*" or "",
+      fn.name
+    )
+  else
+    local subparams = self:_transSubparams(fn.subparams or {})
+
+    if #subparams > 0 then
+      subparams = string.format("{ return %s => ", subparams)
+    end
+
+    code = string.format(
+      "%sfunction%s %s(%s) %s{ ",
+      fn.async and "async " or "",
+      fn.annots:has("iter") and "*" or "",
+      fn.name,
+      self:_transParams(fn.params),
+      subparams
+    )
+
+    code = code .. self:_transInputAnnot(fn)
+
+    if fn.annots:has("catch") then
+      code = code .. "try { "
+    end
+
+    code = code .. self:_transReturnVarDef(fn)
+    code = code .. self:_transParamsCheck(fn.params, fn.annots:has("noParamCheck"))
+    code = code .. self:_transSubparamsCheck(fn.subparams or {}, fn.annots:has("noParamCheck"))
+    code = code .. self:_transParamsTrans(fn.params)
+    code = code .. self:_transSelfParams(fn.params)
+    code = code .. self:_transParamsUnpacks(fn.params)
+    code = code .. self:_transParamsByCopy(fn.params)
+    if fn.catch or fn.finally then code = code .. " try " end
+    code = code .. self:_transBody(fn.body)
+    code = code .. self:_transCatch(fn.catch)
+    code = code .. self:_transFinally(fn.finally)
+    if fn.rvar then
+      code = code .. string.format(" return %s;", fn.rvar == "self" and "this" or fn.rvar)
+    end
+
+    if fn.annots:has("catch") then
+      code = code .. " } catch { return null; }"
+    end
+
+    code = code .. " }"
+
+    if #subparams > 0 then
+      code = code .. "}"
+    end
+  end
+
+  code = code .. self:_transVisib(fn.visib, fn.name)
+
+  --(2) alias
+  if fn.annots:has("alias") then
+    local alias = fn.annots:find("alias").args[1]
+    code = code .. string.format(" const %s = %s;", alias, fn.name)
+    code = code .. self:_transVisib(fn.visib, alias)
+  end
+
+  --(3) return
+  return code
+end
+
+function StmtTrans:_transTypeFn(stmt, injectables)
+  if stmt.annots:has("overload") then
+    return ""
+  elseif stmt.annots:has("prop") then
+    return self:_transProp(stmt, injectables)
+  elseif stmt.annots:has("json") and stmt.annots:has("encode") then
+    return self:_transJsonSerializationMethod(stmt, injectables)
+  elseif stmt.annots:has("json") and stmt.annots:has("decode") then
+    return self:_transJsonSerializationFn(stmt)
+  elseif stmt.annots:has("iter") then
+    return self:_transIterMethod(stmt, injectables)
+  else
+    return self:_transMethod(stmt, injectables)
+  end
+end
+
+--Transforms @input.
+function StmtTrans:_transInputAnnot(stmt)
+  local code = ""
+
+  if stmt.annots:has("input") then
+    code = "print(...arguments);"
+  end
+
+  return code;
+end
+
+--Transforms the injectable fields.
+--
+--@param injectables  The fields to inject.
+function StmtTrans:_transInjectables(injectables)
+  --(1) transform
+  local code = ""
+
+  if injectables ~= nil and #injectables > 0 then
+    code = "const {"
+
+    for i, fld in ipairs(injectables) do
+      code = code .. string.format(
+        "%s%s",
+        i == 1 and "" or ", ",
+        fld.name
+      )
+    end
+
+    code = code .. "} = self;"
+  end
+
+  --(2) return
+  return code
+end
+
+--Transforms the implicit return if needed.
+--
+--@param stmt The statement to transform.
+function StmtTrans:_transImplicitReturn(stmt)
+  local code  = ""
+
+  if stmt.rvar then
+    code = code .. string.format(" return %s;", stmt.rvar == "self" and "this" or stmt.rvar)
+  end
+
+  return code
+end
+
+--Transforms an instance method annotated with @json and @encode.
+--
+--@param stmt         Method statement to transform.
+--@param injectables  The injectable fields.
+function StmtTrans:_transJsonSerializationMethod(stmt, injectables)
+  --(1) transform
+  local code = string.format(
+    "%s.prototype.toJSON%s = function() { const self = this;",
+    stmt.itype,
+    stmt.name == "toJSON" and "" or string.format(" = %s.prototype.%s", stmt.itype, stmt.name)
+  )
+
+  code = code .. self:_transInputAnnot(stmt)
+  code = code .. self:_transInjectables(injectables)
+  code = code .. self:_transReturnVarDef(stmt)
+  code = code .. self:_transSelfParams(stmt.params)
+
+  if stmt.catch or stmt.finally then code = code .. " try " end
+  code = code .. self:_transBody(stmt.body)
+  code = code .. self:_transCatch(stmt.catch)
+  code = code .. self:_transFinally(stmt.finally)
+  code = code .. self:_transImplicitReturn(stmt)
+  code = code .. " };"
+
+  --(2) return
+  return code
+end
+
+--Transforms a static function annotated with @json and @decode.
+--
+--@param stmt         Method statement to transform.
+function StmtTrans:_transJsonSerializationFn(stmt)
+  --(1) transform
+  local code = string.format(
+    "%s.fromJSON%s = function(%s) {",
+      stmt.itype,
+      stmt.name == "fromJSON" and "" or string.format(" = %s.%s", stmt.itype, stmt.name),
+      self:_transParams(stmt.params)
+  )
+
+  code = code .. self:_transInputAnnot(stmt)
+  code = code .. self:_transReturnVarDef(stmt)
+  code = code .. self:_transParamsCheck(stmt.params, stmt.annots:has("noParamCheck"))
+
+  if stmt.catch or stmt.finally then code = code .. " try " end
+  code = code .. self:_transBody(stmt.body)
+  code = code .. self:_transCatch(stmt.catch)
+  code = code .. self:_transFinally(stmt.finally)
+  code = code .. self:_transImplicitReturn(stmt)
+  code = code .. " };"
+
+  --(2) return
+  return code
+end
+
+--Transforms an iterator method.
+--
+--@param stmt         The method statement to transform.
+--@param injectables  The injectable fields.
+function StmtTrans:_transIterMethod(stmt, injectables)
+  local code
+
+  --(1) transform
+  if stmt.annots:has("todo") then
+    if stmt.name == "iter" then
+      code = string.format(
+        "%s.prototype[Symbol.iterator] = function*() { todo(); };",
+        stmt.itype
+      )
+    else
+      code = string.format(
+        '%s.prototype.%s%s = function*() { todo(); };',
+        stmt.itype,
+        stmt.visib == "pub" and "" or "_",
+        stmt.name
+      )
+    end
+  else
+    if stmt.name == "iter" then
+      code = string.format(
+        "%s.prototype[Symbol.iterator] = function*() { const self = this;",
+        stmt.itype
+      )
+    else
+      code = string.format(
+        '%s.prototype.%s%s = function*() { const self = this;',
+        stmt.itype,
+        stmt.visib == "pub" and "" or "_",
+        stmt.name
+      )
+    end
+
+    code = code .. self:_transInputAnnot(stmt)
+    code = code .. self:_transInjectables(injectables)
+    code = code .. self:_transReturnVarDef(stmt)
+    if stmt.catch or stmt.finally then code = code .. " try " end
+    code = code .. self:_transBody(stmt.body)
+    code = code .. self:_transCatch(stmt.catch)
+    code = code .. self:_transFinally(stmt.finally)
+
+    code = code .. " };"
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transProp(stmt, injectables)
+  local code
+
+  --(1) transform
+  code = string.format(
+    [[Object.defineProperty(%s.prototype, "%s%s", {enum: %s, get: %sfunction() { ]],
+    stmt.itype,
+    self:getVisibPrefix(stmt.visib),
+    stmt.name,
+    stmt.visib == "pub",
+    stmt.annots:has("abstract") and "/* istanbul ignore next */ " or ""
+  )
+
+  if stmt.annots:has("abstract") then
+    code = code .. "/* istanbul ignore next */abstract();"
+  elseif stmt.annots:has("todo") then
+    code = code .. "todo();"
+  else
+    code = code .. "const self = this;"
+    code = code .. self:_transInjectables(injectables)
+    code = code .. self:_transReturnVarDef(stmt)
+    if stmt.catch or stmt.finally then code = code .. " try " end
+    code = code .. self:_transBody(stmt.body)
+    code = code .. self:_transCatch(stmt.catch)
+    code = code .. self:_transFinally(stmt.finally)
+    code = code .. self:_transImplicitReturn(stmt)
+  end
+
+  code = code .. " }});"
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transMethod(stmt, injectables)
+  local code
+
+  --(1) transform
+  if stmt.annots:has("abstract") then
+    if stmt.visib == "pvt" then
+      self:_raise("abstract method can't be private (!).", stmt)
+    end
+
+    code = string.format(
+      "/* istanbul ignore next */ %s.prototype.%s%s = function() { abstract(); };",
+      stmt.itype,
+      self:getVisibPrefix(stmt.visib),
+      stmt.name
+    )
+  else
+    local subparams = ""
+
+    if stmt.static or stmt.annots:has("factory") then
+      if stmt.annots:has("todo") then
+        code = string.format(
+          "%s.%s%s = %sfunction() { todo(); };",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or ""
+        )
+      else
+        code = string.format(
+          "%s.%s%s = %sfunction(%s) { ",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or "",
+          self:_transParams(stmt.params)
+        )
+
+        if stmt.static and stmt.annots:has("catch") then
+          code = code .. "try { "
+        end
+
+        if stmt.annots:has("alias") then
+          code = string.format("%s.%s = ", stmt.itype, stmt.annots:find("alias").args[1]) .. code
+        end
+      end
+
+      if stmt.annots:has("factory") then
+        code = string.format(
+          "%s.%s__factory__ = ",
+          stmt.itype,
+          self:getVisibPrefix("pvt")
+        ) .. code
+      end
+    else
+      if stmt.annots:has("todo") then
+        code = string.format(
+          "%s.prototype.%s%s = function() { todo(); };",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name
+        )
+      elseif stmt.annots:has("bind") then
+        code = string.format(
+          "%s.__bind__.push(['%s%s', %sfunction(%s) { ",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or "",
+          self:_transParams(stmt.params)
+        )
+      else
+        subparams = self:_transSubparams(stmt.subparams or {})
+
+        if #subparams > 0 then
+          subparams = string.format("{ return %s => ", subparams)
+        end
+
+        code = string.format(
+          "%s.prototype.%s%s = %sfunction(%s) %s{ const self = this;",
+          stmt.itype,
+          self:getVisibPrefix(stmt.visib),
+          stmt.name,
+          stmt.async and "async " or "",
+          self:_transParams(stmt.params),
+          subparams
+        )
+
+        code = code .. self:_transInjectables(injectables)
+
+        if stmt.annots:has("catch") then
+          code = code .. "try { "
+        end
+
+        if stmt.annots:has("alias") then
+          code = string.format("%s.prototype.%s = ", stmt.itype, stmt.annots:find("alias").args[1]) .. code
+        end
+      end
+    end
+
+    if not stmt.annots:has("todo") then
+      code = code .. self:_transInputAnnot(stmt)
+      code = code .. self:_transReturnVarDef(stmt)
+      code = code .. self:_transParamsCheck(stmt.params, stmt.annots:has("noParamCheck"))
+      code = code .. self:_transSubparamsCheck(stmt.subparams or {}, stmt.annots:has("noParamCheck"))
+      code = code .. self:_transParamsTrans(stmt.params)
+      code = code .. self:_transParamsUnpacks(stmt.params)
+      code = code .. self:_transParamsByCopy(stmt.params)
+      code = code .. self:_transSelfParams(stmt.params)
+
+      if stmt.catch or stmt.finally then code = code .. " try " end
+      code = code .. self:_transBody(stmt.body)
+      code = code .. self:_transCatch(stmt.catch)
+      code = code .. self:_transFinally(stmt.finally)
+      code = code .. self:_transImplicitReturn(stmt)
+
+      if stmt.annots:has("catch") then
+        code = code .. " } catch { return null; }"
+      end
+
+      code = code .. " }"
+
+      if #subparams > 0 then
+        code = code .. "}"
+      end
+
+      if stmt.annots:has("bind") then
+        code = code .. "])"
+      end
+
+      code = code .. ";"
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Defines the return variable.
+--
+--@param fn The function statement to transform.
+function StmtTrans:_transReturnVarDef(fn)
+  --(1) transform
+  local code = ""
+
+  if fn.rvar then
+    if fn.rvar ~= "self" and not fn.params:has(fn.rvar) then
+      if fn.rtype == "map" then
+        code = string.format("let %s = {};", fn.rvar)
+      elseif fn.rtype == "list" then
+        code = string.format("let %s = [];", fn.rvar)
+      elseif fn.rtype == "set" then
+        code = string.format("let %s = set();", fn.rvar)
+      elseif fn.rtype == "bool" then
+        code = string.format("let %s = false;", fn.rvar)
+      elseif fn.rtype == "text" then
+        code = string.format('let %s = "";', fn.rvar)
+      elseif fn.rtype == "num" then
+        code = string.format('let %s = 0;', fn.rvar)
+      else
+        code = string.format("let %s;", fn.rvar)
+      end
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform a pub statement.
+--
+--@return string
+function StmtTrans:_transPub(stmt)
+  local code
+
+  --(1) transform
+  code = ""
+
+  for _, item in ipairs(stmt.items) do
+    if item.type == "pub" then
+      code = code .. string.format("export {%s};", item.value)
+    else
+      code = code .. self:_transUse({modules = {item.value}})
+      code = code .. string.format("export {%s};", item.value.name)
+    end
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform an export statement.
+--
+--@return string
+function StmtTrans:_transExport(stmt)
+  local trans = self._.trans
+  return "module.exports = exports = " .. trans:_trans(stmt.exp) .. ";"
+end
+
+--Transform a with statement.
+--
+--@return string
+function StmtTrans:_transWith(stmt, covDir)
+  if stmt.ofType then
+    return self:_transWithType(stmt, covDir)
+  else
+    return self:_transWithValue(stmt, covDir)
+  end
+end
+
+function StmtTrans:_transWithType(stmt, covDir)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  local value = "_"
+
+  code = string.format(
+    "%s{const %s = %s;",
+    (stmt.catch or stmt.finally) and "try " or "",
+    value,
+    trans:_trans(stmt.value)
+  )
+
+  if covDir ~= nil then
+    code = code .. trans._.directiveTrans:transform(covDir)
+  end
+
+  for i, cls in ipairs(stmt.ifs) do
+    if i ~= 1 then
+      code = code .. " else"
+    end
+
+    code = code .. " if ("
+
+    for j, cond in ipairs(cls.conds) do
+      if j ~= 1 then
+        code = code .. " || "
+      end
+
+      code = code .. string.format("dogma.is(%s, %s)", value, trans:_trans(cond))
+    end
+
+    code = code .. string.format(
+      ") { %s }",
+      self:_transBody(cls.body)
+    )
+  end
+
+  if stmt.els then
+    code = code .. string.format(" else { %s }", self:_transBody(stmt.els))
+  end
+
+  code = code .. "}"
+
+  if stmt.catch or stmt.finally then
+    code = code .. self:_transCatch(stmt.catch)
+    code = code .. self:_transFinally(stmt.finally)
+  end
+
+  --(2) return
+  return code
+end
+
+function StmtTrans:_transWithValue(stmt, covDir)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  local value
+
+  if stmt.var then
+    value = stmt.var.name
+  else
+    value = "_"
+  end
+
+  code = string.format(
+    "%s{%s %s = %s;",
+    (stmt.catch or stmt.finally) and "try " or "",
+    (stmt.var and stmt.var.kind == "var") and "let" or "const",
+    value,
+    trans:_trans(stmt.value)
+  )
+
+  if covDir ~= nil and covDir.ignore ~= "else" then
+    code = code .. trans._.directiveTrans:transform(covDir)
+  end
+
+  code = code .. string.format(" switch (%s) {", value)
+
+  for _, cls in ipairs(stmt.ifs) do
+    for _, cond in ipairs(cls.conds) do
+      code = code .. string.format(" case %s:", trans:_trans(cond))
+    end
+
+    code = code .. string.format(
+      " %s;/*istanbul ignore next*/break;",
+      self:_transBody(cls.body)
+    )
+  end
+
+  if stmt.els then
+    if covDir ~= nil and covDir.ignore == "else" then
+      covDir.ignore = "next"
+      code = code .. " " .. trans._.directiveTrans:transform(covDir)
+    end
+
+    code = code .. string.format(" default: %s", self:_transBody(stmt.els))
+  end
+
+  code = code .. "}}"
+
+  if stmt.catch or stmt.finally then
+    code = code .. self:_transCatch(stmt.catch)
+    code = code .. self:_transFinally(stmt.finally)
+  end
+
+  --(2) return
+  return code
+end
+
+--Transform an if statement.
+--
+--@return string
+function StmtTrans:_transIf(stmt, covDir)
+  local trans = self._.trans
+  local code
+
+  --(1) transform
+  if stmt.value then
+    local exp = stmt.value.tree.root
+
+    if exp.type == NodeType.NON_TERMINAL and  --workaround: resolve in Go version
+       exp.subtype == NonTerminalType.OP and
+       exp.arity == "b" and
+       (exp.op == ":=" or exp.op == "::=") and
+       exp.children[1].type == NodeType.TERMINAL and
+       exp.children[1].subtype == TerminalType.LIST then
+      stmt.decl = (exp.op == ":=" and "var" or "const")
+      code = "{"
+      if covDir and covDir.ignore == "next" then
+        code = code .. trans._.directiveTrans:transform(covDir)
+      end
+      code = code .. string.format("%s [", (stmt.decl == "var" and "let" or "const"))
+      for i, name in ipairs(exp.children[1].data) do
+        code = code .. (i == 1 and "" or ", ") .. name.tree.root.data
+      end
+      code = code .. "]"
+      code = code .. " = " .. trans._.expTrans:_transNode(exp.children[2]) .. "; "
+    elseif stmt.decl then
+      code = "{"
+      if covDir and covDir.ignore == "next" then
+        code = code .. trans._.directiveTrans:transform(covDir)
+      end
+      code = code .. (stmt.decl == "var" and "let " or "const ")
+      code = code .. trans:_trans(stmt.value):sub(2, -2) .. "; "
+    else
+      if covDir and covDir.ignore == "next" then
+        code = trans._.directiveTrans:transform(covDir)
+      else
+        code = ""
+      end
+
+      code = code .. trans:_trans(stmt.value) .. "; "
+    end
+  else
+    code = ""
+  end
+
+  if covDir ~= nil then
+    code = code .. trans._.directiveTrans:transform(covDir)
+  end
+
+  code = code .. string.format(
+    "if (%s) %s",
+    trans:_trans(stmt.cond),
+    self:_transBody(stmt.body)
+  )
+
+  if stmt.elif then
+    for _, cl in ipairs(stmt.elif) do
+      code = code .. string.format(
+        " else if (%s) %s",
+        trans:_trans(cl.cond),
+        self:_transBody(cl.body)
+      )
+    end
+  end
+
+  if stmt.el then
+    code = code .. " else " .. self:_transBody(stmt.el)
+  end
+
+  if stmt.decl then
+    code = code .. "}"
+  end
+
+    --(2) return
+  return code
+end

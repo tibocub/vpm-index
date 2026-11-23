@@ -1,0 +1,1018 @@
+-- ---------------------------------------------------------------------------
+-- Itte
+-- ---------------------------------------------------------------------------
+
+--[[
+-- The main module file.
+--]]
+
+
+-- ---------------------------------------------------------------------------
+-- Variables
+-- ---------------------------------------------------------------------------
+
+local itte = {}
+
+-- Store config names
+itte.confs = {
+  prefix = nil,
+  config = ".config.lua",
+  servers = ".servers.lua",
+}
+
+-- Default application settings
+itte.config = {
+  debug = false,
+  admin_handlers = { "connect", "quit", "reload", "servers", "join", "part" },
+  task_handler_prefix = "th_",
+  messages = {
+    connect_success = "Connected to {{server}}.",
+    help = "Service codes available: {{codes}}",
+    join = "We're in.",
+    list_all_servers = "Known servers: {{servers}}",
+    list_channels = "Channels: {{channels}}",
+    list_conn_servers = "Connected servers: {{servers}}",
+    part = "The bot is greater than the sum of its parts.",
+    ping = "Pong!",
+    quit = "Goodbye.",
+    quit_success = "Quit {{server}}.",
+    reload = "Splines recticulated.",
+  },
+  errors = {
+    invalid_name = "Error: invalid server name `{{server}}`.",
+    no_perm = "I'm sorry, {{user}}. I'm afraid I can't do that.",
+    ns_auth_failed = "Error: Nickserv identification failed.",
+    sasl_auth_failed = "Error: SASL authentication failed.",
+    unknown_code = "I don't understand what you just said.",
+  },
+  debugs = {
+    cap = { "auth_cap" },
+    conn_svr = { "conn", "Connecting to {{server}} ..." },
+    dc_svr = { "conn", "Connection to {{server}} closed." },
+    exit = { "conn", "Exiting ..." },
+    listen = { "listen" },
+    nickserv = { "auth_nickserv" },
+    privmsg = { "sender", "recipient", "reply_to", "code", "code_params",
+      "body" },
+    redact = { "********" },
+    send = { "send" },
+    svrs_not_found = { "config", "Error: servers not found." },
+    task_added = { "task", "Task `{{name}}` added." },
+    task_activated = { "task", "Task `{{name}}` activated." },
+  },
+}
+
+-- Store server info
+itte.servers = {}
+
+-- Store custom handlers
+itte.handlers = {}
+
+-- Store global admins
+itte.admins = {}
+
+-- Internal only: store core handlers
+itte._h = {}
+
+-- Internal only: store function docstrings
+itte.docs = {}
+itte.docs._h = {}
+
+-- Internal only: track application state
+itte.state = {
+  connected = false,
+  timeout = 0.1,
+}
+itte.contexts = {}
+
+
+-- ---------------------------------------------------------------------------
+-- Functions
+-- ---------------------------------------------------------------------------
+
+local util = require("itteutil")
+
+itte.docs.help = [[  ([func_str])
+  Given a function name, print a corresponding description. If no function name
+  is provided, print all function descriptions.
+  ]]
+function itte.help(name)
+  util.get_docs(itte.docs, name)
+end
+
+
+itte.docs.get_config = [[  ([reload_bool])
+  Load the config file.
+  ]]
+function itte.get_config(reload)
+  -- If prefix is not set, try custom file names or defaults
+  if itte.confs.prefix == nil then
+    util.source_file(itte.confs.config)
+    -- Avoid duplicate load if config and servers are set to the same file
+    if (itte.servers == nil) or (itte.confs.servers ~= itte.conf.config) then
+      util.source_file(itte.confs.servers)
+    end
+
+  -- Prefix is set, use prefixed file names
+  else
+    util.source_file(itte.confs.prefix .. itte.confs.config)
+    util.source_file(itte.confs.prefix .. itte.confs.servers)
+  end
+
+  -- Check for server info
+  if itte.servers ~= nil then
+    itte.servers = itte_servers
+  else
+    util.debug(itte.config.debugs.svrs_not_found[1],
+      itte.config.debugs.svrs_not_found[2], itte.config.debug)
+    do return end
+  end
+  -- Update config with value overrides from itte_config
+  if itte_config ~= nil then
+    for k, v in pairs(itte_config) do
+      -- Second-level nested tables
+      if type(v) == "table" then
+        for kk, vv in pairs(v) do
+          if (type(vv) == "table") or (type(vv) == "function") then
+            itte.config[k] = v
+          else
+            itte.config[k][kk] = vv
+          end
+        end
+      else
+        itte.config[k] = v
+      end
+    end
+  end
+  if itte_handlers ~= nil then itte.handlers = itte_handlers end
+  if itte_admins ~= nil then itte.admins = itte_admins end
+
+  if reload then
+    -- Reconstruct the context tables
+    -- This only works if the server name has not changed between reloads.
+    for name, prop in pairs(itte.servers) do
+      cxt_old = itte.contexts[name]
+      itte.contexts[name] = prop
+      itte.contexts[name].name = name
+      itte.contexts[name].cmds = itte.get_commands(prop)
+      itte.contexts[name].con = cxt_old.con
+      itte.contexts[name].con:settimeout(itte.state.timeout)
+
+      -- Reconstruct the task coroutines
+      itte.add_tasks(itte.contexts[name])
+    end
+  end
+end
+
+
+itte.docs.get_commands = [[  (server_table)
+  Return a table of IRC commands to parse and their responses.
+  ]]
+function itte.get_commands(svr)
+  local default = {
+    -- CAP and SASL negotiation commands
+    cap_ls = {
+      -- No check, command is sent immediately after socket connect
+      -- before the USER/NICK greet
+      check = nil,
+      resp = "CAP LS 302",
+    },
+    cap_req = {
+      -- Escape the * in "CAP * LS ..."
+      check = "CAP(.*)LS(.*)sasl",
+      resp = "CAP REQ ",
+    },
+    auth_plain = {
+      -- The format of the CAP ACK varies among servers
+      -- e.g. "CAP [user] ACK ...", "CAP * ACK ..."
+      check = "CAP(.*)ACK(.*)sasl",
+      resp = "AUTHENTICATE PLAIN",
+    },
+    auth_pass = {
+      check = "AUTHENTICATE +",
+      resp = "AUTHENTICATE ",
+    },
+    cap_end = {
+      -- Text of the 903 success message varies among servers
+      -- e.g. "903 * :Authentication successful",
+      -- "903 [user] :SASL authentication successful"
+      check = "903(.*)successful",
+      resp = "CAP END",
+    },
+    -- Nickserv commands
+    ns_identify = {
+      check = "NickServ IDENTIFY",
+      resp = "NickServ IDENTIFY " .. svr.auth_user .. " " ..
+        tostring(svr.auth_pass),
+    },
+    ns_identify_pass = {
+      -- No response needed
+      check = "You are now identified",
+      resp = nil,
+    },
+    -- Main commands
+    join = {
+      -- Cannot join earlier on some servers if not registered
+      -- "MODE" seems to be a more reliable check
+      check = "MODE",
+      resp = "JOIN ",
+    },
+    nick = {
+      check = "NOTICE",
+      resp =  "NICK " .. svr.nick,
+    },
+    pass = {
+      -- No check, command is sent immediately after socket connect
+      -- before the USER/NICK greet
+      check = nil,
+      resp =  "PASS " .. svr.auth_user .. ":" .. tostring(svr.auth_pass),
+    },
+    part = {
+      check = nil,
+      resp = "PART ",
+    },
+    ping = {
+      check = "PING ",
+      resp = "PONG ",
+    },
+    privmsg = {
+      check = "PRIVMSG(.*):" .. svr.code_prefix,
+      resp = "PRIVMSG ",
+    },
+    quit = {
+      check = nil,
+      resp = "QUIT :",
+    },
+    user = {
+      check = "NOTICE",
+      resp = "USER " .. svr.auth_user .. " 0 * " .. svr.auth_user,
+    },
+  }
+
+  return default
+end
+
+
+itte.docs.send_command = [[  (socket_obj, command_str [, redact_bool])
+  Format a IRC command string to send through a socket connection.
+  If `redact` is set to true, the debug output contents will be redacted.
+  ]]
+function itte.send_command(con, str, redact)
+  con:send(str .. "\r\n")
+  if redact == true then
+    util.debug(itte.config.debugs.send[1], itte.config.debugs.redact[1],
+      itte.config.debug)
+  else
+    util.debug(itte.config.debugs.send[1], str, itte.config.debug)
+  end
+end
+
+
+itte.docs.message = [[  (context_table, users_table, message_str)
+  Format and send a private message to a table of users.
+  ]]
+function itte.message(cxt, users, str)
+  for n = 1, #users do
+    itte.send_command(cxt.con, cxt.cmds.privmsg.resp .. users[n] .. " :" ..
+      str)
+  end
+end
+
+
+itte.docs.init_socket = [[  (name_str, server_table)
+  Initialise a socket connection to a server and return a context table.
+  ]]
+function itte.init_socket(name, svr)
+  -- Load server context
+  local context = svr
+  context.name = name
+  context.cmds = itte.get_commands(svr)
+  context.state = {
+    connected = false,
+    cap_greeted = false,
+    cap_ls = false,
+    cap_checked = false,
+    ns_checked = false,
+    authed = false,
+  }
+
+  -- Connect
+  local sock = require("socket")
+  local ssl = require("ssl")
+  context.con = sock.tcp()
+  local con_params = {
+    mode = "client",
+    protocol = "tlsv1_2",
+    verify = "none",
+    options = "all",
+  }
+
+  util.debug(itte.config.debugs.conn_svr[1],
+    string.gsub(itte.config.debugs.conn_svr[2],
+    "{{server}}", svr.host .. "/" .. svr.port), itte.config.debug)
+  context.con:connect(svr.host, svr.port)
+  context.con = ssl.wrap(context.con, con_params)
+  context.con:dohandshake()
+  -- Set a short timeout to be non-blocking
+  context.con:settimeout(itte.state.timeout)
+
+  -- Set context and global states
+  context.state.connected = true
+  itte.state.connected = true
+
+  return context
+end
+
+
+itte.docs.connect_server = [[  (name_str)
+  Connect to a server and join the channel(s) specified in the config.
+  ]]
+function itte.connect_server(name)
+  itte.contexts[name] = itte.init_socket(name, itte.servers[name])
+
+  -- For PASS-based authentication, send PASS before greeting the server
+  if itte.contexts[name].auth_type == "pass" then
+    itte.send_command(itte.contexts[name].con,
+      itte.contexts[name].cmds.pass.resp, true)
+    itte.contexts[name].state.authed = true
+  end
+
+  -- Greet the server in all auth scenarios except SASL, which greets the
+  -- server during CAP negotiation.
+  if (itte.contexts[name].auth_type ~= "sasl") then
+    itte.send_command(itte.contexts[name].con,
+      itte.contexts[name].cmds.user.resp)
+    itte.send_command(itte.contexts[name].con,
+      itte.contexts[name].cmds.nick.resp)
+  end
+
+  local joined_chans = false
+  while (itte.contexts[name].state.connected) and (not joined_chans) do
+    local data, status = itte.contexts[name].con:receive()
+
+    if itte.contexts[name].auth_type == "sasl" then
+      itte.negotiate_cap(itte.contexts[name], data)
+
+    elseif itte.contexts[name].auth_type == "nickserv" then
+      itte.auth_nickserv(itte.contexts[name], data)
+    end
+
+    -- Minimum requirements for joining channels: client has authenticated if
+    -- an auth type is set, or has received a NOTICE [nick] message during an
+    -- ident lookup.
+    if itte.contexts[name].state.authed then
+      itte.traverse_channels(itte.contexts[name], "join")
+      joined_chans = true
+    elseif (data ~= nil) then
+      if util.is_substr(data, itte.contexts[name].cmds.join.check)
+        then
+        itte.traverse_channels(itte.contexts[name], "join")
+        joined_chans = true
+      end
+    end
+  end
+end
+
+
+itte.docs.disconnect_server = [[  (name_str)
+  Close a socket connection to a server.
+  ]]
+function itte.disconnect_server(name)
+  if itte.contexts[name] ~= nil then
+    util.debug(itte.config.debugs.dc_svr[1],
+      string.gsub(itte.config.debugs.dc_svr[2], "{{server}}", name),
+      itte.config.debug)
+  end
+  itte.contexts[name].con:close()
+  itte.contexts[name] = nil
+
+  -- Check if it is the last connection and trigger client exit
+  -- if no connections remain
+  if #util.table_keys(itte.contexts) == 0 then
+    util.debug(itte.config.debugs.exit[1], itte.config.debugs.exit[2],
+      itte.config.debug)
+    itte.state.connected = false
+    os.exit()
+  end
+end
+
+
+itte.docs.negotiate_cap = [[  (context_table, data_str)
+  Negotiate client capabilities and authenticate with SASL.
+  ]]
+function itte.negotiate_cap(cxt, str)
+  -- Some servers have a delay between ls and req
+  if (not cxt.state.cap_greeted) and (not cxt.state.cap_checked) and
+    (not cxt.state.cap_ls) then
+    itte.send_command(cxt.con, cxt.cmds.cap_ls.resp)
+    cxt.state.cap_ls = true
+  end
+
+  if (str ~= nil) then
+    util.debug(itte.config.debugs.cap[1], str, itte.config.debug)
+
+    -- Wait for server to respond with capabilities list before greeting
+    if (not cxt.state.cap_greeted) then
+      itte.send_command(cxt.con, cxt.cmds.user.resp)
+      itte.send_command(cxt.con, cxt.cmds.nick.resp)
+      cxt.state.cap_greeted = true
+    end
+
+    -- Request capabilities
+    if util.is_substr(str, cxt.cmds.cap_req.check) then
+      itte.send_command(cxt.con, cxt.cmds.cap_req.resp .. ":" ..
+        table.concat(cxt.cap, " "))
+    -- Authenticate with plain SASL
+    elseif (util.is_substr(str, cxt.cmds.auth_plain.check)) then
+      itte.send_command(cxt.con, cxt.cmds.auth_plain.resp)
+
+    elseif (util.is_substr(str, cxt.cmds.auth_pass.check)) then
+      local mime = require("mime")
+      -- Format of the string to encode: "user\0user\0password"
+      local sasl_pass, _ = mime.b64(cxt.auth_user .. "\0" .. cxt.auth_user ..
+        "\0" .. cxt.auth_pass)
+      itte.send_command(cxt.con, cxt.cmds.auth_pass.resp .. sasl_pass, true)
+
+    -- Look for auth success signal and end cap negotiation
+    elseif (util.is_substr(str, cxt.cmds.cap_end.check)) then
+      itte.send_command(cxt.con, cxt.cmds.cap_end.resp)
+      cxt.state.authed = true
+      cxt.state.cap_checked = true
+      if (cxt.state.cap_checked) and (not cxt.state.authed) and
+        (itte.config.notify_errors) and (cxt.admins ~= nil) then
+        itte.send_command(cxt.con, cxt.cmds.cap_end.resp)
+        itte.message(cxt, util.table_keys(cxt.admins),
+          itte.config.errors.sasl_auth_failed)
+        cxt.state.cap_checked = true
+      end
+    end
+  end
+end
+
+
+itte.docs.auth_nickserv = [[  (context_table, data_str)
+  Authenticate with NickServ commands.
+  ]]
+function itte.auth_nickserv(cxt, str)
+  if str ~= nil then
+    util.debug(itte.config.debugs.nickserv[1], str, itte.config.debug)
+
+    if util.is_substr(str, cxt.cmds.ns_identify.check) then
+      itte.send_command(cxt.con, cxt.cmds.ns_identify.resp, true)
+      cxt.state.ns_checked = true
+    elseif util.is_substr(str, cxt.cmds.ns_identify_pass.check) then
+      cxt.state.authed = true
+      if (cxt.state.ns_checked) and (not cxt.state.authed) and
+        (itte.config.notify_errors) and (cxt.admins ~= nil) then
+        itte.message(cxt, util.table_keys(cxt.admins).
+          itte.config.errors.ns_auth_failed)
+      end
+    end
+  end
+end
+
+
+itte.docs.is_pm = [[  (message_table)
+  Check whether a message is a private message. Return true if it is a private
+  message or false otherwise.
+  ]]
+function itte.is_pm(msg)
+  if util.is_substr(msg.reply_to, "#") then
+    return false
+  else
+    return true
+  end
+end
+
+
+itte.docs.is_admin = [[  (admins_table, message_table [, mode_str])
+  Check whether a user is an admin. Modes: global, name. If `mode` is
+  unspecified, check for the user in the name's admins table. Return true
+  if the user and password are in the given admin table, or false otherwise.
+  ]]
+function itte.is_admin(admins, msg, mode)
+  local in_admins = false
+  -- If no admin users set or no password provided
+  if (admins == nil) or (table.concat(msg.code_params) == "") then
+    do return false end
+
+  elseif msg.code_params ~= nil then
+    -- No password provided in global mode
+    if (mode == "global") and (#util.table_keys(msg.code_params) < 2) then
+      do return false end
+    elseif (mode == "global") then
+      -- For global admins, both user and password are supplied as the last two
+      -- values in the message parameters to keep the auth network-independent.
+      in_admins = util.is_entry(admins, msg.code_params[#msg.code_params - 1],
+        msg.code_params[#msg.code_params])
+    else
+      -- User is the IRC user, password is suppled in the message
+      in_admins = util.is_entry(admins, msg.sender,
+        msg.code_params[#msg.code_params])
+    end
+
+    -- Incorrect password provided
+    if not in_admins then
+      do return false end
+    else
+      return true
+    end
+  end
+end
+
+
+itte.docs.is_allowed = [[  (context_table, message_table [, mode_str])
+  Check if user is allowed to run a handler. If the handler is for admins only,
+  check whether the request was sent in a private message and the user is an
+  admin (authorised). Set `mode` to "global" to check for global admins.
+  Returns true if the user is allowed or false otherwise.
+  ]]
+function itte.is_allowed(cxt, msg, mode)
+  if not util.has_key(itte.config.admin_handlers, msg.code) then
+    return true
+  else
+    local admins = cxt.admins
+    if mode == "global" then admins = itte.admins end
+    if (itte.is_pm(msg)) and itte.is_admin(admins, msg, mode) then
+      return true
+    else
+      itte.message(cxt, { msg.reply_to },
+        string.gsub(itte.config.errors.no_perm, "{{user}}", msg.sender))
+      return false
+    end
+  end
+end
+
+
+itte.docs.traverse_channels = [[  (context_table, mode_str, channels_table)
+  Given a context table, task mode and optional table of IRC channels, join or
+  part from the channels. Task modes: join, part. If no channel table is given,
+  it will join or leave the channels specified in the server configuration.
+  ]]
+function itte.traverse_channels(cxt, mode, chans)
+  local channels = cxt.channels
+  if chans ~= nil then channels = chans end
+
+  if mode == "join" then
+    itte.send_command(cxt.con, cxt.cmds.join.resp .. table.concat(channels,
+      ","))
+    -- Append to the channels table
+    for c = 1, #channels do
+      if not util.has_key(cxt.channels, channels[c]) then
+        table.insert(cxt.channels, channels[c])
+      end
+    end
+
+  elseif mode == "part" then
+    itte.send_command(cxt.con, cxt.cmds.part.resp .. table.concat(channels,
+      ","))
+    -- Remove from the channels table
+    for c = 1, #channels do
+      if util.has_key(cxt.channels, channels[c]) then
+        table.remove(cxt.channels, util.find_key(cxt.channels, channels[c]))
+      end
+    end
+  end
+end
+
+
+itte.docs.parse_privmsg = [[  (context_table, data_str)
+  Given the context table and a PRIVMSG data string, parse the string and
+  return an associative table of values.
+  ]]
+function itte.parse_privmsg(cxt, str)
+  local code_full = ""
+  -- Separator marks the start of the message body
+  body_sep, _ = string.find(str, ":", 2)
+  -- Service code found with specified prefix
+  if util.is_substr(str, ":" .. cxt.code_prefix) then
+    code_full = string.sub(str, string.find(str, ":" ..
+      cxt.code_prefix) + 1 + string.len(cxt.code_prefix))
+  end
+  local msg = {
+    sender = string.sub(str, string.find(str, "!") + 2,
+      string.find(str, "@") - 1),
+    recipient = string.sub(str, string.find(str, "PRIVMSG") + 8,
+      string.find(str, ":" .. cxt.code_prefix) - 2),
+    reply_to = string.sub(str, string.find(str, "!") + 2,
+      string.find(str, "@") - 1),
+    body = string.sub(str, body_sep + 1),
+  }
+  if util.is_substr(code_full, " ") then
+    msg.code = string.sub(code_full, 0, string.find(code_full, " ") - 1)
+    msg.code_params = util.split_str(string.sub(code_full,
+      string.find(code_full, " ") + 1))
+
+  else
+    msg.code = code_full
+    msg.code_params = {}
+  end
+  -- Reply to sender by default (private message), or reply in a channel if
+  -- original message recipient is a channel.
+  if util.is_substr(msg.recipient, "#") then
+    msg.reply_to = msg.recipient
+  end
+
+  -- Redact debug output for admin-only handlers to avoid logging passwords.
+  local body = msg.body
+  local code_params = table.concat(msg.code_params, " ")
+  if util.has_key(itte.config.admin_handlers, msg.code) then
+    body = itte.config.debugs.redact[1]
+    code_params = itte.config.debugs.redact[1]
+  end
+  util.debug("privmsg", "{ " ..
+    itte.config.debugs.privmsg[1] .. ": " .. msg.sender ..
+    ", " .. itte.config.debugs.privmsg[2] .. ": " .. msg.recipient ..
+    ", " .. itte.config.debugs.privmsg[3] .. ": " .. msg.reply_to ..
+    ", " .. itte.config.debugs.privmsg[4] .. ": " .. msg.code ..
+    ", " .. itte.config.debugs.privmsg[5] .. ": " .. code_params ..
+    ", " .. itte.config.debugs.privmsg[6] .. ": " .. body ..
+    " }", itte.config.debug)
+  return msg
+end
+
+
+-- ---------------------------------------------------------------------------
+-- Service code handlers
+-- ---------------------------------------------------------------------------
+
+itte.docs._h.connect = [[  (context_table, message_table)
+  Connect to a server.
+  ]]
+function itte._h.connect(cxt, msg)
+  if not itte.is_allowed(cxt, msg, "global") then
+    do return end
+  end
+
+  if #util.table_keys(msg.code_params) > 2 then
+    -- Look up name and connect to the server
+    for s = 1, #msg.code_params - 2 do
+      if util.has_key(itte.servers, msg.code_params[s]) then
+        itte.connect_server(msg.code_params[s])
+        local succ_str = string.gsub(itte.config.messages.connect_success,
+          "{{server}}", msg.code_params[s])
+        itte.message(cxt, { msg.reply_to }, succ_str)
+      else
+        local err_str = string.gsub(itte.config.errors.invalid_name,
+          "{{server}}", msg.code_params[s])
+        itte.message(cxt, { msg.reply_to }, err_str)
+      end
+    end
+  else
+    local err_str = string.gsub(itte.config.errors.invalid_name,
+      "{{server}}", msg.code_params[1])
+    itte.message(cxt, { msg.reply_to }, err_str)
+  end
+end
+
+
+itte.docs._h.quit = [[  (context_table, message_table)
+  Disconnect from a server or multiple servers.
+  ]]
+function itte._h.quit(cxt, msg)
+  if not itte.is_allowed(cxt, msg, "global") then
+    do return end
+  end
+
+  -- If no server is specified, quit the server name where the message
+  -- originated
+  if #util.table_keys(msg.code_params) == 2 then
+    itte.send_command(cxt.con, cxt.cmds.quit.resp .. itte.config.messages.quit)
+  else
+    -- Look up name and send quit message to the specified server(s)
+    for s = 1, #msg.code_params - 2 do
+      if util.has_key(itte.contexts, msg.code_params[s]) then
+        itte.send_command(itte.contexts[msg.code_params[s]].con,
+        itte.contexts[msg.code_params[s]].cmds.quit.resp ..
+        itte.config.messages.quit)
+        local succ_str = string.gsub(itte.config.messages.quit_success,
+          "{{server}}", msg.code_params[s])
+        itte.message(cxt, { msg.reply_to }, succ_str)
+      else
+        local err_str = string.gsub(itte.config.errors.invalid_name,
+          "{{server}}", msg.code_params[s])
+        itte.message(cxt, { msg.reply_to }, err_str)
+      end
+    end
+  end
+end
+
+
+itte.docs._h.reload = [[  (context_table, message_table)
+  Reload the server config.
+  ]]
+function itte._h.reload(cxt, msg)
+  if not itte.is_allowed(cxt, msg, "global") then
+    do return end
+  end
+
+  itte.get_config(true)
+  itte.message(cxt, { msg.reply_to }, itte.config.messages.reload)
+end
+
+
+itte.docs._h.servers = [[  (context_table, message_table)
+  List known servers.
+  ]]
+function itte._h.servers(cxt, msg)
+  if not itte.is_allowed(cxt, msg, "global") then
+    do return end
+  end
+
+  if itte.contexts ~= nil then
+    local conn_svrs_str = string.gsub(itte.config.messages.list_conn_servers,
+      "{{servers}}", table.concat(util.table_keys(itte.contexts), ", "))
+    itte.message(cxt, { msg.reply_to }, conn_svrs_str)
+  end
+  if itte.servers ~= nil then
+    local all_svrs_str = string.gsub(itte.config.messages.list_all_servers,
+      "{{servers}}", table.concat(util.table_keys(itte.servers), ", "))
+    itte.message(cxt, { msg.reply_to }, all_svrs_str)
+  end
+end
+
+
+itte.docs._h.join = [[  (context_table, message_table)
+  Join specified channels on the current server.
+  ]]
+function itte._h.join(cxt, msg)
+  if not itte.is_allowed(cxt, msg) then
+    do return end
+  end
+
+  if msg.code_params ~= {} then
+    -- Trim the last parameter, which is a password and not a channel
+    table.remove(msg.code_params)
+    itte.traverse_channels(cxt, "join", msg.code_params)
+    itte.message(cxt, { msg.reply_to }, itte.config.messages.join)
+  end
+end
+
+
+itte.docs._h.part = [[  (context_table, message_table)
+  Leave specified channels on the current server.
+  ]]
+function itte._h.part(cxt, msg)
+  if not itte.is_allowed(cxt, msg) then
+    do return end
+  end
+
+  if msg.code_params ~= {} then
+    -- Trim the last parameter, which is a password and not a channel
+    table.remove(msg.code_params)
+    itte.traverse_channels(cxt, "part", msg.code_params)
+    itte.message(cxt, { msg.reply_to }, itte.config.messages.part)
+  end
+end
+
+
+itte.docs._h.help = [[  (context_table, message_table)
+  Send a help message listing available service codes.
+]]
+function itte._h.help(cxt, msg)
+  if not itte.is_allowed(cxt, msg) then
+    do return end
+  end
+
+  local custom_h = util.table_keys(itte.handlers)
+  -- Remove task handlers
+  for h = 1, #custom_h do
+    if string.find(custom_h[h], itte.config.task_handler_prefix) == 1 then
+      custom_h[h] = nil
+    end
+  end
+  local codes = cxt.code_prefix .. table.concat(custom_h, ", " ..
+    cxt.code_prefix)
+  -- Core service codes are shown only to admins
+  if itte.is_admin(cxt.admins, msg) then
+    local core_h = util.table_keys(itte._h)
+    codes = cxt.code_prefix .. table.concat(core_h, ", " .. cxt.code_prefix) ..
+      ", " .. cxt.code_prefix .. table.concat(custom_h, ", " ..
+      cxt.code_prefix)
+  end
+  local help_str = string.gsub(itte.config.messages.help, "{{codes}}", codes)
+  itte.message(cxt, { msg.reply_to }, help_str)
+end
+
+
+itte.docs._h.channels = [[  (context_table, message_table)
+  List the known channels for the current server.
+  ]]
+function itte._h.channels(cxt, msg)
+  if not itte.is_allowed(cxt, msg) then
+    do return end
+  end
+
+  if cxt.channels ~= nil then
+    local channels_str = string.gsub(itte.config.messages.list_channels,
+      "{{channels}}", table.concat(cxt.channels, ", "))
+    itte.message(cxt, { msg.reply_to }, channels_str)
+  end
+end
+
+
+itte.docs._h.ping = [[  (context_table, message_table)
+  Send a "pong" message.
+  ]]
+function itte._h.ping(cxt, msg)
+  if not itte.is_allowed(cxt, msg) then
+    do return end
+  end
+
+  itte.message(cxt, { msg.reply_to }, itte.config.messages.ping)
+end
+
+
+-- ---------------------------------------------------------------------------
+-- Service code and taskd task mapping
+-- ---------------------------------------------------------------------------
+
+itte.docs.listen = [[  (name_str, data_str)
+  Parse the socket data string and trigger a response to the server if the
+  string matches preset patterns.
+  ]]
+function itte.listen(name, str)
+  local cxt = itte.contexts[name]
+
+  -- Respond to server ping
+  if string.find(str, cxt.cmds.ping.check) == 1 then
+    util.debug(itte.config.debugs.listen[1], str, itte.config.debug)
+    itte.send_command(cxt.con, string.gsub(str, cxt.cmds.ping.check,
+      cxt.cmds.ping.resp))
+
+  -- Respond to service code
+  elseif util.is_substr(str, cxt.cmds.privmsg.check) then
+    local msg = itte.parse_privmsg(cxt, str)
+    -- Check for the service in the admin handlers table and redact the debug
+    -- output for admin handlers.
+    if util.has_key(itte.config.admin_handlers, msg.code) then
+      util.debug(itte.config.debugs.listen[1], itte.config.debugs.redact[1],
+        itte.config.debug)
+    else
+      util.debug(itte.config.debugs.listen[1], str, itte.config.debug)
+    end
+
+    -- Ignore calls to task handlers
+    if (string.find(msg.code, itte.config.task_handler_prefix) == 1) then
+      do return end
+    -- Check for the service code in the functions table before attempting to
+    -- call the function.
+    elseif util.has_key(itte._h, msg.code) then
+      itte._h[msg.code](cxt, msg)
+    -- Check the handlers table
+    elseif util.has_key(itte.handlers, msg.code) then
+      itte.handlers[msg.code](cxt, msg)
+    else
+      -- Only hint with unknown code error in private messages as there may be
+      -- prefix collision in channels.
+      if not util.is_substr(msg.reply_to, "#") then
+        itte.message(cxt, { msg.reply_to }, itte.config.errors.unknown_code)
+      end
+    end
+
+  -- Output to stdout anyway if debug is enabled
+  else
+    util.debug(itte.config.debugs.listen[1], str, itte.config.debug)
+  end
+end
+
+
+itte.docs.add_listener = [[  (context_table)
+  Monitor a socket connection and pass the data received for parsing. If the
+  connection is closed by the server and was the only server connection,
+  set `state.connected` to false to activate a client exit.
+  ]]
+function itte.add_listener(cxt)
+  local data, status = cxt.con:receive()
+  if data ~= nil then
+    itte.listen(cxt.name, data)
+
+  elseif status == "closed" then
+    itte.disconnect_server(cxt.name)
+  end
+end
+
+
+itte.docs.add_tasks = [[  (context_table)
+  Create coroutines for tasks.
+  ]]
+function itte.add_tasks(cxt)
+  -- Exit function if there are no tasks for the context
+  if (cxt.tasks == nil) or (cxt.tasks == {}) then
+    do return end
+  end
+
+  -- Construct a task coroutine and call its handler function when resumed
+  local co = function(name, task)
+    if util.has_key(itte.handlers, task.handler) then
+      local ts = os.date("%Y-%m-%d %H:%M:%S", os.time())
+      local task_str = string.gsub(itte.config.debugs.task_activated[2],
+        "{{name}}", name)
+      util.debug(itte.config.debugs.task_activated[1], task_str,
+        itte.config.debug)
+      itte.handlers[task.handler](cxt, task)
+      -- Suspend coroutine to be reactivated later
+      coroutine.yield(co)
+      task.done = true
+    end
+  end
+
+  -- Initialise task coroutine
+  for name, task in pairs(cxt.tasks) do
+    task.co = coroutine.create(co)
+    task.done = false
+    util.debug(itte.config.debugs.task_added[1],
+      string.gsub(itte.config.debugs.task_added[2], "{{name}}", name),
+      itte.config.debug)
+  end
+end
+
+
+itte.docs.check_tasks = [[  (context_table)
+  Compare task times to the current time and resume a task's coroutine if
+  the task interval or time match the current time.
+  ]]
+function itte.check_tasks(cxt)
+  -- Exit function if there are no tasks for the context
+  if (cxt.tasks == nil) or (cxt.tasks == {}) then
+    do return end
+  end
+
+  local dt = util.split_str(os.date("%w %Y %m %d %H %M", os.time()))
+  -- Support preset minute intervals
+  local interval_min = { 2, 5, 10, 15, 20, 30 }
+  for name, task in pairs(cxt.tasks) do
+    if task.time == nil then task.time = "00:00" end
+    local task_min = string.sub(task.time, string.find(task.time, ":") + 1,
+      string.find(task.time, ":") + 2)
+    if (util.has_key(interval_min, tonumber(task.interval:sub(1, -2))) and
+        tonumber(dt[6]) % tonumber(task.interval:sub(1, -2)) == 0) or
+      (task.interval == "hourly" and task_min == dt[6]) or
+      (task.interval == "daily" and task.time == dt[5] .. ":" .. dt[6]) or
+      (task.interval == "weekly" and task.weekday == dt[1] and
+        task.time == dt[5] .. ":" .. dt[6]) or
+      (task.interval == "monthly" and task.day == dt[4] and
+        task.time == dt[5] .. ":" .. dt[6])
+      then
+
+      -- Activate task if not already done in the current interval
+      if not task.done then
+        coroutine.resume(task.co, name, task)
+
+      elseif (task.done) and (coroutine.status(task.co) == "dead") then
+        -- Reconstruct the task coroutine after it has been done
+        local co = function(name, task)
+          if util.has_key(itte.handlers, task.handler) then
+            local ts = os.date("%Y-%m-%d %H:%M:%S", os.time())
+            local task_str = string.gsub(itte.config.debugs.task_activated[2],
+              "{{name}}", name)
+            util.debug(itte.config.debugs.task_activated[1], task_str,
+              itte.config.debug)
+            itte.handlers[task.handler](cxt, task)
+            -- Suspend coroutine to be reactivated later
+            coroutine.yield(co)
+            task.done = true
+          end
+        end
+        task.co = coroutine.create(co)
+      end
+
+    else
+      -- Reset the done flag after running task
+      task.done = false
+    end
+  end
+end
+
+
+-- ---------------------------------------------------------------------------
+-- Runtime
+-- ---------------------------------------------------------------------------
+
+itte.docs.run = [[  ()
+  Run the client.
+  ]]
+function itte.run()
+  itte.get_config()
+
+  for name, _ in pairs(itte.servers) do
+    itte.connect_server(name)
+  end
+
+  if itte.state.connected then
+    for _, cxt in pairs(itte.contexts) do
+      itte.add_tasks(cxt)
+    end
+  end
+
+  while itte.state.connected do
+    for _, cxt in pairs(itte.contexts) do
+      itte.add_listener(cxt)
+      itte.check_tasks(cxt)
+    end
+
+  end
+end
+
+
+return itte

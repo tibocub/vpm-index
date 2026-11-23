@@ -1,0 +1,26 @@
+--imports
+local Token = require("dogma.lex._.Token")
+local TokenType = require("dogma.lex.TokenType")
+
+--A literal regular expression.
+local Re = {}
+Re.__index = Re
+setmetatable(Re, {__index = Token})
+package.loaded[...] = Re
+
+--Constructor.
+--
+--@param ln:number    Line number.
+--@param col:number   Column number.
+--@param val:text     Literal value, that is, the regular expression.
+function Re.new(ln, col, val)
+  return setmetatable(Token.new(TokenType.RE, ln, col, val), Re)
+end
+
+--@override
+function Re:__tostring()
+  return string.format(
+    "<re>%s</re>",
+    self.value
+  )
+end

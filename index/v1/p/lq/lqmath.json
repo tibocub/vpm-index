@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "lqmath",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://webserver2.tecgraf.puc-rio.br/~lhf/ftp/lua/",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 09 Apr 2019 19:45:04 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Apr 2019 19:45:04 GMT",
+          "sha256": "2385a3167de78be8df3adef717884f9cc2090f7d614d0bd5827755b1d8e2f0ee",
+          "size": 781
+        },
+        "src": {
+          "date": "Tue, 09 Apr 2019 19:45:05 GMT",
+          "sha256": "3f7d27f43e85f7221904a93060af632bbd39e2bb1ccd00464c3d690dfd82fe2f",
+          "size": 32938,
+          "url": "https://luarocks.org/lqmath-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "qmath"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "./src"
+              ],
+              "name": "qmath",
+              "sources": [
+                "lqmath.c",
+                "src/imath.c",
+                "src/imrat.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 09 Apr 2019 19:45:05 GMT",
+        "sha256": "3f7d27f43e85f7221904a93060af632bbd39e2bb1ccd00464c3d690dfd82fe2f",
+        "size": 32938,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lqmath-1.0.1-1.src.rock"
+      },
+      "summary": "A rational number library for Lua based on imath.",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

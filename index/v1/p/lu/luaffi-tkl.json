@@ -1,0 +1,94 @@
+{
+  "kind": "lib",
+  "name": "luaffi-tkl",
+  "versions": {
+    "1.0.5-3": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "ffi_test/detect_ffi.lua": {
+          "sha256": "4255082c89594868428145d137956fcac308cc5fb070bdebfd4646113947355a",
+          "size": 2550,
+          "url": "blob:4255082c89594868428145d137956fcac308cc5fb070bdebfd4646113947355a"
+        },
+        "ffi_test/test.lua": {
+          "sha256": "2ed5089d5e29ec4be5f032286da15b083451eae4f9b67a0ec322bacc78e52014",
+          "size": 40628,
+          "url": "blob:2ed5089d5e29ec4be5f032286da15b083451eae4f9b67a0ec322bacc78e52014"
+        }
+      },
+      "homepage": "https://github.com/Tekenlight/luaffifb",
+      "host": "luajit",
+      "license": "BSD",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Mon, 12 Oct 2026 01:47:34 GMT",
+        "rockspec": {
+          "date": "Mon, 12 Oct 2026 01:47:34 GMT",
+          "sha256": "df99d92af2b0f723fe6c6609b22d88c62edaf09f001155e4d800d2f91b719b89",
+          "size": 711
+        },
+        "src": {
+          "date": "Mon, 12 Oct 2026 01:47:35 GMT",
+          "sha256": "8d9bfe1aa9fb2888d00b2c1953f813a04ccc6b66603d782a8cd77a51d6879532",
+          "size": 255990,
+          "url": "https://luarocks.org/luaffi-tkl-1.0.5-3.src.rock"
+        }
+      },
+      "modules": [
+        "ffi",
+        "ffi_test.detect_ffi",
+        "ffi_test.libtest",
+        "ffi_test.test"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "dynasm"
+              ],
+              "name": "ffi",
+              "sources": [
+                "call.c",
+                "ctype.c",
+                "ffi.c",
+                "parser.c"
+              ]
+            },
+            {
+              "name": "ffi_test.libtest",
+              "sources": [
+                "test.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 12 Oct 2026 01:47:35 GMT",
+        "sha256": "8d9bfe1aa9fb2888d00b2c1953f813a04ccc6b66603d782a8cd77a51d6879532",
+        "size": 255990,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaffi-tkl-1.0.5-3.src.rock"
+      },
+      "size": 43178,
+      "summary": "FFI library for calling C functions from lua",
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-redis-auth",
+  "versions": {
+    "0.3.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/redis-auth/handler.lua": {
+          "sha256": "b119d52da76ca30e2d7d5d1f4b9d1be60c6b8cfe351060a560fbd76aef12231f",
+          "size": 5541,
+          "url": "https://raw.githubusercontent.com/jooonwood/kong-plugin-redis-auth/0.3.0/kong/plugins/redis-auth/handler.lua"
+        },
+        "kong/plugins/redis-auth/schema.lua": {
+          "sha256": "e8ec53d0afc6f08e7c7699fe5c9908f897917920fbd0f113447b8b9e55e470a0",
+          "size": 1516,
+          "url": "https://raw.githubusercontent.com/jooonwood/kong-plugin-redis-auth/0.3.0/kong/plugins/redis-auth/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 01 Apr 2022 13:21:33 GMT",
+        "rockspec": {
+          "date": "Fri, 01 Apr 2022 13:21:33 GMT",
+          "sha256": "81460f6d3e4135ae73e5a173c87bbb5b55047025115f735d51c946d93132ecd8",
+          "size": 592
+        }
+      },
+      "modules": [
+        "kong.plugins.redis-auth.handler",
+        "kong.plugins.redis-auth.schema"
+      ],
+      "origin": {
+        "sha256": "afd2283f579b1657c6f307a15f3e3659ccb8959bc41188aa0708eefa8c4ab9a5",
+        "type": "archive",
+        "url": "https://github.com/jooonwood/kong-plugin-redis-auth/archive/0.3.0.tar.gz"
+      },
+      "size": 7057,
+      "summary": "use redis key auth in Kong",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.cookie",
+        "resty.core.utils",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.redis)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

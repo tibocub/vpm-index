@@ -1,0 +1,910 @@
+{
+  "kind": "lib",
+  "name": "resilient.sile",
+  "versions": {
+    "4.2.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "highlighter.sile",
+        "reason": "missing-file:scintillua/lexers/actionscript.lua"
+      },
+      "deps": [
+        "lunajson",
+        "mimetypes",
+        "sha1",
+        "barcodes.sile >= 2.1.0",
+        "couyards.sile >= 1.0.0",
+        "embedders.sile >= 1.1.0",
+        "highlighter.sile >= 0.2.1",
+        "labelrefs.sile >= 0.1.0",
+        "piecharts.sile >= 2.1.0",
+        "ptable.sile >= 4.1.0",
+        "qrcode.sile >= 2.1.0",
+        "smartquotes.sile >= 2.0.0",
+        "textsubsuper.sile >= 2.1.0"
+      ],
+      "files": {
+        "sile/classes/markdown.lua": {
+          "sha256": "9cffc686a0b1aaa3e8bed14e9c8a4d77aad695139ee93ae09385a18d5981961c",
+          "size": 1489,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/classes/markdown.lua"
+        },
+        "sile/classes/resilient/base.lua": {
+          "sha256": "08c86e7617e1f3036bd2cac24df85b1cacc69c872d01cc9ccf0c3104fae71e12",
+          "size": 4617,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/classes/resilient/base.lua"
+        },
+        "sile/classes/resilient/book.lua": {
+          "sha256": "5260134c0a7c954ca43fb9a79b96c438a7aebf6ff0e555b929e7af3ad0e4d11d",
+          "size": 42710,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/classes/resilient/book.lua"
+        },
+        "sile/classes/resilient/override.lua": {
+          "sha256": "db286606385bccb4cf0e9fe2aa8e48089e113d891359c2a2cdafdb8bcebec56a",
+          "size": 10672,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/classes/resilient/override.lua"
+        },
+        "sile/classes/resilient/resume.lua": {
+          "sha256": "cba7b844f00d491ae81d6738554de6b150f31db93defb562cddf664836c4dbc3",
+          "size": 17774,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/classes/resilient/resume.lua"
+        },
+        "sile/csl/names/long.csl": {
+          "sha256": "ea930d2eccefeea0249e10e27289d164b15c077e207ce9b7f89929d505be4482",
+          "size": 879,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/csl/names/long.csl"
+        },
+        "sile/csl/names/short.csl": {
+          "sha256": "ddd440d843f7161c8bfedace1fb34211dbf4be4320f24b300e46fdf39bc95220",
+          "size": 881,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/csl/names/short.csl"
+        },
+        "sile/djot.lua": {
+          "sha256": "c86bd64dfa009f37117917f291b6fa1aae114a70463fffb52a8e2d65c9b92cb0",
+          "size": 4631,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot.lua"
+        },
+        "sile/djot/ast.lua": {
+          "sha256": "29d057abbc0045c2ff6383bcf19ba6ecd9f2dbb4bd56366d75a89b89fd0b30fa",
+          "size": 31903,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot/ast.lua"
+        },
+        "sile/djot/attributes.lua": {
+          "sha256": "7acc7de204e7a9727c48469d6ccb3d9c3d10e87e93376584e305959042203e2b",
+          "size": 8611,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot/attributes.lua"
+        },
+        "sile/djot/block.lua": {
+          "sha256": "2b16d33de583a7d13e1f4c6ebced0ec510461d91dda165d34b1e6b98f4b159c0",
+          "size": 26493,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot/block.lua"
+        },
+        "sile/djot/filter.lua": {
+          "sha256": "c6871277912e84069c87f6930b79c3db89d594b98a8b0b725e501cfe535a215c",
+          "size": 4998,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot/filter.lua"
+        },
+        "sile/djot/html.lua": {
+          "sha256": "6af3b311b79af8031a46c300f291b985e2b7f0f91c0c1563921216a2c63cb415",
+          "size": 12193,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot/html.lua"
+        },
+        "sile/djot/inline.lua": {
+          "sha256": "d5196edfa2da5a39f9c29da6db3c023eccfff755fb7682d0ae517aed6e7b91f1",
+          "size": 23308,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot/inline.lua"
+        },
+        "sile/djot/json.lua": {
+          "sha256": "797cf9b95a8a97b2d10eadd3094c860f6a2439f6c34417ff7a5c52718b586198",
+          "size": 3628,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/djot/json.lua"
+        },
+        "sile/inputters/djot.lua": {
+          "sha256": "bac189a6db2b217e44a030f5957418a42b58d4f2f98631f09d96ac5710bcc14e",
+          "size": 28712,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/inputters/djot.lua"
+        },
+        "sile/inputters/invoice.lua": {
+          "sha256": "444699b125fab5eb65e9af24326476445458dd944c38abab9428aa5f0c68193a",
+          "size": 31064,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/inputters/invoice.lua"
+        },
+        "sile/inputters/markdown.lua": {
+          "sha256": "e79a62f51c8b8cbe925fddffa2a72ad0aa0fc1ed33d2a43f86702f2a988320b5",
+          "size": 17872,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/inputters/markdown.lua"
+        },
+        "sile/inputters/pandocast.lua": {
+          "sha256": "f51d792b41af943c52597e39c3e1e611d6a71d752bb93e1594a5fd002b047090",
+          "size": 22638,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/inputters/pandocast.lua"
+        },
+        "sile/inputters/silm.lua": {
+          "sha256": "b9746ec09e3628d1dcd63bb79f1e8525cd2f693f318a581c1dd980030e82cc26",
+          "size": 16240,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/inputters/silm.lua"
+        },
+        "sile/lunamark.lua": {
+          "sha256": "5c7232b40d1c07f45fd2f132b89f3bf8dd5a9722a8c12ca2988c0348a870556d",
+          "size": 3477,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark.lua"
+        },
+        "sile/lunamark/entities.lua": {
+          "sha256": "6c05843eced47195ac04e463cc5909e6aa2f2e27d13b9660abf55efe138cf5d8",
+          "size": 45335,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/entities.lua"
+        },
+        "sile/lunamark/reader.lua": {
+          "sha256": "278ce3616d580f82549625bbfa760a7de7126f9135acf4546a0cc39dc24f95cb",
+          "size": 739,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/reader.lua"
+        },
+        "sile/lunamark/reader/markdown.lua": {
+          "sha256": "97aa28969bd6c00d435424abd010dcefad08e232704a81aa5cd1baeef770b854",
+          "size": 82988,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/reader/markdown.lua"
+        },
+        "sile/lunamark/util.lua": {
+          "sha256": "d09d381d71af58f75cc5691b71091d5bf4fd81ac224c91d382e0e9c9f9fe61fc",
+          "size": 7695,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/util.lua"
+        },
+        "sile/lunamark/writer.lua": {
+          "sha256": "69827ee3096ed97025bcb947ce28fd16c0b7b334436642d2916cb10b313201a5",
+          "size": 733,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/writer.lua"
+        },
+        "sile/lunamark/writer/generic.lua": {
+          "sha256": "69532cbc8634384c911f9aae41b9c853b0e2f17e78184a2bfec5faebf8237161",
+          "size": 9620,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/writer/generic.lua"
+        },
+        "sile/lunamark/writer/html.lua": {
+          "sha256": "adac10b23c7ab139daef375b62c57b37d796b432de62dcf142b05ce97032466d",
+          "size": 9155,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/writer/html.lua"
+        },
+        "sile/lunamark/writer/html5.lua": {
+          "sha256": "6c53233c170a9fbd2966c171ddbf5632e63624ea876b88a820159cfa9cc506a1",
+          "size": 859,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/lunamark/writer/html5.lua"
+        },
+        "sile/packages/autodoc-resilient/init.lua": {
+          "sha256": "77dd85f2ff81c72bc8d7b253e0077902e702e65e032afc114b3e1e384795238b",
+          "size": 19118,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/autodoc-resilient/init.lua"
+        },
+        "sile/packages/dissilient/bibtex/csl/engine.lua": {
+          "sha256": "371160c0633f373f8eda7e43fa8e02320ebf120d201425274e9c05dc48052a8f",
+          "size": 67913,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/csl/engine.lua"
+        },
+        "sile/packages/dissilient/bibtex/csl/locale.lua": {
+          "sha256": "256e11aa75321fd517567c56a4536e0d6ff8174ae0ac908c10636580cdcafdf0",
+          "size": 8852,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/csl/locale.lua"
+        },
+        "sile/packages/dissilient/bibtex/csl/processor.lua": {
+          "sha256": "61f4bc3518c2188ab3cbf5c828dab2ea257fd1ba592beac328ab3e96fe79530a",
+          "size": 27904,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/csl/processor.lua"
+        },
+        "sile/packages/dissilient/bibtex/csl/style.lua": {
+          "sha256": "c876352f3eaf48f5762cdb29323d362aa5cce523aad092f8eaad2c581b2411b4",
+          "size": 3391,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/csl/style.lua"
+        },
+        "sile/packages/dissilient/bibtex/csl/utils/casing.lua": {
+          "sha256": "caac1e0c12f08772dc361be432fa47bb54345c009b5764d2a541a7e50a0a5f73",
+          "size": 2503,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/csl/utils/casing.lua"
+        },
+        "sile/packages/dissilient/bibtex/csl/utils/superfolding.lua": {
+          "sha256": "56bbaf916caa35084fc0b5687bcf77ef7ae2b868995af92966fbf0237c9d13ec",
+          "size": 3540,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/csl/utils/superfolding.lua"
+        },
+        "sile/packages/dissilient/bibtex/csl/utils/xmlparser.lua": {
+          "sha256": "de4b5c2699b80ae29ae3376f4ac027cd90cbfded70545b1370310220f2db48ff",
+          "size": 4729,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/csl/utils/xmlparser.lua"
+        },
+        "sile/packages/dissilient/bibtex/init.lua": {
+          "sha256": "cb4a30ad449f6c4ee3f6680f84ab9c1125d9a4553f7b3e482473050d20419ee7",
+          "size": 25896,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/init.lua"
+        },
+        "sile/packages/dissilient/bibtex/support/bib2csl.lua": {
+          "sha256": "be14b7a09e418594a67bdb046109fa33ec9bfca195ddb111217e2c6851a9971e",
+          "size": 11343,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/support/bib2csl.lua"
+        },
+        "sile/packages/dissilient/bibtex/support/bibmaps.lua": {
+          "sha256": "8900be39e773eb055effb265ae122bde3c68664b3e5d9840a55c97855441d052",
+          "size": 1712,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/support/bibmaps.lua"
+        },
+        "sile/packages/dissilient/bibtex/support/bibparser.lua": {
+          "sha256": "f61e606110e709e768f3a39c45df0912c4be69ccedd6ddd4538805ceac044987",
+          "size": 14895,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/support/bibparser.lua"
+        },
+        "sile/packages/dissilient/bibtex/support/isodatetime.lua": {
+          "sha256": "d36f507a83b87a4f2e46c157cf66e20ab5fb1582bb2dd26d2ee20995ee98356e",
+          "size": 3967,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/support/isodatetime.lua"
+        },
+        "sile/packages/dissilient/bibtex/support/locators.lua": {
+          "sha256": "ee080c6741e87a45639afc5485b739e53ad96c818a05bec3bd651878578d3c0f",
+          "size": 1318,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/support/locators.lua"
+        },
+        "sile/packages/dissilient/bibtex/support/nbibtex.lua": {
+          "sha256": "c07254b6686b7e39990365c9acaf8e0aefa5cac167ef3bca4c425986e2870ea4",
+          "size": 10352,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/dissilient/bibtex/support/nbibtex.lua"
+        },
+        "sile/packages/djot/init.lua": {
+          "sha256": "cfab0fe2012cb78c36e4b36a62b8ddadc910cffb92da8ba7bac11321a992b552",
+          "size": 2231,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/djot/init.lua"
+        },
+        "sile/packages/markdown/cmbase.lua": {
+          "sha256": "882f1ecb9a0c61a57143a40eeeae9aeb87dcbf2c7b271a0885ed204cae0d5fd1",
+          "size": 6768,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/markdown/cmbase.lua"
+        },
+        "sile/packages/markdown/commands.lua": {
+          "sha256": "2e967a5bcca86fdd845d7424d171e52b2af933f8cce852557d59f18721f192d9",
+          "size": 36090,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/markdown/commands.lua"
+        },
+        "sile/packages/markdown/init.lua": {
+          "sha256": "4b8c50d64df88918ac6ca1d0215d2e355f47df39cfc2ef8b6f39ad8e0c70a491",
+          "size": 2343,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/markdown/init.lua"
+        },
+        "sile/packages/markdown/utils.lua": {
+          "sha256": "4bc22fd64dffd745e8898eb7059e71e17df54eee892c4b3bf255e367528415e1",
+          "size": 8179,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/markdown/utils.lua"
+        },
+        "sile/packages/pandocast/init.lua": {
+          "sha256": "9c55893f746cbb52d2623259a1d654c75fc57651affe25b94770e740b72e1b97",
+          "size": 2611,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/pandocast/init.lua"
+        },
+        "sile/packages/printoptions/init.lua": {
+          "sha256": "8be9647e9219cdf8f7ab08155a2b7403b1a0551ebe52f1a5989f3ac86fd89450",
+          "size": 14271,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/printoptions/init.lua"
+        },
+        "sile/packages/resilient/abbr/init.lua": {
+          "sha256": "754cb270802e36e0b76e6dc29f23f6a8e611f56dff6fd03320310a02161b1005",
+          "size": 6583,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/abbr/init.lua"
+        },
+        "sile/packages/resilient/attachments/init.lua": {
+          "sha256": "816b884288dad710b2cdb4ddeaddfba1781b0f5ef3435bf81b9800554d063960",
+          "size": 18148,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/attachments/init.lua"
+        },
+        "sile/packages/resilient/background/init.lua": {
+          "sha256": "1aed9f485cf42c9a6db147c81822962d3c8896790bfe2d58b473be104d3da347",
+          "size": 8505,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/background/init.lua"
+        },
+        "sile/packages/resilient/base.lua": {
+          "sha256": "602306425b8af4f62ac44712f346f80be23965728c06f34535996580487f7b63",
+          "size": 1950,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/base.lua"
+        },
+        "sile/packages/resilient/bible/tei/init.lua": {
+          "sha256": "01169e4edf955370447a196a324d151680ab0fc76b3e4518ddd539c8a9252e8d",
+          "size": 42091,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/tei/init.lua"
+        },
+        "sile/packages/resilient/bible/tei/monograms/default.png": {
+          "sha256": "12707953cfe1d2c7edfc4c14bf7b07ad3857464b17c8137591577f33f5b996d0",
+          "size": 34656,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/tei/monograms/default.png"
+        },
+        "sile/packages/resilient/bible/tei/monograms/jn.png": {
+          "sha256": "77451b58bc8814f4dfef7c34fd26288960e3e2227bb6a109f92ed5018bf82c53",
+          "size": 40250,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/tei/monograms/jn.png"
+        },
+        "sile/packages/resilient/bible/tei/monograms/lk.png": {
+          "sha256": "6444c87e12b60fb89f435e22edbbec86a51b53d1993ce05d4355c3afa775f5a9",
+          "size": 41449,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/tei/monograms/lk.png"
+        },
+        "sile/packages/resilient/bible/tei/monograms/mk.png": {
+          "sha256": "4a368b1fea0b7b4c90b99450c32c9fa538d43eda32b25cae642486b30c54f637",
+          "size": 44760,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/tei/monograms/mk.png"
+        },
+        "sile/packages/resilient/bible/tei/monograms/mt.png": {
+          "sha256": "76449cbf22b39fcf879421f5c4f8237ef655982cf413ca55f128c89f79663a31",
+          "size": 42300,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/tei/monograms/mt.png"
+        },
+        "sile/packages/resilient/bible/tei/monograms/sign.png": {
+          "sha256": "ea74fca55e0ceef9eaf46ff05b35349d5177e4b54a59d65de7f9ee0125930faf",
+          "size": 18269,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/tei/monograms/sign.png"
+        },
+        "sile/packages/resilient/bible/usx/init.lua": {
+          "sha256": "cea781dd324666797496ffbb29f079b34247d79912853c9a46d357abab1dee0f",
+          "size": 13775,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bible/usx/init.lua"
+        },
+        "sile/packages/resilient/bookmatters/init.lua": {
+          "sha256": "948d7b6e3670ec1a0dcdc506c75a09dfb1f57e333f4255b21e2d154de79411f0",
+          "size": 12333,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/bookmatters/init.lua"
+        },
+        "sile/packages/resilient/defn/init.lua": {
+          "sha256": "0b8f11b8bab8fb89e9ed9fdb567da59e1d77e6f46e8d7afbc13c4e121d19157a",
+          "size": 5239,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/defn/init.lua"
+        },
+        "sile/packages/resilient/epigraph/init.lua": {
+          "sha256": "02677412b67696067adea5312b5bd8a07764ead5655d0c2bad6d1b32e6bf6529",
+          "size": 8567,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/epigraph/init.lua"
+        },
+        "sile/packages/resilient/fancytoc/init.lua": {
+          "sha256": "025680d460083463512bbcb602200bf08bad731452c18b5d22a1434389b8a9a8",
+          "size": 7672,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/fancytoc/init.lua"
+        },
+        "sile/packages/resilient/footnotes/init.lua": {
+          "sha256": "2b4b9a08c79a0545888ef4407e90e6381172d13657b79fffd8d5a6a8b3db8d5a",
+          "size": 11020,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/footnotes/init.lua"
+        },
+        "sile/packages/resilient/forms/init.lua": {
+          "sha256": "8a0a06c91bcef28b0b2602457734f107cd2da05f020c05fb1b64538b4634e28c",
+          "size": 41888,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/forms/init.lua"
+        },
+        "sile/packages/resilient/headers/init.lua": {
+          "sha256": "ddfed8523e4bdbfe96de1c615debf4bc14df9e8e81577cbf41aed9bfbc73602a",
+          "size": 4840,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/headers/init.lua"
+        },
+        "sile/packages/resilient/invoice/init.lua": {
+          "sha256": "fb7a87d700687ee30dda8b1269354cdee2c07d48004ec0c71f914b8d188ad79b",
+          "size": 4480,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/invoice/init.lua"
+        },
+        "sile/packages/resilient/liners/init.lua": {
+          "sha256": "2f1c322a300c733234be00e6eac7e8e02c3d56187d0d48547c11b49d6a70b81f",
+          "size": 10090,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/liners/init.lua"
+        },
+        "sile/packages/resilient/lists/init.lua": {
+          "sha256": "7f07ee8ac079907577cc639f0860dbee350784c301d4de274b1d833b70209edd",
+          "size": 23919,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/lists/init.lua"
+        },
+        "sile/packages/resilient/plain/init.lua": {
+          "sha256": "d4eaf9ea21c7ea738245ab7e44a7d50bd2fb81d109b5660f0b88e7182c39313e",
+          "size": 13953,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/plain/init.lua"
+        },
+        "sile/packages/resilient/poetry/init.lua": {
+          "sha256": "a76643e0bc25684cfa56d1eaef02f5f827b069bf240e8d68829b9a2f2c568a52",
+          "size": 23693,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/poetry/init.lua"
+        },
+        "sile/packages/resilient/sectioning/init.lua": {
+          "sha256": "3dc3e27836d20821f9701f249eb6a634ae652b2dcbf10d0627cd4f5c57b8311e",
+          "size": 16916,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/sectioning/init.lua"
+        },
+        "sile/packages/resilient/styles/init.lua": {
+          "sha256": "09337f14989ba37cbe0369349678388544a3bfcf7307369418d54c80b382229d",
+          "size": 32251,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/styles/init.lua"
+        },
+        "sile/packages/resilient/tableofcontents/init.lua": {
+          "sha256": "ba28f0d85202cbce0b4d6766949323333a4e4bcc7dde3d2ccf491e279dedacda",
+          "size": 13488,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/tableofcontents/init.lua"
+        },
+        "sile/packages/resilient/verbatim/init.lua": {
+          "sha256": "e9df04321c9edfabbb1a5fa47694937a92dca15a2dd4df9ef3d93682db0e170b",
+          "size": 2762,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/packages/resilient/verbatim/init.lua"
+        },
+        "sile/pagebuilders/pageant.lua": {
+          "sha256": "3b2279d8e214682599cdbe6447144c77a9d3d206616034c7b04f2a9f05d967a4",
+          "size": 5645,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/pagebuilders/pageant.lua"
+        },
+        "sile/resilient-tinyyaml.lua": {
+          "sha256": "34040c930df9b803ae0d027cde773106ca1b5b9ca7f5a04c11e0c8df480e2165",
+          "size": 21881,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/lua-libraries/resilient-tinyyaml.lua"
+        },
+        "sile/resilient/adapters/frameset.lua": {
+          "sha256": "00f5440b3f90b5007fe7e9c283f8af1d332dd599a67924c897e6123a4e4349f0",
+          "size": 6393,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/adapters/frameset.lua"
+        },
+        "sile/resilient/bootstrap.lua": {
+          "sha256": "8e9a00030af8a298096782ddc7ed1d971fe41ce0fc1955492574694a3b4d5c2c",
+          "size": 6625,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/bootstrap.lua"
+        },
+        "sile/resilient/layoutparser.lua": {
+          "sha256": "80287f4c35c8201ef3c93f9d10ca96a4cd14980fc4af2942e1d8702f36739b31",
+          "size": 2766,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layoutparser.lua"
+        },
+        "sile/resilient/layouts/base.lua": {
+          "sha256": "83a1f3697118993f193e3b77254b216340daff168191d75a7b81ad020966a731",
+          "size": 9295,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/base.lua"
+        },
+        "sile/resilient/layouts/bringhurst.lua": {
+          "sha256": "40a1d0eb594e12cd1e085e3561516b9cc8a55ee4935aa4c195cc7137f810330b",
+          "size": 981,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/bringhurst.lua"
+        },
+        "sile/resilient/layouts/canonical.lua": {
+          "sha256": "ae54335e465b2b79acfc9544693c0c1c74767fb983e1fc0af0bb5f760fc79934",
+          "size": 2657,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/canonical.lua"
+        },
+        "sile/resilient/layouts/division.lua": {
+          "sha256": "4619dcf88f013925655e5768e755192135ac213d2b7eeb5c62eadfe09110712d",
+          "size": 2109,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/division.lua"
+        },
+        "sile/resilient/layouts/frenchcanon.lua": {
+          "sha256": "7904d74f6db70a2fad4f004dadc87832423ea747f181342aefa02ed23b3a3b65",
+          "size": 2914,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/frenchcanon.lua"
+        },
+        "sile/resilient/layouts/geometry.lua": {
+          "sha256": "82297ad0a1797d9470a392daed7232d4fee78f1cd6ffcdaee189d81a4ae64513",
+          "size": 790,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/geometry.lua"
+        },
+        "sile/resilient/layouts/isophi.lua": {
+          "sha256": "399af826339fa000a2d55657db637274508137a039badad193312eb6bb418e57",
+          "size": 1131,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/isophi.lua"
+        },
+        "sile/resilient/layouts/marginal.lua": {
+          "sha256": "c91b1c22c8681eaebea71fa44fb91e6808f44cd6db5e3b259e835147bc8e5cae",
+          "size": 1025,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/layouts/marginal.lua"
+        },
+        "sile/resilient/patches/lang.lua": {
+          "sha256": "1d6c8b94871afa2a6adf42bf7042255d34a1b9bff40fb5800b37fc32eb3496ec",
+          "size": 6647,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/patches/lang.lua"
+        },
+        "sile/resilient/patches/overhang.lua": {
+          "sha256": "9e56a274d453ef728a1345e9ec6796fbc4b07f15b96b84bfef11bdbd457f93b7",
+          "size": 5903,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/patches/overhang.lua"
+        },
+        "sile/resilient/schemas/common.lua": {
+          "sha256": "d45530a8f6572c8fbaa489b1f9848fc54423b7e3e8fa64cbc7f970512d3b8122",
+          "size": 1258,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/schemas/common.lua"
+        },
+        "sile/resilient/schemas/invoice/init.lua": {
+          "sha256": "0124e958791fcef65265bef93e1fbc1e914974298082628d651c5a0c86ff80c4",
+          "size": 4853,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/schemas/invoice/init.lua"
+        },
+        "sile/resilient/schemas/silm/init.lua": {
+          "sha256": "1389a446e93f18848f5c5dd61bbb6f6354ae134ecf0818eb8e59edbc2a88e82e",
+          "size": 7546,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/schemas/silm/init.lua"
+        },
+        "sile/resilient/schemas/validator.lua": {
+          "sha256": "f408107a6855c595018d40e033ed865ccbb0f27337c1f08fb2024831ca00bae1",
+          "size": 4420,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/schemas/validator.lua"
+        },
+        "sile/resilient/support/invoice/facturx.lua": {
+          "sha256": "cdd428c1760f7fb8ee63d35559195cfc54c9b93937f2a6df2b2194f9297ddb41",
+          "size": 19736,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/facturx.lua"
+        },
+        "sile/resilient/support/invoice/i18n/ca.lua": {
+          "sha256": "a3a408d7668ff1ec9141381336334a217f3ebb9c3c0b2ddbc4a84ab21e77e3be",
+          "size": 854,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/ca.lua"
+        },
+        "sile/resilient/support/invoice/i18n/de.lua": {
+          "sha256": "2b22436887a4069946dc78a91a77d51e6cc9e1033f04e9a5cd1e86a4524c4367",
+          "size": 853,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/de.lua"
+        },
+        "sile/resilient/support/invoice/i18n/en.lua": {
+          "sha256": "276a6b97d285e9ea8116fc83f4fcf050d816fe8af994898c7e48c9de99339d13",
+          "size": 799,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/en.lua"
+        },
+        "sile/resilient/support/invoice/i18n/es.lua": {
+          "sha256": "11dc78cc0a4ca7707b61f2a1206b06bd6a3ff01570ba63fb2e6343c7112b1919",
+          "size": 849,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/es.lua"
+        },
+        "sile/resilient/support/invoice/i18n/fr.lua": {
+          "sha256": "6f6ae797484d7976fcf7bc2a3af54382dba8ab19612255ea2187f6eaf7609b70",
+          "size": 846,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/fr.lua"
+        },
+        "sile/resilient/support/invoice/i18n/is.lua": {
+          "sha256": "7d1839073dd6cdf779dcb45679139fd6c7beb1f8a07e49b9665a9468f4e48176",
+          "size": 834,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/is.lua"
+        },
+        "sile/resilient/support/invoice/i18n/it.lua": {
+          "sha256": "d7d0957728cf5cc509623145a1987be338a283e6096fc16ade2539a7eb6f2b2a",
+          "size": 859,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/it.lua"
+        },
+        "sile/resilient/support/invoice/i18n/nl.lua": {
+          "sha256": "17467f5f58038587eeaaba9b25c6b1bf8225dc87d5344acc0b99a786d9cdcf79",
+          "size": 816,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/nl.lua"
+        },
+        "sile/resilient/support/invoice/i18n/pt.lua": {
+          "sha256": "2df24c028a921a70bbf6669a079b3ca76238e17121d2bfa27252d30296b9f3bc",
+          "size": 861,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/pt.lua"
+        },
+        "sile/resilient/support/invoice/i18n/ru.lua": {
+          "sha256": "29a42fa0d476b0efca8bbbef817c51740b73ac459b8d7982c1ba201083bda755",
+          "size": 2015,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/invoice/i18n/ru.lua"
+        },
+        "sile/resilient/support/xmp.lua": {
+          "sha256": "6322105e63e78bd10fcd10c0f7abefd7bbfee3a8537120f041f611e6617894e6",
+          "size": 11727,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/support/xmp.lua"
+        },
+        "sile/resilient/utils.lua": {
+          "sha256": "b03a3b3745e55bedb317e9cb00202c82e19a5f090763b7bb6fb4fe5be54bafdb",
+          "size": 2527,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/utils.lua"
+        },
+        "sile/resilient/uuid.lua": {
+          "sha256": "2f9ec4496a075bcb07654653fb4932f9dc413c212d3e820b18767e7ca5617e7a",
+          "size": 3300,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/resilient/uuid.lua"
+        },
+        "sile/templates/cover.djt": {
+          "sha256": "29a3474780beaaa6bf2c03683becb1ed5d268fc93e93dcaed650861c526e3e1c",
+          "size": 427,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/templates/cover.djt"
+        },
+        "sile/templates/endpaper-recto.djt": {
+          "sha256": "4bfe1d2bc7aba7134418df97654eebfaa1e2219204ea93da01b991d2214c261b",
+          "size": 273,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/templates/endpaper-recto.djt"
+        },
+        "sile/templates/endpaper-verso.djt": {
+          "sha256": "64cd27f8aa296853ff6a29df2dbd82ea35ca3b4b0276c753debc97d991982f09",
+          "size": 244,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/templates/endpaper-verso.djt"
+        },
+        "sile/templates/halftitle-recto.djt": {
+          "sha256": "a3ebfe9f65b0411acdbc90359c7665f58b53757d88b5ea3e07586889a4de1f16",
+          "size": 171,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/templates/halftitle-recto.djt"
+        },
+        "sile/templates/halftitle-verso.djt": {
+          "sha256": "0c995f61a92ade6dee7abd528c8918948de22b5603352d0ad7a05b064b8f90e1",
+          "size": 130,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/templates/halftitle-verso.djt"
+        },
+        "sile/templates/title-recto.djt": {
+          "sha256": "b50c99e141cb39781f37076b05480528da4cd91b47db1091cb39fde6b1733572",
+          "size": 440,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/templates/title-recto.djt"
+        },
+        "sile/templates/title-verso.djt": {
+          "sha256": "fb60ae53da80b50f0ca8ae36000374bc3eb92c37a49c1c90eb8b24459cbf2d96",
+          "size": 464,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/templates/title-verso.djt"
+        },
+        "sile/typesetters/algorithms/bidi.lua": {
+          "sha256": "fb759042ba39fb2c9e794048e9a9479fc483b31854096720a0b097e96d934eb4",
+          "size": 8773,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/algorithms/bidi.lua"
+        },
+        "sile/typesetters/algorithms/knuthplass.lua": {
+          "sha256": "a62dd64b0434654cf2a344002168f4d786e00ac2d6947099809eeb53d6a5d3ef",
+          "size": 41059,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/algorithms/knuthplass.lua"
+        },
+        "sile/typesetters/mixins/hbox.lua": {
+          "sha256": "c7f17434360afcefcf6b15ee3ad8fc50c181c69fd725473dd00a3808e7835643",
+          "size": 5775,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/mixins/hbox.lua"
+        },
+        "sile/typesetters/mixins/liners.lua": {
+          "sha256": "39d9dd92083838a341b4d24e28bd8886b86da87b8ee09406278c668b77be3441",
+          "size": 6415,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/mixins/liners.lua"
+        },
+        "sile/typesetters/mixins/paragraphing.lua": {
+          "sha256": "0ca6a24e69b7c814fda5d929bb43865f2f6ddb2ec959ba81d9bdc399707869a5",
+          "size": 19000,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/mixins/paragraphing.lua"
+        },
+        "sile/typesetters/mixins/shaping.lua": {
+          "sha256": "91e6dfb26bc19001216b77c29e3003dba3d4d566c40bacce5c74ad836113f412",
+          "size": 9327,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/mixins/shaping.lua"
+        },
+        "sile/typesetters/mixins/totext.lua": {
+          "sha256": "aea363994ed12d2edebdc3b0d02a418809e4b4529edd8dc4da04ca08ca2b8ffd",
+          "size": 3903,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/mixins/totext.lua"
+        },
+        "sile/typesetters/nodes/liners.lua": {
+          "sha256": "66e4a2cd674f207161e8f9e8b5394d16802459bb69b57261039d570a633ee5a8",
+          "size": 5545,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/nodes/liners.lua"
+        },
+        "sile/typesetters/nodes/speaker.lua": {
+          "sha256": "784b259a98f626e097af67529730b01c9765fd487772c27d1704e4ca3f45d8f2",
+          "size": 2267,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/nodes/speaker.lua"
+        },
+        "sile/typesetters/silent.lua": {
+          "sha256": "4214418bef48d8b79c7b6807b6baab32509016fdc9431feb32000bbc180f8b28",
+          "size": 32387,
+          "url": "https://raw.githubusercontent.com/Omikhleia/resilient.sile/ae83dd9dda6f70112982b43845d154cef7abdbec/typesetters/silent.lua"
+        }
+      },
+      "homepage": "https://github.com/Omikhleia/resilient.sile",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 07 Nov 2026 01:51:10 GMT",
+        "rockspec": {
+          "date": "Sat, 07 Nov 2026 01:51:10 GMT",
+          "sha256": "1fc593bb7cf1fdb048182d628476b90b6f1393f4cb3f6c8c197e90b7f2e38507",
+          "size": 11937
+        }
+      },
+      "modules": [
+        "sile.classes.markdown",
+        "sile.classes.resilient.base",
+        "sile.classes.resilient.book",
+        "sile.classes.resilient.override",
+        "sile.classes.resilient.resume",
+        "sile.djot",
+        "sile.djot.ast",
+        "sile.djot.attributes",
+        "sile.djot.block",
+        "sile.djot.filter",
+        "sile.djot.html",
+        "sile.djot.inline",
+        "sile.djot.json",
+        "sile.inputters.djot",
+        "sile.inputters.invoice",
+        "sile.inputters.markdown",
+        "sile.inputters.pandocast",
+        "sile.inputters.silm",
+        "sile.lunamark",
+        "sile.lunamark.entities",
+        "sile.lunamark.reader",
+        "sile.lunamark.reader.markdown",
+        "sile.lunamark.util",
+        "sile.lunamark.writer",
+        "sile.lunamark.writer.generic",
+        "sile.lunamark.writer.html",
+        "sile.lunamark.writer.html5",
+        "sile.packages.autodoc-resilient",
+        "sile.packages.dissilient.bibtex",
+        "sile.packages.dissilient.bibtex.csl.engine",
+        "sile.packages.dissilient.bibtex.csl.locale",
+        "sile.packages.dissilient.bibtex.csl.processor",
+        "sile.packages.dissilient.bibtex.csl.style",
+        "sile.packages.dissilient.bibtex.csl.utils.casing",
+        "sile.packages.dissilient.bibtex.csl.utils.superfolding",
+        "sile.packages.dissilient.bibtex.csl.utils.xmlparser",
+        "sile.packages.dissilient.bibtex.support.bib2csl",
+        "sile.packages.dissilient.bibtex.support.bibmaps",
+        "sile.packages.dissilient.bibtex.support.bibparser",
+        "sile.packages.dissilient.bibtex.support.isodatetime",
+        "sile.packages.dissilient.bibtex.support.locators",
+        "sile.packages.dissilient.bibtex.support.nbibtex",
+        "sile.packages.djot",
+        "sile.packages.markdown",
+        "sile.packages.markdown.cmbase",
+        "sile.packages.markdown.commands",
+        "sile.packages.markdown.utils",
+        "sile.packages.pandocast",
+        "sile.packages.printoptions",
+        "sile.packages.resilient.abbr",
+        "sile.packages.resilient.attachments",
+        "sile.packages.resilient.background",
+        "sile.packages.resilient.base",
+        "sile.packages.resilient.bible.tei",
+        "sile.packages.resilient.bible.usx",
+        "sile.packages.resilient.bookmatters",
+        "sile.packages.resilient.defn",
+        "sile.packages.resilient.epigraph",
+        "sile.packages.resilient.fancytoc",
+        "sile.packages.resilient.footnotes",
+        "sile.packages.resilient.forms",
+        "sile.packages.resilient.headers",
+        "sile.packages.resilient.invoice",
+        "sile.packages.resilient.liners",
+        "sile.packages.resilient.lists",
+        "sile.packages.resilient.plain",
+        "sile.packages.resilient.poetry",
+        "sile.packages.resilient.sectioning",
+        "sile.packages.resilient.styles",
+        "sile.packages.resilient.tableofcontents",
+        "sile.packages.resilient.verbatim",
+        "sile.pagebuilders.pageant",
+        "sile.resilient-tinyyaml",
+        "sile.resilient.adapters.frameset",
+        "sile.resilient.bootstrap",
+        "sile.resilient.layoutparser",
+        "sile.resilient.layouts.base",
+        "sile.resilient.layouts.bringhurst",
+        "sile.resilient.layouts.canonical",
+        "sile.resilient.layouts.division",
+        "sile.resilient.layouts.frenchcanon",
+        "sile.resilient.layouts.geometry",
+        "sile.resilient.layouts.isophi",
+        "sile.resilient.layouts.marginal",
+        "sile.resilient.patches.lang",
+        "sile.resilient.patches.overhang",
+        "sile.resilient.schemas.common",
+        "sile.resilient.schemas.invoice",
+        "sile.resilient.schemas.silm",
+        "sile.resilient.schemas.validator",
+        "sile.resilient.support.invoice.facturx",
+        "sile.resilient.support.invoice.i18n.ca",
+        "sile.resilient.support.invoice.i18n.de",
+        "sile.resilient.support.invoice.i18n.en",
+        "sile.resilient.support.invoice.i18n.es",
+        "sile.resilient.support.invoice.i18n.fr",
+        "sile.resilient.support.invoice.i18n.is",
+        "sile.resilient.support.invoice.i18n.it",
+        "sile.resilient.support.invoice.i18n.nl",
+        "sile.resilient.support.invoice.i18n.pt",
+        "sile.resilient.support.invoice.i18n.ru",
+        "sile.resilient.support.xmp",
+        "sile.resilient.utils",
+        "sile.resilient.uuid",
+        "sile.typesetters.algorithms.bidi",
+        "sile.typesetters.algorithms.knuthplass",
+        "sile.typesetters.mixins.hbox",
+        "sile.typesetters.mixins.liners",
+        "sile.typesetters.mixins.paragraphing",
+        "sile.typesetters.mixins.shaping",
+        "sile.typesetters.mixins.totext",
+        "sile.typesetters.nodes.liners",
+        "sile.typesetters.nodes.speaker",
+        "sile.typesetters.silent"
+      ],
+      "origin": {
+        "commit": "ae83dd9dda6f70112982b43845d154cef7abdbec",
+        "ref": "v4.2.1",
+        "type": "git",
+        "url": "https://github.com/Omikhleia/resilient.sile.git"
+      },
+      "size": 1576002,
+      "summary": "Advanced book classes and tools for the SILE typesetting system.",
+      "undeclared_requires": [
+        "cassowary",
+        "classes.base",
+        "classes.resilient.base",
+        "classes.resilient.book",
+        "classes.resilient.override",
+        "core.opentype-parser",
+        "cosmo",
+        "djot",
+        "djot.",
+        "djot.ast",
+        "djot.attributes",
+        "djot.block",
+        "djot.filter",
+        "djot.html",
+        "djot.inline",
+        "djot.json",
+        "epnf",
+        "fontmetrics",
+        "inputters.base",
+        "inspect",
+        "justenoughicu",
+        "justenoughlibtexpdf",
+        "loadkit",
+        "lua-utf8",
+        "lunamark",
+        "lunamark.",
+        "lunamark.entities",
+        "lunamark.reader",
+        "lunamark.reader.",
+        "lunamark.util",
+        "lunamark.writer",
+        "lunamark.writer.",
+        "lunamark.writer.generic",
+        "lunamark.writer.html",
+        "lunamark.writer.xml",
+        "lxp",
+        "packages.",
+        "packages.base",
+        "packages.dissilient.bibtex.csl.engine",
+        "packages.dissilient.bibtex.csl.locale",
+        "packages.dissilient.bibtex.csl.processor",
+        "packages.dissilient.bibtex.csl.style",
+        "packages.dissilient.bibtex.csl.utils.casing",
+        "packages.dissilient.bibtex.csl.utils.superfolding",
+        "packages.dissilient.bibtex.csl.utils.xmlparser",
+        "packages.dissilient.bibtex.support.bib2csl",
+        "packages.dissilient.bibtex.support.bibmaps",
+        "packages.dissilient.bibtex.support.bibparser",
+        "packages.dissilient.bibtex.support.isodatetime",
+        "packages.dissilient.bibtex.support.locators",
+        "packages.dissilient.bibtex.support.nbibtex",
+        "packages.markdown.cmbase",
+        "packages.markdown.utils",
+        "packages.resilient.base",
+        "pagebuilders.pageant",
+        "resilient-tinyyaml",
+        "resilient.adapters.frameset",
+        "resilient.bootstrap",
+        "resilient.layoutparser",
+        "resilient.layouts.base",
+        "resilient.layouts.bringhurst",
+        "resilient.layouts.canonical",
+        "resilient.layouts.division",
+        "resilient.layouts.frenchcanon",
+        "resilient.layouts.geometry",
+        "resilient.layouts.isophi",
+        "resilient.layouts.marginal",
+        "resilient.patches.lang",
+        "resilient.patches.overhang",
+        "resilient.schemas.common",
+        "resilient.schemas.invoice",
+        "resilient.schemas.silm",
+        "resilient.schemas.validator",
+        "resilient.support.invoice.facturx",
+        "resilient.support.xmp",
+        "resilient.utils",
+        "resilient.uuid",
+        "svg",
+        "typesetters.algorithms.bidi",
+        "typesetters.algorithms.knuthplass",
+        "typesetters.mixins.hbox",
+        "typesetters.mixins.liners",
+        "typesetters.mixins.paragraphing",
+        "typesetters.mixins.shaping",
+        "typesetters.mixins.totext",
+        "typesetters.nodes.liners",
+        "typesetters.nodes.speaker",
+        "typesetters.silent",
+        "unicode"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

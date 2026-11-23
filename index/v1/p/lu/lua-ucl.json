@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "lua-ucl",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/starius/lua-ucl",
+      "license": "GPL 2",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 24 Jan 2016 21:27:07 GMT",
+        "rockspec": {
+          "date": "Sun, 24 Jan 2016 21:27:07 GMT",
+          "sha256": "915720fb0cd7c01a8b26e6b88649a0fa47c803644ca18d4c3ddde879ce1fa429",
+          "size": 725
+        },
+        "src": {
+          "date": "Sun, 24 Jan 2016 21:27:09 GMT",
+          "sha256": "70fe5c25984d4359cbaebc3392c58a3f46b3efdbdb5f1a23db616b11a2194af2",
+          "size": 15452,
+          "url": "https://luarocks.org/lua-ucl-0.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "ucl"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "UCL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "UCL": {
+              "header": "ucl/ucl.h",
+              "library": "ucl"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(UCL_INCDIR)"
+              ],
+              "libdirs": [
+                "$(UCL_LIBDIR)"
+              ],
+              "libraries": [
+                "ucl"
+              ],
+              "name": "ucl",
+              "sources": [
+                "src/lua-ucl/lua-ucl.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 24 Jan 2016 21:27:09 GMT",
+        "sha256": "70fe5c25984d4359cbaebc3392c58a3f46b3efdbdb5f1a23db616b11a2194af2",
+        "size": 15452,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-ucl-0.1.0-0.src.rock"
+      },
+      "summary": "Lua bindings to UCL, data compression library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

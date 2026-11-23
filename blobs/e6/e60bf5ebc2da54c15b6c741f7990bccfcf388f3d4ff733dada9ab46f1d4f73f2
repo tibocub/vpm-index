@@ -1,0 +1,90 @@
+--imports
+local TokenType = require("dogma.lex.TokenType")
+
+--A token.
+local Token = {}
+Token.__index = Token
+package.loaded[...] = Token
+
+--Constructor.
+--
+--@param t:TokenType  Token type.
+--@param ln:number    Line number.
+--@param col:number   Column number.
+--@param val:any      Value.
+function Token.new(t, ln, col, val)
+  return setmetatable({
+    type = t,
+    line = ln,
+    col = col,
+    value = val
+  }, Token)
+end
+
+--Check whether the token is an identifier.
+function Token:isId()
+  return self.type == TokenType.NAME or self.type == TokenType.KEYWORD
+end
+
+--Check whether the token is a name.
+function Token:isName(name)
+  if name == nil then
+    return self.type == TokenType.NAME
+  else
+    return self.type == TokenType.NAME and self.value == name
+  end
+end
+
+--Check whether the token is an end of line.
+function Token:isEol()
+  return self.type == TokenType.EOL
+end
+
+--Check whether the token is an end of line.
+function Token:isNewline()
+  return self.type == TokenType.EOL
+end
+
+--Check whether the token is a symbol.
+function Token:isSymbol(sym1, sym2)
+  if sym1 == nil then
+    return self.type == TokenType.SYMBOL
+  else
+    return self.type == TokenType.SYMBOL and
+           (self.value == sym1 or self.value == sym2)
+  end
+end
+
+--Check whether the tok is a keyword.
+function Token:isKeyword(kw)
+  if kw == nil then
+    return self.type == TokenType.KEYWORD
+  else
+    return self.type == TokenType.KEYWORD and self.value == kw
+  end
+end
+
+--Check whether the token is a literal number.
+function Token:isNum()
+  return self.type == TokenType.LITERAL and type(self.value) == "number"
+end
+
+--Check whether the token is a literal text.
+function Token:isText()
+  return self.type == TokenType.LITERAL and type(self.value) == "string"
+end
+
+--Check whether the token is a compilation directive.
+function Token:isDirective(dir)
+  return self.type == TokenType.DIRECTIVE and self.value:find(string.format("^%s ", dir))
+end
+
+--Check whether the token is an annotation.
+function Token:isAnnot()
+  return self.type == TokenType.ANNOTATION
+end
+
+--Check whether the token is a literal regular expression.
+function Token:isRe()
+  return self.type == TokenType.RE
+end

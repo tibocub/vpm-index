@@ -1,0 +1,31 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+return {
+    name = "log-request-with-body",
+    fields = {
+        { config = {
+            type = "record",
+            fields = {
+                {
+                    request_type = {
+                        type = "string",
+                        required = true,
+                        one_of = {
+                            "GET",
+                            "POST",
+                            "PUT",
+                            "DELETE",
+                            "PATCH"
+                        }
+                    }
+                },
+                {
+                    log_body = {
+                        type = "boolean",
+                        default = false
+                    }
+                }
+            },
+        }},
+    },
+}

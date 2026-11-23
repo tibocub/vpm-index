@@ -1,0 +1,86 @@
+local M = require('moses')
+local exec_stmt
+do
+	local _obj_0 = require('elan.mq.utils')
+	exec_stmt = _obj_0.exec_stmt
+end
+local build_stmt
+build_stmt = function(fn_name, ...)
+	local typesn = select('#', ...)
+	local types = { }
+	local parts = {
+		"SELECT cron." .. tostring(fn_name) .. "("
+	}
+	for i = 1, typesn do
+		local typ = select(i, ...)
+		if typ == nil then
+			break
+		end
+		parts[#parts + 1] = M.operator.concat(i > 1 and ", " or "", "$" .. tostring(i) .. "::" .. tostring(typ))
+		types[#types + 1] = typ
+	end
+	parts[#parts + 1] = ")"
+	return table.concat(parts), types
+end
+local Cron
+local _class_0
+local _base_0 = {
+	schedule = function(self, name, cron, job)
+		if job == nil then
+			cron, job = name, cron
+			local stmt, types = build_stmt('schedule', 'text', 'text')
+			return exec_stmt(self.conn, stmt, types, cron, job)
+		else
+			local stmt, types = build_stmt('schedule', 'name', 'text', 'text')
+			return exec_stmt(self.conn, stmt, types, name, cron, job)
+		end
+	end,
+	unschedule = function(self, name_or_id)
+		if type(name_or_id) == 'string' then
+			local stmt, types = build_stmt('unschedule', 'name')
+			return exec_stmt(self.conn, stmt, types, name_or_id)
+		else
+			local stmt, types = build_stmt('unschedule', 'bigint')
+			return exec_stmt(self.conn, stmt, types, name_or_id)
+		end
+	end,
+	list_jobs = function(self, job_name_filter)
+		local types = { }
+		local stmt = 'SELECT jobid, jobname, schedule, command, active FROM cron.job'
+		if job_name_filter and job_name_filter ~= '' then
+			stmt = stmt .. ' WHERE jobname LIKE $1::text'
+			types[#types + 1] = 'text'
+		end
+		return exec_stmt(self.conn, stmt, types, job_name_filter)
+	end
+}
+if _base_0.__index == nil then
+	_base_0.__index = _base_0
+end
+_class_0 = setmetatable({
+	__init = function(self, conn)
+		self.conn = conn
+	end,
+	__base = _base_0,
+	__name = "Cron"
+}, {
+	__index = _base_0,
+	__call = function(cls, ...)
+		local _self_0 = setmetatable({ }, _base_0)
+		cls.__init(_self_0, ...)
+		return _self_0
+	end
+})
+_base_0.__class = _class_0
+local self = _class_0;
+self.with = function(self, conn, fn, ...)
+	local args = {
+		...
+	}
+	return conn:with(function(conn)
+		local cli = self(conn)
+		return fn(cli, unpack(args))
+	end)
+end
+Cron = _class_0
+return _class_0

@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "lua-pslog",
+  "versions": {
+    "0.3.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "pslog/init.lua": {
+          "sha256": "0a9274f06fbbda864ca905783b48082df51ad73f1268257228755d6d64aa0b07",
+          "size": 4174,
+          "url": "blob:0a9274f06fbbda864ca905783b48082df51ad73f1268257228755d6d64aa0b07"
+        }
+      },
+      "homepage": "https://github.com/sa6mwa/libpslog",
+      "license": "MIT",
+      "lua": ">= 5.5, < 5.6",
+      "luarocks": {
+        "date": "Wed, 01 Apr 2026 00:59:20 GMT",
+        "rockspec": {
+          "date": "Wed, 01 Apr 2026 00:59:20 GMT",
+          "sha256": "b192266ded3ea248497a9ce394914f4b3de74c1448ca6b55662fd14532d15759",
+          "size": 1182
+        },
+        "src": {
+          "date": "Wed, 01 Apr 2026 00:59:21 GMT",
+          "sha256": "eec73061b648180c56d80bf9b0e19486af1b9dc3ae5895504a58621d9b95e475",
+          "size": 245880,
+          "url": "https://luarocks.org/lua-pslog-0.3.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "pslog",
+        "pslog.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "PSLOG_VERSION_MAJOR=0",
+                "PSLOG_VERSION_MINOR=3",
+                "PSLOG_VERSION_PATCH=1",
+                "PSLOG_VERSION_STRING=\"0.3.1\"",
+                "_POSIX_C_SOURCE=200809L"
+              ],
+              "incdirs": [
+                "include",
+                "src"
+              ],
+              "libraries": [
+                "pthread"
+              ],
+              "name": "pslog.core",
+              "sources": [
+                "lua/src/pslog_lua.c",
+                "src/pslog.c",
+                "src/pslog_emit_console.c",
+                "src/pslog_emit_json.c",
+                "src/pslog_palette.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 01 Apr 2026 00:59:21 GMT",
+        "sha256": "eec73061b648180c56d80bf9b0e19486af1b9dc3ae5895504a58621d9b95e475",
+        "size": 245880,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-pslog-0.3.1-1.src.rock"
+      },
+      "size": 4174,
+      "summary": "Lua binding for libpslog",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

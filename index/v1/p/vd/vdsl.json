@@ -1,0 +1,506 @@
+{
+  "kind": "lib",
+  "name": "vdsl",
+  "versions": {
+    "0.4.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "vdsl/anchor.lua": {
+          "sha256": "38b935c5e0da58bdb8404260534d2135b55f6d0927f679c97538567db236f42f",
+          "size": 11541,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/anchor.lua"
+        },
+        "vdsl/cast.lua": {
+          "sha256": "982b5958415557dc20a43a46b580c69e57ecc0e58f8df9b3618297eb99115c40",
+          "size": 4706,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/cast.lua"
+        },
+        "vdsl/catalog.lua": {
+          "sha256": "c606a8865fb2e4d69b34091e9d1e42181044922e30fde7b0ffcb80b779b06db8",
+          "size": 2766,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalog.lua"
+        },
+        "vdsl/catalogs/atmosphere.lua": {
+          "sha256": "0b7ace04e9b3d32b0c5f8da246bddd808d9c5f3aafb7d83fd80951b4f2dfbef3",
+          "size": 4282,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/atmosphere.lua"
+        },
+        "vdsl/catalogs/camera.lua": {
+          "sha256": "65a8998ce9e95537462d65c8dd56440664c8f565ced7759dd0578b4369c4a726",
+          "size": 5858,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/camera.lua"
+        },
+        "vdsl/catalogs/color/hue.lua": {
+          "sha256": "ea4c78d24935f6a6900faf476a24d20c7fe7284f387f27f474ed67cd32daf8ff",
+          "size": 4820,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/color/hue.lua"
+        },
+        "vdsl/catalogs/color/init.lua": {
+          "sha256": "92ca943d59fa148395b949a5857a10698e2a40b7c3085ee2ab7b38c97c88c1aa",
+          "size": 383,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/color/init.lua"
+        },
+        "vdsl/catalogs/color/palette.lua": {
+          "sha256": "10d3cb732c5f105c090d2f5e912f36706624dbf6a95aa5f04e73969a7e36c354",
+          "size": 3915,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/color/palette.lua"
+        },
+        "vdsl/catalogs/effect.lua": {
+          "sha256": "647ebfa74e43e6e3abcedbd56bc2a4ebc479c7d80fcc79cf0ad9a385d0f16d7d",
+          "size": 3763,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/effect.lua"
+        },
+        "vdsl/catalogs/environment/init.lua": {
+          "sha256": "e7cdee917218bfc36c3efc8430b1cd4a3b543f6581ee6b96158e75e2d691df9a",
+          "size": 455,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/environment/init.lua"
+        },
+        "vdsl/catalogs/environment/setting.lua": {
+          "sha256": "f341c1e452b11cfc3754b7a9493dc169a2c28df52e091832af33a1aba69d0d7e",
+          "size": 7334,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/environment/setting.lua"
+        },
+        "vdsl/catalogs/environment/time.lua": {
+          "sha256": "a74fe4cf8be85fd6eb3b7ce50e2d7aaf58a178bcaffe7607ab54cea7821e35d7",
+          "size": 6402,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/environment/time.lua"
+        },
+        "vdsl/catalogs/environment/weather.lua": {
+          "sha256": "ca1f58d937939aa734284799b4e8f43c0c099382be0c91c68d9f9feef51f74d0",
+          "size": 3586,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/environment/weather.lua"
+        },
+        "vdsl/catalogs/figure/accessory.lua": {
+          "sha256": "4961744136a59054ebbc9b79141574b1097f7fb2b54255cd4437313fa97d36a7",
+          "size": 2402,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/accessory.lua"
+        },
+        "vdsl/catalogs/figure/body.lua": {
+          "sha256": "2f44549c64e3c0ce080cd6c73573d1e743c394353a088593369fcd81b96d78d2",
+          "size": 2069,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/body.lua"
+        },
+        "vdsl/catalogs/figure/clothing.lua": {
+          "sha256": "ec6b3bd5e31dbbca9ebeafd9a204605d7b88fafbdba9abefcb34008e47c6416f",
+          "size": 3756,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/clothing.lua"
+        },
+        "vdsl/catalogs/figure/expression.lua": {
+          "sha256": "dab5426a220a2fe7848f0f21d6f7432ea1ba195ac86b2e15bd846b138594a681",
+          "size": 7189,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/expression.lua"
+        },
+        "vdsl/catalogs/figure/eyes.lua": {
+          "sha256": "69fe8fe20f671a95df82a864930e0cb4e5beae3688ff9350579bea25b12929f3",
+          "size": 4034,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/eyes.lua"
+        },
+        "vdsl/catalogs/figure/hair.lua": {
+          "sha256": "f6fb10ff9bf107b7146e82c172b7c16e2713ba284c8bfba95be505e0b08e7a03",
+          "size": 3973,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/hair.lua"
+        },
+        "vdsl/catalogs/figure/init.lua": {
+          "sha256": "ea41b3cb3e68674dd87360f1650f8e3febce6f868a0bf41422cba5d809bdf0fd",
+          "size": 725,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/init.lua"
+        },
+        "vdsl/catalogs/figure/pose.lua": {
+          "sha256": "2005987d56553dd27bf41c5daf76b2cc818a30f29d68bbf0ca1177770c785cb6",
+          "size": 4669,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/pose.lua"
+        },
+        "vdsl/catalogs/figure/species.lua": {
+          "sha256": "de1769852554a030436fa428e184bc04af062a9d9ae0771e5bfc96fe8d06c3cf",
+          "size": 3901,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/figure/species.lua"
+        },
+        "vdsl/catalogs/init.lua": {
+          "sha256": "59624542f46bac84982629d0e7ac762d2f2117c742deef3e9e621e97ba81c450",
+          "size": 3211,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/init.lua"
+        },
+        "vdsl/catalogs/lighting.lua": {
+          "sha256": "80b206c69f405d738368054342c32081708ca58553a90eb332c5e58564054ab3",
+          "size": 5265,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/lighting.lua"
+        },
+        "vdsl/catalogs/material.lua": {
+          "sha256": "47c90764dd52b52c074f80fe466b539959446c2f3ab5b75ba26d07ff4c8408b3",
+          "size": 1834,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/material.lua"
+        },
+        "vdsl/catalogs/quality.lua": {
+          "sha256": "d0506c33db761d8a054d98a3344282aa699f2c823ca1c035fa089ece3bd88bc1",
+          "size": 2224,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/quality.lua"
+        },
+        "vdsl/catalogs/style.lua": {
+          "sha256": "d9d9faf3de211fe1d87dff1e51f2d540464b3111ebe46b335067caa04c662c05",
+          "size": 4214,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/catalogs/style.lua"
+        },
+        "vdsl/compiler.lua": {
+          "sha256": "81addea0aae12c3649e68e1d360507a701f4aa720ffdb208bd3aa8045b38e5e8",
+          "size": 164,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compiler.lua"
+        },
+        "vdsl/compilers/comfyui/decoder.lua": {
+          "sha256": "2670cd350b007f12730b941cfd7e6b604b87ac6b65cb112e30b2e8779ef55375",
+          "size": 17000,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/comfyui/decoder.lua"
+        },
+        "vdsl/compilers/comfyui/engine.lua": {
+          "sha256": "2a81d9db9eb61bde9f007b24ca59a4233c4e173c33e0917bf07fda4c1ee9679f",
+          "size": 39362,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/comfyui/engine.lua"
+        },
+        "vdsl/compilers/comfyui/init.lua": {
+          "sha256": "62118411161a467eb0b7ac8bfe1d529d28e4d7014da82aa96e695d203699e106",
+          "size": 132,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/comfyui/init.lua"
+        },
+        "vdsl/compilers/comfyui/parameters.lua": {
+          "sha256": "04c01d3a13c8cccd528ca51d4adbe0d3877bcd204c71f6d11f3e593e1b9d5bc5",
+          "size": 3423,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/comfyui/parameters.lua"
+        },
+        "vdsl/compilers/comfyui/preflight.lua": {
+          "sha256": "63e690b3367aac242ba9fc644d46670543dd7d6d707ff789d8297170d3b3c649",
+          "size": 6840,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/comfyui/preflight.lua"
+        },
+        "vdsl/compilers/zimage/engine.lua": {
+          "sha256": "f0351e51f82e6c8958973f381b0682132d8a67c5e6bb24836816e3e91390b8ea",
+          "size": 30387,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/zimage/engine.lua"
+        },
+        "vdsl/compilers/zimage/init.lua": {
+          "sha256": "933acbcdb40a2e9d181bbf9f4177fc74bf4bd10896c8a69f05c9b1569a98ef76",
+          "size": 131,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/zimage/init.lua"
+        },
+        "vdsl/compilers/zimage/parameters.lua": {
+          "sha256": "494fc8c3adaf180bd0bdc35b36a93fac4ff8846aa6b08fca155edd9d776445b1",
+          "size": 5666,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/compilers/zimage/parameters.lua"
+        },
+        "vdsl/config.lua": {
+          "sha256": "bc3c5a4c4bda5f822193036afbe065085f9383895dac59086c3b89b81c29422e",
+          "size": 2464,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/config.lua"
+        },
+        "vdsl/entity.lua": {
+          "sha256": "65edd96a938294cd2ee3926055c61799d180a0236a5df18653bb0c19925395ec",
+          "size": 1872,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/entity.lua"
+        },
+        "vdsl/graph.lua": {
+          "sha256": "98c281fa64c9b8e07bb7a1aee8a4a7fc4e4e0018e983048eb1d0db45a542433e",
+          "size": 1299,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/graph.lua"
+        },
+        "vdsl/init.lua": {
+          "sha256": "13fc802b84d435258c9876e050ce12da98ee7b2c1acdd20f06e9c82c3ce564be",
+          "size": 19832,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/init.lua"
+        },
+        "vdsl/judge.lua": {
+          "sha256": "a415c44c2bb97fe185f113c9153301838f6f25f847e9dbbfcc25160096c0d7c2",
+          "size": 18740,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/judge.lua"
+        },
+        "vdsl/pipeline.lua": {
+          "sha256": "9b471606b715236bc4f86afb21fc0bfd25eff4a932b0c58fdff2878fd15f09f6",
+          "size": 39157,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/pipeline.lua"
+        },
+        "vdsl/post.lua": {
+          "sha256": "b2af0ed0db4880405086c2a5d08f63665f5e987064f6be2d49c37dc40ba33c9a",
+          "size": 1752,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/post.lua"
+        },
+        "vdsl/repository.lua": {
+          "sha256": "d24586ada060700496cec05bf6a292e0272826c0b12843f95bbfd65d096f64a9",
+          "size": 13216,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/repository.lua"
+        },
+        "vdsl/runtime/db.lua": {
+          "sha256": "beff53d15274e64cf5dd865f320a32df410b2d4bbeb13578289d8a3b7994ac80",
+          "size": 6406,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/db.lua"
+        },
+        "vdsl/runtime/emit.lua": {
+          "sha256": "fcf13c69b0f26816322bba547af6aca751e01cd6417ca4f917f8cf30794e39e9",
+          "size": 2483,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/emit.lua"
+        },
+        "vdsl/runtime/fs.lua": {
+          "sha256": "7198029c5c43e12a3efdc29115537e863a29f3a0292bb0a74fd83df6f9bca132",
+          "size": 4696,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/fs.lua"
+        },
+        "vdsl/runtime/png.lua": {
+          "sha256": "e969b274a4c53c375ce3ed0606e2838380e4b78deac6ac9b0b6bf5669a45a1d7",
+          "size": 4832,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/png.lua"
+        },
+        "vdsl/runtime/png_default.lua": {
+          "sha256": "68f5c5d073256ccbb47d3d373283c00b5d2ba8632ad35142e75819855118854f",
+          "size": 11705,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/png_default.lua"
+        },
+        "vdsl/runtime/profile.lua": {
+          "sha256": "11591d57775f5b478e2da192fab8cde12bf8c3742e296cf7bf16b3667c11b4ad",
+          "size": 25249,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/profile.lua"
+        },
+        "vdsl/runtime/registry.lua": {
+          "sha256": "9c87348fb5c96d5e62681384314ee6a850a19183e0378b2c613eb5822758b009",
+          "size": 13397,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/registry.lua"
+        },
+        "vdsl/runtime/runpod.lua": {
+          "sha256": "05669b1f905039580561df0526ddd482d6a095e104b12d9884da22e351fcb767",
+          "size": 20307,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/runpod.lua"
+        },
+        "vdsl/runtime/serializer.lua": {
+          "sha256": "bac33d3771f52f1d8755944a14e8c9cfd691b50140b8abfb5037dbb2c01ce291",
+          "size": 11022,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/serializer.lua"
+        },
+        "vdsl/runtime/session.lua": {
+          "sha256": "68b9743df71c1a46ed0287e5f82597ccd820896975838524d81784a935c8636a",
+          "size": 6010,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/session.lua"
+        },
+        "vdsl/runtime/store.lua": {
+          "sha256": "4f2a243e519e1fa4810c7c4296235d268d1c343a3fd1a621da5928163bb116dc",
+          "size": 3858,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/store.lua"
+        },
+        "vdsl/runtime/transport/curl.lua": {
+          "sha256": "2582bf012ce1c20a35e167599ae275a2e48b0fda8656e6f14529bff39a83766a",
+          "size": 4177,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/transport/curl.lua"
+        },
+        "vdsl/runtime/transport/init.lua": {
+          "sha256": "ea6721e52c0203eede8c6efdd031d548ff9bb09233c1ff33db52e0bdd69a36d7",
+          "size": 3272,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/runtime/transport/init.lua"
+        },
+        "vdsl/stage.lua": {
+          "sha256": "01f584c659399320f8c4e1869832f225293af6610dbdf57de7bfa64523570f96",
+          "size": 1773,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/stage.lua"
+        },
+        "vdsl/subject.lua": {
+          "sha256": "2acce5f44add36774ed7b2dbb7867403b4a7dfeebb2545a3c37e1382a3c13b10",
+          "size": 7387,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/subject.lua"
+        },
+        "vdsl/training/dataset.lua": {
+          "sha256": "d59b66f9f48057a003e4e83843530d46314619824388f9b689fcb0730e171834",
+          "size": 9354,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/dataset.lua"
+        },
+        "vdsl/training/env.lua": {
+          "sha256": "916a87973c2f8c910963fc33a166670c4cba23eda640e6cf57d6f89e533682ec",
+          "size": 10931,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/env.lua"
+        },
+        "vdsl/training/init.lua": {
+          "sha256": "1cb6ef7431f39a9e9c8482d575eaf4e9064bc85b276120b3c5ed046dd3489ef9",
+          "size": 3761,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/init.lua"
+        },
+        "vdsl/training/methods/kohya.lua": {
+          "sha256": "82a4160c4b261ba6faa712729f2645b03d74c3817c319b59edc6f7eaf0559ecb",
+          "size": 2564,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/methods/kohya.lua"
+        },
+        "vdsl/training/methods/leco.lua": {
+          "sha256": "e0cc92fd962eaac3170235d65433a63627837a14c042b02642f044cff2525dc9",
+          "size": 3029,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/methods/leco.lua"
+        },
+        "vdsl/training/methods/lycoriss.lua": {
+          "sha256": "8bda65d3202ee0501eb9981edd503305cbbfe0805bbce7317c235f7e0a08337d",
+          "size": 2388,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/methods/lycoriss.lua"
+        },
+        "vdsl/training/methods/sdscripts_base.lua": {
+          "sha256": "4efa358b52e9a6080234fa3719b2ea3afef02b18951e36ff435bb18088ceb01c",
+          "size": 4448,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/methods/sdscripts_base.lua"
+        },
+        "vdsl/training/methods/sliders.lua": {
+          "sha256": "8569c3dbd0c346b1d4fda78fa39e9277363a45f0bc3d64caa6ea43405d4d0311",
+          "size": 7473,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/methods/sliders.lua"
+        },
+        "vdsl/training/methods/ti.lua": {
+          "sha256": "a3952d3366f5b83825d50d76617e54a7daaef00f56b660254d813b43d2c2637b",
+          "size": 2767,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/methods/ti.lua"
+        },
+        "vdsl/training/verify.lua": {
+          "sha256": "31eb2d3cea035ea8b50f9ec47f3034a746409855c53f67d0705e2e9f2e524bd7",
+          "size": 4092,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/training/verify.lua"
+        },
+        "vdsl/trait.lua": {
+          "sha256": "b49b4e431f4f9909bea6a2073cb7585de55653ab7c9e1d8f84e7f50bac74cd2e",
+          "size": 13348,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/trait.lua"
+        },
+        "vdsl/util/id.lua": {
+          "sha256": "65f31582cb06e1831158923aa545952cb8df1e6e0c61ebe248914d5d75ade7f4",
+          "size": 925,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/util/id.lua"
+        },
+        "vdsl/util/json.lua": {
+          "sha256": "733528966fa9d3e1bd93b6fd4e62958ae966d0e7565e3ec46e111ec893006a54",
+          "size": 10094,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/util/json.lua"
+        },
+        "vdsl/util/matcher.lua": {
+          "sha256": "7859f6daf5013968f1dc0ebf07b7aef840ecb7bfd8a437bbd6014d0ad6c51701",
+          "size": 3127,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/util/matcher.lua"
+        },
+        "vdsl/util/shell.lua": {
+          "sha256": "f570364ccc7bc0723ee987525dfd1091c6292f8a0fe45ae0ca8ef79f7f6ddf18",
+          "size": 441,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/util/shell.lua"
+        },
+        "vdsl/weight.lua": {
+          "sha256": "cb17d14283fe26b69171e27127e0408f56a5e783bbc290e15a5ff3f66aa131a7",
+          "size": 2115,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/weight.lua"
+        },
+        "vdsl/world.lua": {
+          "sha256": "9c5f6d48ae70c69d27ae300e03f06e1c8de8255f8bc5a54d1c74c1c72903399e",
+          "size": 5508,
+          "url": "https://raw.githubusercontent.com/ynishi/vdsl/c57736d44de193faf6ed291c810892b297690b31/lua/vdsl/world.lua"
+        }
+      },
+      "homepage": "https://github.com/ynishi/vdsl",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 16 May 2026 02:48:27 GMT",
+        "rockspec": {
+          "date": "Sat, 16 May 2026 02:48:27 GMT",
+          "sha256": "f05feee16eed8beaa282ea92537f0c439d745f11f884f90e901cab900e49e60d",
+          "size": 6884
+        },
+        "src": {
+          "date": "Sat, 16 May 2026 02:48:31 GMT",
+          "sha256": "596dad6b5c20f3f6442d27e8ec77b5484abffd1b63f797e8dee46dfe62052c42",
+          "size": 359164,
+          "url": "https://luarocks.org/vdsl-0.4.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "vdsl",
+        "vdsl.anchor",
+        "vdsl.cast",
+        "vdsl.catalog",
+        "vdsl.catalogs",
+        "vdsl.catalogs.atmosphere",
+        "vdsl.catalogs.camera",
+        "vdsl.catalogs.color",
+        "vdsl.catalogs.color.hue",
+        "vdsl.catalogs.color.palette",
+        "vdsl.catalogs.effect",
+        "vdsl.catalogs.environment",
+        "vdsl.catalogs.environment.setting",
+        "vdsl.catalogs.environment.time",
+        "vdsl.catalogs.environment.weather",
+        "vdsl.catalogs.figure",
+        "vdsl.catalogs.figure.accessory",
+        "vdsl.catalogs.figure.body",
+        "vdsl.catalogs.figure.clothing",
+        "vdsl.catalogs.figure.expression",
+        "vdsl.catalogs.figure.eyes",
+        "vdsl.catalogs.figure.hair",
+        "vdsl.catalogs.figure.pose",
+        "vdsl.catalogs.figure.species",
+        "vdsl.catalogs.lighting",
+        "vdsl.catalogs.material",
+        "vdsl.catalogs.quality",
+        "vdsl.catalogs.style",
+        "vdsl.compiler",
+        "vdsl.compilers.comfyui",
+        "vdsl.compilers.comfyui.decoder",
+        "vdsl.compilers.comfyui.engine",
+        "vdsl.compilers.comfyui.parameters",
+        "vdsl.compilers.comfyui.preflight",
+        "vdsl.compilers.zimage",
+        "vdsl.compilers.zimage.engine",
+        "vdsl.compilers.zimage.parameters",
+        "vdsl.config",
+        "vdsl.entity",
+        "vdsl.graph",
+        "vdsl.judge",
+        "vdsl.pipeline",
+        "vdsl.post",
+        "vdsl.repository",
+        "vdsl.runtime.db",
+        "vdsl.runtime.emit",
+        "vdsl.runtime.fs",
+        "vdsl.runtime.png",
+        "vdsl.runtime.png_default",
+        "vdsl.runtime.profile",
+        "vdsl.runtime.registry",
+        "vdsl.runtime.runpod",
+        "vdsl.runtime.serializer",
+        "vdsl.runtime.session",
+        "vdsl.runtime.store",
+        "vdsl.runtime.transport",
+        "vdsl.runtime.transport.curl",
+        "vdsl.stage",
+        "vdsl.subject",
+        "vdsl.training",
+        "vdsl.training.dataset",
+        "vdsl.training.env",
+        "vdsl.training.methods.kohya",
+        "vdsl.training.methods.leco",
+        "vdsl.training.methods.lycoriss",
+        "vdsl.training.methods.sdscripts_base",
+        "vdsl.training.methods.sliders",
+        "vdsl.training.methods.ti",
+        "vdsl.training.verify",
+        "vdsl.trait",
+        "vdsl.util.id",
+        "vdsl.util.json",
+        "vdsl.util.matcher",
+        "vdsl.util.shell",
+        "vdsl.weight",
+        "vdsl.world"
+      ],
+      "origin": {
+        "commit": "c57736d44de193faf6ed291c810892b297690b31",
+        "ref": "v0.4.0",
+        "type": "git",
+        "url": "https://github.com/ynishi/vdsl.git"
+      },
+      "size": 523653,
+      "summary": "Visual DSL for ComfyUI",
+      "undeclared_requires": [
+        "lsqlite3complete"
+      ],
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 76,
+        "status": "ok",
+        "total": 76
+      }
+    }
+  }
+}

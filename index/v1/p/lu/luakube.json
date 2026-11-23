@@ -1,0 +1,108 @@
+{
+  "kind": "lib",
+  "name": "luakube",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [
+        "lyaml >= 6.2",
+        "luajson >= 1.3",
+        "luasocket >= 3.0rc1",
+        "luasec >= 1.0",
+        "base64 >= 1.5",
+        "fun >= 0.1"
+      ],
+      "files": {
+        "kube.lua": {
+          "sha256": "bbb280da57a3b84a79fdcb36615438c48161026a2a6af877875339fce9c3db1b",
+          "size": 197,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube.lua"
+        },
+        "kube/api.lua": {
+          "sha256": "a344d158cb0086d7784a2376a521a81d3cc87a49935939ad30e47bfc1418ebde",
+          "size": 3939,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube/api.lua"
+        },
+        "kube/api/apps_v1.lua": {
+          "sha256": "73df463fc12034aa8ec40652d5751133afb048163001bcac41edbe80945c6eff",
+          "size": 1739,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube/api/apps_v1.lua"
+        },
+        "kube/api/batch_v1.lua": {
+          "sha256": "103d60f988e26a0c79292dd1c305646179c2d3cca634f47d7c5ad6a39a5504d1",
+          "size": 704,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube/api/batch_v1.lua"
+        },
+        "kube/api/core_v1.lua": {
+          "sha256": "f725b0484133b2f1448df142c2b5bab3be027620abdf63e6da780828d902e9b5",
+          "size": 6011,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube/api/core_v1.lua"
+        },
+        "kube/api/objects.lua": {
+          "sha256": "92c48da0044d11afb2a5633a5a50dcf63599391f42765ab7aa001fb9937fdd6f",
+          "size": 1539,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube/api/objects.lua"
+        },
+        "kube/api/utils.lua": {
+          "sha256": "4ade4567081e68b0cf695fb802317853b7e74a4d0a41ac2d605d525df4d481cb",
+          "size": 6728,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube/api/utils.lua"
+        },
+        "kube/config.lua": {
+          "sha256": "df705c56931f4cc646eda54dab6d56aa24d22f3558c4c81bf55dae5f21e0d0c0",
+          "size": 5661,
+          "url": "https://raw.githubusercontent.com/f4z3r/luakube/c7c5b5de817e1f8a44758f4172352d6a163faf93/src/kube/config.lua"
+        }
+      },
+      "homepage": "https://github.com/f4z3r/luakube",
+      "license": "MIT",
+      "lua": ">= 5.3, <= 5.4",
+      "luarocks": {
+        "date": "Sat, 26 Jun 2021 17:17:59 GMT",
+        "rockspec": {
+          "date": "Sat, 26 Jun 2021 17:17:59 GMT",
+          "sha256": "7f00d9c637b56569777dbfc4678d0322a91008db11645f85c4c03a924741d80b",
+          "size": 1150
+        },
+        "src": {
+          "date": "Sat, 26 Jun 2021 17:18:01 GMT",
+          "sha256": "2dae2f346a2e4641b66878c037616ec0a8d3ac3a7cac84608d420e82516072d6",
+          "size": 32981,
+          "url": "https://luarocks.org/luakube-0.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kube",
+        "kube.api",
+        "kube.api.apps_v1",
+        "kube.api.batch_v1",
+        "kube.api.core_v1",
+        "kube.api.objects",
+        "kube.api.utils",
+        "kube.config"
+      ],
+      "origin": {
+        "commit": "c7c5b5de817e1f8a44758f4172352d6a163faf93",
+        "ref": "v0.1.0-0",
+        "type": "git",
+        "url": "https://github.com/f4z3r/luakube"
+      },
+      "size": 26518,
+      "summary": "Kubernetes client library for Lua",
+      "undeclared_requires": [
+        "ltn12",
+        "lyaml",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

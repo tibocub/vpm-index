@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "luaircclient",
+  "versions": {
+    "1.0-9": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Mon, 24 Aug 2015 19:31:58 GMT",
+        "rockspec": {
+          "date": "Mon, 24 Aug 2015 19:31:58 GMT",
+          "sha256": "0980357c003e5de7abb9ef296dd2fcdce8957e777308ee9e6474c9e39f865261",
+          "size": 655
+        },
+        "src": {
+          "date": "Mon, 24 Aug 2015 19:31:58 GMT",
+          "sha256": "036c532554acfef075261f24f6d665232fd9625ed9bb401a718dee1ca7cfeeb4",
+          "size": 11437,
+          "url": "https://luarocks.org/luaircclient-1.0-9.src.rock"
+        }
+      },
+      "modules": [
+        "ircclient"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "libircclient"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "libircclient": {
+              "header": "libircclient.h",
+              "library": "ircclient"
+            }
+          },
+          "modules": [
+            {
+              "libraries": [
+                "ircclient"
+              ],
+              "name": "ircclient",
+              "sources": [
+                "src/irc.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "luaircclient-master"
+      },
+      "origin": {
+        "date": "Mon, 24 Aug 2015 19:31:58 GMT",
+        "sha256": "036c532554acfef075261f24f6d665232fd9625ed9bb401a718dee1ca7cfeeb4",
+        "size": 11437,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaircclient-1.0-9.src.rock"
+      },
+      "summary": "A simple wrapper around libircclient",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

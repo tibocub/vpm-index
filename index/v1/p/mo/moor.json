@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "moor",
+  "versions": {
+    "v5.0-1": {
+      "bin": [],
+      "deps": [
+        "moonscript >= 0.4",
+        "inspect",
+        "linenoise"
+      ],
+      "files": [],
+      "homepage": "https://github.com/Nymphium/moor",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 14 Mar 2017 16:32:10 GMT",
+        "rockspec": {
+          "date": "Tue, 14 Mar 2017 16:32:10 GMT",
+          "sha256": "1b6ed544b5b44f50d13544f2395ca5d857671d2b0f4c36b152a69a72c1c7b542",
+          "size": 602
+        },
+        "src": {
+          "date": "Tue, 14 Mar 2017 16:32:11 GMT",
+          "sha256": "066245dfcb957938dc28f1e7caa2b298020381df8f777fbcce76994d09850dbc",
+          "size": 14492,
+          "url": "https://luarocks.org/moor-v5.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "moor.init",
+        "moor.opts",
+        "moor.utils"
+      ],
+      "native": {
+        "build": "make",
+        "native": "build",
+        "plan": {
+          "make": {
+            "install": {
+              "lua": {
+                "moor.init": "moor/init.lua",
+                "moor.opts": "moor/opts.lua",
+                "moor.utils": "moor/utils.lua"
+              }
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Tue, 14 Mar 2017 16:32:11 GMT",
+        "sha256": "066245dfcb957938dc28f1e7caa2b298020381df8f777fbcce76994d09850dbc",
+        "size": 14492,
+        "type": "luarocks",
+        "url": "https://luarocks.org/moor-v5.0-1.src.rock"
+      },
+      "summary": "MoonScript REPL",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

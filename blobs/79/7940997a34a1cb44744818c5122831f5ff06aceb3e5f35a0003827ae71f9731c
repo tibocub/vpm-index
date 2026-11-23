@@ -1,0 +1,47 @@
+local _module_0 = nil
+local ngx = require('ngx')
+local inspect = require('inspect')
+local os = require('os')
+local config, db, errs, router
+do
+	local _obj_0 = require('elan.built')
+	config, db, errs, router = _obj_0.config, _obj_0.db, _obj_0.errs, _obj_0.router
+end
+local request = require('elan.http.request')
+local response = require('elan.http.response')
+local result = require('elan.result')
+local _anon_func_0 = function(config)
+	local _exp_0 = config.locals
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return { }
+	end
+end
+local run
+run = function()
+	local req = request.new(ngx.req, ngx.var, ngx.ctx)
+	local res = response.new(req.cookie)
+	return result.defer(function()
+		if not req.raw_body then
+			return ngx.req.discard_body()
+		end
+	end, function()
+		if errs then
+			res.status = 500
+			if os.getenv('ELAN_ENV') == 'dev' then
+				return res:write_json(errs)
+			else
+				return res:write_text("Elan app has errors, see logs for details")
+			end
+		else
+			req.db = db
+			req.ctx.locals = setmetatable({ }, {
+				__index = _anon_func_0(config)
+			})
+			return router(req, res)
+		end
+	end)
+end
+_module_0 = run
+return _module_0

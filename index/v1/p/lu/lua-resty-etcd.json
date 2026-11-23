@@ -1,0 +1,104 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-etcd",
+  "versions": {
+    "1.10.7-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "luafilesystem",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "api7-lua-resty-http = 0.2.2-0",
+        "lua-protobuf = 0.4.1",
+        "luafilesystem = 1.7.0-2",
+        "penlight = 1.9.2-1",
+        "lua-typeof = 0.1"
+      ],
+      "files": {
+        "resty/etcd.lua": {
+          "sha256": "c3830ecfc5444015a879e251bc23557414f244bb363ccaab1bb2e5c4a97b1708",
+          "size": 1059,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-etcd/5c511fbd3b0fd15de433a11d6483ef0346520ece/lib/resty/etcd.lua"
+        },
+        "resty/etcd/health_check.lua": {
+          "sha256": "2fe087912a448a9e96cf8cfd95d6e91aaf42733728b33920c546a60bfbaeffb7",
+          "size": 4895,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-etcd/5c511fbd3b0fd15de433a11d6483ef0346520ece/lib/resty/etcd/health_check.lua"
+        },
+        "resty/etcd/proto.lua": {
+          "sha256": "2a3a9be52cab5c6215769dbbb2877e2096feffcd2f96a78c65b23419965a58b2",
+          "size": 18653,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-etcd/5c511fbd3b0fd15de433a11d6483ef0346520ece/lib/resty/etcd/proto.lua"
+        },
+        "resty/etcd/serializers/json.lua": {
+          "sha256": "8661b834a5256f56723c7d86e2621bc03cf8cbcf193ad22b189d6f9f06cc7eae",
+          "size": 112,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-etcd/5c511fbd3b0fd15de433a11d6483ef0346520ece/lib/resty/etcd/serializers/json.lua"
+        },
+        "resty/etcd/serializers/raw.lua": {
+          "sha256": "4818152db7ae1efefb95a81a289088bd25ca0d24ce8e17b85307512dc79620c5",
+          "size": 290,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-etcd/5c511fbd3b0fd15de433a11d6483ef0346520ece/lib/resty/etcd/serializers/raw.lua"
+        },
+        "resty/etcd/utils.lua": {
+          "sha256": "5cbe9f92cb743447c20d32b78c534dcca702163b626657fe6afbf280f11c15e5",
+          "size": 2729,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-etcd/5c511fbd3b0fd15de433a11d6483ef0346520ece/lib/resty/etcd/utils.lua"
+        },
+        "resty/etcd/v3.lua": {
+          "sha256": "8a2c6a47b3dbf711a39c49a6514416d7c8fffcead39fc77e183d15aa2a3cc29f",
+          "size": 46188,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-etcd/5c511fbd3b0fd15de433a11d6483ef0346520ece/lib/resty/etcd/v3.lua"
+        }
+      },
+      "homepage": "https://github.com/api7/lua-resty-etcd",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Wed, 29 Jul 2026 03:01:34 GMT",
+        "rockspec": {
+          "date": "Wed, 29 Jul 2026 03:01:34 GMT",
+          "sha256": "9ed3ad22e02c81dfc7bc16672a2262b09011a5dce3098ef18f49ba126f03a83c",
+          "size": 997
+        },
+        "src": {
+          "date": "Wed, 29 Jul 2026 03:01:35 GMT",
+          "sha256": "4bed9952e45206c1e4388804053329d63db459c66c6112b92af5e96adcdcf805",
+          "size": 111355,
+          "url": "https://luarocks.org/lua-resty-etcd-1.10.7-0.src.rock"
+        }
+      },
+      "modules": [
+        "resty.etcd",
+        "resty.etcd.health_check",
+        "resty.etcd.proto",
+        "resty.etcd.serializers.json",
+        "resty.etcd.serializers.raw",
+        "resty.etcd.utils",
+        "resty.etcd.v3"
+      ],
+      "origin": {
+        "commit": "5c511fbd3b0fd15de433a11d6483ef0346520ece",
+        "ref": "v1.10.7",
+        "type": "git",
+        "url": "https://github.com/api7/lua-resty-etcd"
+      },
+      "size": 73926,
+      "summary": "Nonblocking Lua etcd driver library for OpenResty",
+      "undeclared_requires": [
+        "ngx.re",
+        "ngx.semaphore"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

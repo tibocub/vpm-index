@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "lsqlite3",
+  "versions": {
+    "0.9.7-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://lua.sqlite.org/",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.6",
+      "luarocks": {
+        "date": "Thu, 13 Aug 2026 04:28:18 GMT",
+        "rockspec": {
+          "date": "Thu, 13 Aug 2026 04:28:18 GMT",
+          "sha256": "57c0939b6b766240844782e803a723169fed7eca5cf3b637115ec937f257fa4b",
+          "size": 1226
+        },
+        "src": {
+          "date": "Thu, 13 Aug 2026 04:28:20 GMT",
+          "sha256": "29889cd8366849128d02e6080178af91b776b01ffb22564b9508a0a4e4888af1",
+          "size": 2676798,
+          "url": "https://luarocks.org/lsqlite3-0.9.7-1.src.rock"
+        }
+      },
+      "modules": [
+        "lsqlite3"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SQLITE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SQLITE": {
+              "header": "sqlite3.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "LSQLITE_VERSION=\"0.9.7\""
+              ],
+              "incdirs": [
+                "$(SQLITE_INCDIR)"
+              ],
+              "libdirs": [
+                "$(SQLITE_LIBDIR)"
+              ],
+              "libraries": [
+                "sqlite3"
+              ],
+              "name": "lsqlite3",
+              "sources": [
+                "lsqlite3.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 13 Aug 2026 04:28:20 GMT",
+        "sha256": "29889cd8366849128d02e6080178af91b776b01ffb22564b9508a0a4e4888af1",
+        "size": 2676798,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lsqlite3-0.9.7-1.src.rock"
+      },
+      "summary": "A binding for Lua to the SQLite3 database library",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

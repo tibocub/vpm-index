@@ -1,0 +1,378 @@
+--[[
+
+Schemer - A Lightweight Lua Schema Validation Library
+
+This is the main entry point for the schemer library. It orchestrates the
+validation process by coordinating the different components of the library:
+- schemer.validators: Handles field-level validation logic.
+- schemer.cross_field: Manages validation rules that span multiple fields.
+- schemer.util: Provides helper functions used across the library.
+- schemer.errors: Contains the definitions for all error codes.
+
+The refactored design separates concerns, making the library more modular
+and easier to maintain and extend.
+
+Schemer helps validate configuration or data entry against a defined schema.
+It's lightweight, expressive, and has a small footprint, designed for validating
+structured data with comprehensive error reporting and data normalization.
+
+Principles:
+    - Well-balanced feature set: expressive yet small
+    - Field-level validations with descriptive error reporting
+    - Cross-field validations for complex configurations
+    - Support for recursive schemas and nested validation
+    - Data normalization with defaults and enum transformations
+    - Consistent error codes for programmatic error handling
+
+Key Features:
+    ✓ Basic type validation (string, number, boolean, table, function)
+    ✓ Value constraints (enums, allowed values, ranges)
+    ✓ String validations (length, patterns)
+    ✓ Number validations (min/max ranges)
+    ✓ Array/table validations (count, element validation)
+    ✓ Nested schema validation
+    ✓ Cross-field dependencies and exclusions
+    ✓ Default value application
+    ✓ Enum reverse lookup and transformation
+
+Example Usage:
+
+    local schemer = require("schemer")
+
+    -- Define an enum with reverse lookup support
+    local LEVELS = { DEBUG = 1, INFO = 2, WARN = 3, ERROR = 4 }
+
+    local schema = {
+        fields = {
+            -- Enum field with reverse lookup (accepts "DEBUG" -> transforms to 1)
+            level = {
+                type = "number",
+                required = false,
+                values = schemer.enum(LEVELS, { reverse = true }),
+                default = LEVELS.INFO
+            },
+
+            -- String field with constraints
+            name = {
+                type = "string",
+                required = true,
+                pattern = "^%w+$",
+                min_len = 3,
+                max_len = 50
+            },
+
+            -- Array field with count and element validation
+            items = {
+                type = "table",
+                count = { 1, "*" }, -- At least one item required
+                each = { type = "string" }
+            },
+
+            -- Table with unique values constraint
+            level_mappings = {
+                type = "table",
+                unique_values = true -- All values must be unique
+            },
+
+            -- Field with forbidden values (e.g., reserved values)
+            port = {
+                type = "number",
+                not_allowed_values = { 0, 22, 80, 443 }, -- Reserved ports
+                min = 1,
+                max = 65535
+            },
+
+            -- Union types - field can accept multiple types with different validation
+            timeout = {
+                union = {
+                    { type = "number", min = 1 },                        -- Timeout in seconds
+                    { type = "string", values = {"infinite", "never"} }, -- Special timeout values
+                    { type = "table", fields = {                         -- Custom timeout config
+                        min = { type = "number", min = 0 },
+                        max = { type = "number", min = 0 }
+                    }}
+                }
+            },
+
+            -- Nested schema
+            config = {
+                type = "table",
+                fields = {
+                    timeout = { type = "number", min = 1, default = 30 },
+                    enabled = { type = "boolean", default = true }
+                }
+            }
+        },
+
+        -- Cross-field validations
+        one_of = { "items", "config" },                    -- At least one must be present
+        depends_on = { field = "config", requires = "name" }, -- If config exists, name must exist
+        exclusive = { "debug_mode", "production_mode" }    -- These cannot both be present
+    }
+
+    -- Validate data
+    local data = { level = "DEBUG", name = "test", items = { "a", "b" } }
+    local err, result = schemer.validate(data, schema)
+
+    if err then
+        print("Validation failed:", err.error)
+        -- Access field-specific errors via err.fields[field_name]
+        -- Access cross-field errors via err.all
+    else
+        -- result contains normalized data with defaults applied
+        print("Level:", result.level) -- Will be 1 (transformed from "DEBUG")
+    end
+
+Example with on_extra_keys:
+
+    local schema = {
+        fields = {
+            name = { type = "string", required = true },
+            age = { type = "number" }
+        },
+        on_extra_keys = "ignore" -- Allow unknown keys
+    }
+
+    local data = { name = "Alice", age = 30, extra = "value" }
+    local err, result = schemer.validate(data, schema)
+    -- result.extra will be "value" (ignored and kept)
+
+API Reference:
+
+Functions:
+    schemer.validate(data, schema) -> error_table|nil, normalized_data|nil
+        Validates data against the provided schema.
+
+        Parameters:
+            data (table): The data to validate
+            schema (table): The schema definition
+
+        Returns:
+            On success: nil, normalized_data
+            On failure: error_table, nil
+
+        Error table structure:
+            {
+                fields = { field_name = { {error_code, error_message}, ... }, ... },
+                all = { {error_code, error_message}, ... }, -- Cross-field errors
+                error = "Human readable summary",
+                data = original_data,
+                schema = schema_used
+            }
+
+    schemer.enum(enum_table, options) -> enum_definition
+        Creates an enum definition for use in value validation.
+
+        Parameters:
+            enum_table (table): Key-value pairs for the enum
+            options (table, optional): { reverse = boolean, case_insensitive = boolean }
+                reverse: If true, allows string keys to be transformed to values
+                case_insensitive: If true, enables case-insensitive matching
+
+        Returns:
+            { enum = enum_table, reverse = boolean, case_insensitive = boolean }
+
+Schema Structure:
+
+Field Schema Properties:
+    type (string): Required type ("string", "number", "boolean", "table", "function")
+    required (boolean): Whether field is required (default: false)
+    default (any): Default value when field is missing
+
+    For all types:
+        values (table|enum_def): List of allowed values or enum definition
+        not_allowed_values (table): List of forbidden values
+        case_insensitive (boolean): Enable case-insensitive string matching for values
+        union (table): Array of alternative schemas - value must match at least one
+
+    For strings:
+        min_len (number): Minimum string length
+        max_len (number): Maximum string length
+        pattern (string): Lua pattern for validation
+
+    For numbers:
+        min (number): Minimum value (inclusive)
+        max (number): Maximum value (inclusive)
+
+    For tables:
+        count (table): {min, max} item count. Use "*" for unlimited max
+        each (schema): Schema applied to each array element
+        fields (table): Schema for nested object validation
+        unique_values (boolean): Ensure all values in the table are unique
+
+    Custom validation:
+        custom_validator (function): Custom validation function (value, data) -> boolean, error_msg
+                                    The function receives the field value and the entire data object,
+                                    enabling cross-field validation logic within custom validators
+        error_message (string): Custom error message for validation failures
+
+Cross-field Schema Properties:
+    cross_field_rules (table): Array of cross-field validation rules
+        Each rule is a table with a "type" field and rule-specific properties.
+        Multiple rules of the same type are supported for complex validation scenarios.
+
+        one_of rules: { type = "one_of", fields = { "field1", "field2", ... }, error_message = "..." }
+            At least one of the specified fields must be present
+
+        exclusive rules: { type = "exclusive", fields = { "field1", "field2", ... }, error_message = "..." }
+            At most one of the specified fields can be present
+
+        depends_on rules: { type = "depends_on", field = "dependent_field", requires = "required_field", error_message = "..." }
+            If 'field' is present, then 'requires' must also be present
+
+        All rules support optional custom error_message for better user experience.
+        Rules are evaluated in order and all failing rules generate errors.
+
+    on_extra_keys (string): How to handle unknown keys ("error", "ignore", "remove")
+                           Default: "error" - reject unknown keys
+                           "ignore" - allow unknown keys and keep them in result
+                           "remove" - strip unknown keys from result but continue validation
+
+Error Codes:
+    INVALID_TYPE: Type mismatch
+    REQUIRED_FIELD: Required field missing
+    INVALID_VALUE: Value not in allowed set
+    FORBIDDEN_VALUE: Value in forbidden set
+    STRING_TOO_SHORT: String below minimum length
+    STRING_TOO_LONG: String exceeds maximum length
+    PATTERN_MISMATCH: String doesn't match pattern
+    NUMBER_TOO_SMALL: Number below minimum
+    NUMBER_TOO_LARGE: Number above maximum
+    INVALID_COUNT: Table item count outside allowed range
+    DUPLICATE_VALUE: Duplicate values found when uniqueness required
+    UNION_MISMATCH: Value doesn't match any union member
+    ONE_OF_MISSING: None of the required fields present
+    DEPENDENCY_MISSING: Required dependency field missing
+    EXCLUSIVE_CONFLICT: Mutually exclusive fields both present
+    CUSTOM_VALIDATION_FAILED: Custom validator returned false
+    UNKNOWN_KEY: Unknown key in data
+
+--]]
+
+local util = require("schemer.util")
+local ERROR_CODES = require("schemer.errors")
+local validators = require("schemer.validators")
+local cross_field = require("schemer.cross_field")
+
+local schemer = {}
+
+-- This function defines the public API for creating enum definitions. Enums are
+-- a powerful feature for value validation, allowing for transformations (like
+-- string-to-number) and case-insensitive matching.
+function schemer.enum(enum_table, options)
+    options = options or {}
+    local result = {
+        enum = enum_table,
+        reverse = options.reverse or false
+    }
+    if options.case_insensitive ~= nil then
+        result.case_insensitive = options.case_insensitive
+    end
+    return result
+end
+
+-- This function handles how extra (undeclared) keys in the input data are
+-- managed, based on the `on_extra_keys` schema setting.
+-- It can be configured to:
+--  - "error": Reject the data if any unknown keys are found (the default).
+--  - "remove": Strip unknown keys from the result and continue validation.
+--  - "ignore": Keep unknown keys in the result. This is useful when the
+--    validated data will be passed to another system that uses those keys.
+local function handle_extra_keys(data, schema, result, field_errors)
+    local on_extra_keys = schema.on_extra_keys or "error"
+    if not schema.fields then return end
+
+    for field_name, _ in pairs(data) do
+        if not schema.fields[field_name] then
+            if on_extra_keys == "error" or (on_extra_keys ~= "ignore" and on_extra_keys ~= "remove") then
+                if not field_errors[field_name] then
+                    field_errors[field_name] = {}
+                end
+                table.insert(field_errors[field_name], { ERROR_CODES.UNKNOWN_KEY,
+                    string.format("Unknown field '%s'", field_name) })
+            elseif on_extra_keys == "remove" then
+                result[field_name] = nil
+            end
+        end
+    end
+end
+
+-- This is the main public validation function for the library.
+-- It takes the data and schema, and returns either an error table or a
+-- normalized result.
+--
+-- The validation process is as follows:
+-- 1. Field-level validation: Each field is validated against its own schema.
+--    This step also performs data normalization (e.g., applying defaults,
+--    transforming enum values).
+-- 2. Extra key handling: Checks for and handles any keys in the data that are
+--    not defined in the schema, according to the `on_extra_keys` rule.
+-- 3. Cross-field validation: After individual fields are validated, this step
+--    checks for dependencies and conflicts between fields.
+-- 4. Error aggregation: If any errors occurred during the process, they are
+--    collected into a comprehensive error report.
+function schemer.validate(data, schema)
+    if type(data) ~= 'table' then
+        return {
+            fields = {},
+            all = { { ERROR_CODES.INVALID_TYPE, "Data must be a table" } },
+            error = "Data must be a table",
+            data = data,
+            schema = schema
+        }
+    end
+
+    local result = util.deep_copy(data)
+    local field_errors = {}
+
+    -- 1. Validate individual fields
+    if schema.fields then
+        for field_name, field_schema in pairs(schema.fields) do
+            local field_errors_list, normalized_value = validators.validate_field(data[field_name], field_schema,
+                field_name, data)
+
+            if #field_errors_list > 0 then
+                field_errors[field_name] = field_errors_list
+            end
+
+            if normalized_value ~= nil or data[field_name] ~= nil then
+                result[field_name] = normalized_value
+            end
+        end
+    end
+
+    -- 2. Handle extra keys
+    handle_extra_keys(data, schema, result, field_errors)
+
+    -- 3. Cross-field validations
+    local cross_field_errors = cross_field.validate(result, schema)
+
+    -- 4. Final error aggregation
+    if next(field_errors) or #cross_field_errors > 0 then
+        local error_msg = "Validation failed"
+        if next(field_errors) then
+            local field_names = {}
+            for field_name, _ in pairs(field_errors) do
+                table.insert(field_names, field_name)
+            end
+            error_msg = error_msg .. " for fields: " .. table.concat(field_names, ", ")
+        end
+
+        return {
+            fields = field_errors,
+            all = cross_field_errors,
+            error = error_msg,
+            data = data,
+            schema = schema
+        }
+    end
+
+    return nil, result
+end
+
+-- Export the error codes table so it can be accessed from outside the library,
+-- for example in tests or in applications that need to programmatically
+-- handle specific validation errors.
+schemer.ERROR_CODES = ERROR_CODES
+
+return schemer

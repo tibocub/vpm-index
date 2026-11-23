@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "evdev",
+  "versions": {
+    "2.2.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "evdev.lua": {
+          "sha256": "6f434708926e3d3f5b298c8d00537c8c1ad2c6cdcb7ebed1d83bc380fba305e6",
+          "size": 1378,
+          "url": "blob:6f434708926e3d3f5b298c8d00537c8c1ad2c6cdcb7ebed1d83bc380fba305e6"
+        },
+        "evdev/constants.lua": {
+          "sha256": "ddd76c67eee3102c2120d9a9ee7d7ba8f6a17d10327ed2f386028b9b1e683743",
+          "size": 12161,
+          "url": "blob:ddd76c67eee3102c2120d9a9ee7d7ba8f6a17d10327ed2f386028b9b1e683743"
+        }
+      },
+      "homepage": "http://github.com/Tangent128/lua-evdev",
+      "license": "MIT/X11",
+      "lua": ">= 5.2, < 5.4",
+      "luarocks": {
+        "date": "Fri, 25 Mar 2016 16:27:17 GMT",
+        "rockspec": {
+          "date": "Fri, 25 Mar 2016 16:27:17 GMT",
+          "sha256": "c1913d9209f1bed8b99a56ae89325f303b07c4f35631df0900db9e272d07e906",
+          "size": 755
+        },
+        "src": {
+          "date": "Fri, 25 Mar 2016 16:27:18 GMT",
+          "sha256": "92b6f44adba52fa8e33b2e24042d4a3f492cb46669ad84332919ef56e5249831",
+          "size": 26247,
+          "url": "https://luarocks.org/evdev-2.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "evdev",
+        "evdev.constants",
+        "evdev.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "evdev.core",
+              "sources": [
+                "evdev/core.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 25 Mar 2016 16:27:18 GMT",
+        "sha256": "92b6f44adba52fa8e33b2e24042d4a3f492cb46669ad84332919ef56e5249831",
+        "size": 26247,
+        "type": "luarocks",
+        "url": "https://luarocks.org/evdev-2.2.1-1.src.rock"
+      },
+      "size": 13539,
+      "summary": "Lua library for using Linux evdev & uinput interfaces",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 3,
+        "status": "ok",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "lunary-optim",
+  "versions": {
+    "20181002-1": {
+      "bin": [],
+      "deps": [
+        "lunary-core 20181002-1"
+      ],
+      "files": [],
+      "homepage": "http://piratery.net/lunary/",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 18 Dec 2018 08:37:20 GMT",
+        "rockspec": {
+          "date": "Tue, 18 Dec 2018 08:37:20 GMT",
+          "sha256": "f900af0617ecbce20347835e0f26eeb15aca6a73c0d3782e3854111a3aaff38d",
+          "size": 807
+        },
+        "src": {
+          "date": "Tue, 18 Dec 2018 08:37:22 GMT",
+          "sha256": "da1b7305a1d6c24192fc3866713a8283cca4d197dd69f42801fc20d853456ad1",
+          "size": 104971,
+          "url": "https://luarocks.org/lunary-optim-20181002-1.src.rock"
+        }
+      },
+      "modules": [
+        "serial.optim"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "LUAMOD_API=LUALIB_API",
+                "luaopen_module=luaopen_serial_optim"
+              ],
+              "name": "serial.optim",
+              "sources": [
+                "serial/optim.c",
+                "compat.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "doub-lunary-e1b88307e7e4"
+      },
+      "origin": {
+        "date": "Tue, 18 Dec 2018 08:37:22 GMT",
+        "sha256": "da1b7305a1d6c24192fc3866713a8283cca4d197dd69f42801fc20d853456ad1",
+        "size": 104971,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lunary-optim-20181002-1.src.rock"
+      },
+      "summary": "Optimizations for Lunary.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,818 @@
+{
+  "kind": "lib",
+  "name": "orgmode",
+  "versions": {
+    "0.7.5-1": {
+      "bin": [],
+      "deps": [
+        "tree-sitter-orgmode ~> 2"
+      ],
+      "files": {
+        "orgmode/agenda/agenda_item.lua": {
+          "sha256": "9c6f271ebcf1d4fce255dceea85ae371006b3e5539b57498be8dcfc3377457c5",
+          "size": 7347,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/agenda_item.lua"
+        },
+        "orgmode/agenda/filter.lua": {
+          "sha256": "93fcdc3c39f9b9ea141b5dcd8fb7f16cddbf3f7cf3a6b4e17df6d4f027976532",
+          "size": 3743,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/filter.lua"
+        },
+        "orgmode/agenda/init.lua": {
+          "sha256": "cfa5814209bd43ea016a80a64c7b713d8c2e4bfb7dd8d7b2a5eb1fa089a309b6",
+          "size": 17486,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/init.lua"
+        },
+        "orgmode/agenda/sorting_strategy.lua": {
+          "sha256": "4eed87e2ad1360b8771304d67a71b981d162c3f0f0dd9c0f1465a889596ee4ce",
+          "size": 5843,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/sorting_strategy.lua"
+        },
+        "orgmode/agenda/types/agenda.lua": {
+          "sha256": "d6f7a92b103b4edb6f81a8f3ad04b75af9d9be0030b843faca3f1e7dff45ab42",
+          "size": 20199,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/types/agenda.lua"
+        },
+        "orgmode/agenda/types/init.lua": {
+          "sha256": "414992dd667aa5dd10dfa91bc6d4236b5e8ca19d2995c7683094688e5ed2fded",
+          "size": 1029,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/types/init.lua"
+        },
+        "orgmode/agenda/types/search.lua": {
+          "sha256": "06016df62d086f29f42459f08ee4aa8713945af4ec3ef4aa2dc9decd7ff18dcb",
+          "size": 1454,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/types/search.lua"
+        },
+        "orgmode/agenda/types/tags.lua": {
+          "sha256": "bc922ed6332ce4a3e5f76362f0240a99e2185509a8a2140db1f2b5c4f22ab308",
+          "size": 4514,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/types/tags.lua"
+        },
+        "orgmode/agenda/types/tags_todo.lua": {
+          "sha256": "1d72aea4cb331122d1d08eab81954c82c79c04dfa21fe059ffecc330eb2f8cce",
+          "size": 512,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/types/tags_todo.lua"
+        },
+        "orgmode/agenda/types/todo.lua": {
+          "sha256": "725ea30e4a0671802f581be49151238fdfdd0ad8a3812c480d7730d4d6513fcf",
+          "size": 7658,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/types/todo.lua"
+        },
+        "orgmode/agenda/view/init.lua": {
+          "sha256": "74fee96e86c7ad720c16edc55107da2fa8bf470a77242478dac988a26140ffa5",
+          "size": 2251,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/view/init.lua"
+        },
+        "orgmode/agenda/view/line.lua": {
+          "sha256": "4b0273a92b9751d0ede2fea651a2aa0f2bd1b56c9f96f1d72e823a79d1f0c79e",
+          "size": 4133,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/view/line.lua"
+        },
+        "orgmode/agenda/view/token.lua": {
+          "sha256": "0046c42cc02b2069f43660d4b1b8c2b385f53dc77e1fc89caf50d1275214fa21",
+          "size": 2268,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/agenda/view/token.lua"
+        },
+        "orgmode/api/agenda.lua": {
+          "sha256": "b2c5234cb0f0ce8ea92f3a7c489cca777850aa8977f0bc7a4d9a16c0839f14d1",
+          "size": 3562,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/api/agenda.lua"
+        },
+        "orgmode/api/file.lua": {
+          "sha256": "d697c8a5b53786b79ed2c91a69faf4e0501c22f4dd8364f42cdd2b5973b8cbdd",
+          "size": 4023,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/api/file.lua"
+        },
+        "orgmode/api/headline.lua": {
+          "sha256": "c78a76843d865cc0075763eef7b3b4aad36d75a28f9d6d039e7837745e19ea0b",
+          "size": 9614,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/api/headline.lua"
+        },
+        "orgmode/api/init.lua": {
+          "sha256": "808cecc6916242b918cae473e9b8a8a21c13e52d4ea6b42ecc0b5a0811fd1215",
+          "size": 3672,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/api/init.lua"
+        },
+        "orgmode/api/position.lua": {
+          "sha256": "f8b87a9bf50cb4db4a0883e57eac86f51ef2038b38496f53d92be034b291825f",
+          "size": 784,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/api/position.lua"
+        },
+        "orgmode/babel/init.lua": {
+          "sha256": "2aed9f88df15c023ceda595a44de4c58e871b208361b841f601b1782a639cdd1",
+          "size": 199,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/babel/init.lua"
+        },
+        "orgmode/babel/tangle.lua": {
+          "sha256": "3fc162e9b20d1c503a56d3262a31b8a077f75f60f509331be1a7253d5e3621c0",
+          "size": 2675,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/babel/tangle.lua"
+        },
+        "orgmode/capture/_meta.lua": {
+          "sha256": "caa6a2309e3ad68ff9446f90bbc274a585e73535f2c798c3c2b64abf5ce56b2c",
+          "size": 1012,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/capture/_meta.lua"
+        },
+        "orgmode/capture/init.lua": {
+          "sha256": "be677b5b01f0ee579572d20e74c7d7db5b656f8633afd3fe8ef26f4e118c6daa",
+          "size": 21400,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/capture/init.lua"
+        },
+        "orgmode/capture/template/datetree.lua": {
+          "sha256": "a4563a98bb5f5404f1dcb082c4fd6548ca88bbbe819c3c52a9315027c853ba86",
+          "size": 6975,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/capture/template/datetree.lua"
+        },
+        "orgmode/capture/template/init.lua": {
+          "sha256": "c27f4338b0eb4af676a495cfcbab4166159884af4dd6b0129c40e3e777de78d9",
+          "size": 12442,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/capture/template/init.lua"
+        },
+        "orgmode/capture/template/template_properties.lua": {
+          "sha256": "eec1318d7b8db0a2f8fcd8c99f54f24cd1debc9c71b4890a6462a0438b91c8eb",
+          "size": 679,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/capture/template/template_properties.lua"
+        },
+        "orgmode/capture/templates.lua": {
+          "sha256": "895a27755c019e4aeabe0332fe4cc5172b4979a26c971cc7b983c40c1f525a55",
+          "size": 971,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/capture/templates.lua"
+        },
+        "orgmode/capture/window.lua": {
+          "sha256": "6eba5b8c8a369515b91fa9374524ff215213571aecfb4c5b5895facb4c5a5bd2",
+          "size": 2612,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/capture/window.lua"
+        },
+        "orgmode/clock/init.lua": {
+          "sha256": "e28afa3fef5ac644ef1999f6986d8ff5260372b51f28acbb656937f52c89d511",
+          "size": 3757,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/clock/init.lua"
+        },
+        "orgmode/clock/report.lua": {
+          "sha256": "de75597b76e1f205981764aa99d9efa45c6cd8e52a82153e880b11c97d3f0965",
+          "size": 2574,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/clock/report.lua"
+        },
+        "orgmode/colors/colors.lua": {
+          "sha256": "d01d3df74dfbe6b895a728b9c55999f315d8304d94e350c82d80e96cb50c4faf",
+          "size": 5689,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/colors.lua"
+        },
+        "orgmode/colors/highlighter/foldtext.lua": {
+          "sha256": "5860c215598b2a961d4d8addb6be3bf6b0ecc26b14c8ec9829121090cde93b83",
+          "size": 3475,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlighter/foldtext.lua"
+        },
+        "orgmode/colors/highlighter/init.lua": {
+          "sha256": "d884dbacd5b5d3b5db66312f33f220842bb1f6669024ea7c4584b025215baeef",
+          "size": 3503,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlighter/init.lua"
+        },
+        "orgmode/colors/highlighter/markup/_meta.lua": {
+          "sha256": "238db9aecff53a0e81487652b9390761851ac6098897be01445f68bb0a3e038e",
+          "size": 1467,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlighter/markup/_meta.lua"
+        },
+        "orgmode/colors/highlighter/markup/emphasis.lua": {
+          "sha256": "f18b7ce6dc5c18c3f24326ed2ae04e2e55bd3560fb138062ee7d9e170a42d901",
+          "size": 5698,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlighter/markup/emphasis.lua"
+        },
+        "orgmode/colors/highlighter/markup/init.lua": {
+          "sha256": "36334e7ac5c9499c60a85bd5b23caee652ff6bf64351904fd35c81b1b4dc90a1",
+          "size": 8922,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlighter/markup/init.lua"
+        },
+        "orgmode/colors/highlighter/markup/latex.lua": {
+          "sha256": "b321d5fc5d465b76175b8623e8a5f0ed17fcefa48528ff0c45ed329088306211",
+          "size": 3388,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlighter/markup/latex.lua"
+        },
+        "orgmode/colors/highlighter/todos.lua": {
+          "sha256": "eccbff4815aeaaf56aafbbe795c5080677fd2f22fb7cc6e2a35f62e0d4defdd1",
+          "size": 1608,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlighter/todos.lua"
+        },
+        "orgmode/colors/highlights.lua": {
+          "sha256": "8765888df29976afe09005bc5a86dbf602ce3edcb4afbbdb264fdd77ee696a11",
+          "size": 6447,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/highlights.lua"
+        },
+        "orgmode/colors/init.lua": {
+          "sha256": "4c9fd909b9bd23a0c855ce92aba58a08d5d18dbc152a32cc8d6a7b863744d494",
+          "size": 4438,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/colors/init.lua"
+        },
+        "orgmode/config/_meta.lua": {
+          "sha256": "a40ae498e743ec81617af2a9b89c641aa966cbd06a19ded3f3079250b141c17e",
+          "size": 19425,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/config/_meta.lua"
+        },
+        "orgmode/config/defaults.lua": {
+          "sha256": "8bbd3d00bef210809d3eb93dbaf2c0a4a247dfea40be539c2c79172f19681805",
+          "size": 7894,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/config/defaults.lua"
+        },
+        "orgmode/config/init.lua": {
+          "sha256": "66d0938d71775658786dcc80d4aae9e3f2622b5f99d508f833ee396b3aab24ba",
+          "size": 18906,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/config/init.lua"
+        },
+        "orgmode/config/mappings/init.lua": {
+          "sha256": "318ed06d4f4a1a547677bd20ae0e816c913a991dadd65266a5d60cb8a3680689",
+          "size": 18297,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/config/mappings/init.lua"
+        },
+        "orgmode/config/mappings/map_entry.lua": {
+          "sha256": "e049537de3cf3dd2bdb98e155eeaf19967b153421636997ac59fd2f63c40de86",
+          "size": 3195,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/config/mappings/map_entry.lua"
+        },
+        "orgmode/events/init.lua": {
+          "sha256": "20e39f7ac25b3d9fe8e645d9df95a6a75b7a96d83d01083750faab1e22c63109",
+          "size": 1155,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/init.lua"
+        },
+        "orgmode/events/listeners/align_tags.lua": {
+          "sha256": "cc1e3bd3636809b8fa0087698cd153749093d95d7d06fe0055e7a24095ecd2d8",
+          "size": 146,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/listeners/align_tags.lua"
+        },
+        "orgmode/events/listeners/clock_out.lua": {
+          "sha256": "6d05d7e9626a327b3b0eaf65061774e075f561ba8ad82372cf57bd5a7c7e2082",
+          "size": 216,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/listeners/clock_out.lua"
+        },
+        "orgmode/events/listeners/init.lua": {
+          "sha256": "6b03ea957534834963ca2c83f8037e0347ae9bc12b058f8537758a980c006a08",
+          "size": 351,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/listeners/init.lua"
+        },
+        "orgmode/events/types/clocked_in.lua": {
+          "sha256": "203835f6b67a47a78ecf6712d82917c7f1738fd54b11aad7f415905ecb23a927",
+          "size": 325,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/clocked_in.lua"
+        },
+        "orgmode/events/types/clocked_out.lua": {
+          "sha256": "b3f32565ca7f7c6b1295842316bab24682e7798295bbc5678d9d4a627057481d",
+          "size": 332,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/clocked_out.lua"
+        },
+        "orgmode/events/types/heading_toggled.lua": {
+          "sha256": "1dfd2feb0184533493804e95bc89571a175dd743c90b3007849c9ce178e02eea",
+          "size": 626,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/heading_toggled.lua"
+        },
+        "orgmode/events/types/headline_demoted_event.lua": {
+          "sha256": "1ef3ff43c00e934a99aa140ad822b28cf1d5a4d91496e122910e929b5b282767",
+          "size": 467,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/headline_demoted_event.lua"
+        },
+        "orgmode/events/types/headline_promoted_event.lua": {
+          "sha256": "b2b1b354121255f40a03b24cd92e09edf2b1a93afb59fed0b84c8b579bac516c",
+          "size": 450,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/headline_promoted_event.lua"
+        },
+        "orgmode/events/types/init.lua": {
+          "sha256": "fd44c3ad87139b29a09da7148521ec4295364bcac88d4b89e6ff8c77e4ff4731",
+          "size": 525,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/init.lua"
+        },
+        "orgmode/events/types/note_added_event.lua": {
+          "sha256": "d41894bfbd6aa3622374ca930fffeade3a9a5e44169645b4915017dce53db0f1",
+          "size": 416,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/note_added_event.lua"
+        },
+        "orgmode/events/types/todo_changed_event.lua": {
+          "sha256": "539dd7c798eea977e06c3defb0e04264abf8cce202c6ae20a1e4b49744f87b46",
+          "size": 566,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/events/types/todo_changed_event.lua"
+        },
+        "orgmode/export/init.lua": {
+          "sha256": "7cd3bd6d324abcc8e4af3eb51097b49c90ba89564f94b978ce28722180ef56d8",
+          "size": 6295,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/export/init.lua"
+        },
+        "orgmode/files/elements/block.lua": {
+          "sha256": "751ab123bee1753666ab44e153f04454c4217cd3f52857953f7ec07d1612165d",
+          "size": 3738,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/block.lua"
+        },
+        "orgmode/files/elements/listitem.lua": {
+          "sha256": "4c8d280f83a4df152430223d6505816b36d58b0472a986fa7c75f9b8674ea59a",
+          "size": 4405,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/listitem.lua"
+        },
+        "orgmode/files/elements/logbook.lua": {
+          "sha256": "f92bdbf266a8714bbdf53d094978bdcbaa5cb753618de9b348fc69c23866ce8c",
+          "size": 6171,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/logbook.lua"
+        },
+        "orgmode/files/elements/range.lua": {
+          "sha256": "a41a2767f5ee421c447b7316e461af55e77b7b43bfad815dd3a6d21664ac5cdd",
+          "size": 2300,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/range.lua"
+        },
+        "orgmode/files/elements/search.lua": {
+          "sha256": "30c6f6d7db68cb82fa454a012873e41cd13d5ef87c3bb245aa168aa35f247f93",
+          "size": 14597,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/search.lua"
+        },
+        "orgmode/files/elements/table/cell.lua": {
+          "sha256": "e04050ad49b6ca0def4d20b059e8153b589d06b6db6261356c3c56c1965b1eaf",
+          "size": 1914,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/table/cell.lua"
+        },
+        "orgmode/files/elements/table/init.lua": {
+          "sha256": "86d7341bb329bc50b191de0caf3995e3fba9820b93a2f1b3e49c726f7d92ade9",
+          "size": 4661,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/table/init.lua"
+        },
+        "orgmode/files/elements/table/row.lua": {
+          "sha256": "f101ce553cf799122aa1c5da79b9497dddc0b95f1e9fb88294311096b661bce4",
+          "size": 2199,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/elements/table/row.lua"
+        },
+        "orgmode/files/file.lua": {
+          "sha256": "24bda5e1fb577f970e41fde11311f983ce15c94ed35b5f131f33967d56c6ba64",
+          "size": 27721,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/file.lua"
+        },
+        "orgmode/files/headline.lua": {
+          "sha256": "f0d93ef8f040e60040d22fd896d488d8a5af41175f61d3d16406a83d053f7f8a",
+          "size": 34762,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/headline.lua"
+        },
+        "orgmode/files/init.lua": {
+          "sha256": "688cec04dd41539fd59f7470579a40e941579379decbcad961a51018f32feb73",
+          "size": 10446,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/files/init.lua"
+        },
+        "orgmode/health.lua": {
+          "sha256": "d375b91c3cd60cc7ef54df0642d335892eee2b4c139cb8fe189e584c41afbfb4",
+          "size": 2751,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/health.lua"
+        },
+        "orgmode/init.lua": {
+          "sha256": "6d03b8cb9d95787763f3538d8180b05f4b8dd4112473d7f8188bf5448f4c48fe",
+          "size": 6771,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/init.lua"
+        },
+        "orgmode/lsp/handlers.lua": {
+          "sha256": "adbc1771ea53da905fccfefe43de45933ae213b0f1a834345da7531f62e6acb4",
+          "size": 3727,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/lsp/handlers.lua"
+        },
+        "orgmode/lsp/server.lua": {
+          "sha256": "21f02d5839f163d8de086117fbc9076ba4955561b843ba761f72cb9c5be5d6ef",
+          "size": 1336,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/lsp/server.lua"
+        },
+        "orgmode/notifications/init.lua": {
+          "sha256": "30568d45e7cc4c36f5f1905745c0407f77941fcc456706a3874606cd5e43c5e9",
+          "size": 5733,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/notifications/init.lua"
+        },
+        "orgmode/notifications/notification_popup.lua": {
+          "sha256": "3c06d3bd6a4c8210eeb358d2e1c063ebcf34b1c193b2d366b018c7ad0024a143",
+          "size": 1395,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/notifications/notification_popup.lua"
+        },
+        "orgmode/objects/calendar.lua": {
+          "sha256": "a29468ec91c13fb66edf7d2e2dfc146bee405ac6698c7980dcfbb73e7633ee01",
+          "size": 20733,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/calendar.lua"
+        },
+        "orgmode/objects/date.lua": {
+          "sha256": "e7004cc081fb59fe8d857627449be17a927be5e3d102a274c55875fd5c75cb6b",
+          "size": 27454,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/date.lua"
+        },
+        "orgmode/objects/duration.lua": {
+          "sha256": "0f80072fbd61416f53c94e0b08e293fe7b7795092b7d8a220883c0a3db82a5ce",
+          "size": 4595,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/duration.lua"
+        },
+        "orgmode/objects/edit_special/init.lua": {
+          "sha256": "9a4a66a85679925a95a54d3c6ec44b6a9afb5abb8b64546eebb2c3cf6356f96c",
+          "size": 5188,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/edit_special/init.lua"
+        },
+        "orgmode/objects/edit_special/types/src.lua": {
+          "sha256": "e50f5ec12b85f434f31953a0362158a4cf62311dc0e98f4f4aa2b7aacfa4741d",
+          "size": 5339,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/edit_special/types/src.lua"
+        },
+        "orgmode/objects/edit_special/utils.lua": {
+          "sha256": "bcb5af6c1c9c2a86cd0e9f21e2ff395903d1c1eeb3c3998ce1e5375fb0869b9d",
+          "size": 438,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/edit_special/utils.lua"
+        },
+        "orgmode/objects/footnote.lua": {
+          "sha256": "2264f7a5fc142bba63bbd0f8212819eb2f446fea75dc782d27527629717dbe1d",
+          "size": 1238,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/footnote.lua"
+        },
+        "orgmode/objects/help.lua": {
+          "sha256": "69d4e309e7098f2f4952456e9eacd4ff26f706c29b14690a576a1f467c974934",
+          "size": 4686,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/help.lua"
+        },
+        "orgmode/objects/priority_state.lua": {
+          "sha256": "e48d7541b4ecc506b16a710ad63673964e76cd6b9da011662c2e104f4607ab51",
+          "size": 3523,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/priority_state.lua"
+        },
+        "orgmode/objects/todo_keywords/init.lua": {
+          "sha256": "0e5208d5983aa59937912fccc0b475de3938e795f803920ed0d78259747638c8",
+          "size": 5850,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/todo_keywords/init.lua"
+        },
+        "orgmode/objects/todo_keywords/todo_keyword.lua": {
+          "sha256": "73e3ecb49c92c1aba800512a5ae00b2b769cc5c37e220e2831567ea9e9ea9e6b",
+          "size": 1347,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/todo_keywords/todo_keyword.lua"
+        },
+        "orgmode/objects/todo_state.lua": {
+          "sha256": "05719dfbe7f3f53b791ae2dd443952c6e0d3618038b4a62fa6b3cf30b4d9f015",
+          "size": 5035,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/objects/todo_state.lua"
+        },
+        "orgmode/org/autocompletion/_meta.lua": {
+          "sha256": "e4152ab6e155d146f78b900b5f401e54a822a22b6e75f0e71728eae4cb3ff8e2",
+          "size": 486,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/_meta.lua"
+        },
+        "orgmode/org/autocompletion/blink.lua": {
+          "sha256": "1e4516f494dfdaf4ce224fe64c6f1f71f687985fcdba3f7315780e24f57edc54",
+          "size": 1802,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/blink.lua"
+        },
+        "orgmode/org/autocompletion/cmp.lua": {
+          "sha256": "d02ab6fbef29b84f7faaf77ec1dd656c9b00f8312fa503a75d64b32111a6c619",
+          "size": 1074,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/cmp.lua"
+        },
+        "orgmode/org/autocompletion/init.lua": {
+          "sha256": "01938bbc4c38b0b05912ac43b35523b4d3dfbf78eb21044f4d9f2f1a97b093ee",
+          "size": 4198,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/init.lua"
+        },
+        "orgmode/org/autocompletion/sources/directives.lua": {
+          "sha256": "b2049048b497479946e00dbf5abbd020d33d11ae21d19f99a3723cad213e4e3b",
+          "size": 895,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/sources/directives.lua"
+        },
+        "orgmode/org/autocompletion/sources/hyperlinks.lua": {
+          "sha256": "41482910c6749751ecc211e8ffd8007baea686b6582609f4a88f6535783cdb34",
+          "size": 883,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/sources/hyperlinks.lua"
+        },
+        "orgmode/org/autocompletion/sources/plan.lua": {
+          "sha256": "88a91716d9c77fbe8d4779cacba30e0b19716cb7ffc9a3e058fb5fb2cf59982a",
+          "size": 1048,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/sources/plan.lua"
+        },
+        "orgmode/org/autocompletion/sources/properties.lua": {
+          "sha256": "dd9abb195a3b7abb29a5e907503be112652e53f791f10449de1479318d0fbd85",
+          "size": 1005,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/sources/properties.lua"
+        },
+        "orgmode/org/autocompletion/sources/tags.lua": {
+          "sha256": "f825d455171137479a6caece34ea0c6d7cf5d048171dcbf461667cdedd9d95e8",
+          "size": 1095,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/sources/tags.lua"
+        },
+        "orgmode/org/autocompletion/sources/todo_keywords.lua": {
+          "sha256": "47894bcfd2af99fa575a31c845eab842c9f48c10b86c1dd16616eb854f63f2f8",
+          "size": 804,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/autocompletion/sources/todo_keywords.lua"
+        },
+        "orgmode/org/format.lua": {
+          "sha256": "f2c86578fbb40e0abd3111ce4c0edeedb9afd0b96f33dae0befce364f86c2e35",
+          "size": 2162,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/format.lua"
+        },
+        "orgmode/org/global.lua": {
+          "sha256": "cba3ca876b5bc0dd8e79aa93d1ec199f66a7c0f0d99df446ea8e358e54ffb2e7",
+          "size": 3844,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/global.lua"
+        },
+        "orgmode/org/hyperlinks/init.lua": {
+          "sha256": "538490d62cdd656566fc5cb51d48117c252a0091feb1131cbe46eb1cf14bc8c9",
+          "size": 6739,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/hyperlinks/init.lua"
+        },
+        "orgmode/org/hyperlinks/link.lua": {
+          "sha256": "88138620d65b9d325c559a7acf2603e7f5a07f3faa480e9a7beeca27e830497b",
+          "size": 1974,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/hyperlinks/link.lua"
+        },
+        "orgmode/org/hyperlinks/url.lua": {
+          "sha256": "61f66359370a0f7e6406c2a5f78dd3115b8bb1ef6810af4feafcd71c8481ce3d",
+          "size": 6171,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/hyperlinks/url.lua"
+        },
+        "orgmode/org/id.lua": {
+          "sha256": "5c78f81e0bdcf739606403f4a09b89ec6ef6d386dfa7c94a53116ecf93dfdb3a",
+          "size": 1197,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/id.lua"
+        },
+        "orgmode/org/indent.lua": {
+          "sha256": "cb1b0237a2c09c9eebac5d68dd1db0052e2d16a4eba7dbf5d0de5ca7d7b35c64",
+          "size": 13802,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/indent.lua"
+        },
+        "orgmode/org/links/_meta.lua": {
+          "sha256": "557a9eefb69ac69484f865e4bf4fa5162a1df94803996fcb3cd325bc86bf76aa",
+          "size": 232,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/_meta.lua"
+        },
+        "orgmode/org/links/hyperlink.lua": {
+          "sha256": "0b27888e206bf8a5b588f75a52fb011cf070474fc14f5bb24cf9cd9becc86caa",
+          "size": 2198,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/hyperlink.lua"
+        },
+        "orgmode/org/links/init.lua": {
+          "sha256": "f405158fd81f2e854df21011d128bc93fa7cbb58aa745e13d69809165c259cd2",
+          "size": 5813,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/init.lua"
+        },
+        "orgmode/org/links/types/custom_id.lua": {
+          "sha256": "4feb0b05ae045bf21020e57be3805dde662e11f5a234aa07ad5b6b64623c0eb3",
+          "size": 2690,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/types/custom_id.lua"
+        },
+        "orgmode/org/links/types/headline.lua": {
+          "sha256": "648cd4fe367a3b7ba16f9b0544c03da29f315cb9a33076112281925dd5dbd1a1",
+          "size": 2671,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/types/headline.lua"
+        },
+        "orgmode/org/links/types/headline_search.lua": {
+          "sha256": "0bae5e7e749115fa918b4fa9d394be5d38518d0248fc13ef2d18b79233a05df2",
+          "size": 3840,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/types/headline_search.lua"
+        },
+        "orgmode/org/links/types/http.lua": {
+          "sha256": "d4bba3d960b7e04e756a90d7031e0db8713e27f168ae7f85b8235bd570367073",
+          "size": 826,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/types/http.lua"
+        },
+        "orgmode/org/links/types/id.lua": {
+          "sha256": "feee041c64cd2fe5340eb7399cc4050d56dabc43be4769a4faec0b4633ac0380",
+          "size": 1464,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/types/id.lua"
+        },
+        "orgmode/org/links/types/line_number.lua": {
+          "sha256": "596185fc6bd92f566cad905257ecc29e7582baf3016969ef076192bd02d29a3b",
+          "size": 1525,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/types/line_number.lua"
+        },
+        "orgmode/org/links/url.lua": {
+          "sha256": "4f9b0eb4ddeecb20216ad30a846bda30bd933415a9a23c1f9c8c98d8751873fa",
+          "size": 2179,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/url.lua"
+        },
+        "orgmode/org/links/utils.lua": {
+          "sha256": "4dbd864a922fff462f0d2ffd36e3f9bb1668bf38d55a3bdf6712035a097fbe16",
+          "size": 2426,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/links/utils.lua"
+        },
+        "orgmode/org/mappings.lua": {
+          "sha256": "c29ef8786824230cb19e4b66d9b22689904da6c91cfb5e9ea38f3f54efb4098c",
+          "size": 36365,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/mappings.lua"
+        },
+        "orgmode/org/text_objects.lua": {
+          "sha256": "2735c090472819886802fcab127f99f832181a6937c0647c7e3a93253aa085e6",
+          "size": 3873,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/org/text_objects.lua"
+        },
+        "orgmode/state/buffers.lua": {
+          "sha256": "65d854989935dbb6f837eab98a4d80fd03882515ba144c29d73de603c1a48f68",
+          "size": 3541,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/state/buffers.lua"
+        },
+        "orgmode/state/state.lua": {
+          "sha256": "164e4a57b3f431c268c9c87e0cbfc06073edad2f63bce3fbdddfe3b9e37785de",
+          "size": 5375,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/state/state.lua"
+        },
+        "orgmode/ui/input.lua": {
+          "sha256": "399b42e031b1339889b3e705cb3f5c789fc13b866512211f51be7be716836443",
+          "size": 1169,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/ui/input.lua"
+        },
+        "orgmode/ui/menu.lua": {
+          "sha256": "1a56ecbc461a077ac68c479fc232b1b7c25b8bd088123c78623edd10668e2e38",
+          "size": 4374,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/ui/menu.lua"
+        },
+        "orgmode/ui/virtual_indent.lua": {
+          "sha256": "fc2279c305540b5dc40d9fd0ce1903b0272c54b1d32b3639666d9a6b303a5c98",
+          "size": 5238,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/ui/virtual_indent.lua"
+        },
+        "orgmode/utils/constants.lua": {
+          "sha256": "0bf26e96f86fad4b26c6fd7f3d68056cad94277589ca483a34088bde764c2a5e",
+          "size": 49,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/utils/constants.lua"
+        },
+        "orgmode/utils/fs.lua": {
+          "sha256": "4448e97e048ad3f384bb603b42341d7fdeab78f32c62fe3dc1d9f7645cd5c160",
+          "size": 3340,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/utils/fs.lua"
+        },
+        "orgmode/utils/init.lua": {
+          "sha256": "8c9d9c3f649c88a9a18bc2e87937b3fb07d9d4fc9834dd1d60155deb822b1f84",
+          "size": 16611,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/utils/init.lua"
+        },
+        "orgmode/utils/memoize.lua": {
+          "sha256": "fdb95ad8f9acdc1305dcc95f313456c6f252e034aeb2d63abea995cb902070e2",
+          "size": 2251,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/utils/memoize.lua"
+        },
+        "orgmode/utils/promise.lua": {
+          "sha256": "0cf5ea2f298fd7c0fd96401baeb058ba180d52fced762a82c8da3ab7b86abcfa",
+          "size": 13024,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/utils/promise.lua"
+        },
+        "orgmode/utils/treesitter/init.lua": {
+          "sha256": "40ec7a32cee0204118d736fe1521a34dd9dcac70647420a7f4e48f3625b1c07f",
+          "size": 5814,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/utils/treesitter/init.lua"
+        },
+        "orgmode/utils/treesitter/install.lua": {
+          "sha256": "29275faec5b2a567025567ccac803101945e916bc1f045f49f4c23b03759d241",
+          "size": 8708,
+          "url": "https://raw.githubusercontent.com/nvim-orgmode/orgmode/0.7.5/lua/orgmode/utils/treesitter/install.lua"
+        }
+      },
+      "homepage": "https://nvim-orgmode.github.io",
+      "host": "nvim",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 18 Jun 2026 18:11:04 GMT",
+        "rockspec": {
+          "date": "Thu, 18 Jun 2026 18:11:04 GMT",
+          "sha256": "41032ff2dc3cfd7341da96a7214454cc66324b602ada47029c980c7a9bb6570f",
+          "size": 902
+        },
+        "src": {
+          "date": "Thu, 18 Jun 2026 18:11:04 GMT",
+          "sha256": "28248eb64314e8f34e1a3c798755551b8c8853d8ee4cc3e08f49cdb83da4e2d6",
+          "size": 437610,
+          "url": "https://luarocks.org/orgmode-0.7.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "orgmode",
+        "orgmode.agenda",
+        "orgmode.agenda.agenda_item",
+        "orgmode.agenda.filter",
+        "orgmode.agenda.sorting_strategy",
+        "orgmode.agenda.types",
+        "orgmode.agenda.types.agenda",
+        "orgmode.agenda.types.search",
+        "orgmode.agenda.types.tags",
+        "orgmode.agenda.types.tags_todo",
+        "orgmode.agenda.types.todo",
+        "orgmode.agenda.view",
+        "orgmode.agenda.view.line",
+        "orgmode.agenda.view.token",
+        "orgmode.api",
+        "orgmode.api.agenda",
+        "orgmode.api.file",
+        "orgmode.api.headline",
+        "orgmode.api.position",
+        "orgmode.babel",
+        "orgmode.babel.tangle",
+        "orgmode.capture",
+        "orgmode.capture._meta",
+        "orgmode.capture.template",
+        "orgmode.capture.template.datetree",
+        "orgmode.capture.template.template_properties",
+        "orgmode.capture.templates",
+        "orgmode.capture.window",
+        "orgmode.clock",
+        "orgmode.clock.report",
+        "orgmode.colors",
+        "orgmode.colors.colors",
+        "orgmode.colors.highlighter",
+        "orgmode.colors.highlighter.foldtext",
+        "orgmode.colors.highlighter.markup",
+        "orgmode.colors.highlighter.markup._meta",
+        "orgmode.colors.highlighter.markup.emphasis",
+        "orgmode.colors.highlighter.markup.latex",
+        "orgmode.colors.highlighter.todos",
+        "orgmode.colors.highlights",
+        "orgmode.config",
+        "orgmode.config._meta",
+        "orgmode.config.defaults",
+        "orgmode.config.mappings",
+        "orgmode.config.mappings.map_entry",
+        "orgmode.events",
+        "orgmode.events.listeners",
+        "orgmode.events.listeners.align_tags",
+        "orgmode.events.listeners.clock_out",
+        "orgmode.events.types",
+        "orgmode.events.types.clocked_in",
+        "orgmode.events.types.clocked_out",
+        "orgmode.events.types.heading_toggled",
+        "orgmode.events.types.headline_demoted_event",
+        "orgmode.events.types.headline_promoted_event",
+        "orgmode.events.types.note_added_event",
+        "orgmode.events.types.todo_changed_event",
+        "orgmode.export",
+        "orgmode.files",
+        "orgmode.files.elements.block",
+        "orgmode.files.elements.listitem",
+        "orgmode.files.elements.logbook",
+        "orgmode.files.elements.range",
+        "orgmode.files.elements.search",
+        "orgmode.files.elements.table",
+        "orgmode.files.elements.table.cell",
+        "orgmode.files.elements.table.row",
+        "orgmode.files.file",
+        "orgmode.files.headline",
+        "orgmode.health",
+        "orgmode.lsp.handlers",
+        "orgmode.lsp.server",
+        "orgmode.notifications",
+        "orgmode.notifications.notification_popup",
+        "orgmode.objects.calendar",
+        "orgmode.objects.date",
+        "orgmode.objects.duration",
+        "orgmode.objects.edit_special",
+        "orgmode.objects.edit_special.types.src",
+        "orgmode.objects.edit_special.utils",
+        "orgmode.objects.footnote",
+        "orgmode.objects.help",
+        "orgmode.objects.priority_state",
+        "orgmode.objects.todo_keywords",
+        "orgmode.objects.todo_keywords.todo_keyword",
+        "orgmode.objects.todo_state",
+        "orgmode.org.autocompletion",
+        "orgmode.org.autocompletion._meta",
+        "orgmode.org.autocompletion.blink",
+        "orgmode.org.autocompletion.cmp",
+        "orgmode.org.autocompletion.sources.directives",
+        "orgmode.org.autocompletion.sources.hyperlinks",
+        "orgmode.org.autocompletion.sources.plan",
+        "orgmode.org.autocompletion.sources.properties",
+        "orgmode.org.autocompletion.sources.tags",
+        "orgmode.org.autocompletion.sources.todo_keywords",
+        "orgmode.org.format",
+        "orgmode.org.global",
+        "orgmode.org.hyperlinks",
+        "orgmode.org.hyperlinks.link",
+        "orgmode.org.hyperlinks.url",
+        "orgmode.org.id",
+        "orgmode.org.indent",
+        "orgmode.org.links",
+        "orgmode.org.links._meta",
+        "orgmode.org.links.hyperlink",
+        "orgmode.org.links.types.custom_id",
+        "orgmode.org.links.types.headline",
+        "orgmode.org.links.types.headline_search",
+        "orgmode.org.links.types.http",
+        "orgmode.org.links.types.id",
+        "orgmode.org.links.types.line_number",
+        "orgmode.org.links.url",
+        "orgmode.org.links.utils",
+        "orgmode.org.mappings",
+        "orgmode.org.text_objects",
+        "orgmode.state.buffers",
+        "orgmode.state.state",
+        "orgmode.ui.input",
+        "orgmode.ui.menu",
+        "orgmode.ui.virtual_indent",
+        "orgmode.utils",
+        "orgmode.utils.constants",
+        "orgmode.utils.fs",
+        "orgmode.utils.memoize",
+        "orgmode.utils.promise",
+        "orgmode.utils.treesitter",
+        "orgmode.utils.treesitter.install"
+      ],
+      "origin": {
+        "sha256": "b3229539d00c4bd71f9b174b0b0068816e8ae92bb20ec07107c99bef2146920e",
+        "type": "archive",
+        "url": "https://github.com/nvim-orgmode/orgmode/archive/0.7.5.zip"
+      },
+      "size": 684438,
+      "summary": "Orgmode clone written in Lua for Neovim 0.11.0+.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

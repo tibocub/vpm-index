@@ -1,0 +1,50 @@
+---TODO: factor out common code
+
+local sfs = require "sfs"
+local toolchain = require "lrocket.toolchain"
+local lua       = require "lrocket.lua"
+local log       = require "lrocket.log"
+local routines  = require "lrocket.routines"
+local shared_c = require "lrocket.build.shared-c"
+local utils      = require 'lrocket.utils'
+
+local loader = require "lrocket.loader"
+
+---@type lrocket.Generator
+---@diagnostic disable-next-line: missing-fields
+local shared = {}
+
+function shared.build(src, output, cfg)
+	local cfile = cfg.keep and src.root..".lrocket.c" or sfs.tmppath()
+
+	shared_c.build(src, cfile, cfg)
+
+	local conf = toolchain.compilerconf(cfg.cconf)
+
+	conf.output = output
+	conf.type = 'shared'
+	conf.optimize = cfg.optimize
+	conf.subsystem = cfg.windows_gui and 'gui' or 'cmd'
+
+	conf:addarg('object', loader.BASE_O)
+	conf:addarg('c', cfile)
+
+	routines.LINK_SIBLING_DEPS = utils.boolean(cfg.link_sibling_deps)
+
+	for _, mod in ipairs(src.mods) do
+		mod:configure(conf)
+	end
+
+	lua.addcflags(conf, toolchain.iswindows(toolchain.TARGET) and 'li' or 'i')
+	log.assert(toolchain.compile(conf))
+
+	local dir = sfs.getDir(output)
+	if cfg.copy_native_libs then
+		routines.copynativelibs(src, lua.CONFIGURE_OPTS.linkmode == 'shared' and lua.LIBLUA_SHARED, dir)
+	end
+
+	sfs.deltmppath(cfile)
+end
+
+return shared
+

@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "test-lua-plugin",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/test-lua-plugin/handler.lua": {
+          "sha256": "63393263a3e3ecf2562f141db36690a3e0116d371a6934c26c4d1a20ad41db20",
+          "size": 2890,
+          "url": "https://raw.githubusercontent.com/bclouser/test-lua-plugin/2b73c9a593458af6459a1a764ada950e044c9ebb/src/handler.lua"
+        },
+        "kong/plugins/test-lua-plugin/schema.lua": {
+          "sha256": "d7f1dfcd8f043b3be5cd1e8c793aaedbb623ff668f0ddeee343fd4f264f01b43",
+          "size": 298,
+          "url": "https://raw.githubusercontent.com/bclouser/test-lua-plugin/2b73c9a593458af6459a1a764ada950e044c9ebb/src/schema.lua"
+        }
+      },
+      "homepage": "http://me.github.com/test-lua-plugin",
+      "host": "openresty",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Wed, 31 Jul 2019 22:50:17 GMT",
+        "rockspec": {
+          "date": "Wed, 31 Jul 2019 22:50:17 GMT",
+          "sha256": "ec92f5d41fb218a454ba6355e765cf028219885823382b61de923395275c996f",
+          "size": 724
+        },
+        "src": {
+          "date": "Wed, 31 Jul 2019 22:50:17 GMT",
+          "sha256": "c658a43a9633f422d6d7e68984fd4ae217b8449536f7366258966437e516f7ad",
+          "size": 3129,
+          "url": "https://luarocks.org/test-lua-plugin-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.test-lua-plugin.handler",
+        "kong.plugins.test-lua-plugin.schema"
+      ],
+      "origin": {
+        "commit": "2b73c9a593458af6459a1a764ada950e044c9ebb",
+        "ref": "v0.1",
+        "type": "git",
+        "url": "https://github.com/bclouser/test-lua-plugin"
+      },
+      "size": 3188,
+      "summary": "An example kong plugin",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

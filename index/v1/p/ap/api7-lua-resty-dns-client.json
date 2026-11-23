@@ -1,0 +1,102 @@
+{
+  "kind": "lib",
+  "name": "api7-lua-resty-dns-client",
+  "versions": {
+    "7.1.2-0": {
+      "bin": [],
+      "deps": [
+        "penlight ~> 1",
+        "lrandom",
+        "lua-resty-timer ~> 1",
+        "binaryheap >= 0.4",
+        "luaxxhash >= 1.0"
+      ],
+      "files": {
+        "resty/dns/balancer/base.lua": {
+          "sha256": "4779c7537d5c02d8a51cd08c39fe8fe41eb98e919e7ba84bc9744b394e748080",
+          "size": 57489,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-dns-client/567d21e949ac6907872eba3ec3c48669e9b78fb4/src/resty/dns/balancer/base.lua"
+        },
+        "resty/dns/balancer/consistent_hashing.lua": {
+          "sha256": "7c147b34b6dbefed9ed498fbcea18dc1b462b74046a5be48cf491b2731471a08",
+          "size": 10123,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-dns-client/567d21e949ac6907872eba3ec3c48669e9b78fb4/src/resty/dns/balancer/consistent_hashing.lua"
+        },
+        "resty/dns/balancer/handle.lua": {
+          "sha256": "a28bf2d0072aec505c36ad2451848e297c079064b78fae67654cb47b12758279",
+          "size": 3829,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-dns-client/567d21e949ac6907872eba3ec3c48669e9b78fb4/src/resty/dns/balancer/handle.lua"
+        },
+        "resty/dns/balancer/least_connections.lua": {
+          "sha256": "3e4bc842d76ae5bb559af8ce40d74bc048a3c06cde69b632d6cbd7a5c81994a3",
+          "size": 7054,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-dns-client/567d21e949ac6907872eba3ec3c48669e9b78fb4/src/resty/dns/balancer/least_connections.lua"
+        },
+        "resty/dns/balancer/round_robin.lua": {
+          "sha256": "289e427233e31315cca4f06ef46f6fbb8e844bb32f6112440dc7ac4064e6362e",
+          "size": 4350,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-dns-client/567d21e949ac6907872eba3ec3c48669e9b78fb4/src/resty/dns/balancer/round_robin.lua"
+        },
+        "resty/dns/client.lua": {
+          "sha256": "058ba12c13612b624eab501d6b16841f72298558b3a13dd43e886b5536d51d26",
+          "size": 56364,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-dns-client/567d21e949ac6907872eba3ec3c48669e9b78fb4/src/resty/dns/client.lua"
+        },
+        "resty/dns/utils.lua": {
+          "sha256": "df35ab78a71e315fd40b5f85068f54e7ab635a268e73011e895ec2793c6b61d2",
+          "size": 11869,
+          "url": "https://raw.githubusercontent.com/api7/lua-resty-dns-client/567d21e949ac6907872eba3ec3c48669e9b78fb4/src/resty/dns/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/api7/lua-resty-dns-client",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Thu, 20 Aug 2026 10:06:50 GMT",
+        "rockspec": {
+          "date": "Thu, 20 Aug 2026 10:06:50 GMT",
+          "sha256": "8dc40cd56fd26c03dfa8d79cec9e50c7b0057d3dcf95cc3f399e8aed33faa384",
+          "size": 1198
+        },
+        "src": {
+          "date": "Thu, 20 Aug 2026 10:06:50 GMT",
+          "sha256": "6e8ee8b11eca88354076ab2155ca290072a2fe8de308665b29077d2c416b3309",
+          "size": 156686,
+          "url": "https://luarocks.org/api7-lua-resty-dns-client-7.1.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "resty.dns.balancer.base",
+        "resty.dns.balancer.consistent_hashing",
+        "resty.dns.balancer.handle",
+        "resty.dns.balancer.least_connections",
+        "resty.dns.balancer.round_robin",
+        "resty.dns.client",
+        "resty.dns.utils"
+      ],
+      "origin": {
+        "commit": "567d21e949ac6907872eba3ec3c48669e9b78fb4",
+        "ref": "v7.1.2",
+        "type": "git",
+        "url": "https://github.com/api7/lua-resty-dns-client"
+      },
+      "size": 151078,
+      "summary": "DNS library",
+      "undeclared_requires": [
+        "ngx.semaphore",
+        "resty.dns.resolver",
+        "resty.lrucache"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 7
+      }
+    }
+  }
+}

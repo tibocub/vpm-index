@@ -1,0 +1,91 @@
+{
+  "kind": "lib",
+  "name": "lusty-store-mysql",
+  "versions": {
+    "0.5-0": {
+      "bin": [],
+      "deps": [
+        "lusty-log >= 0.2-0",
+        "lusty-store >= 0.1-0",
+        "busted >= 1.10-0"
+      ],
+      "files": {
+        "lusty-store-mysql/query.lua": {
+          "sha256": "5b86f2d30b66ac5526836082b04f72318d55afc6193fb51e684715bb80755266",
+          "size": 2106,
+          "url": "https://raw.githubusercontent.com/Olivine-Labs/lusty-store-mysql/v0.5/lusty-store-mysql/query.lua"
+        },
+        "lusty-store-mysql/store/mysql.lua": {
+          "sha256": "9e726619503c97d6e5d931993ea4b8ac70fa4b167b64902ef355a3788f0ff996",
+          "size": 403,
+          "url": "https://raw.githubusercontent.com/Olivine-Labs/lusty-store-mysql/v0.5/lusty-store-mysql/store/mysql.lua"
+        },
+        "lusty-store-mysql/store/mysql/connection.lua": {
+          "sha256": "8588b9889535d95208f27531546a54e73e6106e66f2bde559dcb129109b67eda",
+          "size": 608,
+          "url": "https://raw.githubusercontent.com/Olivine-Labs/lusty-store-mysql/v0.5/lusty-store-mysql/store/mysql/connection.lua"
+        },
+        "lusty-store-mysql/store/mysql/delete.lua": {
+          "sha256": "28bd349cc64219ef4a1cbdb112c052f0118c37f3e83192069bbd1999e0e2b4ec",
+          "size": 696,
+          "url": "https://raw.githubusercontent.com/Olivine-Labs/lusty-store-mysql/v0.5/lusty-store-mysql/store/mysql/delete.lua"
+        },
+        "lusty-store-mysql/store/mysql/get.lua": {
+          "sha256": "661789b47cd7a4157aaaa32bab03e9feccc122b58870c96871bd20f790348f41",
+          "size": 748,
+          "url": "https://raw.githubusercontent.com/Olivine-Labs/lusty-store-mysql/v0.5/lusty-store-mysql/store/mysql/get.lua"
+        },
+        "lusty-store-mysql/store/mysql/patch.lua": {
+          "sha256": "fed811eda6b9f641ee35404d3fb0538fe5ed558fc60cc5b346197e7ac86c4eb9",
+          "size": 1345,
+          "url": "https://raw.githubusercontent.com/Olivine-Labs/lusty-store-mysql/v0.5/lusty-store-mysql/store/mysql/patch.lua"
+        },
+        "lusty-store-mysql/store/mysql/post.lua": {
+          "sha256": "1d83b907531fbeec51c60b8c9b713949c800c6b6f0d8199d83886b1f47a5f12b",
+          "size": 1182,
+          "url": "https://raw.githubusercontent.com/Olivine-Labs/lusty-store-mysql/v0.5/lusty-store-mysql/store/mysql/post.lua"
+        }
+      },
+      "homepage": "http://olivinelabs.com/lusty/",
+      "host": "openresty",
+      "license": "MIT <http://opensource.org/licenses/MIT>",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 20 Feb 2017 01:49:35 GMT",
+        "rockspec": {
+          "date": "Mon, 20 Feb 2017 01:49:35 GMT",
+          "sha256": "14c4ba731507d120332897b5a1e94d4d8cb71eb39ce7d53f190b8ac1caf4d96d",
+          "size": 1217
+        }
+      },
+      "modules": [
+        "lusty-store-mysql.query",
+        "lusty-store-mysql.store.mysql",
+        "lusty-store-mysql.store.mysql.connection",
+        "lusty-store-mysql.store.mysql.delete",
+        "lusty-store-mysql.store.mysql.get",
+        "lusty-store-mysql.store.mysql.patch",
+        "lusty-store-mysql.store.mysql.post"
+      ],
+      "origin": {
+        "sha256": "66611f32c2c04c53f46ead026fa3fbf3837845d3a55bbecb2a20176b4bbe260e",
+        "type": "archive",
+        "url": "https://github.com/Olivine-Labs/lusty-store-mysql/archive/v0.5.tar.gz"
+      },
+      "size": 7088,
+      "summary": "MySQL plugin for lusty persistence interface.",
+      "undeclared_requires": [
+        "resty.mysql"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

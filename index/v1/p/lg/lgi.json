@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "lgi",
+  "versions": {
+    "0.9.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/pavouk/lgi",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 09 Oct 2017 19:06:20 GMT",
+        "rockspec": {
+          "date": "Mon, 09 Oct 2017 19:06:20 GMT",
+          "sha256": "43b762a1f165ec8ff96501b707a0e561f971fdc3a86fe2f58afde845ea0111bf",
+          "size": 761
+        },
+        "src": {
+          "date": "Mon, 09 Oct 2017 19:10:03 GMT",
+          "sha256": "ea7a262a5b209a5604c09b95f44cb222956638b00279df6a41e76ed56e61521d",
+          "size": 352496,
+          "url": "https://luarocks.org/lgi-0.9.2-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "make": {
+            "variables": {
+              "LIBFLAG": "$(LIBFLAG)",
+              "LUA_CFLAGS": "$(CFLAGS) -I$(LUA_INCDIR)",
+              "LUA_LIBDIR": "$(LIBDIR)",
+              "LUA_SHAREDIR": "$(LUADIR)",
+              "PREFIX": "$(PREFIX)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Mon, 09 Oct 2017 19:10:03 GMT",
+        "sha256": "ea7a262a5b209a5604c09b95f44cb222956638b00279df6a41e76ed56e61521d",
+        "size": 352496,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lgi-0.9.2-1.src.rock"
+      },
+      "summary": "Lua bindings to GObject libraries",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

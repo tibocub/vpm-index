@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-slack-hmac",
+  "versions": {
+    "0.12.3-0": {
+      "bin": [],
+      "deps": [
+        "lua-resty-hmac = v1.0-1",
+        "lua-resty-string = 0.09-0"
+      ],
+      "files": {
+        "kong/plugins/slack-hmac/handler.lua": {
+          "sha256": "77db8c27929b80ee33a7243dc6cf0f158595a0b9e84dc3e13c6a78939b17ee86",
+          "size": 1562,
+          "url": "https://raw.githubusercontent.com/erran/kong-slack-hmac/610330b1a5f1aa988cb9d176febea79afe48ec1e/src/kong/plugins/slack-hmac/handler.lua"
+        },
+        "kong/plugins/slack-hmac/schema.lua": {
+          "sha256": "763e31c42b6358b37f41affaec489d088aa2c6bf99f869ac31367f72ff49f153",
+          "size": 162,
+          "url": "https://raw.githubusercontent.com/erran/kong-slack-hmac/610330b1a5f1aa988cb9d176febea79afe48ec1e/src/kong/plugins/slack-hmac/schema.lua"
+        },
+        "kong/plugins/slack-hmac/signer.lua": {
+          "sha256": "0fc096df4ea717898aba9d1ed76afa35bfe595b9242b7d1af82248710eb5b487",
+          "size": 651,
+          "url": "https://raw.githubusercontent.com/erran/kong-slack-hmac/610330b1a5f1aa988cb9d176febea79afe48ec1e/src/kong/plugins/slack-hmac/signer.lua"
+        }
+      },
+      "homepage": "https://github.com/erran/kong-slack-hmac",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "= 5.1",
+      "luarocks": {
+        "date": "Tue, 26 Mar 2019 17:12:21 GMT",
+        "rockspec": {
+          "date": "Tue, 26 Mar 2019 17:12:21 GMT",
+          "sha256": "9093d4f45d6ff062defff3fe2170f5b35987da131fdb032b0f126799126adfbe",
+          "size": 710
+        },
+        "src": {
+          "date": "Tue, 26 Mar 2019 17:12:22 GMT",
+          "sha256": "43b4f5b2359e95286818c951d8039cba6729368f7c14970f3d2b32976cfc4c83",
+          "size": 7100,
+          "url": "https://luarocks.org/kong-slack-hmac-0.12.3-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.slack-hmac.handler",
+        "kong.plugins.slack-hmac.schema",
+        "kong.plugins.slack-hmac.signer"
+      ],
+      "origin": {
+        "commit": "610330b1a5f1aa988cb9d176febea79afe48ec1e",
+        "type": "git",
+        "url": "https://github.com/erran/kong-slack-hmac"
+      },
+      "size": 2375,
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-request-transformer",
+  "versions": {
+    "1.3.2-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/request-transformer/access.lua": {
+          "sha256": "4200b611ba1b7257f69352927fa6995e3a80eef164bb0711ecbac2972b7135f1",
+          "size": 15375,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-request-transformer/c268c4b8fb6e706753816100080bd91d49d487f2/kong/plugins/request-transformer/access.lua"
+        },
+        "kong/plugins/request-transformer/handler.lua": {
+          "sha256": "e1d4a0591c235dea2e469d2948be8f39a5354a63f46c56251708f3720d4a132c",
+          "size": 257,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-request-transformer/c268c4b8fb6e706753816100080bd91d49d487f2/kong/plugins/request-transformer/handler.lua"
+        },
+        "kong/plugins/request-transformer/migrations/cassandra.lua": {
+          "sha256": "3045a21db68b4f35abdc2e1b086234d7ca066ed0885bc73fb80015cb1086ade1",
+          "size": 222,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-request-transformer/c268c4b8fb6e706753816100080bd91d49d487f2/kong/plugins/request-transformer/migrations/cassandra.lua"
+        },
+        "kong/plugins/request-transformer/migrations/common.lua": {
+          "sha256": "eca070bdb2d5922484975998c1edad6791e0be0ec6826f88f6d6d7652802174f",
+          "size": 722,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-request-transformer/c268c4b8fb6e706753816100080bd91d49d487f2/kong/plugins/request-transformer/migrations/common.lua"
+        },
+        "kong/plugins/request-transformer/migrations/postgres.lua": {
+          "sha256": "054ec0afffcab5e984f2fb8047c1eb8ac3605ecfb2c4d6cdb72a9a0419da5b90",
+          "size": 222,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-request-transformer/c268c4b8fb6e706753816100080bd91d49d487f2/kong/plugins/request-transformer/migrations/postgres.lua"
+        },
+        "kong/plugins/request-transformer/schema.lua": {
+          "sha256": "224ac8ff40fdc94c52d8e67f1d99ad9099258bd33ccc37b015355cfb059ad3ef",
+          "size": 3340,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-request-transformer/c268c4b8fb6e706753816100080bd91d49d487f2/kong/plugins/request-transformer/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 08 Jan 2021 15:06:56 GMT",
+        "rockspec": {
+          "date": "Fri, 08 Jan 2021 15:06:56 GMT",
+          "sha256": "be829e3d31faf12688dadfb1c6a88279b1be40bb09bbd5e3604a9b84d8fa346e",
+          "size": 1004
+        },
+        "src": {
+          "date": "Fri, 08 Jan 2021 15:06:57 GMT",
+          "sha256": "0c0fa84e99b4aa89470274a877ff1d960a0bf090f1b4feb8a59ed0268591d751",
+          "size": 34108,
+          "url": "https://luarocks.org/kong-plugin-request-transformer-1.3.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.request-transformer.access",
+        "kong.plugins.request-transformer.handler",
+        "kong.plugins.request-transformer.migrations.cassandra",
+        "kong.plugins.request-transformer.migrations.common",
+        "kong.plugins.request-transformer.migrations.postgres",
+        "kong.plugins.request-transformer.schema"
+      ],
+      "origin": {
+        "commit": "c268c4b8fb6e706753816100080bd91d49d487f2",
+        "ref": "1.3.2",
+        "type": "git",
+        "url": "https://github.com/Kong/kong-plugin-request-transformer"
+      },
+      "size": 20138,
+      "summary": "Kong Request Transformer Plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.tools.utils",
+        "multipart",
+        "pl.tablex",
+        "pl.template"
+      ],
+      "vlr": {
+        "cause": "missing module: multipart",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 6
+      }
+    }
+  }
+}

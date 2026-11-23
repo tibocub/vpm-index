@@ -1,0 +1,288 @@
+local json = require "cjson"
+local ck = require("resty.cookie")
+local rate_limiting = require("kong.plugins.mithril.rate-limiting")
+local policy = require("kong.plugins.mithril.rate-limiting.policy")
+local mint = require("kong.plugins.mithril.mint")
+local warden = require("kong.plugins.mithril.warden")
+local lstrip = require("pl.stringx").lstrip
+local rstrip = require("pl.stringx").rstrip
+local uuid = require "kong.tools.utils".uuid
+
+local token_url_template = os.getenv("TOKEN_URL_TEMPLATE")
+local client_details_url_template = os.getenv("CLIENT_DETAILS_URL_TEMPLATE")
+
+
+local kong = kong
+local worker_uuid
+local worker_counter
+
+local MithrilHandler = {}
+local req_headers = {}
+local header_name = "x-request-id"
+
+MithrilHandler.PRIORITY = 770
+MithrilHandler.VERSION = "0.0.1"
+
+local function get_correlation_id()
+  local correlation_id = kong.request.get_header(header_name)
+  if not correlation_id then
+    -- Generate the header value
+    local worker_pid = ngx.worker.pid()
+
+    worker_counter = worker_counter + 1
+    correlation_id = worker_uuid .. "#" .. worker_counter
+  end
+
+  return correlation_id
+end
+
+local function find_rule(rules)
+  local api_path = lstrip(rstrip(ngx.ctx.route.paths[1], "/"), "~")
+  local request_path = kong.request.get_raw_path()
+
+  local api_relative_path, n, err = ngx.re.gsub(request_path, api_path, "")
+  local method = ngx.req.get_method()
+
+  for k, rule in pairs(rules) do
+    local path_matched, err = ngx.re.match(api_relative_path, "^" .. rule.path)
+
+    local method_matched = false
+    for key, rule_method in pairs(rule.methods) do
+      if rule_method == method then
+        method_matched = true
+        break
+      end
+    end
+    if path_matched and method_matched then
+      return rule
+    end
+  end
+end
+
+local function regular_details(body)
+  local response = json.decode(body)
+  local data = response.data or {}
+  local urgent = response.urgent or {}
+  local mis_client_id = urgent.mis_client_id
+  local details = data.details or {}
+  local broker_scope = details.broker_scope
+  local user_id = data.user_id or data.consumer_id
+  local scope = data.consumer_scope or details.scope
+  local user = data.user or {}
+  local person_id = user.person_id
+  return mis_client_id, details, scope, broker_scope, user_id, person_id
+end
+
+local function fill_jwt_details(details, jwt_obj)
+  local fields = {
+    'scope',
+    'grant_type',
+    'applicant_person_id',
+    'refresh_token',
+    'applicant_user_id',
+    'app_id'
+  }
+
+  for _, field in pairs(fields) do
+    if jwt_obj.payload[field] then
+      details[field] = jwt_obj.payload[field]
+    end
+  end
+
+  return details
+end
+
+local function jwt_details(jwt_obj, body)
+  local response = json.decode(body)
+  local data = response.data or {}
+  local urgent = response.urgent or {}
+  local person_id = jwt_obj.payload.person_id
+  local user_id = jwt_obj.payload.sub
+  local scope = jwt_obj.payload.scope
+  local details = fill_jwt_details(data.details, jwt_obj)
+  local broker_scope = details.broker_scope
+  local mis_client_id = urgent.mis_client_id
+  return user_id, person_id, mis_client_id, scope, broker_scope, details
+end
+
+local function get_client_name_from_mithril(client_id)
+  local url = string.gsub(client_details_url_template, "{client_id}", client_id)
+  local res, err = mint.get(url, "Invalid client id")
+  if not err then
+    local response = json.decode(res.body)
+    local data = response.data or {}
+    return data.name
+  else
+    return ""
+  end
+end
+
+local function get_client_name(config, client_id)
+  local redis = policy.redis_connect(config)
+  local client_name, err = redis:hget("client_names", client_id)
+
+  if err or client_name == ngx.null then
+    client_name = get_client_name_from_mithril(client_id)
+    if client_name ~= "" then
+      redis:hset("client_names", client_id, client_name)
+    end
+    policy.redis_disconnect(redis)
+    return client_name
+  else
+    policy.redis_disconnect(redis)
+    return client_name
+  end
+end
+
+local function set_mis_client_id(config, scope, mis_client_id, details)
+  ngx.req.set_header("x-consumer-scope", scope)
+  ngx.var.upstream_x_mis_client_id = mis_client_id
+  if details.scope ~= nil and details.scope ~= json.null then
+    local x_consumer_metadata = json.encode(details)
+    ngx.req.set_header("x-consumer-metadata", x_consumer_metadata)
+    ngx.var.upstream_x_client_id = details.client_id
+    ngx.var.upstream_x_client_name = get_client_name(config, details.client_id)
+  end
+end
+
+local function proceed_further(config, user_id, person_id, mis_client_id, scope, broker_scope, details)
+  if user_id == nil or scope == nil then
+    mint.send_error(401, "Invalid access token")
+    return ngx.exit(200)
+  end
+
+  ngx.req.set_header("x-consumer-id", user_id)
+  ngx.req.set_header("x-person-id", person_id)
+  ngx.var.upstream_x_consumer_id = user_id
+  set_mis_client_id(config, scope, mis_client_id, details)
+
+  local rule = find_rule(config.rules)
+  if next(config.rules) ~= nil then
+    warden.check_scopes(rule, scope, broker_scope, config.api_key_only)
+    warden.check_abac_rule(rule, user_id, mis_client_id, person_id, details)
+  end
+end
+
+local function process_mis_request(config)
+  local api_key = ngx.req.get_headers()["api-key"]
+  if api_key ~= nil then
+    rate_limiting.verify(config, api_key)
+
+    local res, err = warden.verify_apikey(config, api_key)
+    local mis_client_id, details, scope, broker_scope, _, _ = regular_details(res.body)
+
+    if config.client_type ~= nil and config.client_type ~= details.client_type or scope == json.null or scope == nil then
+      mint.send_error(401, "Invalid api key")
+      return ngx.exit(200)
+    end
+
+    if details.client_is_blocked == true then
+      mint.send_error(401, "Client is blocked")
+      return ngx.exit(200)
+    end
+
+    if details.domain ~= nil and details.domain ~= json.null then
+      local origin = kong.request.get_header("Origin")
+
+      if details.domain ~= origin then
+        mint.send_error(403, "Access denied")
+        return ngx.exit(200)
+      end
+    end
+
+    set_mis_client_id(config, scope, mis_client_id, details)
+
+    local rule = find_rule(config.rules)
+    if next(config.rules) ~= nil then
+      warden.check_scopes(rule, scope, broker_scope, config.api_key_only)
+    end
+  else
+    mint.send_error(401, "Api key is not set")
+    return ngx.exit(200)
+  end
+end
+
+local function process_request(config, authorization)
+  local api_key = ngx.req.get_headers()["api-key"]
+  local bearer = authorization and string.match(authorization, "^Bearer%s+(.+)$")
+
+  if not bearer then
+    mint.send_error(401, "Authorization header is not set or doesn't contain Bearer token")
+    return ngx.exit(200)
+  end
+
+  rate_limiting.verify(config, bearer)
+
+  local jwt_obj = warden.verify_jwt(bearer)
+
+  if jwt_obj.reason ~= "invalid jwt string" then
+    if not jwt_obj.valid or not jwt_obj.verified then
+      mint.send_error(401, "Token is not verified")
+      return ngx.exit(200)
+    end
+
+    warden.check_jwt_struct(jwt_obj)
+    warden.check_jwt_blacklist(config, jwt_obj)
+
+    if jwt_obj.payload.access_type == "BROKER" then
+      if api_key == nil then
+        mint.send_error(401, "Api-key header required")
+        return ngx.exit(200)
+      end
+
+      local res, err = warden.verify_apikey(config, api_key)
+      local user_id, person_id, mis_client_id, scope, broker_scope, details = jwt_details(jwt_obj, res.body)
+      details["client_id"] = jwt_obj.payload.client_id
+
+      proceed_further(config, user_id, person_id, mis_client_id, scope, broker_scope, details)
+    else
+      local client_id = jwt_obj.payload.client_id
+      local json = json.encode({["data"] = {["details"] = {["client_id"] = client_id}}})
+      local user_id, person_id, mis_client_id, scope, broker_scope, details = jwt_details(jwt_obj, json)
+
+      proceed_further(config, user_id, person_id, mis_client_id, scope, broker_scope, details)
+    end
+  else
+    local url = string.gsub(token_url_template, "{access_token}", bearer)
+    local res, err = mint.get(url, "Invalid access token")
+    local mis_client_id, details, scope, broker_scope, user_id, person_id = regular_details(res.body)
+
+    proceed_further(config, user_id, person_id, mis_client_id, scope, broker_scope, details)
+  end
+end
+
+-- KONG CALLBACKS --
+
+function MithrilHandler:init_worker()
+  worker_uuid = uuid()
+  worker_counter = 0
+end
+
+function MithrilHandler:access(config)
+  local cookie, err = ck:new()
+  kong.ctx.plugin.correlation_id = get_correlation_id()
+  kong.service.request.set_header(header_name, kong.ctx.plugin.correlation_id)
+
+  if config.api_key_only == true then
+    process_mis_request(config)
+  else
+    local authorization
+    local field, err = cookie:get("authorization")
+    if not field then
+      authorization = ngx.req.get_headers()["authorization"]
+    else
+      authorization = "Bearer " .. field
+    end
+
+    process_request(config, authorization)
+  end
+end
+
+function MithrilHandler:header_filter(config)
+  local correlation_id = kong.ctx.plugin.correlation_id
+  if correlation_id then
+    kong.response.set_header(header_name, correlation_id)
+  end
+end
+
+return MithrilHandler

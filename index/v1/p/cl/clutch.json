@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "clutch",
+  "versions": {
+    "1.3.2-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/akojo/clutch",
+      "license": "MIT",
+      "lua": ">= 5.2",
+      "luarocks": {
+        "date": "Wed, 20 Jul 2022 11:56:47 GMT",
+        "rockspec": {
+          "date": "Wed, 20 Jul 2022 11:56:47 GMT",
+          "sha256": "7c1e0306331f0b7d64b06ca2049210f1ffc8c23203d7af96fc9f09d18b55ac36",
+          "size": 1010
+        },
+        "src": {
+          "date": "Wed, 20 Jul 2022 11:56:49 GMT",
+          "sha256": "a4e01462fc58edbfbd7030d577f363cb2d9ec0a0361645239948aba0607bef0e",
+          "size": 13822,
+          "url": "https://luarocks.org/clutch-1.3.2-2.src.rock"
+        }
+      },
+      "modules": [
+        "clutch"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBSQLITE3"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBSQLITE3": {
+              "header": "sqlite3.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBSQLITE3_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LIBSQLITE3_LIBDIR)"
+              ],
+              "libraries": [
+                "sqlite3"
+              ],
+              "name": "clutch",
+              "sources": [
+                "clutch.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 20 Jul 2022 11:56:49 GMT",
+        "sha256": "a4e01462fc58edbfbd7030d577f363cb2d9ec0a0361645239948aba0607bef0e",
+        "size": 13822,
+        "type": "luarocks",
+        "url": "https://luarocks.org/clutch-1.3.2-2.src.rock"
+      },
+      "summary": "A simple API for sqlite3",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

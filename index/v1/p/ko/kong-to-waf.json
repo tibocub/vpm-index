@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "kong-to-waf",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-to-waf/access.lua": {
+          "sha256": "d3c1acd8c74bdb2caa44628d8127dbe677d10096f3ecc6d3e343c7a6dd2f8563",
+          "size": 1915,
+          "url": "https://raw.githubusercontent.com/cloudblue/kong-to-waf/b8e304f3f2f46d9e440797c70a39cd75bed28087/src/access.lua"
+        },
+        "kong/plugins/kong-to-waf/handler.lua": {
+          "sha256": "a43ecaf2d9453a564ce499e51acf6b14980df59dce32a83d74ff11bfe6da3fe7",
+          "size": 208,
+          "url": "https://raw.githubusercontent.com/cloudblue/kong-to-waf/b8e304f3f2f46d9e440797c70a39cd75bed28087/src/handler.lua"
+        },
+        "kong/plugins/kong-to-waf/schema.lua": {
+          "sha256": "5efbebe21a55b22a63981af79d3c9988c7eb46b2e9163c821645bf9a3d76644a",
+          "size": 1231,
+          "url": "https://raw.githubusercontent.com/cloudblue/kong-to-waf/b8e304f3f2f46d9e440797c70a39cd75bed28087/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache License, Version 2.0",
+      "luarocks": {
+        "date": "Wed, 12 Feb 2025 12:46:12 GMT",
+        "rockspec": {
+          "date": "Wed, 12 Feb 2025 12:46:12 GMT",
+          "sha256": "8475935a16b410a77e773f85aad7232509ee3ec7ff40e297bcf8199d99542a7d",
+          "size": 596
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-to-waf.access",
+        "kong.plugins.kong-to-waf.handler",
+        "kong.plugins.kong-to-waf.schema"
+      ],
+      "origin": {
+        "commit": "b8e304f3f2f46d9e440797c70a39cd75bed28087",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/cloudblue/kong-to-waf"
+      },
+      "size": 3354,
+      "summary": "Kong Gateway plugin for WAF offloading",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

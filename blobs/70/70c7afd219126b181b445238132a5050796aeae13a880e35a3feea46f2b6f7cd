@@ -1,0 +1,54 @@
+local sfs = require 'sfs'
+local log = require 'lrocket.log'
+local abi = require 'lrocket.abi'
+
+local function getrulename(rulepath)
+	local rulename = rulepath:match(sfs.normalize "lrocket/targetrules/(.*).lua$")
+	return rulename
+end
+
+local _rules
+
+local rules = {}
+
+function rules.load()
+	local rulesfortarget = {}
+
+	for path in package.path:gmatch "[^;]+" do
+		for rulepath in sfs.glob((path:gsub("%?.*", "lrocket/targetrules/*.lua"))) do
+			rulesfortarget[#rulesfortarget + 1] = getrulename(rulepath)
+		end
+	end
+
+	if __lrocket_archive then
+		for _, path in ipairs(__lrocket_archive:list()) do
+			if sfs.testglob("lua_modules/lrocket/targetrules/*.lua", path) then
+				rulesfortarget[#rulesfortarget + 1] = getrulename(sfs.normalize(path))
+			end
+		end
+	end
+
+	table.sort(rulesfortarget)
+
+	_rules = {}
+	for _, rulename in ipairs(rulesfortarget) do
+		local modname = "lrocket.targetrules." .. rulename
+		abi.report(abi.validatemodule(modname, string.format("rule '%s'", rulename)))
+		local ok, rule = pcall(require, modname)
+		if not ok then
+			local err = rule
+			log.warnf("could not load target rule '%s': %s\n", rulename, err)
+		else
+			_rules[#_rules + 1] = rule
+		end
+	end
+end
+
+function rules.get()
+	if not _rules then
+		rules.load()
+	end
+	return _rules
+end
+
+return rules

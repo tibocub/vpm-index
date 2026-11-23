@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-splunk-log",
+  "versions": {
+    "0.3-9": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-splunk-log/basic.lua": {
+          "sha256": "f7411b2c763709435b2b57820508dd765413b71f76ecdbd00d0d9ad51cc2677f",
+          "size": 3744,
+          "url": "https://raw.githubusercontent.com/Optum/kong-splunk-log/5b5bd7a62baafdf60d513a6fb27a72e0dcfee864/src/basic.lua"
+        },
+        "kong/plugins/kong-splunk-log/handler.lua": {
+          "sha256": "72c688bad4b8af1380f4225d8df11c630f228f6f1e87ccd366e36cb89376e131",
+          "size": 5568,
+          "url": "https://raw.githubusercontent.com/Optum/kong-splunk-log/5b5bd7a62baafdf60d513a6fb27a72e0dcfee864/src/handler.lua"
+        },
+        "kong/plugins/kong-splunk-log/schema.lua": {
+          "sha256": "4931a4340868409910dd50c5cfe4bf4478225f106773ec92511953284137c19b",
+          "size": 1038,
+          "url": "https://raw.githubusercontent.com/Optum/kong-splunk-log/5b5bd7a62baafdf60d513a6fb27a72e0dcfee864/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-splunk-log",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Wed, 12 Jun 2024 06:03:35 GMT",
+        "rockspec": {
+          "date": "Wed, 12 Jun 2024 06:03:35 GMT",
+          "sha256": "015128cc401b753888fc40deaf96f7d515fbe56237dcbf7764471768cb31f874",
+          "size": 838
+        },
+        "src": {
+          "date": "Wed, 12 Jun 2024 06:03:36 GMT",
+          "sha256": "81fc0fbf4d94a353c41fc64816cf960349091db5995013d25eeb5d5f54161f0e",
+          "size": 85587,
+          "url": "https://luarocks.org/kong-splunk-log-0.3-9.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-splunk-log.basic",
+        "kong.plugins.kong-splunk-log.handler",
+        "kong.plugins.kong-splunk-log.schema"
+      ],
+      "origin": {
+        "commit": "5b5bd7a62baafdf60d513a6fb27a72e0dcfee864",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-splunk-log.git"
+      },
+      "size": 10350,
+      "summary": "Kong plugin designed to log API transactions to Splunk",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.tools.queue",
+        "pl.tablex",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.tablex",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

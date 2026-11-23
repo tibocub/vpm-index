@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "netlink",
+  "versions": {
+    "1.2.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/chris2511/lua-netlink",
+      "license": "MIT",
+      "lua": ">= 5.1, <= 5.5",
+      "luarocks": {
+        "date": "Sat, 17 Oct 2026 13:26:02 GMT",
+        "rockspec": {
+          "date": "Sat, 17 Oct 2026 13:26:02 GMT",
+          "sha256": "0e8fb05e4853984e417eb362ec134041b1056718e422753df724a1af7e7c88c3",
+          "size": 945
+        },
+        "src": {
+          "date": "Sat, 17 Oct 2026 13:26:03 GMT",
+          "sha256": "c0a0478606b18072e45fb71d9d798314ccf9cd65e00a1cb319c20ed5473a3f33",
+          "size": 18725,
+          "url": "https://luarocks.org/netlink-1.2.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "netlink"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBMNL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBMNL": {
+              "header": "libmnl/libmnl.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "VERSION=\"1.2.1\""
+              ],
+              "libraries": [
+                "mnl"
+              ],
+              "name": "netlink",
+              "sources": [
+                "src/netlink.c",
+                "src/lib.c",
+                "src/ethtool.c",
+                "src/link.c",
+                "src/ifaddr.c",
+                "src/route.c",
+                "src/neigh.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 17 Oct 2026 13:26:03 GMT",
+        "sha256": "c0a0478606b18072e45fb71d9d798314ccf9cd65e00a1cb319c20ed5473a3f33",
+        "size": 18725,
+        "type": "luarocks",
+        "url": "https://luarocks.org/netlink-1.2.1-0.src.rock"
+      },
+      "summary": "Netlink event library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

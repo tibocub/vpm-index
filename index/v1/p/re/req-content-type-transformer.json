@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "req-content-type-transformer",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/req-content-type-transformer/access.lua": {
+          "sha256": "7bd8205226586fa96f69ca65c4ec8707711938461bfd9df115c8e2fb33336c92",
+          "size": 3574,
+          "url": "https://raw.githubusercontent.com/spiritonly/kong-plugin-req-content-type-transformer/99c511c595a595ec99c76bb4545078ce94b422b4/access.lua"
+        },
+        "kong/plugins/req-content-type-transformer/handler.lua": {
+          "sha256": "9333cf4c911a02b04d38622b514e48217b00fb237f9f2e3ec90bbb7b50243980",
+          "size": 1357,
+          "url": "https://raw.githubusercontent.com/spiritonly/kong-plugin-req-content-type-transformer/99c511c595a595ec99c76bb4545078ce94b422b4/handler.lua"
+        },
+        "kong/plugins/req-content-type-transformer/schema.lua": {
+          "sha256": "3e413e3d39c17e0908d362c04a9a8116d073edcb3e9af3d42aead874f128a945",
+          "size": 868,
+          "url": "https://raw.githubusercontent.com/spiritonly/kong-plugin-req-content-type-transformer/99c511c595a595ec99c76bb4545078ce94b422b4/schema.lua"
+        }
+      },
+      "homepage": "http://getkong.org",
+      "host": "openresty",
+      "license": "Apache V2.0",
+      "luarocks": {
+        "date": "Thu, 13 Oct 2016 09:24:49 GMT",
+        "rockspec": {
+          "date": "Thu, 13 Oct 2016 09:24:49 GMT",
+          "sha256": "51e887c486f4e9ee102fcb42b505f89e9b53509a9ca32c5b48d5342c1b691ec4",
+          "size": 684
+        }
+      },
+      "modules": [
+        "kong.plugins.req-content-type-transformer.access",
+        "kong.plugins.req-content-type-transformer.handler",
+        "kong.plugins.req-content-type-transformer.schema"
+      ],
+      "origin": {
+        "commit": "99c511c595a595ec99c76bb4545078ce94b422b4",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/spiritonly/kong-plugin-req-content-type-transformer"
+      },
+      "size": 5799,
+      "summary": "transfom request content type from json to form-urlencoded or form-urlencoded to json",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "multipart",
+        "stringy"
+      ],
+      "vlr": {
+        "cause": "missing module: stringy",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

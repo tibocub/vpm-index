@@ -1,0 +1,100 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-endpoint-access-control",
+  "versions": {
+    "0.3.1-1": {
+      "bin": [],
+      "deps": [
+        "classic 0.1.0-1",
+        "kong-lib-logger >= 0.3.0-1"
+      ],
+      "files": {
+        "kong/plugins/endpoint-access-control/api.lua": {
+          "sha256": "3c9b3dfe47505779e08bae16681923cfcfab490d12f8327804b386a4ffa35ba4",
+          "size": 2419,
+          "url": "blob:3c9b3dfe47505779e08bae16681923cfcfab490d12f8327804b386a4ffa35ba4"
+        },
+        "kong/plugins/endpoint-access-control/daos.lua": {
+          "sha256": "92372112c9b5f476868f150187b46e83decc848a37a5425da55700eb29989f08",
+          "size": 708,
+          "url": "blob:92372112c9b5f476868f150187b46e83decc848a37a5425da55700eb29989f08"
+        },
+        "kong/plugins/endpoint-access-control/endpoint_access_control_permissions_db.lua": {
+          "sha256": "e5fd75a635853d830719dd1aaa7f6e5c2bf93dcf0eb7e75c51963341986c04b4",
+          "size": 1116,
+          "url": "blob:e5fd75a635853d830719dd1aaa7f6e5c2bf93dcf0eb7e75c51963341986c04b4"
+        },
+        "kong/plugins/endpoint-access-control/handler.lua": {
+          "sha256": "67097b5deb1a655639cc6a9998c0d398a7f01efc9b5350f43b23b15d53ec027f",
+          "size": 2658,
+          "url": "blob:67097b5deb1a655639cc6a9998c0d398a7f01efc9b5350f43b23b15d53ec027f"
+        },
+        "kong/plugins/endpoint-access-control/migrations/000_base_endpoint_permission.lua": {
+          "sha256": "ed1be8f5911550e301a0586f829df944078fc736823fb57f0467139bba5b8ab5",
+          "size": 863,
+          "url": "blob:ed1be8f5911550e301a0586f829df944078fc736823fb57f0467139bba5b8ab5"
+        },
+        "kong/plugins/endpoint-access-control/migrations/init.lua": {
+          "sha256": "df199b75c564c8bac69730da9380f85db9195f8bda9153486087892afd9ef135",
+          "size": 45,
+          "url": "blob:df199b75c564c8bac69730da9380f85db9195f8bda9153486087892afd9ef135"
+        },
+        "kong/plugins/endpoint-access-control/schema.lua": {
+          "sha256": "54ac7f9976af1a8eb1df5ac6108d0fd9904594e48df51020b1f7701019db3d47",
+          "size": 700,
+          "url": "blob:54ac7f9976af1a8eb1df5ac6108d0fd9904594e48df51020b1f7701019db3d47"
+        }
+      },
+      "homepage": "https://github.com/emartech/kong-plugin-endpoint-access-control",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Tue, 06 Apr 2021 09:41:52 GMT",
+        "rockspec": {
+          "date": "Tue, 06 Apr 2021 09:41:52 GMT",
+          "sha256": "36283a46724543bbd96833f988bd59a3453350defe39332e93e5e88f61520e86",
+          "size": 1419
+        },
+        "src": {
+          "date": "Tue, 06 Apr 2021 09:41:53 GMT",
+          "sha256": "017e9cc321c7cf2353013190e967cd5facefdf8b00dcaa87fd2734f10a80a584",
+          "size": 17726,
+          "url": "https://luarocks.org/kong-plugin-endpoint-access-control-0.3.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.endpoint-access-control.api",
+        "kong.plugins.endpoint-access-control.daos",
+        "kong.plugins.endpoint-access-control.endpoint_access_control_permissions_db",
+        "kong.plugins.endpoint-access-control.handler",
+        "kong.plugins.endpoint-access-control.migrations",
+        "kong.plugins.endpoint-access-control.migrations.000_base_endpoint_permission",
+        "kong.plugins.endpoint-access-control.schema"
+      ],
+      "origin": {
+        "date": "Tue, 06 Apr 2021 09:41:53 GMT",
+        "sha256": "017e9cc321c7cf2353013190e967cd5facefdf8b00dcaa87fd2734f10a80a584",
+        "size": 17726,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-endpoint-access-control-0.3.1-1.src.rock"
+      },
+      "size": 8509,
+      "summary": "Endpoint Access Control for Kong API gateway plugins.",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.api.endpoints",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 4,
+        "status": "partial",
+        "total": 7
+      }
+    }
+  }
+}

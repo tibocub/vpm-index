@@ -1,0 +1,136 @@
+{
+  "kind": "app",
+  "name": "tulip-cli",
+  "versions": {
+    "0.0.5-1": {
+      "bin": {
+        "tulip-cli": "bin/tulip-cli"
+      },
+      "blocked_by": {
+        "name": "mna/luapgsql",
+        "reason": "not-in-index"
+      },
+      "deps": [
+        "mna/luapgsql 1.6.1-1",
+        "base64 1.5-3",
+        "luaposix 35.0-1",
+        "luashell 0.4-1",
+        "optparse 1.4-1",
+        "xpgsql 0.5-1"
+      ],
+      "files": {
+        "bin/tulip-cli": {
+          "sha256": "c393fa3b5704cf023aae9c71932704279312f0e7049b647fb1df255320fc2cb1",
+          "size": 65,
+          "url": "blob:c393fa3b5704cf023aae9c71932704279312f0e7049b647fb1df255320fc2cb1"
+        },
+        "src/cmds/dbcmd.lua": {
+          "sha256": "ef94ae5de075e62f2dc3df21a23c5b6eaa4372f29ae2a88566eeface295c23d3",
+          "size": 3488,
+          "url": "blob:ef94ae5de075e62f2dc3df21a23c5b6eaa4372f29ae2a88566eeface295c23d3"
+        },
+        "src/cmds/files/docker_compose.lua": {
+          "sha256": "82f36e666a36c671224cf6cd947a19191f0f25f5e039679fef56c8b2b7e7dbcd",
+          "size": 476,
+          "url": "blob:82f36e666a36c671224cf6cd947a19191f0f25f5e039679fef56c8b2b7e7dbcd"
+        },
+        "src/cmds/files/dockerfile.lua": {
+          "sha256": "1bebc65559cfbb36bf60ace803992d66c9816079eb528e7887acaae45b958678",
+          "size": 1026,
+          "url": "blob:1bebc65559cfbb36bf60ace803992d66c9816079eb528e7887acaae45b958678"
+        },
+        "src/cmds/files/envrc.lua": {
+          "sha256": "3900dfa6e33d8971cd65593b9e481a349b6b6df7196248331a78c7517f1bd415",
+          "size": 475,
+          "url": "blob:3900dfa6e33d8971cd65593b9e481a349b6b6df7196248331a78c7517f1bd415"
+        },
+        "src/cmds/files/gitignore.lua": {
+          "sha256": "7041995facdd074496f4de208a778696c1e4524c545b352adb379417f72a6337",
+          "size": 233,
+          "url": "blob:7041995facdd074496f4de208a778696c1e4524c545b352adb379417f72a6337"
+        },
+        "src/cmds/files/postgres_conf.lua": {
+          "sha256": "5efa15665c749ccd36375e39ce705c35e677c326a830363b9d7bb989e4dfa4ed",
+          "size": 1828,
+          "url": "blob:5efa15665c749ccd36375e39ce705c35e677c326a830363b9d7bb989e4dfa4ed"
+        },
+        "src/cmds/init.lua": {
+          "sha256": "293de285bdbf668d37aeb455c6ce11ca1756df1fd0cbd60603e0282fcff14530",
+          "size": 81,
+          "url": "blob:293de285bdbf668d37aeb455c6ce11ca1756df1fd0cbd60603e0282fcff14530"
+        },
+        "src/cmds/initcmd.lua": {
+          "sha256": "e8a8c39dbd53ae147800a8bab2da9779bdd1d7c43bd33ec94eec9cc3f092c7ad",
+          "size": 5465,
+          "url": "blob:e8a8c39dbd53ae147800a8bab2da9779bdd1d7c43bd33ec94eec9cc3f092c7ad"
+        },
+        "src/main.lua": {
+          "sha256": "44203e0b0b3d3ccbda24c30c9d348fec109eca43fe20b8ade0a50cdfeaa82d8c",
+          "size": 1885,
+          "url": "blob:44203e0b0b3d3ccbda24c30c9d348fec109eca43fe20b8ade0a50cdfeaa82d8c"
+        },
+        "src/utils.lua": {
+          "sha256": "0b5abd2baefb1a9258412a0b526d7720961dc297cd86b93a80e508241b784765",
+          "size": 522,
+          "url": "blob:0b5abd2baefb1a9258412a0b526d7720961dc297cd86b93a80e508241b784765"
+        }
+      },
+      "homepage": "https://git.sr.ht/~mna/tulip-cli",
+      "license": "BSD",
+      "lua": ">= 5.3, < 5.5",
+      "luarocks": {
+        "date": "Thu, 21 Jan 2021 19:43:43 GMT",
+        "rockspec": {
+          "date": "Thu, 21 Jan 2021 19:43:43 GMT",
+          "sha256": "1ba5b05a432b5600497565524f50513a24a22a96a00bdf7f718925d1a3cab974",
+          "size": 1250
+        },
+        "src": {
+          "date": "Thu, 21 Jan 2021 19:43:44 GMT",
+          "sha256": "beb9d3fdecd5b2e1732fe964550127d8b9d68c56791ef5619f7d87fe4b24d52a",
+          "size": 23560,
+          "url": "https://luarocks.org/tulip-cli-0.0.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "src.cmds",
+        "src.cmds.dbcmd",
+        "src.cmds.files.docker_compose",
+        "src.cmds.files.dockerfile",
+        "src.cmds.files.envrc",
+        "src.cmds.files.gitignore",
+        "src.cmds.files.postgres_conf",
+        "src.cmds.initcmd",
+        "src.main",
+        "src.utils"
+      ],
+      "origin": {
+        "date": "Thu, 21 Jan 2021 19:43:44 GMT",
+        "sha256": "beb9d3fdecd5b2e1732fe964550127d8b9d68c56791ef5619f7d87fe4b24d52a",
+        "size": 23560,
+        "type": "luarocks",
+        "url": "https://luarocks.org/tulip-cli-0.0.5-1.src.rock"
+      },
+      "size": 15544,
+      "summary": "Command-line assistant of the Lua web framework.",
+      "undeclared_requires": [
+        "optparse",
+        "posix",
+        "posix.dirent",
+        "posix.errno",
+        "posix.libgen",
+        "posix.stdlib",
+        "posix.unistd"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

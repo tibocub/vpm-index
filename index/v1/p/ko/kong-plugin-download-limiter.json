@@ -1,0 +1,109 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-download-limiter",
+  "versions": {
+    "1.0.3-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/download-limiter/api.lua": {
+          "sha256": "e8600074a0c18db1db0b8f0b577bf96060d492e9f57bc36ae22f86c66aa01f79",
+          "size": 2301,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/api.lua"
+        },
+        "kong/plugins/download-limiter/daos.lua": {
+          "sha256": "de9feda60f5db984e3e7343af25a791253dc884b65d1666986b0c28833910546",
+          "size": 379,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/daos.lua"
+        },
+        "kong/plugins/download-limiter/download_limiter.lua": {
+          "sha256": "f61923bdeb503acccd9c8563dd877ba3d755f41af5e7528215edf06436ea1c9c",
+          "size": 5197,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/download_limiter.lua"
+        },
+        "kong/plugins/download-limiter/download_recorder.lua": {
+          "sha256": "f91c1bce025f132446d43014c14170c127f22fbdbe61cb34e584e360e755f600",
+          "size": 2462,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/download_recorder.lua"
+        },
+        "kong/plugins/download-limiter/handler.lua": {
+          "sha256": "a3b4d9d08e1a6dde2f41f7abd5788d085b5041c2d58b97a601429e98a5c4994c",
+          "size": 2250,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/handler.lua"
+        },
+        "kong/plugins/download-limiter/migrations/000_base_my_plugin.lua": {
+          "sha256": "86190171a9b49087021d5047e5fc349f456f77abfcaf040510b6a27f6f3c48e5",
+          "size": 261,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/migrations/000_base_my_plugin.lua"
+        },
+        "kong/plugins/download-limiter/migrations/init.lua": {
+          "sha256": "6228f079dac1a868c962465dfd529a5fc306eea77a0d5a19c03670e25f31aff5",
+          "size": 66,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/migrations/init.lua"
+        },
+        "kong/plugins/download-limiter/schema.lua": {
+          "sha256": "07d622b5b9c7aeaf7bd747ab89da22158872b6a040c39bb31690373567aff664",
+          "size": 547,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/schema.lua"
+        },
+        "kong/plugins/download-limiter/utils.lua": {
+          "sha256": "b29308269490e770c580ab3840788d246db0aad6b608482598a2fa1b1b73be3e",
+          "size": 537,
+          "url": "https://raw.githubusercontent.com/egnyte/kong-plugin-download-limiter/8cb21bc7b144308fc8842a33ac044577afa95dcd/kong/plugins/download-limiter/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/egnyte/kong-plugin-download-limiter.git",
+      "host": "openresty",
+      "luarocks": {
+        "date": "Mon, 27 Oct 2025 12:28:42 GMT",
+        "rockspec": {
+          "date": "Mon, 27 Oct 2025 12:28:42 GMT",
+          "sha256": "3535c6335cdc98e84e606ac93e8fcf751379a887f0ecbd44f83c33bcb04e18fb",
+          "size": 1584
+        },
+        "src": {
+          "date": "Mon, 27 Oct 2025 12:28:44 GMT",
+          "sha256": "38545b23fa0b3154e542987352039e8c68fc9c5b106dd0564173fb713ca28866",
+          "size": 15483,
+          "url": "https://luarocks.org/kong-plugin-download-limiter-1.0.3-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.download-limiter.api",
+        "kong.plugins.download-limiter.daos",
+        "kong.plugins.download-limiter.download_limiter",
+        "kong.plugins.download-limiter.download_recorder",
+        "kong.plugins.download-limiter.handler",
+        "kong.plugins.download-limiter.migrations",
+        "kong.plugins.download-limiter.migrations.000_base_my_plugin",
+        "kong.plugins.download-limiter.schema",
+        "kong.plugins.download-limiter.utils"
+      ],
+      "origin": {
+        "commit": "8cb21bc7b144308fc8842a33ac044577afa95dcd",
+        "ref": "v1.0.3",
+        "type": "git",
+        "url": "https://github.com/egnyte/kong-plugin-download-limiter"
+      },
+      "size": 14000,
+      "summary": "Open source kong plugin for download rate limiting",
+      "undeclared_requires": [
+        "kong.api.endpoints",
+        "kong.db.errors",
+        "kong.db.schema.typedefs",
+        "kong.tools.utils",
+        "resty.redis",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.api.endpoints",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

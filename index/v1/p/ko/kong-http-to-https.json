@@ -1,0 +1,57 @@
+{
+  "kind": "lib",
+  "name": "kong-http-to-https",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/http-to-https/handler.lua": {
+          "sha256": "b455bd9e05e2416612ba400738d4e75fff8079a2e5b038ed199f3bbab4f7365a",
+          "size": 666,
+          "url": "https://raw.githubusercontent.com/ingresse/kong-plugin-http-to-https/f9357772031017d04019e4b4d71cbd77eb7fc7fb/kong/plugins/http-to-https/handler.lua"
+        },
+        "kong/plugins/http-to-https/schema.lua": {
+          "sha256": "39283a3fa8c989e5fb75f68dba510ae066a4e1fb388fab36f741280e0bd91c8b",
+          "size": 52,
+          "url": "https://raw.githubusercontent.com/ingresse/kong-plugin-http-to-https/f9357772031017d04019e4b4d71cbd77eb7fc7fb/kong/plugins/http-to-https/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/ingresse/kong-plugin-http-to-https",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 08 Aug 2019 21:44:41 GMT",
+        "rockspec": {
+          "date": "Thu, 08 Aug 2019 21:44:41 GMT",
+          "sha256": "0ae8c41110ba10142e73873e9e7c44e838d23e22e3ba5852341221ab43aa943b",
+          "size": 576
+        }
+      },
+      "modules": [
+        "kong.plugins.http-to-https.handler",
+        "kong.plugins.http-to-https.schema"
+      ],
+      "origin": {
+        "commit": "f9357772031017d04019e4b4d71cbd77eb7fc7fb",
+        "ref": "1.1.0",
+        "type": "git",
+        "url": "https://github.com/ingresse/kong-plugin-http-to-https"
+      },
+      "size": 718,
+      "summary": "Kong plugin to redirect HTTP requests to HTTPS",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

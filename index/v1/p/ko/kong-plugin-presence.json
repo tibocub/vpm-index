@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-presence",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-http >= 0.17"
+      ],
+      "files": {
+        "kong/plugins/presence/handler.lua": {
+          "sha256": "aa38ff14fc8684174fd33ed753318040d60517bbeae3447f80401c6ec3583e45",
+          "size": 12031,
+          "url": "https://raw.githubusercontent.com/decionis/kong-plugin-presence/76ff753b756831289c791580d9cb351045600966/kong/plugins/presence/handler.lua"
+        },
+        "kong/plugins/presence/routes.lua": {
+          "sha256": "f9c4b59f48c242403b9500c33af9ba45d9a3e7b063b3a8dc649681b6ad96e01f",
+          "size": 1468,
+          "url": "https://raw.githubusercontent.com/decionis/kong-plugin-presence/76ff753b756831289c791580d9cb351045600966/kong/plugins/presence/routes.lua"
+        },
+        "kong/plugins/presence/schema.lua": {
+          "sha256": "6da6541c2e0883b01c15ded644f3b424c63eff43890c85548d50f1824e6aff47",
+          "size": 1957,
+          "url": "https://raw.githubusercontent.com/decionis/kong-plugin-presence/76ff753b756831289c791580d9cb351045600966/kong/plugins/presence/schema.lua"
+        },
+        "kong/plugins/presence/util.lua": {
+          "sha256": "3c27fc71606db129897112b76eb7fa5f934f64397d699ac009f5248856e2889a",
+          "size": 3598,
+          "url": "https://raw.githubusercontent.com/decionis/kong-plugin-presence/76ff753b756831289c791580d9cb351045600966/kong/plugins/presence/util.lua"
+        }
+      },
+      "homepage": "https://presence.decionis.com/developers/kong",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 09 Aug 2026 13:12:23 GMT",
+        "rockspec": {
+          "date": "Sun, 09 Aug 2026 13:12:23 GMT",
+          "sha256": "859cf2d1f6209b15415cbec30df0af5d2ca3efdf13c8422b7d350f181701f3c9",
+          "size": 1178
+        },
+        "src": {
+          "date": "Sun, 09 Aug 2026 13:12:24 GMT",
+          "sha256": "0d4af0009bc5700a1f6b32931ba86c2153336f85a2a1a6700fea1606eaf42fd8",
+          "size": 26387,
+          "url": "https://luarocks.org/kong-plugin-presence-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.presence.handler",
+        "kong.plugins.presence.routes",
+        "kong.plugins.presence.schema",
+        "kong.plugins.presence.util"
+      ],
+      "origin": {
+        "commit": "76ff753b756831289c791580d9cb351045600966",
+        "ref": "v1.0.1",
+        "type": "git",
+        "url": "https://github.com/decionis/kong-plugin-presence.git"
+      },
+      "size": 19054,
+      "summary": "Presence gateway filter for Kong — CAPTCHA replacement and presence verification at the API gateway.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.openssl.pkey",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,645 @@
+
+local tins,format,concat = table.insert,string.format,table.concat
+
+local status = {
+    {0,"New"},
+    {1,"Inbox"},
+    {2,"Draft"},
+    {3,"Sent"},
+}
+
+local db = {}
+
+db.view  = {
+  {'email',  'Email',  sz = 25},
+  {'reply',  'Reply',  sz = 25},
+  {'name',   'Name',   sz = 25},
+  {'subject','Subject',sz = 35},
+  {'status', 'Status', ht="SELECT",rf=status},
+  {'date',   'Date',   sz = 25},
+  {'contact','Contact',ht="REF",rt="firm.persons",rf={{"name","Name"}}},
+  {'firm',   'Firm',ht="REF",rt="firm.firms",rf={{"name","Name"}}},
+  {'body',   'Message',sz = 25,ht = 'SHOW'},
+  {'user',   'User',   ht="SELECT",rt="users",rf={{"login"}}},
+--
+  {'file', ht="REF"},
+  {'size', ht="INT"},
+  {'id',   ht="INT"},
+  {'login',ht="REF"},
+  {'box'},
+  {'plain'},
+  {'html'},
+  {'md5'},
+  {'header'},
+  {'idmes'},
+}
+
+db.list = {
+  {'email',  "Email",ht = 'SELF'},
+  {'subject',  "Subject",sz = 32}, --cli max column width
+  {'date',  "Date"},
+  {'size',  "Size"},
+  {'status',  "Status",ht="SELECT",rf=status},
+  --{'id','ID'},
+  --{'idmes','IDmes'},
+
+  where = {
+    {"email",'Email',fd = "email" },
+    {"subject",'Theme',fd = "subject" },
+    {"plain",'Plain',fd = "plain" },
+    {"status","Status",fd="status",ht="SELECT",rf=status},
+    {"user","User",fd="mails.user",ht="SELECT",rt="users",rf={{'login'}} },
+    {"login","Login",fd="login",ht="SELECT",wh="protocol<>'smtp'",rt="logins",rf={{'login'}} },
+  },
+  order="date desc",
+}
+
+local write = {
+  { 'login',"From",ht="SELECT",rt="logins",where="ifnull(person,'')<>'' and ifnull(protocol,'')='smtp'",
+      rf={{"login"}}},
+  { 'email',"Email",sz = 25},
+  { 'subject',"Subject",sz = 35},
+  { "status","Status",ht="SELECT",rf=status},
+  { 'contact', "Contact",ht="REF",rt="firm.persons",rf={{"name"}}},
+  { 'html',"Message",sz = 80,ht = 'HTML'},
+  { 'text',"Plain",sz = 80,ht="SHOW"},
+  { 'user',ht="SELECT",rt="users",rf={{"login"}}},
+  { 'plain',ht = "TEXTAREA"},
+}
+
+function db:update(row,recno)
+  if row.html and row.html ~= '' then
+    row.plain = string.gsub(row.html,"<br>","\r\n")
+    row.plain = string.gsub(row.plain,"<[^>]*>","")
+  end
+end
+
+function db:menu(row)
+  local recno = row and row.rowid
+  local menu = {}
+  if recno then
+    if string.len(row.html or "") > 0 then
+      tins(menu,{'mails','Html',{act="show",html="true",recno=recno} })
+      if self.conf.cli then
+        tins(menu,{'mails','Raw',{act="show",html="raw",recno=recno} })
+      end
+    end
+    if tonumber(row.status) == 1 then
+      tins(menu,{"mails",'Reply',{act="new",reply=recno} })
+      tins(menu,{"mails",'Info',{act="info",recno=recno} })
+    end
+    if tonumber(row.status) == 2 then
+      tins(menu,{"mails",'Send',{act="send",recno=recno} })
+    end
+  elseif self.conf.cli then
+    tins(menu,{"mails",'Get',{act="checkbox",login=params.login,status=params.status}})
+    if params.status == 0 then
+      tins(menu,{"mails",'Fetch',{act="show",status=10}})
+    end
+    if self.user.admin and params.login then
+      tins(menu,{"mails",'List',{act="boxes",login=params.login}})
+      tins(menu,{"mails",'Shell',{act="imap",login=params.login}})
+    end
+
+  else
+    tins(menu,{"mails",'Get',{act="checkbox",edfrm="fndfrm"}})
+  end
+
+  return menu
+end
+
+function db:gethtml(recno)
+  local qry = concat{"select html,plain from mail.mails where rowid = '",recno,"'"}
+  for html,plain in self.conn:urows(qry) do
+    if html and #html > 0 then
+      html = string.gsub(html,"(src[\"'=%s]*)cid:([^\"'%s]+)",
+            function(src,cid)
+              return concat{src,self.conf.idx,"?mod=mails&act=cid&cid=",cid,"&recno=",recno}
+            end)
+      return html
+    elseif plain and #plain > 0 then
+      return plain:gsub("\n","<br/>")
+    end
+  end
+  return ""
+end
+
+db.field = {
+  body = function(self,row)
+    if not row then return end
+    if self.conf.cli then
+      if params.html and row.html and #row.html > 0 then
+        if params.html == 'raw' then return row.html end
+        return self.term.menu:view(row.html,"html")
+      else return row.plain end
+    end
+    if params.html and row.html and #row.html > 0 then
+      return concat{'<iframe  style="font-size:11px;background:white" name="htmail" src="',
+      self.conf.idx,"?mod=mail.mails&amp;act=html&amp;recno=",row.rowid,[[&amp;t=]],os.time(),
+      '" scrolling="auto" width="100%" height="350px" frameborder="0">&#160;</iframe>'}
+    end
+    if row.plain and #row.plain then return concat{"<pre style='word-break:break-all;' wrap='wrap'>",row.plain,"</pre>"} end
+  end,
+  text = function(self,row)
+     if not row then return end
+     if self.conf.cli then return row.plain == row.html end
+     return row.plain ~= row.html and 
+            concat{"<input type='button' value='...' onclick='toggle(this.nextElementSibling);'/>",
+                   "<pre wrap='wrap' style='display:none'>",
+                    row and row.plain or "","</pre>"} or (lang.Yes or 'Yes')
+  end,
+}
+
+function db:delete(recno)
+  local qry = concat{"select id,idmes,status,login,box from mail.mails ",
+    "where status in (0) and rowid = '",recno,"'"}
+  for row in self.conn:nrows(qry) do
+   if row.id and row.idmes and self:connect(row.login,row.box) then
+      local ok = self.mail:del(row.id,row.idmes)
+      if ok == "OK" then -- and row.box and row.box ~= "" then
+        ok = self.mail:query('expunge')
+      end
+    end
+  end
+  return true
+end
+
+function db:check(oid,box,srch)
+  local common = true
+  local res = nil
+  local qry = concat{"select rowid,* from mail.logins where protocol in('pop3','imap') and ",
+      tonumber(oid) and "rowid="..oid or "active = 1 "," and user = ",self.user.id}
+  for row in self.conn:nrows(qry) do
+    common = false
+    if self:login(row) then
+      local list = self.mail:check(box,srch)
+      if list and #list > 0 then res = self:insert(list,row.rowid,box) end
+    end
+  end
+  if common then
+    qry = concat{"select rowid,* from mail.logins where protocol in('pop3','imap') and ",
+      tonumber(oid) and "rowid="..oid or "active = 1 "," and common = 1"}
+    for row in self.conn:nrows(qry) do
+      if self:login(row) then
+        local list = self.mail:check(box,srch)
+        if list and #list > 0 then res = self:insert(list,row.rowid,box) end
+      end
+    end
+  end
+  return res
+end
+
+function db:login(row)
+  if not row or not row.login or row.login == "" or not row.protocol or row.protocol == '' then
+    return nil
+  end
+  if self.mail then
+    local ret = self.mail:query("noop")
+    if row.login == self.mail:getlogin() and
+      row.protocol == (self.mail.to and "smtp" or "imap") then return true
+    else self.mail:close() end
+  end
+  local cli = self.conf.cli
+  if cli then
+    io.write(concat{"connecting ",self.lib.__name or '',' ',row.login," ... "})
+    io.flush()
+  end
+
+  if self.lib.__name then --ptypes
+    self.mail = yoke[row.protocol](row.host,row.port,string.len(row.ssl or '') > 0 and row.ssl or nil)
+  else
+    self.mail = require(concat{'yoke.snap.mail.',row.protocol})(row.host,row.port,string.len(row.ssl or '') > 0 and row.ssl or nil)
+  end
+
+  if self.mail then
+      local ok = "OK"
+      if row.host == "localhost" then
+        self.mail:query(concat{"helo"," ",row.host})
+      else
+        ok = self.mail:login(row.login,row.password)
+      end
+      if ok == "OK" then
+        if cli then print("ok") end
+        return row.login
+      elseif cli then
+        print(ok)
+      end
+  end
+  return nil
+end
+
+function db:connect(id,box)
+  if (id or '') == '' then return end
+  local qry = concat{"select rowid,* from mail.logins where protocol in ('pop3','imap') and rowid='",
+  id,"' and (user = ",self.user.id," or common = 1)"}
+  for row in self.conn:nrows(qry) do
+    if self:login(row) then
+      if row.protocol == "imap" then self.mail:query(concat{'select ',
+        (box and box ~= "") and box or '"INBOX"'}) end
+      return true
+    end
+  end
+end
+
+function db:insert(list,login,box)
+  for k,v in ipairs(list) do
+    local new = true
+    local qry = concat{"select rowid,md5,id from mail.mails where md5 = '",v.md5,"'"}
+    for row  in self.conn:nrows(qry) do
+      if row.id ~= v.id then -- update ids after dele
+        self.conn:exec(concat{"update mail.mails set id = ",v.id," where rowid = ",row.rowid})
+      end
+      new = false
+    end
+    if new then
+      local hdr = v.hdr
+      hdr = string.gsub(hdr,"'","''")
+      local subject = string.gsub(v.subject or "","'","''")
+      local date = v.date or ""
+      local idmes = string.gsub(v["message-id"] or "","[<>]","")
+      local pos = idmes:find("[^,]+")
+
+      if pos then idmes = idmes:sub(pos) end
+
+      local from = type(v.from) == 'table' and v.from.addr or type(v.from) ~= 'table' and v.from or "?"
+      local reply = type(v.from) == 'table' and v.from.replyto or ''
+      local name = string.gsub(type(v.from) == 'table' and v.from.name or v.from_name or "","'","''")
+      local user = self.user.id
+      local time = os.time()
+      local qry = concat{[[insert into mail.mails (email,reply,name,subject,date,size,md5,id,idmes,
+        header,creator,created,status,login,box,editor,user,edited) ]],
+        "values('",from,"','",reply,"','",name,"','",(subject or "noname"),"','",date,"','",v.size,
+        "','",v.md5,"','",v.id,"',trim('",idmes,"'),'",hdr,"','",user,"','",
+        time,"','0',",login,",'",box or "","',",user,",",user,",",time,")"}
+      if self.conn:exec(qry) ~= 0 then return self.conn:errmsg() end
+    end
+  end
+end
+
+function db:fetch(recno)
+  local qry = concat{"select rowid,email,id,status,idmes,header,login,box,plain ",
+    "from mail.mails where rowid = '",recno,"'"}
+  for row in self.conn:nrows(qry) do
+    if tonumber(row.status) == 0 then
+      local plain,html = "",""
+      if self:connect(row.login,row.box) then
+        local mess = self.mail:get(row.id,row.idmes)
+        if mess then
+          local contact = ""
+          local firm = ""
+          if self.conf.apps.firm then
+            qry = concat{"select rowid,firm from firm.persons where trim(email) = '",
+              row.email,"' limit 1"}
+            for rowid,firms in self.conn:urows(qry) do 
+              contact = rowid
+              firm = firms
+            end
+            qry = concat{"select rowid from firm.firms where trim(email) = '",
+              row.email,"' or rowid='",firm ~= '' and firm or 0,"' limit 1"}
+            for rowid in self.conn:urows(qry) do firm = rowid end
+          end
+          local mes = self.mail:parse(mess)
+          plain = string.gsub(mes.plain or "","'","''")
+          html = string.gsub(mes.html or "","'","''")
+          qry = concat{"update mail.mails set plain='",plain,
+          "',html='",html,"',status=1,contact = '",contact,"',firm='",firm,"' where rowid = ",recno}
+          local res = self.conn:exec(qry)
+          debug.log('ATTACH',#mes.attach)
+          if tonumber(res) ~= 0 then
+              return concat{lang["Error update message:"] or
+                             "Error update message from: ", row.email}
+          end
+--attach
+          for k,v in ipairs(mes.attach) do
+            local file
+            debug.log('ATTACH:',k)
+            if true then
+              local fsize = #mes.attach[k].body
+              local ftype = mes.attach[k].type or mes.attach[k].filetype or ""
+              local cid = string.gsub(mes.attach[k].cid or "","[<>]","")
+              local user = self.user.id
+              local time = os.time()
+              v.name = string.gsub(v.name or v.filename or "","'","''")
+              v.filename = string.gsub(v.filename or "","'","''")
+              qry = concat{"insert into file.files (name,filename,",
+              "type,fsize,cid,creator,created,editor,edited,user) ",
+              "values('",v.name,"','",v.filename,"','",
+              ftype,"','",fsize,"','",cid,"',",user,",",time,",",user,",",time,",",user,")"}
+              self.conn:exec(qry)
+
+              file = self.conn:last_insert_rowid()
+              if file then
+                qry = concat{"insert into file.docs ",
+                "(name,file,refid,refbase,creator,created,editor,edited,user) ",
+                "values('",v.name,"',",file,",",recno,",'mail.mails',",user,
+                ",",time,",",user,",",time,",",user,")"}
+                self.conn:exec(qry)
+              end
+
+            end
+            if file then
+              qry = concat{"update file.files set data = ? where rowid = ",file}
+              local stmt = self.conn:prepare(qry)
+              if stmt then
+                stmt:bind_blob(1,mes.attach[k].body)
+                stmt:step()
+                stmt:finalize()
+              end
+            end
+          end -- attach
+--
+          local ok = self.mail:del(row.id,row.idmes)
+          if ok == "OK" then -- and row.box and row.box ~= "" then
+            self.mail:query('expunge')
+          end
+        else
+          return concat{lang["No body for message-id:"] or
+                             "No body for message-id:",row.idmes}
+        end
+      end
+    end -- if seen
+    return tonumber(row.status) , row.plain == '1' and true or false
+  end -- for
+  return false
+end
+
+
+function db:boxes(id)
+  function clear(box,cmd)
+    if not box or not self.term.menu:confirm(concat{cmd," ",box}) then return end
+    if cmd == "clear" then
+      print(self.mail:query('select '..box))
+      print(self.mail:query('store 1:* flags (\\Deleted)'))
+      print(self.mail:query('expunge'))
+    else
+      print(self.mail:query('delete '..box))
+    end
+  end
+--
+  for row in self.conn:nrows("select rowid,* from mail.logins where rowid = "..id) do
+    if self:login(row) then
+      if row.protocol == "pop3" then
+        if self.conf.cli then
+          local list = self.mail:check()
+          if self.term.menu:confirm(concat{"Delete ",#list," messages ?"}) then
+            for k,v in ipairs(list or {}) do print(v.id,":",self.mail:del(v.id)) end
+          end
+        end
+        break
+      end
+      local folds = self.mail:list()
+      if #folds > 0 then
+        if self.conf.cli then
+          local m = self.term.menu:new("List")
+          self.term.menu[2] = m
+          for k,v in ipairs(folds) do
+            local info = self.mail:query(concat{"status ",v," (messages recent)"})
+            m.add(string.format("%-25s %s\n",v,info:match("%(.*%)")),
+              function(id,srch)
+                params.act = "checkbox"
+                params.login = row.rowid
+                params.status = (srch=="all") and '1' or nil
+                params.mod = "mails"
+                params.box = v
+              end)
+          end
+          m.add("Clear",function(id) clear(folds[tonumber(id)],"clear")
+            return "Ok" end)
+          m.add("Delete",function(id) clear(folds[tonumber(id)],"delete") end)
+        end
+      end
+      return "Ok"
+    end
+  end
+  return "fail"
+end
+
+function db:imap(id)
+  local proto
+  for row in self.conn:nrows("select rowid,* from mail.logins where rowid = "..id) do
+    if not self:login(row) then return end
+    proto = row.protocol
+  end
+  while true do
+    print("Type",proto,"command or path to file for parse")
+    io.write(concat{proto,": "})
+    local cmd = io.read("*l")
+    if not cmd or cmd == "" then break end
+    if cmd:match(".eml") then
+      local fd = io.open(cmd)
+      if fd then self.term.menu:view(self.mail:parse(fd:read("*a"))) end
+    else
+      print(self.mail:query(cmd))
+    end
+  end
+end
+
+function db:send(data,rcpts,attachment)
+  local from,smtp,qry = nil,nil,''
+  local file = self.conf.apps.file
+--
+  local recno = type(data) ~= "table" and tonumber(data) or nil
+  if recno then
+    qry = concat{[[select mails.email as addr,mails.reply as replyto,mails.plain,mails.subject,
+      logins.login,logins.person,logins.email,logins.reply,mails.html,mails.login as smtp ]],
+      file and ",files.data,files.filename " or "",
+      [[ from mail.mails left join mail.logins on mails.login = logins.rowid ]],
+      file and " left join file.files on mails.file = files.rowid " or " ",
+      " where mails.rowid = ",recno," and ifnull(logins.login,'') <> ''"}
+    for row in self.conn:nrows(qry) do
+      smtp = row.smtp
+      data = row
+    end
+  end
+--
+  qry = concat{"select rowid,* from mail.logins where active = 1 and protocol='smtp' ",
+    "and user = '",self.user.id or 0,"'"}
+  if smtp then
+    qry = concat{"select rowid,* from mail.logins where rowid = ",smtp}
+  end
+  for row in self.conn:nrows(qry) do
+    from = self:login(row)
+    if not from then return "Error smtp login" end
+  end
+  if not self.mail then
+    qry = concat{"select rowid,* from mail.logins where active = 1 and protocol='smtp' ",
+    "and common = 1 limit 1"}
+    for row in self.conn:nrows(qry) do
+      from = self:login(row)
+      if not from then return "Error smtp common login" end
+    end
+  end
+  if not self.mail then return "No smtp login" end
+--
+  if type(data) == "table" and from then
+    local body = string.gsub(data.plain or "","'","")
+    local html = string.gsub(data.html or "","'","")
+    local email = string.gsub(data.email or "","'","")
+    local reply = string.gsub(data.reply or "","'","")     --logins
+    local replyto = string.gsub(data.replyto or "","'","") --mails
+    local to = string.gsub(data.addr or "","'","")
+    local subj = string.gsub(data.subject or "","'","")
+    local isfrom = false
+    if string.find(email,"@") then
+      from = email
+    end
+    if string.find(from,"@") then
+      self.mail:from(from,data.person or from)
+      isfrom = true
+    end
+    if not isfrom then
+      if string.find(data.email or "","@") then
+        self.mail:from(data.email,data.person or "")
+      elseif string.find(data.login or "","@") then
+        self.mail:from(data.login,data.person or "")
+      else 
+        return "No email from"
+      end
+    end
+--
+    if string.find(reply,"@") then self.mail:reply(reply) end
+    if string.find(replyto,"@") then
+        self.mail:to(replyto)
+    elseif string.find(to,"@") then
+        self.mail:to(to)
+    end
+    self.mail:subject(subj)
+    self.mail:body(body,(html and html ~= '' and html ~= body and html) or nil)
+
+    if attachment and data.filename then self.mail:attach(data.filename,attachment) end
+--
+    if recno then
+      if file then
+        qry = concat{"select filename,data from file.files where rowid in (select file from file.docs where refid=",recno,
+        " and refbase = 'mail.mails' and file > 0)"}
+        for frow in self.conn:nrows(qry) do
+          self.mail:attach(frow.filename,frow.data)
+        end
+      end
+      if data.filename and data.data then
+        self.mail:attach(data.filename,data.data)
+      end
+    end
+    local res = self.mail:send(rcpts)
+    if res == "OK" then
+      if recno then
+        local qry = concat{"update mail.mails set status = 3,date='",os.date("%Y-%m-%d %H:%M"),
+        "' where rowid = ",recno," and status = 2"}
+        self.conn:exec(qry)
+        return res
+      else
+        return "ok"
+      end
+    else
+      return concat{"send:error:",res}
+    end
+  end
+--
+  return "send:data:error"
+end
+
+function db:main()
+
+  if self.conf.apps.file then
+    table.idx(write,'text',{ 'file',"File",ht="REF",rt="file.files",rf={{"name","Name"}}})
+  end
+
+  local act = params.act
+  local recno = params.recno
+  if act == 'html' and recno then
+    header("Content-Type","text/html; charset=utf-8")
+    header("Cache-Control","no-cache")
+    header("Expires","-1")
+    return concat{[[
+      <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+      <META HTTP-EQUIV="Expires" CONTENT="-1">
+      <META HTTP-EQUIV="Content-type" CONTENT="text/html ; charset=utf-8">
+      <div style='font-size:12px'>]],
+      self:gethtml(recno),
+      "</div>"}
+  elseif act == "send" and recno then
+    local res = self:send(recno)
+    if res == "OK" then params.act = "show"
+      self.view = write
+    else return {res} end
+  elseif act == 'checkbox' then
+    local srch = tonumber(params.status) == 1 and 'all' or nil
+    local res = self:check(params.login,params.box,srch)
+    if res then return {frm=res}
+    else
+      params.act = "find"
+      params.status = 0
+    end
+  elseif act == "show" or act == "update" or act == "edit" then
+    local status,plain = recno and self:fetch(recno) or params.status
+    if tonumber(status) == 2 or tonumber(status) == 3 then
+      self.view = write
+    elseif type(status) == "string" then
+      return {frm = status}
+    elseif self.conf.cli and tonumber(status) == 10 then
+      local qry = concat{"select rowid,id,email from mail.mails where status = 0"}
+      for rowid,id,email in self.conn:urows(qry) do
+        status = self:fetch(rowid)
+        print('fetch:',id,status,email)
+      end
+      return true
+    end
+  elseif act == 'new' then
+    if tonumber(params.contact) then
+      local qry = concat{"select email from firm.persons where rowid = '",params.contact,"'"}
+      for email in self.conn:urows(qry) do params.email = email end
+    end
+    local qry = concat{"select signature from users where rowid = '",self.user.id,
+      "' and trim(signature) <> '' "}
+    for signature in self.conn:urows(qry) do params.html = signature end
+    qry = concat{"select rowid from mail.logins where protocol = 'smtp' and (user = ",self.user.id,
+        " or common = 1) and active = 1 and ifnull(person,'') <> '' order by common limit 1"}
+    for login in self.conn:urows(qry) do params.login = login end
+    if params.reply then
+      qry = concat{"select email,reply,plain,subject,contact from mail.mails where rowid = '",params.reply,"'"}
+      for email,reply,plain,subject,contact in self.conn:urows(qry) do
+        plain = string.gsub(plain or "","\n","\n- ")
+        plain = plain:gsub('>',' '):gsub('<',' ')
+        local re = string.match(subject or "","^Re%p") or string.match(subject or "","^RE%p")
+        subject = concat{re and "" or "Re: ",subject}:gsub("'",".")
+        params.email = reply and reply ~= '' and reply or email
+        params.subject = subject
+        params.html = concat{params.plain or "",plain}
+        params.contact = contact
+      end
+    end
+    self.view = write
+    params.status = 2
+  elseif act == 'forward' then
+    local qry = concat{"select header,plain,subject from mail.mails where rowid = '",recno,"'"}
+    for row in db.conn:nrows(qry) do
+      params.act = "edit"
+      params.subject = "FW:"..(row.subject or "")
+    end
+  elseif act == 'cid' then
+    local fname="attachment;filename=\""
+    local ftype = "application/x-unknown"
+    local qry = concat{[[select rowid,type,filename,data from file.files where rowid = (
+      select file from file.docs where refbase = 'mail.mails' and refid = ]],recno,[[)
+      and cid = ']],params.cid or '',"'"}
+    for row in self.conn:nrows(qry) do --todo base
+      if row.type and row.type ~= "" then ftype = row.type end
+      header("Content-Disposition",concat{fname,row.filename or 'noname',"\""})
+      header("Content-Type",ftype)
+      print(row.data)
+    end
+    return true
+  elseif act == 'info' and recno then
+    for hdr in self.conn:urows(concat{"select header from mail.mails where rowid = ",recno}) do
+      return {hdr}
+    end
+  elseif params.login and self.user.admin then
+    if act == 'boxes' then self:boxes(params.login)
+    elseif act == 'imap' then self:imap(params.login) end
+  end
+
+  if not params.user then params.user = self.user.id end
+  if not act or act == 'login' then params.status = 0 params.act = 'find' end
+end
+
+return db

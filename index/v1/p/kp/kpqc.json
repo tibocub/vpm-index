@@ -1,0 +1,61 @@
+{
+  "kind": "lib",
+  "name": "kpqc",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/KpqC/kpqc-lua",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.6",
+      "luarocks": {
+        "date": "Tue, 03 Nov 2026 10:28:11 GMT",
+        "rockspec": {
+          "date": "Tue, 03 Nov 2026 10:28:11 GMT",
+          "sha256": "91ac9ed6a70eb92979f2f0055d6ff6fbd0185fe22f0f60c31a24bf802bb4fc1f",
+          "size": 679
+        },
+        "src": {
+          "date": "Tue, 03 Nov 2026 10:28:13 GMT",
+          "sha256": "324bef05552728740df76904d466b69c775307ddece03ae0d401dcddc895580b",
+          "size": 218723,
+          "url": "https://luarocks.org/kpqc-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "cmake",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "cmake": {
+            "variables": {
+              "CMAKE_BUILD_TYPE": "Release",
+              "KPQC_LUA_INSTALL_DIR": "$(LIBDIR)",
+              "LUA_INCLUDE_DIR": "$(LUA_INCDIR)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Tue, 03 Nov 2026 10:28:13 GMT",
+        "sha256": "324bef05552728740df76904d466b69c775307ddece03ae0d401dcddc895580b",
+        "size": 218723,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kpqc-0.1.0-1.src.rock"
+      },
+      "summary": "Lua bindings for KpqC post-quantum algorithms",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

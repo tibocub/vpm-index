@@ -1,0 +1,130 @@
+
+local function toProtoTimestamp(timestampInSeconds)
+  -- Protobuf 64-bit numbers are serialized as strings.
+  -- See https://developers.google.com/protocol-buffers/docs/proto3#json
+  return string.format("%.0f", math.floor(1.0e6 * timestampInSeconds))
+end
+
+local function toProtoTimestampInMs(timestampInSeconds)
+  -- Protobuf 64-bit numbers are serialized as strings.
+  -- See https://developers.google.com/protocol-buffers/docs/proto3#json
+  return string.format("%.0f", math.floor(1.0e3 * timestampInSeconds))
+end
+
+local function flattenHeaderArray(values)
+  local result = ""
+  for index, value in ipairs(values) do
+    if index > 1 then
+      result = result .. "," .. value
+    else
+      result = value
+    end
+  end
+  return result
+end
+
+-- ngx time functions return a floating point number
+-- the whole number represents seconds
+-- the fraction part represents milliseconds
+local function getTotalDurationNanos()
+  local start_time = ngx.req.start_time()
+  local now = ngx.now()
+  local duration_seconds = now - start_time
+  return duration_seconds * 1e9
+end
+
+local function getResponseTable()
+  local plugin_ctx = kong.ctx.plugin
+  if not plugin_ctx.response_table then
+    plugin_ctx.response_table = {}
+  end
+  return plugin_ctx.response_table
+end
+
+local function getStreamingEventsTable()
+  local plugin_ctx = kong.ctx.plugin
+  if not plugin_ctx.streaming_events then
+    plugin_ctx.streaming_events = {}
+  end
+  return plugin_ctx.streaming_events
+end
+
+local function getSpanType()
+  return kong.ctx.plugin.traceableai_span_type
+end
+
+local function buildUrl()
+  local scheme = kong.request.get_scheme()
+  local host = kong.request.get_host()
+  local port = kong.request.get_port()
+  local path = kong.request.get_path_with_query()
+
+  if scheme ~= nil and host ~= nil and path ~= nil then
+    return scheme .. "://" .. host .. ":" .. port .. path
+  end
+  return ""
+end
+
+local function processHeaders(headers)
+  local result = {}
+  for k, v in pairs(headers) do
+    if type(v) == "table" then
+      result[k] = flattenHeaderArray(v)
+    else
+      result[k] = v
+    end
+  end
+  return result
+end
+
+local SSEContentType = "text/event-stream"
+local function isSSE(contentTypeValue)
+  return contentTypeValue ~= nil and string.find(contentTypeValue, SSEContentType, 1, true) ~= nil
+end
+
+local function isSSEBeyondTimeWindow(config)
+  local start_time = ngx.req.start_time()
+  local now = ngx.now()
+  local duration_seconds = now - start_time
+  return duration_seconds > config.payload_record_time_ms / 1000
+end
+
+local function isSSEBeyondSizeWindow(config)
+  local size = ngx.ctx.recorded_size or 0
+  local limit = config.sse_max_size_bytes or 0
+  return size > limit
+end
+
+local function getServiceName(config)
+  local prefix = config.service_name_prefix or ""
+  local defaultName = prefix .. (config.service_name or "")
+
+  if not config.use_kong_service_naming then
+    return defaultName
+  end
+
+  local svc = kong.router.get_service()
+  if not svc or not svc.name or svc.name == "" then
+    return defaultName
+  end
+
+  return prefix .. svc.name
+end
+
+
+
+return {
+  toProtoTimestamp = toProtoTimestamp,
+  toProtoTimestampInMs = toProtoTimestampInMs,
+  flattenHeaderArray = flattenHeaderArray,
+  getTotalDurationNanos = getTotalDurationNanos,
+  getResponseTable = getResponseTable,
+  getStreamingEventsTable = getStreamingEventsTable,
+  getSpanType = getSpanType,
+  buildUrl = buildUrl,
+  processHeaders = processHeaders,
+  isSSE = isSSE,
+  isSSEBeyondTimeWindow = isSSEBeyondTimeWindow,
+  isSSEBeyondSizeWindow = isSSEBeyondSizeWindow,
+  getServiceName = getServiceName,
+}

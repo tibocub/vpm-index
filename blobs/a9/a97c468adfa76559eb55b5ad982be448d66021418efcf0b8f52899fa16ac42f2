@@ -1,0 +1,113 @@
+--[[--
+Content model documentation generator module.
+
+This module contains functions to generate HTML documentation pages for the
+archive's content model, that can be distributed to archivists tasked with
+submitting content.
+
+@module pocket_archive.cmdoc
+]]
+
+
+local datafile = require "datafile"
+local etlua = require "etlua"
+local dir = require "pl.dir"
+local path = require "pl.path"
+local pp = require "pl.pretty"
+
+local pkar = require "pocket_archive"
+local logger = pkar.logger
+local model = require "pocket_archive.model"
+local pres = require "pocket_archive.presentation"
+
+
+-- HTML templates. Compile them only once.
+-- TODO Add override for user-maintained templates.
+local templates = {
+    idx     = {file = "index.html"},
+    schema  = {file = "schema.html"},
+    head    = {file = "head_common.html"},
+}
+for _, tpl in pairs(templates) do
+    local fh = datafile.open(path.join("templates", "cmdoc", tpl.file))
+    tpl.data = assert(etlua.compile(fh:read("a")))
+end
+
+
+-- cmdoc module.
+local M = {}
+
+
+local function generate_schema(id)
+    local tpl = templates.schema
+
+    local schema = model.schemata[id]
+    local schema_pres = {
+        attr = {
+            id = id,
+            label = schema.label,
+            uri = schema.uri,
+            description = schema.description,
+            broader = schema.broader,
+            abstract = schema.abstract or false,
+        },
+        properties = {},
+    }
+
+    -- Sort properties alphabetically.
+    local props = schema.properties or pkar.NT
+    for k, v in pairs(props) do
+        table.insert(schema_pres.properties, {k, v})
+    end
+    table.sort(props, function(a, b) return a[1] < b[1] end)
+    logger:debug("Generating doc for schema:")
+    logger:debug(pp.write(schema_pres))
+
+    data = tpl.data({
+        site_title = pres.TITLE,
+        schema = schema_pres,
+        head_tpl = templates.head.data,
+        webroot = "..",
+        flags = require "pocket_archive.flags",
+    })
+
+    return data
+end
+
+
+function M.generate_doc(out_dir)
+    local tpl = templates.idx
+    local schemata = {}
+    for id, schema in pairs(model.schemata) do
+        table.insert(
+            schemata, {
+                id = id,
+                label = schema.label,
+                data = generate_schema(id)
+            }
+        )
+    end
+    table.sort(schemata, function(a, b) return a.label < b.label end)
+
+    data = tpl.data({
+        site_title = pres.TITLE,
+        schemata = schemata,
+        head_tpl = templates.head.data,
+        webroot = ".",
+    })
+
+    if out_dir then
+        dir.makepath(out_dir)
+        local out_path = path.join(out_dir, "pkar_cmdoc.html")
+        local ofh = assert(io.open(out_path, "w"))
+        ofh:write(data)
+        ofh:close()
+
+        return out_path
+    else io.stdout:write(data) end
+
+    return true
+end
+
+
+return M

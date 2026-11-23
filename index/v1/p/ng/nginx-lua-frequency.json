@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "nginx-lua-frequency",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-memcached=0.13-0"
+      ],
+      "files": {
+        "frequency.lua": {
+          "sha256": "4c4f85cf38d80b3316ba8c4beaee0847ac5f8b389ac0ee8dcbbd12efe2845dd7",
+          "size": 7502,
+          "url": "https://raw.githubusercontent.com/itsmikej/nginx-lua-frequency/eff9e7dc09cec11965e0fbc9409f1b7329f517f3/src/frequency.lua"
+        },
+        "frequency/adapter/memcached.lua": {
+          "sha256": "4b7e14dd582302dc6a644754052aa500fd8cbb0fe4368fddaa0ee927f5daabae",
+          "size": 1177,
+          "url": "https://raw.githubusercontent.com/itsmikej/nginx-lua-frequency/eff9e7dc09cec11965e0fbc9409f1b7329f517f3/src/adapter/memcached.lua"
+        }
+      },
+      "homepage": "https://github.com/itsmikej/nginx-lua-frequency",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "=5.1",
+      "luarocks": {
+        "date": "Tue, 04 Jul 2017 06:16:57 GMT",
+        "rockspec": {
+          "date": "Tue, 04 Jul 2017 06:16:57 GMT",
+          "sha256": "9bb23c41c7143b85fcf2e6b1180ea91dd065331cfd8903e0d04a86c598455ff9",
+          "size": 573
+        },
+        "src": {
+          "date": "Tue, 04 Jul 2017 06:16:59 GMT",
+          "sha256": "0bfe0f1754bd17468bb99ee64e5c1e1bfeeb9b8cabc2717ace9846e341391c93",
+          "size": 6160,
+          "url": "https://luarocks.org/nginx-lua-frequency-0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "frequency",
+        "frequency.adapter.memcached"
+      ],
+      "origin": {
+        "commit": "eff9e7dc09cec11965e0fbc9409f1b7329f517f3",
+        "type": "git",
+        "url": "https://github.com/itsmikej/nginx-lua-frequency.git"
+      },
+      "size": 8679,
+      "summary": "A frequency module for Nginx written in Lua",
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

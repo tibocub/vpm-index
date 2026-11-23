@@ -1,0 +1,63 @@
+{
+  "kind": "lib",
+  "name": "lua-apr",
+  "versions": {
+    "0.20.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://peterodding.com/code/lua/apr/",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 02:43:17 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 02:43:17 GMT",
+          "sha256": "332abff6e5c3e030664133aabb6b314e6d44165b650b034ec83dcf39be060155",
+          "size": 994
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 02:43:19 GMT",
+          "sha256": "82e591ae36b4258a6a28c0afb60ea865e8ad364362aed545c858e85ad974c614",
+          "size": 291390,
+          "url": "https://luarocks.org/lua-apr-0.20.6-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "make": {
+            "variables": {
+              "CFLAGS": "$(CFLAGS) -I$(LUA_INCDIR)",
+              "LUA_DIR": "$(PREFIX)",
+              "LUA_LIBDIR": "$(LIBDIR)",
+              "LUA_SHAREDIR": "$(LUADIR)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 02:43:19 GMT",
+        "sha256": "82e591ae36b4258a6a28c0afb60ea865e8ad364362aed545c858e85ad974c614",
+        "size": 291390,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-apr-0.20.6-1.src.rock"
+      },
+      "summary": "Apache Portable Runtime binding for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

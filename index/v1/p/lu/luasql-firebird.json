@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "luasql-firebird",
+  "versions": {
+    "2.8.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://lunarmodules.github.io/luasql/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 14 Feb 2026 19:33:46 GMT",
+        "rockspec": {
+          "date": "Sat, 14 Feb 2026 19:33:46 GMT",
+          "sha256": "8ee93b20fc0833c04179649a38d88e5845e14718b5fda725c362ee6d9b823032",
+          "size": 981
+        },
+        "src": {
+          "date": "Sat, 14 Feb 2026 19:33:47 GMT",
+          "sha256": "36031aba4e499a33156170e2c6f09eba2fffefb1948fcfb4124518d521ff24c0",
+          "size": 212954,
+          "url": "https://luarocks.org/luasql-firebird-2.8.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.firebird"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "FB"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "FB": {
+              "header": "ibase.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "LUASQL_VERSION_NUMBER=\"2.8.0\""
+              ],
+              "incdirs": [
+                "$(FB_INCDIR)"
+              ],
+              "libdirs": [
+                "$(FB_LIBDIR)"
+              ],
+              "libraries": [
+                "fbclient"
+              ],
+              "name": "luasql.firebird",
+              "sources": [
+                "src/luasql.c",
+                "src/ls_firebird.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 14 Feb 2026 19:33:47 GMT",
+        "sha256": "36031aba4e499a33156170e2c6f09eba2fffefb1948fcfb4124518d521ff24c0",
+        "size": 212954,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasql-firebird-2.8.0-1.src.rock"
+      },
+      "summary": "Database connectivity for Lua (Firebird driver)",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

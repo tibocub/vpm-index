@@ -1,0 +1,537 @@
+
+local _ENV = require 'compat53.module'
+if setfenv then setfenv(1, _ENV) end
+
+local sfs = require "sfs"
+local toolchain = require "lrocket.toolchain"
+local log       = require "lrocket.log"
+local utils     = require "lrocket.utils"
+
+---@class lrocket.lua
+local lua = {}
+
+---@alias lrocket.LuaVersion '5.5' | '5.4' | '5.3' | '5.2' | 'jit' | '5.1'
+---@alias lrocket.LuaSelect 'auto' | '5.5' | '5.4' | '5.3' | '5.2' | 'jit' | '5.1'
+
+lua.LUA_VERSIONS = { 'auto', '5.5', '5.4', '5.3', '5.2', 'jit', '5.1' }
+
+local TRY_VERSIONS = {
+	[ 'auto' ] = { '5.5', '5.4', '5.3', '5.2', 'jit', '5.1' },
+	[ '5.5' ] = { '5.5' },
+	[ '5.4' ] = { '5.4' },
+	[ '5.3' ] = { '5.3' },
+	[ '5.2' ] = { '5.2' },
+	[ 'jit' ] = { 'jit', '5.1' },
+	[ '5.1' ] = { '5.1', 'jit' },
+}
+
+local TO_PUC_VERSION = setmetatable({
+	jit = '5.1'
+}, { __index = function(_, k) return k end })
+
+local STDLIB = {
+	["jit"] = {
+		"_G",
+		"bit",
+		"coroutine",
+		"debug",
+		"ffi",
+		"io",
+		"jit",
+		"jit.opt",
+		"jit.profile",
+		"jit.util",
+		"math",
+		"os",
+		"package",
+		"string",
+		"string.buffer",
+		"table",
+		"table.clear",
+		"table.new",
+	},
+	["5.1"] = {
+		"_G",
+		"coroutine",
+		"debug",
+		"io",
+		"math",
+		"os",
+		"package",
+		"string",
+		"table",
+	},
+	["5.2"] = {
+		"_G",
+		"bit32",
+		"coroutine",
+		"debug",
+		"io",
+		"math",
+		"os",
+		"package",
+		"string",
+		"table",
+	},
+	["5.3"] = {
+		"_G",
+		"bit32",
+		"coroutine",
+		"debug",
+		"io",
+		"math",
+		"os",
+		"package",
+		"string",
+		"table",
+		"utf8",
+	},
+	["5.4"] = {
+		"_G",
+		"coroutine",
+		"debug",
+		"io",
+		"math",
+		"os",
+		"package",
+		"string",
+		"table",
+		"utf8",
+	},
+	["5.5"] = {
+		"_G",
+		"coroutine",
+		"debug",
+		"io",
+		"math",
+		"os",
+		"package",
+		"string",
+		"table",
+		"utf8",
+	}
+}
+
+local function stat_luaheader(path)
+	local res = {}
+
+	-- A little cheesy but my cpreprocessor doesn't paste lua.h and C strings are similar enough to Lua strings to handle concatenation
+	local conf = toolchain.preprocess(string.format([[
+		#include "lualib.h"
+		#include "lua.h"
+		path = LUA_PATH_DEFAULT
+		cpath = LUA_CPATH_DEFAULT
+		release = LUA_RELEASE
+		isjit = LUA_JITLIBNAME
+		fullversion = LUA_VERSION
+		versionnum = LUA_VERSION_NUM
+		jitversion = LUAJIT_VERSION
+	]]):gsub("%f[^\n%z]%s*", ""), { sfs.getDir(path) })
+	local lines = {}
+	for line in conf:gmatch "[^\n]+" do
+		local name, rest = line:match "^([%w_]+)%s*=%s*(.*)$"
+		local expr = {}
+		local tok
+		local concat = " "
+		local i = 1
+		repeat
+			tok, i = utils.matchpatterns(rest, i, "[%w_]+", '%b""', "%s+")
+			if tok and tok:find '"' then concat = '..' end
+			if concat ~= '..' or tok and tok:find '%b""' then expr[#expr+1] = tok end
+		until not tok
+		lines[#lines+1] = name..' = '..table.concat(expr, concat)
+	end
+	conf = table.concat(lines, '\n')
+	log.assert(load(conf, "cprep", 't', res))()
+	if res.fullversion then
+		res.version = res.isjit and 'jit' or res.fullversion:match "^Lua (%d+%.%d+)"
+	end
+	return res
+end
+
+local function stat_liblua(path, veronly)
+	local info = {
+		type = not veronly and assert(toolchain.libtype(path)) or veronly,
+	}
+
+	local LUA_VER, JIT_VER
+	for patid, str in toolchain.strings(path, { "Lua (%d+%.%d+)", "LuaJIT ([%d.]+)", "lua(%d%d)" }) do
+		LUA_VER = LUA_VER or (patid == 1 and str or patid == 3 and str:gsub("(%d)(%d)", "%1.%2") or nil)
+		JIT_VER = JIT_VER or (patid == 2 and str or nil)
+
+		if LUA_VER and JIT_VER then break end
+	end
+
+	info.luaver = JIT_VER and "jit" or LUA_VER
+
+	return info
+end
+
+local function stat_lua(exe)
+	local LUA_VER, JIT_VER
+	for patid, str in toolchain.strings(exe, { "Lua (%d+%.%d+)", "LuaJIT ([%d.]+)" }) do
+		LUA_VER = LUA_VER or (patid == 1 and str or nil)
+		JIT_VER = JIT_VER or (patid == 2 and str or nil)
+
+		if LUA_VER and JIT_VER then break end
+	end
+	return JIT_VER and 'jit' or LUA_VER
+end
+
+local function makecache(f)
+	local cache = {}
+	return function (path, ...)
+		path = sfs.abspath(path)
+		if cache[path] then
+			return cache[path]
+		end
+
+		cache[path] = f(path, ...)
+		return cache[path]
+	end
+end
+
+stat_luaheader = makecache(stat_luaheader)
+stat_liblua = makecache(stat_liblua)
+stat_lua = makecache(stat_lua)
+
+local function isstdtree(tree)
+	return
+		sfs.attributes(sfs.combine(tree, 'include')) and
+		sfs.attributes(sfs.combine(tree, 'lib'))
+end
+
+local function searchliblua(tree, version)
+	local function globf(fmt, ...)
+		local glob = sfs.combine(tree, fmt:format(...))
+		return sfs.glob(glob)
+	end
+
+	local treeisflat = not isstdtree(tree)
+
+	local DIR_VERSION_SUFFIX
+	local LIB_VERSION_SUFFIX
+	if version:find '%d+%.%d+' then
+		DIR_VERSION_SUFFIX = string.format("{,%s,%s}", version, version:gsub("%.", ""))
+		LIB_VERSION_SUFFIX = string.format("{,-%s,%s}", version, version:gsub("%.", ""))
+	else
+		DIR_VERSION_SUFFIX = "{,jit-2.1,jit}"
+		LIB_VERSION_SUFFIX = "{,jit,51,jit-5.1,-5.1}"
+	end
+
+	---@class lrocket.LuaConf
+	---@field REQUESTED_LUA_VERSION string
+	local info = { }
+
+	for interpreter in globf("{%sbin/}lua%s%s", treeisflat and ',' or '', LIB_VERSION_SUFFIX, toolchain.EXT_BIN) do
+		if sfs.isFile(interpreter) then
+			local v = stat_lua(interpreter)
+			if v == version then
+				info.LUA = interpreter
+				break
+			end
+		end
+	end
+
+	if version ~= 'jit' then -- jit bundles the compiler
+		for interpreter in globf("{%sbin/}luac%s%s", treeisflat and ',' or '', LIB_VERSION_SUFFIX, toolchain.EXT_BIN) do
+			local v = stat_lua(interpreter)
+			if v == version then
+				info.LUAC = interpreter
+				break
+			end
+		end
+	end
+
+	for so in globf("{%slib/,lib/lua%s/}{lib,}lua%s%s", treeisflat and ',' or '', DIR_VERSION_SUFFIX, LIB_VERSION_SUFFIX, toolchain.EXT_SHARED) do
+		local stat = stat_liblua(so)
+		if stat.luaver == version and stat.type ~= 'unknown' then
+			info[stat.type == 'static' and 'LIBLUA_STATIC' or 'LIBLUA_SHARED'] = so
+			break
+		end
+	end
+
+	for a in globf("{%slib/,lib/lua%s/}{lib,}lua%s%s", treeisflat and ',' or '', DIR_VERSION_SUFFIX, LIB_VERSION_SUFFIX, toolchain.EXT_ARCHIVE) do
+		local stat = stat_liblua(a)
+		if stat.luaver == version and stat.type ~= 'unknown' then
+			info[stat.type == 'static' and 'LIBLUA_STATIC' or 'LIBLUA_SHARED'] = a
+			break
+		end
+	end
+
+	for inc in globf("{%sinclude/}{,lua%s/}lua.h", treeisflat and ',' or '', DIR_VERSION_SUFFIX) do
+		local stat = stat_luaheader(inc)
+		if stat.version == version then
+			info.LUA_CPATH = stat.cpath:gsub('%!', info.LUA and sfs.getDir(info.LUA) or tree):gsub('%f[^;%z]/', toolchain.SYSROOT and toolchain.SYSROOT.."/" or "%1")
+			info.LUA_PATH = stat.path:gsub('%!', info.LUA and sfs.getDir(info.LUA) or tree):gsub('%f[^;%z]/', toolchain.SYSROOT and toolchain.SYSROOT.."/" or "%1")
+			info.LUA_INCDIR = sfs.getDir(inc)
+		end
+	end
+
+	if not next(info) then
+		return nil
+	end
+
+	info.LUA_VERSION = version
+	info.PUC_LUA_VERSION = TO_PUC_VERSION[version]
+
+	if info.LUA_PATH then
+		local lua_path = {}
+		for p in info.LUA_PATH:gmatch "[^;]+" do
+			lua_path[#lua_path+1] = sfs.normalize(p)
+		end
+
+		-- fix that luajit does not include ./?/init.lua per default
+		for i = 1, #lua_path do
+			if sfs.normalize(lua_path[i]) == sfs.normalize("./?.lua") and
+				(i == #lua_path or sfs.normalize(lua_path[i+1]) ~= sfs.normalize("./?/init.lua"))
+			then
+				table.insert(lua_path, i+1, sfs.normalize("./?/init.lua"))
+			end
+		end
+
+		info.LUA_PATH = table.concat(lua_path, ';')
+	end
+
+	info.LUA_DIR = tree
+	info.STDLIB = STDLIB[info.LUA_VERSION]
+
+	return info
+end
+
+---@param info lrocket.LuaConf?
+local function completeenough(info, statically)
+	if not info then return false end
+	return info.LUA_INCDIR and (statically and info.LIBLUA_STATIC or not statically and info.LIBLUA_SHARED)
+end
+
+local function reportinfo(info)
+	if not info then return end
+
+	local max = 0 for k in pairs(info) do max = math.max(#k, max) end
+	max = max + 1
+	log.detailf("lua config:\n")
+	for k,v in utils.spairs(info) do
+		log.detailf("  %-"..max.."s %s\n", k..":", tostring(v))
+	end
+end
+
+local function splitsearchpath(path)
+	local res = {}
+	for path in path:gmatch "[^;]+" do
+		res[#res+1] = path
+	end
+	return res
+end
+
+function lua.insertdefaults(curpath, extra)
+	-- TODO: is this a sound way to insert extra defaults into the existing path?
+	local res = {}
+	local searchpaths = splitsearchpath(curpath)
+	local curi = #searchpaths
+	for i = 1, #searchpaths do
+		if sfs.getroot(searchpaths[i]) == '.' then
+			res[#res+1] = sfs.normalize(searchpaths[i])
+		else
+			curi = i-1
+			break
+		end
+	end
+
+	for _, extrapath in ipairs(extra) do
+		res[#res+1] = sfs.normalize(extrapath)
+	end
+
+	for i = curi+1, #searchpaths do
+		res[#res+1] = sfs.normalize(searchpaths[i])
+	end
+
+	return table.concat(res, ';')
+end
+
+---@param cfg lrocket.FinalConf
+function lua.configure(cfg)
+	local version, liblua, debuginfo, optimize = cfg.lua_version, cfg.liblua, cfg.optimize, cfg.debug
+
+	lua.CONFIGURE_OPTS = {
+		linkmode = liblua or 'shared',
+		debinfo = debuginfo,
+		optimize = optimize
+	}
+	local link_statically = lua.CONFIGURE_OPTS.linkmode == 'static'
+
+	lua.LUA_DIRS = cfg.lua_dirs or {}
+
+	table.insert(lua.LUA_DIRS, cfg.sysroot)
+	if not cfg.sysroot then
+		for luaexe in sfs.which("lua{,5*,jit}") do
+			local tree = sfs.getDir(luaexe)
+			local parent = sfs.getDir(tree)
+			if isstdtree(parent) then
+				table.insert(lua.LUA_DIRS, parent)
+			else
+				table.insert(lua.LUA_DIRS, tree)
+			end
+		end
+	end
+
+	utils.deduplicatepaths(lua.LUA_DIRS)
+
+	local info, ok = nil, false
+	local versions = utils.clone(TRY_VERSIONS[version])
+	if cfg.default_lua_version and version == 'auto' then
+		table.insert(versions, 1, cfg.default_lua_version)
+	end
+
+	for _, ver in ipairs(versions) do
+		for _, tree in ipairs(lua.LUA_DIRS) do
+			info = searchliblua(tree, ver)
+			ok = completeenough(info, link_statically) --[[@as boolean]]
+
+			if ok then break end
+		end
+		if ok then break end
+	end
+
+	if info then
+		info.REQUESTED_LUA_VERSION = cfg.lua_version
+	end
+
+	if not ok then
+		reportinfo(info)
+		log.exit(log.EXITCODE.GENERAL_ERROR, "Lua version %s not found\n", version)
+	end
+	---@cast info -nil
+
+	if version ~= 'auto' and info.LUA_VERSION ~= version then
+		log.warnf("selected Lua version %s was not found, switching to Lua%s (drop-in replacement)\n", version, info.LUA_VERSION)
+	elseif version == 'auto' then
+		log.infof("detected Lua%s\n", info.LUA_VERSION:find 'jit' and 'JIT' or ' '..info.LUA_VERSION)
+	end
+
+	reportinfo(info)
+
+	lua.LUA_VERSION = info.LUA_VERSION
+	lua.PUC_LUA_VERSION = info.PUC_LUA_VERSION
+
+	lua.LUA_BIN = info.LUA
+	lua.LUAC_BIN = info.LUAC
+	lua.LIBLUA_SHARED = info.LIBLUA_SHARED
+	lua.LIBLUA_STATIC = info.LIBLUA_STATIC
+	lua.LUA_CPATH = info.LUA_CPATH
+	lua.LUA_PATH = info.LUA_PATH
+	lua.LUA_INCDIR = info.LUA_INCDIR
+--TODO: add preload lib
+	lua.STDLIB = info.STDLIB
+
+	cfg.luaconf = info
+end
+
+function lua.chunkname(path, alt)
+	if lua.CONFIGURE_OPTS.debinfo == 'all' or lua.CONFIGURE_OPTS.debinfo == 'project' and not (path:find "^[/\\]" or path:find "^%a:") then
+		return "@"..path
+	else
+		return "@"..alt
+	end
+end
+
+local lua_compiler = ([=[
+local load = loadstring or load
+local input = assert(io.open([[$INPUT]], 'r'))
+local output = assert(io.open([[$OUTPUT]], 'wb'))
+
+output:write(string.dump(assert(load(input:read '*a', [[$CHUNKNAME]])), $STRIP))
+output:close()
+input:close()
+
+]=]):gsub('\n+', '; ')
+
+---@param input string
+---@param output string
+---@param strip boolean
+---@return boolean success, string? error
+function lua.compile(input, output, chunkname, strip)
+	local isjit = lua.LUA_VERSION == 'jit'
+	if isjit then
+		return sfs.exec(lua.LUA_BIN, "-b", "-F", chunkname, input, output, not strip and "-g")
+		--[[ I am not sure if this works with our debug policy
+	elseif lua.LUAC and not strip then -- lua 5.1 string.dump does not support strip
+		return sfs.exec(lua.LUAC, strip and "-s", sfs.quoteArgs("-o", output, input))
+		--]]
+	else
+		return sfs.exec(
+			lua.LUA_BIN, "-e", '"'..(
+				lua_compiler:gsub("$(%a+)", {
+					OUTPUT = output,
+					INPUT = input,
+					CHUNKNAME = chunkname,
+					STRIP = tostring(not not strip),
+				})
+			)..'"'
+		)
+	end
+end
+
+---@param path string
+---@param chunkname string
+---@param strip boolean
+---@return string compiled
+function lua.compilefile(path, chunkname, strip)
+	local output = sfs.tmppath()
+	local input = sfs.tmppath()
+	sfs.write(input, log.assert(sfs.read(path)))
+	log.assert(lua.compile(input, output, chunkname, strip))
+	local data = log.assert(sfs.read(output, true))
+	sfs.deltmppath(output)
+	sfs.deltmppath(input)
+	return data
+end
+
+function lua.readsource(path)
+	return (log.assert(sfs.read(path)):gsub("^#![^\n]+", ""))
+end
+
+function lua.readascode(path, chunkname, keepdebinfo)
+	if lua.CONFIGURE_OPTS.optimize then
+		return lua.compilefile(path, chunkname, not lua.CONFIGURE_OPTS.debinfo and not keepdebinfo)
+	else
+		return lua.readsource(path)
+	end
+end
+
+---@param conf lrocket.CompilerConf
+---@param mode string? # l for library and i for includes
+function lua.addcflags(conf, mode)
+	mode = mode or 'li'
+
+	local function insert(stype, items)
+		if type(items) == 'table' then
+			for i = 1, #items do
+				conf:addarg(stype, items[i])
+			end
+		elseif items then
+			conf:addarg(stype, items)
+		end
+	end
+
+	local lib = lua.CONFIGURE_OPTS.linkmode == 'static' and lua.LIBLUA_STATIC or lua.LIBLUA_SHARED
+
+	if mode:find 'i' then
+		insert('include', lua.LUA_INCDIR)
+	end if mode:find 'l' then
+		if lua.CONFIGURE_OPTS.linkmode == 'static' then
+			insert('library', lib)
+		else
+			insert('library', sfs.getName(lib))
+			insert('libdir', sfs.getDir(lib))
+		end
+
+		if toolchain.TOOLCHAIN ~= 'msvc' then
+			insert('library', 'm')
+		end
+	end
+
+	return true
+end
+
+return lua

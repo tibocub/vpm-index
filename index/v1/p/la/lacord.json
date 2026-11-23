@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "lacord",
+  "versions": {
+    "1637789515-0": {
+      "bin": [],
+      "deps": [
+        "cqueues",
+        "http",
+        "lua-zlib",
+        "lua-cjson-219",
+        "dkjson",
+        "luatweetnacl",
+        "inspect"
+      ],
+      "files": {
+        "acord.lua": {
+          "sha256": "0c256319a2424142845c2f4ec69c5180e9bc9ee3dab135febe5ff7e289aaac34",
+          "size": 259,
+          "url": "blob:0c256319a2424142845c2f4ec69c5180e9bc9ee3dab135febe5ff7e289aaac34"
+        },
+        "lacord/cli.lua": {
+          "sha256": "f414d446a03d9447c8285040c618f99e53689cbad6673db47d4200357788d16f",
+          "size": 236,
+          "url": "blob:f414d446a03d9447c8285040c618f99e53689cbad6673db47d4200357788d16f"
+        }
+      },
+      "homepage": "https://github.com/Mehgugs/lacord",
+      "license": "MIT",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Fri, 26 Nov 2021 00:35:59 GMT",
+        "rockspec": {
+          "date": "Fri, 26 Nov 2021 00:35:59 GMT",
+          "sha256": "18d1328b28c50b2edd6472e7e9481d7f1493fab5cdfe6ce56150a8db27a755cb",
+          "size": 948
+        },
+        "src": {
+          "date": "Fri, 26 Nov 2021 00:36:00 GMT",
+          "sha256": "f9a8a5847a79c40343d7da91359d3c73265b080837153f4476bb076d248094ea",
+          "size": 60392,
+          "url": "https://luarocks.org/lacord-1637789515-0.src.rock"
+        }
+      },
+      "modules": [
+        "acord",
+        "lacord.cli",
+        "lacord.util.archp"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "lacord.util.archp",
+              "sources": [
+                "src/archp.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 26 Nov 2021 00:36:00 GMT",
+        "sha256": "f9a8a5847a79c40343d7da91359d3c73265b080837153f4476bb076d248094ea",
+        "size": 60392,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lacord-1637789515-0.src.rock"
+      },
+      "size": 495,
+      "summary": "A low level, lightweight discord API library.",
+      "undeclared_requires": [
+        "lacord.util"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

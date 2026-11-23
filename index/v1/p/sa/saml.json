@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "saml",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://megalord.github.io/saml/",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 29 Jul 2019 15:38:10 GMT",
+        "rockspec": {
+          "date": "Mon, 29 Jul 2019 15:38:10 GMT",
+          "sha256": "7bbc380822a5d85d5aee0a35c633ac8f610b7f1b4b5158a73d322e588828a6a4",
+          "size": 936
+        },
+        "src": {
+          "date": "Mon, 29 Jul 2019 15:38:11 GMT",
+          "sha256": "26adea9bbaa7309d2a6a91de3673c4ada621fe88dcbe8cfff7883d79c5c455ed",
+          "size": 36670,
+          "url": "https://luarocks.org/saml-0.1-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "LIBXML2",
+          "XMLSEC1"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBXML2": {
+              "library": "xml2"
+            },
+            "XMLSEC1": {
+              "library": "xmlsec1"
+            }
+          },
+          "make": {
+            "build_target": "build",
+            "build_variables": {
+              "CFLAGS": "$(CFLAGS)",
+              "LDFLAGS": "$(LDFLAGS)",
+              "LIBFLAG": "$(LIBFLAG)",
+              "LIBXML2_INCDIR": "$(LIBXML2_INCDIR)",
+              "LIBXML2_LIBDIR": "$(LIBXML2_LIBDIR)",
+              "LUA_INCDIR": "$(LUA_INCDIR)",
+              "XMLSEC1_INCDIR": "$(XMLSEC1_INCDIR)",
+              "XMLSEC1_LIBDIR": "$(XMLSEC1_LIBDIR)"
+            },
+            "install_variables": {
+              "INST_CONFDIR": "$(CONFDIR)",
+              "INST_LIBDIR": "$(LIBDIR)",
+              "INST_LUADIR": "$(LUADIR)"
+            }
+          }
+        },
+        "srcdir": "saml-0.1"
+      },
+      "origin": {
+        "date": "Mon, 29 Jul 2019 15:38:11 GMT",
+        "sha256": "26adea9bbaa7309d2a6a91de3673c4ada621fe88dcbe8cfff7883d79c5c455ed",
+        "size": 36670,
+        "type": "luarocks",
+        "url": "https://luarocks.org/saml-0.1-1.src.rock"
+      },
+      "summary": "Provides SAML support for OpenResty",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "tnv-kong-plugin-api-transformer",
+  "versions": {
+    "0.1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/api-transformer/handler.lua": {
+          "sha256": "c18353e3c561d2b9670196644ebaa0fef16fa4547a8756463801eae026437c0a",
+          "size": 5212,
+          "url": "https://raw.githubusercontent.com/TVenuMadhav/kong-plugin-api-transformer/558a992709876e2fb8cda2c91d73609d90dc2b6a/./kong/plugins/api-transformer/handler.lua"
+        },
+        "kong/plugins/api-transformer/schema.lua": {
+          "sha256": "781dc69a93830aed4a2016d6bdfef6453f3338c4a804b489a654d5901dd17180",
+          "size": 362,
+          "url": "https://raw.githubusercontent.com/TVenuMadhav/kong-plugin-api-transformer/558a992709876e2fb8cda2c91d73609d90dc2b6a/./kong/plugins/api-transformer/schema.lua"
+        },
+        "kong/plugins/api-transformer/utils.lua": {
+          "sha256": "049e97d6a316b582c98dd525da230aa17f720e4c81bf2e64f403e7917f286fd7",
+          "size": 1758,
+          "url": "https://raw.githubusercontent.com/TVenuMadhav/kong-plugin-api-transformer/558a992709876e2fb8cda2c91d73609d90dc2b6a/./kong/plugins/api-transformer/utils.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 14 Dec 2020 10:39:03 GMT",
+        "rockspec": {
+          "date": "Mon, 14 Dec 2020 10:39:03 GMT",
+          "sha256": "7d256664538a31d6c9aadb7ca456a5bdf8922d04794b3c95c70f76ed3d9b31c9",
+          "size": 687
+        },
+        "src": {
+          "date": "Mon, 14 Dec 2020 10:39:06 GMT",
+          "sha256": "248491fc57a816cc90861a06f3e32bc8fda0c2683d6b7fcf1fbf03a6a7a3ce12",
+          "size": 17636,
+          "url": "https://luarocks.org/tnv-kong-plugin-api-transformer-0.1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.api-transformer.handler",
+        "kong.plugins.api-transformer.schema",
+        "kong.plugins.api-transformer.utils"
+      ],
+      "origin": {
+        "commit": "558a992709876e2fb8cda2c91d73609d90dc2b6a",
+        "type": "git",
+        "url": "https://github.com/TVenuMadhav/kong-plugin-api-transformer"
+      },
+      "size": 7332,
+      "summary": "A Kong plugin that enables elastic request/response transforming by lua scripts",
+      "undeclared_requires": [
+        "inspect",
+        "kong.plugins.base_plugin",
+        "resty.lrucache"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

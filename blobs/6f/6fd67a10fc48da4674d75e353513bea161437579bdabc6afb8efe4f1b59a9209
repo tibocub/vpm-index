@@ -1,0 +1,108 @@
+local zensical = require("zensical.zensical")
+local M = {}
+
+--- Setup keymaps and commands for the Zensical plugin
+--- This function registers keymaps and a single user command with subcommands.
+---
+--- @param config table Configuration table containing keymaps and commands
+function M.setup_commands(config)
+	-- Ensure keymaps are not nil by providing default values
+	config.keymap_start = config.keymap_start or "<leader>zes"
+	config.keymap_stop = config.keymap_stop or "<leader>zex"
+	config.keymap_build = config.keymap_build or "<leader>zeb"
+	config.keymap_new = config.keymap_new or "<leader>zen"
+
+	-- Register keymaps for starting, stopping, building, and creating a new Zensical project
+	if config.keymap_start then
+		vim.keymap.set("n", config.keymap_start, function()
+			zensical.start_zensical(config.command_serve, function()
+				vim.notify("Zensical started successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Start Zensical server" })
+	end
+
+	if config.keymap_stop then
+		vim.keymap.set("n", config.keymap_stop, function()
+			zensical.stop_zensical(function()
+				vim.notify("Zensical stopped successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Stop Zensical server" })
+	end
+
+	if config.keymap_build then
+		vim.keymap.set("n", config.keymap_build, function()
+			zensical.build_zensical(config.command_build, function()
+				vim.notify("Zensical built successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Build Zensical" })
+	end
+
+	if config.keymap_new then
+		vim.keymap.set("n", config.keymap_new, function()
+			zensical.new_zensical(config.command_new, function()
+				vim.notify("Zensical project created successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		end, { noremap = true, silent = true, desc = "Create new Zensical project" })
+	end
+
+	-- Create a single user command with subcommands
+	vim.api.nvim_create_user_command("Zensical", function(opts)
+		local action = opts.args
+		if action == "serve" then
+			zensical.start_zensical(config.command_serve, function()
+				vim.notify("Zensical server started successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif action == "stop" then
+			zensical.stop_zensical(function()
+				vim.notify("Zensical server stopped successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif action == "build" then
+			zensical.build_zensical(config.command_build, function()
+				vim.notify("Zensical built successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif action == "new" then
+			zensical.new_zensical(config.command_new, function()
+				vim.notify("Zensical project created successfully!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		elseif action == "open" then
+			zensical.open_zensical(function()
+				vim.notify("Zensical opened in the default browser!", vim.log.levels.INFO)
+			end, function(err)
+				vim.notify(err, vim.log.levels.ERROR)
+			end)
+		else
+			vim.notify("Invalid action: " .. action, vim.log.levels.ERROR)
+		end
+	end, {
+		nargs = 1,
+		complete = function(arglead, _cmdline, _cursorpos)
+			local options = { "serve", "stop", "build", "new", "open" }
+			local matches = {}
+			for _, opt in ipairs(options) do
+				if opt:find(arglead) == 1 then
+					table.insert(matches, opt)
+				end
+			end
+			return matches
+		end,
+		desc = "Zensical command (serve|stop|build|new)",
+	})
+end
+
+return M

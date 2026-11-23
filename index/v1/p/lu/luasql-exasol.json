@@ -1,0 +1,144 @@
+{
+  "kind": "lib",
+  "name": "luasql-exasol",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "luasocket >= 3.1.0-1",
+        "luasec >= 1.3.2-1",
+        "luaossl >= 20220711-0",
+        "lua-cjson == 2.1.0.10-1",
+        "base64 >= 1.5-3",
+        "exaerror >= 2.0.3-1",
+        "remotelog >= 1.1.1-1"
+      ],
+      "files": {
+        "luasql/exasol.lua": {
+          "sha256": "e6c1814121b508efa0ab9cf1fbf2b133b95c06666cae4775b1f8f8bee7d56997",
+          "size": 907,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol.lua"
+        },
+        "luasql/exasol/Connection.lua": {
+          "sha256": "b134a22f6fbde1717fd9434f5b7804101492be8615186b34ee996bdd176078bb",
+          "size": 6999,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/Connection.lua"
+        },
+        "luasql/exasol/ConnectionProperties.lua": {
+          "sha256": "165d76394c990d6ec42c35e52e6b69a823717e74a19832f7cb596e468e97edb3",
+          "size": 5156,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/ConnectionProperties.lua"
+        },
+        "luasql/exasol/Cursor.lua": {
+          "sha256": "3650ced05f719711ddd762c7dd69a2ffa47879a81e43559fab82dd7dbc3aaaa7",
+          "size": 8684,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/Cursor.lua"
+        },
+        "luasql/exasol/CursorData.lua": {
+          "sha256": "41dd7dc64ea231d8c46b4ea4360a46ec37a3597553305b0145e4a9a79a44712f",
+          "size": 7652,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/CursorData.lua"
+        },
+        "luasql/exasol/Environment.lua": {
+          "sha256": "8d1ce41bc24a186ecee8eef39029edb3ef9003c9f014cb365f4a4197c4010eb9",
+          "size": 6141,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/Environment.lua"
+        },
+        "luasql/exasol/ExasolWebsocket.lua": {
+          "sha256": "d3b7a3f969e97806691bd2f835eda0196e712c6c0831fc9d17e12b9630296784",
+          "size": 9109,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/ExasolWebsocket.lua"
+        },
+        "luasql/exasol/Websocket.lua": {
+          "sha256": "903546fcd3dc169b58bfacebd4dc30a5db06ed378cb70b245b03bd8b6a5634ba",
+          "size": 8509,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/Websocket.lua"
+        },
+        "luasql/exasol/WebsocketDatahandler.lua": {
+          "sha256": "787a771df9fc48f6710e3286b8fff4f5ad49091e74486fdcfb3a09dc5769e58a",
+          "size": 3748,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/WebsocketDatahandler.lua"
+        },
+        "luasql/exasol/base64.lua": {
+          "sha256": "50f0155588c6b80145b2fa1c9d4f616a9d3738a4f56ea06e9d3d387d0889ac8f",
+          "size": 6561,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/base64.lua"
+        },
+        "luasql/exasol/constants.lua": {
+          "sha256": "683703ba8c7a9afc85d6a86174aefaf50de87642a0709b2c2e1b6fbdaded0f59",
+          "size": 355,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/constants.lua"
+        },
+        "luasql/exasol/luws.lua": {
+          "sha256": "136aa850ce5535c5a2920ecd8e3867eae8808dc40efab32550eb9a36b1ff9ba8",
+          "size": 24968,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/luws.lua"
+        },
+        "luasql/exasol/util.lua": {
+          "sha256": "6851e4be8985fb9dc104e38d534f00737d62971e37226816dc5b37dd8d952f76",
+          "size": 708,
+          "url": "https://raw.githubusercontent.com/exasol/exasol-driver-lua/58f8920ebe3861e769437332420805736dbff182/src/luasql/exasol/util.lua"
+        }
+      },
+      "homepage": "https://github.com/exasol/exasol-driver-lua",
+      "license": "MIT",
+      "lua": "== 5.4",
+      "luarocks": {
+        "date": "Fri, 18 Sep 2026 13:07:18 GMT",
+        "rockspec": {
+          "date": "Fri, 18 Sep 2026 13:07:18 GMT",
+          "sha256": "12fddc5bde72d84b1ae4652caeb138a083c614a860fc2afb40cbc90e9940cb2d",
+          "size": 2365
+        },
+        "src": {
+          "date": "Fri, 18 Sep 2026 13:07:20 GMT",
+          "sha256": "bf94307d4a4996fcffe22ab31819f5ef4cd4d6beb62ed2331a8d63a7e22244ff",
+          "size": 173054,
+          "url": "https://luarocks.org/luasql-exasol-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.exasol",
+        "luasql.exasol.Connection",
+        "luasql.exasol.ConnectionProperties",
+        "luasql.exasol.Cursor",
+        "luasql.exasol.CursorData",
+        "luasql.exasol.Environment",
+        "luasql.exasol.ExasolWebsocket",
+        "luasql.exasol.Websocket",
+        "luasql.exasol.WebsocketDatahandler",
+        "luasql.exasol.base64",
+        "luasql.exasol.constants",
+        "luasql.exasol.luws",
+        "luasql.exasol.util"
+      ],
+      "origin": {
+        "commit": "58f8920ebe3861e769437332420805736dbff182",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/exasol/exasol-driver-lua"
+      },
+      "size": 89497,
+      "summary": "Exasol SQL driver for Lua",
+      "undeclared_requires": [
+        "ltn12",
+        "mime",
+        "socket",
+        "ssl"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

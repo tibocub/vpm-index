@@ -1,0 +1,388 @@
+local cqueues = require("cqueues")
+local http_request = require("http.request")
+local JSON = require("luacord.utils.JSON")
+
+local RESTClient = {}
+RESTClient.__index = RESTClient
+
+local function monotime()
+  return cqueues.monotime and cqueues.monotime() or os.clock()
+end
+
+local function sleep(seconds)
+  if seconds and seconds > 0 then
+    cqueues.sleep(seconds)
+  end
+end
+
+local function urlencode(str)
+  return tostring(str):gsub("([^%w%-_%.~])", function(c)
+    return string.format("%%%02X", string.byte(c))
+  end)
+end
+
+local function buildQuery(query)
+  if not query then
+    return ""
+  end
+  local out = {}
+  for key, value in pairs(query) do
+    if value ~= nil then
+      out[#out + 1] = urlencode(key) .. "=" .. urlencode(value)
+    end
+  end
+  if #out == 0 then
+    return ""
+  end
+  return "?" .. table.concat(out, "&")
+end
+
+---Create a new Discord REST API client.
+---@param token? string
+---@param options? table
+---@return table
+function RESTClient.new(token, options)
+  options = options or {}
+  local self = setmetatable({}, RESTClient)
+  self.token = token
+  self.api_version = options.api_version or 10
+  self.base_url = options.base_url or ("https://discord.com/api/v" .. tostring(self.api_version))
+  self.user_agent = options.user_agent or "LuaCord (https://github.com/buffydev-1/luacord, 0.1.0)"
+  self.max_retries = options.max_retries or 5
+  self.buckets = {}
+  self.global_reset = 0
+  return self
+end
+
+---Set or replace the bot token used for authentication.
+---@param token string
+function RESTClient:setToken(token)
+  assert(type(token) == "string" and token ~= "", "token must be a non-empty string")
+  self.token = token
+end
+
+function RESTClient:_normalizeRoute(method, path)
+  local segments = {}
+  for seg in tostring(path):gmatch("[^/]+") do
+    segments[#segments + 1] = seg
+  end
+  for i = 1, #segments do
+    local seg = segments[i]
+    if seg:match("^%d+$") then
+      local prev = segments[i - 1]
+      if prev == "channels" or prev == "guilds" or prev == "webhooks" then
+        segments[i] = seg
+      else
+        segments[i] = ":id"
+      end
+    end
+  end
+  return method .. " /" .. table.concat(segments, "/")
+end
+
+function RESTClient:_bucket(routeKey)
+  local bucket = self.buckets[routeKey]
+  if not bucket then
+    bucket = {
+      remaining = 1,
+      reset_at = 0,
+    }
+    self.buckets[routeKey] = bucket
+  end
+  return bucket
+end
+
+function RESTClient:_waitForBucket(bucket)
+  while true do
+    local now = monotime()
+    if now < self.global_reset then
+      sleep(self.global_reset - now)
+    elseif bucket.remaining <= 0 and now < bucket.reset_at then
+      sleep(bucket.reset_at - now)
+    else
+      break
+    end
+  end
+  if bucket.remaining > 0 then
+    bucket.remaining = bucket.remaining - 1
+  end
+end
+
+function RESTClient:_updateBucket(bucket, headers)
+  local remaining = tonumber(headers:get("x-ratelimit-remaining"))
+  local resetAfter = tonumber(headers:get("x-ratelimit-reset-after"))
+  if remaining ~= nil then
+    bucket.remaining = remaining
+  end
+  if resetAfter and resetAfter >= 0 then
+    bucket.reset_at = monotime() + resetAfter
+  end
+end
+
+function RESTClient:_requestOnce(method, path, body, query, auditReason)
+  local url = self.base_url .. path .. buildQuery(query)
+  local req = http_request.new_from_uri(url)
+  req.headers:upsert(":method", method)
+  req.headers:upsert("user-agent", self.user_agent)
+  req.headers:upsert("accept", "application/json")
+
+  if self.token and self.token ~= "" then
+    req.headers:upsert("authorization", "Bot " .. self.token)
+  end
+  if auditReason then
+    req.headers:upsert("x-audit-log-reason", urlencode(auditReason))
+  end
+
+  if body ~= nil then
+    local encoded, encErr = JSON.encode(body)
+    if not encoded then
+      return nil, {
+        message = "failed to encode request body",
+        cause = encErr,
+      }
+    end
+    req.headers:upsert("content-type", "application/json")
+    req:set_body(encoded)
+  end
+
+  local headers, stream = req:go(60)
+  if not headers then
+    return nil, { message = "http request failed", cause = stream }
+  end
+
+  local raw = stream:get_body_as_string() or ""
+  local status = tonumber(headers:get(":status")) or 0
+  local parsed = nil
+  if raw ~= "" then
+    parsed = JSON.decode(raw)
+  end
+  return {
+    status = status,
+    headers = headers,
+    raw = raw,
+    data = parsed,
+  }
+end
+
+---Send a Discord REST request with automatic rate-limit handling.
+---@param method string
+---@param path string
+---@param body? table
+---@param query? table
+---@param auditReason? string
+---@return table|boolean|nil, table|nil
+function RESTClient:request(method, path, body, query, auditReason)
+  assert(type(method) == "string", "method must be a string")
+  assert(type(path) == "string", "path must be a string")
+
+  local routeKey = self:_normalizeRoute(method, path)
+  local bucket = self:_bucket(routeKey)
+  local retries = 0
+
+  while retries <= self.max_retries do
+    self:_waitForBucket(bucket)
+    local response, requestErr = self:_requestOnce(method, path, body, query, auditReason)
+    if not response then
+      retries = retries + 1
+      if retries > self.max_retries then
+        return nil, requestErr
+      end
+      sleep(math.min(2 ^ retries, 8))
+    else
+      self:_updateBucket(bucket, response.headers)
+      local status = response.status
+      local data = response.data
+
+      if status == 429 then
+        local retryAfter = 0
+        if type(data) == "table" and data.retry_after then
+          retryAfter = tonumber(data.retry_after) or 0
+        else
+          retryAfter = tonumber(response.headers:get("retry-after")) or 0
+        end
+        if type(data) == "table" and data.global then
+          self.global_reset = monotime() + retryAfter
+        end
+        retries = retries + 1
+        if retries > self.max_retries then
+          return nil, {
+            message = "discord rate limit retry budget exhausted",
+            status = 429,
+            body = data or response.raw,
+          }
+        end
+        sleep(retryAfter)
+      elseif status >= 500 then
+        retries = retries + 1
+        if retries > self.max_retries then
+          return nil, {
+            message = "discord server error",
+            status = status,
+            body = data or response.raw,
+          }
+        end
+        sleep(math.min(2 ^ retries, 8))
+      elseif status >= 200 and status < 300 then
+        if status == 204 and data == nil then
+          return true
+        end
+        return data or true
+      else
+        return nil, {
+          message = "discord api request failed",
+          status = status,
+          body = data or response.raw,
+        }
+      end
+    end
+  end
+
+  return nil, { message = "unexpected request loop exit" }
+end
+
+---Send a GET request.
+function RESTClient:get(path, query)
+  return self:request("GET", path, nil, query)
+end
+
+---Send a POST request.
+function RESTClient:post(path, body, query, auditReason)
+  return self:request("POST", path, body, query, auditReason)
+end
+
+---Send a PUT request.
+function RESTClient:put(path, body, query, auditReason)
+  return self:request("PUT", path, body, query, auditReason)
+end
+
+---Send a PATCH request.
+function RESTClient:patch(path, body, query, auditReason)
+  return self:request("PATCH", path, body, query, auditReason)
+end
+
+---Send a DELETE request.
+function RESTClient:delete(path, query, auditReason)
+  return self:request("DELETE", path, nil, query, auditReason)
+end
+
+---Get gateway bot metadata.
+function RESTClient:getGatewayBot()
+  return self:get("/gateway/bot")
+end
+
+---Get the current bot user.
+function RESTClient:getCurrentUser()
+  return self:get("/users/@me")
+end
+
+---Get guild by ID.
+function RESTClient:getGuild(guildId, withCounts)
+  return self:get("/guilds/" .. tostring(guildId), { with_counts = withCounts and "true" or nil })
+end
+
+---Get guild channels.
+function RESTClient:getGuildChannels(guildId)
+  return self:get("/guilds/" .. tostring(guildId) .. "/channels")
+end
+
+---Get a guild member by user ID.
+function RESTClient:getGuildMember(guildId, userId)
+  return self:get("/guilds/" .. tostring(guildId) .. "/members/" .. tostring(userId))
+end
+
+---List guild members.
+function RESTClient:listGuildMembers(guildId, options)
+  options = options or {}
+  return self:get("/guilds/" .. tostring(guildId) .. "/members", {
+    limit = options.limit,
+    after = options.after,
+  })
+end
+
+---Create or update a guild ban.
+function RESTClient:createGuildBan(guildId, userId, payload, reason)
+  return self:put("/guilds/" .. tostring(guildId) .. "/bans/" .. tostring(userId), payload, nil, reason)
+end
+
+---Remove a guild ban.
+function RESTClient:removeGuildBan(guildId, userId, reason)
+  return self:delete("/guilds/" .. tostring(guildId) .. "/bans/" .. tostring(userId), nil, reason)
+end
+
+---Create a message in a channel.
+function RESTClient:createMessage(channelId, payload)
+  return self:post("/channels/" .. tostring(channelId) .. "/messages", payload)
+end
+
+---Edit a message in a channel.
+function RESTClient:editMessage(channelId, messageId, payload)
+  return self:patch("/channels/" .. tostring(channelId) .. "/messages/" .. tostring(messageId), payload)
+end
+
+---Delete a message in a channel.
+function RESTClient:deleteMessage(channelId, messageId, reason)
+  return self:delete("/channels/" .. tostring(channelId) .. "/messages/" .. tostring(messageId), nil, reason)
+end
+
+---Get global application commands.
+function RESTClient:getApplicationCommands(applicationId)
+  return self:get("/applications/" .. tostring(applicationId) .. "/commands")
+end
+
+---Create a global application command.
+function RESTClient:upsertGlobalCommand(applicationId, payload)
+  return self:post("/applications/" .. tostring(applicationId) .. "/commands", payload)
+end
+
+---Bulk overwrite global commands.
+function RESTClient:bulkOverwriteGlobalCommands(applicationId, payload)
+  return self:put("/applications/" .. tostring(applicationId) .. "/commands", payload)
+end
+
+---Get guild application commands.
+function RESTClient:getGuildCommands(applicationId, guildId)
+  return self:get("/applications/" .. tostring(applicationId) .. "/guilds/" .. tostring(guildId) .. "/commands")
+end
+
+---Create a guild application command.
+function RESTClient:upsertGuildCommand(applicationId, guildId, payload)
+  return self:post("/applications/" .. tostring(applicationId) .. "/guilds/" .. tostring(guildId) .. "/commands", payload)
+end
+
+---Bulk overwrite guild commands.
+function RESTClient:bulkOverwriteGuildCommands(applicationId, guildId, payload)
+  return self:put("/applications/" .. tostring(applicationId) .. "/guilds/" .. tostring(guildId) .. "/commands", payload)
+end
+
+---Create interaction response.
+function RESTClient:createInteractionResponse(interactionId, token, payload)
+  return self:post("/interactions/" .. tostring(interactionId) .. "/" .. tostring(token) .. "/callback", payload)
+end
+
+---Edit original interaction response.
+function RESTClient:editOriginalInteractionResponse(applicationId, token, payload)
+  return self:patch("/webhooks/" .. tostring(applicationId) .. "/" .. tostring(token) .. "/messages/@original", payload)
+end
+
+---Delete original interaction response.
+function RESTClient:deleteOriginalInteractionResponse(applicationId, token)
+  return self:delete("/webhooks/" .. tostring(applicationId) .. "/" .. tostring(token) .. "/messages/@original")
+end
+
+---Create follow-up interaction message.
+function RESTClient:createFollowupMessage(applicationId, token, payload)
+  return self:post("/webhooks/" .. tostring(applicationId) .. "/" .. tostring(token), payload)
+end
+
+---Edit follow-up interaction message.
+function RESTClient:editFollowupMessage(applicationId, token, messageId, payload)
+  return self:patch("/webhooks/" .. tostring(applicationId) .. "/" .. tostring(token) .. "/messages/" .. tostring(messageId), payload)
+end
+
+---Delete follow-up interaction message.
+function RESTClient:deleteFollowupMessage(applicationId, token, messageId)
+  return self:delete("/webhooks/" .. tostring(applicationId) .. "/" .. tostring(token) .. "/messages/" .. tostring(messageId))
+end
+
+return RESTClient
+

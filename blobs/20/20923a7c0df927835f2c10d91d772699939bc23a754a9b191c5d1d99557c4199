@@ -1,0 +1,80 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 11-11-2023 @author Swarg
+local M = {}
+-- Goal: all settings in one place
+--
+M.WIDTH = 80
+M.EXITCODE_INPUT_ERRORS = 125
+
+-- create hierarchical records in tables for variable names containing dots
+-- Example:
+-- w:set_var('container.element', 8)
+--  for true   -->   w.var.container.element = 8
+--  for false  -->   w.var['container.element'] = 8
+M.VARS_SPLIT_VARNAME_TO_PATHS = true
+-- allow creating necessary new subtables for non-existent ones
+M.VARS_AUTO_CREATE_NEW_SUBTABLES = true
+-- auto-clear "vars" on move deeper to subcommand
+M.VARS_AUTO_CLEAR_VARS_FOR_SUBS = false
+
+
+M.hint_notations = "To see more about notation use -_n or --_notations"
+-- Enables automatic addition of hints about internal notations to built help
+M.show_help_hints = true
+
+M.opt_verbose = {'--verbose', '-v'}
+M.opt_verbose_desc =  'verbose print. passed opt-key without value has 1 level'
+
+M.opt_dry_run = {'--dry-run', nil }
+M.opt_dry_run_desc = 'only show what will be done without actual work.'
+
+M.opt_quiet = {'--quiet', nil }
+M.opt_quiet_desc = 'work whithout interaction with user (don\'t ask anything).'
+
+M.devmode = false -- do more checks and throw exceptions on errors
+
+-- link up dprint if its installed,
+-- (here D is a aliase for dprint module)
+local ok_dprint, D = pcall(require, 'dprint')
+
+if not ok_dprint then -- make stubs if has no
+  D = {
+    enable = function(enable) return enable end,
+    ---@diagnostic disable-next-line: unused-local
+    enable_module = function(module, enable) end,
+    is_enabled = function() return false end,
+    disable = function() return true end,
+    ---@diagnostic disable-next-line: unused-local
+    mk_dprint_for = function(module, enable) return function() end end,
+    visualize = function(o) return tostring(o) end,
+    inspect = function(o) return tostring(o) end,
+    dump = function(o) return tostring(o) end,
+    _VERSION = 'stub',
+  }
+end
+-- wrap dprint to provide ability to disable dprint for this module only
+local dprint = D.mk_dprint_for(M, false)
+M.dprint = dprint
+M.D = D
+-- to enable debug print use:
+-- M.D.enable_module(M, true) or M.D.enable() or
+-- require('dprint').enable_module(require('cmd4lua.settings'), true)
+
+return M

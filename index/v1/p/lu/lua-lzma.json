@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "lua-lzma",
+  "versions": {
+    "0.1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://codeberg.org/leso-kn/lua-lzma",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Mon, 01 Apr 2024 09:57:31 GMT",
+        "rockspec": {
+          "date": "Mon, 01 Apr 2024 09:57:31 GMT",
+          "sha256": "7cf969c03be35bfe1fca5d3a61b99106a26c2f69fa1a2d3d27e4333a8b4da67e",
+          "size": 865
+        },
+        "src": {
+          "date": "Mon, 01 Apr 2024 09:57:32 GMT",
+          "sha256": "97d1b0a1d2ab89483004310fd0c660ec74bf872ec18245b7b65103640ad76690",
+          "size": 92143,
+          "url": "https://luarocks.org/lua-lzma-0.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "lzma"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "src",
+                "src/lzma"
+              ],
+              "name": "lzma",
+              "sources": [
+                "src/lua-lzma.c",
+                "src/lzma/Alloc.c",
+                "src/lzma/CpuArch.c",
+                "src/lzma/LzFind.c",
+                "src/lzma/LzFindMt.c",
+                "src/lzma/LzFindOpt.c",
+                "src/lzma/LzmaDec.c",
+                "src/lzma/LzmaEnc.c",
+                "src/lzma/LzmaLib.c",
+                "src/lzma/Threads.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "lua-lzma"
+      },
+      "origin": {
+        "date": "Mon, 01 Apr 2024 09:57:32 GMT",
+        "sha256": "97d1b0a1d2ab89483004310fd0c660ec74bf872ec18245b7b65103640ad76690",
+        "size": 92143,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-lzma-0.1.2-1.src.rock"
+      },
+      "summary": "LZMA compression and decompression functionality extracted from luazen for Lua 5.1 - 5.4 + JIT.",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,110 @@
+--- operations with repositories
+-- @module repos
+
+local repos = {}
+
+local s = require("say")
+local path = require("pl.path")
+
+local bennu = require("bennu")
+local base = require("bennu.base")
+local functional = require("bennu.functional")
+local sys = require("bennu.sys")
+
+local actions = {
+   list = {
+      msg = s("repos.list"),
+      dir = ".",
+      command = "grep 'url' .git/config | cut -d= -f2 | cut -d' ' -f2",
+   },
+   status = {
+      msg = s("repos.status"),
+      dir = bennu.myrepospath,
+      command = "git status --short",
+   },
+   myupdate = {
+      msg = s("repos.updating.repos"),
+      dir = bennu.myrepospath,
+      command = "git pull",
+   },
+   update = {
+      msg = s("repos.updating.external.repos"),
+      dir = bennu.extrepospath,
+      command = "git pull",
+   },
+}
+
+local actions_names = table.concat(functional.sorted_keys(actions), ", ")
+
+local function action_message(message)
+   assert(message)
+   return function(extra)
+      local themessage = s("repos.valid.actions", { message })
+      base.komsg(themessage:format(extra or ""))
+      print(actions_names)
+   end
+end
+
+local noaction_msg = action_message(s("repos.no.action.given"))
+local badaction_msg = action_message(s("repos.invalid.action"))
+
+local function doaction(action, action_map, repo_directory)
+   assert(action and action_map)
+   base.bluemsg(action_map["msg"])
+   local dir = repo_directory or action_map["dir"]
+   local action_command = action_map["command"]
+   bennu.logdebug("Directory is %s. command is %s", dir, action_command)
+   local findcommand = ("find -L %s -maxdepth 1 -mindepth 1 -type d"):format(dir)
+   bennu.logdebug("Find command is %s", findcommand)
+   local out = sys.execute_OS_command_as_user(true, "table", findcommand)
+   table.sort(out)
+   for _, subdir in ipairs(out) do
+      local gitdir = path.join(subdir, ".git")
+      bennu.logdebug("Looking for dir %s", gitdir)
+      if path.exists(gitdir) and path.isdir(gitdir) then
+         if action ~= "list" then
+            base.okmsg(subdir)
+         else
+         end
+         bennu.logdebug("Running command %s in directory %s", action_command, subdir)
+         local command = ("cd %s ; %s"):format(subdir, action_command)
+         sys.execute_OS_command_as_user(false, "string", command)
+      else
+         -- TODO: Review this
+         action_map["dir"] = subdir
+         doaction(action_map)
+      end
+   end
+end
+
+-- Module functions
+function repos.repos(action, repo_directory)
+   if not action then
+      noaction_msg()
+   else
+      local theaction = actions[action]
+      if not theaction then
+         badaction_msg(action)
+      else
+         bennu.logdebug("Action received: %s", theaction["msg"])
+         doaction(action, theaction, repo_directory)
+      end
+   end
+end
+
+function repos.sync_conf(repo_directory)
+   assert(repo_directory)
+   if not path.exists(repo_directory) then
+      base.komsg(s("repos.sync.repo.dir.does.not.exist"), repo_directory)
+   else
+      local destination_directory = repo_directory:gsub("/+$", "")
+      local _, name, _ = base.split(destination_directory)
+      local command = ("rsync -avzt --delete %s %s"):format(
+         path.join(bennu.config_dir, name, ""),
+         path.join(destination_directory, "")
+      )
+      sys.execute_OS_command_as_user(false, "string", command)
+   end
+end
+
+return repos

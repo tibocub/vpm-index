@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "lapis-stats",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "lapis"
+      ],
+      "files": {
+        "lapis/cmd/actions/stat_postgres.lua": {
+          "sha256": "f82eb8cc023a0344e4d0f03091796f15852411806d070aaaa973008e5e0626ec",
+          "size": 4126,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-stats/95111a4869a64a8b160d03a20e5e1a2a193b6d56/lapis/cmd/actions/stat_postgres.lua"
+        },
+        "lapis/cmd/actions/stat_system.lua": {
+          "sha256": "ba3d122dbb59c20e33070e157b20507bf6894957eea3fc5209b2b9a70e7d2dc7",
+          "size": 6288,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-stats/95111a4869a64a8b160d03a20e5e1a2a193b6d56/lapis/cmd/actions/stat_system.lua"
+        },
+        "lapis/influxdb.lua": {
+          "sha256": "21143f4660b6ed507e882359cda9f987cc121d6586a4a838732019bb9a0c9cac",
+          "size": 3542,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-stats/95111a4869a64a8b160d03a20e5e1a2a193b6d56/lapis/influxdb.lua"
+        },
+        "lapis/statsd.lua": {
+          "sha256": "5327f09202f72496e3f3a3fb88c163dc17c23cf52a07df4b2957ae23a9af0ccb",
+          "size": 2575,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-stats/95111a4869a64a8b160d03a20e5e1a2a193b6d56/lapis/statsd.lua"
+        },
+        "lapis/victoriametrics.lua": {
+          "sha256": "e31e09ff9eabc071bf6c2944a99561f75c33d7501bdf0d276691bb974c60b189",
+          "size": 6451,
+          "url": "https://raw.githubusercontent.com/leafo/lapis-stats/95111a4869a64a8b160d03a20e5e1a2a193b6d56/lapis/victoriametrics.lua"
+        }
+      },
+      "homepage": "https://github.com/leafo/lapis-stats",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 12 Apr 2025 18:52:15 GMT",
+        "rockspec": {
+          "date": "Sat, 12 Apr 2025 18:52:15 GMT",
+          "sha256": "4d93840b748d6574c26c493182550377fdf3564b3dec8a91a5c7623ffb3bf1fd",
+          "size": 691
+        },
+        "src": {
+          "date": "Sat, 12 Apr 2025 18:52:16 GMT",
+          "sha256": "582de5e26906e56152ce316bd7172150b20f178de36c253aef7197e03b2a354d",
+          "size": 22673,
+          "url": "https://luarocks.org/lapis-stats-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "lapis.cmd.actions.stat_postgres",
+        "lapis.cmd.actions.stat_system",
+        "lapis.influxdb",
+        "lapis.statsd",
+        "lapis.victoriametrics"
+      ],
+      "origin": {
+        "commit": "95111a4869a64a8b160d03a20e5e1a2a193b6d56",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/leafo/lapis-stats.git"
+      },
+      "size": 22982,
+      "summary": "Statsd and Influxdb support for Lua, OpenResty & Lapis",
+      "undeclared_requires": [
+        "helpers.victoriametrics",
+        "ltn12",
+        "socket",
+        "socket.http",
+        "tableshape"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

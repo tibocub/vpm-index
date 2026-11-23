@@ -1,0 +1,141 @@
+{
+  "kind": "lib",
+  "name": "luaipfs",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "luajson >= 1.3.4",
+        "luafilesystem >= 1.7.0",
+        "base64 >= 1.5",
+        "lua-protobuf >= 0.3.2"
+      ],
+      "files": {
+        "luaipfs/base.lua": {
+          "sha256": "0fea70d5d9cb4687bfd13e4a9c0f5a1e0b4baf8a5171469bfb9ddbf2d4fe6d5c",
+          "size": 7023,
+          "url": "blob:0fea70d5d9cb4687bfd13e4a9c0f5a1e0b4baf8a5171469bfb9ddbf2d4fe6d5c"
+        },
+        "luaipfs/bitswap.lua": {
+          "sha256": "d0fad0c0cc68d612126b37f59face6cc9de36a15185fac4d28c03b04b5e259c1",
+          "size": 1139,
+          "url": "blob:d0fad0c0cc68d612126b37f59face6cc9de36a15185fac4d28c03b04b5e259c1"
+        },
+        "luaipfs/dht.lua": {
+          "sha256": "a7e32ed0b76350fa3de44422ce762fcc01d57bea92b63a3cbd45e12b43a767c4",
+          "size": 6466,
+          "url": "blob:a7e32ed0b76350fa3de44422ce762fcc01d57bea92b63a3cbd45e12b43a767c4"
+        },
+        "luaipfs/init.lua": {
+          "sha256": "65b3151c5c8fbed9c69b0b025df676b4dbac5d66b5b1315a10c6da5225df2e6a",
+          "size": 1810,
+          "url": "blob:65b3151c5c8fbed9c69b0b025df676b4dbac5d66b5b1315a10c6da5225df2e6a"
+        },
+        "luaipfs/pin.lua": {
+          "sha256": "cd8e25c1e780ee45f547b9f437ab5ba56bb14eaa94be76304190b4421913ec82",
+          "size": 926,
+          "url": "blob:cd8e25c1e780ee45f547b9f437ab5ba56bb14eaa94be76304190b4421913ec82"
+        },
+        "luaipfs/protobuf.lua": {
+          "sha256": "c1918e893f351cd575d7b809887aa67a226bfcfc3a1abacb4b6e9c731633c251",
+          "size": 550,
+          "url": "blob:c1918e893f351cd575d7b809887aa67a226bfcfc3a1abacb4b6e9c731633c251"
+        },
+        "luaipfs/swarm.lua": {
+          "sha256": "5fc12d2f1fcb3efbd6ba183e5fec8d6c5f9a4ec3ec0e215d22eb879b9f68ab16",
+          "size": 1609,
+          "url": "blob:5fc12d2f1fcb3efbd6ba183e5fec8d6c5f9a4ec3ec0e215d22eb879b9f68ab16"
+        },
+        "luaipfs/utils.lua": {
+          "sha256": "cd854d124ffb90b5a162335ef4776941594bafab4e43bb38d529145861cb2b37",
+          "size": 560,
+          "url": "blob:cd854d124ffb90b5a162335ef4776941594bafab4e43bb38d529145861cb2b37"
+        }
+      },
+      "homepage": "https://github.com/Neph-Oo/lua-ipfs-api",
+      "license": "WTFPL",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Tue, 09 Mar 2021 02:19:59 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Mar 2021 02:19:59 GMT",
+          "sha256": "56127441339188f978e90c8fbd05dec9706e4a9e7fb87ab06087c23449500626",
+          "size": 1372
+        },
+        "src": {
+          "date": "Tue, 09 Mar 2021 02:20:00 GMT",
+          "sha256": "75404083d91a1cb4780abc36d55305de52f6cb975f418229a2849514695d2c14",
+          "size": 31344,
+          "url": "https://luarocks.org/luaipfs-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "luaipfs",
+        "luaipfs.base",
+        "luaipfs.bitswap",
+        "luaipfs.dht",
+        "luaipfs.http",
+        "luaipfs.pin",
+        "luaipfs.protobuf",
+        "luaipfs.swarm",
+        "luaipfs.utils"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBCURL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBCURL": {
+              "header": "curl/curl.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBCURL_INCDIR)",
+                "luaipfs/include"
+              ],
+              "libdirs": [
+                "$(LIBCURL_LIBDIR)"
+              ],
+              "libraries": [
+                "curl"
+              ],
+              "name": "luaipfs.http",
+              "sources": [
+                "luaipfs/src/http.c",
+                "luaipfs/src/http_priv.c",
+                "luaipfs/src/http_error.c",
+                "luaipfs/src/http_callbacks.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 09 Mar 2021 02:20:00 GMT",
+        "sha256": "75404083d91a1cb4780abc36d55305de52f6cb975f418229a2849514695d2c14",
+        "size": 31344,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaipfs-0.1.0-1.src.rock"
+      },
+      "size": 20083,
+      "summary": "IPFS http api",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

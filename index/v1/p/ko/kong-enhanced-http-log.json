@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "kong-enhanced-http-log",
+  "versions": {
+    "1.0.0-32": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/enhanced-http-log/access.lua": {
+          "sha256": "604efcb13250620a0a177bd4fa50d15b58477f8c79bc98667a66147fc51f9e79",
+          "size": 202,
+          "url": "blob:604efcb13250620a0a177bd4fa50d15b58477f8c79bc98667a66147fc51f9e79"
+        },
+        "kong/plugins/enhanced-http-log/handler.lua": {
+          "sha256": "21d082b0c8d30f005d1a80ddb7570364c635141e78d478f5ad5c24c0b9eeb6ae",
+          "size": 381,
+          "url": "blob:21d082b0c8d30f005d1a80ddb7570364c635141e78d478f5ad5c24c0b9eeb6ae"
+        },
+        "kong/plugins/enhanced-http-log/log.lua": {
+          "sha256": "349f7d35a3a9507a45fb47233ac08bb31ffe01e86080f285019a437dec4ac8e2",
+          "size": 6131,
+          "url": "blob:349f7d35a3a9507a45fb47233ac08bb31ffe01e86080f285019a437dec4ac8e2"
+        },
+        "kong/plugins/enhanced-http-log/schema.lua": {
+          "sha256": "2e5212f61e9d3b4093413f535f11efc9e2ec97fe3e3a0695bc34d1380e1fa7a8",
+          "size": 3871,
+          "url": "blob:2e5212f61e9d3b4093413f535f11efc9e2ec97fe3e3a0695bc34d1380e1fa7a8"
+        }
+      },
+      "homepage": "https://github.com/NumericalTechnologies/kong-enhanced-http-log",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 11 Apr 2025 09:58:53 GMT",
+        "rockspec": {
+          "date": "Fri, 11 Apr 2025 09:58:53 GMT",
+          "sha256": "b49f7036cfc5dc433d9c80ccfad19ab714b75ab492796d6a9d4c20adb9c4c40f",
+          "size": 700
+        },
+        "src": {
+          "date": "Fri, 11 Apr 2025 09:58:54 GMT",
+          "sha256": "98fc10f1475b1afd63d6e6e9fc8df107952f5c231a6344f5498f0b0efd477723",
+          "size": 6162,
+          "url": "https://luarocks.org/kong-enhanced-http-log-1.0.0-32.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.enhanced-http-log.access",
+        "kong.plugins.enhanced-http-log.handler",
+        "kong.plugins.enhanced-http-log.log",
+        "kong.plugins.enhanced-http-log.schema"
+      ],
+      "origin": {
+        "date": "Fri, 11 Apr 2025 09:58:54 GMT",
+        "sha256": "98fc10f1475b1afd63d6e6e9fc8df107952f5c231a6344f5498f0b0efd477723",
+        "size": 6162,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-enhanced-http-log-1.0.0-32.src.rock"
+      },
+      "size": 10585,
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.tools.queue",
+        "kong.tools.sandbox",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.queue",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

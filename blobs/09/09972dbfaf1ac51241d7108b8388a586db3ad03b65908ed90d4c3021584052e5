@@ -1,0 +1,140 @@
+local _module_0 = nil
+local inspect = require('inspect')
+local path = require('path')
+local fs = require('path.fs')
+local sh = require('shell-games')
+local result = require('elan.result')
+local validate_flags
+do
+	local _obj_0 = require('elan.bin.commands.utils')
+	validate_flags = _obj_0.validate_flags
+end
+local ensure_dir_empty
+ensure_dir_empty = function(dir)
+	local create = true
+	if path.exists(dir) then
+		if not path.isdir(dir) then
+			return nil, tostring(dir) .. " exists and is not a directory"
+		end
+		create = false
+		local entries
+		do
+			local _accum_0 = { }
+			local _len_0 = 1
+			for entry in fs.dir(dir) do
+				_accum_0[_len_0] = entry
+				_len_0 = _len_0 + 1
+			end
+			entries = _accum_0
+		end
+		if not (#entries == 0) then
+			return nil, tostring(dir) .. " exists and is not empty"
+		end
+	end
+	if create then
+		return result.unwrap_any(result.map_ok(result.map_err(result.to_result(fs.makedirs(dir)), function(err)
+			return nil, "failed to create directory: " .. tostring(err)
+		end), function()
+			return dir
+		end))
+	else
+		return dir
+	end
+end
+local ensure_dir_exists
+ensure_dir_exists = function(dir)
+	if not path.exists(dir) then
+		return nil, tostring(dir) .. " does not exist"
+	end
+	if not path.isdir(dir) then
+		return nil, tostring(dir) .. " is not a directory"
+	end
+	return dir
+end
+local apply_starter
+apply_starter = function(dir)
+	print("Cloning the elan-starter repository to " .. tostring(dir) .. "...")
+	print(string.rep("=", 70))
+	print("")
+	return result.unwrap_any(result.map_ok(result.map_ok(result.to_result(sh.run({
+		'git',
+		'clone',
+		'--depth',
+		'1',
+		'https://github.com/mna/elan-starter.git',
+		dir
+	})), function(res)
+		if not (res.status == 0) then
+			return nil, "git clone failed with exit code " .. tostring(res.status)
+		end
+		local gitdir = path(dir, '.git')
+		if not path.isdir(gitdir) then
+			return nil, ".git directory not found in " .. tostring(dir)
+		end
+		return sh.run({
+			'rm',
+			'-rf',
+			gitdir
+		})
+	end), function(res)
+		if not (res.status == 0) then
+			return nil, ".git directory removal failed with exit code " .. tostring(res.status)
+		end
+		return dir
+	end))
+end
+local init_repo
+init_repo = function(dir)
+	print("")
+	print("Initializing the environment in " .. tostring(dir) .. "...")
+	print(string.rep("=", 70))
+	print("")
+	return result.unwrap_any(result.map_ok(result.to_result(sh.run({
+		'make',
+		'init'
+	}, {
+		chdir = dir
+	})), function(res)
+		if not (res.status == 0) then
+			return nil, "make init failed with exit code " .. tostring(res.status)
+		end
+		print("")
+		print("The repository is almost ready, follow the next steps to finalize")
+		print("initialization:")
+		print("")
+		print("1. cd into the directory:")
+		print("\tcd " .. tostring(dir))
+		print("")
+		print("2. review the environment variables, update if needed:")
+		print("\tdirenv edit")
+		print("")
+		print("3. bring up the docker local database instance:")
+		print("\tmake dbinit")
+		print("")
+		print("For more details, troubleshooting or raising an issue, visit")
+		print("\thttps://github.com/mna/elan-starter")
+		print("")
+		return dir
+	end))
+end
+local ALLOWED_FLAGS = {
+	'existing'
+}
+local _anon_func_0 = function(arg, path)
+	local _exp_0 = arg[1]
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return path.cwd()
+	end
+end
+_module_0 = function(arg, opts)
+	local dir = path(_anon_func_0(arg, path))
+	if not validate_flags('init', opts, ALLOWED_FLAGS) then
+		return
+	end
+	return result.unwrap_any(result.handle_err(result.map_ok(result.map_ok_if(result.map_ok_if(result.to_result(dir), opts.existing, ensure_dir_exists, ensure_dir_empty), not opts.existing, apply_starter), init_repo), function(err)
+		return opts:opterr(err)
+	end))
+end
+return _module_0

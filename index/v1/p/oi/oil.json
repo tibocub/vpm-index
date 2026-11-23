@@ -1,0 +1,699 @@
+{
+  "kind": "app",
+  "name": "oil",
+  "versions": {
+    "0.5-2": {
+      "bin": {
+        "channeld.lua": "bin/channeld.lua",
+        "idl2lua.lua": "bin/idl2lua.lua",
+        "ird.lua": "bin/ird.lua",
+        "nsd.lua": "bin/nsd.lua"
+      },
+      "deps": [
+        "luasocket >= 2.0",
+        "loop == 2.3beta",
+        "luaidl == 1.0.5"
+      ],
+      "files": {
+        "bin/channeld.lua": {
+          "sha256": "acc7643a1ed06463aaf2ea2a72f30ae3b4d33fdf2a96da37e018bc9c64971b97",
+          "size": 1750,
+          "url": "blob:acc7643a1ed06463aaf2ea2a72f30ae3b4d33fdf2a96da37e018bc9c64971b97"
+        },
+        "bin/idl2lua.lua": {
+          "sha256": "e8b786123a88c9c73060cff776e73920ec41c912b1e2167b5504793c1250c208",
+          "size": 3008,
+          "url": "blob:e8b786123a88c9c73060cff776e73920ec41c912b1e2167b5504793c1250c208"
+        },
+        "bin/ird.lua": {
+          "sha256": "7a35912dd48bb4c27475c4defb65d42a38e77f87829e103c83c6ba4e35ea05c0",
+          "size": 1235,
+          "url": "blob:7a35912dd48bb4c27475c4defb65d42a38e77f87829e103c83c6ba4e35ea05c0"
+        },
+        "bin/nsd.lua": {
+          "sha256": "39038562c937cd8fa2b5fcc32c66ca3a973a573577062713d49622b92d1e46e0",
+          "size": 1349,
+          "url": "blob:39038562c937cd8fa2b5fcc32c66ca3a973a573577062713d49622b92d1e46e0"
+        },
+        "oil.lua": {
+          "sha256": "3141405f62ab52113f63adbbcb8e84880c4af027e3005afa3d0d837327fc15b3",
+          "size": 38306,
+          "url": "blob:3141405f62ab52113f63adbbcb8e84880c4af027e3005afa3d0d837327fc15b3"
+        },
+        "oil/Exception.lua": {
+          "sha256": "a06b4322808cbcfaf8afb6d13d6aea8f9b2df95497b28f4d0ee5e80becc4d6b8",
+          "size": 652,
+          "url": "blob:a06b4322808cbcfaf8afb6d13d6aea8f9b2df95497b28f4d0ee5e80becc4d6b8"
+        },
+        "oil/arch.lua": {
+          "sha256": "fecb7671b328bad758df2a01ce4a777950a31afa9eefa950619ed2dc84b934fc",
+          "size": 712,
+          "url": "blob:fecb7671b328bad758df2a01ce4a777950a31afa9eefa950619ed2dc84b934fc"
+        },
+        "oil/arch/basic/client.lua": {
+          "sha256": "86a908d5872e7ff74d6745ca3f3f3de5621eaec3d16665a5e42c1ffe513cabbc",
+          "size": 822,
+          "url": "blob:86a908d5872e7ff74d6745ca3f3f3de5621eaec3d16665a5e42c1ffe513cabbc"
+        },
+        "oil/arch/basic/common.lua": {
+          "sha256": "7e26af01e5422892a15f0567851149f1dbdde154a860b679a01cd7d1897b6cfd",
+          "size": 280,
+          "url": "blob:7e26af01e5422892a15f0567851149f1dbdde154a860b679a01cd7d1897b6cfd"
+        },
+        "oil/arch/basic/server.lua": {
+          "sha256": "76b673fee84e4761a56c34f0d8a919f687d2bc6d855fcfae6ea224e0b24cb26e",
+          "size": 851,
+          "url": "blob:76b673fee84e4761a56c34f0d8a919f687d2bc6d855fcfae6ea224e0b24cb26e"
+        },
+        "oil/arch/cooperative/common.lua": {
+          "sha256": "752b3a9e44d839ec26bb063e467b54e49ccdf7e89af7230f0060d602ee138080",
+          "size": 352,
+          "url": "blob:752b3a9e44d839ec26bb063e467b54e49ccdf7e89af7230f0060d602ee138080"
+        },
+        "oil/arch/cooperative/server.lua": {
+          "sha256": "c415e0f0dcae534d2092150c93184a676eaf599771e12e66d8542a2def300c44",
+          "size": 506,
+          "url": "blob:c415e0f0dcae534d2092150c93184a676eaf599771e12e66d8542a2def300c44"
+        },
+        "oil/arch/corba/client.lua": {
+          "sha256": "60d65211cc6ba64b5730079141830ebdd03f0848dfa730d5edc659981a727cb1",
+          "size": 1097,
+          "url": "blob:60d65211cc6ba64b5730079141830ebdd03f0848dfa730d5edc659981a727cb1"
+        },
+        "oil/arch/corba/common.lua": {
+          "sha256": "e9fc12371c76de0e351d1e0c26a0d5ca982ed0f4cf4726ec7c79d7035db797fa",
+          "size": 1511,
+          "url": "blob:e9fc12371c76de0e351d1e0c26a0d5ca982ed0f4cf4726ec7c79d7035db797fa"
+        },
+        "oil/arch/corba/intercepted/client.lua": {
+          "sha256": "a0e21d0317ed92ab73be316f18a859afe01df1cd32601c0b94b2edae82f75600",
+          "size": 255,
+          "url": "blob:a0e21d0317ed92ab73be316f18a859afe01df1cd32601c0b94b2edae82f75600"
+        },
+        "oil/arch/corba/intercepted/server.lua": {
+          "sha256": "4e4e71e45982fcecd6bb2c7e0991b6bbef62d381f1372c718f38582b76326108",
+          "size": 250,
+          "url": "blob:4e4e71e45982fcecd6bb2c7e0991b6bbef62d381f1372c718f38582b76326108"
+        },
+        "oil/arch/corba/server.lua": {
+          "sha256": "0026d8405fc4d8955312bf416daecda68bbeab5377ebf6898d73bfdcd24fa962",
+          "size": 1008,
+          "url": "blob:0026d8405fc4d8955312bf416daecda68bbeab5377ebf6898d73bfdcd24fa962"
+        },
+        "oil/arch/ludo/byref.lua": {
+          "sha256": "27b3597b4832926b83f40df8e544b5455e6a9a6be594eab8a62ab5b3ffe2cb5a",
+          "size": 440,
+          "url": "blob:27b3597b4832926b83f40df8e544b5455e6a9a6be594eab8a62ab5b3ffe2cb5a"
+        },
+        "oil/arch/ludo/client.lua": {
+          "sha256": "c33d90576556af31d595a803e1f5a517e626f0d5ef43c937ada5dcb6893f3497",
+          "size": 511,
+          "url": "blob:c33d90576556af31d595a803e1f5a517e626f0d5ef43c937ada5dcb6893f3497"
+        },
+        "oil/arch/ludo/common.lua": {
+          "sha256": "b707935c02c594e5d0723decd4c73032cfcf82dd3f49932b48d0918a97cdd02b",
+          "size": 467,
+          "url": "blob:b707935c02c594e5d0723decd4c73032cfcf82dd3f49932b48d0918a97cdd02b"
+        },
+        "oil/arch/ludo/server.lua": {
+          "sha256": "83d115791a50fe2884b12fcacb965061fd8131af22ab7805576561aceb8114b7",
+          "size": 499,
+          "url": "blob:83d115791a50fe2884b12fcacb965061fd8131af22ab7805576561aceb8114b7"
+        },
+        "oil/arch/typed/client.lua": {
+          "sha256": "eb89fd8d5f88fdc73c1451f427bad58732dd4d636e46fe18434b397f504d1dc9",
+          "size": 819,
+          "url": "blob:eb89fd8d5f88fdc73c1451f427bad58732dd4d636e46fe18434b397f504d1dc9"
+        },
+        "oil/arch/typed/common.lua": {
+          "sha256": "75a4628a02aafc2ba7cfca5330d2f28e90d388c8ba97383b67bc1b44c0be8807",
+          "size": 197,
+          "url": "blob:75a4628a02aafc2ba7cfca5330d2f28e90d388c8ba97383b67bc1b44c0be8807"
+        },
+        "oil/arch/typed/server.lua": {
+          "sha256": "16d86b903461bd1a283de4beea790457931a94996d083a2796c83e8f47d932d8",
+          "size": 497,
+          "url": "blob:16d86b903461bd1a283de4beea790457931a94996d083a2796c83e8f47d932d8"
+        },
+        "oil/assert.lua": {
+          "sha256": "7887e3408a4a3a0833e262ad2552fbd037d1776730604b54751be7f758ab55aa",
+          "size": 2321,
+          "url": "blob:7887e3408a4a3a0833e262ad2552fbd037d1776730604b54751be7f758ab55aa"
+        },
+        "oil/builder.lua": {
+          "sha256": "5db36dbe3daa0679e1128186361a4711fb5268c5e06018a8a79faa37a6fb4bcc",
+          "size": 2030,
+          "url": "blob:5db36dbe3daa0679e1128186361a4711fb5268c5e06018a8a79faa37a6fb4bcc"
+        },
+        "oil/builder/basic/client.lua": {
+          "sha256": "cd51c796d71d4aa2b535d08e4265742108c7877a6654726a075dc2b1e2ec13a2",
+          "size": 853,
+          "url": "blob:cd51c796d71d4aa2b535d08e4265742108c7877a6654726a075dc2b1e2ec13a2"
+        },
+        "oil/builder/basic/common.lua": {
+          "sha256": "65e25ce6181902c90de48a1db451f719206b7e9bf92636ce83e5877c41e5e6cd",
+          "size": 274,
+          "url": "blob:65e25ce6181902c90de48a1db451f719206b7e9bf92636ce83e5877c41e5e6cd"
+        },
+        "oil/builder/basic/server.lua": {
+          "sha256": "d583bff7a7fa7b3db5fe7a9bef3d26dd511a2fdc31e5b7579dc371c1da6d923a",
+          "size": 439,
+          "url": "blob:d583bff7a7fa7b3db5fe7a9bef3d26dd511a2fdc31e5b7579dc371c1da6d923a"
+        },
+        "oil/builder/cooperative/common.lua": {
+          "sha256": "97f5e3fbcd7be0008be72350049d2a564a6fc960f5d3dc1d23f0ac67badcf7f4",
+          "size": 290,
+          "url": "blob:97f5e3fbcd7be0008be72350049d2a564a6fc960f5d3dc1d23f0ac67badcf7f4"
+        },
+        "oil/builder/cooperative/server.lua": {
+          "sha256": "9dd3fedf145eeb1276110c7a69a4c8cd829f21b6087f7351c0b932df47d4b07a",
+          "size": 302,
+          "url": "blob:9dd3fedf145eeb1276110c7a69a4c8cd829f21b6087f7351c0b932df47d4b07a"
+        },
+        "oil/builder/corba/client.lua": {
+          "sha256": "4fddc16c16e6a3295641a05376b0a24e054eba0a02c35330b37745d865dbc6df",
+          "size": 420,
+          "url": "blob:4fddc16c16e6a3295641a05376b0a24e054eba0a02c35330b37745d865dbc6df"
+        },
+        "oil/builder/corba/common.lua": {
+          "sha256": "5f5e0691d2b8203a010080e3f20f5be404afe2088ee1f955c558d32f1fbd3e25",
+          "size": 908,
+          "url": "blob:5f5e0691d2b8203a010080e3f20f5be404afe2088ee1f955c558d32f1fbd3e25"
+        },
+        "oil/builder/corba/gencode.lua": {
+          "sha256": "b07ac74eea51c06d00d02ca0f2c0cfae75af47aa8ca3ab7d700539fe7b117b74",
+          "size": 331,
+          "url": "blob:b07ac74eea51c06d00d02ca0f2c0cfae75af47aa8ca3ab7d700539fe7b117b74"
+        },
+        "oil/builder/corba/intercepted/client.lua": {
+          "sha256": "968975f35a71e75fdd1804da722af8575f21e09017edbc548dda49b47f8380ff",
+          "size": 321,
+          "url": "blob:968975f35a71e75fdd1804da722af8575f21e09017edbc548dda49b47f8380ff"
+        },
+        "oil/builder/corba/intercepted/server.lua": {
+          "sha256": "6ff4a5c3f9f8d90ea738fdb762aacf7bcc5eb5014e3c3160df02bba00a375685",
+          "size": 313,
+          "url": "blob:6ff4a5c3f9f8d90ea738fdb762aacf7bcc5eb5014e3c3160df02bba00a375685"
+        },
+        "oil/builder/corba/server.lua": {
+          "sha256": "411aa4c2c7e991e4b702cda80ca5c1fb13207ce2d2e6726fdc5ceee17714436c",
+          "size": 406,
+          "url": "blob:411aa4c2c7e991e4b702cda80ca5c1fb13207ce2d2e6726fdc5ceee17714436c"
+        },
+        "oil/builder/lua/client.lua": {
+          "sha256": "e8c87e912ad4db4d9ded7876e7344973de2143f14171cec7e3f489e88fa0db2f",
+          "size": 273,
+          "url": "blob:e8c87e912ad4db4d9ded7876e7344973de2143f14171cec7e3f489e88fa0db2f"
+        },
+        "oil/builder/lua/server.lua": {
+          "sha256": "140d2c9e3616deff5357bcc48aefd18d5a6496d34f51e0b6e65cda5355fefaed",
+          "size": 355,
+          "url": "blob:140d2c9e3616deff5357bcc48aefd18d5a6496d34f51e0b6e65cda5355fefaed"
+        },
+        "oil/builder/ludo/byref.lua": {
+          "sha256": "5c27c067b6f5f88ebec1509a0ee23ff3e310b6c9d35da153660fb767ed643365",
+          "size": 320,
+          "url": "blob:5c27c067b6f5f88ebec1509a0ee23ff3e310b6c9d35da153660fb767ed643365"
+        },
+        "oil/builder/ludo/client.lua": {
+          "sha256": "9054f23362f5d8c7c9d78aac8613e8ab93d90934cbd9c93c8f1c3498ebf872fc",
+          "size": 418,
+          "url": "blob:9054f23362f5d8c7c9d78aac8613e8ab93d90934cbd9c93c8f1c3498ebf872fc"
+        },
+        "oil/builder/ludo/common.lua": {
+          "sha256": "0c4a534515a41b0c5b7cd5950b73ed31d1d1e738779ccfbe1cad451900f438d9",
+          "size": 392,
+          "url": "blob:0c4a534515a41b0c5b7cd5950b73ed31d1d1e738779ccfbe1cad451900f438d9"
+        },
+        "oil/builder/ludo/server.lua": {
+          "sha256": "923e33cb6b7f500c0c0ec6e434e3b5e871e38530de1412b90a134bb12733e4dc",
+          "size": 404,
+          "url": "blob:923e33cb6b7f500c0c0ec6e434e3b5e871e38530de1412b90a134bb12733e4dc"
+        },
+        "oil/builder/typed/client.lua": {
+          "sha256": "d1c85bbd5f1c140305a0385a9fef65d5c0e459d86d836ce38bb2b84ca8bd855a",
+          "size": 418,
+          "url": "blob:d1c85bbd5f1c140305a0385a9fef65d5c0e459d86d836ce38bb2b84ca8bd855a"
+        },
+        "oil/builder/typed/server.lua": {
+          "sha256": "13a0be0feb49bbeb0bbbe744c78033219ba115ed70aefc6718829804fbd9fe7a",
+          "size": 360,
+          "url": "blob:13a0be0feb49bbeb0bbbe744c78033219ba115ed70aefc6718829804fbd9fe7a"
+        },
+        "oil/component.lua": {
+          "sha256": "956c2b77edfa5dc7d6efd8c4008bd1fcf9efbfb76bff1b3afb9911dcd1cd5439",
+          "size": 63,
+          "url": "blob:956c2b77edfa5dc7d6efd8c4008bd1fcf9efbfb76bff1b3afb9911dcd1cd5439"
+        },
+        "oil/corba/giop.lua": {
+          "sha256": "69ffaecac9e16606a5e8a7100a66b5369bff74d30a82eb9464f1c064558b544f",
+          "size": 14823,
+          "url": "blob:69ffaecac9e16606a5e8a7100a66b5369bff74d30a82eb9464f1c064558b544f"
+        },
+        "oil/corba/giop/Codec.lua": {
+          "sha256": "65f58275fcb5be70505a84929aeed22307414e737d685100affd41aa457d161d",
+          "size": 67642,
+          "url": "blob:65f58275fcb5be70505a84929aeed22307414e737d685100affd41aa457d161d"
+        },
+        "oil/corba/giop/CodecGen.lua": {
+          "sha256": "8bce99714ca12911680d415bbdebb9e98cf25e6851b366fa647be13ce7b61d1c",
+          "size": 18738,
+          "url": "blob:8bce99714ca12911680d415bbdebb9e98cf25e6851b366fa647be13ce7b61d1c"
+        },
+        "oil/corba/giop/Exception.lua": {
+          "sha256": "c4a29f26d5663342f4145a7dabb495dc7a309d500e1673416792f12a74048741",
+          "size": 707,
+          "url": "blob:c4a29f26d5663342f4145a7dabb495dc7a309d500e1673416792f12a74048741"
+        },
+        "oil/corba/giop/Indexer.lua": {
+          "sha256": "2da7cc7f5898bdb539c90185de0a40439df4af9b8053d5be56c6686757b28389",
+          "size": 2537,
+          "url": "blob:2da7cc7f5898bdb539c90185de0a40439df4af9b8053d5be56c6686757b28389"
+        },
+        "oil/corba/giop/Listener.lua": {
+          "sha256": "4e8fd029b7b39971db9561d80fe572e5288d279e5ffc2d3d39d6ac56395f9502",
+          "size": 14343,
+          "url": "blob:4e8fd029b7b39971db9561d80fe572e5288d279e5ffc2d3d39d6ac56395f9502"
+        },
+        "oil/corba/giop/Messenger.lua": {
+          "sha256": "dc6268c238e1faccb0e5bf899e837d5e32c547d56b5e19244a416b7d4f5dd518",
+          "size": 8061,
+          "url": "blob:dc6268c238e1faccb0e5bf899e837d5e32c547d56b5e19244a416b7d4f5dd518"
+        },
+        "oil/corba/giop/Referrer.lua": {
+          "sha256": "e33304b389b523a8e13db1d96c1f9fe170dee3c0290fdb9ab3af42e8d9ac5e95",
+          "size": 6098,
+          "url": "blob:e33304b389b523a8e13db1d96c1f9fe170dee3c0290fdb9ab3af42e8d9ac5e95"
+        },
+        "oil/corba/giop/Requester.lua": {
+          "sha256": "da5e855afde1bc26a10325369fdb7ee8457f902a0761502f55aafa2a50f78daf",
+          "size": 16973,
+          "url": "blob:da5e855afde1bc26a10325369fdb7ee8457f902a0761502f55aafa2a50f78daf"
+        },
+        "oil/corba/idl.lua": {
+          "sha256": "769480072daa05aa859428fe7b66e3583833981861bed5cdfac454cfc0d79872",
+          "size": 19865,
+          "url": "blob:769480072daa05aa859428fe7b66e3583833981861bed5cdfac454cfc0d79872"
+        },
+        "oil/corba/idl/Compiler.lua": {
+          "sha256": "1af5c1f59c2c86b426170e3ac9f57dae7d029c826e8aac4b21f648950b8722c4",
+          "size": 4134,
+          "url": "blob:1af5c1f59c2c86b426170e3ac9f57dae7d029c826e8aac4b21f648950b8722c4"
+        },
+        "oil/corba/idl/Importer.lua": {
+          "sha256": "4a4eea9cb992e8fb5643a7d96d56882c3b3e720a703abaf6a901ca6212c4f351",
+          "size": 9602,
+          "url": "blob:4a4eea9cb992e8fb5643a7d96d56882c3b3e720a703abaf6a901ca6212c4f351"
+        },
+        "oil/corba/idl/Indexer.lua": {
+          "sha256": "ef4105ff486c7df714ff00ee46fc0e431c2f7684410cbe17ce11be9ff82f2a29",
+          "size": 3478,
+          "url": "blob:ef4105ff486c7df714ff00ee46fc0e431c2f7684410cbe17ce11be9ff82f2a29"
+        },
+        "oil/corba/idl/Registry.lua": {
+          "sha256": "505c2bfccbc703d23774da9ce4b4ecca17ab31e59fc069d1e3433d3034de90e8",
+          "size": 54496,
+          "url": "blob:505c2bfccbc703d23774da9ce4b4ecca17ab31e59fc069d1e3433d3034de90e8"
+        },
+        "oil/corba/idl/ir.lua": {
+          "sha256": "f5a1f6c42e9a02897eb48bd31a60ade1b00d8ac82d0d8f7146b2325f7b88a768",
+          "size": 29968,
+          "url": "blob:f5a1f6c42e9a02897eb48bd31a60ade1b00d8ac82d0d8f7146b2325f7b88a768"
+        },
+        "oil/corba/idl/sysex.lua": {
+          "sha256": "866223eae275a3dc2cfb383e1f24d96ad7b0b8820fe5b8fc6db322ba6a1b3892",
+          "size": 643,
+          "url": "blob:866223eae275a3dc2cfb383e1f24d96ad7b0b8820fe5b8fc6db322ba6a1b3892"
+        },
+        "oil/corba/iiop/Profiler.lua": {
+          "sha256": "d6333ac51a7719e628d04b8ffa0f85bcfa5ae68ea90b6830b97efa8846b51f7d",
+          "size": 6659,
+          "url": "blob:d6333ac51a7719e628d04b8ffa0f85bcfa5ae68ea90b6830b97efa8846b51f7d"
+        },
+        "oil/corba/intercepted/Listener.lua": {
+          "sha256": "7c2005a9f6646379d581731f586866fac3d4c0103e2586a4f76a50007ab82115",
+          "size": 6000,
+          "url": "blob:7c2005a9f6646379d581731f586866fac3d4c0103e2586a4f76a50007ab82115"
+        },
+        "oil/corba/intercepted/Requester.lua": {
+          "sha256": "5cb33691b351a2c370bb0e91c40d80b240457961fa46d11879c29e0fb42fe21d",
+          "size": 6750,
+          "url": "blob:5cb33691b351a2c370bb0e91c40d80b240457961fa46d11879c29e0fb42fe21d"
+        },
+        "oil/corba/services/event.lua": {
+          "sha256": "13fd5435dad7927cd18b03eeb1eeaf0f418b786fa1a823cc40139ac32fb2349f",
+          "size": 5176,
+          "url": "blob:13fd5435dad7927cd18b03eeb1eeaf0f418b786fa1a823cc40139ac32fb2349f"
+        },
+        "oil/corba/services/event/ConsumerAdmin.lua": {
+          "sha256": "85cf17e668827add2a25791b12c85cdc44ca0e3555c82624d7a5e7bb33c572c5",
+          "size": 1584,
+          "url": "blob:85cf17e668827add2a25791b12c85cdc44ca0e3555c82624d7a5e7bb33c572c5"
+        },
+        "oil/corba/services/event/EventFactory.lua": {
+          "sha256": "ce647b72906ea7f20b134e9331c90ec95bed16ba960690d94abc24a63e3eab64",
+          "size": 347,
+          "url": "blob:ce647b72906ea7f20b134e9331c90ec95bed16ba960690d94abc24a63e3eab64"
+        },
+        "oil/corba/services/event/EventQueue.lua": {
+          "sha256": "c462ae2fede44cb89ef839b95ae62fd3aecdb772a974f43715d850afd63a6238",
+          "size": 856,
+          "url": "blob:c462ae2fede44cb89ef839b95ae62fd3aecdb772a974f43715d850afd63a6238"
+        },
+        "oil/corba/services/event/ProxyPushConsumer.lua": {
+          "sha256": "a126ea07e2c2a9dcf7331bc7e29669749c071e666454e769391a1dc3e555abdc",
+          "size": 3053,
+          "url": "blob:a126ea07e2c2a9dcf7331bc7e29669749c071e666454e769391a1dc3e555abdc"
+        },
+        "oil/corba/services/event/ProxyPushSupplier.lua": {
+          "sha256": "fb29debd4b7719c0fe81b21a85492b1ec01d06915e4ab4b4a9ffd4ac836faa14",
+          "size": 2450,
+          "url": "blob:fb29debd4b7719c0fe81b21a85492b1ec01d06915e4ab4b4a9ffd4ac836faa14"
+        },
+        "oil/corba/services/event/SingleDeferredDispatcher.lua": {
+          "sha256": "de0bde62489880ead48bfdf2a80ebf7e04e95595636bc03cde919bec8a67775f",
+          "size": 1419,
+          "url": "blob:de0bde62489880ead48bfdf2a80ebf7e04e95595636bc03cde919bec8a67775f"
+        },
+        "oil/corba/services/event/SingleSynchronousDispatcher.lua": {
+          "sha256": "0498b673c07cda64fe68a253522798d746bd19dad1b610828a6c0583f5d36bea",
+          "size": 922,
+          "url": "blob:0498b673c07cda64fe68a253522798d746bd19dad1b610828a6c0583f5d36bea"
+        },
+        "oil/corba/services/event/SupplierAdmin.lua": {
+          "sha256": "fc39dfb0b80f8bf153dee84f53215bf6afa0bcd70923621efca0ab7b372206ae",
+          "size": 1579,
+          "url": "blob:fc39dfb0b80f8bf153dee84f53215bf6afa0bcd70923621efca0ab7b372206ae"
+        },
+        "oil/corba/services/naming.lua": {
+          "sha256": "e671f279ab6ba949a09f047afb9cc3da71aaa12f2d3657eaf83af571de01c8ac",
+          "size": 13499,
+          "url": "blob:e671f279ab6ba949a09f047afb9cc3da71aaa12f2d3657eaf83af571de01c8ac"
+        },
+        "oil/kernel/base/Acceptor.lua": {
+          "sha256": "f2a44acd0938b92f3c58d9f47a7ec2a75636ae4c6004ccd1b4263d91d2d61271",
+          "size": 8393,
+          "url": "blob:f2a44acd0938b92f3c58d9f47a7ec2a75636ae4c6004ccd1b4263d91d2d61271"
+        },
+        "oil/kernel/base/Channels.lua": {
+          "sha256": "df116e77fb279e671947d6be4d202e15d1bccfc31d1349846dd6e0b3db0631aa",
+          "size": 4858,
+          "url": "blob:df116e77fb279e671947d6be4d202e15d1bccfc31d1349846dd6e0b3db0631aa"
+        },
+        "oil/kernel/base/Connector.lua": {
+          "sha256": "7bf472d57ac08d427abbc002ce52706e5905f51fbc7628f3039024390d70deb1",
+          "size": 5381,
+          "url": "blob:7bf472d57ac08d427abbc002ce52706e5905f51fbc7628f3039024390d70deb1"
+        },
+        "oil/kernel/base/Dispatcher.lua": {
+          "sha256": "aaf4e7739a6bde7598521e5c2eab14ebfc2374324b6b082e8f016232af120103",
+          "size": 4253,
+          "url": "blob:aaf4e7739a6bde7598521e5c2eab14ebfc2374324b6b082e8f016232af120103"
+        },
+        "oil/kernel/base/Proxies.lua": {
+          "sha256": "e6011e520bc0ff8a3e7f08b06481d8ededf767f97eae56aa0c4379553376e49a",
+          "size": 3851,
+          "url": "blob:e6011e520bc0ff8a3e7f08b06481d8ededf767f97eae56aa0c4379553376e49a"
+        },
+        "oil/kernel/base/Proxies/asynchronous.lua": {
+          "sha256": "3e5a374bbd138e269c3349f32e3b037bd54e5d107964ab31be43552a7b238fbb",
+          "size": 2034,
+          "url": "blob:3e5a374bbd138e269c3349f32e3b037bd54e5d107964ab31be43552a7b238fbb"
+        },
+        "oil/kernel/base/Proxies/protected.lua": {
+          "sha256": "1a52f735b8c8e1741c2bae69696e24374759da15ac7f35cc94c766f14adbf1e3",
+          "size": 405,
+          "url": "blob:1a52f735b8c8e1741c2bae69696e24374759da15ac7f35cc94c766f14adbf1e3"
+        },
+        "oil/kernel/base/Proxies/synchronous.lua": {
+          "sha256": "f564d29c0d9b688c07bce12508b19268c7758793d9a8b1ffda918682f9b1b43a",
+          "size": 519,
+          "url": "blob:f564d29c0d9b688c07bce12508b19268c7758793d9a8b1ffda918682f9b1b43a"
+        },
+        "oil/kernel/base/Proxies/utils.lua": {
+          "sha256": "3a6b2208fcaa1a7fee3f3cf8cbbbbca57a2da4e42cbfe5e6585893d7f3830f13",
+          "size": 867,
+          "url": "blob:3a6b2208fcaa1a7fee3f3cf8cbbbbca57a2da4e42cbfe5e6585893d7f3830f13"
+        },
+        "oil/kernel/base/Receiver.lua": {
+          "sha256": "cae0043908763b53cff561dabc1ad31ff412926cc7b54228a1367f41d409feea",
+          "size": 4982,
+          "url": "blob:cae0043908763b53cff561dabc1ad31ff412926cc7b54228a1367f41d409feea"
+        },
+        "oil/kernel/base/Servants.lua": {
+          "sha256": "18eb9afac5cb4ad1b71a8e27332872caba2edfc03e75f57472f31d33dabc5edd",
+          "size": 6402,
+          "url": "blob:18eb9afac5cb4ad1b71a8e27332872caba2edfc03e75f57472f31d33dabc5edd"
+        },
+        "oil/kernel/base/Sockets.lua": {
+          "sha256": "395088954288982cf06d231188112f1720933fd60d66d1646725ddfd143202c0",
+          "size": 1608,
+          "url": "blob:395088954288982cf06d231188112f1720933fd60d66d1646725ddfd143202c0"
+        },
+        "oil/kernel/cooperative/Receiver.lua": {
+          "sha256": "6ae43da9a3a62936869223c77f98230d68fe836568d07c3f7e71473ae26efa2c",
+          "size": 5380,
+          "url": "blob:6ae43da9a3a62936869223c77f98230d68fe836568d07c3f7e71473ae26efa2c"
+        },
+        "oil/kernel/intercepted/Listener.lua": {
+          "sha256": "1d6fa0f8cd0d064026f721ee9e72d31edd9e0d4f8698742d3a66908b203d2bd9",
+          "size": 1753,
+          "url": "blob:1d6fa0f8cd0d064026f721ee9e72d31edd9e0d4f8698742d3a66908b203d2bd9"
+        },
+        "oil/kernel/intercepted/Requester.lua": {
+          "sha256": "907e38125708689bd928c60352cf77084944a7b99ec6aa3009e4522d25ba3012",
+          "size": 2038,
+          "url": "blob:907e38125708689bd928c60352cf77084944a7b99ec6aa3009e4522d25ba3012"
+        },
+        "oil/kernel/lua/Dispatcher.lua": {
+          "sha256": "280db089d56eb2e9c3c7bc485a455904d5ef794a78487bc41d4792ef7bb2f1fd",
+          "size": 3727,
+          "url": "blob:280db089d56eb2e9c3c7bc485a455904d5ef794a78487bc41d4792ef7bb2f1fd"
+        },
+        "oil/kernel/lua/Proxies.lua": {
+          "sha256": "983856d8f6bd17b6de44c778dc3f417d2af44b6f6061c398d08ac0fbf571ee81",
+          "size": 2524,
+          "url": "blob:983856d8f6bd17b6de44c778dc3f417d2af44b6f6061c398d08ac0fbf571ee81"
+        },
+        "oil/kernel/typed/Dispatcher.lua": {
+          "sha256": "4db361c3d77e18befba3494709fde9273c0cb313021d00cfe33ff3a350b838ca",
+          "size": 4056,
+          "url": "blob:4db361c3d77e18befba3494709fde9273c0cb313021d00cfe33ff3a350b838ca"
+        },
+        "oil/kernel/typed/Proxies.lua": {
+          "sha256": "fa20f21dd6efe811920a147d48d9bc99ca2dc141da7d8f3d9e9333aef992cce9",
+          "size": 6481,
+          "url": "blob:fa20f21dd6efe811920a147d48d9bc99ca2dc141da7d8f3d9e9333aef992cce9"
+        },
+        "oil/kernel/typed/Servants.lua": {
+          "sha256": "5de0b886b2675cc075b068b7fb800c9c1313b46510e7c31df306e4cf929d4f58",
+          "size": 4696,
+          "url": "blob:5de0b886b2675cc075b068b7fb800c9c1313b46510e7c31df306e4cf929d4f58"
+        },
+        "oil/ludo/Codec.lua": {
+          "sha256": "cc2348d0af551f2691d753604f25f7ac691ddba2bfda9f4daf2dbbb018392b98",
+          "size": 2603,
+          "url": "blob:cc2348d0af551f2691d753604f25f7ac691ddba2bfda9f4daf2dbbb018392b98"
+        },
+        "oil/ludo/CodecByRef.lua": {
+          "sha256": "ac5a50411e7bf048d301db5b1466dafde6bb6b426fb505dba2c6e6014679546d",
+          "size": 4430,
+          "url": "blob:ac5a50411e7bf048d301db5b1466dafde6bb6b426fb505dba2c6e6014679546d"
+        },
+        "oil/ludo/Listener.lua": {
+          "sha256": "d845b5b4bb8b83d18d51a0d5ff8a6a8d0f734dbeeeda3e29843a958d0eb4b63d",
+          "size": 5508,
+          "url": "blob:d845b5b4bb8b83d18d51a0d5ff8a6a8d0f734dbeeeda3e29843a958d0eb4b63d"
+        },
+        "oil/ludo/Referrer.lua": {
+          "sha256": "f21d13663910b32e503ac99268c412dab4f819d3eb08019bde9340c600503808",
+          "size": 2797,
+          "url": "blob:f21d13663910b32e503ac99268c412dab4f819d3eb08019bde9340c600503808"
+        },
+        "oil/ludo/Requester.lua": {
+          "sha256": "263540dc2d8f0eacb1027de5fbab435639324f7e30b7b5d449115f3bf34b937b",
+          "size": 3810,
+          "url": "blob:263540dc2d8f0eacb1027de5fbab435639324f7e30b7b5d449115f3bf34b937b"
+        },
+        "oil/oo.lua": {
+          "sha256": "c251d3aef20b2c3a9ddd673040ffdb3c188dd43899e24256ade2dc65300f9258",
+          "size": 50,
+          "url": "blob:c251d3aef20b2c3a9ddd673040ffdb3c188dd43899e24256ade2dc65300f9258"
+        },
+        "oil/port.lua": {
+          "sha256": "203153893937486fa84fd523a9a3bff328e880bf727cfe97dd34c02e1264daa6",
+          "size": 58,
+          "url": "blob:203153893937486fa84fd523a9a3bff328e880bf727cfe97dd34c02e1264daa6"
+        },
+        "oil/properties.lua": {
+          "sha256": "88cf396c8f21150983c83401c8adde6460db8944f26506abe369a8f4ba86039e",
+          "size": 2776,
+          "url": "blob:88cf396c8f21150983c83401c8adde6460db8944f26506abe369a8f4ba86039e"
+        },
+        "oil/verbose.lua": {
+          "sha256": "23f15f610ecec3219a2d00d52a2f31b497564290e487d10c7facc9c4cbb17791",
+          "size": 4468,
+          "url": "blob:23f15f610ecec3219a2d00d52a2f31b497564290e487d10c7facc9c4cbb17791"
+        }
+      },
+      "homepage": "http://www.tecgraf.puc-rio.br/~maia/oil",
+      "license": "MIT/X11",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 03:06:52 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 03:06:52 GMT",
+          "sha256": "6c5767fa75eff09157d6be34eddf1ad5f7321ab0a5e0d1e3617d8be61a9db8d3",
+          "size": 8444
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 03:06:53 GMT",
+          "sha256": "414bc29e9031c70284d43d550ed559a7e4ad41668a3872e3452a42f8182d6b79",
+          "size": 475020,
+          "url": "https://luarocks.org/oil-0.5-2.src.rock"
+        }
+      },
+      "modules": [
+        "oil",
+        "oil.Exception",
+        "oil.arch",
+        "oil.arch.basic.client",
+        "oil.arch.basic.common",
+        "oil.arch.basic.server",
+        "oil.arch.cooperative.common",
+        "oil.arch.cooperative.server",
+        "oil.arch.corba.client",
+        "oil.arch.corba.common",
+        "oil.arch.corba.intercepted.client",
+        "oil.arch.corba.intercepted.server",
+        "oil.arch.corba.server",
+        "oil.arch.ludo.byref",
+        "oil.arch.ludo.client",
+        "oil.arch.ludo.common",
+        "oil.arch.ludo.server",
+        "oil.arch.typed.client",
+        "oil.arch.typed.common",
+        "oil.arch.typed.server",
+        "oil.assert",
+        "oil.bit",
+        "oil.builder",
+        "oil.builder.basic.client",
+        "oil.builder.basic.common",
+        "oil.builder.basic.server",
+        "oil.builder.cooperative.common",
+        "oil.builder.cooperative.server",
+        "oil.builder.corba.client",
+        "oil.builder.corba.common",
+        "oil.builder.corba.gencode",
+        "oil.builder.corba.intercepted.client",
+        "oil.builder.corba.intercepted.server",
+        "oil.builder.corba.server",
+        "oil.builder.lua.client",
+        "oil.builder.lua.server",
+        "oil.builder.ludo.byref",
+        "oil.builder.ludo.client",
+        "oil.builder.ludo.common",
+        "oil.builder.ludo.server",
+        "oil.builder.typed.client",
+        "oil.builder.typed.server",
+        "oil.component",
+        "oil.corba.giop",
+        "oil.corba.giop.Codec",
+        "oil.corba.giop.CodecGen",
+        "oil.corba.giop.Exception",
+        "oil.corba.giop.Indexer",
+        "oil.corba.giop.Listener",
+        "oil.corba.giop.Messenger",
+        "oil.corba.giop.Referrer",
+        "oil.corba.giop.Requester",
+        "oil.corba.idl",
+        "oil.corba.idl.Compiler",
+        "oil.corba.idl.Importer",
+        "oil.corba.idl.Indexer",
+        "oil.corba.idl.Registry",
+        "oil.corba.idl.ir",
+        "oil.corba.idl.sysex",
+        "oil.corba.iiop.Profiler",
+        "oil.corba.intercepted.Listener",
+        "oil.corba.intercepted.Requester",
+        "oil.corba.services.event",
+        "oil.corba.services.event.ConsumerAdmin",
+        "oil.corba.services.event.EventFactory",
+        "oil.corba.services.event.EventQueue",
+        "oil.corba.services.event.ProxyPushConsumer",
+        "oil.corba.services.event.ProxyPushSupplier",
+        "oil.corba.services.event.SingleDeferredDispatcher",
+        "oil.corba.services.event.SingleSynchronousDispatcher",
+        "oil.corba.services.event.SupplierAdmin",
+        "oil.corba.services.naming",
+        "oil.kernel.base.Acceptor",
+        "oil.kernel.base.Channels",
+        "oil.kernel.base.Connector",
+        "oil.kernel.base.Dispatcher",
+        "oil.kernel.base.Proxies",
+        "oil.kernel.base.Proxies.asynchronous",
+        "oil.kernel.base.Proxies.protected",
+        "oil.kernel.base.Proxies.synchronous",
+        "oil.kernel.base.Proxies.utils",
+        "oil.kernel.base.Receiver",
+        "oil.kernel.base.Servants",
+        "oil.kernel.base.Sockets",
+        "oil.kernel.cooperative.Receiver",
+        "oil.kernel.intercepted.Listener",
+        "oil.kernel.intercepted.Requester",
+        "oil.kernel.lua.Dispatcher",
+        "oil.kernel.lua.Proxies",
+        "oil.kernel.typed.Dispatcher",
+        "oil.kernel.typed.Proxies",
+        "oil.kernel.typed.Servants",
+        "oil.ludo.Codec",
+        "oil.ludo.CodecByRef",
+        "oil.ludo.Listener",
+        "oil.ludo.Referrer",
+        "oil.ludo.Requester",
+        "oil.oo",
+        "oil.port",
+        "oil.properties",
+        "oil.verbose"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "oil.bit",
+              "sources": [
+                "src/oilbit.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 03:06:53 GMT",
+        "sha256": "414bc29e9031c70284d43d550ed559a7e4ad41668a3872e3452a42f8182d6b79",
+        "size": 475020,
+        "type": "luarocks",
+        "url": "https://luarocks.org/oil-0.5-2.src.rock"
+      },
+      "size": 492695,
+      "summary": "An Object Request Broker in Lua",
+      "undeclared_requires": [
+        "socket.core"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

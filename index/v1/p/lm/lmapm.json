@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "lmapm",
+  "versions": {
+    "20120509-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lmapm",
+      "license": "Public domain",
+      "lua": "~> 5.2",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 02:36:08 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 02:36:08 GMT",
+          "sha256": "4085364c5c3b9e32256108a49989ecc6a6a093f177b8c810ba0b9e873e3a0c17",
+          "size": 998
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 02:36:09 GMT",
+          "sha256": "d7f49cfc256156275789f16ca85bc68c15e39d4039edf2d115f076b3d4f3455f",
+          "size": 5457,
+          "url": "https://luarocks.org/lmapm-20120509-1.src.rock"
+        }
+      },
+      "modules": [
+        "mapm"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "MAPM",
+          "platforms"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "MAPM": {
+              "header": "m_apm.h",
+              "library": "libmapm.a"
+            },
+            "platforms": []
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(MAPM_INCDIR)"
+              ],
+              "libdirs": [
+                "$(MAPM_LIBDIR)"
+              ],
+              "libraries": [
+                "mapm"
+              ],
+              "name": "mapm",
+              "sources": [
+                "lmapm.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "mapm"
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 02:36:09 GMT",
+        "sha256": "d7f49cfc256156275789f16ca85bc68c15e39d4039edf2d115f076b3d4f3455f",
+        "size": 5457,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lmapm-20120509-1.src.rock"
+      },
+      "summary": "A complete arbitrary precision library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

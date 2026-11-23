@@ -1,0 +1,241 @@
+local json = require "cjson"
+local jwt = require "resty.jwt"
+local http = require "resty.http"
+local split = require("pl.stringx").split
+local mint = require("kong.plugins.mithril.mint")
+local policy = require("kong.plugins.mithril.rate-limiting.policy")
+
+local kong = kong
+local issuer = "EHealth"
+
+local public_key = os.getenv("JWT_PUBLIC_KEY")
+local public_key_old = os.getenv("JWT_PUBLIC_KEY_OLD") or ""
+local apikey_url_template = os.getenv("APIKEY_URL_TEMPLATE")
+local abac_endpoint = os.getenv("ABAC_ENDPOINT")
+
+local function validate_scopes(required_scopes, available_scopes)
+  local missing_scopes = {}
+  for k, required_scope in pairs(required_scopes) do
+    local has_scope = false
+    for key, consumer_scope in pairs(available_scopes) do
+      if required_scope == consumer_scope then
+        has_scope = true
+        break
+      end
+    end
+    if not has_scope then
+      table.insert(missing_scopes, required_scope)
+    end
+  end
+
+  return missing_scopes
+end
+
+return {
+  check_abac_rule = function(rule, user_id, mis_client_id, person_id, details)
+    local abac = rule.abac
+    if abac then
+      local m, err = ngx.re.match(ngx.ctx.request_uri, abac.rule)
+      local args, err = ngx.req.get_uri_args()
+
+      -- Rule was found
+      if m then
+        local resource_id = m[abac.resource_id]
+        local resource_type = m[abac.resource]
+        resource_type = (resource_type and resource_type ~= "") and resource_type or abac.resource
+        local contexts = {}
+        local index = 1
+        for i, j in pairs(abac.contexts) do
+          -- if context is absent in uri, take it from query params
+          local context_id = m[j["id"]] or args[j["id"]]
+
+          if context_id ~= nil then
+            contexts[index] = {
+              type = j["name"],
+              id = context_id
+            }
+            index = index + 1
+          end
+        end
+
+        local request = {
+          type = abac.type,
+          consumer = {
+            user_id = user_id,
+            client_id = details.client_id,
+            mis_client_id = mis_client_id,
+            person_id = person_id
+          },
+          resource = {
+            action = abac.action,
+            type = resource_type,
+            id = resource_id
+          },
+          contexts = contexts
+        }
+
+        if abac.log_origin then
+          request.consumer.origin = kong.request.get_header("Origin")
+        end
+
+        local httpc = http.new()
+        local res, err =
+          httpc:request_uri(
+          abac_endpoint,
+          {
+            method = "POST",
+            body = json.encode(request),
+            headers = {
+              accept = "application/json",
+              ["Content-Type"] = "application/json",
+              ["x-request-id"] = kong.ctx.plugin.correlation_id
+            }
+          }
+        )
+
+        httpc:close()
+
+        if not res or res.status ~= 200 then
+          mint.send_error(403, "Access denied")
+          return ngx.exit(200)
+        end
+
+        local response = json.decode(res.body)
+        local result = response.data.result
+
+        if result == false then
+          mint.send_error(403, "Access denied")
+          return ngx.exit(200)
+        end
+      else
+        mint.send_error(401, "Abac rule was not found")
+        return ngx.exit(200)
+      end
+    end
+  end,
+  check_scopes = function(rule, scope, broker_scope, api_key_only)
+    if rule == nil then
+      mint.send_error(403, "ACL: No matching rule was found for path " .. ngx.ctx.route.paths[1])
+      return ngx.exit(200)
+    end
+
+    if scope == json.null or scope == nil or scope == "" then
+      mint.send_error(
+        403,
+        "Your scope does not allow to access this resource. Missing allowances: " .. table.concat(rule.scopes, ", ")
+      )
+      return ngx.exit(200)
+    end
+
+    local missing_scopes = validate_scopes(rule.scopes, split(scope, " "))
+    if #missing_scopes > 0 then
+      mint.send_error(
+        403,
+        "Your scope does not allow to access this resource. Missing allowances: " .. table.concat(missing_scopes, ", ")
+      )
+      return ngx.exit(200)
+    end
+
+    if broker_scope ~= nil and broker_scope ~= json.null and api_key_only == false then
+      local missing_scopes = validate_scopes(rule.scopes, split(broker_scope, " "))
+      if #missing_scopes > 0 then
+        mint.send_error(
+          403,
+          "Your scope does not allow to access this resource. Missing allowances: " .. table.concat(missing_scopes, ", ")
+        )
+        return ngx.exit(200)
+      end
+    end
+  end,
+  check_jwt_struct = function(jwt_obj)
+    if jwt_obj.payload.aud ~= issuer or jwt_obj.payload.iss ~= issuer or jwt_obj.payload.exp == nil or jwt_obj.payload.access_type == nil then
+      mint.send_error(401, "Access denied")
+      return ngx.exit(200)
+    end
+  end,
+  check_jwt_blacklist = function(conf, jwt_obj)
+    local red = policy.redis_connect(conf)
+    local client_id = jwt_obj.payload.client_id
+    local user_id = jwt_obj.payload.sub
+    local token_id = jwt_obj.payload.jti
+    local app_id = jwt_obj.payload.app_id
+
+    local key, count = string.gsub("blacklist_jti_{token_id}", "{token_id}", token_id)
+    local value, err = red:get(key)
+
+    if value == "1" then
+      mint.send_error(401, "Access denied")
+      policy.redis_disconnect(red)
+      return ngx.exit(200)
+    end
+
+    local key, count = string.gsub("blacklist_user_id_{user_id}", "{user_id}", user_id)
+    local value, err = red:get(key)
+
+    if value == "1" then
+      mint.send_error(401, "Access denied")
+      policy.redis_disconnect(red)
+      return ngx.exit(200)
+    end
+
+    local key, count = string.gsub("blacklist_client_id_{client_id}", "{client_id}", client_id)
+    local value, err = red:get(key)
+
+    if value == "1" then
+      mint.send_error(401, "Access denied")
+      policy.redis_disconnect(red)
+      return ngx.exit(200)
+    end
+
+    local key, count = string.gsub("blacklist_app_id_{app_id}", "{app_id}", app_id)
+    local value, err = red:get(key)
+
+    if value == "1" then
+      mint.send_error(401, "Access denied")
+      policy.redis_disconnect(red)
+      return ngx.exit(200)
+    end
+
+    local pattern = "blacklist_user_id_client_id_{user_id}_{client_id}"
+    local key, count = pattern:gsub("{([^{}]+)}", {["client_id"] = client_id, ["user_id"] = user_id})
+    local value, err = red:get(key)
+
+    if value == "1" then
+      mint.send_error(401, "Access denied")
+      policy.redis_disconnect(red)
+      return ngx.exit(200)
+    end
+
+    policy.redis_disconnect(red)
+  end,
+  verify_apikey = function(config, api_key)
+    local red = policy.redis_connect(config)
+
+    local key, count = string.gsub("apikey_{api_key}", "{api_key}", api_key)
+    local value, err = red:get(key)
+    policy.redis_disconnect(red)
+
+    if value == ngx.null then
+      local url = string.gsub(apikey_url_template, "{api_key}", api_key)
+      local res, err = mint.get(url, "Invalid api key")
+
+      return res, err
+    else
+      return {["body"] = value}, nil
+    end
+  end,
+  verify_jwt = function(bearer)
+    local jwt_obj = jwt:verify(public_key, bearer)
+
+    if jwt_obj.reason == "invalid jwt string" then
+      return jwt_obj
+    else
+      if jwt_obj.reason == "Verification failed" then
+        local jwt_obj = jwt:verify(public_key_old, bearer)
+        return jwt_obj
+      else
+        return jwt_obj
+      end
+    end
+  end
+}

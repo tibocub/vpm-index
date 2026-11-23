@@ -1,0 +1,85 @@
+-- metanil/nilleaf implement a recursive nil returner
+-- it lets you access any "children"
+-- when you finally __call it gives you the true answer (nil)
+local metanil = {
+	__call = function (self) return nil end,
+	__index = function (self) return self end,
+	__newindex = function () end, -- nil is read-only
+}
+local nilleaf = {}
+setmetatable(nilleaf, metanil)
+
+-- keys
+-- we use keys with '.' in them to make them otherwise inaccessible
+local keys = {
+	children = '.children',
+	length = '.len',
+	value = '.value',
+}
+
+-- we use '.value' and so on because it's impossible to select normally
+local meta = {
+	__newindex = function () end, -- no assignments, sorry
+	__call = function (self) return rawget(self, keys.value) end,
+	__index = function (self, key)
+		local c = rawget(self, keys.children)
+		if c and c[key]
+			then return c[key]
+			else return nilleaf
+		end
+	end,
+	-- experimental
+	__len = function (self) -- note: only works in lua 5.2+
+		local l = rawget(self, keys.length)
+		if not l then -- populate
+			l = 0
+			for k, v in pairs(self) do
+				l = l + 1
+			end
+			rawset(self, keys.length, l)
+		end
+		return l
+	end,
+	__pairs = function (self)
+		local c = rawget(self, keys.children) or {}
+		return next, c, nil
+	end,
+}
+
+local function nextkey (k)
+	local next = string.find(k, '.', 1, true)
+	if next
+		then return k:sub(1, next-1), k:sub(next+1)
+		else return k
+	end
+end
+
+local function insert (k, v, out)
+	local next, rest = nextkey(k)
+
+	-- get children
+	if not rawget(out, keys.children) then rawset(out, keys.children, {}) end
+	local c = rawget(out, keys.children)
+
+	-- get next subsection
+	if not c[next] then
+		c[next] = {}
+		setmetatable(c[next], meta)
+	end
+	local n = c[next]
+
+	-- set the value or recurse deeper
+	if not rest
+		then rawset(n, keys.value, v)
+		else insert(rest, v, n)
+	end
+end
+
+return function (kv)
+	local out = {}
+	setmetatable(out, meta)
+	for k, v in pairs(kv) do
+		insert(k, v, out)
+	end
+	return out
+end

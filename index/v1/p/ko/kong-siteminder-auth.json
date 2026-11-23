@@ -1,0 +1,66 @@
+{
+  "kind": "lib",
+  "name": "kong-siteminder-auth",
+  "versions": {
+    "0.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-siteminder-auth/handler.lua": {
+          "sha256": "b2c292ea173a4f1ac20e9e8ce0559b3a549cd7be40c59d97887e335a6c03149e",
+          "size": 6260,
+          "url": "https://raw.githubusercontent.com/Optum/kong-siteminder-auth/9f0f094e21756c58aa793bd416f0f65a67d5eccf/src/handler.lua"
+        },
+        "kong/plugins/kong-siteminder-auth/schema.lua": {
+          "sha256": "0d325971463cea0e0f95bca86bb805a0a6133d195c727dc7b4a902df95a8afef",
+          "size": 724,
+          "url": "https://raw.githubusercontent.com/Optum/kong-siteminder-auth/9f0f094e21756c58aa793bd416f0f65a67d5eccf/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/Optum/kong-siteminder-auth",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Wed, 30 Sep 2020 04:58:54 GMT",
+        "rockspec": {
+          "date": "Wed, 30 Sep 2020 04:58:54 GMT",
+          "sha256": "ccdc57400ae75e1be4d46763fa6910469f48e87e88ed6c76d2f3597583373d09",
+          "size": 793
+        },
+        "src": {
+          "date": "Wed, 30 Sep 2020 04:58:55 GMT",
+          "sha256": "87df2e22b7553d41651af41232322c5766da2352885c795704a2955b6166905f",
+          "size": 16236,
+          "url": "https://luarocks.org/kong-siteminder-auth-0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-siteminder-auth.handler",
+        "kong.plugins.kong-siteminder-auth.schema"
+      ],
+      "origin": {
+        "commit": "9f0f094e21756c58aa793bd416f0f65a67d5eccf",
+        "type": "git",
+        "url": "https://github.com/Optum/kong-siteminder-auth.git"
+      },
+      "size": 6984,
+      "summary": "Siteminder authentication integration with the Kong Gateway",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.cookie",
+        "resty.http",
+        "resty.mlcache",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

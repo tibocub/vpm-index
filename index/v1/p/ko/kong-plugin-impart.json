@@ -1,0 +1,109 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-impart",
+  "versions": {
+    "0.4.2-1": {
+      "bin": [],
+      "deps": [
+        "lua-cbor >= 1.0.0",
+        "luaposix >= 36.3, < 38"
+      ],
+      "files": {
+        "impart/sdk/client.lua": {
+          "sha256": "c0b2ec46e9836e2cdb6f04a209b264d968c029803fb28b28ec076d838c47e764",
+          "size": 5428,
+          "url": "blob:c0b2ec46e9836e2cdb6f04a209b264d968c029803fb28b28ec076d838c47e764"
+        },
+        "impart/sdk/conn.lua": {
+          "sha256": "a0a155f1dd68407581752ece80d5630bf42827f3085819bc5fc12dde7f55bc99",
+          "size": 4637,
+          "url": "blob:a0a155f1dd68407581752ece80d5630bf42827f3085819bc5fc12dde7f55bc99"
+        },
+        "impart/sdk/const.lua": {
+          "sha256": "a8d6249d30dc3516b44f398ad166e006d364be8d4bc20e056e68b53d90ecd99d",
+          "size": 263,
+          "url": "blob:a8d6249d30dc3516b44f398ad166e006d364be8d4bc20e056e68b53d90ecd99d"
+        },
+        "impart/sdk/init.lua": {
+          "sha256": "033141febc444f7492a3a3b134297a4f00b7447d3e3110e4577186c743d523ce",
+          "size": 648,
+          "url": "blob:033141febc444f7492a3a3b134297a4f00b7447d3e3110e4577186c743d523ce"
+        },
+        "impart/sdk/profiles.lua": {
+          "sha256": "b6cb08a117bd7ec5f0e455660e6c9f0482a8e5391b26725db453293a87c412c5",
+          "size": 8985,
+          "url": "blob:b6cb08a117bd7ec5f0e455660e6c9f0482a8e5391b26725db453293a87c412c5"
+        },
+        "impart/sdk/rpcmsgs.lua": {
+          "sha256": "9af00fd0d595599bb99b597fba74bac71e646577702bd76d760b9fa5cea76b10",
+          "size": 18796,
+          "url": "blob:9af00fd0d595599bb99b597fba74bac71e646577702bd76d760b9fa5cea76b10"
+        },
+        "impart/sdk/server_info.lua": {
+          "sha256": "060249616dcd2db5fdf0af7887b9905091220731fa6886a1e60020ebb18c9253",
+          "size": 4258,
+          "url": "blob:060249616dcd2db5fdf0af7887b9905091220731fa6886a1e60020ebb18c9253"
+        },
+        "kong/plugins/impart/handler.lua": {
+          "sha256": "1c3e9fd7043d2efd1d486b910588632f08106d8370840006adff703a8c657922",
+          "size": 29737,
+          "url": "blob:1c3e9fd7043d2efd1d486b910588632f08106d8370840006adff703a8c657922"
+        },
+        "kong/plugins/impart/schema.lua": {
+          "sha256": "a0ad3608d0f813b15f9305751ada843027e2121db15cff656f7fa07495b4725e",
+          "size": 2694,
+          "url": "blob:a0ad3608d0f813b15f9305751ada843027e2121db15cff656f7fa07495b4725e"
+        }
+      },
+      "homepage": "https://www.impart.security/",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "luarocks": {
+        "date": "Mon, 02 Nov 2026 23:33:26 GMT",
+        "rockspec": {
+          "date": "Mon, 02 Nov 2026 23:33:26 GMT",
+          "sha256": "9cab9e21977eddc878de32a608950430f322d6a113819c22c825914261054e17",
+          "size": 1508
+        },
+        "src": {
+          "date": "Mon, 02 Nov 2026 23:33:26 GMT",
+          "sha256": "8192dcdfc4ce8fc5189eb99bea006dfd69d4186244cf66394d9b83fa5a30654e",
+          "size": 28298,
+          "url": "https://luarocks.org/kong-plugin-impart-0.4.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "impart.sdk",
+        "impart.sdk.client",
+        "impart.sdk.conn",
+        "impart.sdk.const",
+        "impart.sdk.profiles",
+        "impart.sdk.rpcmsgs",
+        "impart.sdk.server_info",
+        "kong.plugins.impart.handler",
+        "kong.plugins.impart.schema"
+      ],
+      "origin": {
+        "sha256": "2ea0dbee5fda3259ff691de1e0ae6e17764128b9ccc5a71ddef78ea0240992be",
+        "type": "archive",
+        "url": "https://dl.impartsecurity.net/artifacts/plugins/kong/lua/0.4.2/artifacts/impart-0.4.2.tar.gz"
+      },
+      "size": 75446,
+      "summary": "Impart Security's Kong plugin.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "posix.sys.socket",
+        "posix.unistd"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

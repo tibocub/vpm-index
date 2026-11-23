@@ -1,0 +1,500 @@
+
+local cutils    = require "lrocket.cutils"
+local log       = require "lrocket.log"
+
+---@class lrocket.utils
+local utils = {}
+
+---@diagnostic disable-next-line: deprecated
+utils.unpack = table.unpack or unpack
+
+utils.pack = table.pack or function(...)
+	return {
+		n = select('#', ...),
+		...
+	}
+end
+
+utils.strtohex = cutils.strtohex
+
+utils.GLOB_MOD = {
+	["**"] = ".-",
+	["*"] = "[^.]-",
+	["?"] = ".",
+}
+
+local function addpats(tree, i, path, acc)
+	if not tree[i] then
+		acc[#acc+1] = table.concat(path)
+		return
+	end
+
+	local opt = tree[i]
+	for _, choice in ipairs(opt) do
+		path[i] = choice
+		addpats(tree, i+1, path, acc)
+		path[i] = nil
+	end
+end
+
+---@param glob string
+---@param conf table
+---@return fun(match: string): string?
+function utils.globpattern(glob, conf)
+	local patterns = {}
+	local tree = {}
+
+	local last = 1
+	for stop, choice_glob, start in glob:gmatch "()(%b{})()" do
+		---@cast stop -string
+		---@cast start -string
+
+		tree[#tree+1] = { glob:sub(last, stop) }
+		local choices = {}
+		for choice in choice_glob:sub(2, -2):gmatch "%f[^,%z][^,]*%f[,%z]" do
+			choices[#choices+1] = choice
+		end
+		tree[#tree+1] = choices
+		last = start
+	end
+	if last ~= #glob then
+		tree[#tree+1] = { glob:sub(last, -1) }
+	end
+
+	local patterns = {}
+	addpats(tree, 1, {}, patterns)
+
+	for _, glob in ipairs(patterns) do
+		patterns[_] = "^"..glob:gsub("%p", "%%%1"):gsub("%%%*%%%*", conf["**"]):gsub("%%%*", conf["*"]):gsub("%%%?", conf["?"]).."$"
+	end
+
+	return function(match)
+		for _, pat in ipairs(patterns) do
+			if match:find(pat) then
+				return match
+			end
+		end
+
+		return nil
+	end
+end
+
+function utils.trim(s, char)
+	return (s:gsub("^["..char.."]+", ""):gsub("["..char.."]+$", ""))
+end
+
+function utils.movefirst(t, n)
+	table.insert(table.remove(t, n), 1)
+end
+
+function utils.lookuptable(t)
+	local res = {}
+
+	for value, keys in pairs(t) do
+		for _, key in ipairs(keys) do
+			res[key] = value
+		end
+	end
+
+	return res
+end
+
+function utils.deduplicatepaths(t)
+	local duplicates = {}
+	for i = #t, 1, -1 do
+		local item = t[i]
+		if duplicates[item:lower()] then
+			table.remove(t, i)
+		end
+		duplicates[item:lower()] = true
+	end
+end
+
+function utils.spairs(t, f)
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0
+    local iter = function()
+        i = i + 1
+        if a[i] == nil then return nil
+        else return a[i], t[a[i]]
+        end
+    end
+    return iter
+end
+
+local colors = log.colors
+
+---@param type string
+---@param t table<string, any>
+---@param isopt table<any, boolean>
+function utils.printmods(type, t, isopt)
+	if not t or next(t) == nil or next(t) == '<main>' and not next(t, '<main>') then
+		return
+	end
+
+	local max = 0
+	local prevroot
+	local commissions = {}
+	for modname in pairs(t) do
+		max = math.max(#modname, max)
+	end
+	log.info(type:match "^:(.*)$" or ("Found "..type.." modules"))
+	for k, v in utils.spairs(t) do
+		if k ~= '<main>' then
+			local root, rest = k:match('^([^.]+)(.*)$')
+
+			local color = isopt[k] and colors.blue or colors.green
+
+			if type ~= 'Shared' and type ~= 'Static' and type ~= 'Optional' and log.level == 3 then
+				if prevroot ~= root then
+					if prevroot then
+						if #commissions > 0 then
+							log.infof(colors.gray..' (%s)'..colors.reset, table.concat(commissions, ', '))
+						end
+						log.info()
+					end
+					prevroot = root
+					commissions = {}
+					log.infof('\t%s', color..root..colors.reset)
+				end
+				if #rest > 0 then
+					commissions[#commissions+1] = rest:sub(2)
+				end
+			else
+				log.infof('\t%s', color..root..colors.reset..rest)
+				if _G.type(v) == 'string' then
+					log.infof(colors.gray..' (%s)'..colors.reset, v)
+				end
+				log.info()
+			end
+		end
+	end
+	if prevroot then
+		if #commissions > 0 then
+			log.infof(colors.gray..' (%s)'..colors.reset, table.concat(commissions, ', '))
+		end
+		log.info()
+	end
+	log.info()
+end
+
+function utils.reverse(t)
+	local r = {}
+	for i = #t, 1, -1 do
+		r[#r+1] = t[i]
+	end
+	return r
+end
+
+---@generic T
+---@param o T
+---@param recs table?
+---@return T
+function utils.clone(o, recs)
+	recs = recs or {}
+
+	if type(o) ~= 'table' then
+		return o
+	elseif recs[o] then
+		return recs[o]
+	end
+
+	local c = {}
+	recs[o] = c
+
+	for k,v in pairs(o) do
+		c[utils.clone(k, recs)] = utils.clone(v, recs)
+	end
+
+	setmetatable(c, utils.clone(getmetatable(o), recs))
+
+	return c
+end
+
+local zones = {}
+
+local running = {}
+
+local assert, clock = assert, os.clock
+function utils.startzone(name)
+	assert(not running[name])
+	running[name] = clock()
+end
+
+function utils.finishzone(name)
+	zones[name] = (zones[name] or 0) + (clock() - running[name])
+	running[name] = nil
+end
+
+local units = {
+	"s",
+	"ms",
+	"µs",
+	"ns",
+}
+
+local function hrtime(dur)
+	for i, unit in ipairs(units) do
+		local shifted = dur * 10^((i-1) * 3)
+		if shifted > 2 then
+			if i == 1 then
+				return string.format("%.1fs", shifted)
+			else
+				return math.floor(shifted+0.5)..unit
+			end
+		end
+	end
+
+	return "-"
+end
+
+function utils.showzones()
+	utils.finishzone 'total'
+
+	print "Timings:"
+	local n = 0
+	for k in pairs(zones) do n = math.max(n, #k) end
+	for name, duration in utils.spairs(zones) do
+		print(string.format("\t%-"..n.."s: %7s (%6.2f%%)", name, hrtime(duration), duration / zones.total * 100))
+	end
+end
+
+local function wrap(f, zone)
+	return function(...)
+		utils.startzone(zone)
+		local result = utils.pack(f(...))
+		utils.finishzone(zone)
+		return utils.unpack(result, 1, result.n)
+	end
+end
+
+local function findfirst(...)
+	for i = 1, select('#', ...) do
+		local val = select(i, ...)
+		if type(val) == 'string' then
+			return val:match "^%s*(%S+)" or "<unknown>"
+		elseif type(val) == 'table' then
+			for j = 1, #val do
+				local first = findfirst(val[j])
+				if first then
+					return first
+				end
+			end
+		end
+	end
+
+	return "<unknown>"
+end
+
+local function wrap2(f, zone)
+	return function(...)
+		local subzone = zone..findfirst(...)
+		utils.startzone(zone.."<total>")
+		utils.startzone(subzone)
+		local result = utils.pack(f(...))
+		utils.finishzone(subzone)
+		utils.finishzone(zone.."<total>")
+		return utils.unpack(result, 1, result.n)
+	end
+end
+
+function utils.setupmeasurements()
+	local sfs = require 'sfs'
+	local native_ok, native = pcall(require, 'lrocket.native')
+	if native_ok then
+		native.strtohex = wrap(native.strtohex, 'strtohex')
+	end
+	for _, name in ipairs { 'read', 'write' } do
+		sfs[name] = wrap(sfs[name], 'read_write')
+	end
+
+	for _, name in ipairs { 'exec', 'popen', 'shellout', 'shellin' } do
+		sfs[name] = wrap2(sfs[name], '[sh] ')
+	end
+
+	for k, v in pairs(require 'lrocket.build') do
+		if v.generate then
+			v.generate = wrap(v.generate, 'build/'..k)
+		end
+	end
+
+	utils.startzone 'total'
+end
+
+local BYTEUNITS = {
+	'  B',
+	'KiB',
+	'MiB',
+	'GiB', -- Whoaa
+	'TiB', -- That's quite big, impressive!
+	'PiB', -- We are flattered :D
+	'EiB', -- Back to the future 4!
+}
+
+local customfmt = {
+	b = function (bytes)
+		for i, unit in ipairs(BYTEUNITS) do
+			if bytes * 10^(-i*3) < 1 or i == #BYTEUNITS then
+				return i == 1 and tostring(bytes).." "..unit or string.format("%.1f %s", bytes * 2^(-(i-1)*10), unit)
+			end
+		end
+		error 'bug in custom format function'
+	end,
+	d = function (date, fmt)
+		return os.date(fmt:match "%b{}":sub(2, -2), date)
+	end,
+	["."] = function(dat) return tostring(dat) end
+}
+
+local Table = {} do
+	Table.__index = Table
+
+	function Table:header(...)
+		self._header = { ... }
+		self._maxn = {}
+		for _, head in ipairs(self._header) do
+			self._maxn[head] = #head
+		end
+	end
+
+	function Table:format(fmt)
+		self._fmt = fmt
+	end
+
+	function Table:_format(k, val)
+		if not val then return '-' end
+
+		local fmt = (self._fmt[k] or "."):match "^%-?(.*)$"
+
+		local spec = fmt:match "%a"
+		if customfmt[spec] and spec ~= 'd' or fmt:find("%d{", 1, true) then
+			return customfmt[fmt:match "%a"](val, fmt)
+		end
+
+		return string.format(fmt, val)
+	end
+
+	function Table:entry(entry)
+		self[#self+1] = entry
+		for k, v in pairs(entry) do
+			self._maxn[k] = math.max(#self:_format(k, v), self._maxn[k] or 0)
+		end
+	end
+
+	function Table:__tostring()
+		local res = {}
+
+		for i, name in ipairs(self._header) do
+			if i ~= 1 then
+				res[#res+1] = ' '
+			end
+
+			local head, pad = log.colors.bright..name..log.colors.reset, string.rep(' ', self._maxn[name] - #name)
+
+			if self._fmt[name]:sub(1, 1) == '-' then
+				head, pad = pad, head
+			end
+
+			res[#res+1] = pad
+			res[#res+1] = head
+		end
+		res[#res+1] = '\n'
+		for _, entry in ipairs(self) do
+			for i, name in ipairs(self._header) do
+				local formatted = self:_format(name, entry[name])
+				if i ~= 1 then
+					res[#res+1] = ' '
+				end
+				local pad = string.rep(' ', self._maxn[name] - #formatted)
+				if self._fmt[name]:sub(1, 1) == '-' then
+					pad, formatted = formatted, pad
+				end
+				res[#res+1] = pad
+				res[#res+1] = formatted
+			end
+			res[#res+1] = '\n'
+		end
+
+		return table.concat(res)
+	end
+end
+
+function utils.newtable(...)
+	local tbl = setmetatable({}, Table)
+	tbl:header(...)
+	return tbl
+end
+
+---@diagnostic disable-next-line: deprecated
+local unpack = table.unpack or unpack
+
+function utils.patterns(str, ...)
+	local pats = {...}
+	return coroutine.wrap(function()
+		for _, pattern in ipairs(pats) do
+			local f = string.gmatch(str, pattern)
+			while true do
+				local items = { f() }
+				if #items == 0 then break end
+				coroutine.yield(unpack(items))
+			end
+		end
+	end)
+end
+
+--- Tries to match in order
+---@param str string
+---@param i integer
+---@param ... string
+---@return string?
+---@return integer
+function utils.matchpatterns(str, i, ...)
+	for _, pat in ipairs { ... } do
+		local item = str:match('^'..pat, i)
+		if item then
+			return item, i + #item
+		end
+	end
+	return nil, i
+end
+
+function utils.inherit(mod, parent)
+	return setmetatable(mod, { __index = parent, __newindex = parent })
+end
+
+---@param v lrocket.boolean?
+---@param default boolean?
+---@return boolean
+function utils.boolean(v, default)
+	if v == nil then
+		if default == nil then
+			default = false
+		end
+		return default
+	end
+
+	if v == 'yes' or v == true then
+		return true
+	else
+		return false
+	end
+end
+
+function utils.findmodule(modname)
+	---@diagnostic disable-next-line
+	for _, searcher in ipairs(package.searchers or package.loaders) do
+		local mod = searcher(modname)
+		if type(mod) == 'function' then
+			if not package.preload[modname] and not package.loaded[modname] then
+				package.preload[modname] = mod
+			end
+			return true
+		end
+	end
+
+	return false
+end
+
+return utils

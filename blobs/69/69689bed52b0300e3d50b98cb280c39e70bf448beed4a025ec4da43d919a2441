@@ -1,0 +1,43 @@
+return {
+    discovery = [[MCP code mode (also available to child agents)
+mcp.servers() -> array {name,transport,mode,era,version,state,auth?,error,notification_warning?,tools,prompts,resources,templates,stderr}
+Transport is stdio or an HTTP URL. HTTP uses modern 2026-07-28 POST with JSON/SSE, falling back to supported legacy session revisions (2025-11-25, 2025-06-18, or 2025-03-26); it requires panto's POST/streaming http_request API. Configure url, optional static headers, and auth = "<session>" on the server. Valid HTTP tool schemas may annotate primitive parameters with x-mcp-header; matching values are mirrored as safe Mcp-Param-* headers, and tools with invalid annotations are excluded. Secrets should use named auth; headers are never shown by status.
+mcp.search(query?, {server?,limit?}) -> {hits,total,instructions?,servers}, or nil,error.
+Search warm metadata without starting servers. Cold catalogs wait for bounded startup.
+Hits are tools/resources/templates, with server, name, description and full inputSchema.
+Search is the default exposure mode; `expose = "eager"` opts in to cached
+`mcp.<server>.<tool>` tools at activation and cold-catalog reconciliation.
+Eager tool names are sanitized, stable per MCP name, and capped at 64 provider-wire bytes. Older panto
+builds without dynamic tool registration fall back to search mode.
+Use exact server/tool names from search; calls never execute fuzzy matches.
+return mcp.search("read file", {server="fs",limit=5})]],
+    auth = [[HTTP OAuth: /mcp-login <server> [callback-url | --reregister]; /mcp shows status. Preparation is async; explicit auth wins.
+Optional oauth.issuer pins discovery; client_id requires it. Public DCR registrations survive failures; --reregister explicitly replaces one. Sessions use SHA-256 identity hashes.
+401 refreshes once (parallel calls wait); scope consent keeps working tokens usable. See README for storage, recovery and provider limits.]],
+    calls = [[mcp.call(server,tool,input?) -> {text,attachments,structured?,is_error}.
+Validates against LIVE inputSchema after lazy connection; failed servers retry next use.
+Validation failures include validation_errors and schema. Attachments contain raw data bytes
+and media_type. Output text is capped at 100 KiB with a truncation marker; images are
+capped at 5 MiB each / 10 MiB total. RPC/tool/input_required failures set is_error=true.
+local h1=mcp.start("fs","read_text_file",{path="/allowed/a"})
+local h2=mcp.start("fs","read_text_file",{path="/allowed/b"})
+return {h1:await(), h2:await()}
+A start handle also supports :cancel(); :await() returns nil,error on cancellation.
+Await only from the std.lua script coroutine, never from a non-yielding TUI callback.
+No polling or sleeps. Calls time out at the configured deadline; progress never extends it.]],
+    resources = [[mcp.read_resource(server,uri) -> same mapped result as mcp.call.
+A resource_link names its originating server: read there, not with web.fetch.
+Fill resource template variables to form a concrete URI before reading.
+return mcp.read_resource("catalog", "docs://guide")
+No subscriptions; resources/list and resources/templates/list are cached/searchable.]],
+    prompts = [[mcp.prompts(server) -> prompt definitions, or nil,error.
+mcp.prompt(server,name,args?) -> messages [{role,content}], or nil,error.
+Args must be string-valued. These namespace methods return data only.
+Each prompt is also registered as `/mcp:<server>:<prompt>`; pass `name=value`
+tokens with shell-style quoting, or a single raw trimmed remainder when no
+matching `name=` token appears. Prompts with slash/whitespace names are skipped
+and shown in `/mcp` warnings. Commands return immediately; asynchronous failures
+show above the input until the next command or turn. A trailing user message is submitted;
+an assistant tail is appended and wakes idle conversation sync without a turn.
+Messages retain user/assistant roles, and media is text for assistant or unsupported image/non-image content.]],
+}

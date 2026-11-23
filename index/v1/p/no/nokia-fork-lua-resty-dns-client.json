@@ -1,0 +1,95 @@
+{
+  "kind": "lib",
+  "name": "nokia-fork-lua-resty-dns-client",
+  "versions": {
+    "3.0.2-1": {
+      "bin": [],
+      "deps": [
+        "penlight > 1.1, < 2.0",
+        "lrandom",
+        "lua-resty-timer < 1.0",
+        "binaryheap >= 0.4"
+      ],
+      "files": {
+        "resty/dns/balancer/base.lua": {
+          "sha256": "5da2012dc54f3937f3b3a0d8e9d74dec70e6fa2e1ad8a90988b9a50555a9337d",
+          "size": 48578,
+          "url": "https://raw.githubusercontent.com/nokia/lua-resty-dns-client/v3.0.2-nokia-1/src/resty/dns/balancer/base.lua"
+        },
+        "resty/dns/balancer/handle.lua": {
+          "sha256": "15ee44eb1b3e57c8b90f2897653ef044f79439b7b4b3656dd16289f3bf019a44",
+          "size": 3742,
+          "url": "https://raw.githubusercontent.com/nokia/lua-resty-dns-client/v3.0.2-nokia-1/src/resty/dns/balancer/handle.lua"
+        },
+        "resty/dns/balancer/least_connections.lua": {
+          "sha256": "27eb06ed1c9ee5115a0ed68592d219e6d26f6029c8c6e2f6c0bec32393b24f35",
+          "size": 7398,
+          "url": "https://raw.githubusercontent.com/nokia/lua-resty-dns-client/v3.0.2-nokia-1/src/resty/dns/balancer/least_connections.lua"
+        },
+        "resty/dns/balancer/ring.lua": {
+          "sha256": "dbecb7032c87048ededb651e414a3808cb7fa7415dbddd31a5e6863f173a19de",
+          "size": 17610,
+          "url": "https://raw.githubusercontent.com/nokia/lua-resty-dns-client/v3.0.2-nokia-1/src/resty/dns/balancer/ring.lua"
+        },
+        "resty/dns/client.lua": {
+          "sha256": "6f054fda85061fdeb8845d9568dcd5bb334d3b545cbad07d7cc9a4c21ae62fbd",
+          "size": 51098,
+          "url": "https://raw.githubusercontent.com/nokia/lua-resty-dns-client/v3.0.2-nokia-1/src/resty/dns/client.lua"
+        },
+        "resty/dns/utils.lua": {
+          "sha256": "d7dac20c198b0b81466443164dcaff369ca237ade8b3e85fc130b5b58a67cec2",
+          "size": 11891,
+          "url": "https://raw.githubusercontent.com/nokia/lua-resty-dns-client/v3.0.2-nokia-1/src/resty/dns/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/nokia/lua-resty-dns-client",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Mon, 03 Aug 2020 13:50:21 GMT",
+        "rockspec": {
+          "date": "Mon, 03 Aug 2020 13:50:21 GMT",
+          "sha256": "f3b7bae68363e5f695b64f7ab8e5d203e0f4cd8c94a3d379fe818825b65add5b",
+          "size": 1061
+        },
+        "src": {
+          "date": "Mon, 03 Aug 2020 13:50:23 GMT",
+          "sha256": "3b90ad7ab36bd619d37aa256161fe8b3c7ac8d30122f83d973e6b8beea890153",
+          "size": 98456,
+          "url": "https://luarocks.org/nokia-fork-lua-resty-dns-client-3.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.dns.balancer.base",
+        "resty.dns.balancer.handle",
+        "resty.dns.balancer.least_connections",
+        "resty.dns.balancer.ring",
+        "resty.dns.client",
+        "resty.dns.utils"
+      ],
+      "origin": {
+        "sha256": "5aeef7e815389fd158d8cc9302163ffd903ed3282547607422a3974f2acf7c1b",
+        "type": "archive",
+        "url": "https://github.com/nokia/lua-resty-dns-client/archive/v3.0.2-nokia-1.tar.gz"
+      },
+      "size": 140317,
+      "summary": "DNS library",
+      "undeclared_requires": [
+        "bit",
+        "ngx.semaphore",
+        "resty.dns.resolver",
+        "resty.lrucache"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

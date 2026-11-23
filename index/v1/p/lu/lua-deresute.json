@@ -1,0 +1,77 @@
+{
+  "kind": "app",
+  "name": "lua-deresute",
+  "versions": {
+    "0.0.2-1": {
+      "bin": {
+        "dere-mkconfig": "bin/dere-mkconfig"
+      },
+      "deps": [
+        "lua-cjson 2.1.0-1",
+        "luasocket",
+        "luasec",
+        "base64",
+        "lua-messagepack-lua53",
+        "openssl"
+      ],
+      "files": {
+        "bin/dere-mkconfig": {
+          "sha256": "e4a2ddf3b9ddab98467eb54d9468b5534e6649ef058eb409b4a6818f0e6c9899",
+          "size": 889,
+          "url": "https://raw.githubusercontent.com/Khronos31/lua-deresute/400e0cf472666d4fe2ed117b2a3386447c19877b/bin/dere-mkconfig.lua"
+        },
+        "deresute/api.lua": {
+          "sha256": "698217865c3b643073264f6740eb7dae9e7d841d3f636d8a4fbe5017384a4ce9",
+          "size": 3613,
+          "url": "https://raw.githubusercontent.com/Khronos31/lua-deresute/400e0cf472666d4fe2ed117b2a3386447c19877b/src/api.lua"
+        },
+        "deresute/util.lua": {
+          "sha256": "1b6170370593b1dd164e65181ae477bb23d84cb4dde8cbb9a0feff8f3048550e",
+          "size": 1712,
+          "url": "https://raw.githubusercontent.com/Khronos31/lua-deresute/400e0cf472666d4fe2ed117b2a3386447c19877b/src/util.lua"
+        }
+      },
+      "homepage": "https://github.com/Khronos31/lua-deresute",
+      "license": "MIT",
+      "lua": ">= 5.3",
+      "luarocks": {
+        "date": "Sun, 16 Jul 2023 17:35:26 GMT",
+        "rockspec": {
+          "date": "Sun, 16 Jul 2023 17:35:26 GMT",
+          "sha256": "a877542617093e1e18083cd32211c257992b6fb18a1b8899566ab6f098c4ac7e",
+          "size": 603
+        },
+        "src": {
+          "date": "Sun, 16 Jul 2023 17:35:27 GMT",
+          "sha256": "70e68b92f363348efdae246fd68f0e480868c49883403241895bdf17e04bcd34",
+          "size": 5925,
+          "url": "https://luarocks.org/lua-deresute-0.0.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "deresute.api",
+        "deresute.util"
+      ],
+      "origin": {
+        "commit": "400e0cf472666d4fe2ed117b2a3386447c19877b",
+        "ref": "v0.0.2",
+        "type": "git",
+        "url": "https://github.com/Khronos31/lua-deresute"
+      },
+      "size": 6214,
+      "undeclared_requires": [
+        "ltn12",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

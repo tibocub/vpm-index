@@ -1,0 +1,60 @@
+{
+  "kind": "lib",
+  "name": "kong-log-google",
+  "versions": {
+    "1.4-6": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/log-google/handler.lua": {
+          "sha256": "f15d4bebfdfd266674e46a08825a0aa0875114ab1ac3704fa43da4be2a84458c",
+          "size": 5718,
+          "url": "https://raw.githubusercontent.com/yesinteractive/kong-log-google/8725083d72dc07d602f14f38302a1fcf5ac4c34e/plugin/handler.lua"
+        },
+        "kong/plugins/log-google/schema.lua": {
+          "sha256": "d2bbb87a60b8061a54ecda1e0d84e970c691946bd0a83cd249340a2c46ef076d",
+          "size": 663,
+          "url": "https://raw.githubusercontent.com/yesinteractive/kong-log-google/8725083d72dc07d602f14f38302a1fcf5ac4c34e/plugin/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Fri, 10 Apr 2020 18:37:18 GMT",
+        "rockspec": {
+          "date": "Fri, 10 Apr 2020 18:37:18 GMT",
+          "sha256": "68b2d5cae5f72cbc78b22424ec73733628e7f82d107a63be2c882c0cec3c06e9",
+          "size": 457
+        }
+      },
+      "modules": [
+        "kong.plugins.log-google.handler",
+        "kong.plugins.log-google.schema"
+      ],
+      "origin": {
+        "commit": "8725083d72dc07d602f14f38302a1fcf5ac4c34e",
+        "type": "git",
+        "url": "https://github.com/yesinteractive/kong-log-google.git"
+      },
+      "size": 6381,
+      "summary": "Logs Kong gatway transactions to Google Analytics",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.log-serializers.basic",
+        "kong.tools.batch_queue",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.log-serializers.basic",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

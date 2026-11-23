@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "lua-webhook",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson",
+        "lua-resty-redis"
+      ],
+      "files": {
+        "lua_webhook/cors.lua": {
+          "sha256": "d9facfef7ba0c27bde43bf1848f64f340576c1148d4bd77eaef164640168e62c",
+          "size": 1244,
+          "url": "https://raw.githubusercontent.com/myrveln/lua-webhook/9a787773b71d9f53df6ee9814b8770e69b0f2c1c/lua_webhook/cors.lua"
+        },
+        "lua_webhook/redis_client.lua": {
+          "sha256": "22f55b71ea27140b493277b38698402da9e8d7ab348abb25a79456b85d26f345",
+          "size": 644,
+          "url": "https://raw.githubusercontent.com/myrveln/lua-webhook/9a787773b71d9f53df6ee9814b8770e69b0f2c1c/lua_webhook/redis_client.lua"
+        },
+        "lua_webhook/settings.lua": {
+          "sha256": "36d519856a950512bb2ab554c459f9b4250aa1f82025c48c2c6dac80dd3f99ce",
+          "size": 9974,
+          "url": "https://raw.githubusercontent.com/myrveln/lua-webhook/9a787773b71d9f53df6ee9814b8770e69b0f2c1c/lua_webhook/settings.lua"
+        },
+        "webhook.lua": {
+          "sha256": "1c33e9e61ba78ed4ad564fea72d94f634032451814e8adedf388548313c459c1",
+          "size": 83003,
+          "url": "https://raw.githubusercontent.com/myrveln/lua-webhook/9a787773b71d9f53df6ee9814b8770e69b0f2c1c/webhook.lua"
+        }
+      },
+      "homepage": "https://github.com/myrveln/lua-webhook",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 16 Mar 2026 21:29:20 GMT",
+        "rockspec": {
+          "date": "Mon, 16 Mar 2026 21:29:20 GMT",
+          "sha256": "27c9a7c7ab42b4d99e8ebc9262815056e8df8fb52269bd15c1aae4edd4de908c",
+          "size": 1021
+        },
+        "src": {
+          "date": "Mon, 16 Mar 2026 21:29:21 GMT",
+          "sha256": "9e5095a7ac634947d20255a82d1e815206d6cf3cd4034905c2d4fe8e44b1f785",
+          "size": 68418,
+          "url": "https://luarocks.org/lua-webhook-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "lua_webhook.cors",
+        "lua_webhook.redis_client",
+        "lua_webhook.settings",
+        "webhook"
+      ],
+      "origin": {
+        "commit": "9a787773b71d9f53df6ee9814b8770e69b0f2c1c",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/myrveln/lua-webhook.git"
+      },
+      "size": 94865,
+      "summary": "RESTful webhook storage service for OpenResty, backed by Valkey (or Redis)",
+      "undeclared_requires": [
+        "resty.websocket.server"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

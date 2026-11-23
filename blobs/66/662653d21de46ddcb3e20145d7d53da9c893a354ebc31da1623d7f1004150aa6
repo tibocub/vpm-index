@@ -1,0 +1,163 @@
+--A sub transformer.
+local SubTrans = {}
+SubTrans.__index = SubTrans
+package.loaded[...] = SubTrans
+
+--Constructor.
+--
+--@param trans:Trans  Parent transformer.
+function SubTrans.new(trans)
+  return setmetatable({
+    _ = {
+      trans = trans
+    }
+  }, SubTrans)
+end
+
+--Check whether the noParamCheck is enabled for all the code.
+function SubTrans:skipParamCheck()
+  return self._.trans:skipParamCheck()
+end
+
+--Raise an error.
+function SubTrans:_raise(msg, sent)
+  error(string.format(
+    "%s (%s, %s): %s",
+    self._.trans._.parser._.lexer._.file,
+    sent.line, sent.col,
+    msg
+  ))
+end
+
+--Last seed used.
+local lastSeed = os.time()
+
+--Return a random name.
+--
+--@return string
+function SubTrans._getRandomName()
+  lastSeed = math.random(1, lastSeed)
+  math.randomseed(lastSeed)
+  return "$aux" .. os.time() .. math.random(1, 10000)
+end
+
+--Return the visibility prefix for the specified visibility.
+function SubTrans:getVisibPrefix(visib)
+  return self._.trans:getVisibPrefix(visib)
+end
+
+--Transform a data access.
+--
+--@param def:DataAccess
+--@return string, string
+function SubTrans:_transDataAccess(def)
+  local prefix
+
+  if def.mod == "." then
+    prefix = "this."
+  elseif def.mod == ":" then
+    prefix = "this._"
+  else
+    prefix = ""
+  end
+
+  return prefix .. def.name:gsub(":", "._")
+end
+
+--Transform a data type.
+--
+--@param typ  The type object to transform.
+--@return an expression.
+function SubTrans:_transDataType(typ)
+  local function transKindEqMap(t)
+    --(1) transform
+    local code = 'dogma.intf("inline", {'
+
+    for i, fld in ipairs(t.fields) do
+      code = code .. (i > 1  and ", " or "") .. string.format(
+        "%s: {optional: %s, type: %s}",
+        fld.name,
+        not fld.mandatory,
+        fld.type and self:_transDataType(fld.type) or "null"
+      )
+    end
+
+    code = code .. '})'
+
+    --(2) return
+    return code
+  end
+
+  local function transKindEqBe(t)
+    local code
+
+    --(1) transform
+    if t.type.kind == "type" then
+      code = t.type.name
+    elseif t.type.kind == "value" then
+      local val = t.type.value
+      local typeName = type(val)
+
+      if typeName == "string" then
+        code = string.format('"%s"', val)
+      elseif typeName == "number" or typeName == "boolean" then
+        code = string.format("%s", val)
+      end
+    end
+
+    if t.type.min ~= nil then
+      code = string.format(
+        "dogma.TypeDef({name: 'inline', types: [%s], min: %s, max: %s})",
+        code,
+        t.type.min,
+        t.type.max or "null"
+      )
+    end
+
+    --(2) return
+    return code
+  end
+
+  local function transKindEqOneOf(t)
+    local code
+
+    --(1) transform
+    code = "["
+
+    for i, val in ipairs(t.types) do
+      if i > 1 then
+        code = code .. ", "
+      end
+
+      code = code .. self:_transDataType(val)
+    end
+
+    code = code .. "]"
+
+    if t.min ~= nil then
+      code = string.format(
+        "dogma.TypeDef({name: 'inline', types: %s, min: %s, max: %s})",
+        code,
+        t.min,
+        t.max or "null"
+      )
+    end
+
+    --(2) return
+    return code
+  end
+
+  --(1) transform
+  local code
+
+  if typ.kind == "map" then
+    code = transKindEqMap(typ)
+  elseif typ.kind == "be" then
+    code = transKindEqBe(typ)
+  elseif typ.kind == "oneOf" then
+    code = transKindEqOneOf(typ)
+  end
+
+  --(2) return
+  return code
+end

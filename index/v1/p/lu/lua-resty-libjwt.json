@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-libjwt",
+  "versions": {
+    "0.3.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-cjson >= 2.1.0.10-1"
+      ],
+      "files": {
+        "resty/libjwt/cached.lua": {
+          "sha256": "0675d0af1b6e14f48b16fa6013fa5929743bd80f319de6a4610f761d057b99b0",
+          "size": 724,
+          "url": "https://raw.githubusercontent.com/tsuru/lua-resty-libjwt/922abdbe61ba4e90ff10d9404edb46b72c980ed0/lib/resty/libjwt/cached.lua"
+        },
+        "resty/libjwt/decode.lua": {
+          "sha256": "a9e51e00b6e867b7c9c96750f3d0f0ec85f5711acc5d8198b70b0ab04099bedf",
+          "size": 1323,
+          "url": "https://raw.githubusercontent.com/tsuru/lua-resty-libjwt/922abdbe61ba4e90ff10d9404edb46b72c980ed0/lib/resty/libjwt/decode.lua"
+        },
+        "resty/libjwt/init.lua": {
+          "sha256": "3e41f43eb3c6dcb0ccfed8615f198f9d55530a4a1700deea57c2e8d8370d8019",
+          "size": 3875,
+          "url": "https://raw.githubusercontent.com/tsuru/lua-resty-libjwt/922abdbe61ba4e90ff10d9404edb46b72c980ed0/lib/resty/libjwt/init.lua"
+        },
+        "resty/libjwt/jwks_c.lua": {
+          "sha256": "af42ed138445fe249dbeb5ce6f3c9cfbe6d492b8fd350797f61daf0b07687eb9",
+          "size": 1818,
+          "url": "https://raw.githubusercontent.com/tsuru/lua-resty-libjwt/922abdbe61ba4e90ff10d9404edb46b72c980ed0/lib/resty/libjwt/jwks_c.lua"
+        },
+        "resty/libjwt/utils.lua": {
+          "sha256": "90b72fae7d650e7cec3384d63da274d2f58c903db8da768c457be0859eef7c5e",
+          "size": 4263,
+          "url": "https://raw.githubusercontent.com/tsuru/lua-resty-libjwt/922abdbe61ba4e90ff10d9404edb46b72c980ed0/lib/resty/libjwt/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/tsuru/lua-resty-libjwt",
+      "host": "openresty",
+      "license": "3-clause BSD",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Thu, 16 Oct 2025 18:43:43 GMT",
+        "rockspec": {
+          "date": "Thu, 16 Oct 2025 18:43:43 GMT",
+          "sha256": "d62a5e62acd070f9d677f6555a1e7a376074f2c39a7d52aa93077aaf6dc4713a",
+          "size": 793
+        },
+        "src": {
+          "date": "Thu, 16 Oct 2025 18:43:45 GMT",
+          "sha256": "7863d741a1ba1ae81a6c2c09a7c9c90382abb94c5c5906c63a7e44a4566e24b3",
+          "size": 35893,
+          "url": "https://luarocks.org/lua-resty-libjwt-0.3.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.libjwt",
+        "resty.libjwt.cached",
+        "resty.libjwt.decode",
+        "resty.libjwt.jwks_c",
+        "resty.libjwt.utils"
+      ],
+      "origin": {
+        "commit": "922abdbe61ba4e90ff10d9404edb46b72c980ed0",
+        "ref": "v0.3.0",
+        "type": "git",
+        "url": "https://github.com/tsuru/lua-resty-libjwt.git"
+      },
+      "size": 12003,
+      "summary": "Lua bindings to libjwt (https://github.com/benmcollins/libjwt) using FFI",
+      "undeclared_requires": [
+        "ngx.base64"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-http-to-https-redirect",
+  "versions": {
+    "0.13.1-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/aliyun-http-filter/handler.lua": {
+          "sha256": "08a8f8647dd458fcf2cde74cafec9cc944de82bbd0227868743e99b828f44c8f",
+          "size": 505,
+          "url": "https://raw.githubusercontent.com/HappyValleyIO/kong-http-to-https-redirect/84eaf3467234b4283aaac955c1852cae803f3d6f/src/handler.lua"
+        },
+        "kong/plugins/aliyun-http-filter/schema.lua": {
+          "sha256": "241546adb3b7469eca7d2b975e4f35cb1b5fb13a11a682a465fb7e9cac73a4ac",
+          "size": 50,
+          "url": "https://raw.githubusercontent.com/HappyValleyIO/kong-http-to-https-redirect/84eaf3467234b4283aaac955c1852cae803f3d6f/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/HappyValleyIO/kong-http-to-https-redirect",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sat, 12 May 2018 15:16:06 GMT",
+        "rockspec": {
+          "date": "Sat, 12 May 2018 15:16:06 GMT",
+          "sha256": "4cd924df8ed521c440d1eff094a2033f7dc47679d4ad0ccd63a9a368fa6bc445",
+          "size": 673
+        },
+        "src": {
+          "date": "Sat, 12 May 2018 15:16:08 GMT",
+          "sha256": "ced1f35babf9dd486cee374524844512917342c6e439bfa185faae1aefbc1f8a",
+          "size": 3801,
+          "url": "https://luarocks.org/kong-http-to-https-redirect-0.13.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.aliyun-http-filter.handler",
+        "kong.plugins.aliyun-http-filter.schema"
+      ],
+      "origin": {
+        "commit": "84eaf3467234b4283aaac955c1852cae803f3d6f",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/HappyValleyIO/kong-http-to-https-redirect"
+      },
+      "size": 555,
+      "summary": "A Kong plugin for redirecting HTTP traffic to HTTPS.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

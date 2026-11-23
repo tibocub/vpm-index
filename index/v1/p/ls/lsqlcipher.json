@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "lsqlcipher",
+  "versions": {
+    "0.9.5-3": {
+      "bin": [],
+      "deps": [
+        "sqlcipher"
+      ],
+      "files": [],
+      "homepage": "https://github.com/z7z8th/lsqlcipher",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Mon, 12 Apr 2021 08:36:33 GMT",
+        "rockspec": {
+          "date": "Mon, 12 Apr 2021 08:36:33 GMT",
+          "sha256": "84560f136e86bc9ab302b8735623710553a261a797dbba539824cacf3c0438b9",
+          "size": 1881
+        },
+        "src": {
+          "date": "Mon, 12 Apr 2021 08:36:37 GMT",
+          "sha256": "2fd57d7c2dcde3344c12045cdfd0d2672618d3b1893bf88228e41fbcbad60573",
+          "size": 2357219,
+          "url": "https://luarocks.org/lsqlcipher-0.9.5-3.src.rock"
+        }
+      },
+      "modules": [
+        "lsqlcipher"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "LSQLITE_VERSION=\"0.9.5\"",
+                "SQLITE_HAS_CODEC"
+              ],
+              "incdirs": [
+                "/opt/local/include/sqlcipher",
+                "/usr/local/include/sqlcipher"
+              ],
+              "libdirs": [
+                "/opt/local/lib",
+                "/usr/local/lib"
+              ],
+              "libraries": [
+                "sqlcipher"
+              ],
+              "name": "lsqlcipher",
+              "sources": [
+                "lsqlcipher.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 12 Apr 2021 08:36:37 GMT",
+        "sha256": "2fd57d7c2dcde3344c12045cdfd0d2672618d3b1893bf88228e41fbcbad60573",
+        "size": 2357219,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lsqlcipher-0.9.5-3.src.rock"
+      },
+      "summary": "A binding for Lua to the SQLite3+SQLCipher database library",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

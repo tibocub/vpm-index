@@ -1,0 +1,95 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-paseto",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "paseto >= 0.4.0"
+      ],
+      "files": {
+        "kong/plugins/paseto/api.lua": {
+          "sha256": "425afa85bc7e016592f8324606ea8e86bb591ef47af05443e5325171ef510c3b",
+          "size": 2506,
+          "url": "https://raw.githubusercontent.com/peter-evans/kong-plugin-paseto/543163eb421102697233a7954b176a744a3273c4/kong/plugins/paseto/api.lua"
+        },
+        "kong/plugins/paseto/daos.lua": {
+          "sha256": "d1accdc2806112cd1c90ff701c271af4dbced9400b961eafa7a8dbb01545a39f",
+          "size": 2386,
+          "url": "https://raw.githubusercontent.com/peter-evans/kong-plugin-paseto/543163eb421102697233a7954b176a744a3273c4/kong/plugins/paseto/daos.lua"
+        },
+        "kong/plugins/paseto/handler.lua": {
+          "sha256": "88eec478c95864dfceb14b2a2253a7679ce130948271b41ec770a05cd1f0cfd8",
+          "size": 5743,
+          "url": "https://raw.githubusercontent.com/peter-evans/kong-plugin-paseto/543163eb421102697233a7954b176a744a3273c4/kong/plugins/paseto/handler.lua"
+        },
+        "kong/plugins/paseto/migrations/cassandra.lua": {
+          "sha256": "b7d02ad15a74332a05c7abbea73a5fd367eab32718513163df76f2d41232427c",
+          "size": 465,
+          "url": "https://raw.githubusercontent.com/peter-evans/kong-plugin-paseto/543163eb421102697233a7954b176a744a3273c4/kong/plugins/paseto/migrations/cassandra.lua"
+        },
+        "kong/plugins/paseto/migrations/postgres.lua": {
+          "sha256": "25108433e4bdeb91a56c596a05ca6fa4ee7998904dc14a319293510037d97d9d",
+          "size": 809,
+          "url": "https://raw.githubusercontent.com/peter-evans/kong-plugin-paseto/543163eb421102697233a7954b176a744a3273c4/kong/plugins/paseto/migrations/postgres.lua"
+        },
+        "kong/plugins/paseto/schema.lua": {
+          "sha256": "0bb55c24542b1baddfd54e8f981b9bb5aef088701cab640f315b5ca7538b97ec",
+          "size": 912,
+          "url": "https://raw.githubusercontent.com/peter-evans/kong-plugin-paseto/543163eb421102697233a7954b176a744a3273c4/kong/plugins/paseto/schema.lua"
+        }
+      },
+      "homepage": "http://github.com/peter-evans/kong-plugin-paseto",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 05 Jul 2018 09:05:54 GMT",
+        "rockspec": {
+          "date": "Thu, 05 Jul 2018 09:05:54 GMT",
+          "sha256": "a4aa18a36e9adcb8afc9ad21f7a29e07f812673af1955c8ae72673e0dba1f12c",
+          "size": 1250
+        },
+        "src": {
+          "date": "Thu, 05 Jul 2018 09:05:55 GMT",
+          "sha256": "2662906b80923c16ff31fced13f5a566f4b4ff747458a53ac2e5641af3a0db92",
+          "size": 19828,
+          "url": "https://luarocks.org/kong-plugin-paseto-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.paseto.api",
+        "kong.plugins.paseto.daos",
+        "kong.plugins.paseto.handler",
+        "kong.plugins.paseto.migrations.cassandra",
+        "kong.plugins.paseto.migrations.postgres",
+        "kong.plugins.paseto.schema"
+      ],
+      "origin": {
+        "commit": "543163eb421102697233a7954b176a744a3273c4",
+        "ref": "0.1.0",
+        "type": "git",
+        "url": "https://github.com/peter-evans/kong-plugin-paseto"
+      },
+      "size": 12821,
+      "summary": "Kong plugin for PASETO (Platform-Agnostic Security Tokens)",
+      "undeclared_requires": [
+        "kong.api.crud_helpers",
+        "kong.constants",
+        "kong.dao.errors",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

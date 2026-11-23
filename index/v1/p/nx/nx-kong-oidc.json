@@ -1,0 +1,81 @@
+{
+  "kind": "lib",
+  "name": "nx-kong-oidc",
+  "versions": {
+    "0.0.1-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.6.1-1"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "1e714dd19e0802539afb534c2b83bcf1640b9a6d66ea29aa62b38e4c74ef67b6",
+          "size": 374,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc/712c1f51db602031af81a8ad4b84d0ac1a287706/kong/plugins/oidc/filter.lua"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "687172acbee7728ada2237d1f0d8a4af66fc5af20178a018ad9bf862ddfd8a0f",
+          "size": 2728,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc/712c1f51db602031af81a8ad4b84d0ac1a287706/kong/plugins/oidc/handler.lua"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "aa56befa0a40031a9841a38a6bfcfa2345c6a04f45035c09e178b82edbff9bc0",
+          "size": 1335,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc/712c1f51db602031af81a8ad4b84d0ac1a287706/kong/plugins/oidc/schema.lua"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "95dd1f6afd1d28eb8d04a84309b8d243a69acc01579bdb7d2bcd18a9faede5c4",
+          "size": 458,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc/712c1f51db602031af81a8ad4b84d0ac1a287706/kong/plugins/oidc/session.lua"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "0e4cb6ab9d376c1f11302af181268a523e35559f7f583a85228b814531f45ef3",
+          "size": 3244,
+          "url": "https://raw.githubusercontent.com/newtonx-inc/kong-oidc/712c1f51db602031af81a8ad4b84d0ac1a287706/kong/plugins/oidc/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/newtonx-inc/kong-oidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 09 Nov 2020 21:13:24 GMT",
+        "rockspec": {
+          "date": "Mon, 09 Nov 2020 21:13:24 GMT",
+          "sha256": "d23d399468a628d06ad3e79813944fa023f448512bd9eddeffd0664f8bf21960",
+          "size": 1725
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "commit": "712c1f51db602031af81a8ad4b84d0ac1a287706",
+        "ref": "v0.0.1",
+        "type": "git",
+        "url": "https://github.com/newtonx-inc/kong-oidc"
+      },
+      "size": 8139,
+      "summary": "A Kong plugin for implementing the OpenID Connect Relying Party (RP) functionality",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A literal XML element.
+local LiteralXml = {}
+LiteralXml.__index = LiteralXml
+setmetatable(LiteralXml, {__index = Terminal})
+package.loaded[...] = LiteralXml
+
+--Constructor.
+function LiteralXml.new(ln, col, element, props, content)
+  return setmetatable(Terminal.new(TerminalType.XML, {
+    line = ln,
+    col = col,
+    value = {
+      element = element,
+      props = props,
+      content = content
+    }
+  }), LiteralXml)
+end
+
+--@override
+function LiteralXml:__tostring()
+  local desc
+
+  desc = "<" .. self.data.element
+  for _, i in ipairs(self.data.props) do
+    if i.name then
+      desc = desc .. " " .. string.format("%s=(%s)", i.name, tostring(i.value))
+    else
+      desc = desc .. " ..." .. tostring(i.value)
+    end
+  end
+  desc = desc .. ">"
+  for _, exp in ipairs(self.data.content) do
+    desc = desc .. tostring(exp)
+  end
+  desc = desc .. "</" .. self.data.element .. ">"
+
+  return desc
+end

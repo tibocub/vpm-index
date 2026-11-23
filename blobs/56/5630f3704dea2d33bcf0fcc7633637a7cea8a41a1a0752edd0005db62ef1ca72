@@ -1,0 +1,162 @@
+local socket = require("socket")
+local json = require("cjson")
+
+local LobbySDK = {
+    _VERSION = "1.0.0",
+    _DESCRIPTION = "The lobby server SDK for Gas Station: The Night Shift",
+    _LICENSE = "MIT",
+    _URL = "https://github.com/GrapeAppleFruit/the-night-shift-sdk",
+    _DEPENDENCIES = {
+        "luasocket >= 3.0",
+        "lua-cjson >= 2.1"
+    }
+}
+
+local EventEmitter = {}
+function EventEmitter:new()
+    local obj = {
+        listeners = {}
+    }
+    setmetatable(obj, self)
+    self.__index = self
+    return obj
+end
+
+function EventEmitter:on(event, callback)
+    self.listeners[event] = self.listeners[event] or {}
+    table.insert(self.listeners[event], callback)
+end
+
+function EventEmitter:emit(event, ...)
+    if self.listeners[event] then
+        for _, callback in ipairs(self.listeners[event]) do
+            callback(...)
+        end
+    end
+end
+
+local SDK = EventEmitter:new()
+
+function SDK:initialize(config)
+    self.config = config or {}
+    self.server_url = config.server_url or "ws://localhost:8080"
+    self.auth_token = config.auth_token
+    self.connected = false
+    self.lobby_id = nil
+    self.player_id = nil
+    self.websocket = nil
+    return self
+end
+
+function SDK:connect()
+    local success, err = pcall(function()
+        self.websocket = socket.connect(self.server_url, 80)
+        if self.websocket then
+            self.connected = true
+            self:emit("connected")
+            self:_startPolling()
+        end
+    end)
+
+    if not success then
+        self:emit("error", err)
+    end
+end
+
+function SDK:createLobby(config)
+    self:_sendMessage({
+        type = "create_lobby",
+        config = config
+    })
+end
+
+function SDK:joinLobby(lobbyId)
+    self:_sendMessage({
+        type = "join_lobby",
+        lobby_id = lobbyId
+    })
+end
+
+function SDK:leaveLobby()
+    if not self.lobby_id then return end
+    
+    self:_sendMessage({
+        type = "leave_lobby",
+        lobby_id = self.lobby_id
+    })
+end
+
+function SDK:updatePlayerData(playerData)
+    self:_sendMessage({
+        type = "update_player",
+        player_data = playerData,
+        lobby_id = self.lobby_id
+    })
+end
+
+function SDK:updateLobbySettings(settings)
+    self:_sendMessage({
+        type = "update_lobby",
+        settings = settings,
+        lobby_id = self.lobby_id
+    })
+end
+
+function SDK:_sendMessage(data)
+    if not self.connected then
+        self:emit("error", "Not connected to server")
+        return
+    end
+
+    if self.auth_token then
+        data.auth_token = self.auth_token
+    end
+
+    local jsonStr = json.encode(data)
+    self.websocket:send(jsonStr .. "\n")
+end
+
+function SDK:_startPolling()
+    while self.connected do
+        local response = self.websocket:receive()
+        if response then
+            local success, data = pcall(json.decode, response)
+            if success then
+                self:_handleServerMessage(data)
+            end
+        end
+        socket.sleep(0.016)
+    end
+end
+
+function SDK:_handleServerMessage(data)
+    if not data.type then return end
+
+    if data.type == "lobby_created" then
+        self.lobby_id = data.lobby_id
+        self:emit("lobbyCreated", data.lobby_data)
+    elseif data.type == "lobby_joined" then
+        self:emit("lobbyJoined", data.lobby_data)
+    elseif data.type == "lobby_left" then
+        self.lobby_id = nil
+        self:emit("lobbyLeft")
+    elseif data.type == "player_joined" then
+        self:emit("playerJoined", data.player_data)
+    elseif data.type == "player_left" then
+        self:emit("playerLeft", data.player_id)
+    elseif data.type == "lobby_updated" then
+        self:emit("lobbyUpdated", data.lobby_data)
+    elseif data.type == "error" then
+        self:emit("error", data.message)
+    end
+end
+
+function SDK:disconnect()
+    if self.connected then
+        self.websocket:close()
+        self.connected = false
+        self:emit("disconnected")
+    end
+end
+
+return SDK

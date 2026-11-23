@@ -1,0 +1,195 @@
+local socket = require "posix.sys.socket"
+local unistd = require 'posix.unistd'
+
+-- luacheck: push globals unpack
+-- luacheck: push ignore accessing undefined field unpack of global table
+local unpack = unpack or table.unpack
+-- luacheck: pop
+-- luacheck: pop
+local concat = table.concat
+local insert = table.insert
+
+--- @class Conn : table
+local Conn = {}
+Conn.__index = Conn
+
+-- Default per-call socket timeout (milliseconds) when none is configured.
+-- Mirrors the nginx module's 100ms impart_send_timeout / impart_read_timeout.
+local DEFAULT_TIMEOUT_MS = 100
+
+--- @param path string The path to the socket
+--- @param healthHeader string The health header to send.
+--- @param timeout_ms integer? per-call send/recv timeout in ms (default 100)
+--- @return Conn conn
+--- @return string? err
+local function newConn(path, healthHeader, timeout_ms)
+  ---@type Conn
+  local sockfd, sockErr = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM, 0)
+  local c = {
+    sockfd = sockfd
+  }
+
+  if not c.sockfd then
+    return c, "socket creation failed: " .. tostring(sockErr)
+  end
+
+  setmetatable(c, Conn)
+
+  local result, err = socket.connect(c.sockfd, { family = socket.AF_UNIX, path = path })
+
+  if not result then
+    c:close()
+    return c, "socket connect failed to " .. tostring(path) .. ": " .. tostring(err)
+  end
+
+  if not timeout_ms or timeout_ms < 1 then
+    timeout_ms = DEFAULT_TIMEOUT_MS
+  end
+
+  local timeout_s = math.floor(timeout_ms / 1000)
+  local timeout_us = (timeout_ms % 1000) * 1000
+
+  local ok
+  ok, err = socket.setsockopt(
+    c.sockfd,
+    socket.SOL_SOCKET,
+    socket.SO_SNDTIMEO,
+    timeout_s,
+    timeout_us
+  )
+
+  if not ok then
+    c:close()
+    return c, err
+  end
+
+
+  ok, err = socket.setsockopt(
+    c.sockfd,
+    socket.SOL_SOCKET,
+    socket.SO_RCVTIMEO,
+    timeout_s,
+    timeout_us
+  )
+
+  if not ok then
+    c:close()
+    return c, "failed to set SO_RCVTIMEO: " .. tostring(err)
+  end
+
+  local sent
+  sent, err = socket.send(c.sockfd, healthHeader)
+  if err then
+    c:close()
+    return c, "health check send failed: " .. tostring(err)
+  end
+  if not sent or sent == 0 then
+    c:close()
+    return c, "health check send returned 0 bytes"
+  end
+
+  -- receive hc byte
+  local s, recvErr = socket.recv(c.sockfd, 1)
+  if recvErr then
+    c:close()
+    return c, "health check recv failed: " .. tostring(recvErr)
+  end
+  if not s or #s == 0 then
+    c:close()
+    return c, "health check recv timeout or connection closed"
+  end
+  if string.byte(s, 1) ~= 1 then
+    c:close()
+    return c, "health check validation failed: expected 1, got " .. tostring(string.byte(s, 1))
+  end
+  return c, nil
+end
+
+---@param b string
+---@return integer n
+---@return string? err
+function Conn:write(b)
+  if not self.sockfd then
+    return 0, "socket is not connected"
+  end
+
+  local sent, err = socket.send(self.sockfd, b)
+  if err then
+    return sent, err
+  end
+
+  return sent, nil
+end
+
+---@return string
+---@return string? err
+function Conn:read()
+  if not self.sockfd then
+    return "", "socket is not connected"
+  end
+
+  local data = {}
+  local b
+  local err
+  repeat
+    b, err = socket.recv(self.sockfd, 1024)
+    if err then
+      return "", err
+    end
+    insert(data, b)
+  until not b or #b == 0
+
+  return concat(data), nil
+end
+
+function Conn:close()
+  if self.sockfd then
+    unistd.close(self.sockfd)
+    self.sockfd = nil
+  end
+end
+
+--- @class ConnFactory : table
+--- @field private healthHeader string?
+--- @field private path string
+--- @field private timeout_ms integer?
+local ConnFactory = {}
+ConnFactory.__index = ConnFactory
+
+---@param path string The path to the socket
+---@param timeout_ms integer? per-call send/recv timeout in ms (default 100)
+---@return ConnFactory
+local function newConnFactory(path, timeout_ms)
+  ---@type ConnFactory
+  local c = {
+    healthHeader = nil,
+    path = path,
+    timeout_ms = timeout_ms,
+  }
+
+  return setmetatable(c, ConnFactory)
+end
+
+--- @param timeout_ms integer? optional per-call timeout override (ms); when nil
+---   or <1 the factory's configured timeout is used. Lets a caller apply a
+---   per-route inspection-profile timeout (request_timeout_ms) to a single
+---   connection without rebuilding the factory.
+---@return Conn conn
+---@return string? err
+function ConnFactory:newConn(timeout_ms)
+  if not timeout_ms or timeout_ms < 1 then
+    timeout_ms = self.timeout_ms
+  end
+
+  return newConn(self.path, self.healthHeader, timeout_ms)
+end
+
+--- @param healthHeader integer[]
+function ConnFactory:setHealthHeader(healthHeader)
+  self.healthHeader = string.char(unpack(healthHeader))
+end
+
+return {
+  newConn = newConn,
+  newConnFactory = newConnFactory,
+}

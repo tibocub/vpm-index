@@ -1,0 +1,223 @@
+-- © yokerp.com --
+
+local mail = require'yoke.snap.mail.init'
+local md5 = require'md5'
+local class = require'class'
+
+local concat = table.concat
+local limit = 100 --messages
+
+local function prefix()
+  local prefix = math.random()
+  local n = 0
+  return function()
+    n = n + 1
+    return concat{prefix,n}
+  end
+end
+
+local imap = class('yoke.imap',mail)
+
+function imap:initialize(host,port,tls)
+  imap.prefix = prefix()
+  imap.msgs = {}
+  mail:initialize(host,port,tls)
+end
+
+function imap:putline(query,raw) --raw result
+  if not self.socket then return "no socket" end
+  local prefix = self:prefix()
+  local line  = concat{prefix,' ',query,self.rn}
+  local len = self.socket:send(line)
+  if not len or len ~= #line then return concat{'imap send error:',len or 0,',',#line or 0} end
+  local res = ""
+  local status = ""
+  local body = ""
+  local hdrs = not raw and string.lower(query):match("fetch 1%:%*")
+  if hdrs then self.msgs = {} end
+  while true do
+    local line = self:receive()
+    res = concat{res,line,'\n'}
+    if line:match("^%*") then
+      local len = tonumber(line:match('{(%d+)}$')) or 0
+      local str = ''
+      if len > 0 then
+        str = self:receive(len)
+        self:receive() --)
+        if hdrs then
+          local id = line:match("[0-9]+")
+          if id then
+            self.msgs[#self.msgs+1] = {
+              id = tonumber(id),
+              len = len,
+              hdr = str,
+              hdrs = {},
+            }
+          end
+        else
+          if not raw then
+            body = str
+          else
+            res = concat{res,str}
+          end
+        end
+      end
+    elseif line:match(concat{"^",prefix," "}) then
+      status = line:match("[A-Z]+")
+      if status ~= 'OK' then status = line end
+      break
+    elseif res == "\n" then
+      status = "no response";
+      self.uname = "" --to reconnect
+      break
+    else --if client->get_eof() then
+      break
+    end
+  end
+  if not raw and status == "OK" and query:lower():match('search') then
+    self.msgs = {}
+    for id in res:match("[^\n]+"):gmatch("[0-9]+") do
+      self.msgs[#self.msgs + 1] = {
+        id = tonumber(id),
+        len = 0,
+        hdrs = {},
+      }
+      if #self.msgs > limit then break end
+    end
+  end
+  if not raw then
+    if body ~= "" then
+      return body
+    else
+      return status
+    end
+  end
+  return res
+end
+
+function imap:select(box)
+  return imap:putline(concat{'select ',box})
+end
+
+function imap:list()
+  local list = {}
+  for box in self:query('list "" *'):gmatch('" ([^%s]+)\n') do
+    list[#list + 1] = box
+  end
+  return list
+end
+
+function imap:gethdr(id)
+  return self:putline(concat{"fetch ",id," (body.peek[header])"})
+end
+
+function imap:getid(id,idmes)
+  if idmes and idmes ~= '' then
+    idmes = idmes:gsub('%s','')
+  else
+    return id
+  end
+  local hdrs = {}
+  local hdr = self:gethdr(id)
+  self:parshdr(hdr,hdrs)
+  if (hdrs['message-id'] or ''):find(idmes,nil,true) then --todo
+    return id
+  else
+    local status = self:putline(table.concat{'search header message-id ',idmes})
+    if status == 'OK' then
+      if #self.msgs == 0 then --yahoo
+        self:putline("search all")
+      end
+      for _,msg in ipairs(self.msgs) do
+        msg.hdr = self:gethdr(msg.id)
+        self:parshdr(msg.hdr,msg.hdrs) --mail
+        if (msg.hdrs['message-id'] or ''):find(idmes,nil,true) then   --double check
+          return msg.id
+        end
+      end
+    end
+  end
+
+end
+
+function imap:get(id,idmes)
+  if idmes and idmes ~= '' then
+    id = self:getid(id,idmes)
+  end
+  if id and tonumber(id) > 0 then
+    return self:putline(concat{'fetch ',id," (body[])"})
+  end
+end
+
+function imap:del(id,idmes)
+  if idmes then
+    id = self:getid(id,idmes)
+  end
+  if tonumber(id or 0) > 0 then
+    return self:putline(concat{'store ',id,' flags (\\Deleted)'})
+  end
+end
+
+function imap:query(cmd)
+  return imap:putline(cmd,true) --raw result
+end
+
+function imap:login(user, pass)
+  local res = self:putline(concat{'login ', user,' ',pass})
+  if res == "OK" then self.uname = user end
+  return res
+end
+
+function imap:close()
+  local res = self:putline('logout')
+  self.socket:close()
+  return res
+end
+
+function imap:getlen(id)
+  local res = self:putline(concat{"fetch ",id," rfc822.size"},true)
+  if res:sub(1,1) == "*" then
+    return tonumber(res:match("SIZE.?([0-9]+)"))
+  end
+end
+
+function imap:check(box,arg)
+  box = box or "INBOX"
+  arg = arg or "unseen"
+  local cmd = "search"
+  if arg == "1:*" then
+    cmd = "fetch"
+    arg = "(body.peek[header])"
+  end
+  if self:select(box) ~= 'OK' or
+     self:putline(concat{cmd,' ',arg}) ~= 'OK' then
+     return
+  end
+  local msgs = {}
+  for i,msg in ipairs(self.msgs) do
+    if i > limit then break end
+    if cmd == "search" then
+      msg.hdr = self:gethdr(msg.id)
+      msg.len = self:getlen(msg.id)
+    end
+    if not msg.hdrs then msg.hdrs = {} end
+    self:parshdr(msg.hdr,msg.hdrs)
+    msgs[#msgs + 1] = {
+      id = msg.id,
+      size = msg.len,
+      md5 = md5.sumhexa(concat{msg.hdrs.subject,msg.hdrs.date,msg.hdrs['message-id']}),
+      hdr = msg.hdr,
+      hdrs = msg.hdrs,
+      from = {
+        addr = msg.hdrs.from.addr,
+        name = msg.hdrs.from.name
+      }
+    }
+    for key,val in pairs(msg.hdrs) do --todo
+      msgs[#msgs][key] = val
+    end
+  end
+  return msgs
+end
+
+return imap

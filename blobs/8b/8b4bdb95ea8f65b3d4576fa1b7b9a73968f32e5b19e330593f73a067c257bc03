@@ -1,0 +1,410 @@
+-- ============================================================
+-- Shiva Date
+-- Date and time utility library.
+-- ============================================================
+
+-- `Date`    — static module (constructors + helpers)
+-- `DateObj` — metatable for date instances (instance methods)
+
+---@class Date
+local Date = {}
+
+---@class DateObject
+---@field _ts integer Unix timestamp (integer seconds)
+local DateObj = {}
+DateObj.__index = DateObj
+
+-- ============================================================
+-- Private helpers
+-- ============================================================
+
+local DAYS_IN_MONTH = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+
+---@param year integer
+---@return boolean
+local function leap(year)
+    return (year % 4 == 0 and year % 100 ~= 0) or (year % 400 == 0)
+end
+
+---@param year integer
+---@param month integer
+---@return integer
+local function dim(year, month)
+    if month == 2 and leap(year) then return 29 end
+    return DAYS_IN_MONTH[month]
+end
+
+---@class DateParts
+---@field year  integer
+---@field month integer
+---@field day   integer
+---@field hour  integer
+---@field min   integer
+---@field sec   integer
+---@field wday  integer
+---@field yday  integer
+---@field isdst boolean
+
+--- Decompose a timestamp into a date-parts table
+---@param ts integer
+---@return DateParts
+local function parts(ts)
+    ---@diagnostic disable-next-line: return-type-mismatch
+    return os.date('*t', ts)
+end
+
+--- Build a timestamp from components, normalising month overflow and clamping day
+---@param year integer
+---@param month integer
+---@param day integer
+---@param hour integer
+---@param min integer
+---@param sec integer
+---@return integer
+local function compose(year, month, day, hour, min, sec)
+    while month > 12 do month = month - 12; year = year + 1 end
+    while month < 1  do month = month + 12; year = year - 1 end
+    local maxDay = dim(year, month)
+    if day > maxDay then day = maxDay end
+    if day < 1      then day = 1 end
+    return os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
+end
+
+---@param ts integer
+---@return DateObject
+local function newDate(ts)
+    return setmetatable({ _ts = ts }, DateObj)
+end
+
+-- ============================================================
+-- Static constructors
+-- ============================================================
+
+--- Current date and time
+---@return DateObject
+function Date.now()
+    return newDate(os.time())
+end
+
+--- Today at midnight (00:00:00)
+---@return DateObject
+function Date.today()
+    local t = parts(os.time())
+    return newDate(os.time({ year = t.year, month = t.month, day = t.day, hour = 0, min = 0, sec = 0 }))
+end
+
+--- Create from year/month/day and optional time components
+---@param year integer
+---@param month integer
+---@param day integer
+---@param hour? integer Default: 0
+---@param minute? integer Default: 0
+---@param second? integer Default: 0
+---@return DateObject
+function Date.create(year, month, day, hour, minute, second)
+    return newDate(os.time({
+        year = year, month = month, day = day,
+        hour = hour or 0, min = minute or 0, sec = second or 0,
+    }))
+end
+
+--- Parse a date string.
+--- Supported: 'YYYY-MM-DD', 'YYYY-MM-DD HH:MM:SS', 'YYYY-MM-DDTHH:MM:SS'
+---@param str string
+---@return DateObject
+function Date.parse(str)
+    local y, mo, d, h, mi, s = str:match('^(%d%d%d%d)-(%d%d)-(%d%d)[T ](%d%d):(%d%d):(%d%d)$')
+    if y then
+        return Date.create(
+            tonumber(y) --[[@as integer]], tonumber(mo) --[[@as integer]], tonumber(d) --[[@as integer]],
+            tonumber(h) --[[@as integer]], tonumber(mi) --[[@as integer]], tonumber(s) --[[@as integer]]
+        )
+    end
+    local y2, mo2, d2 = str:match('^(%d%d%d%d)-(%d%d)-(%d%d)$')
+    if y2 then
+        return Date.create(
+            tonumber(y2) --[[@as integer]], tonumber(mo2) --[[@as integer]], tonumber(d2) --[[@as integer]]
+        )
+    end
+    error(('Date.parse: unrecognized format %q'):format(str))
+end
+
+--- Create from a Unix timestamp
+---@param ts integer
+---@return DateObject
+function Date.fromTimestamp(ts)
+    return newDate(ts)
+end
+
+--- Check whether a year is a leap year
+---@param year integer
+---@return boolean
+function Date.isLeapYear(year)
+    return leap(year)
+end
+
+--- Get the number of days in a given month
+---@param year integer
+---@param month integer
+---@return integer
+function Date.daysInMonth(year, month)
+    return dim(year, month)
+end
+
+--- Difference between two dates in a given unit (a − b)
+---@param a DateObject
+---@param b DateObject
+---@param unit 'seconds'|'minutes'|'hours'|'days'
+---@return integer
+function Date.diff(a, b, unit)
+    local delta = a._ts - b._ts
+    if unit == 'seconds' then return delta
+    elseif unit == 'minutes' then return math.floor(delta / 60)
+    elseif unit == 'hours'   then return math.floor(delta / 3600)
+    elseif unit == 'days'    then return math.floor(delta / 86400)
+    else error(('Date.diff: unknown unit %q'):format(unit)) end
+end
+
+-- ============================================================
+-- Instance getters
+-- ============================================================
+
+--- Unix timestamp
+---@return integer
+function DateObj:timestamp() return self._ts end
+
+--- Full year (e.g. 2024)
+---@return integer
+function DateObj:year()   return parts(self._ts).year end
+
+--- Month (1–12)
+---@return integer
+function DateObj:month()  return parts(self._ts).month end
+
+--- Day of month (1–31)
+---@return integer
+function DateObj:day()    return parts(self._ts).day end
+
+--- Hour (0–23)
+---@return integer
+function DateObj:hour()   return parts(self._ts).hour end
+
+--- Minute (0–59)
+---@return integer
+function DateObj:minute() return parts(self._ts).min end
+
+--- Second (0–59)
+---@return integer
+function DateObj:second() return parts(self._ts).sec end
+
+--- Day of week (1=Sunday … 7=Saturday)
+---@return integer
+function DateObj:dayOfWeek() return parts(self._ts).wday end
+
+--- Day of year (1–366)
+---@return integer
+function DateObj:dayOfYear() return parts(self._ts).yday end
+
+--- Whether the current year is a leap year
+---@return boolean
+function DateObj:isLeapYear() return leap(self:year()) end
+
+--- Number of days in the current month
+---@return integer
+function DateObj:daysInMonth() return dim(self:year(), self:month()) end
+
+-- ============================================================
+-- Formatting
+-- ============================================================
+
+--- Format using an os.date pattern string
+---@param pattern string
+---@return string
+function DateObj:format(pattern)
+    return os.date(pattern, self._ts) --[[@as string]]
+end
+
+--- ISO 8601 datetime string: 'YYYY-MM-DDTHH:MM:SS'
+---@return string
+function DateObj:toISO()
+    return os.date('%Y-%m-%dT%H:%M:%S', self._ts) --[[@as string]]
+end
+
+--- Date-only string: 'YYYY-MM-DD'
+---@return string
+function DateObj:toDateString()
+    return os.date('%Y-%m-%d', self._ts) --[[@as string]]
+end
+
+--- Time-only string: 'HH:MM:SS'
+---@return string
+function DateObj:toTimeString()
+    return os.date('%H:%M:%S', self._ts) --[[@as string]]
+end
+
+---@return string
+function DateObj:__tostring()
+    return self:toISO()
+end
+
+-- ============================================================
+-- Arithmetic — all return new DateObject instances (immutable)
+-- ============================================================
+
+--- Add seconds
+---@param n integer
+---@return DateObject
+function DateObj:addSeconds(n) return newDate(self._ts + n) end
+
+--- Subtract seconds
+---@param n integer
+---@return DateObject
+function DateObj:subSeconds(n) return newDate(self._ts - n) end
+
+--- Add minutes
+---@param n integer
+---@return DateObject
+function DateObj:addMinutes(n) return newDate(self._ts + n * 60) end
+
+--- Subtract minutes
+---@param n integer
+---@return DateObject
+function DateObj:subMinutes(n) return newDate(self._ts - n * 60) end
+
+--- Add hours
+---@param n integer
+---@return DateObject
+function DateObj:addHours(n) return newDate(self._ts + n * 3600) end
+
+--- Subtract hours
+---@param n integer
+---@return DateObject
+function DateObj:subHours(n) return newDate(self._ts - n * 3600) end
+
+--- Add days
+---@param n integer
+---@return DateObject
+function DateObj:addDays(n) return newDate(self._ts + n * 86400) end
+
+--- Subtract days
+---@param n integer
+---@return DateObject
+function DateObj:subDays(n) return newDate(self._ts - n * 86400) end
+
+--- Add months, clamping to the last valid day of the resulting month if needed
+---@param n integer
+---@return DateObject
+function DateObj:addMonths(n)
+    local t = parts(self._ts)
+    return newDate(compose(t.year, t.month + n, t.day, t.hour, t.min, t.sec))
+end
+
+--- Subtract months
+---@param n integer
+---@return DateObject
+function DateObj:subMonths(n) return self:addMonths(-n) end
+
+--- Add years, clamping Feb 29 to Feb 28 when landing on a non-leap year
+---@param n integer
+---@return DateObject
+function DateObj:addYears(n)
+    local t = parts(self._ts)
+    return newDate(compose(t.year + n, t.month, t.day, t.hour, t.min, t.sec))
+end
+
+--- Subtract years
+---@param n integer
+---@return DateObject
+function DateObj:subYears(n) return self:addYears(-n) end
+
+-- ============================================================
+-- Comparison
+-- ============================================================
+
+--- Whether this date is strictly before another
+---@param other DateObject
+---@return boolean
+function DateObj:isBefore(other) return self._ts < other._ts end
+
+--- Whether this date is strictly after another
+---@param other DateObject
+---@return boolean
+function DateObj:isAfter(other) return self._ts > other._ts end
+
+--- Whether this date has the exact same timestamp as another
+---@param other DateObject
+---@return boolean
+function DateObj:isSame(other) return self._ts == other._ts end
+
+--- Whether this date falls on the same calendar day as another
+---@param other DateObject
+---@return boolean
+function DateObj:isSameDay(other) return self:toDateString() == other:toDateString() end
+
+--- Difference in seconds (self − other)
+---@param other DateObject
+---@return integer
+function DateObj:diffInSeconds(other) return self._ts - other._ts end
+
+--- Difference in whole minutes (self − other)
+---@param other DateObject
+---@return integer
+function DateObj:diffInMinutes(other) return math.floor((self._ts - other._ts) / 60) end
+
+--- Difference in whole hours (self − other)
+---@param other DateObject
+---@return integer
+function DateObj:diffInHours(other) return math.floor((self._ts - other._ts) / 3600) end
+
+--- Difference in whole days (self − other)
+---@param other DateObject
+---@return integer
+function DateObj:diffInDays(other) return math.floor((self._ts - other._ts) / 86400) end
+
+-- ============================================================
+-- Period boundaries — all return new DateObject instances
+-- ============================================================
+
+--- Midnight of the same day (00:00:00)
+---@return DateObject
+function DateObj:startOfDay()
+    local t = parts(self._ts)
+    return newDate(os.time({ year = t.year, month = t.month, day = t.day, hour = 0, min = 0, sec = 0 }))
+end
+
+--- Last moment of the same day (23:59:59)
+---@return DateObject
+function DateObj:endOfDay()
+    local t = parts(self._ts)
+    return newDate(os.time({ year = t.year, month = t.month, day = t.day, hour = 23, min = 59, sec = 59 }))
+end
+
+--- First day of the same month at midnight
+---@return DateObject
+function DateObj:startOfMonth()
+    local t = parts(self._ts)
+    return newDate(os.time({ year = t.year, month = t.month, day = 1, hour = 0, min = 0, sec = 0 }))
+end
+
+--- Last day of the same month at 23:59:59
+---@return DateObject
+function DateObj:endOfMonth()
+    local t = parts(self._ts)
+    return newDate(os.time({ year = t.year, month = t.month, day = dim(t.year, t.month), hour = 23, min = 59, sec = 59 }))
+end
+
+--- January 1 of the same year at midnight
+---@return DateObject
+function DateObj:startOfYear()
+    local t = parts(self._ts)
+    return newDate(os.time({ year = t.year, month = 1, day = 1, hour = 0, min = 0, sec = 0 }))
+end
+
+--- December 31 of the same year at 23:59:59
+---@return DateObject
+function DateObj:endOfYear()
+    local t = parts(self._ts)
+    return newDate(os.time({ year = t.year, month = 12, day = 31, hour = 23, min = 59, sec = 59 }))
+end
+
+return Date

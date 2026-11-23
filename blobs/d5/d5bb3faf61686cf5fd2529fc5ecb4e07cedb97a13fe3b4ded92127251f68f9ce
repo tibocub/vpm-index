@@ -1,0 +1,91 @@
+local EventEmitter = {}
+EventEmitter.__index = EventEmitter
+
+function EventEmitter.new()
+  return setmetatable({
+    _listeners = {},
+  }, EventEmitter)
+end
+
+function EventEmitter:on(event, fn)
+  assert(type(event) == "string", "event must be a string")
+  assert(type(fn) == "function", "listener must be a function")
+  local listeners = self._listeners[event]
+  if not listeners then
+    listeners = {}
+    self._listeners[event] = listeners
+  end
+  listeners[#listeners + 1] = {
+    fn = fn,
+    once = false,
+  }
+  return self
+end
+
+function EventEmitter:once(event, fn)
+  assert(type(event) == "string", "event must be a string")
+  assert(type(fn) == "function", "listener must be a function")
+  local listeners = self._listeners[event]
+  if not listeners then
+    listeners = {}
+    self._listeners[event] = listeners
+  end
+  listeners[#listeners + 1] = {
+    fn = fn,
+    once = true,
+  }
+  return self
+end
+
+function EventEmitter:off(event, fn)
+  local listeners = self._listeners[event]
+  if not listeners then
+    return self
+  end
+  if not fn then
+    self._listeners[event] = nil
+    return self
+  end
+
+  for i = #listeners, 1, -1 do
+    if listeners[i].fn == fn then
+      table.remove(listeners, i)
+    end
+  end
+  if #listeners == 0 then
+    self._listeners[event] = nil
+  end
+  return self
+end
+
+function EventEmitter:emit(event, ...)
+  local listeners = self._listeners[event]
+  if not listeners then
+    return false
+  end
+
+  local snapshot = {}
+  for i = 1, #listeners do
+    snapshot[i] = listeners[i]
+  end
+
+  for i = 1, #snapshot do
+    local listener = snapshot[i]
+    local ok, err = pcall(listener.fn, ...)
+    if not ok then
+      local errors = self._listeners.error
+      if errors and event ~= "error" then
+        self:emit("error", err, event)
+      else
+        io.stderr:write(("EventEmitter listener error (%s): %s\n"):format(event, tostring(err)))
+      end
+    end
+    if listener.once then
+      self:off(event, listener.fn)
+    end
+  end
+  return true
+end
+
+return EventEmitter
+

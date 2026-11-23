@@ -1,0 +1,34 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A multiple await call: await(exp1, exp2, ...) or await(...list).
+local MawaitFn = {}
+MawaitFn.__index = MawaitFn
+setmetatable(MawaitFn, {__index = Terminal})
+package.loaded[...] = MawaitFn
+
+--Constructor.
+function MawaitFn.new(ln, col, args)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.MAWAIT, {line = ln, col = col}), MawaitFn)
+  self.args = args
+
+  --(2) return
+  return self
+end
+
+--@override
+function MawaitFn:__tostring()
+  --(1) build
+  local args = ""
+
+  for _, arg in ipairs(self.args) do
+    args = args .. (args == "" and "" or " ") .. tostring(arg)
+  end
+
+  --(2) return
+  return string.format("(mawait %s)", args)
+end

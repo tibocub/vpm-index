@@ -1,0 +1,640 @@
+local constants = {
+  api_connection_state = "new",
+  http_method = "POST",
+  path = "/validate-request",
+  keepalive = true,
+  ssl = true,
+}
+
+-- Module-level defaults: set once at init (standalone) and used as fallback values (Kong).
+-- Never mutate per-request — Kong passes its config explicitly so coroutines stay isolated.
+local defaults = {
+  module_name = "OpenResty",
+  module_version = "1.7.0",
+  datadome_server_side_key = "",
+  datadome_endpoint = "api.datadome.co",
+  datadome_timeout = 150,
+  -- we use double backslashes instead of a single one to escape the special char '.' below (regular regex) because backslashes are stripped by the Lua language parser
+  -- https://github.com/openresty/lua-nginx-module#special-escaping-sequences
+  datadome_url_pattern_inclusion = "",
+  datadome_url_pattern_exclusion = "\\.(avi|flv|mka|mkv|mov|mp4|mpeg|mpg|mp3|flac|ogg|ogm|opus|wav|webm|webp|bmp|gif|ico|jpeg|jpg|png|svg|svgz|swf|eot|otf|ttf|woff|woff2|css|less|js|map|json)$",
+  datadome_enable_graphql_support = false,
+  datadome_use_x_forwarded_host = false,
+  -- Max GraphQL body to parse (bytes); set to match nginx client_body_buffer_size by default.
+  datadome_graphql_max_body_size = 8192,
+  datadome_graphql_endpoint = "graphql"
+}
+
+local headers_truncation_size = {
+  ['SecCHDeviceMemory'] = 8,
+  ['SecCHUAMobile'] = 8,
+  ['SecFetchStorageAccess'] = 8,
+  ['SecFetchUser'] = 8,
+  ['SecCHUAArch'] = 16,
+  ['SecCHUAPlatform'] = 32,
+  ['SecFetchDest'] = 32,
+  ['SecFetchMode'] = 32,
+  ['ContentType'] = 64,
+  ['SecFetchSite'] = 64,
+  ['AcceptCharset'] = 128,
+  ['AcceptEncoding'] = 128,
+  ['CacheControl'] = 128,
+  ['Connection'] = 128,
+  ['From'] = 128,
+  ['GraphQLOperationName'] = 128,
+  ['Pragma'] = 128,
+  ['SecCHUA'] = 128,
+  ['SecCHUAModel'] = 128,
+  ['TrueClientIP'] = 128,
+  ['userid'] = 128,
+  ['X-Real-IP'] = 128,
+  ['X-Requested-With'] = 128,
+  ['AcceptLanguage'] = 256,
+  ['SecCHUAFullVersionList'] = 256,
+  ['Via'] = 256,
+  ['Accept'] = 512,
+  ['ClientID'] = 512,
+  ['HeadersList'] = 512,
+  ['Origin'] = 512,
+  ['ServerName'] = 512,
+  ['ServerHostname'] = 512,
+  ['Host']  = 512,
+  ['XForwardedForIP'] = -512,
+  ['UserAgent'] = 768,
+  ['Referer'] = 1024,
+  ['Request'] = 2048,
+}
+
+local M = {}
+
+-- Effective config for one request. nil -> standalone defaults; otherwise a fresh per-request
+-- table overlaying request_conf on defaults (ngx.null = unset), keeping coroutines isolated.
+function M.resolveConf(request_conf)
+  if not request_conf then
+    return defaults
+  end
+
+  local conf = {}
+  for k, v in pairs(defaults) do
+    conf[k] = v
+  end
+  for k, v in pairs(request_conf) do
+    if v ~= nil and v ~= ngx.null then
+      conf[k] = v
+    end
+  end
+  return conf
+end
+
+function M.addRequestHeaders(api_response_headers)
+  local request_headers = api_response_headers['X-DataDome-Request-Headers']
+
+  if request_headers == nil then
+      return
+  end
+
+  for header_name in ngx.re.gmatch(request_headers, "([^ ]+)", "io") do
+      local header_value = api_response_headers[header_name[0]]
+      if header_value ~= nil then
+          ngx.req.set_header(header_name[0], header_value)
+      end
+  end
+end
+
+function M.addResponseHeaders(api_response_headers)
+  local response_headers = api_response_headers['X-DataDome-Headers']
+
+  if response_headers == nil then
+      return
+  end
+
+  for header_name in ngx.re.gmatch(response_headers, "([^ ]+)", "io") do
+      local header_value = api_response_headers[header_name[0]]
+      if header_value ~= nil then
+          if header_name[0] == 'Set-Cookie' then
+              if type(ngx.header["Set-Cookie"]) == "table" then
+                  ngx.header["Set-Cookie"] = { header_value, table.unpack(ngx.header["Set-Cookie"]) }
+              else
+                  ngx.header["Set-Cookie"] = { header_value, ngx.header["Set-Cookie"] }
+              end
+          else
+              ngx.header[header_name[0]] = header_value
+          end
+      end
+  end
+end
+
+function M.updateHeaders(api_response_headers)
+  M.addResponseHeaders(api_response_headers)
+  M.addRequestHeaders(api_response_headers)
+end
+
+function M.checkStatusCode(status, api_response_body)
+  ngx.log(ngx.DEBUG, "[DataDome] HTTP status code for API response: ", status)
+
+  if status ~= 200 then
+    ngx.status = status
+    ngx.say(api_response_body)
+    ngx.exit(status)
+  end
+
+end
+
+function M.parseResponse(response)
+  return response.status, response.headers, response.body
+end
+
+function M.isXDataDomeResponseError(api_response_headers, status)
+  if api_response_headers then
+    if tonumber(api_response_headers["X-DataDomeResponse"]) == nil then
+      ngx.log(ngx.ERR, "[DataDome] Empty X-DataDomeResponse; does not match with API response status:  ", status);
+      return true
+    else
+      ngx.log(ngx.DEBUG, "[DataDome] Valid X-DataDomeResponse header, code: ", status)
+    end
+  end
+  return false
+end
+
+function M.isHttpError(err)
+  if err ~= nil then
+    if err == "timeout" then
+      ngx.log(ngx.DEBUG, "[DataDome] API connection timed out, request skipped")
+    else
+      ngx.log(ngx.ERR, "[DataDome] The following error occurred while connecting to the API ",err)
+    end
+    return true
+  else
+    ngx.log(ngx.DEBUG, "[DataDome] Successful connection to the API")
+  end
+  return false
+end
+
+function M.isError(err, api_response_headers, status)
+  if M.isHttpError(err) or M.isXDataDomeResponseError(api_response_headers, status) then
+    return true
+  else
+    return false
+  end
+end
+
+-- Uses ngx.escape_uri (C builtin): URI-component encoding, equivalent to JS encodeURIComponent.
+-- Faster than ngx.re.gsub (callback LuaJIT<->C), which was the previous CPU hot spot.
+-- See https://github.com/openresty/lua-nginx-module#ngxescape_uri
+function M.urlencode(str)
+  if not str then
+    return '', "received nil value"
+  end
+  -- ngx.escape_uri is single-return (no err); Kong itself uses it inline without checking (see kong/api/endpoints.lua).
+  return ngx.escape_uri(str, 2), nil
+end
+
+function M.stringify(params)
+  if type(params) ~= "table" then
+    return '', "expected table but received " .. type(params)
+  end
+
+  local fields = {}
+  for key,value in pairs(params) do
+    local encoded_key, err = M.urlencode(tostring(key))
+    if err then
+      return '', err
+    end
+    local keyString = encoded_key .. '='
+
+    if type(value) == "table" then
+      for _, v in ipairs(value) do
+        local encoded_value, err = M.urlencode(tostring(v))
+        if err then
+          return '', err
+        end
+        table.insert(fields, keyString .. encoded_value)
+      end
+    else
+      local encoded_value, err = M.urlencode(tostring(value))
+      if err then
+        return '', err
+      end
+      table.insert(fields, keyString .. encoded_value)
+    end
+  end
+
+  return table.concat(fields, '&'), nil
+end
+
+function M.callDatadome(conf,body,datadomeHeaders)
+  local protocol = constants.ssl and 'https://' or 'http://'
+  local encoded_body, err = M.stringify(body)
+
+  if err then
+    ngx.log(ngx.ERR, "[DataDome] Failed to encode body: ", err)
+    return nil, err
+  end
+
+  local options = {
+      method = constants.http_method,
+      ssl_verify = constants.ssl,
+      keepalive = constants.keepalive,
+      body = encoded_body,
+      headers = datadomeHeaders
+  }
+
+  -- Per-request on purpose: wraps a cosocket, so it can't be hoisted/shared across requests.
+  -- The keepalive pool already reuses the connection. See lua-resty-redis#limitations.
+  local httpc = require("resty.http").new()
+  httpc:set_timeout(conf.datadome_timeout)
+  local res, err = httpc:request_uri(protocol .. conf.datadome_endpoint .. constants.path, options)
+
+  return res, err
+end
+
+-- edgecase: headers can come as a table, getting the first value
+function M.getHeaderStringValue(header_value)
+  local header_string_value = header_value
+
+  if type(header_value) == "table" then
+    header_string_value = header_value[1]
+  end
+
+  return header_string_value
+end
+
+function M.truncateHeaders(body)
+  for header, truncation_size in pairs (headers_truncation_size) do
+      if body[header] then
+          local header_string_value = M.getHeaderStringValue(body[header])
+          if truncation_size >= 0 then
+              body[header] = string.sub(header_string_value,1,truncation_size)
+          else  -- backward truncation
+              body[header] = string.sub(header_string_value,truncation_size)
+          end
+      end
+  end
+end
+
+function M.add_graphql_to_body(body, graphql_operation)
+  body['GraphQLOperationType'] = graphql_operation.type
+  body['GraphQLOperationName'] = graphql_operation.name
+  body['GraphQLOperationCount'] = graphql_operation.count
+end
+
+function M.log_graphql_operation(graphql_operation)
+  ngx.log(ngx.DEBUG, "[DataDome] GraphQL Operation type : ", graphql_operation.type)
+  ngx.log(ngx.DEBUG, "[DataDome] GraphQL Operation name : ", graphql_operation.name)
+  ngx.log(ngx.DEBUG, "[DataDome] GraphQL Operation count: ", graphql_operation.count)
+end
+
+function M.valid_graphql_operation(operation_type)
+  return operation_type == "query" or operation_type == "mutation" or operation_type == "subscription"
+end
+
+-- tokenize graphql query values to get operation type and operation name. examples:
+  -- query HeroForEpisode($ep: Episode!) { ...
+  -- query HeroForEpisode { ...
+  -- { ...
+  -- edge case: query ($ep: Episode!) { ...
+    -- using parenthesis as new delimiter after bracket (no defined name but using variable)
+function M.tokenize(query)
+  local tokens = {}
+  local index_substring_delimiter = string.find(query, "{")
+  if not index_substring_delimiter then
+      return tokens
+  end
+  local substring_until_delimiter = string.sub(query, 1, index_substring_delimiter - 1)
+
+  -- using optional params for string.find because "(" is a special char and we should ignore pattern matching (true value)
+  index_substring_delimiter = string.find(substring_until_delimiter, "(", 1, true)
+  if index_substring_delimiter then
+    substring_until_delimiter = string.sub(substring_until_delimiter, 1, index_substring_delimiter - 1)
+  end
+
+  for token in string.gmatch(substring_until_delimiter, "([A-Za-z0-9_]+)") do
+      if not M.empty(token) then
+          table.insert(tokens, token)
+      end
+  end
+  return tokens
+end
+
+function M.empty(str)
+  return str == nil or str == ''
+end
+
+function M.get_body()
+  ngx.req.read_body()
+  local body = ngx.req.get_body_data()
+  if not body then
+    ngx.log(ngx.DEBUG, "[DataDome] incoming request body nil")
+    return false, {}
+  end
+  return true, body
+end
+
+function M.get_parsed_body()
+  local res, body = M.get_body()
+  if not res then
+    return nil
+  end
+
+  -- using pcall (protected call) to avoid runtime error, such as not valid json
+  -- ex of runtime error: Expected the end but found T_COLON at character
+  local cjson = require "cjson"
+  local res, decoded_body  = pcall(cjson.decode, body)
+  if not res then
+    ngx.log(ngx.DEBUG, "[DataDome] Failed to decode json body - graphql data are unavailable")
+    return nil
+  end
+  return decoded_body
+end
+
+function M.graphql_parse()
+  local graphql_operation = {
+      type = "query",
+      name = "",
+      count = 1
+  }
+  local parsed_body = M.get_parsed_body()
+
+  if parsed_body then
+    local query = parsed_body.query
+    local tokens = {}
+
+    if not M.empty(query) then -- regular query
+      tokens = M.tokenize(query)
+    elseif not M.empty(parsed_body[1]) and not M.empty(parsed_body[1]["query"]) then -- multi-operation query
+      query = parsed_body[1]["query"]
+      tokens = M.tokenize(query)
+      graphql_operation.count = #parsed_body
+    else
+      ngx.log(ngx.DEBUG, "[DataDome] not able to parse GraphQL query")
+      return false, {}
+    end
+
+    if #tokens > 0 then
+      graphql_operation.type = tokens[1]
+      if tokens[2] then
+        graphql_operation.name = tokens[2]
+      end
+    end
+
+    M.log_graphql_operation(graphql_operation)
+
+  else
+    ngx.log(ngx.DEBUG, "[DataDome] Invalid GraphQL query")
+    return false, {}
+  end
+
+  if not M.valid_graphql_operation(graphql_operation.type) then
+    ngx.log(ngx.DEBUG, "[DataDome] Invalid GraphQL operation")
+    return false, {}
+  end
+
+  return true, graphql_operation
+end
+
+function M.set_graphql_to(body)
+  local graphql_operation = {}
+  local is_graphql_parse_success = false
+
+  is_graphql_parse_success, graphql_operation = M.graphql_parse()
+  if is_graphql_parse_success then
+    M.add_graphql_to_body(body, graphql_operation)
+  end
+
+end
+
+-- checks whether the given path contains any of the comma-separated endpoints
+-- configured in datadome_graphql_endpoint (e.g. "/graphql, /gql,/example")
+function M.matches_graphql_endpoint(conf, path)
+  local endpoints = conf.datadome_graphql_endpoint or ""
+  for raw_endpoint in string.gmatch(endpoints, "([^,]+)") do
+    -- trim leading/trailing whitespace (handles "/graphql, /gql")
+    local endpoint = string.gsub(raw_endpoint, "^%s*(.-)%s*$", "%1")
+    -- plain=true so path segments like "/gql" are matched literally, not as a Lua pattern
+    if endpoint ~= "" and string.find(path, string.lower(endpoint), 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+-- raw request path (ngx.var.request_uri) without query/fragment, left
+-- un-decoded so percent-encoding can't desync this from what's actually
+-- forwarded/analysed, unlike ngx.var.uri which nginx decodes/normalises.
+function M.getRequestPath()
+  local uri = ngx.var.request_uri
+  local delimiter_pos = string.find(uri, "[?#]")
+  if delimiter_pos then
+    return string.sub(uri, 1, delimiter_pos - 1)
+  end
+  return uri
+end
+
+function M.is_graphql(conf, request_headers)
+  local content_type = M.getHeaderStringValue(request_headers["content-type"])
+  if not (conf.datadome_enable_graphql_support
+    and ngx.var.request_method == "POST"
+    and string.find(string.lower(content_type), "application/json", 1, true) ~= nil
+    and M.matches_graphql_endpoint(conf, string.lower(M.getRequestPath()))) then
+    return false
+  end
+
+  -- Skip oversized bodies before read_body()
+  local content_length = tonumber(ngx.var.http_content_length)
+  if content_length and content_length > conf.datadome_graphql_max_body_size then
+    ngx.log(ngx.DEBUG, "[DataDome] GraphQL body exceeds datadome_graphql_max_body_size, skipping parse")
+    return false
+  end
+  
+  return true
+end
+
+function M.getAuthorizationLen(request_headers)
+  return string.len(M.getHeaderStringValue(request_headers["authorization"]) or "")
+end
+
+function M.getHeadersList(request_headers)
+  local headers = {}
+  for key, _ in pairs(request_headers) do
+      table.insert(headers, key)
+  end
+  return table.concat(headers, ",")
+end
+
+function M.getCurrentMicroTime()
+  -- we need microsecond precision but only have seconds, so pad with "000000".
+  -- ngx.time() reads nginx's cached clock (no syscall), unlike os.time().
+  return tostring(ngx.time()) .. "000000"
+end
+
+function M.getClientIdAndCookiesLength(request_headers)
+  local cookie = M.getHeaderStringValue(request_headers["cookie"]) or ""
+  local len = string.len(cookie)
+  local clientId = nil
+  if len > 0 then
+    for element in ngx.re.gmatch(cookie, "([^;= ]+)=([^;$]+)", "io") do
+      if element[1] == "datadome" then
+        clientId = element[2]
+        break
+      end
+    end
+  end
+  return clientId, len
+end
+
+function M.getBodyAndDatadomeHeaders(conf)
+  local request_headers = ngx.req.get_headers()
+  local clientId, cookieLen = M.getClientIdAndCookiesLength(request_headers)
+  cookieLen = tostring(cookieLen)
+  local time_request = M.getCurrentMicroTime()
+  local headers_list = M.getHeadersList(request_headers)
+  local authorization_length = tostring(M.getAuthorizationLen(request_headers))
+  local protocol = string.len(ngx.var.https) == 0 and 'http' or 'https'
+  local x_forwarded_proto = request_headers['x-forwarded-proto']
+  if not M.empty(x_forwarded_proto) then
+    protocol = x_forwarded_proto
+  end
+
+  local host = request_headers['host']
+  if conf.datadome_use_x_forwarded_host then
+    local x_forwarded_host = request_headers['x-forwarded-host']
+    if x_forwarded_host ~= nil then
+      host = x_forwarded_host
+    end
+  end
+
+  local body = {
+    ['Key']                = conf.datadome_server_side_key,
+    ['IP']                 = ngx.var.remote_addr,
+    ['Accept']             = request_headers['accept'],
+    ['AcceptCharset']      = request_headers['accept-charset'],
+    ['AcceptEncoding']     = request_headers['accept-encoding'],
+    ['AcceptLanguage']     = request_headers['accept-language'],
+    ['APIConnectionState'] = constants.api_connection_state,
+    ['AuthorizationLen']   = authorization_length,
+    ['CacheControl']       = request_headers['cache-control'],
+    ['ClientID']           = clientId,
+    ['Connection']         = request_headers['connection'],
+    ['ContentType']        = request_headers['content-type'],
+    ['CookiesLen']         = cookieLen,
+    ['From']               = request_headers['from'],
+    ['HeadersList']        = headers_list,
+    ['Host']               = host,
+    ['Method']             = ngx.req.get_method(),
+    ['ModuleVersion']      = conf.module_version,
+    ['Origin']             = request_headers['origin'],
+    ['Port']               = ngx.var.server_port,
+    ['PostParamLen']       = request_headers['content-length'],
+    ['Pragma']             = request_headers['pragma'],
+    ['Protocol']           = protocol,
+    ['Referer']            = request_headers['referer'],
+    ['Request']            = ngx.var.request_uri,
+    ['RequestModuleName']  = conf.module_name,
+    ['SecCHDeviceMemory']  = request_headers['Sec-CH-Device-Memory'],
+    ['SecCHUA']            = request_headers['Sec-CH-UA'],
+    ['SecCHUAArch']        = request_headers['Sec-CH-UA-Arch'],
+    ['SecCHUAFullVersionList'] = request_headers['Sec-CH-UA-Full-Version-List'],
+    ['SecCHUAMobile']      = request_headers['Sec-CH-UA-Mobile'],
+    ['SecCHUAModel']       = request_headers['Sec-CH-UA-Model'],
+    ['SecCHUAPlatform']    = request_headers['Sec-CH-UA-Platform'],
+    ['SecFetchDest']       = request_headers['Sec-Fetch-Dest'],
+    ['SecFetchMode']       = request_headers['Sec-Fetch-Mode'],
+    ['SecFetchSite']       = request_headers['Sec-Fetch-Site'],
+    ['SecFetchStorageAccess'] = request_headers['sec-fetch-storage-access'],
+    ['SecFetchUser']       = request_headers['Sec-Fetch-User'],
+    ['ServerHostname']     = ngx.var.hostname,
+    ['ServerName']         = ngx.var.server_name,
+    ['TimeRequest']        = time_request,
+    ['TrueClientIP']       = request_headers['true-client-ip'],
+    ['UserAgent']          = request_headers['user-agent'],
+    ['userid']             = request_headers['x-userid'],
+    ['Via']                = request_headers['via'],
+    ['XForwardedForIP']    = request_headers['x-forwarded-for'],
+    ['X-Requested-With']   = request_headers['x-requested-with'],
+    ['X-Real-IP']          = request_headers['x-real-ip'],
+  }
+
+  local datadomeHeaders = {
+    ["Connection"] = "keep-alive",
+    ["Content-Type"] = "application/x-www-form-urlencoded",
+  }
+
+  -- session by header
+  if request_headers['x-datadome-clientid'] ~= nil then
+    body['ClientID'] = request_headers['x-datadome-clientid']
+    datadomeHeaders["X-DataDome-X-Set-Cookie"] = "true"
+  else
+      body['ClientID'] = clientId
+  end
+
+  if M.is_graphql(conf, request_headers) then
+    M.set_graphql_to(body)
+  end
+
+  M.truncateHeaders(body)
+
+  return body,datadomeHeaders
+end
+
+function M.skipRequestViaRegex(conf)
+  -- raw path (see M.getRequestPath), not ngx.var.uri, to avoid decode-based mismatches
+  local url = ngx.var.scheme .. "://" .. ngx.var.http_host .. M.getRequestPath()
+
+  if conf.datadome_url_pattern_inclusion then
+    local match, err = ngx.re.match(url, conf.datadome_url_pattern_inclusion, "io")
+    if err then
+      ngx.log(ngx.ERR, "[DataDome] Invalid inclusion pattern regex: ", err)
+      return true  -- fail open: skip request
+    end
+    if not match then
+      return true
+    end
+  end
+
+  local match, err = ngx.re.match(url, conf.datadome_url_pattern_exclusion, "io")
+  if err then
+    ngx.log(ngx.ERR, "[DataDome] Invalid exclusion pattern regex: ", err)
+    return true  -- fail open: skip request
+  end
+  if match then
+    return true
+  end
+
+  return false
+end
+
+-- request_conf: Kong passes its per-request config; standalone calls with no arg (uses defaults).
+function M.validateRequest(request_conf)
+  local conf = M.resolveConf(request_conf)
+
+  if M.skipRequestViaRegex(conf) then return false end
+
+  local body, datadomeHeaders = M.getBodyAndDatadomeHeaders(conf)
+
+  local res, err = M.callDatadome(conf, body, datadomeHeaders)
+  if not res then return false end
+
+  local status, api_response_headers, api_response_body = M.parseResponse(res)
+  if M.isError(err, api_response_headers, status) then return false end
+
+  M.updateHeaders(api_response_headers)
+  M.checkStatusCode(tonumber(api_response_headers["X-DataDomeResponse"]), api_response_body);
+
+  return true
+end
+
+-- Standalone only: called once at init to populate defaults. Under Kong, pass config to
+-- validateRequest() instead (avoids per-request mutation of shared state).
+function M.setDatadomeConf(input_conf)
+  for k,v in pairs(input_conf) do
+    defaults[k] = v
+   end
+end
+
+-- Function used in kong module to overload its name and version
+function M.setModuleInfo(module_info)
+  defaults.module_name = module_info.module_name
+  defaults.module_version = module_info.module_version
+end
+
+return M

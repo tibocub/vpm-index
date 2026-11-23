@@ -1,0 +1,261 @@
+--imports
+local SubParser = require("dogma.syn._.SubParser")
+local VarDecl = require("dogma.syn._.VarDecl")
+local VarStmt = require("dogma.syn._.VarStmt")
+
+--A var/const statement parser.
+local VarStmtParser = {}
+VarStmtParser.__index = VarStmtParser
+setmetatable(VarStmtParser, {__index = SubParser})
+package.loaded[...] = VarStmtParser
+
+--Constructor.
+--
+--@param parser:Parser  Parent parser.
+function VarStmtParser.new(parser)
+  local self
+
+  --(1) create
+  self = setmetatable(SubParser.new(parser), VarStmtParser)
+  self._.expParser = parser._.expParser
+
+  --(2) return
+  return self
+end
+
+--Read a const statement.
+--
+--@return VarStmt
+function VarStmtParser:nextConst()
+  return self:_read("const")
+end
+
+--Read a var statement.
+--
+--@return VarStmt
+function VarStmtParser:nextVar()
+  return self:_read("var")
+end
+
+--Read a const/var statement.
+--
+--@param type:string  var or const.
+--@return VarStmt
+function VarStmtParser:_read(type)
+  local lex = self._.lexer
+  local tok, ln, col, visib, decls, paren
+
+  --(1) read visibility
+  tok = lex:advance()
+  ln, col = tok.line, tok.col
+
+  if tok:isKeyword() and (tok.value == "export" or tok.value == "pub") then
+    lex:next()
+    visib = tok.value
+  end
+
+  --(2) read const keyword
+  if type == "const" then
+    lex:nextKeyword("const")
+  else
+    lex:nextKeyword("var")
+  end
+
+  --(3) read (
+  paren = not not lex:skipSymbol("(")
+
+  if paren then
+    lex:nextEol()
+  end
+
+  self:_skipEols()
+
+  --(4) get declarations
+  decls = {}
+
+  while true do
+    --read declaration
+    table.insert(decls, self:_readDecl(type))
+
+    --end?
+    tok = lex:advance()
+
+    if not tok then
+      break
+    elseif paren then
+      if tok:isSymbol(")") then
+        break
+      elseif tok:isSymbol(",") or tok:isEol() then
+        lex:next()
+        self:_skipEols()
+      else
+        self:_raise("',' or end of line expected.")
+      end
+
+      tok = lex:advance()
+      if not tok or tok:isSymbol(")") then
+        break
+      end
+    else
+      if tok:isEol() then
+        break
+      else
+        lex:nextSymbol(",")
+      end
+    end
+  end
+
+  --(5) read )
+  if paren then
+    lex:nextSymbol(")")
+  end
+
+  --(6) return
+  return VarStmt.new(ln, col, visib, decls)
+end
+
+--Read the next declaration.
+--
+--@param type:string  var or const.
+--@return VarDecl
+function VarStmtParser:_readDecl(type)
+  local lex = self._.lexer
+  local tok = lex:advance()
+
+  if not tok then
+    self:_raise("incomplete const/var.")
+  elseif tok:isSymbol("{") then
+    return self:_readMapDecl(type)
+  elseif tok:isSymbol("[") then
+    return self:_readListDecl(type)
+  else
+    return self:_readStdDecl(type)
+  end
+end
+
+--Read the next standard declaration.
+--
+--@param type:string  var or const.
+--@return VarDecl
+function VarStmtParser:_readStdDecl(type)
+  local lex, exp = self._.lexer, self._.expParser
+  local name, val
+
+  --(1) name
+  name = lex:nextName().value
+
+  --(2) skip type if set
+  if lex:skipSymbol(":") then
+    self:_readDataType()
+  end
+
+  --(3) default value
+  if type == "var" then
+    if lex:skipSymbol("=") then
+      val = exp:next()
+    elseif lex:skipSymbol("::=") then
+      type = "const"
+      val = exp:next()
+    end
+  elseif type == "const" then
+    lex:nextSymbol("=")
+    val = exp:next()
+  end
+
+  --(4) return
+  return VarDecl.new(type, "std", {name}, val)
+end
+
+--Read a map declaration.
+--
+--@param type:string  var or const.
+--@return VarDecl
+function VarStmtParser:_readMapDecl(type)
+  local lex, exp = self._.lexer, self._.expParser
+  local names, val
+
+  --(1) names
+  lex:nextSymbol("{")
+
+  names = {}
+  while true do
+    local tok
+
+    table.insert(names, lex:nextName().value)
+
+    tok = lex:advance()
+    if tok:isSymbol("}") then
+      break
+    end
+
+    lex:nextSymbol(",")
+  end
+
+  lex:nextSymbol("}")
+
+  if type == "var" then
+    if lex:skipSymbol("::=") then
+      type = "const"
+    else
+      lex:nextSymbol("=")
+    end
+  else
+    lex:nextSymbol("=")
+  end
+
+  val = exp:next()
+
+  --(2) return
+  return VarDecl.new(type, "map", names, val)
+end
+
+--Read a list declaration.
+--
+--@param type:string  var or const.
+--@return VarDecl
+function VarStmtParser:_readListDecl(type)
+  local lex, exp = self._.lexer, self._.expParser
+  local names, val
+
+  --(1) names
+  lex:nextSymbol("[")
+
+  names = {}
+  while true do
+    if lex:skipSymbol("...") then
+      table.insert(names, "..." .. lex:nextName().value)
+    else
+      local tok = lex:advance()
+
+      if tok:isName("_") then
+        lex:nextName()
+        table.insert(names, "")
+      else
+        table.insert(names, lex:nextName().value)
+      end
+    end
+
+    if lex:advance():isSymbol("]") then
+      break
+    end
+
+    lex:nextSymbol(",")
+  end
+
+  lex:nextSymbol("]")
+
+  if type == "var" then
+    if lex:skipSymbol("::=") then
+      type = "const"
+    else
+      lex:nextSymbol("=")
+    end
+  else
+    lex:nextSymbol("=")
+  end
+
+  val = exp:next()
+
+  --(2) return
+  return VarDecl.new(type, "list", names, val)
+end

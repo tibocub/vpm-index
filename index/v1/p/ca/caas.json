@@ -1,0 +1,92 @@
+{
+  "kind": "app",
+  "name": "caas",
+  "versions": {
+    "1.3.2-0": {
+      "bin": {
+        "caas": "bin/caas"
+      },
+      "deps": [
+        "dromozoa-shlex >= 1.2",
+        "luafilesystem >= 1.7",
+        "luv ~> 1.32"
+      ],
+      "files": {
+        "bin/caas": {
+          "sha256": "50c69b2ef1f6f2491b2c21ade101758123fdec5a15ca5d151f1c92ea7aa28d11",
+          "size": 10296,
+          "url": "https://raw.githubusercontent.com/alekmarinov/caas/6c7469b1471b0752de94fb03e40ee25f3922248a/caas.lua"
+        },
+        "caas/jobs.lua": {
+          "sha256": "3658635b49f6e80bdb37f84f379d67ce9362f0bad14fe0b0bc0daccc8873d1fe",
+          "size": 4854,
+          "url": "https://raw.githubusercontent.com/alekmarinov/caas/6c7469b1471b0752de94fb03e40ee25f3922248a/caas/jobs.lua"
+        },
+        "caas/luvhttpd.lua": {
+          "sha256": "28ab5f30617374eb4fe0dd27ecd011bdd19b2c001f0f0919324eb1b4e6227f34",
+          "size": 9099,
+          "url": "https://raw.githubusercontent.com/alekmarinov/caas/6c7469b1471b0752de94fb03e40ee25f3922248a/caas/luvhttpd.lua"
+        },
+        "caas/persistence.lua": {
+          "sha256": "12f648a1e208d8e5bb69b2329dd88213512f96e87ecba8a440c1d99e51ec0d7c",
+          "size": 1760,
+          "url": "https://raw.githubusercontent.com/alekmarinov/caas/6c7469b1471b0752de94fb03e40ee25f3922248a/caas/persistence.lua"
+        },
+        "caas/plugin/logger.lua": {
+          "sha256": "71d0ef284e12a4497e5b8e935726c9770f1a6e3e776ba43efad16f22438155b4",
+          "size": 461,
+          "url": "https://raw.githubusercontent.com/alekmarinov/caas/6c7469b1471b0752de94fb03e40ee25f3922248a/caas/plugin/logger.lua"
+        },
+        "caas/plugin/prometheus.lua": {
+          "sha256": "329fe3fab50a0e26a9257e7e7ee3010ceb4062fa29ee92d210cb3c7c45d6d2dd",
+          "size": 23353,
+          "url": "https://raw.githubusercontent.com/alekmarinov/caas/6c7469b1471b0752de94fb03e40ee25f3922248a/caas/plugin/prometheus.lua"
+        }
+      },
+      "homepage": "https://github.com/alekmarinov/caas",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Fri, 16 Oct 2020 16:54:42 GMT",
+        "rockspec": {
+          "date": "Fri, 16 Oct 2020 16:54:42 GMT",
+          "sha256": "52b4159042976341e3a9c0e0b6f1e852f8917117d4d29abb202a3787d253b835",
+          "size": 903
+        },
+        "src": {
+          "date": "Fri, 16 Oct 2020 16:54:43 GMT",
+          "sha256": "b6c1812e2484b9c776207ca8eeaefbdb1c2e959b9fe708b5b3c8fe032d53abc4",
+          "size": 17684,
+          "url": "https://luarocks.org/caas-1.3.2-0.src.rock"
+        }
+      },
+      "modules": [
+        "caas.jobs",
+        "caas.luvhttpd",
+        "caas.persistence",
+        "caas.plugin.logger",
+        "caas.plugin.prometheus"
+      ],
+      "origin": {
+        "commit": "6c7469b1471b0752de94fb03e40ee25f3922248a",
+        "ref": "1.3.2",
+        "type": "git",
+        "url": "https://github.com/alekmarinov/caas.git"
+      },
+      "size": 49823,
+      "summary": "API turning shell commands into API",
+      "undeclared_requires": [
+        "caas.plugin.",
+        "luv"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

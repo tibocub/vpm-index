@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "kong-auth-request",
+  "versions": {
+    "0.1.7-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-auth-request/access.lua": {
+          "sha256": "afa40a7a50aa34f3e1e679778f109537998cc6512249fd1b1ba93fe35ecf77ca",
+          "size": 1715,
+          "url": "https://raw.githubusercontent.com/ascho/kong-auth-request/7be6d25cc35c18657cf7bcfee1def931ac6bd67c/src/access.lua"
+        },
+        "kong/plugins/kong-auth-request/handler.lua": {
+          "sha256": "b5209db8297e087eb47bc8c913f05eb230c11b32830e2745d92c1cc15bed89b4",
+          "size": 432,
+          "url": "https://raw.githubusercontent.com/ascho/kong-auth-request/7be6d25cc35c18657cf7bcfee1def931ac6bd67c/src/handler.lua"
+        },
+        "kong/plugins/kong-auth-request/schema.lua": {
+          "sha256": "be160b792a63e29663cefc40708570dbf0b0a89e5412365d618e7ba612024c6a",
+          "size": 396,
+          "url": "https://raw.githubusercontent.com/ascho/kong-auth-request/7be6d25cc35c18657cf7bcfee1def931ac6bd67c/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Tue, 28 May 2019 11:34:40 GMT",
+        "rockspec": {
+          "date": "Tue, 28 May 2019 11:34:40 GMT",
+          "sha256": "6a8cb506a323227fe47fbd671ec3081cad4be9450d9f8bb4891f44b5593acb3d",
+          "size": 569
+        },
+        "src": {
+          "date": "Tue, 28 May 2019 11:34:42 GMT",
+          "sha256": "bbbd01a9efdc5d67c92013f72a70ae0ddd3eb9dedb1f94fd379ec07b7db60524",
+          "size": 5011,
+          "url": "https://luarocks.org/kong-auth-request-0.1.7-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-auth-request.access",
+        "kong.plugins.kong-auth-request.handler",
+        "kong.plugins.kong-auth-request.schema"
+      ],
+      "origin": {
+        "commit": "7be6d25cc35c18657cf7bcfee1def931ac6bd67c",
+        "ref": "0.1.7",
+        "type": "git",
+        "url": "https://github.com/ascho/kong-auth-request"
+      },
+      "size": 2543,
+      "summary": "A Kong plugin that make GET auth request before proxying the original.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "luazip",
+  "versions": {
+    "1.2.7-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/mpeterv/luazip",
+      "license": "MIT",
+      "lua": ">= 5.1, < 5.4",
+      "luarocks": {
+        "date": "Wed, 28 Jan 2026 15:27:25 GMT",
+        "rockspec": {
+          "date": "Wed, 28 Jan 2026 15:27:25 GMT",
+          "sha256": "6ad5f37a5718e536c4a87fbeabf42b07c1b5598ab588f428d2042b3dc51dbef3",
+          "size": 839
+        },
+        "src": {
+          "date": "Wed, 28 Jan 2026 15:27:25 GMT",
+          "sha256": "7480e980da7a1b1e51094242e16fb83f3d5f2bbc0e23e421d47099ab42a6f9fa",
+          "size": 50385,
+          "url": "https://luarocks.org/luazip-1.2.7-1.src.rock"
+        }
+      },
+      "modules": [
+        "zip"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "ZZIP"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "ZZIP": {
+              "header": "zzip.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(ZZIP_INCDIR)"
+              ],
+              "libdirs": [
+                "$(ZZIP_LIBDIR)"
+              ],
+              "libraries": [
+                "zzip"
+              ],
+              "name": "zip",
+              "sources": [
+                "src/luazip.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 28 Jan 2026 15:27:25 GMT",
+        "sha256": "7480e980da7a1b1e51094242e16fb83f3d5f2bbc0e23e421d47099ab42a6f9fa",
+        "size": 50385,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luazip-1.2.7-1.src.rock"
+      },
+      "summary": "Library for reading files inside zip files",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

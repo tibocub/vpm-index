@@ -1,0 +1,65 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-azure-functions",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/azure-functions/handler.lua": {
+          "sha256": "c28b21d4e4e9ff240273750ce3d043d2ae54a56a9a83cdd026e23514fa9b6675",
+          "size": 3253,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-azure-functions/9e5b74ba597380b9ff5e78769d9be62d7ea36faa/kong/plugins/azure-functions/handler.lua"
+        },
+        "kong/plugins/azure-functions/schema.lua": {
+          "sha256": "e43c834d750aa0798f59d38ba0df6210fa758b081ff9d2ba737155d1c067a798",
+          "size": 966,
+          "url": "https://raw.githubusercontent.com/kong/kong-plugin-azure-functions/9e5b74ba597380b9ff5e78769d9be62d7ea36faa/kong/plugins/azure-functions/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 07 Sep 2021 14:19:37 GMT",
+        "rockspec": {
+          "date": "Tue, 07 Sep 2021 14:19:37 GMT",
+          "sha256": "e4b0c4149f0d1d2cb40f371eed4e2ce1944878cf0b9c94f676a8c94587333dcd",
+          "size": 547
+        },
+        "src": {
+          "date": "Tue, 07 Sep 2021 14:19:39 GMT",
+          "sha256": "9d61b7b2a7ef42c0e9fb8b203c031727721bf1787208f1494416c07467492169",
+          "size": 13210,
+          "url": "https://luarocks.org/kong-plugin-azure-functions-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.azure-functions.handler",
+        "kong.plugins.azure-functions.schema"
+      ],
+      "origin": {
+        "commit": "9e5b74ba597380b9ff5e78769d9be62d7ea36faa",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/kong/kong-plugin-azure-functions"
+      },
+      "size": 4219,
+      "summary": "This plugin allows Kong to invoke Azure functions.",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.meta",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

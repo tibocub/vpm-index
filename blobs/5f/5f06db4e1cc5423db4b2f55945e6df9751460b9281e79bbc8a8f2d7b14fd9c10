@@ -1,0 +1,100 @@
+local pp = require "pl.pretty"
+local term = require "volksdata.term"
+
+local pkar = require "pocket_archive"
+local flags = require "pocket_archive.flags"
+local model = require "pocket_archive.model"
+
+local logger = pkar.logger
+
+
+local NT = pkar.NT
+local E_TYPE = "Type error"
+local E_CARD = "Cardinality error"
+local E_RANGE = "Range error"
+
+local M = {}
+
+
+M.validate = function(gr, s)
+    ctype = gr:attr(s, model.uri_map.content_type):iter()()
+    if not ctype then error("No content type found for " .. s.data) end
+    local schema = model.from_uri(ctype)
+    if not schema then error("No type definition for " .. ctype.data) end
+
+    local report = {
+        id = s.data, ctype = ctype.data,
+        notices = {}, warnings = {}, errors = {}
+    }
+
+    for fname, rules in pairs(schema.properties or NT) do
+        local values
+        values = gr:attr(s, model.uri_map[fname])
+
+        -- Cardinality
+        if #values < rules.min_cardinality then
+            table.insert(report.errors, {
+                E_CARD,
+                ("Too few values for %s: expected %d, got %d"):format(
+                        fname, rules.min_cardinality, #values)
+            })
+        end
+        if (
+            #values > rules.max_cardinality and
+            rules.flags & flags.PROP_MULTILANG == 0
+        ) then
+            table.insert(report.errors, {
+                E_CARD,
+                ("Too many values for %s: expected %d, got %d"):format(
+                        fname, rules.max_cardinality, #values)
+            })
+        end
+
+        -- From this point on, if there are no values, skip other criteria.
+        if #values == 0 then goto skip_prop end
+
+        -- Type
+        -- String type accepts any value.
+        if model.NUM_TYPES[rules.type] then
+            for v in values:iter() do
+                if tonumber(v.data) == nil then
+                    table.insert(report.errors, {
+                        E_TYPE,
+                        ("Value for %s is not a valid number: %s")
+                                :format(fname, v.data)
+                    })
+                end
+            end
+        --[[  TODO
+        elseif rules.type == "resource" then
+            for v in values:iter() do
+                if v.data:sub(1, #model.RSRC_NS) ~= model.RSRC_NS then
+                    table.insert(report.errors, {
+                        E_TYPE,
+                        ("A value for %s does not look like a resource \z
+                        reference: %s"):format(fname, v)
+                    })
+                end
+            end
+        --]]
+        end
+
+        -- Range
+        if rules.range then
+            for _, v in ipairs(values) do
+                -- TODO
+            end
+        end
+
+        ::skip_prop::
+    end
+
+    if #report.errors > 0 then report.max_level = "ERROR"
+    elseif #report.warnings > 0 then report.max_level = "WARN"
+    elseif #report.notices > 0 then report.max_level = "NOTICE" end
+
+    return report
+end
+
+
+return M

@@ -1,0 +1,119 @@
+{
+  "kind": "lib",
+  "name": "ime.nvim",
+  "versions": {
+    "0.0.10-1": {
+      "bin": [],
+      "deps": [
+        "dbus_proxy>=0.10.4",
+        "lua-cjson",
+        "luafilesystem",
+        "ime>=0.0.4",
+        "vim",
+        "datafile",
+        "platformdirs"
+      ],
+      "files": {
+        "dbus_proxy/proxies.lua": {
+          "sha256": "11fac8285e109d2c50749c33bb260deba911fa61861b226ece097183964e6a6b",
+          "size": 891,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies.lua"
+        },
+        "dbus_proxy/proxies/clipper.lua": {
+          "sha256": "213e92f0c041e51e6879ffdb961e1750cec0b21d6cdb81f4daa65063bc54072b",
+          "size": 1062,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/clipper.lua"
+        },
+        "dbus_proxy/proxies/ime.lua": {
+          "sha256": "757dfe67dfa6e472480a388ed1c97798f16c3b8b2cfc1d80b5877998626265e8",
+          "size": 632,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/ime.lua"
+        },
+        "dbus_proxy/proxies/ime/fcitx-rime.lua": {
+          "sha256": "574333140e63cf8c47f64d8bfe1c8ba22942d192bac256019212eec1b0b0f781",
+          "size": 1011,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/ime/fcitx-rime.lua"
+        },
+        "dbus_proxy/proxies/ime/fcitx.lua": {
+          "sha256": "8af46e2f2d04c5058daad6df24f2a9f19bb54dcd60f26f9b53d5a7b0a7382140",
+          "size": 1242,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/ime/fcitx.lua"
+        },
+        "dbus_proxy/proxies/ime/g3kbswitch.lua": {
+          "sha256": "2c30b225740595ea98e706bd5f9218a9125bef1bb2a1003a934cf455a8be2492",
+          "size": 1281,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/ime/g3kbswitch.lua"
+        },
+        "dbus_proxy/proxies/ime/gnome-shell.lua": {
+          "sha256": "3bd9c9782ed2a6c809d1143b49adc6ff037191a3760d89604b143be7e3647fda",
+          "size": 1872,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/ime/gnome-shell.lua"
+        },
+        "dbus_proxy/proxies/ime/ibus.lua": {
+          "sha256": "5ad6ceef29b4391afd6d41989b08b401c6518ad3112dd08e0df1fc10d03bca06",
+          "size": 2252,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/ime/ibus.lua"
+        },
+        "dbus_proxy/proxies/notifier.lua": {
+          "sha256": "9e7bc5fd71e5ce1d6b14b9eb194992b4b7a59198f99d5106cdbd74148172ef8d",
+          "size": 3125,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/dbus_proxy/proxies/notifier.lua"
+        },
+        "ime/nvim.lua": {
+          "sha256": "2b2bad20f79f584e02ea1cfa9320ee537e5793e51660dc8d043ee41e47b0f893",
+          "size": 241,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/ime/nvim.lua"
+        },
+        "ime/nvim/ime.lua": {
+          "sha256": "abcd9a4348dc6d4fa0d13fd24eafabb9fc3ae5c6438a126ad7b6f60f1af72edd",
+          "size": 2592,
+          "url": "https://raw.githubusercontent.com/rimeinn/ime.nvim/0.0.10/lua/ime/nvim/ime.lua"
+        }
+      },
+      "homepage": "https://ime-nvim.readthedocs.io/",
+      "host": "nvim",
+      "license": "GPL-3.0",
+      "lua": ">=5.1",
+      "luarocks": {
+        "date": "Fri, 30 Oct 2026 03:08:39 GMT",
+        "rockspec": {
+          "date": "Fri, 30 Oct 2026 03:08:39 GMT",
+          "sha256": "5b606c1688f165a847a889ef826cf11d96cb631233b27d11a0575d76106d4cae",
+          "size": 1018
+        }
+      },
+      "modules": [
+        "dbus_proxy.proxies",
+        "dbus_proxy.proxies.clipper",
+        "dbus_proxy.proxies.ime",
+        "dbus_proxy.proxies.ime.fcitx",
+        "dbus_proxy.proxies.ime.fcitx-rime",
+        "dbus_proxy.proxies.ime.g3kbswitch",
+        "dbus_proxy.proxies.ime.gnome-shell",
+        "dbus_proxy.proxies.ime.ibus",
+        "dbus_proxy.proxies.notifier",
+        "ime.nvim",
+        "ime.nvim.ime"
+      ],
+      "origin": {
+        "sha256": "84b0145576e1e0ff4750cdf9662031b479ae515d6213f93d39fdbfe0b34432f7",
+        "type": "archive",
+        "url": "https://github.com/rimeinn/ime.nvim/archive/0.0.10.zip"
+      },
+      "size": 16201,
+      "summary": "auto switch IME for neovim. 如何在 Vim 中方便的输入汉字（CJKV characters）",
+      "undeclared_requires": [
+        "lgi"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+--imports
+local Stmt = require("dogma.syn._.Stmt")
+local StmtType = require("dogma.syn.StmtType")
+
+--A break statement.
+local BreakStmt = {}
+BreakStmt.__index = BreakStmt
+setmetatable(BreakStmt, {__index = Stmt})
+package.loaded[...] = BreakStmt
+
+--Constructor.
+--
+--@param ln:number  Line number.
+--@param col:number Column number.
+--@param loop:text  Loop to exit.
+function BreakStmt.new(ln, col, loop)
+  local self = setmetatable(Stmt.new(StmtType.BREAK, ln, col), BreakStmt)
+  self.loop = loop
+  return self
+end

@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-the-middleman",
+  "versions": {
+    "1.1.1-3": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-cjson == 2.1.0.6-1",
+        "lua-resty-http >= 0.11"
+      ],
+      "files": {
+        "kong/plugins/the-middleman/access.lua": {
+          "sha256": "d954c99273495800613fb5b1b825bd0a6ec9d2ff71d11fbe3cbf4103ab8cadde",
+          "size": 4804,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-the-middleman/ac170e834d1a0eb938d5373d420c9bb34f996819/kong/plugins/the-middleman/access.lua"
+        },
+        "kong/plugins/the-middleman/handler.lua": {
+          "sha256": "19f2ddc406407eeb6931f326c4a339d095da1fc0c2f6211fd228607f989ab34b",
+          "size": 291,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-the-middleman/ac170e834d1a0eb938d5373d420c9bb34f996819/kong/plugins/the-middleman/handler.lua"
+        },
+        "kong/plugins/the-middleman/policies/init.lua": {
+          "sha256": "f92aa1b5e49b6b96650c514339845072173e2bf93d7c7e6eff7f711cd30e76ec",
+          "size": 5212,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-the-middleman/ac170e834d1a0eb938d5373d420c9bb34f996819/kong/plugins/the-middleman/policies/init.lua"
+        },
+        "kong/plugins/the-middleman/schema.lua": {
+          "sha256": "c52aa9531d215bb7ef31dc9327028b0af248e98260db246ecc9fb7f6d89a16e8",
+          "size": 2915,
+          "url": "https://raw.githubusercontent.com/udleinati/kong-plugin-the-middleman/ac170e834d1a0eb938d5373d420c9bb34f996819/kong/plugins/the-middleman/schema.lua"
+        }
+      },
+      "homepage": "git://github.com/udleinati/kong-plugin-the-middleman",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 22 May 2024 17:59:38 GMT",
+        "rockspec": {
+          "date": "Wed, 22 May 2024 17:59:38 GMT",
+          "sha256": "b8e9932026cb628c4cb8cca33c8299e3cbf429d02eb43ba435582efbe622113d",
+          "size": 948
+        },
+        "src": {
+          "date": "Wed, 22 May 2024 17:59:38 GMT",
+          "sha256": "2de8c5dc16c11454845670fda069aa7855d9494d0816326ed72227cb1db76b40",
+          "size": 16142,
+          "url": "https://luarocks.org/kong-plugin-the-middleman-1.1.1-3.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.the-middleman.access",
+        "kong.plugins.the-middleman.handler",
+        "kong.plugins.the-middleman.policies",
+        "kong.plugins.the-middleman.schema"
+      ],
+      "origin": {
+        "commit": "ac170e834d1a0eb938d5373d420c9bb34f996819",
+        "ref": "1.1.1-3",
+        "type": "git",
+        "url": "https://github.com/udleinati/kong-plugin-the-middleman"
+      },
+      "size": 13222,
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.reports",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

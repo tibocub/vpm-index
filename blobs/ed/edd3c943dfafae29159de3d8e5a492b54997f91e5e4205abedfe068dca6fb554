@@ -1,0 +1,60 @@
+
+--
+-- lua-Silva : <https://fperrad.frama.io/lua-Silva>
+--
+
+local require = require
+local setmetatable = setmetatable
+local _ENV = nil
+local m = {}
+
+function m.matcher (match)
+    return function (patt)
+        return function (s)
+            return match(s, patt)
+        end
+    end
+end
+
+function m.array_matcher (match)
+    return function (patt)
+        return function (s)
+            local capt = { match(s, patt) }
+            if #capt == 0 then
+                return nil
+            end
+            if s == capt[1] then
+                return s
+            else
+                return capt
+            end
+        end
+    end
+end
+
+local cache = setmetatable({}, {
+    __index = function (t, k)
+        local v = require('Silva.' .. k)
+        t[k] = v
+        return v
+    end
+})
+
+local function new (patt, type)
+    type = type or 'template'
+    return cache[type](patt)
+end
+
+setmetatable(m, {
+    __call = function (_, patt, type) return new(patt, type) end
+})
+
+m._NAME = ...
+m._VERSION = "0.2.2"
+m._DESCRIPTION = "lua-Silva : your personal string matching expert"
+m._COPYRIGHT = "Copyright (c) 2017-2025 Francois Perrad"
+return m
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

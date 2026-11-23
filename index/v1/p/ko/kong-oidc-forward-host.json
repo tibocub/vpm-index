@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "kong-oidc-forward-host",
+  "versions": {
+    "1.1.4-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.7.4-1"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "1e714dd19e0802539afb534c2b83bcf1640b9a6d66ea29aa62b38e4c74ef67b6",
+          "size": 374,
+          "url": "https://raw.githubusercontent.com/jasine/kong-oidc/535db89a20f720c741762a4306a133df8fa1f934/kong/plugins/oidc/filter.lua"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "a1bc4efd5ab8a53d633e203b978393af4200975bb5791cee13117b77d74a6686",
+          "size": 2382,
+          "url": "https://raw.githubusercontent.com/jasine/kong-oidc/535db89a20f720c741762a4306a133df8fa1f934/kong/plugins/oidc/handler.lua"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "a4f7f466957ab57d01856213ef081b8489ebafb82b446cd5b182870d8d991127",
+          "size": 1328,
+          "url": "https://raw.githubusercontent.com/jasine/kong-oidc/535db89a20f720c741762a4306a133df8fa1f934/kong/plugins/oidc/schema.lua"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "95dd1f6afd1d28eb8d04a84309b8d243a69acc01579bdb7d2bcd18a9faede5c4",
+          "size": 458,
+          "url": "https://raw.githubusercontent.com/jasine/kong-oidc/535db89a20f720c741762a4306a133df8fa1f934/kong/plugins/oidc/session.lua"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "c1b62d9bade860b5841c19f724a9ce5c47fe5638b1d24884978db6ba81f1a2c9",
+          "size": 2858,
+          "url": "https://raw.githubusercontent.com/jasine/kong-oidc/535db89a20f720c741762a4306a133df8fa1f934/kong/plugins/oidc/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/jasine/kong-oidc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Fri, 08 Oct 2021 17:13:54 GMT",
+        "rockspec": {
+          "date": "Fri, 08 Oct 2021 17:13:54 GMT",
+          "sha256": "a60fa4987853a5d06e892587edc10a6f3e1574ab881865ef207ad9922be2e707",
+          "size": 1724
+        },
+        "src": {
+          "date": "Fri, 08 Oct 2021 17:13:57 GMT",
+          "sha256": "be148979778711e63b5d3ecf0057330c0766479f5ebd38e1e4ca3a52b4ed78fc",
+          "size": 154247,
+          "url": "https://luarocks.org/kong-oidc-forward-host-1.1.4-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "commit": "535db89a20f720c741762a4306a133df8fa1f934",
+        "ref": "v1.1.4",
+        "type": "git",
+        "url": "https://github.com/jasine/kong-oidc"
+      },
+      "size": 7400,
+      "summary": "A Kong plugin for implementing the OpenID Connect Relying Party (RP) functionality",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

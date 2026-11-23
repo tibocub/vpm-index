@@ -1,0 +1,62 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A with ... if subexpression.
+local WithDoSubExp = {}
+WithDoSubExp.__index = WithDoSubExp
+setmetatable(WithDoSubExp, {__index = Terminal})
+package.loaded[...] = WithDoSubExp
+
+--Constructor.
+function WithDoSubExp.new(ln, col, value, ifs, els)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.WITH_DO, {line=ln, col=col}), WithDoSubExp)
+  self.value = value
+  self.ifs = ifs
+  self.els = els
+
+  --(2) return
+  return self
+end
+
+--@override
+function WithDoSubExp:__tostring()
+  local ifs = ""
+
+  for i, item in ipairs(self.ifs) do
+    ifs = ifs .. string.format("%s%s=>%s", i == 1 and "" or " ", item.cond, item.value)
+  end
+
+  return string.format(
+    "(with %s do %s %s)",
+    tostring(self.value),
+    ifs,
+    tostring(self.els)
+  )
+end
+
+--@override
+function WithDoSubExp:hasId(id)
+  --(1) check
+  local has = self.value:hasId(id)
+
+  if not has then
+    for _, clause in ipairs(self.ifs) do
+      has = clause.cond:hasId(id) or clause.value:hasId(id)
+
+      if has then
+        break
+      end
+    end
+  end
+
+  if not has and self.els then
+    has = self.els:hasId(id)
+  end
+
+  --(2) return check
+  return has
+end

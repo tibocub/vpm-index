@@ -1,0 +1,87 @@
+
+local db = {}
+
+db.view = {
+  {"name",     'Title'},
+  {"category", 'Category'},
+  {"year",     'Year',ht="NUM"},
+  {"rating",   'Rating',ht="NUM"},
+  {"runtime",  'Runtime',ht='NUM'},
+  {"icon",     'Poster Icon'},--todo
+  {"link",     'Link'},
+  {"user",     "User",ht='SELECT',rt="users",rf={{"login"}}},
+}
+
+db.list = {
+  {"name",     'Title',ht="SELF"},
+  {"category", 'Category'},
+  {"year",     'Year'},
+  {"rating",   'Rating'},
+  {"runtime",  'Runtime'},
+  {"icon",     'Poster Icon'},
+  {"link",     'Link'},
+
+  {"user"},
+
+  where = {
+    {"name",'Title'},
+    {"runtime",'Runtime'},
+    {"category",'Category'},
+  }
+}
+
+function db:menu(row)
+  if not row then
+    local menu = {
+      {'imdb.imdb','File',{act='file'}}
+    }
+    return menu
+  end
+end
+
+function db:import(data)
+
+          for line in string.gmatch(data,"[^\n]+") do
+            local name,category,year,rating,runtime,icon,link = string.match(line,
+                    "([^%s,;]*)[%s,;]*([^%s,;]*)[%s,;]*([^%s,;]*)[%s,;]*([^%s,;]*)[%s,;]*"..
+                    "([^%s,;]*)[%s,;]*([^%s,;]*)[%s,;]*([^%s,;]*)")
+            if name then
+              self.conn:exec(([[insert into imdb.imdb (name,category,year,rating,runtime,icon,link)
+                         values('%s','%s','%s','%s','%s','%s','%s')]]):format(name,category or '',
+                            year or '',rating or '',runtime or '',icon or '',link or ''))
+            end
+          end
+
+end
+
+function db:main()
+  if params.act == 'file' then
+    self.view = {
+      {"filename","File",sz = 40, ht = 'FILE',
+        opt=[[onchange='fcpy(this,$("#text"),"text")']]},
+      {'text',"Input Text",ht = "TEXTAREA",sz=10},
+
+      submit = {
+          {"imdb.imdb","Import",{act='import'}},
+      },
+      file = true,
+
+    }
+    if self.conf.apps.file then
+      self.view[1] = {'file',"File",rt = 'file.files',ht = "REF"}
+    end
+    params.act = 'new'
+  elseif params.act == 'import'  then
+    local text = params.text
+    self:import(text)
+    if params.fileId and tonumber(params.fileId) then
+        for data in self.conn:urows('select data from file.files where rowid = "' .. params.fileId .. '"') do
+          self:import(data)
+        end
+    end
+    params.act = 'find'
+  end
+
+end
+
+return db

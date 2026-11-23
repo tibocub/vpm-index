@@ -1,0 +1,80 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-hal",
+  "versions": {
+    "1.0-7": {
+      "bin": [],
+      "deps": [
+        "dkjson ~> 2.5-2"
+      ],
+      "files": {
+        "kong/plugins/hal/body_filter.lua": {
+          "sha256": "393c2e58ad1aaab960f866bbdb1f7cdccf44628adfb1bbb6f0c788d741f0b23b",
+          "size": 2160,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-hal/3d05847f6ca122475966cf9920af64d118f6b687/src/body_filter.lua"
+        },
+        "kong/plugins/hal/handler.lua": {
+          "sha256": "f23b0d04d79392a0bbb652fa5a1600293593ce84e83e1368e37a98f3a511c968",
+          "size": 4076,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-hal/3d05847f6ca122475966cf9920af64d118f6b687/src/handler.lua"
+        },
+        "kong/plugins/hal/schema.lua": {
+          "sha256": "241546adb3b7469eca7d2b975e4f35cb1b5fb13a11a682a465fb7e9cac73a4ac",
+          "size": 50,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-hal/3d05847f6ca122475966cf9920af64d118f6b687/src/schema.lua"
+        },
+        "kong/plugins/hal/url.lua": {
+          "sha256": "267139433dc8c40f1341a12014b34cf9b3f49664d1a390b7f8c0fb8d42f5cd0a",
+          "size": 10763,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-hal/3d05847f6ca122475966cf9920af64d118f6b687/src/url.lua"
+        }
+      },
+      "homepage": "http://www.trust1team.com",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Thu, 23 Feb 2017 14:41:17 GMT",
+        "rockspec": {
+          "date": "Thu, 23 Feb 2017 14:41:17 GMT",
+          "sha256": "610bb210b1df987f9debfe58bae2b2ddbe4e19aa1e92e5556dfb3e4818fbf9f9",
+          "size": 692
+        },
+        "src": {
+          "date": "Thu, 23 Feb 2017 14:41:19 GMT",
+          "sha256": "b5dab9c0eb5059213e571dc57800beca65b0cda8319c653bebc170484cf293cc",
+          "size": 40647,
+          "url": "https://luarocks.org/kong-plugin-hal-1.0-7.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.hal.body_filter",
+        "kong.plugins.hal.handler",
+        "kong.plugins.hal.schema",
+        "kong.plugins.hal.url"
+      ],
+      "origin": {
+        "commit": "3d05847f6ca122475966cf9920af64d118f6b687",
+        "ref": "1.0.7",
+        "type": "git",
+        "url": "https://github.com/Trust1Team/kong-plugin-hal"
+      },
+      "size": 17049,
+      "summary": "The Kong HAL plugin.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.tools.utils",
+        "stringy"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

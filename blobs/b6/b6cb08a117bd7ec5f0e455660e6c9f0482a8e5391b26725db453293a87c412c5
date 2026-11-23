@@ -1,0 +1,265 @@
+--- Inspection-profile cache + resolver for the Lua SDK.
+---
+--- Ports the nginx module's profile machinery (ngx_http_impart_lookup_profile /
+--- cache_upsert in inspector/plugins/nginx/src/ngx_http_impart_module.c) so
+--- Lua-based plugins (Kong, HAProxy) can resolve a per-route inspection profile —
+--- body-size caps and RPC timeouts — that the Inspector serves
+--- via SettingsRPC.
+---
+--- The cache is a plain in-process Lua table (one per worker); there is no shared
+--- dict. Profiles arrive from sdk.Client:FetchSettings (the full set) and from
+--- inline corrections on an InspectRequest response (a single profile). Resolution
+--- mirrors the Inspector's matching:
+---   1. port must match exactly,
+---   2. path_prefix must be a prefix of the request path,
+---   3. host must match the profile's host pattern (exact, or a glob via * / ?),
+---   4. among matches, the highest glob_score wins (the Inspector ships the score
+---      so we don't reimplement ScoreHostnamePattern), ties broken by the longest
+---      path_prefix.
+
+-- Default-profile timeout (ms): the nginx parser falls back to this when a
+-- profile carries a non-positive timeout (ngx_http_impart_json.c).
+local DEFAULT_TIMEOUT_MS = 100
+
+--- @class InspectionProfileEntry
+--- @field host string host pattern (may be a glob like "*.example.com")
+--- @field port string
+--- @field path_prefix string
+--- @field request_timeout_ms integer
+--- @field response_timeout_ms integer
+--- @field request_max_body_size integer
+--- @field response_max_body_size integer
+--- @field glob_score integer
+
+--- @class ProfileCache
+--- @field private profiles InspectionProfileEntry[]
+--- @field private profiles_hash string
+local ProfileCache = {}
+ProfileCache.__index = ProfileCache
+
+-- Clamp a body-size field: non-positive (or missing) -> 0 (capture nothing),
+-- matching the nginx parser's defensive clamp.
+local function clampBody(v)
+  v = tonumber(v) or 0
+  if v <= 0 then
+    return 0
+  end
+
+  return math.floor(v)
+end
+
+-- Clamp a timeout field: non-positive (or missing) -> API default. A 0 timeout
+-- would fire the socket immediately and effectively disable inspection.
+local function clampTimeout(v)
+  v = tonumber(v) or 0
+  if v <= 0 then
+    return DEFAULT_TIMEOUT_MS
+  end
+
+  return math.floor(v)
+end
+
+-- A host pattern is a glob if it carries any fnmatch metacharacter the Inspector
+-- may emit (* ? [). Exact hosts are compared by lowercased equality (cheaper and
+-- avoids pattern edge cases); globs are translated to an anchored Lua pattern.
+local function hostIsGlob(host)
+  return host:find("[%*%?%[]") ~= nil
+end
+
+-- Translate a shell-style host glob into an anchored Lua pattern, honoring the
+-- fnmatch metacharacters the nginx module (fnmatch) supports: * (any run),
+-- ? (any single char), and [set] / [!set] character classes (mapped to Lua's
+-- native [set] / [^set]). Everything else is escaped to a literal.
+local function globToPattern(glob)
+  local out = { "^" }
+  local i, n = 1, #glob
+  while i <= n do
+    local c = glob:sub(i, i)
+    if c == "*" then
+      out[#out + 1] = ".*"
+      i = i + 1
+    elseif c == "?" then
+      out[#out + 1] = "."
+      i = i + 1
+    elseif c == "[" then
+      -- Find the class' closing ']'. A leading '!'/'^' negates; a ']' as the
+      -- first member is literal (fnmatch), so skip it before scanning for the
+      -- real close.
+      local j = i + 1
+      if glob:sub(j, j) == "!" or glob:sub(j, j) == "^" then
+        j = j + 1
+      end
+      if glob:sub(j, j) == "]" then
+        j = j + 1
+      end
+      while j <= n and glob:sub(j, j) ~= "]" do
+        j = j + 1
+      end
+      if j > n then
+        -- Unterminated '[' -> match a literal '['.
+        out[#out + 1] = "%["
+        i = i + 1
+      else
+        local body = glob:sub(i + 1, j - 1)
+        local negate = body:sub(1, 1) == "!" or body:sub(1, 1) == "^"
+        if negate then
+          body = body:sub(2)
+        end
+        -- Inside a Lua class '%' escapes and ']' closes; escape both so members
+        -- stay literal. Ranges (a-z) pass through unchanged.
+        body = body:gsub("%%", "%%%%"):gsub("%]", "%%]")
+        out[#out + 1] = "[" .. (negate and "^" or "") .. body .. "]"
+        i = j + 1
+      end
+    elseif c:match("[%^%$%(%)%.%[%]%%%+%-]") then
+      out[#out + 1] = "%" .. c
+      i = i + 1
+    else
+      out[#out + 1] = c
+      i = i + 1
+    end
+  end
+  out[#out + 1] = "$"
+
+  return table.concat(out)
+end
+
+--- Normalize a raw profile table (snake_case keys, decoded from a SettingsRPC
+--- response or an inline correction) into an internal entry with clamped numerics
+--- and precomputed host-match fields.
+--- @param p table
+--- @return InspectionProfileEntry
+local function normalize(p)
+  local host = tostring(p.host or "")
+  local is_glob = hostIsGlob(host)
+  local host_lower = host:lower()
+
+  return {
+    host = host,
+    port = tostring(p.port or ""),
+    path_prefix = tostring(p.path_prefix or ""),
+    request_timeout_ms = clampTimeout(p.request_timeout_ms),
+    response_timeout_ms = clampTimeout(p.response_timeout_ms),
+    request_max_body_size = clampBody(p.request_max_body_size),
+    response_max_body_size = clampBody(p.response_max_body_size),
+    glob_score = math.floor(tonumber(p.glob_score) or 0),
+    host_lower = host_lower,
+    host_is_glob = is_glob,
+    host_pattern = is_glob and globToPattern(host_lower) or nil,
+  }
+end
+
+--- @return ProfileCache
+local function new()
+  return setmetatable({ profiles = {}, profiles_hash = "" }, ProfileCache)
+end
+
+--- Replace the entire profile set (from a SettingsRPC full response) and store the
+--- accompanying hash for the next conditional fetch.
+--- @param profiles table[]? raw profile tables (nil/empty clears the set)
+--- @param hash string? the profiles hash returned alongside the set
+function ProfileCache:replace(profiles, hash)
+  local normalized = {}
+  if profiles then
+    for _, p in ipairs(profiles) do
+      normalized[#normalized + 1] = normalize(p)
+    end
+  end
+
+  self.profiles = normalized
+  self.profiles_hash = hash or ""
+end
+
+--- Insert or update a single profile (from an inline correction on an
+--- InspectRequest response), matched on host+port+path_prefix identity, and clear
+--- the stored hash so the next SettingsRPC refetches the full set (mirrors the
+--- nginx cache_upsert, which zeroes the hash on correction).
+--- @param profile table raw profile table
+function ProfileCache:upsert(profile)
+  local entry = normalize(profile)
+  for i, p in ipairs(self.profiles) do
+    if p.host == entry.host and p.port == entry.port and p.path_prefix == entry.path_prefix then
+      self.profiles[i] = entry
+      self.profiles_hash = ""
+
+      return
+    end
+  end
+
+  self.profiles[#self.profiles + 1] = entry
+  self.profiles_hash = ""
+end
+
+--- @return string hash the stored profiles hash (empty on first fetch / after a correction)
+function ProfileCache:hash()
+  return self.profiles_hash
+end
+
+--- Clear the stored hash, forcing the next SettingsRPC to return the full set.
+function ProfileCache:clearHash()
+  self.profiles_hash = ""
+end
+
+--- Empty the cache and clear the stored hash. Used when the plugin is
+--- unconfigured so a later re-enable starts from a known-empty state rather than
+--- resolving stale profiles until the next poll refreshes them.
+function ProfileCache:clear()
+  self.profiles = {}
+  self.profiles_hash = ""
+end
+
+--- @return integer count the number of cached profiles
+function ProfileCache:count()
+  return #self.profiles
+end
+
+--- Resolve the best-matching profile for a request, or nil if none match (the
+--- caller then falls back to its static config). See the file header for the
+--- matching rules.
+--- @param host string request host (Host header, no port)
+--- @param port string request port
+--- @param path string request path
+--- @return InspectionProfileEntry? profile
+function ProfileCache:resolve(host, port, path)
+  if not host or #self.profiles == 0 then
+    return nil
+  end
+
+  host = host:lower()
+  port = port or ""
+  path = path or ""
+
+  local best, best_score, best_prefix_len = nil, -1, -1
+
+  for _, p in ipairs(self.profiles) do
+    -- Cheap checks first: exact port, then path_prefix is a prefix of the path.
+    if p.port == port then
+      local prefix_len = #p.path_prefix
+      if prefix_len <= #path and path:sub(1, prefix_len) == p.path_prefix then
+        -- Score short-circuit: only attempt the (more expensive) host match if
+        -- this entry could beat the current best.
+        if (not best)
+          or p.glob_score > best_score
+          or (p.glob_score == best_score and prefix_len > best_prefix_len)
+        then
+          local host_ok
+          if p.host_is_glob then
+            host_ok = host:match(p.host_pattern) ~= nil
+          else
+            host_ok = p.host_lower == host
+          end
+
+          if host_ok then
+            best, best_score, best_prefix_len = p, p.glob_score, prefix_len
+          end
+        end
+      end
+    end
+  end
+
+  return best
+end
+
+return {
+  new = new,
+}

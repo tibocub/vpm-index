@@ -1,0 +1,37 @@
+--- Centralized messages for the Zensical plugin.
+--- This module provides easy access to all user-facing messages,
+--- making it simple to update, localize, or modify them.
+local M = {}
+
+--- Table containing all messages in English (default language)
+M.messages = {
+	server = {
+		already_running = "Zensical server is already running on port 8000.",
+		started = "Zensical server started successfully!",
+		stopped = "Zensical server stopped successfully!",
+		not_running = "No Zensical server is running on port 8000.",
+		start_error = "Zensical server exited with code: %d",
+		stop_error = "Failed to stop Zensical server: %s",
+	},
+	build = {
+		success = "Zensical built successfully!",
+		error = "Error building Zensical. Exit code: %d",
+	},
+	project = {
+		created = "Zensical project created successfully!",
+		exists = "Error: zensical.toml already exists in the current directory.",
+		create_error = "Error creating new Zensical project. Exit code: %d",
+	},
+	config = {
+		missing_toml = "Error: zensical.toml not found in the current directory.",
+		uvx_not_found = "Error: 'uvx' is not installed or not found in configured paths.",
+	},
+	info = {
+		starting = "Starting Zensical...",
+		stopping = "Found PID: %d, attempting to stop...",
+		building = "Building Zensical...",
+		creating = "Creating new Zensical project...",
+	},
+}
+
+return M

@@ -1,0 +1,18 @@
+local utils = {}
+
+function utils.generateId()
+    return tostring(os.time()) .. tostring(math.random(1000, 9999))
+end
+
+function utils.validateLobbyConfig(config)
+    if not config then return false, "No config provided" end
+    if not config.maxPlayers then return false, "maxPlayers is required" end
+    if type(config.maxPlayers) ~= "number" then return false, "maxPlayers must be a number" end
+    return true
+end
+
+function utils.isValidLobbyId(lobbyId)
+    return type(lobbyId) == "string" and #lobbyId > 0
+end
+
+return utils

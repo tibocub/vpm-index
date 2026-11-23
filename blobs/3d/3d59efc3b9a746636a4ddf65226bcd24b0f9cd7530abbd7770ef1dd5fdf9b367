@@ -1,0 +1,40 @@
+#!/usr/bin/env lua
+-- bin/htb — executable entry point for htb.
+-- Resolves the project root so `require("htb.xxx")` works regardless of CWD.
+
+local function dirname(p)
+    return p:match("^(.*)/[^/]*$")
+end
+
+-- Walk up from this script to find the directory that contains src/htb/init.lua.
+local function find_root()
+    local candidates = {}
+    local script = arg[0]
+    if script and script:find("/") then
+        local d = script
+        for _ = 1, 4 do
+            local parent = dirname(d)
+            if not parent or parent == "" then
+                break
+            end
+            table.insert(candidates, parent)
+            d = parent
+        end
+    end
+    table.insert(candidates, ".")
+
+    for _, root in ipairs(candidates) do
+        local f = io.open(root .. "/src/htb/init.lua", "r")
+        if f then
+            f:close()
+            return root
+        end
+    end
+    return "."
+end
+
+local root = find_root()
+package.path = root .. "/src/?.lua;" .. root .. "/src/?/init.lua;" .. package.path
+
+local cli = require("htb.cli")
+os.exit(cli.main() or 0)

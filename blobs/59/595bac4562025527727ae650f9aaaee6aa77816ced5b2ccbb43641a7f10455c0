@@ -1,0 +1,263 @@
+--A subparser.
+local SubParser = {}
+SubParser.__index = SubParser
+package.loaded[...] = SubParser
+
+--No operation.
+local function nop()
+
+end
+
+--Constructor.
+--
+--@param Parser:Parser  Parent parser.
+function SubParser.new(parser)
+  --(1) arguments
+  if not parser then error("parser expected.") end
+
+  --(2) create
+  return setmetatable({
+    _ = {
+      parser = parser,
+      lexer = parser._.lexer
+    }
+  }, SubParser)
+end
+
+--Read next end of lines.
+function SubParser:_skipEols()
+  local lex = self._.lexer
+
+  while true do
+    local tok = lex:advance()
+
+    if tok and tok:isEol() then
+      lex:next()
+    else
+      break
+    end
+  end
+end
+
+--Read a path.
+function SubParser:_nextPath(p)
+  local lex = self._.lexer
+  local path
+
+  --(1) read
+  local tok = lex:nextId()
+
+  path = tok.value
+  while lex:skipSymbol(".") do
+    path = path .. "." .. lex:nextId().value
+  end
+
+  if p and path ~= p then
+    self:_raise(string.format("'%s' expected.", p), tok)
+  end
+
+  --(2) return
+  return path
+end
+
+--Throw a syntactic error.
+--
+--@param msg:string Message.
+--@loc:object       Error location.
+function SubParser:_raise(msg, loc)
+  error(string.format(
+    "%s (%s): %s",
+    self._.lexer._.file,
+    loc and string.format("%s, %s", loc.line, loc.col) or "end of file",
+    msg
+  ))
+end
+
+--Read the data type of, for example, a parameter or struct field.
+--
+--@return object
+function SubParser:_readDataType()
+  local lex = self._.lexer
+  local tok, dtype
+
+  --(1) read
+  tok = lex:advance()
+
+  if tok:isSymbol("(") then
+    dtype = self:_readOneOfType()
+  elseif tok:isSymbol("{") then
+    dtype = self:_readMapType()
+  elseif tok:isName() and lex:advance(2):isSymbol("(") then
+    dtype = self:_readOneOfTypeWithCall()
+  else
+    dtype = self:_readBeType()
+  end
+
+  --(2) return
+  return dtype
+end
+
+--Read a (types or values) type.
+--
+--@return object
+function SubParser:_readOneOfType()
+  local lex = self._.lexer
+  local dtype = {kind="oneOf", types={}}
+
+  --(1) read
+  lex:nextSymbol("(")
+
+  while true do
+    table.insert(dtype.types, self:_readBeType())
+
+    if not lex:skipSymbol("|") then
+      break
+    end
+  end
+
+  lex:nextSymbol(")")
+
+  dtype.min, dtype.max = self:_readListSpecIfPossible()
+
+  --(2) return
+  return dtype
+end
+
+--Read a {fields} type.
+--
+--@return object
+function SubParser:_readMapType()
+  local lex = self._.lexer
+  local dtype = {kind="map", fields={}}
+
+  --(1) read
+  lex:nextSymbol("{")
+
+  if lex:skipSymbol("}") then
+    nop()
+  else
+    while true do
+      --read field
+      local pname, ptype, pman, byCopy
+
+      --name
+      pname = lex:nextId().value
+
+      --?
+      pman = not lex:skipSymbol("?")
+
+      --:type
+      if lex:skipSymbol(":") then
+        byCopy = not not lex:skipSymbol("*")
+        ptype = self:_readDataType()
+      end
+
+      table.insert(dtype.fields, {
+        name = pname,
+        type = ptype,
+        mandatory = pman,
+        byCopy = byCopy or nil
+      })
+
+      --read next or end
+      if lex:skipSymbol("}") then
+        break
+      end
+
+      lex:nextSymbol(",")
+    end
+  end
+
+  --(2) return
+  return dtype
+end
+
+--Read a type(types).
+--
+--@return object
+function SubParser:_readOneOfTypeWithCall()
+  local lex = self._.lexer
+  local dtype = {kind="oneOf", types={}}
+
+  --(1) read
+  dtype.call = {kind="exclusive", object=lex:nextName().value}
+  table.insert(dtype.types, {kind="be", type={kind="type", name=dtype.call.object}})
+
+  lex:nextSymbol("(")
+
+  while true do
+    table.insert(dtype.types, self:_readBeType())
+
+    if not lex:skipSymbol("|") then
+      break
+    end
+  end
+
+  lex:nextSymbol(")")
+
+  --(2) return
+  return dtype
+end
+
+--Read a simple type, that is, a name or value.
+--
+--@return object
+function SubParser:_readBeType()
+  local lex = self._.lexer
+  local dtype = {kind = "be"}
+
+  --(1) read
+  local tok = lex:next()
+
+  if tok:isText() or tok:isNum() then
+    dtype.type = {kind="value", value=tok.value}
+  elseif tok:isKeyword("true") or tok:isName("true") then
+    dtype.type = {kind="value", value=true}
+  elseif tok:isKeyword("false") or tok:isName("false") then
+    dtype.type = {kind="value", value=false}
+  elseif tok:isName("nil") then
+    dtype.type = {kind="value", value=nil}
+  elseif tok:isName() then
+    dtype.type = {kind="type", name=tok.value}
+  else
+    self:_raise("Type or value expected.", tok)
+  end
+
+  --(2) read [], [size] or [min, max] if possible
+  dtype.type.min, dtype.type.max = self:_readListSpecIfPossible()
+
+  --(3) return
+  return dtype
+end
+
+--Read [], [size] or [min, max] if possible.
+--
+--@return (min, max)
+function SubParser:_readListSpecIfPossible()
+  local lex = self._.lexer
+  local min, max
+
+  --(1) read
+  if lex:skipSymbol("[") then
+    if lex:skipSymbol("]") then
+      min = 0
+    else
+      min = lex:nextLiteralNum().value
+
+      if lex:skipSymbol("..") then
+        if lex:skipSymbol("*") then
+          nop()
+        else
+          max = lex:nextLiteralNum().value
+        end
+      else
+        max = min
+      end
+
+      lex:nextSymbol("]")
+    end
+  end
+
+  --(2) return
+  return min, max
+end

@@ -1,0 +1,238 @@
+--[[
+  Módulo principal para lidar com autenticação OpenID Connect (OIDC)
+  Este módulo lida com a autenticação de usuários via OIDC e Client Credentials,
+  processando requisições de acordo com as opções configuradas.
+
+  Autor: [Maryucha M. Mariani]
+  Data: [13-09-24]
+  Versão: 1.4.0
+]]
+
+local OidcHandler = {
+  VERSION = "1.4.0",
+  PRIORITY = 1000,
+}
+local utils = require("kong.plugins.oidc.utils")
+local filter = require("kong.plugins.oidc.filter")
+local session = require("kong.plugins.oidc.session")
+
+--[[
+Função principal de acesso ao plugin.
+Ela verifica se a requisição deve ser processada e executa a autenticação OIDC ou Client Credentials.
+
+@param config (tabela) - Configurações do plugin
+]]
+function OidcHandler:access(config)
+  ngx.log(ngx.DEBUG, "Iniciando processo de autenticação OIDC")
+
+  local oidcConfig = utils.get_options(config, ngx)
+
+  -- Verifica se a requisição já foi autenticada por outro plugin de maior prioridade
+  if oidcConfig.skip_already_auth_requests and kong.client.get_credential() then
+    ngx.log(ngx.DEBUG, "Requisição já autenticada. Ignorando processamento.")
+    return
+  end
+
+  -- Verifica se o fluxo Client Credentials deve ser utilizado
+  if oidcConfig.use_client_credentials then
+    ngx.log(ngx.DEBUG, "Usando fluxo Client Credentials para autenticação.")
+    
+    -- Obtém o token usando o fluxo Client Credentials
+    local token, err = utils.get_client_credentials_token(oidcConfig)
+    if err then
+      ngx.log(ngx.ERR, "Erro ao obter token Client Credentials: ", err)
+      return kong.response.error(ngx.HTTP_INTERNAL_SERVER_ERROR, err)
+    end
+
+    -- Loga o token obtido
+    ngx.log(ngx.DEBUG, "Token Client Credentials obtido: ", token.access_token)
+
+    -- Injeta o token no cabeçalho da requisição
+    utils.injectAccessToken(token.access_token, oidcConfig.access_token_header_name, oidcConfig.access_token_as_bearer)
+    ngx.log(ngx.DEBUG, "Token injetado no cabeçalho: ", oidcConfig.access_token_header_name)
+
+    -- Continua com o processamento da requisição
+    ngx.log(ngx.DEBUG, "Encaminhando a requisição para o backend após injetar o token.")
+    return
+  end
+
+  -- Verifica se a requisição deve ser processada de acordo com os filtros
+  if filter.shouldProcessRequest(oidcConfig) then
+    ngx.log(ngx.DEBUG, "Requisição será processada pelo plugin OIDC.")
+    session.configure(config)
+    handle(oidcConfig)
+  else
+    ngx.log(ngx.INFO, "Requisição ignorada com base nos filtros. Caminho: " .. ngx.var.request_uri)
+  end
+
+  ngx.log(ngx.DEBUG, "Finalizando processamento do OidcHandler.")
+end
+
+--[[
+Função responsável por lidar com os diferentes tipos de autenticação (OIDC, JWT ou Client Credentials).
+
+@param oidcConfig (tabela) - Configurações OIDC processadas.
+]]
+function handle(oidcConfig)
+  local response
+
+  -- Verifica se a autenticação JWT está habilitada
+  if oidcConfig.bearer_jwt_auth_enable then
+    ngx.log(ngx.DEBUG, "Verificando autenticação JWT.")
+    response = verify_bearer_jwt(oidcConfig)
+    if response then
+      ngx.log(ngx.DEBUG, "Autenticação JWT bem-sucedida.")
+      utils.setCredentials(response)
+      utils.injectGroups(response, oidcConfig.groups_claim)
+      utils.injectHeaders(oidcConfig.header_names, oidcConfig.header_claims, { response })
+      if not oidcConfig.disable_userinfo_header then
+        utils.injectUser(response, oidcConfig.userinfo_header_name)
+      end
+      return
+    end
+  end
+
+  -- Verifica se a introspecção está habilitada
+  if oidcConfig.introspection_endpoint then
+    ngx.log(ngx.DEBUG, "Executando introspecção de token.")
+    response = introspect(oidcConfig)
+    if response then
+      ngx.log(ngx.DEBUG, "Introspecção de token bem-sucedida.")
+      utils.setCredentials(response)
+      utils.injectGroups(response, oidcConfig.groups_claim)
+      utils.injectHeaders(oidcConfig.header_names, oidcConfig.header_claims, { response })
+      if not oidcConfig.disable_userinfo_header then
+        utils.injectUser(response, oidcConfig.userinfo_header_name)
+      end
+      return
+    end
+  end
+
+  -- Se não houve introspecção ou JWT, executa a autenticação OIDC
+  if response == nil then
+    ngx.log(ngx.DEBUG, "Executando autenticação via OIDC.")
+    response = make_oidc(oidcConfig)
+    if response then
+      ngx.log(ngx.DEBUG, "Autenticação OIDC bem-sucedida.")
+      if response.user or response.id_token then
+        utils.setCredentials(response.user or response.id_token)
+      end
+      utils.injectHeaders(oidcConfig.header_names, oidcConfig.header_claims, { response.user, response.id_token })
+      if not oidcConfig.disable_userinfo_header and response.user then
+        utils.injectUser(response.user, oidcConfig.userinfo_header_name)
+      end
+      if not oidcConfig.disable_access_token_header and response.access_token then
+        utils.injectAccessToken(response.access_token, oidcConfig.access_token_header_name, oidcConfig.access_token_as_bearer)
+      end
+      if not oidcConfig.disable_id_token_header and response.id_token then
+        utils.injectIDToken(response.id_token, oidcConfig.id_token_header_name)
+      end
+    end
+  end
+end
+
+--[[
+Função que executa o fluxo OIDC padrão.
+
+@param oidcConfig (tabela) - Configurações OIDC processadas.
+@return tabela - Retorna a resposta da autenticação ou `nil` em caso de erro.
+]]
+function make_oidc(oidcConfig)
+  ngx.log(ngx.DEBUG, "Executando fluxo OIDC, caminho requisitado: " .. ngx.var.request_uri)
+  local unauth_action = oidcConfig.unauth_action
+  if unauth_action ~= "auth" then
+    unauth_action = "deny"
+  end
+  local res, err = require("resty.openidc").authenticate(oidcConfig, ngx.var.request_uri, unauth_action)
+
+  if err then
+    ngx.log(ngx.ERR, "Erro durante a autenticação OIDC: " .. err)
+    if err == 'unauthorized request' then
+      return kong.response.error(ngx.HTTP_UNAUTHORIZED)
+    elseif oidcConfig.recovery_page_path then
+      ngx.log(ngx.DEBUG, "Redirecionando para a página de recuperação: " .. oidcConfig.recovery_page_path)
+      ngx.redirect(oidcConfig.recovery_page_path)
+    end
+    return kong.response.error(ngx.HTTP_INTERNAL_SERVER_ERROR)
+  end
+  return res
+end
+
+--[[
+Função responsável por introspecção de token OIDC.
+
+@param oidcConfig (tabela) - Configurações OIDC processadas.
+@return tabela - Retorna a resposta da introspecção ou `nil` em caso de erro.
+]]
+function introspect(oidcConfig)
+  if utils.has_bearer_access_token() or oidcConfig.bearer_only == "yes" then
+    ngx.log(ngx.DEBUG, "Executando introspecção do token.")
+    local res, err
+    if oidcConfig.use_jwks == "yes" then
+      res, err = require("resty.openidc").bearer_jwt_verify(oidcConfig)
+    else
+      res, err = require("resty.openidc").introspect(oidcConfig)
+    end
+    if err then
+      ngx.log(ngx.ERR, "Erro durante a introspecção do token: " .. err)
+      if oidcConfig.bearer_only == "yes" then
+        ngx.header["WWW-Authenticate"] = 'Bearer realm="' .. oidcConfig.realm .. '",error="' .. err .. '"'
+        return kong.response.error(ngx.HTTP_UNAUTHORIZED)
+      end
+      return nil
+    end
+    ngx.log(ngx.DEBUG, "Introspecção do token bem-sucedida.")
+    return res
+  end
+  return nil
+end
+
+--[[
+Função para verificar e autenticar JWT Bearer.
+
+@param oidcConfig (tabela) - Configurações OIDC processadas.
+@return tabela - Retorna o JSON do token JWT ou `nil` em caso de erro.
+]]
+function verify_bearer_jwt(oidcConfig)
+  if not utils.has_bearer_access_token() then
+    return nil
+  end
+
+  local opts = {
+    accept_none_alg = false,
+    accept_unsupported_alg = false,
+    token_signing_alg_values_expected = oidcConfig.bearer_jwt_auth_signing_algs,
+    discovery = oidcConfig.discovery,
+    timeout = oidcConfig.timeout,
+    ssl_verify = oidcConfig.ssl_verify
+  }
+
+  local discovery_doc, err = require("resty.openidc").get_discovery_doc(opts)
+  if err then
+    ngx.log(ngx.ERR, 'Erro ao obter o documento de descoberta para JWT Bearer: ' .. err)
+    return nil
+  end
+
+  local allowed_auds = oidcConfig.bearer_jwt_auth_allowed_auds or oidcConfig.client_id
+
+  local jwt_validators = require "resty.jwt-validators"
+  jwt_validators.set_system_leeway(120)
+  local claim_spec = {
+    iss = jwt_validators.equals(discovery_doc.issuer),
+    sub = jwt_validators.required(),
+    aud = function(val) return utils.has_common_item(val, allowed_auds) end,
+    exp = jwt_validators.is_not_expired(),
+    iat = jwt_validators.required(),
+    nbf = jwt_validators.opt_is_not_before(),
+  }
+
+  local json, err, token = require("resty.openidc").bearer_jwt_verify(opts, claim_spec)
+  if err then
+    ngx.log(ngx.ERR, 'Erro ao verificar JWT Bearer: ' .. err)
+    return nil
+  end
+
+  return json
+end
+
+return OidcHandler

@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-redis-cluster",
+  "versions": {
+    "1.8.0-0": {
+      "bin": [],
+      "deps": [
+        "lua-resty-openssl >= 0.6.3"
+      ],
+      "files": {
+        "resty/rediscluster.lua": {
+          "sha256": "e8e220109bf315f9dd3d82716abaac9154ab66b95999c3263f23168e2e41dbee",
+          "size": 71697,
+          "url": "https://raw.githubusercontent.com/Kong/resty-redis-cluster/6ffb01a90baf6ad2d75cf151757463ef3693d4c7/lib/resty/rediscluster.lua"
+        },
+        "resty/xmodem.lua": {
+          "sha256": "32fab105c908ee9ba0fd5cd297feae932bd7792e8ccdce75fad403d6e7f7153c",
+          "size": 3211,
+          "url": "https://raw.githubusercontent.com/Kong/resty-redis-cluster/6ffb01a90baf6ad2d75cf151757463ef3693d4c7/lib/resty/xmodem.lua"
+        }
+      },
+      "homepage": "https://github.com/Kong/resty-redis-cluster",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 13 Nov 2026 07:02:39 GMT",
+        "rockspec": {
+          "date": "Fri, 13 Nov 2026 07:02:39 GMT",
+          "sha256": "0e1e8873662dd4529c0bb602cdfb22b84ba439c46d5510b3a2fa30d6cc95dc30",
+          "size": 763
+        },
+        "src": {
+          "date": "Fri, 13 Nov 2026 07:02:40 GMT",
+          "sha256": "ab576059dcf6cf99faeb354643e9479313f41592808bb4381a76933d95892fec",
+          "size": 120242,
+          "url": "https://luarocks.org/kong-redis-cluster-1.8.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "resty.rediscluster",
+        "resty.xmodem"
+      ],
+      "origin": {
+        "commit": "6ffb01a90baf6ad2d75cf151757463ef3693d4c7",
+        "ref": "1.8.0",
+        "type": "git",
+        "url": "https://github.com/Kong/resty-redis-cluster"
+      },
+      "size": 74908,
+      "summary": "Openresty lua client for redis cluster",
+      "undeclared_requires": [
+        "bit",
+        "inspect",
+        "resty.lock",
+        "resty.redis",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.redis)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

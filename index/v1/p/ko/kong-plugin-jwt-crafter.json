@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-crafter",
+  "versions": {
+    "1.0-0": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "inspect ~> 3.1.0",
+        "lua-resty-jwt ~> 0.1.10-1"
+      ],
+      "files": {
+        "kong/plugins/jwt-crafter/handler.lua": {
+          "sha256": "19ba677079e974a936336168f3d99b2b2c2a8184857afb8ff8a643e25535dcfa",
+          "size": 2593,
+          "url": "https://raw.githubusercontent.com/foodora/kong-plugin-jwt-crafter/833ae73137f42f83e56cf88ff0085068b75e0149/src/handler.lua"
+        },
+        "kong/plugins/jwt-crafter/schema.lua": {
+          "sha256": "10a2a1fc18d7d73b10651c3c65cacbbb4c46d94a490598d64a7237fa15445137",
+          "size": 88,
+          "url": "https://raw.githubusercontent.com/foodora/kong-plugin-jwt-crafter/833ae73137f42f83e56cf88ff0085068b75e0149/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Sat, 27 May 2017 20:10:01 GMT",
+        "rockspec": {
+          "date": "Sat, 27 May 2017 20:10:01 GMT",
+          "sha256": "9cd7c78e6eb2f823a7952eaca2aa83d4024fff153e4449e50aa3bb7a40d6d6e9",
+          "size": 547
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-crafter.handler",
+        "kong.plugins.jwt-crafter.schema"
+      ],
+      "origin": {
+        "commit": "833ae73137f42f83e56cf88ff0085068b75e0149",
+        "ref": "v1.0",
+        "type": "git",
+        "url": "https://github.com/foodora/kong-plugin-jwt-crafter"
+      },
+      "size": 2681,
+      "summary": "Crafts JWT plugin for succesfully authenticated requests based on consumer JWT credential.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "resty.jwt"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

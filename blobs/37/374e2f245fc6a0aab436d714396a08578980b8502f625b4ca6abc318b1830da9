@@ -1,0 +1,31 @@
+local async = require('panto_mcp.async')
+local M = {}
+function M.factory(manager, _context)
+    -- Unlike delegation, MCP is also available in child agent lanes.
+    local api={}
+    function api.servers() return manager:servers() end
+    function api.search(query,opts) return manager:search(query,opts) end
+    function api.call(server,tool,input) return manager:call(server,tool,input) end
+    function api.start(server,tool,input)
+        local co
+        local future
+        future=async.future(function()
+            if co and coroutine.status(co)~='dead' then coroutine.close(co) end
+            future:resolve(nil,'request cancelled')
+        end)
+        co=async.run(function() future:resolve(manager:call(server,tool,input)) end,
+            function(err) future:resolve(nil,tostring(err)) end)
+        return future
+    end
+    function api.read_resource(server,uri) return manager:read_resource(server,uri) end
+    function api.prompts(server) return manager:prompts(server) end
+    function api.prompt(server,name,args) return manager:prompt(server,name,args) end
+    return api
+end
+function M.install(manager)
+    local ok,std=pcall(require,'_std')
+    if not ok or type(std.lua_namespace)~='function' then return false end
+    std.lua_namespace('mcp',function(context) return M.factory(manager,context) end)
+    return true
+end
+return M

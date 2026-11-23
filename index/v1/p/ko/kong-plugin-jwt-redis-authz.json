@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-redis-authz",
+  "versions": {
+    "1.0.0-4": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-cjson >= 2.1.0.10-1"
+      ],
+      "files": {
+        "kong/plugins/jwt-redis-authz/handler.lua": {
+          "sha256": "dbbf8dd95b6606f9c80b431902369f63bae6e02c3ccc95db92d8d168b886fa72",
+          "size": 16340,
+          "url": "blob:dbbf8dd95b6606f9c80b431902369f63bae6e02c3ccc95db92d8d168b886fa72"
+        },
+        "kong/plugins/jwt-redis-authz/schema.lua": {
+          "sha256": "ca5c05430b62f7563900ccbfc6bc016404fb1715c97f86b0c2d309e08c56b13e",
+          "size": 4999,
+          "url": "blob:ca5c05430b62f7563900ccbfc6bc016404fb1715c97f86b0c2d309e08c56b13e"
+        }
+      },
+      "homepage": "https://bitbucket.org/jurnal/kong-plugin-authz",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 16 Nov 2026 01:17:15 GMT",
+        "rockspec": {
+          "date": "Mon, 16 Nov 2026 01:17:15 GMT",
+          "sha256": "ad9079601f2fb9c88d62575c2d76759661e9969b5cc099d919fce49e267de0d2",
+          "size": 2351
+        },
+        "src": {
+          "date": "Mon, 16 Nov 2026 01:17:16 GMT",
+          "sha256": "28e4fa4cf74faabf8ec037a28d7934503289b12be6329e283303084389ca9fb0",
+          "size": 34222,
+          "url": "https://luarocks.org/kong-plugin-jwt-redis-authz-1.0.0-4.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-redis-authz.handler",
+        "kong.plugins.jwt-redis-authz.schema"
+      ],
+      "origin": {
+        "date": "Mon, 16 Nov 2026 01:17:16 GMT",
+        "sha256": "28e4fa4cf74faabf8ec037a28d7934503289b12be6329e283303084389ca9fb0",
+        "size": 34222,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-jwt-redis-authz-1.0.0-4.src.rock"
+      },
+      "size": 21339,
+      "summary": "Checks Redis existence (via jurnal-authz) for a JWT already signature-verified by Kong's bundled jwt plugin, and injects resolved identity headers for the upstream service",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

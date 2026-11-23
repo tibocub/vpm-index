@@ -1,0 +1,27 @@
+local version = "1.0.0"
+local command = arg[1]
+
+if command == "--version" or command == "-v" then
+    print("Aero2D " .. version)
+
+elseif command == "help" or command == nil then
+    print("Aero2D " .. version)
+    print("")
+    print("Commands:")
+    print("  aero2d help       - Show this help message")
+    print("  aero2d init       - Create a new Aero2D project")
+    print("  aero2d run        - Run the current project")
+    print("  aero2d build      - Build the current project")
+
+elseif command == "init" then
+    print(".")
+
+elseif command == "run" then
+    print(".")
+
+elseif command == "build" then
+    print(".")
+
+else
+    print("Unknown command: " .. command)
+end

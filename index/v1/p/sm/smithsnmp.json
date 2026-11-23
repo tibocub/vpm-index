@@ -1,0 +1,120 @@
+{
+  "kind": "lib",
+  "name": "smithsnmp",
+  "versions": {
+    "0.8-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "smithsnmp/init.lua": {
+          "sha256": "45210ee917dc43a66e1b05214455845537c06fcb93605d0a3df59e704cbc593f",
+          "size": 32597,
+          "url": "blob:45210ee917dc43a66e1b05214455845537c06fcb93605d0a3df59e704cbc593f"
+        },
+        "smithsnmp/trap.lua": {
+          "sha256": "1e978bf905336fad4201195b9bb76c28dc4acea4c037981235463dbd6989f6f8",
+          "size": 5391,
+          "url": "blob:1e978bf905336fad4201195b9bb76c28dc4acea4c037981235463dbd6989f6f8"
+        },
+        "smithsnmp/utils.lua": {
+          "sha256": "c08b301b310f871a54d8df6f98b8e865a34d0583e14335f7f0015576679e49a4",
+          "size": 6015,
+          "url": "blob:c08b301b310f871a54d8df6f98b8e865a34d0583e14335f7f0015576679e49a4"
+        }
+      },
+      "homepage": "https://github.com/begeekmyfriend/smithsnmp",
+      "license": "GPLv2",
+      "lua": "== 5.1",
+      "luarocks": {
+        "date": "Wed, 25 Jan 2017 14:31:23 GMT",
+        "rockspec": {
+          "date": "Wed, 25 Jan 2017 14:31:23 GMT",
+          "sha256": "943f40cfc23d276d13a814c85d538811b3a55bd9b135dfbb77342ddac3a5f38b",
+          "size": 3280
+        },
+        "src": {
+          "date": "Wed, 25 Jan 2017 14:31:32 GMT",
+          "sha256": "2d892d75af06214401eb7b848e82456a84b7f9362f07765272de5cbdc5ecc850",
+          "size": 6498541,
+          "url": "https://luarocks.org/smithsnmp-0.8-2.src.rock"
+        }
+      },
+      "modules": [
+        "smithsnmp",
+        "smithsnmp.core",
+        "smithsnmp.trap",
+        "smithsnmp.utils"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "defines": [
+                "LITTLE_ENDIAN",
+                "_XOPEN_SOURCE=600",
+                "USE_AGENTX"
+              ],
+              "libraries": [
+                "m",
+                "dl",
+                "lua5.1"
+              ],
+              "name": "smithsnmp.core",
+              "sources": [
+                "3rd/crypto/openssl_aes.c",
+                "3rd/crypto/openssl_aes_cfb.c",
+                "3rd/crypto/openssl_aes_core.c",
+                "3rd/crypto/openssl_cfb128.c",
+                "3rd/crypto/openssl_md5.c",
+                "3rd/crypto/openssl_sha.c",
+                "core/agentx.c",
+                "core/agentx_decoder.c",
+                "core/agentx_encoder.c",
+                "core/agentx_msg_in.c",
+                "core/agentx_msg_out.c",
+                "core/agentx_msg_proc.c",
+                "core/agentx_tcp_transport.c",
+                "core/event_loop.c",
+                "core/mib_tree.c",
+                "core/mib_view.c",
+                "core/smithsnmp.c",
+                "core/snmp.c",
+                "core/snmp_decoder.c",
+                "core/snmp_encoder.c",
+                "core/snmp_msg_in.c",
+                "core/snmp_msg_out.c",
+                "core/snmp_msg_proc.c",
+                "core/snmp_trap.c",
+                "core/snmp_udp_transport.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "smithsnmp-0.8.1"
+      },
+      "origin": {
+        "date": "Wed, 25 Jan 2017 14:31:32 GMT",
+        "sha256": "2d892d75af06214401eb7b848e82456a84b7f9362f07765272de5cbdc5ecc850",
+        "size": 6498541,
+        "type": "luarocks",
+        "url": "https://luarocks.org/smithsnmp-0.8-2.src.rock"
+      },
+      "size": 44003,
+      "summary": "A lightweight SNMP agent with private MIB in Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

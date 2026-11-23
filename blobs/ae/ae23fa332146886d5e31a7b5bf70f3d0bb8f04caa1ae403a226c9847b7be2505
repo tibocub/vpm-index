@@ -1,0 +1,351 @@
+-- Script generation: renders resolved configuration into tc shell commands.
+--
+-- Output format (matches the original hotbuckets tool):
+--   1. #!/bin/bash
+--   2. # Cleanup:  qdisc del for every device (root, plus ingress where used)
+--   3. device setup commands (modprobe / ip link for virtual devices)
+--   4. set -ex
+--   5. # Rules:    qdisc / class / filter add commands in resolved order
+
+local Registry = require("htb.registry")
+local errors = require("htb.errors")
+local toml = require("htb.toml")
+
+local M = {}
+
+local function str(v)
+    return tostring(v)
+end
+
+-- Copy a params table, preserving the source's key order for downstream
+-- plugins that iterate in insertion order (e.g. cake's boolean flags).
+local function copyOrdered(src)
+    local dst = {}
+    local order = {}
+    for k, v in toml.orderedPairs(src) do
+        dst[k] = v
+        order[#order + 1] = k
+    end
+    toml.setOrder(dst, order)
+    return dst
+end
+
+-- Resolve a speed value: handle speed aliases and the unit suffix.
+local function resolveSpeed(value, config)
+    value = tostring(value)
+    if config.speeds[value] ~= nil then
+        return config.speeds[value]
+    end
+    if config.unit ~= "" and value:match("^%d+$") then
+        return value .. config.unit
+    end
+    return value
+end
+
+-- Run plugin validation on all entries. Raises a config error on first
+-- failure, including for unknown qdisc/filter/action types (a typo in a type
+-- is the most common config error and must not silently pass).
+local function validateAll(config)
+    for _, q in ipairs(config.qdiscs) do
+        local plugin = Registry.get("qdisc", q.qdisc_type)
+        if not plugin then
+            errors.newConfigError(
+                "qdisc '" .. q.name .. "': unknown qdisc type '" .. tostring(q.qdisc_type) .. "'"
+            ):raise()
+        end
+        local errs = plugin.validate(q.params)
+        if #errs > 0 then
+            errors.newConfigError(
+                "qdisc '" .. q.name .. "': " .. table.concat(errs, "; ")
+            ):raise()
+        end
+    end
+    for _, f in ipairs(config.filters) do
+        local plugin = Registry.get("filter", f.filter_type)
+        if not plugin then
+            errors.newConfigError(
+                "filter '" .. f.name .. "': unknown filter type '" .. tostring(f.filter_type) .. "'"
+            ):raise()
+        end
+        local pluginParams
+        if f.filter_type == "flower" then
+            pluginParams = { match_params = f.match_params, hosts = config.hosts }
+        else
+            pluginParams = {
+                ip_matches = f.ip_matches,
+                hosts = config.hosts,
+                handle = f.handle,
+            }
+        end
+        local errs = plugin.validate(pluginParams)
+        if #errs > 0 then
+            errors.newConfigError(
+                "filter '" .. f.name .. "': " .. table.concat(errs, "; ")
+            ):raise()
+        end
+        for _, action in ipairs(f.actions) do
+            local aPlugin = Registry.get("action", action.type)
+            if action.type ~= "" and not aPlugin then
+                errors.newConfigError(
+                    "action in '" .. f.name .. "': unknown action type '"
+                        .. tostring(action.type) .. "'"
+                ):raise()
+            end
+            if aPlugin then
+                local errs = aPlugin.validate(action.params)
+                if #errs > 0 then
+                    errors.newConfigError(
+                        "action in '" .. f.name .. "': " .. table.concat(errs, "; ")
+                    ):raise()
+                end
+            end
+        end
+    end
+end
+
+local function generateQdisc(entry, qdisc, config, result)
+    local parts = { config.tc, "qdisc", "add" }
+    parts[#parts + 1] = "dev"
+    parts[#parts + 1] = entry.device
+
+    if qdisc.qdisc_type ~= "ingress" and qdisc.qdisc_type ~= "clsact" then
+        if entry.parent_handle == "root" then
+            parts[#parts + 1] = "root"
+        else
+            parts[#parts + 1] = "parent"
+            parts[#parts + 1] = entry.parent_handle
+        end
+    end
+
+    parts[#parts + 1] = "handle"
+    parts[#parts + 1] = entry.handle
+    parts[#parts + 1] = qdisc.qdisc_type
+
+    local plugin = Registry.get("qdisc", qdisc.qdisc_type)
+    local resolvedParams = copyOrdered(qdisc.params)
+    for _, key in ipairs({ "rate", "ceil", "bandwidth" }) do
+        if resolvedParams[key] ~= nil then
+            resolvedParams[key] = resolveSpeed(resolvedParams[key], config)
+        end
+    end
+    if plugin then
+        for _, a in ipairs(plugin.generate(resolvedParams)) do
+            parts[#parts + 1] = a
+        end
+    end
+
+    if qdisc.default ~= "" then
+        local defaultId = result.class_ids[qdisc.default]
+        if defaultId then
+            local minor = defaultId:match(":(%d+)$")
+            if minor then
+                parts[#parts + 1] = "default"
+                parts[#parts + 1] = minor
+            end
+        end
+    end
+
+    parts[#parts + 1] = "# " .. qdisc.name
+    return table.concat(parts, " ")
+end
+
+local function generateClass(entry, cls, config, _result)
+    local parts = { config.tc, "class", "add" }
+    parts[#parts + 1] = "dev"
+    parts[#parts + 1] = entry.device
+    parts[#parts + 1] = "parent"
+    parts[#parts + 1] = entry.parent_handle
+    parts[#parts + 1] = "classid"
+    parts[#parts + 1] = entry.handle
+    parts[#parts + 1] = cls.class_type
+
+    if cls.class_type == "htb" then
+        local params = {}
+        for k, v in pairs(cls.params) do
+            params[k] = v
+        end
+        for _, key in ipairs({ "rate", "ceil" }) do
+            if params[key] ~= nil then
+                params[key] = resolveSpeed(params[key], config)
+            end
+        end
+        if params.burst ~= nil then
+            parts[#parts + 1] = "burst"
+            parts[#parts + 1] = params.burst
+        end
+        if params.rate ~= nil then
+            parts[#parts + 1] = "rate"
+            parts[#parts + 1] = params.rate
+        end
+        if params.ceil ~= nil then
+            parts[#parts + 1] = "ceil"
+            parts[#parts + 1] = params.ceil
+        end
+    elseif cls.class_type == "hfsc" then
+        for _, key in ipairs({ "sc", "rt", "ls", "ul" }) do
+            if cls.params[key] ~= nil then
+                local words = {}
+                for w in tostring(cls.params[key]):gmatch("%S+") do
+                    words[#words + 1] = resolveSpeed(w, config)
+                end
+                parts[#parts + 1] = key
+                for _, w in ipairs(words) do
+                    parts[#parts + 1] = w
+                end
+            end
+        end
+    end
+
+    parts[#parts + 1] = "# " .. cls.name
+    return table.concat(parts, " ")
+end
+
+local function generateFilter(entry, filt, config, result)
+    local parts = { config.tc, "filter", "add" }
+    parts[#parts + 1] = "dev"
+    parts[#parts + 1] = entry.device
+
+    if filt.protocol ~= "" then
+        parts[#parts + 1] = "protocol"
+        parts[#parts + 1] = filt.protocol
+    end
+    if entry.parent_handle ~= "" then
+        parts[#parts + 1] = "parent"
+        parts[#parts + 1] = entry.parent_handle
+    end
+    if filt.prio ~= "" then
+        parts[#parts + 1] = "prio"
+        parts[#parts + 1] = str(filt.prio)
+    end
+
+    parts[#parts + 1] = filt.filter_type
+
+    local plugin = Registry.get("filter", filt.filter_type)
+    if plugin then
+        local pluginParams
+        if filt.filter_type == "flower" then
+            pluginParams = { match_params = filt.match_params, hosts = config.hosts }
+        else
+            pluginParams = {
+                ip_matches = filt.ip_matches,
+                hosts = config.hosts,
+                handle = filt.handle,
+            }
+        end
+        for _, a in ipairs(plugin.generate(pluginParams)) do
+            parts[#parts + 1] = a
+        end
+    end
+
+    if filt.send_to ~= "" then
+        local flowid = ""
+        if result.class_ids[filt.send_to] then
+            flowid = result.class_ids[filt.send_to]
+        elseif result.qdisc_handles[filt.send_to] then
+            flowid = result.qdisc_handles[filt.send_to]
+        end
+        if flowid ~= "" then
+            parts[#parts + 1] = "flowid"
+            parts[#parts + 1] = flowid
+        end
+    end
+
+    local deviceMap = {}
+    for name, dev in pairs(config.devices) do
+        deviceMap[name] = dev.dev
+    end
+    for _, action in ipairs(filt.actions) do
+        local aPlugin = Registry.get("action", action.type)
+        if aPlugin then
+            local actionParams = {}
+            for k, v in pairs(action.params) do
+                actionParams[k] = v
+            end
+            actionParams._devices = deviceMap
+            for _, a in ipairs(aPlugin.generate(actionParams)) do
+                parts[#parts + 1] = a
+            end
+        end
+    end
+
+    parts[#parts + 1] = "# " .. filt.name
+    return table.concat(parts, " ")
+end
+
+-- Generate the complete tc shell script.
+function M.generate(config, result)
+    local lines = {}
+
+    lines[#lines + 1] = "#!/bin/bash"
+
+    -- Cleanup section.
+    lines[#lines + 1] = "# Cleanup:"
+    local devs = {}
+    for dev in pairs(result.all_devices) do
+        devs[#devs + 1] = dev
+    end
+    table.sort(devs)
+    for _, dev in ipairs(devs) do
+        lines[#lines + 1] = config.tc .. " qdisc del dev " .. dev .. " root"
+        if result.ingress_devices[dev] then
+            lines[#lines + 1] = config.tc .. " qdisc del dev " .. dev .. " ingress"
+        end
+    end
+
+    -- Virtual device cleanup (those not already covered above).
+    for _, dname in ipairs(result.virtual_devices) do
+        local dobj = config.devices[dname]
+        if result.all_devices[dobj.dev] == nil then
+            lines[#lines + 1] = config.tc .. " qdisc del dev " .. dobj.dev .. " root"
+        end
+    end
+
+    -- Device setup commands (modprobe, ip link set, ...).
+    local hasSetup = false
+    local seenSetup = {}
+    for _, dname in ipairs(result.virtual_devices) do
+        local dobj = config.devices[dname]
+        for _, cmd in ipairs(dobj.setup_commands) do
+            if not seenSetup[cmd] then
+                seenSetup[cmd] = true
+                if not hasSetup then
+                    lines[#lines + 1] = "# Device setup:"
+                    hasSetup = true
+                end
+                lines[#lines + 1] = cmd
+            end
+        end
+    end
+
+    lines[#lines + 1] = "set -ex"
+
+    -- Validate all entries before generating.
+    validateAll(config)
+
+    lines[#lines + 1] = "# Rules:"
+
+    local qdiscMap, classMap, filterMap = {}, {}, {}
+    for _, q in ipairs(config.qdiscs) do
+        qdiscMap[q.name] = q
+    end
+    for _, c in ipairs(config.classes) do
+        classMap[c.name] = c
+    end
+    for _, f in ipairs(config.filters) do
+        filterMap[f.name] = f
+    end
+
+    for _, entry in ipairs(result.entries) do
+        if entry.entry_type == "qdisc" then
+            lines[#lines + 1] = generateQdisc(entry, qdiscMap[entry.name], config, result)
+        elseif entry.entry_type == "class" then
+            lines[#lines + 1] = generateClass(entry, classMap[entry.name], config, result)
+        elseif entry.entry_type == "filter" then
+            lines[#lines + 1] = generateFilter(entry, filterMap[entry.name], config, result)
+        end
+    end
+
+    return table.concat(lines, "\n") .. "\n"
+end
+
+return M

@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "lua-cn-cbor",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/Erutuon/lua-cn-cbor",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sun, 28 Jan 2024 02:10:35 GMT",
+        "rockspec": {
+          "date": "Sun, 28 Jan 2024 02:10:35 GMT",
+          "sha256": "0c16c7921c658f62215c813348d19ec356a6c4ab4649256f21cf12244600fe2f",
+          "size": 579
+        },
+        "src": {
+          "date": "Sun, 28 Jan 2024 02:10:35 GMT",
+          "sha256": "987acab019160a0e74443039f834025e1860028fd385f6f98200bce20c67b7a4",
+          "size": 75225,
+          "url": "https://luarocks.org/lua-cn-cbor-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "cncbor"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "cn-cbor/include",
+                "lua-compat-5.3"
+              ],
+              "name": "cncbor",
+              "sources": [
+                "lua-cn-cbor.c",
+                "cn-cbor/src/cn-cbor.c",
+                "cn-cbor/src/cn-error.c",
+                "cn-cbor/src/cn-get.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 28 Jan 2024 02:10:35 GMT",
+        "sha256": "987acab019160a0e74443039f834025e1860028fd385f6f98200bce20c67b7a4",
+        "size": 75225,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-cn-cbor-0.1.0-1.src.rock"
+      },
+      "summary": "Lua bindings to cn-cbor",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

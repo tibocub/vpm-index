@@ -1,0 +1,291 @@
+--[[
+  SPDX-License-Identifier: AGPL-3.0-only
+  Copyright (c) 2023-2026 Swarg
+
+  For commercial licensing terms, contact the copyright holder.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, version 3 of the License.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+]]
+-- 08-11-2023 @author Swarg
+local M = {}
+--
+local base = require('cmd4lua.base')
+local builtin = require('cmd4lua.builtin')
+local conf = require('cmd4lua.settings')
+
+-- separate dprint only for this module (disabled by defualt)
+local dprint = conf.D.mk_dprint_for(M, false)
+
+
+--------------------------------------------------------------------------------
+--                                Parser
+--------------------------------------------------------------------------------
+
+--
+-- For console applications to support argument parsing with groups
+-- Checks if line is already splited by a spaces into args and has ' " or [
+-- then join back to one line for future reparsing
+--
+---@param args string|table|nil
+---@return table|string|nil
+function M.update_cli_input(args)
+  dprint("update_cli_input")
+
+  if type(args) == 'table' then
+    local has_groups = false
+    for i, arg in pairs(args) do
+      if arg and type(arg) == 'string' then
+        if arg:match("[\"'%[]+") then
+          has_groups = true
+          break
+          --
+        elseif builtin.is_debug_key(arg) then
+          builtin.set_debug(args[i + 1])
+        end
+      end
+    end
+
+    if has_groups then
+      local line = ''
+      for _, arg in ipairs(args) do
+        arg = M.wrap_to_quote_if_need(arg)
+        if #line > 0 then line = line .. ' ' end
+        line = line .. tostring(arg)
+      end
+      dprint("input args has groups and joined to a line for reparsing\n", line)
+
+      return line
+    end
+  end
+  return args
+end
+
+--
+-- simple way to parse a line into words without the support of groups
+--
+---@param line string
+function M.parse_line0(line)
+  dprint('[DEFAULT] parse_line0 line:', line)
+  local t = {}
+  for str in string.gmatch(line, '([^%s]+)') do
+    table.insert(t, str)
+  end
+  return t
+end
+
+--
+-- Parse a line into words with support for simple quotes and a flat array []
+--
+--  "'ab cd' ef"        ->   { "ab cd", "ef" }
+--
+--  "a [ 'b cd' ef ] z" ->   a { "b cd", "ef"}, "z" }
+--
+-- just works without any warnings or complaints:
+--  ']["a c'            ->   { ']', { 'a c' } },
+--  '["a b c'            ->   { { 'a b c' } },
+--
+---@param line string
+---@param sep string?     --  default is ' '
+---@return table?
+function M.parse_line_g(line, sep)
+  dprint('[DEFAULT] parse_line_g:', line)
+  sep = sep or ' '
+  if not line then
+    return nil
+  end
+
+  -- force - string in quotes add even if empty range
+  local function add_word(t0, prev, pe, no_trim, force)
+    local sub = line:sub(prev, pe - 1)
+    if not no_trim then
+      sub = sub:gsub("^%s*(.-)%s*$", "%1") -- trim spaces
+    end
+    if sub and (sub ~= '' or force) then
+      -- dprint(1, 'addword', sub)
+      t0[#t0 + 1] = sub
+    end
+    return pe + 1 -- prev
+  end
+
+  local t, prev, i = {}, 1, 1
+  local prev_c, open_q, open_a, arr = nil, nil, nil, nil
+
+  while i <= #line do
+    local c = line:sub(i, i)
+    -- D.visualize(line, prev, i, 'c:', c, 'open_q:', open_q, 'open_a:', open_a, 'prev_c:', prev_c)
+
+    if prev_c ~= '\\' then
+      if c == sep and not open_q then
+        -- dprint('split by sep')
+        prev = add_word(arr or t, prev, i)
+        -- string array
+      elseif c == '[' and not open_a and not open_q then
+        -- dprint('open [')
+        if i - prev > 0 then -- case:  "a[" (extra chars before group
+          prev = add_word(t, prev, i)
+        end
+        open_a = c
+        arr = {}
+        t[#t + 1] = arr
+        prev = i + 1
+      elseif c == ']' and open_a == '[' and not open_q then
+        -- dprint('close ]')
+        prev = add_word(arr, prev, i)
+        open_a = nil
+        arr = nil
+      elseif c == open_q then -- ' or "
+        -- dprint('close quote:', c)
+        prev = add_word(arr or t, prev, i, true, true)
+        open_q = nil
+      elseif not open_q and (c == "'" or c == '"') then
+        -- dprint('open quote:', c)
+        if i - prev > 0 then -- extra chars before quote
+          add_word(arr or t, prev, i)
+        end
+        open_q = c
+        prev = i + 1
+      end
+    end
+    i = i + 1
+    prev_c = c
+  end
+
+  add_word(arr or t, prev, #line + 1)
+  return t
+end
+
+-- used to split the cli line into args
+-- for override by own implementation
+function M.parse_line(line)
+  return M.parse_line_g(line)
+end
+
+--------------------------------------------------------------------------------
+
+--
+-- make sure in passed in to Cmd4Lua constructor args has only allowed keynames
+-- to prevent mistakes when writing a command handler code
+--
+---@param t table
+---@param keys table
+function M.validate_allowed_keys(t, keys)
+  dprint(1, "validate_allowed_keys")
+  assert(type(t) == 'table', 'table')
+  assert(type(keys) == 'table', 'keys')
+  local total, allowed = 0, 0
+  local keys_set = {}
+
+  for _, val in pairs(keys) do
+    assert(type(val) == 'string', 'key name must be a string')
+    keys_set[val] = true
+  end
+
+  for k, _ in pairs(t) do
+    total = total + 1
+    if type(k) == 'string' and keys_set[k] == true then
+      allowed = allowed + 1
+    else
+      error('Has unknown key: "' .. tostring(k) .. '"' ..
+        ' Allowed: ' .. table.concat(keys, ' '))
+    end
+  end
+  return allowed == total
+end
+
+--
+-- extracts optional keys from the arguments
+-- and creates a separate table for them
+-- keeps --help as an argument not place it into opt-keys
+--
+---@private
+----param obj Cmd4Lua
+function M.parse_args_and_keys(obj)
+  dprint("parse_args_and_keys")
+
+  obj.keys = obj.keys or {}
+
+  local args = obj.args
+  assert(type(args) == 'table', 'args must be a table')
+  -- find keys
+  local to_remove, opts_on = {}, true
+  -- use `--` to signify the end of the options so that any input that follows
+  -- will be interpreted as arg
+
+  for i, arg in pairs(args) do
+    dprint('check i:', i, 'arg:', arg, 'type:', type(arg))
+
+    if type(i) == 'string' then
+      table.insert(to_remove, i)
+      obj.keys[i] = arg
+    else
+      if opts_on and base.is_optkey(arg) and arg ~= '--help' then
+        table.insert(to_remove, i)
+        if arg == '--' then
+          opts_on = false -- no more opts
+        else
+          local kval
+          local next_arg = args[i + 1]
+          if next_arg and not base.is_optkey(next_arg) then
+            kval = next_arg
+            table.insert(to_remove, i + 1)
+          else
+            kval = base.NO_VALUE --''
+          end
+          obj.keys[arg] = kval
+        end
+      end
+    end
+  end
+
+  for i = #to_remove, 1, -1 do
+    local idx = to_remove[i]
+    local type0 = type(idx)
+    if type0 == 'number' then
+      table.remove(args, idx)
+    elseif type0 == 'string' then
+      args[idx] = nil
+    end
+  end
+  return obj
+end
+
+--
+-- if word has space without quotes - wrap to quotes
+-- for reparse cli args
+--
+---@param arg any
+function M.wrap_to_quote_if_need(arg)
+  if type(arg) == 'string' and arg:find(' ') then
+    local fc, lc, q = arg:sub(1, 1), arg:sub(-1, -1), '"'
+    if #arg > 1 and fc == lc and (fc == '"' or fc == "'") then
+      q = ''
+    else
+      local has_dq, has_sq = arg:find('"'), arg:find("'")
+      -- print(arg, m)
+      if has_dq and not has_sq then
+        q = "'"
+      elseif has_sq and has_dq then
+        arg = arg:gsub("'", "\'")
+      end
+    end
+    if q ~= '' then
+      arg = q .. arg .. q
+    end
+  end
+
+  return arg
+end
+
+--------------------------------------------------------------------------------
+
+return M

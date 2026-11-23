@@ -1,0 +1,546 @@
+local sdk = require "impart.sdk"
+
+---@class Plugin
+---@field client Client?
+local plugin = {}
+plugin.identifier = 18
+plugin.version = "0.2.1"
+
+-- Cap on the number of header key/value entries captured into an inspection RPC
+-- (a header with N values counts as N entries), mirroring the Kong plugin's
+-- MAX_HEADERS. HAProxy does not expose the raw on-wire header block, so (unlike
+-- Kong/nginx) headers are captured unordered; the cap still bounds the RPC
+-- payload for header-heavy traffic.
+local MAX_HEADERS = 200
+
+-- Settings (inspection-profile) poll timeout, kept deliberately tight: the poll
+-- runs on a background core task off the request hot path, and the SDK socket is
+-- blocking, so a slow/unreachable Inspector must not stall the worker for long.
+local SETTINGS_FETCH_TIMEOUT_MS = 500
+
+-- Defaults mirror the Kong plugin's schema so behavior matches out of the box.
+local DEFAULT_TIMEOUT_MS = 100
+local DEFAULT_MAX_BODY_SIZE = 10000
+local DEFAULT_SETTINGS_INTERVAL_MS = 30000
+
+-- Per-worker inspection-profile cache + poller state. Profiles arrive from the
+-- Inspector via SettingsRPC (the background task below) and from inline
+-- corrections on an InspectRequest response.
+local profileCache = sdk.newProfileCache()
+local settingsState = {
+  client = nil,
+  enabled = true,
+  interval_ms = DEFAULT_SETTINGS_INTERVAL_MS,
+}
+
+-- Runtime config resolved from the environment in plugin:init(). HAProxy's Lua
+-- has no declarative schema, so config is surfaced via env vars (set in the
+-- global section with `setenv`), following the existing IMPART_INSPECTOR_RPC_ADDR
+-- precedent.
+local config = {
+  timeout_ms = DEFAULT_TIMEOUT_MS,
+  max_body_size = DEFAULT_MAX_BODY_SIZE,
+}
+
+--- Read an integer env var, falling back to default for missing/non-numeric/<1
+--- values (mirrors the Kong schema's `gt = 0` constraints).
+---@param name string
+---@param default integer
+---@return integer
+local function getenvInt(name, default)
+  local raw = os.getenv(name)
+  if not raw then
+    return default
+  end
+
+  local n = tonumber(raw)
+  if not n or n < 1 then
+    return default
+  end
+
+  return math.floor(n)
+end
+
+--- Read a boolean env var. Anything other than "false"/"0" (case-insensitive)
+--- is treated as true, so the feature defaults on when the var is unset.
+---@param name string
+---@param default boolean
+---@return boolean
+local function getenvBool(name, default)
+  local raw = os.getenv(name)
+  if not raw then
+    return default
+  end
+
+  raw = raw:lower()
+
+  return not (raw == "false" or raw == "0")
+end
+
+--- Get HAProxy version from core.get_info()
+---@return string version
+local function getHAProxyVersion()
+  if core and core.get_info then
+    local success, info = pcall(core.get_info)
+    -- Version is provided via metatable __index, not as a direct table key
+    if success and info and info.Version then
+      return info.Version
+    end
+  end
+
+  return "unknown"
+end
+
+--- Background poller: refresh the inspection-profile cache from the Inspector on
+--- a fixed interval. Fails static — a fetch error leaves the last known-good
+--- profile set in place, as does a response that omits `profiles` (the
+--- hash-matched "no change" conditional fetch). A response that carries an
+--- explicit `profiles` list replaces the cache; an empty list (`{}`) therefore
+--- intentionally clears it (all profiles deleted). The SDK socket is blocking;
+--- the tight SETTINGS_FETCH_TIMEOUT_MS bounds how long an unreachable Inspector
+--- can stall this task between core.msleep() yields.
+local function pollSettings()
+  while true do
+    if settingsState.enabled and settingsState.client then
+      local res, err = settingsState.client:FetchSettings(profileCache:hash(), SETTINGS_FETCH_TIMEOUT_MS)
+      if err then
+        core.Debug("impart settings fetch failed: " .. tostring(err))
+      elseif res and res.profiles then
+        profileCache:replace(res.profiles, res.profiles_hash)
+      end
+    end
+
+    core.msleep(settingsState.interval_ms)
+  end
+end
+
+function plugin:init()
+  local inspector_addr = os.getenv("IMPART_INSPECTOR_RPC_ADDR") or "/tmp/impart.sock"
+  config.timeout_ms = getenvInt("IMPART_TIMEOUT_MS", DEFAULT_TIMEOUT_MS)
+  config.max_body_size = getenvInt("IMPART_MAX_BODY_SIZE", DEFAULT_MAX_BODY_SIZE)
+  settingsState.enabled = getenvBool("IMPART_SETTINGS_ENABLED", true)
+  settingsState.interval_ms = getenvInt("IMPART_SETTINGS_INTERVAL_MS", DEFAULT_SETTINGS_INTERVAL_MS)
+
+  core.Debug("Initialized impart module with inspector_addr: " .. inspector_addr)
+
+  local haproxy_version = getHAProxyVersion()
+  local module_info = sdk.getModuleInfo("HAProxy", haproxy_version, self.version)
+
+  local conn_factory = sdk.newConnFactory(inspector_addr, config.timeout_ms)
+  self.client = sdk.newClient(self.identifier, 0, conn_factory, module_info)
+
+  -- Arm the settings poller once per process. core.register_task starts an
+  -- independent scheduler task; pollSettings loops internally with core.msleep.
+  settingsState.client = self.client
+  if settingsState.enabled then
+    core.register_task(pollSettings)
+  end
+end
+
+local function transform_headers(hapheaders)
+  local headers = {}
+  local count = 0
+  for k, values in pairs(hapheaders) do
+    local array = {}
+    local index = 1
+    -- HAProxy indexes a header's values from 0; walk them numerically to keep
+    -- their on-wire order (pairs would not guarantee it) and to include index 0
+    -- (ipairs, which starts at 1, would drop single-value headers entirely).
+    local i = 0
+    while values[i] ~= nil do
+      array[index] = values[i]
+      index = index + 1
+      count = count + 1
+      i = i + 1
+      if count >= MAX_HEADERS then
+        break
+      end
+    end
+    headers[k] = array
+    if count >= MAX_HEADERS then
+      break
+    end
+  end
+  return headers
+end
+
+--- Normalize a Host header value to match the Inspector's inspection-profile host
+--- (which carries no port and no trailing dot). Strips an optional port —
+--- handling "example.com:443" / "localhost:8080" and bracketed IPv6
+--- ("[::1]:8080" -> "::1"); a bare (unbracketed) IPv6 address has multiple colons
+--- and no port to strip — then trims a single trailing '.' to mirror the
+--- Inspector's host normalization (strings.TrimSuffix host ".") so "example.com."
+--- resolves the same as "example.com". Lowercasing is done by ProfileCache:resolve.
+---@param host string?
+---@return string?
+local function stripHostPort(host)
+  if not host or host == "" then
+    return host
+  end
+
+  local h = host:match("^%[([^%]]+)%]") -- bracketed IPv6: [::1] / [::1]:8080 -> ::1
+  if not h then
+    local _, colons = host:gsub(":", "")
+    if colons > 1 then
+      h = host -- unbracketed IPv6 (2+ colons) has no port to strip
+    else
+      h = host:gsub(":%d+$", "") -- host:port / 1.2.3.4:port -> host
+    end
+  end
+
+  -- Trim a single trailing '.' (FQDN form) to match the Inspector's host
+  -- normalization, so "example.com." / "example.com.:443" resolve like "example.com".
+  return (h:gsub("%.$", ""))
+end
+
+--- Resolve a per-route inspection profile for the request (host/port/path),
+--- returning the request timeout/body-size to use plus the response-side
+--- overrides to stash for the filter. Falls back to the static config when
+--- settings are disabled or no profile matches.
+---@param txn txn
+---@return integer timeoutMs
+---@return integer maxBodySize
+---@return integer? respTimeoutMs
+---@return integer? respMaxBodySize
+local function resolveProfile(txn)
+  if not settingsState.enabled then
+    return config.timeout_ms, config.max_body_size, nil, nil
+  end
+
+  local host = stripHostPort(txn.sf:req_hdr("Host")) or ""
+  local port = tostring(txn.sf:dst_port() or "")
+  local path = txn.sf:path() or ""
+
+  local profile = profileCache:resolve(host, port, path)
+  if not profile then
+    return config.timeout_ms, config.max_body_size, nil, nil
+  end
+
+  return profile.request_timeout_ms,
+      profile.request_max_body_size,
+      profile.response_timeout_ms,
+      profile.response_max_body_size
+end
+
+---@param txn txn
+local function wrapRequest(txn)
+  local bodyReturned = false
+  local wrapper = {
+    get_headers = function() return transform_headers(txn.http:req_get_headers()) end,
+    get_body_chunk = function()
+      if bodyReturned then
+        return nil, false
+      end
+      bodyReturned = true
+      return txn.sf:req_body(), false
+    end,
+    get_host = function() return txn.sf:req_hdr("Host") end,
+    get_method = function() return txn.sf:method() end,
+    get_path = function() return txn.sf:path() end,
+    get_scheme = function() return txn.f:ssl_fc() == 1 and "https" or "http" end,
+    get_raw_query = function() return txn.sf:query() end,
+    get_remote_ip = function() return txn.sf:src() end,
+    -- HAProxy's core.now() ({ sec, usec }, sec = UTC epoch seconds) lives here on
+    -- the plugin side rather than in the generic SDK, which stays runtime-agnostic.
+    get_now = function()
+      local t = core.now()
+      return t.sec, t.usec
+    end
+  }
+
+  return sdk.extendHTTPRequestInterface(wrapper)
+end
+
+--- Build a response wrapper from values captured by the streaming filter: the
+--- status and headers snapshotted at http_headers and the body reassembled from
+--- the streamed chunks. Detection-only — the body is already on the wire.
+---@param status integer
+---@param headers table
+---@param body string
+local function wrapResponse(status, headers, body)
+  local bodyReturned = false
+  local wrapper = {
+    get_headers = function() return headers end,
+    get_body_chunk = function()
+      if bodyReturned then
+        return nil, false
+      end
+      bodyReturned = true
+      return body, false
+    end,
+    get_status = function() return status end
+  }
+
+  return sdk.extendHTTPResponseInterface(wrapper)
+end
+
+---@param txn txn
+function plugin:inspectRequest(txn)
+  local timeoutMs, maxBodySize, respTimeoutMs, respMaxBodySize = resolveProfile(txn)
+
+  local wrappedReq = wrapRequest(txn)
+  local reqMsgResponse, err = self.client:InspectRequest(wrappedReq, maxBodySize, timeoutMs)
+  if err then
+    core.Debug("error inspecting request: " .. tostring(err))
+    return
+  end
+
+  if reqMsgResponse.error then
+    core.Debug("error inspecting request: " .. tostring(reqMsgResponse.error))
+    return
+  end
+
+  -- An inline profile correction on the request response updates the cache (and
+  -- clears its hash so the next poll refetches the full set).
+  if reqMsgResponse.inspection_profile then
+    profileCache:upsert(reqMsgResponse.inspection_profile)
+  end
+
+  if reqMsgResponse.block then
+    if not reqMsgResponse.status_code then
+      reqMsgResponse.status_code = 403
+    end
+
+    txn.set_var(txn, "txn.impart_status_code", reqMsgResponse.status_code)
+
+    if reqMsgResponse.redirect_url then
+      txn.set_var(txn, "txn.impart_location", reqMsgResponse.redirect_url)
+    end
+
+    if reqMsgResponse.body then
+      txn.set_var(txn, "txn.impart_body", reqMsgResponse.body)
+    end
+
+    txn.set_var(txn, "txn.impart_block", true)
+    return
+  end
+
+  local additional_headers = {}
+  if reqMsgResponse.additional_header_keys then
+    for i, key in ipairs(reqMsgResponse.additional_header_keys) do
+      if not additional_headers[key] then
+        additional_headers[key] = {}
+      end
+
+      table.insert(additional_headers[key], reqMsgResponse.additional_header_values[i])
+    end
+  end
+
+  for key, values in pairs(additional_headers) do
+    txn.http:req_del_header(key)
+    for _, value in ipairs(values) do
+      txn.http:req_add_header(key, value)
+    end
+  end
+
+  if reqMsgResponse.deleted_header_keys then
+    for _, key in ipairs(reqMsgResponse.deleted_header_keys) do
+      txn.http:req_del_header(key)
+    end
+  end
+
+  -- Bridge the request_id (and resolved response-side overrides) to the response
+  -- filter. The filter runs in a separate Lua state, so txn:set_priv would NOT
+  -- be visible there; txn variables are stream-scoped and shared across the
+  -- request action, the response filter, and the block applet.
+  if reqMsgResponse.request_id and reqMsgResponse.request_id ~= "" then
+    txn.set_var(txn, "txn.impart_request_id", reqMsgResponse.request_id)
+    if respTimeoutMs then
+      txn.set_var(txn, "txn.impart_resp_timeout", respTimeoutMs)
+    end
+    if respMaxBodySize then
+      txn.set_var(txn, "txn.impart_resp_max_body", respMaxBodySize)
+    end
+  end
+end
+
+-- Streaming, detection-only response inspection filter.
+--
+-- Unlike the old http-res action (which read the whole response body at once,
+-- forcing HAProxy to buffer the entire upstream response before sending a byte
+-- to the client and breaking SSE/LLM streaming), this filter observes each
+-- response chunk as it streams through and inspects the reassembled body in
+-- http_end — after the bytes have already been forwarded. The response verdict's
+-- block/redirect/header-mutation fields are therefore NOT applied (the response
+-- is already on the wire), matching the Kong, nginx, and Envoy plugins.
+local ImpartFilter = {}
+ImpartFilter.id = "impart"
+ImpartFilter.flags = filter.FLT_CFG_FL_HTX
+ImpartFilter.__index = ImpartFilter
+
+local HTTP_SWITCHING_PROTOCOLS = 101
+
+function ImpartFilter:new()
+  local flt = setmetatable({}, self)
+  flt.inspecting = false
+  flt.request_id = nil
+  flt.status = nil
+  flt.headers = nil
+  flt.resp_max_body = nil
+  flt.resp_timeout = nil
+  flt.chunks = {}
+  flt.captured = 0
+  return flt
+end
+
+--- Run InspectResponse for a wrapped response, detection-only. Errors are logged
+--- and swallowed; there is nothing to enforce on an already-streamed response.
+---@param txn txn
+---@param status integer
+---@param headers table
+---@param body string
+function ImpartFilter:inspect(txn, status, headers, body)
+  local _ = txn
+  local client = plugin.client
+  if not client then
+    return
+  end
+
+  local wrappedRes = wrapResponse(status, headers, body)
+  local resMsgResponse, err = client:InspectResponse(wrappedRes, self.request_id, self.resp_max_body, self.resp_timeout)
+  if err then
+    core.Debug("error inspecting response: " .. tostring(err))
+    return
+  end
+
+  -- Surface the Inspector's application-level error too (mirrors the request
+  -- path); detection-only, so there is no verdict to act on beyond logging.
+  if resMsgResponse.error then
+    core.Debug("error inspecting response: " .. tostring(resMsgResponse.error))
+  end
+end
+
+---@param txn txn
+---@param http_msg HTTPMessage
+function ImpartFilter:http_headers(txn, http_msg)
+  -- Only the response channel is inspected here; request inspection is handled
+  -- inline by the impart_request action.
+  if not http_msg:is_resp() then
+    return filter.CONTINUE
+  end
+
+  -- The request action stores the request_id in a txn variable when (and only
+  -- when) the request was inspected and not blocked. No id => nothing to
+  -- correlate a response to (uninspected or blocked-at-request traffic).
+  local request_id = txn:get_var("txn.impart_request_id")
+  if request_id == nil or request_id == "" then
+    return filter.CONTINUE
+  end
+
+  self.request_id = request_id
+  -- Coerce to numbers: the filter compares resp_max_body numerically and passes
+  -- resp_timeout into the SDK's numeric timeout checks, so a string round-tripped
+  -- through the txn var store would error. tonumber(nil) stays nil (no profile).
+  self.resp_timeout = tonumber(txn:get_var("txn.impart_resp_timeout"))
+  self.resp_max_body = tonumber(txn:get_var("txn.impart_resp_max_body"))
+
+  local stline = http_msg:get_stline()
+  self.status = tonumber(stline.code) or 0
+  self.headers = transform_headers(http_msg:get_headers())
+
+  -- A 101 Switching Protocols turns the connection into an opaque frame tunnel
+  -- the inspector cannot read. Inspect the handshake response now (status +
+  -- headers, empty body) so audit/simulate detections are still recorded, then
+  -- do NOT register the data filter — the upgraded tunnel streams through
+  -- untouched. Mirrors the Kong plugin and Envoy ext_proc.
+  if self.status == HTTP_SWITCHING_PROTOCOLS then
+    self:inspect(txn, self.status, self.headers, "")
+    return filter.CONTINUE
+  end
+
+  -- Register interest in the response payload so http_payload fires; the body is
+  -- forwarded automatically (http_payload returns nothing => HAProxy forwards
+  -- all available data), so the client still streams unbuffered. Reset the
+  -- accumulation state up front so a reused filter instance can't mix bodies
+  -- across responses (HAProxy creates a fresh instance per stream, but this keeps
+  -- it correct regardless).
+  self.inspecting = true
+  self.chunks = {}
+  self.captured = 0
+  filter.register_data_filter(self, http_msg.channel)
+
+  return filter.CONTINUE
+end
+
+---@param txn txn
+---@param http_msg HTTPMessage
+function ImpartFilter:http_payload(txn, http_msg)
+  local _ = txn
+  if not self.inspecting then
+    return
+  end
+
+  -- Stop accumulating once we hold the cap (+1 so the SDK can flag truncation);
+  -- the data still streams to the client because returning nothing forwards all
+  -- available bytes.
+  local cap = self.resp_max_body or config.max_body_size
+  if self.captured > cap then
+    return
+  end
+
+  local data = http_msg:body()
+  if data and #data > 0 then
+    local remaining = (cap + 1) - self.captured
+    if #data > remaining then
+      data = data:sub(1, remaining)
+    end
+    self.chunks[#self.chunks + 1] = data
+    self.captured = self.captured + #data
+  end
+end
+
+---@param txn txn
+---@param http_msg HTTPMessage
+function ImpartFilter:http_end(txn, http_msg)
+  local _ = http_msg
+  if not self.inspecting then
+    return filter.CONTINUE
+  end
+
+  self.inspecting = false
+  self:inspect(txn, self.status, self.headers, table.concat(self.chunks))
+
+  return filter.CONTINUE
+end
+
+---@param applet AppletHTTP
+local function block_service(applet)
+  local status = applet:get_var("txn.impart_status_code")
+  local location = applet:get_var("txn.impart_location")
+  local body = applet:get_var("txn.impart_body")
+
+  if status then
+    applet:set_status(status)
+  else
+    applet:set_status(403)
+  end
+
+  if location then
+    applet:add_header("Location", location)
+  end
+
+  if body then
+    applet:add_header("Content-Length", tostring(#body))
+  end
+
+  applet:start_response()
+
+  if body then
+    applet:send(body)
+  end
+end
+
+-- Register the plugin with HAProxy
+core.register_init(function()
+  plugin:init()
+end)
+core.register_action("impart_request", { "http-req" }, function(txn)
+  plugin:inspectRequest(txn)
+end)
+core.register_filter("impart", ImpartFilter, function(flt, args)
+  local _ = args
+  return flt
+end)
+core.register_service("impart_block_service", "http", function(applet)
+  block_service(applet)
+end)

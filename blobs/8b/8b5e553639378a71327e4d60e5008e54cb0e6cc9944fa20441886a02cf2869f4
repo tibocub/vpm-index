@@ -1,0 +1,104 @@
+#!/usr/bin/env lua5.3
+local loadfile
+loadfile = require('moonscript.base').loadfile
+local Context, DepGraph, Executor
+do
+  local _obj_0 = require('moonbuild')
+  Context, DepGraph, Executor = _obj_0.Context, _obj_0.DepGraph, _obj_0.Executor
+end
+local Variable = require('moonbuild.core.Variable')
+local verbose
+verbose = require('moonbuild._common').verbose
+local parseargs
+parseargs = require('moonbuild._cmd.common').parseargs
+local argparse = require('argparse')
+local sort, concat
+do
+  local _obj_0 = table
+  sort, concat = _obj_0.sort, _obj_0.concat
+end
+local exit
+exit = os.exit
+local parser
+do
+  local _with_0 = argparse("moonbuild", "A build system in moonscript")
+  _with_0:option('-b --buildfile', "Build file to use", 'Build.moon')
+  _with_0:option('-j --parallel', "Sets the number of parallel tasks, 'y' to run as many as we have cores", '1')
+  _with_0:flag('-l --list', "List the targets", false)
+  _with_0:flag('-V --list-variables', "List the variables", false)
+  _with_0:flag('-q --quiet', "Don't print targets as they are being built", false)
+  _with_0:flag('-f --force', "Always rebuild every target", false)
+  _with_0:flag('-v --verbose', "Be verbose", false);
+  (_with_0:option('-u --unset', "Unsets a variable")):count('*');
+  (_with_0:option('-s --set', "Sets a variable")):args(2):count('*');
+  (_with_0:option('-S --set-list', "Sets a variable to a list")):args(2):count('*');
+  (_with_0:argument('targets', "Targets to build")):args('*')
+  _with_0:add_complete()
+  parser = _with_0
+end
+local args = parser:parse()
+local overrides = { }
+local _list_0 = args.unset
+for _index_0 = 1, #_list_0 do
+  local unset = _list_0[_index_0]
+  overrides[unset] = Variable.NIL
+end
+local _list_1 = args.set
+for _index_0 = 1, #_list_1 do
+  local set = _list_1[_index_0]
+  overrides[set[1]] = set[2]
+end
+local _list_2 = args.set_list
+for _index_0 = 1, #_list_2 do
+  local set = _list_2[_index_0]
+  overrides[set[1]] = parseargs(set[2])
+end
+args.parallel = args.parallel == 'y' and 'y' or ((tonumber(args.parallel)) or error("Invalid argument for -j: " .. tostring(args.parallel)))
+if args.parallel ~= 'y' and (args.parallel < 1 or args.parallel % 1 ~= 0) then
+  error("Invalid argument for -j: " .. tostring(args.parallel))
+end
+verbose(args.verbose or false)
+verbose("Parsed CLI args")
+local ctx = Context()
+ctx:load((loadfile(args.buildfile)), overrides)
+verbose("Loaded buildfile")
+if args.list then
+  print("Public targets")
+  local targets, n = { }, 1
+  local _list_3 = ctx.targets
+  for _index_0 = 1, #_list_3 do
+    local t = _list_3[_index_0]
+    if t.public then
+      targets[n], n = t.name, n + 1
+    end
+  end
+  sort(targets)
+  print(concat(targets, ", "))
+  print()
+  if not (args.list_variables) then
+    exit(0)
+  end
+end
+if args.list_variables then
+  print("Public variables")
+  local vars, n = { }, 1
+  for k, v in pairs(ctx.variables) do
+    if v.public then
+      vars[n], n = k, n + 1
+    end
+  end
+  sort(vars)
+  print(concat(vars, ", "))
+  print()
+  exit(0)
+end
+ctx:init()
+verbose("Initialized buildfile")
+local targets = #args.targets == 0 and ctx.defaulttargets or args.targets
+local dag = DepGraph(ctx, targets)
+verbose(print("Created dependancy graph"))
+local nparallel = args.parallel == 'y' and Executor:getmaxparallel() or args.parallel
+verbose("Building with " .. tostring(nparallel) .. " max parallel process" .. tostring(nparallel > 1 and "es" or ""))
+local executor = Executor(dag, nparallel)
+executor:execute(args)
+return verbose("Finished")

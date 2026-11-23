@@ -1,0 +1,83 @@
+{
+  "kind": "app",
+  "name": "gron-lua",
+  "versions": {
+    "0.0.1-1": {
+      "bin": {
+        "gron": "bin/gron"
+      },
+      "deps": [],
+      "files": {
+        "bin/gron": {
+          "sha256": "67534733e04f6ad5111b60538f4b4f21391337161f54d2f45e5cf38e2caa3494",
+          "size": 8577,
+          "url": "https://raw.githubusercontent.com/simbo1905/gron-lua/v0.0.1/bin/gron.lua"
+        },
+        "gron/colors.lua": {
+          "sha256": "49c93bf7a867d5ec8843cdcbeed7e15f86e8d340bb536310ae35a3b89fada84a",
+          "size": 1586,
+          "url": "https://raw.githubusercontent.com/simbo1905/gron-lua/v0.0.1/src/modules/colors.lua"
+        },
+        "gron/core.lua": {
+          "sha256": "5c71139fa6b679f58ae0d50dd41051c1feae3eda22d4ec38b5244f4fcaac680c",
+          "size": 10562,
+          "url": "https://raw.githubusercontent.com/simbo1905/gron-lua/v0.0.1/src/modules/gron.lua"
+        },
+        "gron/json.lua": {
+          "sha256": "e6795287fdd6f889a20bb2592ca720b6a08ec238a2843982cd2a4b2465f016e1",
+          "size": 9770,
+          "url": "https://raw.githubusercontent.com/simbo1905/gron-lua/v0.0.1/lib/json.lua"
+        },
+        "gron/json_wrapper.lua": {
+          "sha256": "417e9810abcf9a74ed406d4f994387ca4992869a03a156ed1edcc0fba838d0ff",
+          "size": 189,
+          "url": "https://raw.githubusercontent.com/simbo1905/gron-lua/v0.0.1/src/modules/json.lua"
+        }
+      },
+      "homepage": "https://github.com/simbo1905/gron-lua",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 17 Jan 2026 00:48:20 GMT",
+        "rockspec": {
+          "date": "Sat, 17 Jan 2026 00:48:20 GMT",
+          "sha256": "a503c63197179a72b5cad31765bb7167d0b4b853d2735eb4810a7597b1caf761",
+          "size": 1008
+        },
+        "src": {
+          "date": "Sat, 17 Jan 2026 00:48:21 GMT",
+          "sha256": "cd6a61771b5afbe405ed51394b22f3b7780254e553c89e20da492b40aae11716",
+          "size": 79337,
+          "url": "https://luarocks.org/gron-lua-0.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "gron.colors",
+        "gron.core",
+        "gron.json",
+        "gron.json_wrapper"
+      ],
+      "origin": {
+        "sha256": "ab6d8846ea8c9837ffc4f03624bce7c5a1469c01edca1dbfe738d88cf09f62da",
+        "type": "archive",
+        "url": "https://github.com/simbo1905/gron-lua/archive/refs/tags/v0.0.1.tar.gz"
+      },
+      "size": 30684,
+      "summary": "Transform JSON into discrete assignments to make it greppable",
+      "undeclared_requires": [
+        "lib.json",
+        "src.modules.colors",
+        "src.modules.json"
+      ],
+      "vlr": {
+        "cause": "missing module: src.modules.json",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "partial",
+        "total": 4
+      }
+    }
+  }
+}

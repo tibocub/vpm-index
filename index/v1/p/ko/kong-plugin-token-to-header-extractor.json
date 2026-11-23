@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-token-to-header-extractor",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/token-to-header-extractor/daos.lua": {
+          "sha256": "c767e7e493088a2c0542824ee2a259fb68d49021141468c04528b33260622d85",
+          "size": 634,
+          "url": "https://raw.githubusercontent.com/vnwonah/kong-token-to-header-extractor/1809d255862886da171b2242fccfd9f7b0cb42c7/kong/plugins/token-to-header-extractor/daos.lua"
+        },
+        "kong/plugins/token-to-header-extractor/handler.lua": {
+          "sha256": "683d68eceb08f4755d49e0811caeae7cecc7d4f5beb598e1d2c15666b0522e98",
+          "size": 1586,
+          "url": "https://raw.githubusercontent.com/vnwonah/kong-token-to-header-extractor/1809d255862886da171b2242fccfd9f7b0cb42c7/kong/plugins/token-to-header-extractor/handler.lua"
+        },
+        "kong/plugins/token-to-header-extractor/migrations/000_base_token_to_header_extractor.lua": {
+          "sha256": "9a509a5be963d1c3929c8cc61d753de238908f3002f3e5abdbdedb796c3da182",
+          "size": 1154,
+          "url": "https://raw.githubusercontent.com/vnwonah/kong-token-to-header-extractor/1809d255862886da171b2242fccfd9f7b0cb42c7/kong/plugins/token-to-header-extractor/migrations/000_base_token_to_header_extractor.lua"
+        },
+        "kong/plugins/token-to-header-extractor/migrations/init.lua": {
+          "sha256": "3a88e12ebeffcf86ffa4b22c928231e551b19f203b5f474dfe03fe1f0dc83517",
+          "size": 54,
+          "url": "https://raw.githubusercontent.com/vnwonah/kong-token-to-header-extractor/1809d255862886da171b2242fccfd9f7b0cb42c7/kong/plugins/token-to-header-extractor/migrations/init.lua"
+        },
+        "kong/plugins/token-to-header-extractor/schema.lua": {
+          "sha256": "0befa4e0a4182facb306aa0f77761b500d637157f4d0da2c9aaa9f7785d3313d",
+          "size": 393,
+          "url": "https://raw.githubusercontent.com/vnwonah/kong-token-to-header-extractor/1809d255862886da171b2242fccfd9f7b0cb42c7/kong/plugins/token-to-header-extractor/schema.lua"
+        }
+      },
+      "homepage": "https://twitter.com/vnwonah",
+      "host": "openresty",
+      "license": "MIT/X11",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Thu, 02 Apr 2020 11:24:55 GMT",
+        "rockspec": {
+          "date": "Thu, 02 Apr 2020 11:24:55 GMT",
+          "sha256": "904d91b7f39380fed1ec7c4f228fbae772132c7d20f5680bc166c3099b16e2c1",
+          "size": 1488
+        },
+        "src": {
+          "date": "Thu, 02 Apr 2020 11:24:57 GMT",
+          "sha256": "6c87629e7c2177338ab77355441a6243956bf12d20fc549d29d392ad23006fe6",
+          "size": 7087,
+          "url": "https://luarocks.org/kong-plugin-token-to-header-extractor-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.token-to-header-extractor.daos",
+        "kong.plugins.token-to-header-extractor.handler",
+        "kong.plugins.token-to-header-extractor.migrations",
+        "kong.plugins.token-to-header-extractor.migrations.000_base_token_to_header_extractor",
+        "kong.plugins.token-to-header-extractor.schema"
+      ],
+      "origin": {
+        "commit": "1809d255862886da171b2242fccfd9f7b0cb42c7",
+        "ref": "v0.1",
+        "type": "git",
+        "url": "https://github.com/vnwonah/kong-token-to-header-extractor"
+      },
+      "size": 3821,
+      "summary": "Kong Plugin for extracting values from token and adding them as headers in upstream request",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

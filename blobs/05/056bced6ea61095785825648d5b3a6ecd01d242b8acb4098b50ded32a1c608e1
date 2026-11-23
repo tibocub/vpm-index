@@ -1,0 +1,1206 @@
+-- subagents/workflow.lua
+--
+-- The callback-based Lua workflow API. `M.workflow(fn)` wraps a
+-- `function(ctx, input)` in a tagged table; `M.execute` runs it synchronously
+-- on the caller's coroutine for trusted fixed DAGs, while `M.start` schedules
+-- it on a dedicated coroutine and returns a session-scoped id for the
+-- `std.lua` namespace. Both forms use the same execution core.
+--
+-- ctx surface:
+--   ctx:agent{ name=, profile|system_prompt|id=, prompt=, model?, reasoning?, output? } -> handle
+--   handle:await()                -> one settled result
+--   ctx:await(handles, "all")     -> array of settled results in input order
+--   ctx:await(handles, "first")   -> first settled result, remaining handles
+--
+-- Profile resolution and spawn-spec construction are NOT duplicated here: both
+-- come from subagents/spawn.lua (`build_spec(input, profiles)` / `spawn(spec)`)
+-- so the tool > profile > primary precedence lives in exactly one place. The
+-- only thing this file adds to the spec is the synthetic structured-output
+-- tool, which it normalizes to { name, description, schema } (defaulting the
+-- name to "emit_result") so the host seam always sees the same shape.
+--
+-- Edge cases and deliberate policies:
+--
+-- * Child failures are values, never errors. A rejected spawn produces a
+--   pre-settled handle with status "failed" so a workflow can branch on it;
+--   execute() only raises for programmer/guest errors (bad arguments, an
+--   exceeded job budget, an error thrown by the callback itself).
+-- * `execute` runs on its caller's coroutine; `start` deliberately supplies a
+--   dedicated coroutine whose lifetime is anchored by the workflow registry.
+--   `subagents.jobs.await` parks and later resumes whichever coroutine invoked
+--   it, so both paths use the same scheduler. opts.on_resume/opts.on_yield
+--   bracket execution so the namespace can arm its instruction guard.
+-- * "first" mode may settle several jobs at once. Extra results are cached on
+--   their handles rather than dropped, and a handle that already holds a
+--   result is served from that cache without re-entering the host, so no
+--   settled result is ever lost between awaits.
+-- * Handles the callback never awaited are awaited ("all") after it returns,
+--   purely so no child is orphaned; those results are discarded.
+-- * Structured output is decoded from result.structured_json and validated
+--   against output.schema by the one validator below: the JSON Schema subset
+--   a child's output tool actually uses, ignoring keywords it does not know.
+--   There is deliberately no second, rock-dependent path -- `jsonschema` needs
+--   lrexlib-pcre and a system PCRE that stock macOS lacks, so it is not a
+--   declared dependency, and a validator picked by whether a rock happens to
+--   be installed would make the same output pass here and fail there. A
+--   validation failure turns the result into status "failed"; it is never
+--   reported as a successful structured result.
+-- * The host seam is reached through `require("panto").ext` at call time, not
+--   aliased at load time, matching subagents/spawn.lua so a test can install a
+--   fake `panto` module before the first call rather than before the require.
+--   subagents.jobs is required the same way, so load order between the two
+--   never matters.
+
+local spawn = require("subagents.spawn")
+local progress = require("subagents.progress")
+local paths = require("subagents.paths")
+
+local ok_uv, uv = pcall(require, "luv")
+
+local M = {}
+
+-- Session-scoped background workflows and single-agent runs. The model sees
+-- field-read-only proxies with cancellation closures; mutable state and live
+-- handles stay private.
+local workflow_sequence = 0
+local agent_sequence = 0
+local workflow_records = {}
+local direct_agent_records = {}
+local active_workflows = {}
+
+local function readonly(index, pairs_fn, len_fn, tostring_fn)
+    return setmetatable({}, {
+        __index = index,
+        __newindex = function() error("subagents records are read-only", 2) end,
+        __pairs = pairs_fn,
+        __len = len_fn,
+        __tostring = tostring_fn,
+        __metatable = false,
+    })
+end
+
+local workflows_proxy = readonly(
+    function(_, id)
+        local record = workflow_records[id]
+        return record and record.proxy or nil
+    end,
+    function()
+        local id
+        return function()
+            id = next(workflow_records, id)
+            local record = id and workflow_records[id] or nil
+            return id, record and record.proxy or nil
+        end
+    end,
+    function()
+        local count = 0
+        for _ in pairs(workflow_records) do count = count + 1 end
+        return count
+    end)
+
+M.workflows = workflows_proxy
+
+local agents_proxy = readonly(
+    function(_, name)
+        local record = direct_agent_records[name]
+        return record and record.proxy or nil
+    end,
+    function()
+        local name
+        return function()
+            name = next(direct_agent_records, name)
+            local record = name and direct_agent_records[name] or nil
+            return name, record and record.proxy or nil
+        end
+    end,
+    function()
+        local count = 0
+        for _ in pairs(direct_agent_records) do count = count + 1 end
+        return count
+    end)
+
+M.agents = agents_proxy
+
+local workflow_mt = { __name = "subagents.workflow" }
+
+-- ---------------------------------------------------------------------------
+-- Host seam access
+-- ---------------------------------------------------------------------------
+
+local function host()
+    return require("panto").ext
+end
+
+-- The job machinery, resolved at call time for the same reason as the host seam.
+local function jobs()
+    return require("subagents.jobs")
+end
+
+local function host_json()
+    local ok, ext = pcall(host)
+    if ok and type(ext) == "table" and type(ext.json) == "table" then
+        return ext.json
+    end
+    return nil
+end
+
+-- Decode a JSON document. Panto installs its own codec as `panto.ext.json`;
+-- the dkjson fallback only matters for a bare `lua` process running the specs.
+local function json_decode(text)
+    local json = host_json()
+    if json and json.decode then
+        return json.decode(text)
+    end
+    local ok, dkjson = pcall(require, "dkjson")
+    if ok and type(dkjson) == "table" and dkjson.decode then
+        local value, _, err = dkjson.decode(text)
+        if err then
+            error(err, 0)
+        end
+        return value
+    end
+    error("no JSON decoder available (panto.ext.json missing, dkjson not installed)", 0)
+end
+
+local function json_encode(value)
+    local json = host_json()
+    if json and json.encode then
+        local ok, encoded = pcall(json.encode, value)
+        if ok then
+            return encoded
+        end
+    end
+    local ok, dkjson = pcall(require, "dkjson")
+    if ok and type(dkjson) == "table" and dkjson.encode then
+        local encoded_ok, encoded = pcall(dkjson.encode, value)
+        if encoded_ok then
+            return encoded
+        end
+    end
+    return tostring(value)
+end
+
+M.json_encode = json_encode
+M.json_decode = json_decode
+
+-- ---------------------------------------------------------------------------
+-- Schema validation
+-- ---------------------------------------------------------------------------
+
+-- The validator: the JSON Schema subset that structured child output actually
+-- uses. Anything it does not understand is ignored rather than rejected, so an
+-- unrecognized keyword never fails a legitimate result.
+local function is_array_like(value)
+    local count = 0
+    for key in pairs(value) do
+        if type(key) ~= "number" then
+            return false
+        end
+        count = count + 1
+    end
+    return count == #value
+end
+
+local function type_matches(value, expected)
+    if expected == "object" then
+        return type(value) == "table"
+    elseif expected == "array" then
+        return type(value) == "table" and is_array_like(value)
+    elseif expected == "string" then
+        return type(value) == "string"
+    elseif expected == "number" then
+        return type(value) == "number"
+    elseif expected == "integer" then
+        return type(value) == "number" and value == math.floor(value)
+    elseif expected == "boolean" then
+        return type(value) == "boolean"
+    elseif expected == "null" then
+        return value == nil or type(value) == "userdata"
+    end
+    return true
+end
+
+local function check_schema(value, schema, path)
+    if type(schema) ~= "table" then
+        return true
+    end
+
+    local expected = schema.type
+    if type(expected) == "string" then
+        if not type_matches(value, expected) then
+            return false, string.format("%s: expected %s, got %s", path, expected, type(value))
+        end
+    elseif type(expected) == "table" then
+        local any = false
+        for _, candidate in ipairs(expected) do
+            if type_matches(value, candidate) then
+                any = true
+                break
+            end
+        end
+        if not any then
+            return false, string.format("%s: no listed type matched %s", path, type(value))
+        end
+    end
+
+    if type(schema.enum) == "table" then
+        local found = false
+        for _, allowed in ipairs(schema.enum) do
+            if allowed == value then
+                found = true
+                break
+            end
+        end
+        if not found then
+            return false, string.format("%s: value is not one of the enumerated options", path)
+        end
+    end
+
+    if type(value) == "string" then
+        if type(schema.minLength) == "number" and #value < schema.minLength then
+            return false, string.format("%s: shorter than minLength %d", path, schema.minLength)
+        end
+        if type(schema.maxLength) == "number" and #value > schema.maxLength then
+            return false, string.format("%s: longer than maxLength %d", path, schema.maxLength)
+        end
+    end
+
+    if type(value) == "number" then
+        if type(schema.minimum) == "number" and value < schema.minimum then
+            return false, string.format("%s: below minimum %s", path, tostring(schema.minimum))
+        end
+        if type(schema.maximum) == "number" and value > schema.maximum then
+            return false, string.format("%s: above maximum %s", path, tostring(schema.maximum))
+        end
+    end
+
+    if type(value) ~= "table" then
+        return true
+    end
+
+    if type(schema.required) == "table" then
+        for _, key in ipairs(schema.required) do
+            if value[key] == nil then
+                return false, string.format("%s: missing required property '%s'", path, tostring(key))
+            end
+        end
+    end
+
+    if type(schema.properties) == "table" then
+        for key, sub in pairs(schema.properties) do
+            if value[key] ~= nil then
+                local ok, err = check_schema(value[key], sub, path .. "." .. tostring(key))
+                if not ok then
+                    return false, err
+                end
+            end
+        end
+        if schema.additionalProperties == false then
+            for key in pairs(value) do
+                if schema.properties[key] == nil then
+                    return false, string.format("%s: unexpected property '%s'", path, tostring(key))
+                end
+            end
+        end
+    end
+
+    if type(schema.items) == "table" then
+        if type(schema.minItems) == "number" and #value < schema.minItems then
+            return false, string.format("%s: fewer than minItems %d", path, schema.minItems)
+        end
+        if type(schema.maxItems) == "number" and #value > schema.maxItems then
+            return false, string.format("%s: more than maxItems %d", path, schema.maxItems)
+        end
+        for index, item in ipairs(value) do
+            local ok, err = check_schema(item, schema.items, string.format("%s[%d]", path, index))
+            if not ok then
+                return false, err
+            end
+        end
+    end
+
+    return true
+end
+
+-- ---------------------------------------------------------------------------
+-- Result shaping
+-- ---------------------------------------------------------------------------
+
+local function copy_result(result)
+    local shaped = {}
+    if type(result) == "table" then
+        for key, value in pairs(result) do
+            shaped[key] = value
+        end
+    end
+    if shaped.status == nil then
+        shaped.status = "failed"
+        shaped.error = shaped.error or "the host returned no result for this job"
+        shaped.resumable = false
+    end
+    return shaped
+end
+
+local function fail(shaped, message)
+    shaped.status = "failed"
+    shaped.error = message
+    shaped.output = nil
+    return shaped
+end
+
+-- Turn a host result into the value a workflow callback sees. Only handles
+-- carrying an output schema decode structured JSON; everything else passes
+-- through untouched.
+local function shape_result(result, handle)
+    local shaped = copy_result(result)
+    local schema = handle and handle.output_schema
+    if schema == nil or shaped.status ~= "completed" then
+        return shaped
+    end
+
+    -- An empty tool input is a real provider case (a chat-style provider
+    -- finalizes an argument-less call with ""), and it is not a validation
+    -- failure: nothing was produced to validate.
+    local raw = shaped.structured_json
+    if raw == nil or raw == "" then
+        return fail(shaped, "structured output missing: the child produced no structured result")
+    end
+
+    local decoded_ok, decoded = pcall(json_decode, raw)
+    if not decoded_ok then
+        return fail(shaped, "structured output failed validation: " .. tostring(decoded))
+    end
+
+    local valid, message = check_schema(decoded, schema, "output")
+    if not valid then
+        return fail(shaped, "structured output failed validation: " .. tostring(message or "schema mismatch"))
+    end
+
+    shaped.output = decoded
+    return shaped
+end
+
+-- The host may hand back a single result table or an array of them; both are
+-- normalized to an array here. A result always carries `status`, which is what
+-- distinguishes the two shapes.
+local function as_result_array(value)
+    if type(value) ~= "table" then
+        return {}
+    end
+    if value.status ~= nil then
+        return { value }
+    end
+    return value
+end
+
+-- ---------------------------------------------------------------------------
+-- Handles and context
+-- ---------------------------------------------------------------------------
+
+local handle_mt = {}
+handle_mt.__index = handle_mt
+handle_mt.__name = "subagents.handle"
+
+function handle_mt:await()
+    return self.ctx:await({ self }, "all")[1]
+end
+
+local ctx_mt = {}
+ctx_mt.__index = ctx_mt
+ctx_mt.__name = "subagents.ctx"
+
+-- Per-run state lives here, not on ctx: workflow callbacks hold the ctx table
+-- and would otherwise be able to raise its own job cap (`ctx.max_jobs = nil`),
+-- reset the counter, or read the profile set. ctx itself is an empty table
+-- exposing only `agent` and `await`. Weak keys so a finished run is collectable.
+local state = setmetatable({}, { __mode = "k" })
+
+local function cancel_agent_record(record)
+    if record.status ~= "running" or record.job == nil then
+        return false
+    end
+    return jobs().cancel(record.job)
+end
+
+local function make_agent_record(workflow_record, name)
+    local record = {
+        name = name,
+        status = "running",
+        output = nil,
+        error = nil,
+        id = nil,
+    }
+    record.proxy = readonly(function(_, key)
+        if key == "name" or key == "status" or key == "output" or key == "error" or key == "id" then
+            return record[key]
+        elseif key == "cancel" then
+            return function() return cancel_agent_record(record) end
+        end
+    end)
+    workflow_record.agent_order[#workflow_record.agent_order + 1] = record
+    workflow_record.agents_by_name[name] = record
+    return record
+end
+
+local function settle_agent_record(record, result)
+    if record == nil or type(result) ~= "table" then return end
+    record.status = result.status or "failed"
+    record.id = result.id
+    record.error = result.error
+    record.job = nil
+    if result.output ~= nil then
+        record.output = M.output_text(result)
+    end
+end
+
+local function settle_workflow_handle(handle, result)
+    handle.result = shape_result(result, handle)
+    settle_agent_record(handle.agent_record, handle.result)
+    return handle.result
+end
+
+-- Keep the child stream private: exposing it would let a guest drive the
+-- `panto.ext.async.run` subscription outside the jobs concurrency cap. The
+-- guest sees only `result` and `await`.
+local job_of = setmetatable({}, { __mode = "k" })
+
+function ctx_mt:agent(input)
+    if type(input) ~= "table" then
+        error("ctx:agent expects a table of { profile =, prompt =, ... }", 2)
+    end
+    local s = state[self]
+    if not s then
+        error("ctx:agent must be called on a workflow context (use ctx:agent{...})", 2)
+    end
+    if s.record and s.record.cancel_requested then
+        error("workflow is cancelled", 2)
+    end
+    if s.max_jobs and s.job_count >= s.max_jobs then
+        error(string.format("workflow job limit exceeded (max %d)", s.max_jobs), 2)
+    end
+
+    local name = input.name
+    if type(name) ~= "string" or name:match("^%s*$") then
+        error("ctx:agent requires a non-empty unique `name`", 2)
+    end
+    if s.agent_names[name] then
+        error("duplicate workflow agent name '" .. name .. "'", 2)
+    end
+    s.agent_names[name] = true
+    local agent_record = s.record and make_agent_record(s.record, name) or nil
+
+    -- spawn.build_spec owns profile lookup, model/reasoning precedence, the
+    -- child-role system messages, and the synthetic output tool. A nil profile
+    -- set means "use the cached discovery", which is what it already does.
+    local spec, spec_err = spawn.build_spec(input, s.profiles)
+    if not spec then
+        if agent_record then
+            agent_record.status = "failed"
+            agent_record.error = tostring(spec_err)
+        end
+        if s.workflow_labels then
+            progress.card(name .. (type(input.profile) == "string" and (" (" .. input.profile .. ")") or ""), nil, nil, {
+                prompt = type(input.prompt) == "string" and input.prompt or nil,
+                system_prompt = type(input.system_prompt) == "string" and input.system_prompt or nil,
+            }):done("failed", tostring(spec_err))
+        end
+        error(tostring(spec_err), 2)
+    end
+
+    local output_schema = nil
+    if type(spec.output) == "table" then
+        output_schema = spec.output.schema
+    end
+
+    if s.workflow_labels then
+        spec.subagent_name = name
+        spec.subagent_profile = input.profile
+    end
+    if s.record and s.record.survives_interrupt then spec.survives_interrupt = true end
+    local handle = setmetatable({
+        ctx = self,
+        spec = spec,
+        output_schema = output_schema,
+        agent_record = agent_record,
+        result = nil,
+    }, handle_mt)
+
+    spec.on_settle = function(result)
+        if handle.result == nil then settle_workflow_handle(handle, result) end
+    end
+    local job, job_err = spawn.spawn(spec)
+    if not job then
+        -- A rejected spawn is a child failure, not a workflow error.
+        settle_workflow_handle(handle, {
+            id = nil,
+            status = "failed",
+            error = tostring(job_err or "the host refused to start the child"),
+            resumable = false,
+        })
+    else
+        job_of[handle] = job
+        if agent_record then agent_record.job = job end
+    end
+
+    s.job_count = s.job_count + 1
+    s.outstanding[#s.outstanding + 1] = handle
+    return handle
+end
+
+-- Pick the first handle (in input order) that already holds a settled result,
+-- returning it with the remaining handles.
+local function take_settled(handles)
+    for index, handle in ipairs(handles) do
+        if handle.result ~= nil then
+            local remaining = {}
+            for other_index, other in ipairs(handles) do
+                if other_index ~= index then
+                    remaining[#remaining + 1] = other
+                end
+            end
+            return handle.result, remaining
+        end
+    end
+    return nil, nil
+end
+
+local function pending_handles(handles)
+    local pending, started = {}, {}
+    for _, handle in ipairs(handles) do
+        if handle.result == nil and job_of[handle] ~= nil then
+            pending[#pending + 1] = handle
+            started[#started + 1] = job_of[handle]
+        end
+    end
+    return pending, started
+end
+
+function ctx_mt:await(handles, mode)
+    mode = mode or "all"
+    if type(handles) ~= "table" then
+        error("ctx:await expects an array of handles", 2)
+    end
+    if getmetatable(handles) == handle_mt then
+        handles = { handles }
+    end
+    if mode ~= "all" and mode ~= "first" then
+        error("ctx:await mode must be \"all\" or \"first\"", 2)
+    end
+
+    if mode == "all" then
+        local pending, started = pending_handles(handles)
+        if #pending > 0 then
+            local results = as_result_array(jobs().await(started, "all"))
+            for index, handle in ipairs(pending) do
+                if handle.result == nil then settle_workflow_handle(handle, results[index]) end
+            end
+        end
+        local out = {}
+        for index, handle in ipairs(handles) do
+            out[index] = handle.result or copy_result(nil)
+        end
+        return out
+    end
+
+    local ready, remaining = take_settled(handles)
+    if ready ~= nil then
+        return ready, remaining
+    end
+
+    local pending, started = pending_handles(handles)
+    if #pending == 0 then
+        return nil, {}
+    end
+
+    local results, still_pending = jobs().await(started, "first")
+    results = as_result_array(results)
+
+    -- Everything not listed as still-running has settled; pair those handles
+    -- with the returned results in order. The listed jobs are the very handles
+    -- that went in, so they match by identity.
+    local settled = pending
+    if type(still_pending) == "table" and #still_pending > 0 then
+        local still_running = {}
+        for _, job in ipairs(still_pending) do
+            still_running[job] = true
+        end
+        settled = {}
+        for _, handle in ipairs(pending) do
+            if not still_running[job_of[handle]] then
+                settled[#settled + 1] = handle
+            end
+        end
+    end
+    for index, result in ipairs(results) do
+        local handle = settled[index]
+        if handle and handle.result == nil then
+            settle_workflow_handle(handle, result)
+        end
+    end
+
+    ready, remaining = take_settled(handles)
+    if ready == nil then
+        -- The await returned without settling anything; treat the batch as
+        -- failed rather than spinning forever on the same handles.
+        local first = pending[1]
+        settle_workflow_handle(first, copy_result(nil))
+        return take_settled(handles)
+    end
+    return ready, remaining
+end
+
+-- ---------------------------------------------------------------------------
+-- Workflow objects and execution
+-- ---------------------------------------------------------------------------
+
+function M.workflow(fn)
+    if type(fn) ~= "function" then
+        error("subagents.workflow expects a function(ctx, input)", 2)
+    end
+    return setmetatable({ run = fn }, workflow_mt)
+end
+
+function M.is_workflow(value)
+    return type(value) == "table" and getmetatable(value) == workflow_mt
+end
+
+-- Settle any handle the callback left running so a returning workflow never
+-- orphans a child. Results are intentionally discarded.
+local function drain(ctx)
+    local pending = {}
+    for _, handle in ipairs(state[ctx].outstanding) do
+        if handle.result == nil then
+            pending[#pending + 1] = handle
+        end
+    end
+    if #pending == 0 then
+        return
+    end
+    pcall(function()
+        ctx:await(pending, "all")
+    end)
+end
+
+-- Run `wf` against `input`. opts:
+--   max_jobs   -- cap on ctx:agent calls (nil = unbounded; the std.lua namespace passes 32)
+--   profiles   -- discovered profile set for spawn.build_spec (nil = discover)
+--   on_resume  -- called with the running coroutine before the callback starts
+--   on_yield   -- called with the same coroutine once it has finished
+--   workflow_labels -- label cards with workflow-local names and profiles
+--
+-- The callback runs on the caller's coroutine. `M.start` supplies a dedicated
+-- one; direct callers use their own. `subagents.jobs.await` parks and resumes
+-- that exact coroutine.
+function M.execute(wf, input, opts)
+    if not M.is_workflow(wf) then
+        error("subagents.workflow.execute expects a workflow object", 2)
+    end
+    opts = opts or {}
+
+    local ctx = setmetatable({}, ctx_mt)
+    state[ctx] = {
+        profiles = opts.profiles,
+        max_jobs = opts.max_jobs,
+        job_count = 0,
+        outstanding = {},
+        agent_names = {},
+        record = opts.record,
+        workflow_labels = opts.workflow_labels == true,
+    }
+
+    local co = coroutine.running()
+    if opts.on_resume then
+        opts.on_resume(co)
+    end
+    -- pcall is yieldable in 5.4, so the callback may still await across it.
+    local packed = table.pack(pcall(wf.run, ctx, input))
+    if opts.on_yield then
+        opts.on_yield(co)
+    end
+
+    drain(ctx)
+    if not packed[1] then
+        error(packed[2], 0)
+    end
+    return table.unpack(packed, 2, packed.n)
+end
+
+-- A child's output text: a structured result decodes to a table, which is
+-- re-encoded compactly so anything model-visible is still a string.
+function M.output_text(result)
+    local output = result.output
+    if type(output) == "table" then
+        return json_encode(output)
+    end
+    if output == nil or output == "" then
+        return tostring(result.error or "")
+    end
+    return tostring(output)
+end
+
+local function cancel_workflow_record(record)
+    if record.status ~= "running" then
+        return false
+    end
+    record.cancel_requested = true
+    for _, agent in ipairs(record.agent_order) do
+        cancel_agent_record(agent)
+    end
+    return true
+end
+
+local function make_workflow_record(id)
+    local record = {
+        id = id,
+        status = "running",
+        result = nil,
+        error = nil,
+        agent_order = {},
+        agents_by_name = {},
+        cancel_requested = false,
+        suppress_notification = false,
+    }
+    record.agents_proxy = readonly(
+        function(_, key)
+            local agent = type(key) == "number" and record.agent_order[key] or record.agents_by_name[key]
+            return agent and agent.proxy or nil
+        end,
+        function()
+            local index = 0
+            return function()
+                index = index + 1
+                local agent = record.agent_order[index]
+                if agent then return agent.name, agent.proxy end
+            end
+        end,
+        function() return #record.agent_order end)
+    record.proxy = readonly(function(_, key)
+        if key == "id" or key == "status" or key == "result" or key == "error" then
+            return record[key]
+        elseif key == "agents" then
+            return record.agents_proxy
+        elseif key == "cancel" then
+            return function() return cancel_workflow_record(record) end
+        elseif key == "render" then
+            return function(_, width) return progress.render(record.tool_call_id, width, tostring(record)) end
+        elseif key == "attached" then
+            return function(_, handle) progress.attach(record.tool_call_id, handle) end
+        end
+    end, nil, nil, function()
+        if record.status == "running" then return record.id end
+        local detail = record.result or record.error or ""
+        detail = tostring(detail):gsub("%s+", " ")
+        if #detail > 200 then detail = detail:sub(1, 200) .. "… (see .result)" end
+        return string.format("%s (%s)%s", record.id, record.status,
+            detail ~= "" and (": " .. detail) or "")
+    end)
+    return record
+end
+
+local function emit(name)
+    local ext = host()
+    if type(ext.emit) == "function" then pcall(ext.emit, name) end
+end
+
+-- "workflow-3 (ship)" for a workflow profile run, else just the id.
+local function describe(record)
+    return record.label and (record.id .. " (" .. record.label .. ")") or record.id
+end
+
+local function workflow_notice(record, state)
+    return string.format("[subagents] Workflow %s %s. Inspect subagents.workflows[%q] with std.lua.",
+        describe(record), state, record.id)
+end
+
+-- What a tool that started a background workflow tells the model.
+function M.started_notice(record)
+    return workflow_notice(record, "started in the background") .. " Its completion wakes you."
+end
+
+-- Wake messages carry the report itself, so the primary needs no extra
+-- inspection turn. Past this cap the tail stays reachable through std.lua.
+local NOTICE_BODY_LIMIT = 50 * 1024
+
+local function with_body(header, status, body, where)
+    if type(body) ~= "string" or body == "" then
+        if status == "completed" then return header .. " It returned no output." end
+        return header .. " Inspect " .. where .. " with std.lua."
+    end
+    local label = status == "completed" and "Output" or "Error"
+    if #body > NOTICE_BODY_LIMIT then
+        local cut = NOTICE_BODY_LIMIT
+        -- Never split a UTF-8 sequence: back off continuation bytes.
+        while cut > 0 and (body:byte(cut + 1) or 0) & 0xC0 == 0x80 do cut = cut - 1 end
+        body = body:sub(1, cut) .. string.format("\n\n[truncated at %d of %d bytes; full text in %s]",
+            cut, #body, where)
+    end
+    return header .. " " .. label .. " below:\n\n" .. body
+end
+
+local function completion_notice(record)
+    if record.suppress_notification or record.status == "cancelled" then return nil end
+    if record.public_agent_name then
+        local name = record.public_agent_name
+        local agent = record.agents_by_name[name]
+        local status = agent and agent.status or record.status
+        if status == "cancelled" then return nil end
+        local body = status == "completed" and (agent and agent.output)
+            or (agent and agent.error or record.error)
+        return with_body(string.format("[subagents] Agent %s %s.", name, status), status, body,
+            string.format("subagents.agents[%q]", name))
+    end
+    local where = string.format("subagents.workflows[%q]", record.id)
+    return with_body(string.format("[subagents] Workflow %s %s.", describe(record), record.status), record.status,
+        record.status == "completed" and record.result or record.error, where)
+end
+
+local function notify(message)
+    if message == nil then return end
+    local primary = host().agent
+    if primary == nil or type(primary.submit) ~= "function" then return end
+    local submitted = pcall(primary.submit, primary, message)
+    if submitted then emit("agent_submission") end
+end
+
+local function make_direct_agent_record(name, record)
+    local direct = { name = name, workflow = record }
+    direct.proxy = readonly(function(_, key)
+        local agent = record.agents_by_name[name]
+        if key == "name" then
+            return name
+        elseif key == "status" then
+            return agent and agent.status or record.status
+        elseif key == "output" or key == "id" then
+            return agent and agent[key] or nil
+        elseif key == "error" then
+            return agent and agent.error or record.error
+        elseif key == "cancel" then
+            return function()
+                if agent then return cancel_agent_record(agent) end
+                return cancel_workflow_record(record)
+            end
+        end
+    end)
+    return direct
+end
+
+local function valid_status(status)
+    return status == "completed" or status == "failed" or status == "cancelled"
+end
+
+local function optional_string(value)
+    return value == nil or type(value) == "string"
+end
+
+local function warn(message)
+    pcall(function()
+        io.stderr:write("panto-subagents: ", tostring(message), "\n")
+    end)
+end
+
+local function serialize_workflow(record)
+    local agents = {}
+    for index, agent in ipairs(record.agent_order) do
+        agents[index] = {
+            name = agent.name,
+            status = agent.status,
+            output = agent.output,
+            error = agent.error,
+            id = agent.id,
+        }
+    end
+    return {
+        id = record.id,
+        label = record.label,
+        status = record.status,
+        result = record.result,
+        error = record.error,
+        tool_call_id = record.tool_call_id,
+        public_agent_name = record.public_agent_name,
+        agents = agents,
+    }
+end
+
+local function persist_workflow(record)
+    local ok, err = pcall(function()
+        local child_dir, path_err = paths.child_store_dir()
+        if not child_dir then error(path_err or "no child store directory", 0) end
+        local directory = child_dir .. "/workflows"
+        local made, mkdir_err = paths.ensure_dir(directory)
+        if not made then error(mkdir_err or "could not create workflow record directory", 0) end
+
+        local encoded = json_encode(serialize_workflow(record))
+        if type(encoded) ~= "string" then error("JSON encoder returned no text", 0) end
+        local destination = directory .. "/" .. record.id .. ".json"
+        local temporary = destination .. ".tmp"
+        local file, open_err = io.open(temporary, "wb")
+        if not file then error(open_err or "could not open temporary workflow record", 0) end
+        local wrote, write_err = file:write(encoded)
+        if not wrote then
+            file:close()
+            os.remove(temporary)
+            error(write_err or "could not write workflow record", 0)
+        end
+        local flushed, flush_err = file:flush()
+        local closed, close_err = file:close()
+        if not flushed or not closed then
+            os.remove(temporary)
+            error(flush_err or close_err or "could not close workflow record", 0)
+        end
+        local renamed, rename_err = os.rename(temporary, destination)
+        if not renamed then
+            os.remove(temporary)
+            error(rename_err or "could not replace workflow record", 0)
+        end
+    end)
+    if not ok then warn("could not persist workflow " .. tostring(record.id) .. ": " .. tostring(err)) end
+end
+
+local function valid_workflow_data(data, filename_id)
+    if type(data) ~= "table" or type(data.id) ~= "string" or data.id ~= filename_id then return false end
+    if not (data.id:match("^workflow%-%d+$") or data.id:match("^run%-agent%-%d+$")) then return false end
+    if not valid_status(data.status) or not optional_string(data.label) or not optional_string(data.result)
+        or not optional_string(data.error) or not optional_string(data.tool_call_id)
+        or not optional_string(data.public_agent_name) or type(data.agents) ~= "table" then
+        return false
+    end
+    if data.public_agent_name and not data.id:match("^run%-agent%-%d+$") then return false end
+    local count = 0
+    for key in pairs(data.agents) do
+        if type(key) ~= "number" or key < 1 or key ~= math.floor(key) then return false end
+        count = count + 1
+    end
+    if count ~= #data.agents then return false end
+    for index, agent in ipairs(data.agents) do
+        if type(agent) ~= "table" or type(agent.name) ~= "string" or agent.name == ""
+            or not valid_status(agent.status) or not optional_string(agent.output)
+            or not optional_string(agent.error) or not optional_string(agent.id) then
+            return false
+        end
+        for prior = 1, index - 1 do
+            if data.agents[prior].name == agent.name then return false end
+        end
+    end
+    if data.public_agent_name then
+        local public_number = data.public_agent_name:match("^agent%-(%d+)$")
+        if not public_number or data.id ~= "run-agent-" .. public_number then return false end
+    end
+    return true
+end
+
+local function restore_workflow(data)
+    local record = make_workflow_record(data.id)
+    record.status = data.status
+    record.result = data.result
+    record.error = data.error
+    record.label = data.label
+    record.tool_call_id = data.tool_call_id
+    record.public_agent_name = data.public_agent_name
+    for _, stored in ipairs(data.agents) do
+        local agent = make_agent_record(record, stored.name)
+        agent.status = stored.status
+        agent.output = stored.output
+        agent.error = stored.error
+        agent.id = stored.id
+    end
+    if data.id:match("^workflow%-%d+$") then
+        if workflow_records[data.id] == nil then workflow_records[data.id] = record end
+    end
+    if data.public_agent_name and direct_agent_records[data.public_agent_name] == nil then
+        direct_agent_records[data.public_agent_name] = make_direct_agent_record(data.public_agent_name, record)
+    end
+end
+
+local function update_sequence_from_id(id)
+    local workflow_number = type(id) == "string" and id:match("^workflow%-(%d+)$")
+    local agent_number = type(id) == "string" and id:match("^run%-agent%-(%d+)$")
+    if workflow_number then workflow_sequence = math.max(workflow_sequence, tonumber(workflow_number)) end
+    if agent_number then agent_sequence = math.max(agent_sequence, tonumber(agent_number)) end
+end
+
+function M.rehydrate()
+    local ok, result = pcall(function()
+        local child_dir, path_err = paths.child_store_dir()
+        if not child_dir then error(path_err or "no child store directory", 0) end
+        return paths.walk(child_dir .. "/workflows", ".json")
+    end)
+    if not ok then
+        warn("could not load workflow records: " .. tostring(result))
+        return
+    end
+
+    for _, path in ipairs(result) do
+        local filename_id = path:match("([^/]+)%.json$")
+        if filename_id then
+            update_sequence_from_id(filename_id)
+            local loaded, load_err = pcall(function()
+                local text, read_err = paths.read_file(path)
+                if not text then error("could not read: " .. tostring(read_err), 0) end
+                local data = json_decode(text)
+                if not valid_workflow_data(data, filename_id) then error("invalid record", 0) end
+                update_sequence_from_id(data.id)
+                local public_number = data.public_agent_name and data.public_agent_name:match("^agent%-(%d+)$")
+                if public_number then agent_sequence = math.max(agent_sequence, tonumber(public_number)) end
+                restore_workflow(data)
+            end)
+            if not loaded then warn("skipping workflow record " .. path .. ": " .. tostring(load_err)) end
+        end
+    end
+end
+
+local function finish_workflow(record, status, result, err)
+    if record.status ~= "running" then return end
+    record.status = status
+    record.result = result
+    record.error = err
+    record.coroutine = nil
+    if record.timer then
+        pcall(record.timer.stop, record.timer)
+        pcall(record.timer.close, record.timer)
+        record.timer = nil
+    end
+    active_workflows[record.id] = nil
+    persist_workflow(record)
+    progress.workflow_finished(record.tool_call_id)
+    -- Wake the primary before ending background work, so status reporters see
+    -- foreground work begin first instead of a transient "done" (a Rex ding).
+    notify(completion_notice(record))
+    emit("background_work_end")
+end
+
+-- Start a model-authored workflow on its own coroutine and return before the
+-- callback runs. The existing jobs/luv machinery resumes that coroutine as
+-- children settle; no second scheduler or thread is involved. `expose=false`
+-- and `internal_id` support hidden workflows; `public_agent_name` selects the
+-- single-agent completion notification. `label` names the workflow in its
+-- notices. A slash command passes `survives_interrupt`, since interrupting an
+-- unrelated primary turn must not cancel work the user started.
+function M.start(wf, opts)
+    if not M.is_workflow(wf) then
+        error("subagents.workflow expects a function(ctx)", 2)
+    end
+    if not ok_uv or type(uv.new_timer) ~= "function" then
+        error("subagents.workflow requires luv", 2)
+    end
+    opts = opts or {}
+
+    local id = opts.internal_id
+    if id == nil then
+        workflow_sequence = workflow_sequence + 1
+        id = "workflow-" .. workflow_sequence
+    end
+    local record = make_workflow_record(id)
+    record.tool_call_id = type(opts.tool_call_id) == "string" and opts.tool_call_id ~= "" and opts.tool_call_id or nil
+    record.public_agent_name = opts.public_agent_name
+    record.label = opts.label
+    record.survives_interrupt = opts.survives_interrupt == true
+    if opts.expose ~= false then workflow_records[id] = record end
+    active_workflows[id] = record
+
+    local co = coroutine.create(function()
+        if record.cancel_requested then
+            return finish_workflow(record, "cancelled", nil, "workflow cancelled")
+        end
+        local ok, result = pcall(M.execute, wf, nil, {
+            max_jobs = opts.max_jobs,
+            profiles = opts.profiles,
+            record = record,
+            workflow_labels = opts.workflow_labels,
+            on_resume = opts.on_resume,
+            on_yield = opts.on_yield,
+        })
+        if record.cancel_requested then
+            finish_workflow(record, "cancelled", nil, "workflow cancelled")
+        elseif not ok then
+            finish_workflow(record, "failed", nil, tostring(result))
+        elseif type(result) ~= "string" then
+            finish_workflow(record, "failed", nil, "workflow callback must return a string")
+        else
+            finish_workflow(record, "completed", result, nil)
+        end
+    end)
+    record.coroutine = co
+    progress.bind_coroutine(co, opts.tool_call_id)
+
+    local timer = uv.new_timer()
+    record.timer = timer
+    timer:start(0, 0, function()
+        timer:stop()
+        timer:close()
+        record.timer = nil
+        local ok, err = coroutine.resume(co)
+        if not ok then
+            finish_workflow(record, record.cancel_requested and "cancelled" or "failed", nil, tostring(err))
+        end
+    end)
+    progress.workflow_started(record.tool_call_id)
+    emit("background_work_start")
+    return id, record
+end
+
+-- Start the single hidden workflow used by subagents.run. Its workflow record
+-- remains private; only the sole agent's ordinary record is exposed globally.
+function M.start_agent(input, opts)
+    if type(input) ~= "table" then
+        return nil, "expected a table of arguments"
+    end
+    opts = opts or {}
+
+    agent_sequence = agent_sequence + 1
+    local name = "agent-" .. agent_sequence
+    local agent_input = {}
+    for key, value in pairs(input) do agent_input[key] = value end
+    agent_input.name = name
+
+    local _, record = M.start(M.workflow(function(ctx)
+        local result = ctx:agent(agent_input):await()
+        return M.output_text(result)
+    end), {
+        expose = false,
+        internal_id = "run-" .. name,
+        profiles = opts.profiles,
+        tool_call_id = opts.tool_call_id,
+        workflow_labels = true,
+        public_agent_name = name,
+    })
+
+    local direct = make_direct_agent_record(name, record)
+    direct_agent_records[name] = direct
+    return name
+end
+
+-- Workflows (including the hidden ones behind `subagents.run`) still running.
+function M.running_count()
+    local n = 0
+    for _, record in pairs(active_workflows) do
+        if record.status == "running" then n = n + 1 end
+    end
+    return n
+end
+
+-- `interrupt` spares workflows started with `survives_interrupt`.
+function M.cancel_all(suppress_notification, interrupt)
+    local records = {}
+    for _, record in pairs(active_workflows) do records[#records + 1] = record end
+    for _, record in ipairs(records) do
+        if not (interrupt and record.survives_interrupt) then
+            if suppress_notification then record.suppress_notification = true end
+            cancel_workflow_record(record)
+            -- Teardown closes the Lua state immediately after this callback.
+            -- Persist a terminal snapshot now instead of waiting for native
+            -- child cancellation callbacks that may never run.
+            if suppress_notification and not interrupt and record.status == "running" then
+                for _, agent in ipairs(record.agent_order) do
+                    if agent.status == "running" then
+                        agent.status = "cancelled"
+                        agent.error = "workflow cancelled"
+                        agent.job = nil
+                    end
+                end
+                finish_workflow(record, "cancelled", nil, "workflow cancelled")
+            end
+        end
+    end
+end
+
+return M

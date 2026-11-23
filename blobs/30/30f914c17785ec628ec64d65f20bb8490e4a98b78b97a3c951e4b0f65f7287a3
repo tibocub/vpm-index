@@ -1,0 +1,423 @@
+-- Web tools backed by a Lightpanda MCP subprocess.
+--
+-- web.fetch  -> Lightpanda's `markdown` tool (renders JavaScript, returns CommonMark).
+-- web.search -> Exa search, using its REST API when configured and keyless MCP otherwise.
+--
+-- `lightpanda` must be on PATH; installing it is the user's responsibility.
+
+local uv = require("luv")
+local panto = require("panto")
+local json = panto.ext.json
+
+local M = { name = "web" }
+
+-- Single documented cap so a huge page cannot flood the model's context.
+local MAX_OUTPUT = 100 * 1024
+
+local INSTALL_HINT = "lightpanda is not on PATH. Install it "
+    .. "(https://lightpanda.io/docs/run-locally/installation/one-liner or "
+    .. "`brew tap lightpanda-io/browser && brew install lightpanda`) "
+    .. "so `lightpanda mcp` can start."
+
+function M.truncate(text)
+    if #text <= MAX_OUTPUT then return text end
+    return text:sub(1, MAX_OUTPUT) .. "\n\n[truncated at 100 KB]"
+end
+
+-- Redact a secret from anything that may reach tool output.
+function M.scrub(text, secret)
+    if type(text) ~= "string" or type(secret) ~= "string" or secret == "" then return text end
+    return (text:gsub((secret:gsub("%W", "%%%0")), "[redacted]"))
+end
+
+--------------------------------------------------------------------------------
+-- Lightpanda MCP client (only the subset this extension needs)
+--------------------------------------------------------------------------------
+
+-- One lazily started `lightpanda mcp` process per extension lifetime. Idle
+-- handles are unreferenced so panto's `uv.run("default")` can return after a
+-- tool batch while the browser session remains available for later calls.
+local client
+
+function M.build_request(id, method, params)
+    return { jsonrpc = "2.0", id = id, method = method, params = params }
+end
+
+-- Resolve a pending request exactly once, whatever the outcome.
+local function settle(req, message, err)
+    if req.done then return end
+    req.done, req.message, req.err = true, message, err
+    if req.co and coroutine.status(req.co) == "suspended" then
+        local ok, resume_err = coroutine.resume(req.co)
+        if not ok then error(resume_err, 0) end
+    end
+end
+
+local function teardown(c, reason)
+    if c.dead then return end
+    c.dead = true
+    if client == c then client = nil end
+    local pending = c.pending
+    c.pending = {}
+    for _, req in pairs(pending) do settle(req, nil, reason) end
+    local waiters = c.ready_waiters or {}
+    c.ready_waiters = {}
+    for _, req in ipairs(waiters) do settle(req, nil, reason) end
+    for _, pipe in ipairs({ c.stdin, c.stdout, c.stderr }) do
+        if pipe and not pipe:is_closing() then pipe:close() end
+    end
+    if c.proc and not c.proc:is_closing() then
+        if not c.exited then pcall(c.proc.kill, c.proc, "sigterm") end
+        c.proc:close()
+    end
+end
+
+-- Consume newline-delimited stdout and route each reply to its waiting coroutine.
+-- Returns an error string when the stream is unusable.
+function M.feed(c, chunk)
+    c.buf = (c.buf or "") .. chunk
+    while true do
+        local line, rest = c.buf:match("^([^\n]*)\n(.*)$")
+        if not line then return nil end
+        c.buf = rest
+        if line:match("%S") then
+            local ok, message = pcall(json.decode, line)
+            if not ok or type(message) ~= "table" then
+                return "lightpanda mcp sent a malformed JSON-RPC message"
+            end
+            if message.jsonrpc ~= "2.0" then
+                return "lightpanda mcp sent a malformed JSON-RPC message"
+            end
+            local req = message.id ~= nil and c.pending[message.id]
+            if message.id ~= nil then
+                if message.result == nil and message.error == nil then
+                    return "lightpanda mcp sent a malformed JSON-RPC response"
+                end
+                if req then
+                    c.pending[message.id] = nil
+                    settle(req, message)
+                end
+            elseif type(message.method) ~= "string" then
+                return "lightpanda mcp sent a malformed JSON-RPC message"
+            end
+        end
+    end
+end
+
+local function write(c, payload)
+    local ok, req, immediate_err = pcall(c.stdin.write, c.stdin, payload, function(err)
+        if err then teardown(c, "lightpanda mcp write failed: " .. tostring(err)) end
+    end)
+    if not ok or not req then
+        teardown(c, "lightpanda mcp write failed: " .. tostring(immediate_err or req))
+    end
+end
+
+local function request(c, method, params)
+    local co, is_main = coroutine.running()
+    if not co or is_main then return nil, "web tools must run inside a coroutine" end
+
+    c.next_id = c.next_id + 1
+    local id = c.next_id
+    local req = { co = co }
+    c.pending[id] = req
+    write(c, json.encode(M.build_request(id, method, params)) .. "\n")
+    if not req.done then coroutine.yield() end
+    c.pending[id] = nil
+
+    if not req.message then return nil, req.err or "lightpanda mcp did not respond" end
+    if req.message.error then
+        local rpc_error = req.message.error
+        return nil, type(rpc_error) == "table"
+            and tostring(rpc_error.message or "lightpanda mcp returned an error")
+            or "lightpanda mcp returned an error"
+    end
+    return req.message
+end
+
+local function start()
+    local c = { pending = {}, ready_waiters = {}, next_id = 0, buf = "" }
+    c.stdin, c.stdout, c.stderr = uv.new_pipe(false), uv.new_pipe(false), uv.new_pipe(false)
+
+    local proc = uv.spawn("lightpanda", {
+        args = { "mcp" },
+        stdio = { c.stdin, c.stdout, c.stderr },
+    }, function(code)
+        c.exited = true
+        teardown(c, "lightpanda mcp exited (code " .. tostring(code) .. ")")
+    end)
+    if not proc then
+        teardown(c, INSTALL_HINT)
+        return nil, INSTALL_HINT
+    end
+    c.proc = proc
+    client = c
+
+    c.stdout:read_start(function(err, data)
+        if err then return teardown(c, "lightpanda mcp read error: " .. tostring(err)) end
+        if not data then return teardown(c, "lightpanda mcp closed its output") end
+        local feed_err = M.feed(c, data)
+        if feed_err then teardown(c, feed_err) end
+    end)
+    c.stderr:read_start(function() end)
+
+    local _, err = request(c, "initialize", {
+        protocolVersion = "2024-11-05",
+        capabilities = {},
+        clientInfo = { name = "panto-web", version = "scm" },
+    })
+    if err then
+        teardown(c, err)
+        return nil, err
+    end
+    write(c, json.encode(M.build_request(nil, "notifications/initialized", {})) .. "\n")
+    c.ready = true
+    for _, waiter in ipairs(c.ready_waiters) do settle(waiter, true) end
+    c.ready_waiters = {}
+    return c
+end
+
+local function ready_client()
+    if not client or client.dead then return start() end
+    if client.ready then return client end
+
+    local co, is_main = coroutine.running()
+    if not co or is_main then return nil, "web tools must run inside a coroutine" end
+    local c = client
+    local waiter = { co = co }
+    c.ready_waiters[#c.ready_waiters + 1] = waiter
+    coroutine.yield()
+    if waiter.err then return nil, waiter.err end
+    if c.dead or not c.ready then return nil, "lightpanda mcp failed to initialize" end
+    return c
+end
+
+-- Flatten an MCP tool result into text.
+function M.result_text(result)
+    if type(result) ~= "table" then return nil, "lightpanda mcp returned no result" end
+    if result.content ~= nil and type(result.content) ~= "table" then
+        return nil, "lightpanda mcp returned malformed tool content"
+    end
+    local parts = {}
+    for _, item in ipairs(result.content or {}) do
+        if type(item) == "table" and type(item.text) == "string" then parts[#parts + 1] = item.text end
+    end
+    local text = table.concat(parts, "\n")
+    if result.isError then
+        return nil, text ~= "" and text or "lightpanda mcp reported a tool error"
+    end
+    return text
+end
+
+local function set_referenced(c, referenced)
+    local method = referenced and "ref" or "unref"
+    for _, handle in ipairs({ c.stdin, c.stdout, c.stderr, c.proc }) do
+        if handle and not handle:is_closing() then handle[method](handle) end
+    end
+end
+
+function M.tool_params(tool, arguments)
+    return { name = tool, arguments = arguments }
+end
+
+local function call(tool, arguments)
+    local c, ready_err = ready_client()
+    if not c then return nil, ready_err end
+    set_referenced(c, true)
+    local message, err = request(c, "tools/call", M.tool_params(tool, arguments))
+    if not message then
+        if not c.dead and next(c.pending) == nil then set_referenced(c, false) end
+        return nil, err
+    end
+    local text, result_err = M.result_text(message.result)
+    if not c.dead and next(c.pending) == nil then set_referenced(c, false) end
+    return text, result_err
+end
+
+--------------------------------------------------------------------------------
+-- Tools
+--------------------------------------------------------------------------------
+
+function M.on_fetch(input)
+    local url = type(input) == "table" and input.url or nil
+    if type(url) ~= "string" or url:match("^%s*$") then
+        return "Error: url must be a non-empty string"
+    end
+
+    local markdown, err = call("markdown", { url = url })
+    if not markdown then return "Error fetching " .. url .. ": " .. err end
+    if markdown:match("^%s*$") then return "URL: " .. url .. "\n\n[no content]" end
+    return M.truncate("URL: " .. url .. "\n\n" .. (markdown:gsub("^%s+", "")))
+end
+
+-- Exa request body; deliberately free of credentials.
+function M.exa_body(query, count)
+    return json.encode({
+        query = query,
+        numResults = count,
+        type = "auto",
+        contents = { highlights = true },
+    })
+end
+
+-- Page-side transport: POST to Exa and hand back a status/body envelope. The key
+-- arrives as a JSON literal over the MCP stdin pipe, never a shell argument.
+function M.exa_script(body, key)
+    return ("const r = await fetch(%s, { method: 'POST', headers:"
+        .. " { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + %s },"
+        .. " body: %s }); return { status: r.status, body: await r.text() };")
+        :format(json.encode("https://api.exa.ai/search"), json.encode(key), json.encode(body))
+end
+
+function M.exa_mcp_body(query, count)
+    return json.encode({
+        jsonrpc = "2.0",
+        id = 1,
+        method = "tools/call",
+        params = {
+            name = "web_search_exa",
+            arguments = { query = query, numResults = count },
+        },
+    })
+end
+
+function M.exa_mcp_script(body)
+    return ("const r = await fetch(%s, { method: 'POST', headers:"
+        .. " { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream',"
+        .. " 'x-exa-source': 'panto-web' }, body: %s });"
+        .. " return { status: r.status, body: await r.text() };")
+        :format(json.encode("https://mcp.exa.ai/mcp?tools=web_search_exa"), json.encode(body))
+end
+
+function M.exa_mcp_result(body)
+    local rpc
+    for payload in body:gmatch("data:%s*([^\r\n]+)") do
+        local ok, candidate = pcall(json.decode, payload)
+        if ok and type(candidate) == "table" and (candidate.result or candidate.error) then
+            rpc = candidate
+            break
+        end
+    end
+    if not rpc then
+        local ok, candidate = pcall(json.decode, body)
+        if ok and type(candidate) == "table" then rpc = candidate end
+    end
+    if not rpc then return nil, "Exa MCP returned malformed JSON" end
+    if rpc.error then
+        return nil, type(rpc.error) == "table"
+            and tostring(rpc.error.message or "Exa MCP error") or "Exa MCP error"
+    end
+    local result = rpc.result
+    if type(result) ~= "table" or type(result.content) ~= "table" then
+        return nil, "Exa MCP returned malformed tool content"
+    end
+    local parts = {}
+    for _, item in ipairs(result.content) do
+        if type(item) == "table" and type(item.text) == "string" then parts[#parts + 1] = item.text end
+    end
+    local text = table.concat(parts, "\n")
+    if result.isError then return nil, text ~= "" and text or "Exa MCP error" end
+    if text == "" then return nil, "Exa MCP returned empty content" end
+    return text
+end
+
+local function decode_http_envelope(text)
+    local ok, envelope = pcall(json.decode, text)
+    if not ok or type(envelope) ~= "table" or type(envelope.status) ~= "number"
+        or type(envelope.body) ~= "string" then
+        return nil, "lightpanda returned an unexpected response"
+    end
+    return envelope
+end
+
+function M.on_search(input)
+    local query = type(input) == "table" and input.query or nil
+    if type(query) ~= "string" or query:match("^%s*$") then
+        return "Error: query must be a non-empty string"
+    end
+    if #query > 2000 then return "Error: query is too long" end
+
+    local count = input.num_results
+    if count == nil then count = 5 end
+    if type(count) ~= "number" or count % 1 ~= 0 or count < 1 or count > 100 then
+        return "Error: num_results must be an integer from 1 to 100"
+    end
+
+    local key = os.getenv("EXA_API_KEY")
+    if type(key) ~= "string" or key == "" then
+        local text, err = call("evaluate", {
+            url = "https://example.com",
+            timeout = 60000,
+            script = M.exa_mcp_script(M.exa_mcp_body(query, count)),
+        })
+        if not text then return "Error searching the web: " .. err end
+        local envelope, envelope_err = decode_http_envelope(text)
+        if not envelope then return "Error searching the web: " .. envelope_err end
+        if envelope.status < 200 or envelope.status >= 300 then
+            return "Error searching the web: Exa MCP returned HTTP " .. math.floor(envelope.status)
+        end
+        local result, result_err = M.exa_mcp_result(envelope.body)
+        if not result then return "Error searching the web: " .. result_err end
+        return M.truncate(result)
+    end
+
+    local text, err = call("evaluate", {
+        url = "https://example.com",
+        timeout = 60000,
+        script = M.exa_script(M.exa_body(query, count), key),
+    })
+    if not text then
+        if err == INSTALL_HINT then return "Error searching the web: " .. err end
+        if err == "lightpanda mcp sent a malformed JSON-RPC message"
+            or err == "lightpanda mcp sent a malformed JSON-RPC response"
+            or err == "lightpanda mcp returned malformed tool content" then
+            return "Error searching the web: " .. err
+        end
+        -- Tool/server errors can echo the evaluated script, which contains the key.
+        return "Error searching the web: Lightpanda request failed"
+    end
+
+    local envelope, envelope_err = decode_http_envelope(text)
+    if not envelope then return "Error searching the web: " .. envelope_err end
+    if envelope.status < 200 or envelope.status >= 300 then
+        return "Error searching the web: Exa returned HTTP " .. math.floor(envelope.status)
+    end
+    local valid, response = pcall(json.decode, envelope.body)
+    if not valid or type(response) ~= "table" then
+        return "Error searching the web: Exa returned malformed JSON"
+    end
+    return M.truncate(M.scrub(envelope.body, key))
+end
+
+function M.activate()
+    panto.ext.register_tool {
+        name = "web.fetch",
+        description = "Fetch an HTTP(S) URL through the Lightpanda browser and return the page "
+            .. "as Markdown, including JavaScript-rendered content. Requires `lightpanda` on PATH.",
+        schema = {
+            type = "object",
+            properties = {
+                url = { type = "string", description = "HTTP(S) URL to fetch." },
+            },
+            required = { "url" },
+        },
+        handler = M.on_fetch,
+    }
+    panto.ext.register_tool {
+        name = "web.search",
+        description = "Search the web with Exa and return its results. Uses keyless Exa MCP by default; "
+            .. "EXA_API_KEY enables the REST API. Requires `lightpanda` on PATH.",
+        schema = {
+            type = "object",
+            properties = {
+                query = { type = "string", description = "Web search query." },
+                num_results = { type = "integer", minimum = 1, maximum = 100,
+                    description = "Number of results (default 5)." },
+            },
+            required = { "query" },
+        },
+        handler = M.on_search,
+    }
+end
+
+return M

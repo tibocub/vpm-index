@@ -1,0 +1,95 @@
+{
+  "kind": "lib",
+  "name": "dtracing",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson",
+        "lua-resty-http >= 0.11"
+      ],
+      "files": {
+        "kong/plugins/dtracing/handler.lua": {
+          "sha256": "cd33c4af40d0bb4d338373e3efa85a354b63e64b3abb526af56a8338353d5c0e",
+          "size": 12178,
+          "url": "blob:cd33c4af40d0bb4d338373e3efa85a354b63e64b3abb526af56a8338353d5c0e"
+        },
+        "kong/plugins/dtracing/reporter.lua": {
+          "sha256": "1b65083758e0bf61e9cc8d096745d149afe1bd9cd44d56a1336b4cc5665db0f1",
+          "size": 3253,
+          "url": "blob:1b65083758e0bf61e9cc8d096745d149afe1bd9cd44d56a1336b4cc5665db0f1"
+        },
+        "kong/plugins/dtracing/request_tags.lua": {
+          "sha256": "49aa53437bc017f012bd8584125c64a8c26d6311036eea940ab07722465bade7",
+          "size": 2108,
+          "url": "blob:49aa53437bc017f012bd8584125c64a8c26d6311036eea940ab07722465bade7"
+        },
+        "kong/plugins/dtracing/schema.lua": {
+          "sha256": "14ec59f90151ff118f8b5b095a9c1ab8edf6bbd93c9a2518ec6f648076686f32",
+          "size": 2292,
+          "url": "blob:14ec59f90151ff118f8b5b095a9c1ab8edf6bbd93c9a2518ec6f648076686f32"
+        },
+        "kong/plugins/dtracing/span.lua": {
+          "sha256": "8cc914afbd2b8771934aa98ac66c67f7fbc2cb637e734c334770525da9c6ebc4",
+          "size": 3907,
+          "url": "blob:8cc914afbd2b8771934aa98ac66c67f7fbc2cb637e734c334770525da9c6ebc4"
+        },
+        "kong/plugins/dtracing/tracing_headers.lua": {
+          "sha256": "4fc59c2ee8bf9d117ce91f530bff796c6f1a8b5d0997a0e3022c49b8b3e6df47",
+          "size": 16339,
+          "url": "blob:4fc59c2ee8bf9d117ce91f530bff796c6f1a8b5d0997a0e3022c49b8b3e6df47"
+        }
+      },
+      "homepage": "https://gitlab.com/skilledboy/dtracing",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 22 Mar 2022 00:08:41 GMT",
+        "rockspec": {
+          "date": "Tue, 22 Mar 2022 00:08:41 GMT",
+          "sha256": "252f24f262f7451166a9c737e2b8607d782a93ccca36026940b652a046a130c1",
+          "size": 947
+        },
+        "src": {
+          "date": "Tue, 22 Mar 2022 00:08:42 GMT",
+          "sha256": "f54d9de9f5fa5bc32f64188872723c9a6ebf71f044f7e5d5e590ab5cc0ad010f",
+          "size": 41265,
+          "url": "https://luarocks.org/dtracing-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.dtracing.handler",
+        "kong.plugins.dtracing.reporter",
+        "kong.plugins.dtracing.request_tags",
+        "kong.plugins.dtracing.schema",
+        "kong.plugins.dtracing.span",
+        "kong.plugins.dtracing.tracing_headers"
+      ],
+      "origin": {
+        "date": "Tue, 22 Mar 2022 00:08:42 GMT",
+        "sha256": "f54d9de9f5fa5bc32f64188872723c9a6ebf71f044f7e5d5e590ab5cc0ad010f",
+        "size": 41265,
+        "type": "luarocks",
+        "url": "https://luarocks.org/dtracing-1.0.0-1.src.rock"
+      },
+      "size": 40077,
+      "summary": "This plugin allows Kong to propagate Zipkin headers and report to a Zipkin server",
+      "undeclared_requires": [
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.tools.utils",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 6
+      }
+    }
+  }
+}

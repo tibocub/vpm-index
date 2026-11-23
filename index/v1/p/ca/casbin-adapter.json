@@ -1,0 +1,71 @@
+{
+  "kind": "lib",
+  "name": "casbin-adapter",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "casbin >= 1.29.0"
+      ],
+      "files": {
+        "Adapter.lua": {
+          "sha256": "fa63581f53df5f110bf9336a21e76ce297873b5a82f8c83c2e1333e962d697de",
+          "size": 6676,
+          "url": "https://raw.githubusercontent.com/casbin-lua/luasql-adapter/1f471315d63bb8a0b8934d05b02b30d7528830e7/Adapter.lua"
+        },
+        "casbin/mysql.lua": {
+          "sha256": "de083ad2ab144b1c57c50579d91507e30701d1547019e6d086971c55a814d5ed",
+          "size": 1647,
+          "url": "https://raw.githubusercontent.com/casbin-lua/luasql-adapter/1f471315d63bb8a0b8934d05b02b30d7528830e7/migrations/mysql.lua"
+        },
+        "casbin/postgres.lua": {
+          "sha256": "3ab64fc188643fb73f08c906c03c46714096bb929d9cb3e2bf81155da77ad268",
+          "size": 1644,
+          "url": "https://raw.githubusercontent.com/casbin-lua/luasql-adapter/1f471315d63bb8a0b8934d05b02b30d7528830e7/migrations/postgres.lua"
+        },
+        "casbin/sqlite3.lua": {
+          "sha256": "1b48f44333a20e32cd7fb0c11eb6aa46446700d68afaec055d6585ed95e57269",
+          "size": 1614,
+          "url": "https://raw.githubusercontent.com/casbin-lua/luasql-adapter/1f471315d63bb8a0b8934d05b02b30d7528830e7/migrations/sqlite3.lua"
+        }
+      },
+      "homepage": "https://github.com/casbin-lua/luasql-adapter",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Fri, 27 May 2022 11:18:49 GMT",
+        "rockspec": {
+          "date": "Fri, 27 May 2022 11:18:49 GMT",
+          "sha256": "8f10595bd878c6f07f1d4c37a0016b0b95cb2fb14763f34a517cb4180669849f",
+          "size": 807
+        }
+      },
+      "modules": [
+        "Adapter",
+        "casbin.mysql",
+        "casbin.postgres",
+        "casbin.sqlite3"
+      ],
+      "origin": {
+        "commit": "1f471315d63bb8a0b8934d05b02b30d7528830e7",
+        "type": "git",
+        "url": "https://github.com/casbin-lua/luasql-adapter"
+      },
+      "size": 11581,
+      "summary": "LuaSQL based adapter for Casbin",
+      "undeclared_requires": [
+        "luasql.mysql",
+        "luasql.postgres",
+        "luasql.sqlite3"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

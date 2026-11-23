@@ -1,0 +1,220 @@
+-- server: MCP protocol dispatch. transport-agnostic -- it takes a
+-- decoded request table and gives back a response table, or nil for a
+-- notification. mcptk.stdio drives it over stdin and stdout.
+
+local json = require("mcptk.json")
+local schema = require("mcptk.schema")
+local content = require("mcptk.content")
+
+local M = {}
+
+-- newest first. an initialize naming any of these gets that version
+-- back; anything else gets LATEST and the client decides.
+local SUPPORTED = { "2025-06-18", "2025-03-26", "2024-11-05" }
+local LATEST = SUPPORTED[1]
+
+M.PROTOCOL_VERSIONS = SUPPORTED
+
+---@class mcptk.Tool
+---@field name string name the model calls
+---@field description string|nil what the tool does, in the model's words
+---@field args mcptk.Args|nil declared arguments
+---@field inputSchema table|nil raw JSON Schema, instead of args
+---@field output mcptk.Spec|nil shape of the structured result
+---@field open boolean|nil accept undeclared arguments
+---@field title string|nil human label
+---@field run fun(args: table, ctx: table): any, string|nil
+
+---@class mcptk.Server
+---@field name string
+---@field version string
+---@field instructions string|nil shown to the model once, at startup
+---@field tools mcptk.Tool[]
+local Server = {}
+
+Server.__index = Server
+
+---@param opts table|nil name, version and instructions
+---@return mcptk.Server
+function M.new(opts)
+	opts = opts or {}
+	return setmetatable({
+		name = opts.name or "mcptk",
+		version = opts.version or "0.1",
+		instructions = opts.instructions,
+		tools = {},
+		byname = {},
+	}, Server)
+end
+
+---Registers a tool. Raises on a duplicate name or a malformed
+---definition, at startup rather than at call time.
+---@param def mcptk.Tool
+---@return mcptk.Server self, so calls chain
+function Server:tool(def)
+	assert(type(def) == "table", "tool wants a table")
+	assert(type(def.name) == "string", "tool needs a name")
+	assert(type(def.run) == "function", "tool needs a run function")
+	assert(not self.byname[def.name], "duplicate tool: " .. def.name)
+
+	def.inputSchema = def.inputSchema or schema.args_schema(def.args)
+	self.tools[#self.tools + 1] = def
+	self.byname[def.name] = def
+	return self
+end
+
+local function rpc_result(id, result)
+	return { jsonrpc = "2.0", id = id, result = result }
+end
+
+local function rpc_error(id, code, message)
+	return { jsonrpc = "2.0", id = id,
+	    error = { code = code, message = message } }
+end
+
+M.rpc_error = rpc_error
+
+local function negotiate(asked)
+	for _, v in ipairs(SUPPORTED) do
+		if v == asked then
+			return v
+		end
+	end
+	return LATEST
+end
+
+---The tools/list payload. An empty server lists [], not {}.
+---@return table[]|table
+function Server:list()
+	if #self.tools == 0 then
+		return json.EMPTY_ARRAY
+	end
+
+	local out = {}
+
+	for i, t in ipairs(self.tools) do
+		out[i] = {
+			name = t.name,
+			title = t.title,
+			description = t.description or "",
+			inputSchema = t.inputSchema,
+			outputSchema = t.output and
+			    schema.to_schema(t.output) or nil,
+		}
+	end
+	return out
+end
+
+---Runs one tool call.
+---
+---A tool that fails is not a protocol failure. The model asked for
+---something impossible and needs to read why and try again, so the
+---reason comes back as an isError result it can see. Only a bad tool
+---name is a JSON-RPC error.
+---@param params table|nil name and arguments
+---@param ctx table|nil passed to the tool as its second argument
+---@return mcptk.Result|nil result nil when the call is a protocol error
+---@return number|nil code JSON-RPC error code
+---@return string|nil message
+function Server:call(params, ctx)
+	params = params or {}
+
+	local tool = self.byname[params.name]
+
+	if not tool then
+		return nil, -32602, "unknown tool: " .. tostring(params.name)
+	end
+
+	local args = params.arguments
+
+	if args == json.null then
+		args = nil
+	end
+	if tool.args then
+		local checked, err = schema.check(tool.args, args, tool.open)
+
+		if err then
+			return content.error("bad arguments -- " .. err)
+		end
+		args = checked
+	else
+		args = args or {}
+	end
+
+	local ok, res, err = pcall(tool.run, args, ctx)
+
+	if not ok then
+		return content.error(tostring(res))
+	end
+	if res == nil and err ~= nil then
+		return content.error(tostring(err))
+	end
+	return content.result(res)
+end
+
+---Handles one decoded request.
+---@param req table
+---@return table|nil response nil for a notification, which wants no reply
+function Server:dispatch(req)
+	if type(req) ~= "table" then
+		return rpc_error(json.null, -32600, "not a JSON-RPC object")
+	end
+
+	local id = req.id
+	local method = req.method
+
+	if type(method) ~= "string" then
+		return rpc_error(id or json.null, -32600, "missing method")
+	end
+	if method:sub(1, 14) == "notifications/" then
+		return nil
+	end
+
+	if method == "initialize" then
+		local params = req.params or {}
+
+		return rpc_result(id, {
+			protocolVersion = negotiate(params.protocolVersion),
+			capabilities = { tools = { listChanged = false } },
+			serverInfo = { name = self.name, version = self.version },
+			instructions = self.instructions,
+		})
+	elseif method == "ping" then
+		return rpc_result(id, {})
+	elseif method == "tools/list" then
+		return rpc_result(id, { tools = self:list() })
+	elseif method == "tools/call" then
+		local res, code, msg = self:call(req.params, { id = id })
+
+		if res == nil then
+			return rpc_error(id, code, msg)
+		end
+		return rpc_result(id, res)
+	end
+	return rpc_error(id, -32601, "method not found: " .. method)
+end
+
+---Decodes one message and dispatches it.
+---@param line string one JSON-RPC message
+---@return string|nil reply the line to write, or nil to write nothing
+function Server:handle_line(line)
+	local req, err = json.decode(line)
+
+	if not req then
+		return json.encode(rpc_error(json.null, -32700,
+		    "parse error: " .. tostring(err)))
+	end
+
+	local ok, resp = pcall(self.dispatch, self, req)
+
+	if not ok then
+		resp = rpc_error(type(req) == "table" and req.id or json.null,
+		    -32603, tostring(resp))
+	end
+	if resp == nil then
+		return nil
+	end
+	return json.encode(resp)
+end
+
+return M

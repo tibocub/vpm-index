@@ -1,0 +1,385 @@
+-- ============================================================
+-- Shiva Validator
+-- Rule-based data validation library.
+-- ============================================================
+
+---@class Validator
+local Validator = {}
+
+-- Custom rule registry (module-level, shared across calls)
+local customRules = {}
+
+-- ============================================================
+-- Built-in rules
+-- Signature: function(value, params) → pass: boolean, msg?: string
+-- Message placeholders: :field, :p1, :p2, :params
+-- ============================================================
+
+local RULES = {}
+
+RULES.required = function(value)
+    if value == nil or value == '' then
+        return false, 'The :field field is required.'
+    end
+    return true
+end
+
+RULES.present = function(value)
+    if value == nil then
+        return false, 'The :field field must be present.'
+    end
+    return true
+end
+
+RULES.string = function(value)
+    if type(value) ~= 'string' then
+        return false, 'The :field must be a string.'
+    end
+    return true
+end
+
+RULES.number = function(value)
+    if type(value) ~= 'number' then
+        return false, 'The :field must be a number.'
+    end
+    return true
+end
+
+RULES.integer = function(value)
+    if type(value) ~= 'number' or math.type(value) ~= 'integer' then
+        return false, 'The :field must be an integer.'
+    end
+    return true
+end
+
+RULES.boolean = function(value)
+    if type(value) ~= 'boolean' then
+        return false, 'The :field must be true or false.'
+    end
+    return true
+end
+
+RULES['table'] = function(value)
+    if type(value) ~= 'table' then
+        return false, 'The :field must be a table.'
+    end
+    return true
+end
+
+RULES.array = function(value)
+    if type(value) ~= 'table' then
+        return false, 'The :field must be an array.'
+    end
+    local count = 0
+    for _ in pairs(value) do count = count + 1 end
+    for i = 1, count do
+        if value[i] == nil then
+            return false, 'The :field must be a sequential array.'
+        end
+    end
+    return true
+end
+
+RULES.min = function(value, params)
+    local n = tonumber(params[1]) --[[@as number]]
+    if type(value) == 'string' then
+        if #value < n then return false, 'The :field must be at least :p1 characters.' end
+    elseif type(value) == 'number' then
+        if value < n then return false, 'The :field must be at least :p1.' end
+    elseif type(value) == 'table' then
+        if #value < n then return false, 'The :field must have at least :p1 items.' end
+    else
+        return false, 'The :field does not support the min rule.'
+    end
+    return true
+end
+
+RULES.max = function(value, params)
+    local n = tonumber(params[1]) --[[@as number]]
+    if type(value) == 'string' then
+        if #value > n then return false, 'The :field must not exceed :p1 characters.' end
+    elseif type(value) == 'number' then
+        if value > n then return false, 'The :field must not exceed :p1.' end
+    elseif type(value) == 'table' then
+        if #value > n then return false, 'The :field must not have more than :p1 items.' end
+    else
+        return false, 'The :field does not support the max rule.'
+    end
+    return true
+end
+
+RULES.size = function(value, params)
+    local n = tonumber(params[1]) --[[@as number]]
+    if type(value) == 'string' then
+        if #value ~= n then return false, 'The :field must be exactly :p1 characters.' end
+    elseif type(value) == 'table' then
+        if #value ~= n then return false, 'The :field must contain exactly :p1 items.' end
+    elseif type(value) == 'number' then
+        if value ~= n then return false, 'The :field must equal :p1.' end
+    else
+        return false, 'The :field does not support the size rule.'
+    end
+    return true
+end
+
+RULES.between = function(value, params)
+    local lo = tonumber(params[1]) --[[@as number]]
+    local hi = tonumber(params[2]) --[[@as number]]
+    if type(value) == 'string' then
+        if #value < lo or #value > hi then
+            return false, 'The :field must be between :p1 and :p2 characters.'
+        end
+    elseif type(value) == 'number' then
+        if value < lo or value > hi then
+            return false, 'The :field must be between :p1 and :p2.'
+        end
+    elseif type(value) == 'table' then
+        if #value < lo or #value > hi then
+            return false, 'The :field must have between :p1 and :p2 items.'
+        end
+    else
+        return false, 'The :field does not support the between rule.'
+    end
+    return true
+end
+
+RULES['in'] = function(value, params)
+    local s = tostring(value)
+    for _, p in ipairs(params) do
+        if p == s then return true end
+    end
+    return false, 'The :field must be one of: :params.'
+end
+
+RULES.notIn = function(value, params)
+    local s = tostring(value)
+    for _, p in ipairs(params) do
+        if p == s then
+            return false, 'The :field must not be one of: :params.'
+        end
+    end
+    return true
+end
+
+RULES.alpha = function(value)
+    if type(value) ~= 'string' or not value:match('^%a+$') then
+        return false, 'The :field may only contain letters.'
+    end
+    return true
+end
+
+RULES.alphaNum = function(value)
+    if type(value) ~= 'string' or not value:match('^[%a%d]+$') then
+        return false, 'The :field may only contain letters and numbers.'
+    end
+    return true
+end
+
+RULES.alphaDash = function(value)
+    if type(value) ~= 'string' or not value:match('^[%a%d%-_]+$') then
+        return false, 'The :field may only contain letters, numbers, dashes, and underscores.'
+    end
+    return true
+end
+
+RULES.numeric = function(value)
+    if type(value) == 'number' then return true end
+    if type(value) == 'string' and tonumber(value) ~= nil then return true end
+    return false, 'The :field must be numeric.'
+end
+
+RULES.email = function(value)
+    if type(value) ~= 'string' or not value:match('^[^@%s]+@[^@%s]+%.[^@%s]+$') then
+        return false, 'The :field must be a valid email address.'
+    end
+    return true
+end
+
+RULES.url = function(value)
+    if type(value) ~= 'string' or not value:match('^https?://[^%s]+$') then
+        return false, 'The :field must be a valid URL.'
+    end
+    return true
+end
+
+-- ============================================================
+-- Internal helpers
+-- ============================================================
+
+---@class ParsedRule
+---@field name string
+---@field params string[]
+
+--- Parse "min:3" → name="min", params={"3"}
+---@param ruleStr string
+---@return string name
+---@return string[] params
+local function parseRule(ruleStr)
+    local name, paramStr = ruleStr:match('^([^:]+):?(.*)$')
+    local params = {}
+    if paramStr ~= '' then
+        for p in paramStr:gmatch('[^,]+') do
+            params[#params + 1] = p
+        end
+    end
+    return name, params
+end
+
+--- Parse a rule definition (pipe string or table) into a list of ParsedRules
+---@param def string|string[]
+---@return ParsedRule[]
+local function parseRules(def)
+    local list = {}
+    if type(def) == 'string' then
+        for part in def:gmatch('[^|]+') do
+            local name, params = parseRule(part)
+            list[#list + 1] = { name = name, params = params }
+        end
+    else
+        for _, part in ipairs(def) do
+            local name, params = parseRule(part)
+            list[#list + 1] = { name = name, params = params }
+        end
+    end
+    return list
+end
+
+--- Replace placeholders in a message: :field, :p1, :p2, :params
+---@param msg string
+---@param field string
+---@param params string[]
+---@return string
+local function formatMsg(msg, field, params)
+    msg = msg:gsub(':field', field)
+    for i, p in ipairs(params) do
+        msg = msg:gsub(':p' .. i, p)
+    end
+    msg = msg:gsub(':params', table.concat(params, ', '))
+    return msg
+end
+
+-- ============================================================
+-- ValidationResult
+-- ============================================================
+
+---@class ValidationResult
+---@field _errors table<string, string[]>
+local ValidationResult = {}
+ValidationResult.__index = ValidationResult
+
+--- Whether all fields passed validation
+---@return boolean
+function ValidationResult:passes()
+    return next(self._errors) == nil
+end
+
+--- Whether any field failed validation
+---@return boolean
+function ValidationResult:fails()
+    return next(self._errors) ~= nil
+end
+
+--- All errors keyed by field name
+---@return table<string, string[]>
+function ValidationResult:errors()
+    return self._errors
+end
+
+--- First error message for a specific field, or the first error overall
+---@param field? string
+---@return string|nil
+function ValidationResult:firstError(field)
+    if field then
+        local errs = self._errors[field]
+        return errs and errs[1] or nil
+    end
+    for _, errs in pairs(self._errors) do
+        return errs[1]
+    end
+    return nil
+end
+
+--- All error messages as a flat list
+---@return string[]
+function ValidationResult:allErrors()
+    local list = {}
+    for _, errs in pairs(self._errors) do
+        for _, msg in ipairs(errs) do
+            list[#list + 1] = msg
+        end
+    end
+    return list
+end
+
+-- ============================================================
+-- Public API
+-- ============================================================
+
+--- Register a custom validation rule
+---@param name string
+---@param fn fun(value: any, params: string[]): boolean, string?
+function Validator.extend(name, fn)
+    customRules[name] = fn
+end
+
+--- Validate a data table against a set of rules.
+---
+--- Rules can be:
+---   - A pipe-delimited string:  'required|string|min:3|max:100'
+---   - A table of rule strings:  { 'required', 'string', 'min:3' }
+---
+--- Special modifiers:
+---   - nullable  — nil value skips all other rules (field is optional when absent)
+---   - required  — value must be present and non-empty string
+---   - present   — value must not be nil
+---
+---@param data table
+---@param rules table<string, string|string[]>
+---@return ValidationResult
+function Validator.validate(data, rules)
+    local errs = {}
+
+    for field, ruleDef in pairs(rules) do
+        local value = data[field]
+        local ruleList = parseRules(ruleDef)
+
+        -- Determine modifiers
+        local isNullable, isRequired = false, false
+        for _, r in ipairs(ruleList) do
+            if r.name == 'nullable' then isNullable = true end
+            if r.name == 'required' then isRequired = true end
+        end
+
+        if value == nil then
+            if isNullable or not isRequired then
+                -- Optional or nullable absent field — skip
+            else
+                -- Required field is missing
+                local _, msg = RULES.required(nil)
+                errs[field] = { formatMsg(msg --[[@as string]], field, {}) }
+            end
+        else
+            -- Value present — run all rules except nullable
+            local fieldErrors = {}
+            for _, r in ipairs(ruleList) do
+                if r.name ~= 'nullable' then
+                    local handler = RULES[r.name] or customRules[r.name]
+                    if not handler then
+                        error(('Validator: unknown rule %q'):format(r.name))
+                    end
+                    local pass, msg = handler(value, r.params)
+                    if not pass then
+                        fieldErrors[#fieldErrors + 1] = formatMsg(msg --[[@as string]], field, r.params)
+                    end
+                end
+            end
+            if #fieldErrors > 0 then
+                errs[field] = fieldErrors
+            end
+        end
+    end
+
+    return setmetatable({ _errors = errs }, ValidationResult)
+end
+
+return Validator

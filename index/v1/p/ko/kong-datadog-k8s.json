@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "kong-datadog-k8s",
+  "versions": {
+    "2.3.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/datadog-k8s/handler.lua": {
+          "sha256": "cd5608b9a17f958a25f9a06b1041270928a7193c38c0248f49629efe3f36080c",
+          "size": 2888,
+          "url": "https://raw.githubusercontent.com/erran/kong-datadog-k8s/627327e93bd0cbf857f291fed0ff24fdd0d8adaf/src/kong/plugins/datadog-k8s/handler.lua"
+        },
+        "kong/plugins/datadog-k8s/schema.lua": {
+          "sha256": "d7e0ca97015005112d002cae266f6a0d0dd4c9ef4f0da99d4a11e929ae384370",
+          "size": 2761,
+          "url": "https://raw.githubusercontent.com/erran/kong-datadog-k8s/627327e93bd0cbf857f291fed0ff24fdd0d8adaf/src/kong/plugins/datadog-k8s/schema.lua"
+        },
+        "kong/plugins/datadog-k8s/statsd_logger.lua": {
+          "sha256": "055d20daae55cd6cd63f1d7d6df27b4e8e2e8e87d0b8687af08be6d1f950593a",
+          "size": 1933,
+          "url": "https://raw.githubusercontent.com/erran/kong-datadog-k8s/627327e93bd0cbf857f291fed0ff24fdd0d8adaf/src/kong/plugins/datadog-k8s/statsd_logger.lua"
+        }
+      },
+      "homepage": "https://github.com/erran/kong-datadog-k8s",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 19 Jan 2021 15:11:49 GMT",
+        "rockspec": {
+          "date": "Tue, 19 Jan 2021 15:11:49 GMT",
+          "sha256": "0ac25621c2b5185c018f27c6b502b504e58f087d1b8466815f94ad25a732d452",
+          "size": 818
+        },
+        "src": {
+          "date": "Tue, 19 Jan 2021 15:11:51 GMT",
+          "sha256": "0ddb383ede1a5f2e8f6812e144dd0fe48f0cc4df63a3f67e57d0b7805d2f0fa5",
+          "size": 6136,
+          "url": "https://luarocks.org/kong-datadog-k8s-2.3.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.datadog-k8s.handler",
+        "kong.plugins.datadog-k8s.schema",
+        "kong.plugins.datadog-k8s.statsd_logger"
+      ],
+      "origin": {
+        "commit": "627327e93bd0cbf857f291fed0ff24fdd0d8adaf",
+        "type": "git",
+        "url": "https://github.com/erran/kong-datadog-k8s"
+      },
+      "size": 7582,
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

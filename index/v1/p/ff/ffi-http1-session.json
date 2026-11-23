@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "ffi-http1-session",
+  "versions": {
+    "0.1.20241012-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/lalawue/ffi-http1-session",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 12 Oct 2024 09:04:31 GMT",
+        "rockspec": {
+          "date": "Sat, 12 Oct 2024 09:04:31 GMT",
+          "sha256": "2dd7526716ada900b41d43bc89dd8904bebcd6acece77ca12dc97a46343f76f9",
+          "size": 761
+        },
+        "src": {
+          "date": "Sat, 12 Oct 2024 09:04:33 GMT",
+          "sha256": "8f308329c72eb60f289222d87941cbdb292e0e7009c80c151160d558ad648467",
+          "size": 61140,
+          "url": "https://luarocks.org/ffi-http1-session-0.1.20241012-1.src.rock"
+        }
+      },
+      "modules": [
+        "http1_session"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "http1_session",
+              "sources": [
+                "src/http_parser.c",
+                "src/m_prng.c",
+                "src/http1_session.c",
+                "src/WjCryptLib_Sha1.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 12 Oct 2024 09:04:33 GMT",
+        "sha256": "8f308329c72eb60f289222d87941cbdb292e0e7009c80c151160d558ad648467",
+        "size": 61140,
+        "type": "luarocks",
+        "url": "https://luarocks.org/ffi-http1-session-0.1.20241012-1.src.rock"
+      },
+      "summary": "Socket utilities",
+      "vlr": {
+        "cause": "other error",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A literal list node.
+local LiteralForList = {}
+LiteralForList.__index = LiteralForList
+setmetatable(LiteralForList, {__index = Terminal})
+package.loaded[...] = LiteralForList
+
+--Constructor.
+function LiteralForList.new(ln, col, vars, iter, exp)
+  return setmetatable(Terminal.new(TerminalType.FOR_LIST, {
+    line = ln,
+    col = col,
+    value = {
+      vars = vars,
+      iter = iter,
+      exp = exp
+    }
+  }), LiteralForList)
+end
+
+--@override
+function LiteralForList:__tostring()
+  local desc
+
+  --(1) build
+  desc = "[for"
+
+  for _, var in ipairs(self.data.vars) do
+    desc = desc .. " " .. var
+  end
+
+  desc = desc .. string.format(
+    " in %s do %s]",
+    tostring(self.data.iter),
+    tostring(self.data.exp)
+  )
+
+  --(2) return
+  return desc
+end

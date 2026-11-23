@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "tsdevstack-strip-identity",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/tsdevstack-strip-identity/handler.lua": {
+          "sha256": "4d3ab7b466dc8a0b7fb456dbbdb90da3d28b81fdaa913523096d09547a5eb291",
+          "size": 2567,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-strip-identity/handler.lua"
+        },
+        "kong/plugins/tsdevstack-strip-identity/schema.lua": {
+          "sha256": "9cf9770a1375cc7b7569178be32a6d0168c65dcabd9330f658afd87d7d37c97e",
+          "size": 256,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-strip-identity/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/tsdevstack/kong-plugins",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 18 Nov 2026 11:25:38 GMT",
+        "rockspec": {
+          "date": "Wed, 18 Nov 2026 11:25:38 GMT",
+          "sha256": "57e05b0f478b999d8f1ed94b882d9b8de9442ff62c53e9eb6f0a50ff34decfe5",
+          "size": 752
+        },
+        "src": {
+          "date": "Wed, 18 Nov 2026 11:25:38 GMT",
+          "sha256": "2f653fcd44625fcf6d82456d38d29eeee4aa36d8b63974509035fbea332d92cf",
+          "size": 37286,
+          "url": "https://luarocks.org/tsdevstack-strip-identity-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.tsdevstack-strip-identity.handler",
+        "kong.plugins.tsdevstack-strip-identity.schema"
+      ],
+      "origin": {
+        "commit": "535e69b7cbb24532dd8582197f7e643b306e90ed",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/tsdevstack/kong-plugins.git"
+      },
+      "size": 2823,
+      "summary": "Removes identity headers a client sent, before any auth plugin runs",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

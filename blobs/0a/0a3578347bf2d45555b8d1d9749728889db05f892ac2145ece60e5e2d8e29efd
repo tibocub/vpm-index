@@ -1,0 +1,255 @@
+-- voice/VoiceConnection.lua
+-- High-level voice connection object.
+-- Orchestrates: VoiceGateway, VoiceUDP, OpusEncoder.
+--
+-- Lifecycle:
+--   1. Client receives VOICE_STATE_UPDATE + VOICE_SERVER_UPDATE from main gateway
+--   2. VoiceConnection:connect(server_update, state_update) is called
+--   3. VoiceGateway connects → HELLO → Identify → READY (gives UDP details)
+--   4. VoiceUDP:discover_ip() → select_protocol → SESSION_DESCRIPTION (gives secret key)
+--   5. VoiceConnection is fully ready; call :play() to stream audio
+--
+-- Usage:
+--   local vc = VoiceConnection.new(client, guild_id, channel_id)
+--   vc:connect(voice_server_update, voice_state_update)
+--   vc:play_pcm_file("audio.pcm")
+--   vc:disconnect()
+
+local VoiceGateway = require("voice.VoiceGateway")
+local VoiceUDP     = require("voice.VoiceUDP")
+local OpusLib      = require("voice.OpusEncoder")
+local cqueues      = require("cqueues")
+
+-- How many PCM samples per Opus frame (20ms at 48kHz)
+local FRAME_SIZE   = 960
+-- Bytes per frame for stereo 16-bit PCM: 960 samples * 2 channels * 2 bytes
+local PCM_FRAME_BYTES = FRAME_SIZE * 2 * 2
+-- Frame duration in seconds
+local FRAME_DURATION  = FRAME_SIZE / 48000  -- 0.02s
+
+local VoiceConnection = {}
+VoiceConnection.__index = VoiceConnection
+
+--- Create a new VoiceConnection.
+-- @param client     table   The LuaCord Client instance
+-- @param guild_id   string
+-- @param channel_id string
+function VoiceConnection.new(client, guild_id, channel_id)
+  local self         = setmetatable({}, VoiceConnection)
+  self.client        = client
+  self.guild_id      = guild_id
+  self.channel_id    = channel_id
+  self._gateway      = nil   -- VoiceGateway
+  self._udp          = nil   -- VoiceUDP
+  self._encoder      = nil   -- OpusEncoder
+  self._ready        = false
+  self._playing      = false
+  self._stop_flag    = false
+  self.session_id    = nil
+  self.token         = nil
+  self.endpoint      = nil
+  return self
+end
+
+-- ── Internal setup callbacks ─────────────────────────────────────────────────
+
+function VoiceConnection:_on_gateway_ready(gw)
+  -- Gateway told us the UDP server details; now discover our external IP.
+  local udp = VoiceUDP.new(gw.ip, gw.port, gw.ssrc, {}, gw.modes[1] or "xsalsa20_poly1305")
+  self._udp = udp
+  udp:open()
+
+  local our_ip, our_port = udp:discover_ip()
+
+  -- Tell the voice server our IP/port and preferred encryption mode
+  -- Prefer xsalsa20_poly1305_lite (lowest overhead) if available, else fallback
+  local mode = "xsalsa20_poly1305"
+  for _, m in ipairs(gw.modes) do
+    if m == "xsalsa20_poly1305_lite" then
+      mode = m
+      break
+    end
+  end
+  udp.mode = mode
+
+  gw:select_protocol(our_ip, our_port, mode)
+end
+
+function VoiceConnection:_on_session_description(gw)
+  -- We now have the secret key — wire it into the UDP sender.
+  self._udp:set_secret_key(gw.secret_key)
+  self._udp.mode = gw.mode
+
+  -- Initialise the Opus encoder
+  self._encoder = OpusLib.Encoder.new({
+    sample_rate = 48000,
+    channels    = 2,
+    bitrate     = 128000,
+  })
+
+  self._ready = true
+  print("[VoiceConnection] Ready in channel " .. tostring(self.channel_id))
+
+  -- Fire event so the bot knows voice is ready
+  if self.client and self.client.emit then
+    self.client:emit("voiceReady", self)
+  end
+end
+
+-- ── Connect / Disconnect ─────────────────────────────────────────────────────
+
+--- Establish the voice connection.
+-- @param server_update table  VOICE_SERVER_UPDATE payload  { token, guild_id, endpoint }
+-- @param state_update  table  VOICE_STATE_UPDATE payload   { session_id, ... }
+function VoiceConnection:connect(server_update, state_update)
+  self.token      = server_update.token
+  self.endpoint   = server_update.endpoint:gsub(":.*$", "")  -- strip port if present
+  self.session_id = state_update.session_id
+
+  local gw = VoiceGateway.new({
+    endpoint   = self.endpoint,
+    guild_id   = self.guild_id,
+    user_id    = self.client.user and self.client.user.id or state_update.user_id,
+    session_id = self.session_id,
+    token      = self.token,
+    on_ready   = function(g)   self:_on_gateway_ready(g)       end,
+    on_session = function(g)   self:_on_session_description(g) end,
+    on_close   = function(_)   self:_on_close()                end,
+  })
+  self._gateway = gw
+
+  -- Connect in a coroutine so we don't block the caller
+  local loop = cqueues.new()
+  loop:wrap(function()
+    local ok, err = pcall(function() gw:connect() end)
+    if not ok then
+      print("[VoiceConnection] Gateway error: " .. tostring(err))
+    end
+  end)
+  loop:loop()
+end
+
+function VoiceConnection:_on_close()
+  self._ready   = false
+  self._playing = false
+  print("[VoiceConnection] Voice gateway closed.")
+  if self.client and self.client.emit then
+    self.client:emit("voiceDisconnect", self)
+  end
+end
+
+--- Disconnect from the voice channel and clean up resources.
+function VoiceConnection:disconnect()
+  self._stop_flag = true
+  self._playing   = false
+  self._ready     = false
+
+  if self._encoder then
+    self._encoder:destroy()
+    self._encoder = nil
+  end
+  if self._udp then
+    self._udp:close()
+    self._udp = nil
+  end
+  if self._gateway then
+    self._gateway:close()
+    self._gateway = nil
+  end
+
+  -- Tell main gateway to leave the voice channel
+  if self.client and self.client._gateway then
+    self.client._gateway:send_voice_state_update(self.guild_id, nil)
+  end
+end
+
+-- ── Playback helpers ─────────────────────────────────────────────────────────
+
+--- Send a single Opus frame. Low-level; prefer play_pcm_stream.
+-- @param opus_bytes string
+function VoiceConnection:send_opus_frame(opus_bytes)
+  if not self._ready then
+    error("[VoiceConnection] Not connected — wait for voiceReady event")
+  end
+  self._gateway:set_speaking(true)
+  self._udp:send_opus(opus_bytes, FRAME_SIZE)
+end
+
+--- Stream raw PCM from a Lua io file handle (or any object with :read(n)).
+-- Reads 20ms chunks, encodes to Opus, and sends at the correct pace.
+-- Blocks the current coroutine; call inside a cqueues wrap.
+-- @param handle   file   Opened file in binary mode
+-- @param done_cb  function|nil  Called when playback finishes or is stopped
+function VoiceConnection:play_pcm_stream(handle, done_cb)
+  if not self._ready then
+    error("[VoiceConnection] Not ready")
+  end
+  self._playing   = true
+  self._stop_flag = false
+  self._gateway:set_speaking(true)
+
+  local loop      = cqueues.new()
+  local start_ref = cqueues.monotime()
+  local frame_num = 0
+
+  loop:wrap(function()
+    while not self._stop_flag do
+      local chunk = handle:read(PCM_FRAME_BYTES)
+      if not chunk or #chunk == 0 then break end
+
+      -- Pad the last frame if needed
+      if #chunk < PCM_FRAME_BYTES then
+        chunk = chunk .. string.rep("\0", PCM_FRAME_BYTES - #chunk)
+      end
+
+      local opus, err = self._encoder:encode(chunk, FRAME_SIZE)
+      if not opus then
+        print("[VoiceConnection] Encode error: " .. tostring(err))
+        break
+      end
+
+      self._udp:send_opus(opus, FRAME_SIZE)
+      frame_num = frame_num + 1
+
+      -- Pace sending: sleep until the next frame's scheduled send time
+      local next_time = start_ref + frame_num * FRAME_DURATION
+      local now       = cqueues.monotime()
+      if next_time > now then
+        cqueues.sleep(next_time - now)
+      end
+    end
+
+    self._playing = false
+    self._gateway:set_speaking(false)
+    if done_cb then done_cb() end
+  end)
+
+  loop:loop()
+end
+
+--- Convenience: open a raw PCM file and play it.
+-- The file must be signed 16-bit, little-endian, stereo, 48kHz.
+-- @param path    string
+-- @param done_cb function|nil
+function VoiceConnection:play_pcm_file(path, done_cb)
+  local f, err = io.open(path, "rb")
+  if not f then
+    error("[VoiceConnection] Cannot open file: " .. tostring(err))
+  end
+  self:play_pcm_stream(f, function()
+    f:close()
+    if done_cb then done_cb() end
+  end)
+end
+
+--- Stop the current playback.
+function VoiceConnection:stop()
+  self._stop_flag = true
+end
+
+--- Returns true if currently playing audio.
+function VoiceConnection:is_playing()
+  return self._playing
+end
+
+return VoiceConnection

@@ -1,0 +1,55 @@
+-- stdio: newline-delimited JSON-RPC over stdin and stdout, the
+-- transport claude code and clm launch a server with.
+
+local M = {}
+
+---Points print and io.write at stderr.
+---
+---Stdout carries the protocol. One stray print corrupts the stream
+---and the client drops the server with no useful message. Logs belong
+---on stderr anyway: the client shows them.
+function M.guard_stdout()
+	local err = io.stderr
+
+	print = function(...)
+		local parts = {}
+		local n = select("#", ...)
+
+		for i = 1, n do
+			parts[i] = tostring((select(i, ...)))
+		end
+		err:write(table.concat(parts, "\t"), "\n")
+	end
+	io.write = function(...)
+		err:write(...)
+		return err
+	end
+end
+
+---Serves until stdin closes, which is when the client goes away.
+---@param server mcptk.Server
+---@param opts table|nil guard = false to leave stdout alone
+function M.run(server, opts)
+	opts = opts or {}
+	if opts.guard ~= false then
+		M.guard_stdout()
+	end
+
+	local out = opts.out or io.stdout
+	local inp = opts.inp or io.stdin
+
+	out:setvbuf("line")
+
+	for line in inp:lines() do
+		if line:match("%S") then
+			local reply = server:handle_line(line)
+
+			if reply then
+				out:write(reply, "\n")
+				out:flush()
+			end
+		end
+	end
+end
+
+return M

@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "lua-xmlreader",
+  "versions": {
+    "0.1-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://asbradbury.org/projects/lua-xmlreader/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 03:09:07 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 03:09:07 GMT",
+          "sha256": "b9e658a40a5876dcb7191d0a56a4298aef53c25bc93c370c5bc4645ab4354506",
+          "size": 757
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 03:09:08 GMT",
+          "sha256": "996b43f178b536a8081bb85c20ba1b931b191e8e5ab5e7f5eb7169aa7ad089c5",
+          "size": 11195,
+          "url": "https://luarocks.org/lua-xmlreader-0.1-2.src.rock"
+        }
+      },
+      "modules": [
+        "xmlreader"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBXML2"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBXML2": {
+              "header": "libxml2/libxml/xmlreader.h",
+              "library": "libxml2.so"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBXML2_INCDIR)/libxml2"
+              ],
+              "libdirs": [
+                "$(LIBXML2_LIBDIR)"
+              ],
+              "libraries": [
+                "xml2"
+              ],
+              "name": "xmlreader",
+              "sources": [
+                "xmlreader.c",
+                "error.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 03:09:08 GMT",
+        "sha256": "996b43f178b536a8081bb85c20ba1b931b191e8e5ab5e7f5eb7169aa7ad089c5",
+        "size": 11195,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-xmlreader-0.1-2.src.rock"
+      },
+      "summary": "An implementation of the XmlReader API using libxml2.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

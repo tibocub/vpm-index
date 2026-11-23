@@ -1,0 +1,26 @@
+---@class lrocket.Environ
+---@field [string] string
+local environ = {}
+
+function environ.__index(env, k)
+	if rawget(env, '_LRV_DEDUPVARS') then
+		if k:find '^_LRV_' then return nil end
+
+		local v = env['_LRV_' .. k] or os.getenv(k)
+		env['_LRV_' .. k] = v
+
+		return v
+	end
+
+	env[k] = os.getenv(k)
+	return rawget(env, k)
+end
+
+--- Prefetch environment variables such that lrc is unaffected if luasystem modifies the environment on linux
+function environ.fetch(...)
+	for _, k in ipairs { ... } do
+		environ[k] = os.getenv(k)
+	end
+end
+
+return setmetatable(environ, environ)

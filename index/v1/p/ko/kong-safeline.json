@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-safeline",
+  "versions": {
+    "1.0.7-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-t1k >= 1.1.5"
+      ],
+      "files": {
+        "kong/plugins/safeline/handler.lua": {
+          "sha256": "3a24cf7b1c2c16a2bf9389f981da23da97611d0ee9cdb9fd8da824617e86fd21",
+          "size": 1403,
+          "url": "https://raw.githubusercontent.com/chaitin/kong-safeline/fc29a6fc5dd79edf02e69cdc323c1235ebcb19bd/kong/plugins/safeline/handler.lua"
+        },
+        "kong/plugins/safeline/schema.lua": {
+          "sha256": "fb85bff71533711c658e5665ec66879621eb380626532076c5a080654422dbd6",
+          "size": 2014,
+          "url": "https://raw.githubusercontent.com/chaitin/kong-safeline/fc29a6fc5dd79edf02e69cdc323c1235ebcb19bd/kong/plugins/safeline/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/chaitin/SafeLine",
+      "host": "openresty",
+      "license": "Apache License 2.0",
+      "luarocks": {
+        "date": "Fri, 14 Feb 2025 06:37:32 GMT",
+        "rockspec": {
+          "date": "Fri, 14 Feb 2025 06:37:32 GMT",
+          "sha256": "481f369a281992e3584639b18355f607a6fe4c6416cd86af0031fb02f8c11c72",
+          "size": 609
+        },
+        "src": {
+          "date": "Fri, 14 Feb 2025 06:37:33 GMT",
+          "sha256": "4a6cc133d80268a6ea6bfa7b380002160a67a9cc20352c11e4416a3a021c2ff7",
+          "size": 8247,
+          "url": "https://luarocks.org/kong-safeline-1.0.7-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.safeline.handler",
+        "kong.plugins.safeline.schema"
+      ],
+      "origin": {
+        "commit": "fc29a6fc5dd79edf02e69cdc323c1235ebcb19bd",
+        "type": "git",
+        "url": "https://github.com/chaitin/kong-safeline.git"
+      },
+      "size": 3417,
+      "summary": "Kong plugin for Chaitin SafeLine Web Application Firewall",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

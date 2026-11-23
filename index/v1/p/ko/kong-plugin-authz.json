@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-authz",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "lua-cjson >= 2.1.0.10-1"
+      ],
+      "files": {
+        "kong/plugins/authz/handler.lua": {
+          "sha256": "28014829af3ea2225f3f4f76f4fba8029b5efd6c9d3851b75a5e9620d29898e3",
+          "size": 2580,
+          "url": "blob:28014829af3ea2225f3f4f76f4fba8029b5efd6c9d3851b75a5e9620d29898e3"
+        },
+        "kong/plugins/authz/schema.lua": {
+          "sha256": "c3a6e77822900e99d3e316b191d211d17b7855e87a3460a77568305855372da4",
+          "size": 883,
+          "url": "blob:c3a6e77822900e99d3e316b191d211d17b7855e87a3460a77568305855372da4"
+        }
+      },
+      "homepage": "https://i-pul.github.io/kong-plugin-authz",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Wed, 28 Jan 2026 09:14:01 GMT",
+        "rockspec": {
+          "date": "Wed, 28 Jan 2026 09:14:01 GMT",
+          "sha256": "aa1115df758400f53f5acc966a53400db8b810f0632e1b6555ba9af36b84b2f8",
+          "size": 1098
+        },
+        "src": {
+          "date": "Wed, 28 Jan 2026 09:14:02 GMT",
+          "sha256": "accf557b8a272ad1f11066a809b1e0cebf58e61aad99700f70c983e66c0fcc2a",
+          "size": 12543,
+          "url": "https://luarocks.org/kong-plugin-authz-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.authz.handler",
+        "kong.plugins.authz.schema"
+      ],
+      "origin": {
+        "date": "Wed, 28 Jan 2026 09:14:02 GMT",
+        "sha256": "accf557b8a272ad1f11066a809b1e0cebf58e61aad99700f70c983e66c0fcc2a",
+        "size": 12543,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-authz-1.0.1-1.src.rock"
+      },
+      "size": 3463,
+      "summary": "This plugin is used to inject authorisation roles to header for each request to the upstream service",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.tools.utils",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

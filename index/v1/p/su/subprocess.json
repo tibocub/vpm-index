@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "subprocess",
+  "versions": {
+    "0.1-2": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/hishamhm/subprocess",
+      "license": "MIT/X11 + PSF License Agreement for Python 3.4.3",
+      "luarocks": {
+        "date": "Thu, 05 Mar 2015 22:39:57 GMT",
+        "rockspec": {
+          "date": "Thu, 05 Mar 2015 22:39:57 GMT",
+          "sha256": "d2a36018e57fa07a5f01bbbe1c4e37a1449aa47424347e4fe5d6f38eecb0c6c7",
+          "size": 1282
+        },
+        "src": {
+          "date": "Thu, 05 Mar 2015 22:39:59 GMT",
+          "sha256": "335e8bbcfe8e69ef7a1423dc5cedf8a9e5474c4c855d9496c833e0cca604a84b",
+          "size": 40584,
+          "url": "https://luarocks.org/subprocess-0.1-2.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "platforms"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "platforms": []
+          },
+          "make": {
+            "build_target": "rock",
+            "platforms": {
+              "unix": {
+                "variables": {
+                  "SYSCALL_INCDIR": "$(SYS_SYSCALL_INCDIR)"
+                }
+              }
+            },
+            "variables": {
+              "CFLAGS": "$(CFLAGS)",
+              "INST_LIBDIR": "$(LIBDIR)",
+              "INST_LUADIR": "$(LUADIR)",
+              "LIBFLAG": "$(LIBFLAG)",
+              "LUA_INCDIR": "$(LUA_INCDIR)",
+              "PREFIX": "$(PREFIX)"
+            }
+          }
+        }
+      },
+      "origin": {
+        "date": "Thu, 05 Mar 2015 22:39:59 GMT",
+        "sha256": "335e8bbcfe8e69ef7a1423dc5cedf8a9e5474c4c855d9496c833e0cca604a84b",
+        "size": 40584,
+        "type": "luarocks",
+        "url": "https://luarocks.org/subprocess-0.1-2.src.rock"
+      },
+      "summary": "A port of the Python subprocess module to Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

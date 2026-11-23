@@ -1,0 +1,81 @@
+
+local sfs = require 'sfs'
+local log = require 'lrocket.log'
+local loader = require 'lrocket.loader'
+local utils = require 'lrocket.utils'
+
+local function cmodname(modname)
+	return (modname:gsub("%p", "_"))
+end
+
+--- Code generator
+---@type table<string, fun(formatter: lrocket.CFmt, ...)>
+local genc = {}
+
+
+function genc.clra_preamble(fmt)
+	genc.luaincludes(fmt)
+end
+
+function genc.clra_init_definition(formatter, lra_buffer, modules, path, cpath)
+	local mods = {}
+	for i, mod in ipairs(modules) do
+		mods[i] = string.format("{ %q, luaopen_%s },\n\t", mod, cmodname(mod))
+	end
+
+	formatter:line(log.assert(sfs.read(loader.BASE_H)))
+	formatter:varmulti([[
+		// init config variables
+
+		static const luaL_Reg lrocket_modules[] = {
+			${LROCKET_MODULES}{0, 0 }
+		};
+		static const unsigned char lrocket_buf[] = { ${LRA_ARCHIVE} };
+
+		static lra_Config C[1] = { { lrocket_buf, sizeof(lrocket_buf), lrocket_modules, ${LUA_PATH}, ${LUA_CPATH} } };
+	]], {
+		LROCKET_MODULES = table.concat(mods, ''),
+		LRA_ARCHIVE = utils.strtohex(lra_buffer),
+		LUA_PATH = path and string.format("%q", path) or "((void*)0)",
+		LUA_CPATH = cpath and string.format("%q", cpath) or "((void*)0)",
+	})
+end
+
+--- if added, add before preamble
+function genc.luaincludes(formatter)
+	formatter:multiline [[
+		#include <lua.h>
+		#include <lauxlib.h>
+	]]
+end
+
+function genc.clra_shared(formatter, modname, alt)
+	formatter:fline("int luaopen_%s(lua_State* L) { return lrocket_luaopen(L, C, %q); }", cmodname(modname), alt or modname)
+end
+
+function genc.clra_main(formatter)
+	formatter:line "int main(int argc, const char* argv[]) { return lrocket_main(C, argc, argv); }"
+end
+
+function genc.clra_shared_ref(formatter, modname)
+	formatter:fline("int luaopen_%s(lua_State* L);", cmodname(modname))
+end
+
+function genc.cppsentrybegin(formatter)
+	formatter:multiline [[
+		#ifdef c_plus_plus
+		extern "C" {
+		#endif
+	]]
+end
+
+function genc.cppsentryend(formatter)
+	formatter:multiline [[
+		#ifdef c_plus_plus
+		} // extern
+		#endif
+	]]
+end
+
+return genc
+

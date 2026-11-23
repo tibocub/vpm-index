@@ -1,0 +1,83 @@
+{
+  "kind": "lib",
+  "name": "luasql-sqlite",
+  "versions": {
+    "2.6.0-3": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://lunarmodules.github.io/luasql/",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 07 Feb 2024 18:50:51 GMT",
+        "rockspec": {
+          "date": "Wed, 07 Feb 2024 18:50:51 GMT",
+          "sha256": "497705e54064f40e8bebdb819665af3478dad8a54088bdb1129420342d947d99",
+          "size": 888
+        },
+        "src": {
+          "date": "Wed, 07 Feb 2024 18:50:52 GMT",
+          "sha256": "eac33e097922bace5faff55c61100e4ae195c48b741b906e41a796dadc6bfbb3",
+          "size": 181724,
+          "url": "https://luarocks.org/luasql-sqlite-2.6.0-3.src.rock"
+        }
+      },
+      "modules": [
+        "luasql.sqlite"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SQLITE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SQLITE": {
+              "header": "sqlite.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(SQLITE_INCDIR)"
+              ],
+              "libdirs": [
+                "$(SQLITE_LIBDIR)"
+              ],
+              "libraries": [
+                "sqlite"
+              ],
+              "name": "luasql.sqlite",
+              "sources": [
+                "src/luasql.c",
+                "src/ls_sqlite.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 07 Feb 2024 18:50:52 GMT",
+        "sha256": "eac33e097922bace5faff55c61100e4ae195c48b741b906e41a796dadc6bfbb3",
+        "size": 181724,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasql-sqlite-2.6.0-3.src.rock"
+      },
+      "summary": "Database connectivity for Lua (SQLite driver)",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

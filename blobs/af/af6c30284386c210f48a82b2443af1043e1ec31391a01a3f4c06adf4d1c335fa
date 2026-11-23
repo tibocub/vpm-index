@@ -1,0 +1,237 @@
+-- voice/VoiceGateway.lua
+-- Manages the Discord Voice Gateway WebSocket connection.
+-- Handles: identify, heartbeat, hello, ready, session description, speaking.
+
+local websocket = require("http.websocket")
+local json      = require("dkjson")
+local cqueues   = require("cqueues")
+
+-- Voice Gateway opcodes (Discord API v10)
+local OP = {
+  IDENTIFY            = 0,
+  SELECT_PROTOCOL     = 1,
+  READY               = 2,
+  HEARTBEAT           = 3,
+  SESSION_DESCRIPTION = 4,
+  SPEAKING            = 5,
+  HEARTBEAT_ACK       = 6,
+  RESUME              = 7,
+  HELLO               = 8,
+  RESUMED             = 9,
+  CLIENT_DISCONNECT   = 13,
+}
+
+local VoiceGateway = {}
+VoiceGateway.__index = VoiceGateway
+
+--- Create a new VoiceGateway instance.
+-- @param opts table  { endpoint, guild_id, user_id, session_id, token, on_ready, on_session, on_close }
+function VoiceGateway.new(opts)
+  local self = setmetatable({}, VoiceGateway)
+  self.endpoint   = opts.endpoint   -- wss://... (no ?v= yet, we append it)
+  self.guild_id   = opts.guild_id
+  self.user_id    = opts.user_id
+  self.session_id = opts.session_id
+  self.token      = opts.token
+  self.ssrc       = nil
+  self.ip         = nil
+  self.port       = nil
+  self.modes      = {}
+  self._ws        = nil
+  self._heartbeat_interval = nil
+  self._heartbeat_handle   = nil
+  self._seq_ack   = -1
+  self._closed    = false
+
+  -- Callbacks
+  self.on_ready   = opts.on_ready   or function() end
+  self.on_session = opts.on_session or function() end
+  self.on_close   = opts.on_close   or function() end
+
+  return self
+end
+
+--- Send a JSON payload over the WebSocket.
+function VoiceGateway:_send(op, d)
+  if not self._ws then return end
+  local payload = json.encode({ op = op, d = d })
+  local ok, err = self._ws:send(payload)
+  if not ok then
+    print("[VoiceGateway] send error: " .. tostring(err))
+  end
+end
+
+--- Identify with the voice server.
+function VoiceGateway:_identify()
+  self:_send(OP.IDENTIFY, {
+    server_id  = self.guild_id,
+    user_id    = self.user_id,
+    session_id = self.session_id,
+    token      = self.token,
+  })
+end
+
+--- Send a heartbeat.
+function VoiceGateway:_heartbeat()
+  self:_send(OP.HEARTBEAT, self._seq_ack)
+end
+
+--- Start the heartbeat loop given an interval in milliseconds.
+function VoiceGateway:_start_heartbeat(interval_ms)
+  self._heartbeat_interval = interval_ms / 1000
+  -- Run heartbeat loop in a cqueues coroutine
+  local loop = cqueues.new()
+  self._heartbeat_handle = loop
+  loop:wrap(function()
+    while not self._closed do
+      self:_heartbeat()
+      cqueues.sleep(self._heartbeat_interval)
+    end
+  end)
+  -- Attach to the running cqueues loop if possible; else spawn a thread.
+  -- Caller is expected to step this loop, or we attach it to the global loop.
+  loop:loop()
+end
+
+--- Handle an incoming dispatch from the voice gateway.
+function VoiceGateway:_dispatch(msg)
+  local payload, _, err = json.decode(msg)
+  if err or not payload then
+    print("[VoiceGateway] JSON decode error: " .. tostring(err))
+    return
+  end
+
+  local op = payload.op
+  local d  = payload.d
+
+  if op == OP.HELLO then
+    -- Server tells us heartbeat interval; then we identify.
+    local interval = (d and d.heartbeat_interval) or 30000
+    -- Jitter on first heartbeat (Discord recommendation)
+    cqueues.sleep((interval / 1000) * math.random())
+    self:_identify()
+    -- Start heartbeat in a detached coroutine
+    local loop = cqueues.new()
+    loop:wrap(function()
+      while not self._closed do
+        self:_heartbeat()
+        cqueues.sleep(interval / 1000)
+      end
+    end)
+    -- Non-blocking step; caller drives the main loop
+    loop:wrap(function() loop:loop() end)
+
+  elseif op == OP.READY then
+    -- Voice server is ready; we have SSRC and UDP details.
+    self.ssrc  = d.ssrc
+    self.ip    = d.ip
+    self.port  = d.port
+    self.modes = d.modes or {}
+    self.on_ready(self)
+
+  elseif op == OP.SESSION_DESCRIPTION then
+    -- We now have the secret key for encryption.
+    self.secret_key  = d.secret_key   -- array of 32 ints (bytes)
+    self.mode        = d.mode
+    self.on_session(self)
+
+  elseif op == OP.HEARTBEAT_ACK then
+    -- Server acknowledged our heartbeat; nothing extra needed.
+
+  elseif op == OP.SPEAKING then
+    -- Another user changed their speaking state; surface as event if needed.
+
+  elseif op == OP.RESUMED then
+    print("[VoiceGateway] Resumed voice session.")
+
+  elseif op == OP.CLIENT_DISCONNECT then
+    -- A client disconnected from the voice channel.
+
+  else
+    -- Unknown opcode; log for debugging.
+    print("[VoiceGateway] Unknown opcode: " .. tostring(op))
+  end
+end
+
+--- Send SELECT_PROTOCOL once IP discovery is complete.
+-- @param our_ip   string  Discovered external IP
+-- @param our_port number  Discovered external port
+-- @param mode     string  Encryption mode (default: "xsalsa20_poly1305")
+function VoiceGateway:select_protocol(our_ip, our_port, mode)
+  mode = mode or "xsalsa20_poly1305"
+  self:_send(OP.SELECT_PROTOCOL, {
+    protocol = "udp",
+    data = {
+      address = our_ip,
+      port    = our_port,
+      mode    = mode,
+    },
+  })
+end
+
+--- Set speaking state.
+-- @param speaking boolean
+-- @param ssrc     number   (optional, defaults to self.ssrc)
+function VoiceGateway:set_speaking(speaking, ssrc)
+  self:_send(OP.SPEAKING, {
+    speaking = speaking and 1 or 0,
+    delay    = 0,
+    ssrc     = ssrc or self.ssrc or 0,
+  })
+end
+
+--- Send a RESUME payload (after a reconnect).
+function VoiceGateway:resume()
+  self:_send(OP.RESUME, {
+    server_id  = self.guild_id,
+    session_id = self.session_id,
+    token      = self.token,
+    seq_ack    = self._seq_ack,
+  })
+end
+
+--- Connect to the voice gateway and begin the message loop.
+function VoiceGateway:connect()
+  local url = "wss://" .. self.endpoint .. "/?v=8"
+  local ws, err = websocket.new_from_uri(url)
+  if not ws then
+    error("[VoiceGateway] Failed to create WebSocket: " .. tostring(err))
+  end
+
+  local ok, cerr = ws:connect()
+  if not ok then
+    error("[VoiceGateway] WebSocket connect failed: " .. tostring(cerr))
+  end
+
+  self._ws     = ws
+  self._closed = false
+
+  -- Message receive loop
+  local loop = cqueues.new()
+  loop:wrap(function()
+    while not self._closed do
+      local data, typ = ws:receive()
+      if data == nil then
+        -- Connection closed
+        self._closed = true
+        self.on_close(self)
+        break
+      end
+      if typ == "text" then
+        self:_dispatch(data)
+      end
+    end
+  end)
+  loop:loop()
+end
+
+--- Close the voice gateway connection gracefully.
+function VoiceGateway:close()
+  self._closed = true
+  if self._ws then
+    self._ws:close()
+    self._ws = nil
+  end
+end
+
+return VoiceGateway

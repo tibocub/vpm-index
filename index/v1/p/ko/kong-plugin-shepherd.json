@@ -1,0 +1,107 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-shepherd",
+  "versions": {
+    "0.5.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/shepherd/api.lua": {
+          "sha256": "29cb5c1bfe5ae40dee3a677fa7ff5cb3565c1c9e8364f5425683f6ff920a7901",
+          "size": 2512,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/api.lua"
+        },
+        "kong/plugins/shepherd/daos.lua": {
+          "sha256": "42444a2bca7d4942cef1332659f4db85739daa675c0bb8b09498ce3545c0e343",
+          "size": 905,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/daos.lua"
+        },
+        "kong/plugins/shepherd/handler.lua": {
+          "sha256": "0689f0787cd276f8397ad77734ba09eda2dde11f57241abdb94eb25d37c2e35b",
+          "size": 3296,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/handler.lua"
+        },
+        "kong/plugins/shepherd/migrations/postgres.lua": {
+          "sha256": "bfbfd2274a72496a17654cd7a15533fbf58462cdbe72bed2b84ac51044febea8",
+          "size": 546,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/migrations/postgres.lua"
+        },
+        "kong/plugins/shepherd/misc/config.lua": {
+          "sha256": "74b0995a0ca3f66a922af27ac54923dcc096c471b0ad0be3198357d04860ee3b",
+          "size": 764,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/misc/config.lua"
+        },
+        "kong/plugins/shepherd/misc/migrate.lua": {
+          "sha256": "43ab2ee7089b54f46a03e2011d61c568c48fa2f50bcfb19d728d3451a5fe01d6",
+          "size": 662,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/misc/migrate.lua"
+        },
+        "kong/plugins/shepherd/schema.lua": {
+          "sha256": "0fbeda36fb040eed810a5c5b23276590028e1ee95c840e4dd160ce6170259523",
+          "size": 320,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/schema.lua"
+        },
+        "kong/plugins/shepherd/views/index.lua": {
+          "sha256": "e92370ec67c11064eb6acf5ea3c2a816252ffc7d845d6392b72a561453d53090",
+          "size": 14956,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/views/index.lua"
+        },
+        "kong/plugins/shepherd/views/layout.lua": {
+          "sha256": "b856c857f09548ee3fc3566a80141538c417139afe25303060996fd9fcbc9667",
+          "size": 5399,
+          "url": "https://raw.githubusercontent.com/DanielTimLee/shepherd/19a2f5f0cce069f0d27180a2494d85ab14c15631/kong/plugins/shepherd/views/layout.lua"
+        }
+      },
+      "homepage": "http://github.com/DanielTimLee/shepherd",
+      "host": "openresty",
+      "license": "GPLv3",
+      "luarocks": {
+        "date": "Thu, 07 Dec 2017 04:43:09 GMT",
+        "rockspec": {
+          "date": "Thu, 07 Dec 2017 04:43:09 GMT",
+          "sha256": "618add2050adc01402e6d6079b3ab18629b2563cdd74edc0429473988c2068be",
+          "size": 1409
+        },
+        "src": {
+          "date": "Thu, 07 Dec 2017 04:43:10 GMT",
+          "sha256": "e5831617407a453991e116759eb360391b30773337401d8922f3550916dd6a4e",
+          "size": 29444,
+          "url": "https://luarocks.org/kong-plugin-shepherd-0.5.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.shepherd.api",
+        "kong.plugins.shepherd.daos",
+        "kong.plugins.shepherd.handler",
+        "kong.plugins.shepherd.migrations.postgres",
+        "kong.plugins.shepherd.misc.config",
+        "kong.plugins.shepherd.misc.migrate",
+        "kong.plugins.shepherd.schema",
+        "kong.plugins.shepherd.views.index",
+        "kong.plugins.shepherd.views.layout"
+      ],
+      "origin": {
+        "commit": "19a2f5f0cce069f0d27180a2494d85ab14c15631",
+        "ref": "v0.5.0",
+        "type": "git",
+        "url": "https://github.com/DanielTimLee/shepherd"
+      },
+      "size": 29360,
+      "summary": "Shephered is a plugin for Client Versioning and Redirect with API Endpoint, Modules.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "lapis.html"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.singletons",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

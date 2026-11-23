@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "luadbi-mysql",
+  "versions": {
+    "0.7.5-1": {
+      "bin": [],
+      "deps": [
+        "luadbi = 0.7.5"
+      ],
+      "files": [],
+      "homepage": "https://github.com/mwild1/luadbi",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Tue, 09 Jun 2026 18:28:38 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Jun 2026 18:28:38 GMT",
+          "sha256": "f67a5157781bd88297f2e254e1d0a8fdbe2e1ad39599874a3d9f5e654a4b68ad",
+          "size": 1099
+        },
+        "src": {
+          "date": "Tue, 09 Jun 2026 18:28:38 GMT",
+          "sha256": "2d95ba2d769f4857cc713c3ff34bf191c9f12c58ac6e5c487cec463750c8c674",
+          "size": 70594,
+          "url": "https://luarocks.org/luadbi-mysql-0.7.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "dbd.mysql"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "MYSQL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "MYSQL": {
+              "header": "mysql.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(MYSQL_INCDIR)",
+                "./"
+              ],
+              "libdirs": [
+                "$(MYSQL_LIBDIR)"
+              ],
+              "libraries": [
+                "mysqlclient"
+              ],
+              "name": "dbd.mysql",
+              "sources": [
+                "dbd/common.c",
+                "dbd/mysql/main.c",
+                "dbd/mysql/statement.c",
+                "dbd/mysql/connection.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 09 Jun 2026 18:28:38 GMT",
+        "sha256": "2d95ba2d769f4857cc713c3ff34bf191c9f12c58ac6e5c487cec463750c8c674",
+        "size": 70594,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luadbi-mysql-0.7.5-1.src.rock"
+      },
+      "summary": "Database abstraction layer",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "lua-libmodbus",
+  "versions": {
+    "0.8-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/etactica/lua-libmodbus",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 02 Dec 2022 11:55:18 GMT",
+        "rockspec": {
+          "date": "Fri, 02 Dec 2022 11:55:18 GMT",
+          "sha256": "4e63c757c3989f4bbe5836f05ca9de05bf6125d8869deadc59ca418bd4f5bf6b",
+          "size": 945
+        },
+        "src": {
+          "date": "Fri, 02 Dec 2022 11:55:20 GMT",
+          "sha256": "608a50522589c0fbaf11493cc95a7763550d3d9a6e747a3acb77790ee8437f97",
+          "size": 47888,
+          "url": "https://luarocks.org/lua-libmodbus-0.8-1.src.rock"
+        }
+      },
+      "modules": [
+        "libmodbus"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "LIBMODBUS"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "LIBMODBUS": {
+              "header": "modbus/modbus.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(LIBMODBUS_INCDIR)"
+              ],
+              "libdirs": [
+                "$(LIBMODBUS_LIBDIR)"
+              ],
+              "libraries": [
+                "modbus"
+              ],
+              "name": "libmodbus",
+              "sources": [
+                "lua-libmodbus.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 02 Dec 2022 11:55:20 GMT",
+        "sha256": "608a50522589c0fbaf11493cc95a7763550d3d9a6e747a3acb77790ee8437f97",
+        "size": 47888,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lua-libmodbus-0.8-1.src.rock"
+      },
+      "summary": "Lua bindings to libmodbus",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

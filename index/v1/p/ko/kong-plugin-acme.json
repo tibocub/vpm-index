@@ -1,0 +1,103 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-acme",
+  "versions": {
+    "0.2.15-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-acme ~> 0.6"
+      ],
+      "files": {
+        "kong/plugins/acme/api.lua": {
+          "sha256": "f110ce25460d532582db9f0a4761f758c3204ddf2c0d58b4c04a815167c490e8",
+          "size": 6015,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/api.lua"
+        },
+        "kong/plugins/acme/client.lua": {
+          "sha256": "6361a73ad79568fdaf6633064304b8afa298b1d600ca4521ef40fc3916a0deae",
+          "size": 14099,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/client.lua"
+        },
+        "kong/plugins/acme/daos.lua": {
+          "sha256": "97c21e33dc12f7176d26674771a4fd7996d90d9752155cf47410fcea2d6936fb",
+          "size": 440,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/daos.lua"
+        },
+        "kong/plugins/acme/handler.lua": {
+          "sha256": "310517ed4fc4e9b7a15dc06030c517e086664adfeedc226bab24bb189889cae5",
+          "size": 5512,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/handler.lua"
+        },
+        "kong/plugins/acme/migrations/000_base_acme.lua": {
+          "sha256": "1be07e46fcf79cd31605dd781a1fcdf8065f51e392ba3413f3f9400791e35fc7",
+          "size": 607,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/migrations/000_base_acme.lua"
+        },
+        "kong/plugins/acme/migrations/init.lua": {
+          "sha256": "4fa751d3b2fd08f7a7c187dc5736203c3fa1fbc05de68cd75f5f29691d8f27fd",
+          "size": 30,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/migrations/init.lua"
+        },
+        "kong/plugins/acme/schema.lua": {
+          "sha256": "65279d219a6ed4bcca0f71bece0f1e0712fbd2563eb2e6bb0d9a6b5d4465de70",
+          "size": 4053,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/schema.lua"
+        },
+        "kong/plugins/acme/storage/kong.lua": {
+          "sha256": "eb6e7e70aa7ae48adbf79cdacb41c33b28507b0f9484369e0e4d28d091e26f6d",
+          "size": 1823,
+          "url": "https://raw.githubusercontent.com/Kong/kong-plugin-acme/a1fc3485bc2fc49298069da505962d149568c560/kong/plugins/acme/storage/kong.lua"
+        }
+      },
+      "homepage": "https://github.com/Kong/kong-plugin-acme",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 26 Jul 2021 18:31:38 GMT",
+        "rockspec": {
+          "date": "Mon, 26 Jul 2021 18:31:38 GMT",
+          "sha256": "35f0da2ffa319e281bec27fee9f8ec5fa46bebc02ede16416c528d8984bd3278",
+          "size": 1026
+        },
+        "src": {
+          "date": "Mon, 26 Jul 2021 18:31:39 GMT",
+          "sha256": "b5049c6be10ac3595b5442258b57fd0b2f66c984336b3a258f25749ddc3ecf9f",
+          "size": 31015,
+          "url": "https://luarocks.org/kong-plugin-acme-0.2.15-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.acme.api",
+        "kong.plugins.acme.client",
+        "kong.plugins.acme.daos",
+        "kong.plugins.acme.handler",
+        "kong.plugins.acme.migrations",
+        "kong.plugins.acme.migrations.000_base_acme",
+        "kong.plugins.acme.schema",
+        "kong.plugins.acme.storage.kong"
+      ],
+      "origin": {
+        "commit": "a1fc3485bc2fc49298069da505962d149568c560",
+        "ref": "0.2.15",
+        "type": "git",
+        "url": "https://github.com/Kong/kong-plugin-acme.git"
+      },
+      "size": 32579,
+      "summary": "Let's Encrypt integration with Kong",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.runloop.certificate",
+        "ngx.ssl"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

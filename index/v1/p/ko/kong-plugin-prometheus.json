@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-prometheus",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/prometheus/api.lua": {
+          "sha256": "8e3c26543e5e8530121604e9ebda7005c0f64e710b7df99492009897574553ec",
+          "size": 572,
+          "url": "https://raw.githubusercontent.com/yciabaud/kong-plugin-prometheus/d7320795ad04d0d3572c9270d805f13536038f27/api.lua"
+        },
+        "kong/plugins/prometheus/handler.lua": {
+          "sha256": "48703576e1862f04ffffbf2e809e0b95a660673bc10321ee3a4779beadc84378",
+          "size": 1557,
+          "url": "https://raw.githubusercontent.com/yciabaud/kong-plugin-prometheus/d7320795ad04d0d3572c9270d805f13536038f27/handler.lua"
+        },
+        "kong/plugins/prometheus/logger.lua": {
+          "sha256": "cb94c6f161faa7a0eba43c8d721d49c64082558f312004b4c3994043ce6b4670",
+          "size": 5764,
+          "url": "https://raw.githubusercontent.com/yciabaud/kong-plugin-prometheus/d7320795ad04d0d3572c9270d805f13536038f27/logger.lua"
+        },
+        "kong/plugins/prometheus/prometheus.lua": {
+          "sha256": "b37d81f2e98e646588001bc816361acd79bf92acd4107920868891876697cb74",
+          "size": 17787,
+          "url": "https://raw.githubusercontent.com/yciabaud/kong-plugin-prometheus/d7320795ad04d0d3572c9270d805f13536038f27/prometheus.lua"
+        },
+        "kong/plugins/prometheus/schema.lua": {
+          "sha256": "48d1973760c08e9dcb35abf971fe6e8512499ff7a1e32ec4c9ca74b9235aee42",
+          "size": 2615,
+          "url": "https://raw.githubusercontent.com/yciabaud/kong-plugin-prometheus/d7320795ad04d0d3572c9270d805f13536038f27/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/yciabaud/kong-plugin-prometheus",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 17 May 2018 06:43:34 GMT",
+        "rockspec": {
+          "date": "Thu, 17 May 2018 06:43:34 GMT",
+          "sha256": "20bc7ba3401b31d5e1aed424320ddb00655c7da09b5fa1355973c0c543da51d7",
+          "size": 835
+        },
+        "src": {
+          "date": "Thu, 17 May 2018 06:43:36 GMT",
+          "sha256": "7db9a1fa336326ef9057eba1931a40e0e7f41163cb090967c1f713e97f2a4a29",
+          "size": 14934,
+          "url": "https://luarocks.org/kong-plugin-prometheus-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.prometheus.api",
+        "kong.plugins.prometheus.handler",
+        "kong.plugins.prometheus.logger",
+        "kong.plugins.prometheus.prometheus",
+        "kong.plugins.prometheus.schema"
+      ],
+      "origin": {
+        "commit": "d7320795ad04d0d3572c9270d805f13536038f27",
+        "ref": "v0.1.1",
+        "type": "git",
+        "url": "https://github.com/yciabaud/kong-plugin-prometheus"
+      },
+      "size": 28295,
+      "summary": "Exposes metrics for prometheus on the admin endpoint of Kong.",
+      "undeclared_requires": [
+        "kong.api.crud_helpers",
+        "kong.plugins.base_plugin",
+        "kong.plugins.log-serializers.basic",
+        "kong.singletons"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

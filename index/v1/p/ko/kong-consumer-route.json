@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "kong-consumer-route",
+  "versions": {
+    "1.0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/consumer-route/api.lua": {
+          "sha256": "1b13e0b194cd3bb654ee9ff5d4029aa36efcdcada4156a0cebc1bed2fb596a6a",
+          "size": 5019,
+          "url": "https://raw.githubusercontent.com/videni/kong-consumer-route/93c22090eee624a3208113339a8dd42e2cb819b0/src/api.lua"
+        },
+        "kong/plugins/consumer-route/daos.lua": {
+          "sha256": "f5523fe53256e3ff22ed7e49f830a0d79812d9d53ae7cb49012d9777e04e3803",
+          "size": 226,
+          "url": "https://raw.githubusercontent.com/videni/kong-consumer-route/93c22090eee624a3208113339a8dd42e2cb819b0/src/daos.lua"
+        },
+        "kong/plugins/consumer-route/handler.lua": {
+          "sha256": "ccbd96939af84c4e21c9c98b3c00d0c46b1b47b95fb16e742d4b58da0a3968dc",
+          "size": 2072,
+          "url": "https://raw.githubusercontent.com/videni/kong-consumer-route/93c22090eee624a3208113339a8dd42e2cb819b0/src/handler.lua"
+        },
+        "kong/plugins/consumer-route/migrations/postgres.lua": {
+          "sha256": "9f7e00825fe45c81b34101e3a531994820c08821b7500312615050312fdc791e",
+          "size": 489,
+          "url": "https://raw.githubusercontent.com/videni/kong-consumer-route/93c22090eee624a3208113339a8dd42e2cb819b0/src/postgres.lua"
+        },
+        "kong/plugins/consumer-route/schema.lua": {
+          "sha256": "74ea68ed052cec65dea94525c16f962a1f1228ea622761a953f4d446124bf888",
+          "size": 142,
+          "url": "https://raw.githubusercontent.com/videni/kong-consumer-route/93c22090eee624a3208113339a8dd42e2cb819b0/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/videni/kong-consumer-route",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 26 Jun 2018 07:30:06 GMT",
+        "rockspec": {
+          "date": "Tue, 26 Jun 2018 07:30:06 GMT",
+          "sha256": "b4a7b1042832225032ff9c77e283c8f8809b24901989ca067f313050ad605bc5",
+          "size": 703
+        },
+        "src": {
+          "date": "Tue, 26 Jun 2018 07:30:08 GMT",
+          "sha256": "48623eccbd3705653ef0886522ef90d56f715f7be1a7c3e78254fec4d4f3e68c",
+          "size": 5557,
+          "url": "https://luarocks.org/kong-consumer-route-1.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.consumer-route.api",
+        "kong.plugins.consumer-route.daos",
+        "kong.plugins.consumer-route.handler",
+        "kong.plugins.consumer-route.migrations.postgres",
+        "kong.plugins.consumer-route.schema"
+      ],
+      "origin": {
+        "commit": "93c22090eee624a3208113339a8dd42e2cb819b0",
+        "ref": "1.0.1",
+        "type": "git",
+        "url": "https://github.com/videni/kong-consumer-route"
+      },
+      "size": 7948,
+      "summary": "A plugin for Kong to associate consumer and route",
+      "undeclared_requires": [
+        "kong.api.crud_helpers",
+        "kong.dao.errors",
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses",
+        "lapis.application",
+        "lapis.validate"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.api.crud_helpers",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 5
+      }
+    }
+  }
+}

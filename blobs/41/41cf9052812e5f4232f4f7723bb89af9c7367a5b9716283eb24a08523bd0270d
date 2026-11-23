@@ -1,0 +1,65 @@
+local commands = {}
+
+commands.__index = commands
+
+-- make a new instance of commands manager
+---@return table
+function commands.newInstance()
+	local self = setmetatable({}, commands)
+	self.cmd = {}
+
+	return self
+end
+
+-- read a line of an message and try executing a command if exists.
+-- the bot's prefix must be trimmed before passing it to fullmsg
+---@pwram bot Bot
+---@param channel string
+---@param user User
+---@param fullmsg string
+---@return boolean ok
+---@return string? error
+function commands:readMessage(bot, channel, user, fullmsg)
+	local sepI = string.find(fullmsg, " ")
+
+	if not sepI then
+		sepI = 1 + #fullmsg
+	end
+
+	local cmd = string.sub(fullmsg, 2, sepI - 1)
+	local args = string.sub(fullmsg, sepI + 1)
+
+	local cmdF = self.cmd[cmd]
+
+	if not cmdF then
+		return false, "cmdinvalid: invalid command"
+	end
+
+	return pcall(function()
+		cmdF(bot, channel, user, args)
+	end)
+end
+
+---@param cmd string command name
+---@param cmdF function(bot, ch, user, args)
+function commands:registerCmd(cmd, cmdF)
+	self.cmd[cmd] = cmdF
+end
+
+---@param cmd string command name
+function commands:unregisterCmd(cmd)
+	self.cmd[cmd] = nil
+end
+
+-- each commands will be iterated inside one function.
+-- when the listFunc function returns false, it will stop the iteration.
+---@param listFunc function(name:string, cmdfunc:function) boolean
+function commands:listCmds(listFunc)
+	for name, func in pairs(self.cmd) do
+		if not listFunc(name, func) then
+			break
+		end
+	end
+end
+
+return commands

@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-upstream-hmac",
+  "versions": {
+    "2.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-upstream-hmac/access.lua": {
+          "sha256": "59ce1299e24012a746c5484deed93abd92d239fa5f1a905ff8740f11da90879f",
+          "size": 2175,
+          "url": "https://raw.githubusercontent.com/brightwang/kong-upstream-hmac/2d1b46fab87947b8dbd2a22e99f92b94337e9a6c/src/access.lua"
+        },
+        "kong/plugins/kong-upstream-hmac/handler.lua": {
+          "sha256": "74b32f81c8936567eea8e7587a628fd1d41662491eb4f0ea03a1e82ee360f726",
+          "size": 236,
+          "url": "https://raw.githubusercontent.com/brightwang/kong-upstream-hmac/2d1b46fab87947b8dbd2a22e99f92b94337e9a6c/src/handler.lua"
+        },
+        "kong/plugins/kong-upstream-hmac/schema.lua": {
+          "sha256": "4300c4de1fbfc5669463a17c7aa592b1ec49f0d87e33737d67225807fa140c60",
+          "size": 461,
+          "url": "https://raw.githubusercontent.com/brightwang/kong-upstream-hmac/2d1b46fab87947b8dbd2a22e99f92b94337e9a6c/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/brightwang/kong-upstream-hmac",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 16 Feb 2023 06:25:44 GMT",
+        "rockspec": {
+          "date": "Thu, 16 Feb 2023 06:25:44 GMT",
+          "sha256": "7aba2a77235c7966a60c23ccebecf4ba14bc69c57f7ecdc2dff96673beee6618",
+          "size": 642
+        },
+        "src": {
+          "date": "Thu, 16 Feb 2023 06:25:45 GMT",
+          "sha256": "dfc687a26d774ab026fa10d976ffbb5ab2d4a400de9d6aa58dd8b60989f618d1",
+          "size": 7800,
+          "url": "https://luarocks.org/kong-upstream-hmac-2.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-upstream-hmac.access",
+        "kong.plugins.kong-upstream-hmac.handler",
+        "kong.plugins.kong-upstream-hmac.schema"
+      ],
+      "origin": {
+        "commit": "2d1b46fab87947b8dbd2a22e99f92b94337e9a6c",
+        "ref": "2.0.0-1",
+        "type": "git",
+        "url": "https://github.com/brightwang/kong-upstream-hmac.git"
+      },
+      "size": 2872,
+      "summary": "Kong Plugin for Upstream HTTP HMAC Authentication",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.openssl.hmac",
+        "resty.sha256"
+      ],
+      "vlr": {
+        "cause": "missing global: ngx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

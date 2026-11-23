@@ -1,0 +1,60 @@
+{
+  "kind": "lib",
+  "name": "xml-json",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "xml2lua >= 1.4",
+        "lua-cjson >= 2.1"
+      ],
+      "files": {
+        "kong/plugins/xml-json/handler.lua": {
+          "sha256": "a804e6834d6906c515906bf35cd9b10ebff8c24777930f7792013fc5c2a61a06",
+          "size": 3896,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-xml-json/941290e45cdb17d21ba40b83de4a121e4edc08ab/kong/plugins/xml-json/handler.lua"
+        },
+        "kong/plugins/xml-json/schema.lua": {
+          "sha256": "a071fc1822797b2b4d2cecbac1ee76de84b767de2500225891e0d0a8aaa5b74f",
+          "size": 1156,
+          "url": "https://raw.githubusercontent.com/msangameshwar/kong-plugin-xml-json/941290e45cdb17d21ba40b83de4a121e4edc08ab/kong/plugins/xml-json/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/msangameshwarkong-plugin-xml-json",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Tue, 17 Oct 2023 08:21:06 GMT",
+        "rockspec": {
+          "date": "Tue, 17 Oct 2023 08:21:06 GMT",
+          "sha256": "83e968ee0e09baf55429ee1b577066e7b250806e78c328065a31919bd487f8c9",
+          "size": 1068
+        }
+      },
+      "modules": [
+        "kong.plugins.xml-json.handler",
+        "kong.plugins.xml-json.schema"
+      ],
+      "origin": {
+        "commit": "941290e45cdb17d21ba40b83de4a121e4edc08ab",
+        "ref": "dev",
+        "type": "git",
+        "url": "https://github.com/msangameshwar/kong-plugin-xml-json.git"
+      },
+      "size": 5052,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

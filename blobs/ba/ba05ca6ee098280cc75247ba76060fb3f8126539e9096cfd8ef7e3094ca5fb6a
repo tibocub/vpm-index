@@ -1,0 +1,341 @@
+#!/usr/bin/env -S lua
+
+pcall(require, 'luarocks.loader')
+
+-- Debugger
+
+local dbgok, lldebugger = pcall(require, "lldebugger")
+if dbgok and os.getenv "LOCAL_LUA_DEBUGGER_VSCODE" == "1" then
+	lldebugger.start()
+end
+
+-- Debugger End
+
+local lrocket = require 'lrocket.api'
+local lua = require 'lrocket.lua'
+local build = require 'lrocket.build'
+local argparse = require 'argparse'
+local sfs = require 'sfs'
+local log = require 'lrocket.log'
+local utils = require 'lrocket.utils'
+
+local parser = argparse("lrocket", "A lua compiler")
+	:name 'lrc'
+	:description 'Bundles and compiles Lua programs to various formats'
+	:epilog 'See https://codeberg.com/lrocket for more info'
+	:add_complete()
+
+local function fileexists(arg)
+	if not sfs.isFile(arg) then
+		return nil, string.format('file %q not found', arg)
+	else
+		return arg
+	end
+end
+
+local paths = { }
+
+local langset = {}
+local function addpath(type)
+	---@param item string
+	return function(_, _, item)
+		langset[type] = true
+		local resultpath = {}
+
+		local i, path = 1, nil
+		while i < #item do
+			path, i = item:match("^([^;]*);?()", i)
+			resultpath[#resultpath+1] = path
+
+			if item:sub(i, i) == ';' then
+				resultpath[#resultpath+1] = ';'
+			end
+		end
+
+		paths[#paths+1] = lrocket.searchpath(type, table.concat(resultpath, ';'))
+	end
+end
+
+parser:group("Module Search Options",
+	parser:argument "entrypoint"
+		:description "Main lua file"
+		:convert(function(f)
+			local arg, err = fileexists(f)
+			if arg then return arg end
+			arg = fileexists(sfs.combine(f, "init.lua"))
+			if arg then return arg end
+			return nil, err
+		end),
+	parser:argument "extra-files"
+		:target "extra_files"
+		:description "Extra (C,object,archive,lra) files to compile with"
+		:args "*",
+	parser:option "-P" "--path"
+		:description "Lua search path"
+		:count "*"
+		:argname "<package.path>"
+		:action(addpath('lua')),
+	parser:option "-C" "--cpath"
+		:description "package.cpath module search path (for compiled shared libraries)"
+		:count "*"
+		:argname "<package.cpath>"
+		:action(addpath('shared')),
+	parser:option "-S" "--spath"
+		:description "Static pendant for package.cpath search path"
+		:argname "<archive-path>"
+		:count "*"
+		:action(addpath('static')),
+	parser:option "--xpath"
+		:description "Extended search path for non standard modules <lang>:<searchpath> (natively supported are lua,shared,static,c,teal)"
+		:count "*"
+		:convert(function (xpath)
+			local lang, searchpath = xpath:match "^([^:]*):(.*)$"
+
+			if not lang then
+				return nil, "--xpath: format <lang>:<searchpath> expected"
+			end
+
+			local ok = utils.findmodule("lrocket.lang."..lang)
+
+			if not ok then
+				return nil, "--xpath: could not find 'lrocket.lang."..lang.."'"
+			end
+
+			return lrocket.searchpath(lang, searchpath)
+		end)
+		:action(function (_, _, input)
+			paths[#paths+1] = input
+		end),
+	parser:option "-x" "--exclude"
+		:description "Exclude given module from search"
+		:argname "<module>"
+		:count "*",
+	parser:option "-m" "--module"
+		:description "Explicitly include module"
+		:argname "<module>"
+		:count "*"
+		:target "modules"
+		:action(function (args, target, value)
+			table.insert(args[target], value)
+			table.insert(args.exclude, "!"..value)
+		end),
+	parser:option "--fuzzy"
+		:description "Examine complex require statements when resolving modules"
+		:default "yes"
+		:choices { "yes", "no" },
+	parser:option "--opt"
+		:description "Include these optional modules. This argument enables optional module parsing for specified statements (using [x]pcall)"
+		:args "?"
+		:count "*"
+		:default "**" -- TODO: remove when 2.0
+		:target "optional"
+		:action(function (args, target, input)
+			---@cast input string[]
+			input[1] = input[1] or not args.no_opt and "**" or nil
+			for _, mod in ipairs(input) do
+				for glob in mod:gmatch "[^,]+" do
+					table.insert(args[target], glob)
+				end
+			end
+		end),
+	parser:flag "--no-opt"
+		:description "Excludes optional modules from search (will be deprecated in 2)"
+		:action(function (args, target)
+			args.opt = {}
+			args[target] = true
+		end),
+	parser:option "--runtime-path"
+		:description "Runtime LUA_PATH used for lua modules (supports ?? and !)",
+	parser:option "--runtime-cpath"
+		:description "Runtime LUA_CPATH used for lua modules (supports ?? and !)"
+)
+
+parser:flag "--perf"
+	:description "Show instrumentalized timings"
+
+parser:option "--perf-log"
+	:description "(dev) Log profiling stacktraces to this file (flamegraph format)"
+	:argname "<filename>"
+parser:flag "--version"
+	:description "Prints version and exits"
+	:action(function ()
+		io.write("lrc v"..lrocket.VERSION.." - lrocket compiler\n")
+		sfs.exit(log.EXITCODE.OK)
+	end)
+
+parser:option "--log-level"
+	:description "ascending: none (0), error, warn (default), info, debug"
+	:argname "<log-level>"
+	:action(function(args, target, level)
+		---@cast level string
+		lrocket.setlogging {
+			log_level = level,
+		}
+		args[target] = level
+	end)
+
+parser:flag "-v" "--verbose"
+	:description "Increase the log_level by one"
+	:count "*"
+	:target "log_level"
+	:default(2)
+	:action(function (args, target)
+		args[target] = (log.levels[args[target]] or args[target] or 2) + 1
+		lrocket.setlogging {
+			log_level = args[target]
+		}
+	end)
+
+parser:option "--warnmode" "-W"
+	:choices { 'error', 'warn' }
+	:description "Decides whether warnings should warn or throw an error"
+
+parser:flag "--no-runtime-cache"
+	:description "Forces recompilation of runtime cache"
+
+parser:flag "--windows-gui"
+	:description "Link with /SUBSYSTEM:WINDOWS (or -mwindows for MinGW)"
+
+parser:group("Output Options",
+	parser:option "-o" "--output"
+		:description "Output filename",
+	parser:option "--otype"
+		:argname("{"..table.concat(build.types, ',').."}")
+		:description("Output file format (default: autodetect from --output extension)")
+		:convert(function (value)
+			local buildok, err = pcall(require, "lrocket.build."..value)
+			return buildok and value or nil, not buildok and 'no such otype `'..value..'`\n'..err:gsub("%f[^%z\n]", "\t") or nil
+		end),
+	parser:option "--lua-version"
+		:description "Target lua version"
+		:default  "auto"
+		:choices(lua.LUA_VERSIONS),
+	parser:option "-g" "--debug"
+		:description "Add specified debugging information to the output target"
+		:args "?"
+		:choices { "all", "project", "module" },
+	parser:option "-O" "--optimize"
+		:description "Enable optimizations"
+		:args "?"
+		:choices { "space", "speed" }
+		:action(function(args, target, input)
+			args[target] = #input == 0 and 'speed' or input[1]
+		end),
+	parser:option "--target"
+		:description "Cross compilation target"
+		:default(os.getenv "CROSS" and os.getenv "CROSS":match "^(.-)%-?$"),
+	parser:option "--sysroot"
+		:description "Sysroot for finding crossbuild libraries"
+		:count "?"
+		:action(function (args, target, input)
+			args.trees = args.trees or {}
+			table.insert(args.trees, input)
+			args[target] = input
+		end),
+	parser:option "--tree"
+		:description "Add a tree in which Lua libraries and headers should be searched"
+		:count "*"
+		:target "trees",
+	parser:argument "compiler-args"
+		:description "Extra arguments to the C compiler"
+		:target "compiler_args"
+		:args "*",
+	parser:flag "-K" "--keep"
+		:description "Do not remove intermediate C code after compilation",
+	parser:flag "--copy-native-libs"
+		:description "Copies required shared C libraries to the output directory",
+	parser:option "--link-sibling-deps"
+		:description("Resolve dynamic dependencies of statically linked lua modules by scanning equally named dynamic modules")
+		:choices { "yes", "no" }
+		:default "yes",
+	parser:flag "--liblua-shared"
+		:description "Link against the dynamic variant of the Lua library (default is static)"
+		:action(function (args, target, input)
+			args.liblua = 'shared'
+		end)
+)
+
+parser:group("Shared Library Options",
+	parser:option "--modname"
+		:argname "<modname>"
+		:description "Module name of the shared library, used for luaopen_<modname>"
+		:count "?",
+	parser:option "--export"
+		:argname "<modname>"
+		:description "Export additional luaopen_<modname> (supports globs)"
+		:count "*"
+)
+
+lrocket.addargparser(parser)
+
+do
+	local nextisarg = false
+	local name
+	for _, arg in ipairs { ... } do
+		if nextisarg then
+			name = arg
+			break
+		elseif arg == '--otype' then
+			nextisarg = true
+		elseif arg:find "^--otype=" then
+			name = arg:match "^--otype=(.*)$"
+		end
+	end
+
+	if name then
+		local chain = build[name]
+
+		if chain and chain.addargparser then
+			chain.addargparser(parser)
+		end
+	end
+end
+
+parser:help_description_margin(57)
+
+local ok, args = parser:pparse { ... }
+
+if not ok then
+	log.error(args)
+	sfs.exit(log.EXITCODE.GENERAL_ERROR)
+end
+---@cast args -string
+
+if args.debug then
+	args.debug = #args.debug == 0 and 'all' or args.debug[1]
+else
+	args.debug = nil
+end
+
+do -- set default paths if not overwritten by user
+	local defpaths = { lrocket.defaultsearchpath() }
+
+	for _, path in ipairs(defpaths) do
+		if not langset[path.lang] then
+			paths[#paths+1] = path
+		end
+	end
+
+	args.modpath = paths
+end
+
+args.cconf = lrocket.compilerconf()
+for _, arg in ipairs(args.compiler_args) do
+	args.cconf:addarg('cflag', arg)
+end
+
+-- Invoke the spells of lrocket
+
+local ok, exitcode, reason, traceback = lrocket.execscript(function()
+	lrocket.setlogging(args)
+	lrocket.configuretoolchain(args)
+	lrocket.preparebuild(args)
+	lrocket.build()
+end)
+
+if not ok then
+	sfs.exit(exitcode)
+else
+	sfs.exit(exitcode)
+end
+

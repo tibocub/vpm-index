@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "tokyocabinet",
+  "versions": {
+    "1.10-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://fallabs.com/tokyocabinet/luadoc/",
+      "license": "LGPL 2.1",
+      "luarocks": {
+        "date": "Fri, 30 Dec 2016 06:12:18 GMT",
+        "rockspec": {
+          "date": "Fri, 30 Dec 2016 06:12:18 GMT",
+          "sha256": "e3f5e30f6fe261a88cf0148ba778d41c5cca98d6f0cd7b188859b9621c5a1e68",
+          "size": 1004
+        },
+        "src": {
+          "date": "Fri, 30 Dec 2016 06:12:20 GMT",
+          "sha256": "f4512ed682c8272d8cba0446d9d39f2f2ac58255a64f74d7cc6b1d40a9d173f6",
+          "size": 111558,
+          "url": "https://luarocks.org/tokyocabinet-1.10-1.src.rock"
+        }
+      },
+      "modules": [
+        "tokyocabinet"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "TOKYOCABINET"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "TOKYOCABINET": {
+              "header": "tcutil.h",
+              "library": "tokyocabinet"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(TOKYOCABINET_INCDIR)"
+              ],
+              "libdirs": [
+                "$(TOKYOCABINET_LIBDIR)"
+              ],
+              "libraries": [
+                "tokyocabinet",
+                "m"
+              ],
+              "name": "tokyocabinet",
+              "sources": [
+                "tokyocabinet.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "tokyocabinet-lua-1.10"
+      },
+      "origin": {
+        "date": "Fri, 30 Dec 2016 06:12:20 GMT",
+        "sha256": "f4512ed682c8272d8cba0446d9d39f2f2ac58255a64f74d7cc6b1d40a9d173f6",
+        "size": 111558,
+        "type": "luarocks",
+        "url": "https://luarocks.org/tokyocabinet-1.10-1.src.rock"
+      },
+      "summary": "Lua Binding of Tokyo Cabinet",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

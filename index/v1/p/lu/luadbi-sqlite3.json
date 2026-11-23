@@ -1,0 +1,87 @@
+{
+  "kind": "lib",
+  "name": "luadbi-sqlite3",
+  "versions": {
+    "0.7.5-1": {
+      "bin": [],
+      "deps": [
+        "luadbi = 0.7.5"
+      ],
+      "files": [],
+      "homepage": "https://github.com/mwild1/luadbi",
+      "license": "MIT/X11",
+      "lua": ">= 5.1, < 5.5",
+      "luarocks": {
+        "date": "Tue, 09 Jun 2026 18:28:23 GMT",
+        "rockspec": {
+          "date": "Tue, 09 Jun 2026 18:28:23 GMT",
+          "sha256": "99e276309369cbdda88a830faec04f80f181d19806cfc21a0025cfcbd0356c3f",
+          "size": 1112
+        },
+        "src": {
+          "date": "Tue, 09 Jun 2026 18:28:24 GMT",
+          "sha256": "a9a5ceedd4dd8b8e3556f16b868141ec540350efff61793043fb2a6ea55d19e8",
+          "size": 70597,
+          "url": "https://luarocks.org/luadbi-sqlite3-0.7.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "dbd.sqlite3"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SQLITE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SQLITE": {
+              "header": "sqlite3.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(SQLITE_INCDIR)",
+                "./"
+              ],
+              "libdirs": [
+                "$(SQLITE_LIBDIR)"
+              ],
+              "libraries": [
+                "sqlite3"
+              ],
+              "name": "dbd.sqlite3",
+              "sources": [
+                "dbd/common.c",
+                "dbd/sqlite3/main.c",
+                "dbd/sqlite3/statement.c",
+                "dbd/sqlite3/connection.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 09 Jun 2026 18:28:24 GMT",
+        "sha256": "a9a5ceedd4dd8b8e3556f16b868141ec540350efff61793043fb2a6ea55d19e8",
+        "size": 70597,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luadbi-sqlite3-0.7.5-1.src.rock"
+      },
+      "summary": "Database abstraction layer",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-arxignis",
+  "versions": {
+    "1.5-4": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-core >= 0.1.0",
+        "lua-resty-http >= 0.15.0",
+        "lua-resty-mlcache >= 2.6.0",
+        "lua-resty-jwt >= 0.2.3",
+        "lua-resty-cookie >= 0.4.1",
+        "lua-resty-http >= 0.17.2"
+      ],
+      "files": {
+        "resty/arxignis.lua": {
+          "sha256": "6538bd321020253a953b6ebc1bcfdcfc9bcd79b99cf90b616a1657166fbe9aa8",
+          "size": 18430,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis.lua"
+        },
+        "resty/arxignis/access_rules.lua": {
+          "sha256": "9c342474f6fc36be9a807651686249cdcdcac64ae1212a35e1e9907c1e946b83",
+          "size": 9139,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/access_rules.lua"
+        },
+        "resty/arxignis/captcha.lua": {
+          "sha256": "8ba681308fa34101054a63d7b53a97cc678693453f485e6366510f10b802cb4f",
+          "size": 8629,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/captcha.lua"
+        },
+        "resty/arxignis/config.lua": {
+          "sha256": "a10e9f0f70a8b2762f90616f3d4e183d65dfb769c06f734b2434aef06f1a9202",
+          "size": 4326,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/config.lua"
+        },
+        "resty/arxignis/filter.lua": {
+          "sha256": "8dde71a82f5e68dd3997b4fc6a65c105d204d85c67618752529d327698ac9cdf",
+          "size": 13404,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/filter.lua"
+        },
+        "resty/arxignis/ipinsubnet.lua": {
+          "sha256": "c430c37292aedb21cc7dcf85d2ed79310c0f4cee561d8214a51498961be8e918",
+          "size": 20959,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/ipinsubnet.lua"
+        },
+        "resty/arxignis/log.lua": {
+          "sha256": "75ef12a6bef8b840cbed20234f2652e147ddc6584de8b49fdd7e64c1a1533731",
+          "size": 2907,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/log.lua"
+        },
+        "resty/arxignis/logger.lua": {
+          "sha256": "4341f4d4880b7729e3a7f508ac4a4789f57db81bdfe469bc0bf5c162ca276758",
+          "size": 3884,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/logger.lua"
+        },
+        "resty/arxignis/metrics.lua": {
+          "sha256": "c443e91dee280052981add7a46f98e2dcf41f3b95fc24f4033f0c6712dd2a3e7",
+          "size": 1016,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/metrics.lua"
+        },
+        "resty/arxignis/template.lua": {
+          "sha256": "2c68837feeb39300d5d340ab9bdbb2dd5de36b2f3c204be54ba7e9f6c8410040",
+          "size": 299,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/template.lua"
+        },
+        "resty/arxignis/threat.lua": {
+          "sha256": "8ed3043252cb5987f6d646408a1e6d527cdca1749540e3f18cc90dee6ae67c34",
+          "size": 5818,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/threat.lua"
+        },
+        "resty/arxignis/utils.lua": {
+          "sha256": "0b9ef6b8f0a901999d463fde878d8524aef5507a65d78ab91e536f669066483a",
+          "size": 11579,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/utils.lua"
+        },
+        "resty/arxignis/worker.lua": {
+          "sha256": "98c0c42531e743f4ee585a24e5ca61ba96128a94fe87c090f33c9cfc031865e5",
+          "size": 15099,
+          "url": "https://raw.githubusercontent.com/arxignis/lua-resty-arxignis/b8ea07221c2442ab66290787297e3b03d646365f/lib/resty/arxignis/worker.lua"
+        }
+      },
+      "homepage": "https://github.com/arxignis/lua-resty-arxignis",
+      "host": "openresty",
+      "license": "Apache2",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 13 Oct 2025 16:29:58 GMT",
+        "rockspec": {
+          "date": "Mon, 13 Oct 2025 16:29:58 GMT",
+          "sha256": "ea076c1b981adccddf9e4f86c8fe82f16891376612d1b881b45090b40b53dac8",
+          "size": 1752
+        },
+        "src": {
+          "date": "Mon, 13 Oct 2025 16:30:00 GMT",
+          "sha256": "f2982a45646056e82b79a8a8d5250cfd14c08c9d2607c370808bd4f09e51e358",
+          "size": 429405,
+          "url": "https://luarocks.org/lua-resty-arxignis-1.5-4.src.rock"
+        }
+      },
+      "modules": [
+        "resty.arxignis",
+        "resty.arxignis.access_rules",
+        "resty.arxignis.captcha",
+        "resty.arxignis.config",
+        "resty.arxignis.filter",
+        "resty.arxignis.ipinsubnet",
+        "resty.arxignis.log",
+        "resty.arxignis.logger",
+        "resty.arxignis.metrics",
+        "resty.arxignis.template",
+        "resty.arxignis.threat",
+        "resty.arxignis.utils",
+        "resty.arxignis.worker"
+      ],
+      "origin": {
+        "commit": "b8ea07221c2442ab66290787297e3b03d646365f",
+        "ref": "v1.5-4",
+        "type": "git",
+        "url": "https://github.com/arxignis/lua-resty-arxignis.git"
+      },
+      "size": 115489,
+      "summary": "Arxignis integration for OpenResty/nginx",
+      "undeclared_requires": [
+        "bit",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

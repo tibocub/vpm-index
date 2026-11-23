@@ -1,0 +1,65 @@
+-- nvim_vale_tools/lua/vale_utils.lua
+
+local M = {}
+
+--- Shorten a path by replacing the home directory with '~'.
+---@param path string The full path to shorten
+---@return string The shortened path (e.g., /home/user/.config/vale -> ~/.config/vale)
+function M.shorten_path(path)
+	local home = vim.fn.expand("~")
+	return (path:gsub("^" .. home, "~"))
+end
+
+--- Set the VALE_CONFIG_PATH environment variable to point to the .vale.ini file.
+---@param config_file_path string Full path to .vale.ini
+function M.set_vale_config_path(config_file_path)
+	-- Save the original VALE_CONFIG_PATH (if it exists)
+	M.original_vale_config_path = os.getenv("VALE_CONFIG_PATH")
+	-- Set the new path to the .vale.ini file
+	vim.env.VALE_CONFIG_PATH = config_file_path
+end
+
+--- Restore the original VALE_CONFIG_PATH environment variable.
+function M.restore_env_var()
+	if M.original_vale_config_path then
+		vim.env.VALE_CONFIG_PATH = M.original_vale_config_path
+	else
+		vim.env.VALE_CONFIG_PATH = nil
+	end
+	M.original_vale_config_path = nil
+end
+
+--- Run 'vale sync' to download packages into styles/.
+---@param vale_dir string Vale directory
+---@param config_file_path string Full path to .vale.ini
+function M.sync_vale_packages(vale_dir, config_file_path)
+	-- Ensure VALE_CONFIG_PATH is set to the .vale.ini file
+	M.set_vale_config_path(config_file_path)
+
+	if vim.fn.isdirectory(vale_dir) == 0 then
+		vim.notify("Vale directory not found: " .. M.shorten_path(vale_dir), vim.log.levels.ERROR)
+		return
+	end
+
+	if vim.fn.executable("vale") == 0 then
+		vim.notify("'vale' executable not found. Install Vale first.", vim.log.levels.ERROR)
+		return
+	end
+
+	-- Run 'vale sync' in the Vale directory
+	vim.fn.jobstart("vale sync", {
+		cwd = vale_dir,
+		on_exit = function(_, exit_code)
+			if exit_code == 0 then
+				vim.notify(
+					"Vale packages synchronized to " .. M.shorten_path(vale_dir) .. "/styles/",
+					vim.log.levels.INFO
+				)
+			else
+				vim.notify("Failed to sync Vale packages (exit code: " .. exit_code .. ").", vim.log.levels.ERROR)
+			end
+		end,
+	})
+end
+
+return M

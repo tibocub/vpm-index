@@ -1,0 +1,12 @@
+local access = require("kong.plugins.request-validator.access")
+
+local RequestValidatorHandler = {
+  VERSION = "0.0.1",
+  PRIORITY = 999,
+}
+
+function RequestValidatorHandler:access(conf)
+  access.execute(conf)
+end
+
+return RequestValidatorHandler

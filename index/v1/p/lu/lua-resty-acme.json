@@ -1,0 +1,165 @@
+{
+  "kind": "lib",
+  "name": "lua-resty-acme",
+  "versions": {
+    "0.16.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-resty-http >= 0.16.0",
+        "lua-resty-openssl >= 0.7.0"
+      ],
+      "files": {
+        "resty/acme/autossl.lua": {
+          "sha256": "b853c06cabdb2784f4527e3af712b7a37624527f041193f269d34eda249e17e5",
+          "size": 22654,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/autossl.lua"
+        },
+        "resty/acme/challenge/dns-01.lua": {
+          "sha256": "0a0f7f4d3ae2b10feb2a1d67fb3c63cac0b801fa858628d5f029dcc85152c9aa",
+          "size": 5424,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/challenge/dns-01.lua"
+        },
+        "resty/acme/challenge/http-01.lua": {
+          "sha256": "b3b87cad16cb4052305e92f00003961d9d89b7db9597edf4033a9af2f4925ed1",
+          "size": 1522,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/challenge/http-01.lua"
+        },
+        "resty/acme/challenge/tls-alpn-01.lua": {
+          "sha256": "6b1ee063ed33609722a440d8dc734e30730233585f47cabc7973bb0be460afa6",
+          "size": 3925,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/challenge/tls-alpn-01.lua"
+        },
+        "resty/acme/client.lua": {
+          "sha256": "6f6e3fb2979a372e3b220c764086dbf2c4b4fe244cfc72c5f4113265fbb02ed1",
+          "size": 19906,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/client.lua"
+        },
+        "resty/acme/dns_provider/cloudflare.lua": {
+          "sha256": "2e38e5afd9fbbd61ee4915863b660489659d88f39ca2ff6df647348afabd8510",
+          "size": 4455,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/dns_provider/cloudflare.lua"
+        },
+        "resty/acme/dns_provider/dynv6.lua": {
+          "sha256": "51f9822b7bcef7f75394d1c711fcd901489b210f16f73e287df825ec9f50c08c",
+          "size": 3868,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/dns_provider/dynv6.lua"
+        },
+        "resty/acme/eab/zerossl-com.lua": {
+          "sha256": "614b411647ede37403f8a762982f7e041b8bca5b0a5ce69b6e19917aaf2b89fd",
+          "size": 856,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/eab/zerossl-com.lua"
+        },
+        "resty/acme/openssl.lua": {
+          "sha256": "6c6a32f40c647fbe385d1865a379413a37510fd064e39f703304c2b444c48e78",
+          "size": 1454,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/openssl.lua"
+        },
+        "resty/acme/storage/consul.lua": {
+          "sha256": "2f3030a4fe3d3f6c835e73158f702c5ba42204d1a1b30d82ae350faa7aefe773",
+          "size": 3706,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/storage/consul.lua"
+        },
+        "resty/acme/storage/etcd.lua": {
+          "sha256": "aac8d7aef58a9bc1b3caf323ac5343fbca21a5ca7a01cab9cf2b2bc18f48b863",
+          "size": 2864,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/storage/etcd.lua"
+        },
+        "resty/acme/storage/file.lua": {
+          "sha256": "cdd4db50a4c29d5303659a743bed583316a43f0d2a48c15d60fb611a49322204",
+          "size": 2767,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/storage/file.lua"
+        },
+        "resty/acme/storage/redis.lua": {
+          "sha256": "21fae178934ec3f3f269162aed8d5bb7ea2840633653d4107a573101cb8c9f60",
+          "size": 3634,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/storage/redis.lua"
+        },
+        "resty/acme/storage/shm.lua": {
+          "sha256": "119457842b7502b98a31d6a96dc459ca0fd30a3a7e097b3afd6929877923cfbb",
+          "size": 993,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/storage/shm.lua"
+        },
+        "resty/acme/storage/vault.lua": {
+          "sha256": "512539302b06c7d716f5e8d300430f022757f0c675dbe3a35e99aebe3383cfa3",
+          "size": 6494,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/storage/vault.lua"
+        },
+        "resty/acme/util.lua": {
+          "sha256": "4dc64e1553661baf7de5d29ab9ac9b1f71acb6be79001733bc2f88640d716658",
+          "size": 4802,
+          "url": "https://raw.githubusercontent.com/fffonion/lua-resty-acme/9da2e30397b49931059792cd927cbfd9b0509c87/lib/resty/acme/util.lua"
+        }
+      },
+      "homepage": "https://github.com/fffonion/lua-resty-acme",
+      "host": "openresty",
+      "license": "BSD",
+      "luarocks": {
+        "date": "Mon, 01 Sep 2025 14:14:37 GMT",
+        "rockspec": {
+          "date": "Mon, 01 Sep 2025 14:14:37 GMT",
+          "sha256": "5c12db16723a2ecd4592c98cdfc0a78169cebfe36334fa06b3a03b9575f8602c",
+          "size": 1997
+        },
+        "src": {
+          "date": "Mon, 01 Sep 2025 14:14:37 GMT",
+          "sha256": "cc48590756a043d56d4e1d394dd13e9584e0e11add1232d42fcd44e5d92d0833",
+          "size": 74590,
+          "url": "https://luarocks.org/lua-resty-acme-0.16.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "resty.acme.autossl",
+        "resty.acme.challenge.dns-01",
+        "resty.acme.challenge.http-01",
+        "resty.acme.challenge.tls-alpn-01",
+        "resty.acme.client",
+        "resty.acme.dns_provider.cloudflare",
+        "resty.acme.dns_provider.dynv6",
+        "resty.acme.eab.zerossl-com",
+        "resty.acme.openssl",
+        "resty.acme.storage.consul",
+        "resty.acme.storage.etcd",
+        "resty.acme.storage.file",
+        "resty.acme.storage.redis",
+        "resty.acme.storage.shm",
+        "resty.acme.storage.vault",
+        "resty.acme.util"
+      ],
+      "origin": {
+        "commit": "9da2e30397b49931059792cd927cbfd9b0509c87",
+        "ref": "0.16.0",
+        "type": "git",
+        "url": "https://github.com/fffonion/lua-resty-acme.git"
+      },
+      "size": 89324,
+      "summary": "Automatic Let's Encrypt certificate serving and Lua implementation of ACME procotol",
+      "undeclared_requires": [
+        "ngx.base64",
+        "ngx.errlog",
+        "ngx.ssl",
+        "openssl.bignum",
+        "openssl.digest",
+        "openssl.hmac",
+        "openssl.pkey",
+        "openssl.x509",
+        "openssl.x509.altname",
+        "openssl.x509.csr",
+        "openssl.x509.name",
+        "resty.acme.challenge.",
+        "resty.dns.resolver",
+        "resty.etcd",
+        "resty.lrucache",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.lrucache)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 16
+      }
+    }
+  }
+}

@@ -1,0 +1,261 @@
+local _module_0 = { }
+local string = require('string')
+local path = require('path')
+local fs = require('path.fs')
+local xtype = require('elan.xtype')
+local xstring = require('elan.xstring')
+local load_file_constrained
+do
+	local _obj_0 = require('elan.init.utils')
+	load_file_constrained = _obj_0.load_file_constrained
+end
+local parse_segment
+parse_segment = function(segment)
+	local open, named, close = string.match(segment, '^(%[+)(%w+)(%]+)$')
+	if open and #open == #close and #open >= 1 and #open <= 2 then
+		if #open == 1 then
+			return '([^/]+)', named, false
+		end
+		return '(.+)', named, true
+	else
+		return xstring.escapepat(segment)
+	end
+end
+local method_stems = {
+	'get',
+	'head',
+	'post',
+	'put',
+	'patch',
+	'delete',
+	'options',
+	'trace',
+	'connect'
+}
+local _anon_func_0 = function(current)
+	if current ~= nil then
+		return current.catchall
+	end
+	return nil
+end
+local _anon_func_1 = function(parent)
+	if parent ~= nil then
+		return parent.has_variable_child
+	end
+	return nil
+end
+local _anon_func_2 = function(current)
+	if current ~= nil then
+		local _obj_0 = current.handlers
+		if _obj_0 ~= nil then
+			return _obj_0['any']
+		end
+		return nil
+	end
+	return nil
+end
+local _anon_func_3 = function(current)
+	local _exp_0 = current.handlers
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return { }
+	end
+end
+local _anon_func_4 = function(method_stems, stem)
+	for _index_0 = 1, #method_stems do
+		if method_stems[_index_0] == stem then
+			return true
+		end
+	end
+	return false
+end
+local _anon_func_5 = function(method_stems, stem)
+	for _index_0 = 1, #method_stems do
+		if method_stems[_index_0] == stem then
+			return true
+		end
+	end
+	return false
+end
+local build
+build = function(elandir, cfg, tpl_inst)
+	local rootdir = path(elandir, 'routes')
+	local stack, root, current, errs = { }, nil, nil, { }
+	for abspath, typ in fs.scandir(rootdir) do
+		local _continue_0 = false
+		repeat
+			local relpath = path.rel(abspath, rootdir)
+			local segment = path.name(relpath)
+			if 'in' == typ then
+				if _anon_func_0(current) then
+					errs[#errs + 1] = "invalid sub-path under a catch-all route in /" .. tostring(relpath)
+				end
+				local parent = current
+				local pattern, pattern_var, catchall = parse_segment(segment)
+				if pattern_var then
+					if _anon_func_1(parent) then
+						errs[#errs + 1] = "conflicting variable routes in /" .. tostring(parent.relpath)
+					end
+					if parent then
+						parent.has_variable_child = true
+					end
+				end
+				current = {
+					segment = segment,
+					pattern = pattern,
+					pattern_var = pattern_var,
+					catchall = catchall,
+					relpath = relpath,
+					plain = not pattern_var,
+					children = { }
+				}
+				if not root then
+					root = current
+				end
+				if parent then
+					local _obj_0 = parent.children
+					_obj_0[#_obj_0 + 1] = current
+				end
+				stack[#stack + 1] = current
+				_continue_0 = true
+				break
+			elseif 'out' == typ then
+				if _anon_func_2(current) then
+					local invalid_handlers
+					do
+						local _accum_0 = { }
+						local _len_0 = 1
+						for k in pairs(current.handlers) do
+							if k ~= 'any' then
+								_accum_0[_len_0] = k
+								_len_0 = _len_0 + 1
+							end
+						end
+						invalid_handlers = _accum_0
+					end
+					if #invalid_handlers > 0 then
+						table.sort(invalid_handlers)
+						errs[#errs + 1] = "invalid handlers conflicting with the 'any' handler in /" .. tostring(relpath) .. ": " .. tostring(table.concat(invalid_handlers, ', '))
+					end
+				end
+				if current.templates then
+					local handlers
+					do
+						local _tbl_0 = { }
+						for k in pairs(_anon_func_3(current)) do
+							_tbl_0[k] = true
+						end
+						handlers = _tbl_0
+					end
+					if not handlers['any'] then
+						local orphan_tpls
+						do
+							local _accum_0 = { }
+							local _len_0 = 1
+							for k in pairs(current.templates) do
+								if not handlers[k] then
+									_accum_0[_len_0] = k
+									_len_0 = _len_0 + 1
+								end
+							end
+							orphan_tpls = _accum_0
+						end
+						if #orphan_tpls > 0 then
+							table.sort(orphan_tpls)
+							errs[#errs + 1] = "invalid templates without corresponding handlers in /" .. tostring(relpath) .. ": " .. tostring(table.concat(orphan_tpls, ', '))
+						end
+					end
+				end
+				table.remove(stack)
+				current = stack[#stack]
+				_continue_0 = true
+				break
+			end
+			local stem, ext = path.stem(segment), path.suffix(segment)
+			if cfg.lang.ext == ext then
+				if stem == 'mw' then
+					local mw, ix = load_file_constrained(abspath, cfg.lang, xtype.iscallable, xtype.istable)
+					if mw then
+						if current.mws == nil then
+							current.mws = { }
+						end
+						if ix == 1 then
+							local _obj_0 = current.mws
+							_obj_0[#_obj_0 + 1] = mw
+						else
+							local _tab_0 = { }
+							local _obj_0 = current.mws
+							local _idx_0 = #_tab_0 + 1
+							for _index_0 = 1, #_obj_0 do
+								local _value_0 = _obj_0[_index_0]
+								_tab_0[_idx_0] = _value_0
+								_idx_0 = _idx_0 + 1
+							end
+							local _idx_1 = #_tab_0 + 1
+							for _index_0 = 1, #mw do
+								local _value_0 = mw[_index_0]
+								_tab_0[_idx_1] = _value_0
+								_idx_1 = _idx_1 + 1
+							end
+							current.mws = _tab_0
+						end
+					else
+						errs[#errs + 1] = ix
+					end
+				else
+					if (#method_stems > 0 and _anon_func_4(method_stems, stem)) or stem == 'any' then
+						local h, err = load_file_constrained(abspath, cfg.lang, xtype.iscallable)
+						if h then
+							local hs
+							do
+								local _exp_0 = current.handlers
+								if _exp_0 ~= nil then
+									hs = _exp_0
+								else
+									hs = { }
+								end
+							end
+							hs[stem] = h
+							current.handlers = hs
+						else
+							errs[#errs + 1] = err
+						end
+					end
+				end
+			elseif '.tpl' == ext then
+				if (#method_stems > 0 and _anon_func_5(method_stems, stem)) then
+					if current.templates == nil then
+						current.templates = { }
+					end
+					local tpl, err = tpl_inst.compile_file(abspath, relpath)
+					if tpl then
+						current.templates[stem] = tpl
+					else
+						errs[#errs + 1] = "failed to compile template " .. tostring(relpath) .. ": " .. tostring(err)
+					end
+				end
+			end
+			_continue_0 = true
+		until true
+		if not _continue_0 then
+			break
+		end
+	end
+	if #errs > 0 then
+		return nil, table.concat(errs, '\n')
+	end
+	if root ~= nil then
+		return root
+	else
+		return {
+			children = { },
+			segment = '',
+			pattern = '',
+			relpath = '',
+			plain = true
+		}
+	end
+end
+_module_0["build"] = build
+return _module_0

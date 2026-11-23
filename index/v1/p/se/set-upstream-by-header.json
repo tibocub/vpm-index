@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "set-upstream-by-header",
+  "versions": {
+    "0.1.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/set-upstream-by-header/handler.lua": {
+          "sha256": "1ba0d0b7c4a39b30c5a6da478fc391c8b3271610add6e725c01ef5a4048e6fe7",
+          "size": 1247,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-set-upstream-by-header/0887b3562fb944d34f9e1e5295ff2f74a65571f6/kong/plugins/set-upstream-by-header/handler.lua"
+        },
+        "kong/plugins/set-upstream-by-header/schema.lua": {
+          "sha256": "52db060b83aa8debdc5bd5c63d9029d11020a39caf651108dce17bea46695b58",
+          "size": 934,
+          "url": "https://raw.githubusercontent.com/mykaarma/kong-set-upstream-by-header/0887b3562fb944d34f9e1e5295ff2f74a65571f6/kong/plugins/set-upstream-by-header/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/mykaarma/kong-set-upstream-by-header",
+      "host": "openresty",
+      "license": "AGPL-3",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 20 Nov 2025 10:17:09 GMT",
+        "rockspec": {
+          "date": "Thu, 20 Nov 2025 10:17:09 GMT",
+          "sha256": "9ae23cb0edbfb8dc41f264e12dd7991c69b3f53e3eed33d8480c0ccf8f299772",
+          "size": 750
+        },
+        "src": {
+          "date": "Thu, 20 Nov 2025 10:17:10 GMT",
+          "sha256": "a2c80ea59f4afb064fb42e33f71f1ef15b23f4314a248d6b179094f4311e4960",
+          "size": 18543,
+          "url": "https://luarocks.org/set-upstream-by-header-0.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.set-upstream-by-header.handler",
+        "kong.plugins.set-upstream-by-header.schema"
+      ],
+      "origin": {
+        "commit": "0887b3562fb944d34f9e1e5295ff2f74a65571f6",
+        "ref": "0.1.2",
+        "type": "git",
+        "url": "https://github.com/mykaarma/kong-set-upstream-by-header"
+      },
+      "size": 2181,
+      "summary": "set-upstream-by-header is a custom plugin made at MyKaarma to set the upstream in Kong on the basis of the headers",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

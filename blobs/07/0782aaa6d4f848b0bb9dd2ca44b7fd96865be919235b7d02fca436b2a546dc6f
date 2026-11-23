@@ -1,0 +1,121 @@
+local Collection = require("luacord.utils.Collection")
+local Channel = require("luacord.structures.Channel")
+local Role = require("luacord.structures.Role")
+local Member = require("luacord.structures.Member")
+
+local Guild = {}
+Guild.__index = Guild
+
+---Create a Guild structure from Discord payload data.
+---@param data table
+---@param client table
+---@return table
+function Guild.new(data, client)
+  assert(type(data) == "table", "Guild.new expects a table payload")
+  local self = setmetatable({}, Guild)
+  self._client = client
+  self.channels = Collection.new()
+  self.roles = Collection.new()
+  self.members = Collection.new()
+  self:_patch(data)
+  return self
+end
+
+---Patch this guild with fresh payload data.
+---@param data table
+function Guild:_patch(data)
+  self.id = data.id or self.id
+  self.name = data.name or self.name
+  self.icon = data.icon or self.icon
+  self.owner_id = data.owner_id or self.owner_id
+  self.features = data.features or self.features or {}
+  self.member_count = data.member_count or self.member_count
+  self.premium_tier = data.premium_tier or self.premium_tier
+  self.preferred_locale = data.preferred_locale or self.preferred_locale
+  self.afk_channel_id = data.afk_channel_id or self.afk_channel_id
+  self.system_channel_id = data.system_channel_id or self.system_channel_id
+
+  if data.channels then
+    for i = 1, #data.channels do
+      local ch = Channel.new(data.channels[i], self._client)
+      self.channels:set(ch.id, ch)
+    end
+  end
+
+  if data.roles then
+    for i = 1, #data.roles do
+      local rolePayload = data.roles[i]
+      rolePayload.guild_id = self.id
+      local role = Role.new(rolePayload, self._client)
+      self.roles:set(role.id, role)
+    end
+  end
+
+  if data.members then
+    for i = 1, #data.members do
+      local member = Member.new(data.members[i], self._client, self.id)
+      self.members:set(member:id(), member)
+    end
+  end
+end
+
+---Fetch a guild member.
+---@param userId string
+---@return table|nil, table|nil
+function Guild:fetchMember(userId)
+  local data, err = self._client.rest:getGuildMember(self.id, userId)
+  if not data then
+    return nil, err
+  end
+  local member = Member.new(data, self._client, self.id)
+  self.members:set(member:id(), member)
+  return member
+end
+
+---Create a guild channel.
+---@param payload table
+---@param reason? string
+---@return table|nil, table|nil
+function Guild:createChannel(payload, reason)
+  local data, err = self._client.rest:post("/guilds/" .. tostring(self.id) .. "/channels", payload, nil, reason)
+  if not data then
+    return nil, err
+  end
+  local channel = Channel.new(data, self._client)
+  self.channels:set(channel.id, channel)
+  return channel
+end
+
+---Create a guild role.
+---@param payload table
+---@param reason? string
+---@return table|nil, table|nil
+function Guild:createRole(payload, reason)
+  local data, err = self._client.rest:post("/guilds/" .. tostring(self.id) .. "/roles", payload, nil, reason)
+  if not data then
+    return nil, err
+  end
+  local role = Role.new(data, self._client)
+  self.roles:set(role.id, role)
+  return role
+end
+
+---Ban a user from this guild.
+---@param userId string
+---@param deleteMessageSeconds? integer
+---@param reason? string
+---@return boolean, table|nil
+function Guild:ban(userId, deleteMessageSeconds, reason)
+  local payload = {}
+  if deleteMessageSeconds then
+    payload.delete_message_seconds = deleteMessageSeconds
+  end
+  local data, err = self._client.rest:createGuildBan(self.id, userId, payload, reason)
+  if not data and err then
+    return false, err
+  end
+  return true
+end
+
+return Guild
+

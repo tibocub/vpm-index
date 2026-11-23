@@ -1,0 +1,268 @@
+--- Module storage
+-- @module storage
+
+local storage = {}
+
+local s = require("say")
+local posix = require("posix")
+local stat = require("posix.sys.stat")
+local path = require("pl.path")
+local lua_hash = require("lua-hash")
+
+local bennu = require("bennu")
+local base = require("bennu.base")
+local functional = require("bennu.functional")
+local sys = require("bennu.sys")
+
+-- Constants
+local backup_prefix = "BACKUP"
+
+--- computes hash
+-- @function hash
+-- @tparam string hash algorithm: MD5, SHA1 SHA256 SHA384 SHA512
+-- tparam strint input text
+function storage.hash(algo, text)
+   return lua_hash.oneshot(algo, text)
+end
+
+-- Module functions
+function storage.chmod(thepath, permissions)
+   assert(thepath and permissions)
+   if tonumber(permissions) ~= nil then
+      stat.chmod(thepath, permissions)
+   else
+      posix.chmod(thepath, permissions)
+   end
+end
+
+function storage.is_mounted(folder)
+   assert(folder)
+   -- Returns empty string if folder is not mounted, volume mounted otherwise
+   bennu.logdebug("Check if %s is mounted", folder)
+   local is_mounted_command = ("findmnt -nfr -o source %s"):format(folder)
+   return sys.execute_OS_command_as_user(true, "string", is_mounted_command)
+end
+
+function storage.mount(volume, mount_point, type, options)
+   assert(volume and mount_point)
+   if type then
+      type = "-t " .. type
+   else
+      type = ""
+   end
+   if options then
+      options = "-o " .. options
+   else
+      options = ""
+   end
+   local mount_command = ("mount %s %s %s %s"):format(type, options, volume, mount_point)
+   return sys.execute_OS_command_as_user(false, "string", mount_command, sys.superuser)
+end
+
+function storage.umount(...)
+   local args = { ... }
+   local umount_command
+   for index = 1, #args do
+      umount_command = ("umount %s"):format(args[index])
+      sys.execute_OS_command_as_user(false, "string", ("umount %s"):format(args[index]), sys.superuser)
+   end
+end
+
+function storage.mount_LUKS(LUKS_device, folder)
+   assert(LUKS_device)
+   local mount_point
+   if folder then
+      mount_point = folder
+   else
+      mount_point = ""
+   end
+   bennu.logdebug("LUKS device is %s. Mount point is %s", LUKS_device, mount_point)
+   local device = storage.LUKS_open(LUKS_device)
+   local LUKS_path = path.join("/dev", "mapper", device)
+   bennu.logdebug("LUKS path is %s", LUKS_path)
+   return storage.mount(LUKS_path, mount_point)
+end
+
+function storage.umount_LUKS(mount_point)
+   assert(mount_point)
+   local LUKS_device = storage.is_mounted(mount_point)
+   bennu.logdebug("Mount point is %s. LUKS device is %s", mount_point, LUKS_device)
+   if LUKS_device then
+      storage.umount(LUKS_device)
+      storage.LUKS_close(LUKS_device)
+   else
+      bennu.logdebug("Mount point %s not mounted", mount_point)
+   end
+end
+
+function storage.mount_nut()
+   storage.VG_up(bennu.nut_VG)
+   storage.LV_up(bennu.nut_VG, bennu.nut_LV)
+   storage.mount_LUKS(path.join("/dev", bennu.nut_VG, bennu.nut_LV), bennu.nut_mount_point)
+end
+
+function storage.mount_aft()
+   local command = ("aft-mtp-mount %s"):format(bennu.aft_dir)
+   local status = sys.execute_OS_command_as_user(false, "string", command)
+   if status then
+      base.okmsg("AFT Mounted at " .. bennu.aft_dir)
+   end
+end
+
+--- sync a directory to its backup
+-- @function rsync
+function storage.rsync(source, destination, options, exclusions)
+   assert(source and destination)
+   bennu.logdebug(
+      "Source is: %s. Destination is: %s. options is: %s. exclusions is %s",
+      source,
+      destination,
+      options,
+      exclusions
+   )
+   if path.exists(source) and path.isdir(destination) then
+      local command_options = functional.prepend("", options)
+      local command_excludes = functional.prepend("--exclude", exclusions)
+      local rsynccommand = ("rsync -avzt %s %s %s %s"):format(command_options, command_excludes, source, destination)
+      bennu.logdebug("Command is: %s", rsynccommand)
+      return sys.execute_OS_command_as_user(false, "string", rsynccommand)
+   else
+      base.komsg(s("storage.check.paths"), source, destination)
+   end
+end
+
+function storage.sync_nut()
+   bennu.logdebug("Call sync_nut")
+   storage.mount_nut()
+   storage.rsync(
+      path.join(bennu.home_dir, bennu.myrc_mount_point, ""),
+      path.join(bennu.nut_mount_point, bennu.myrc_mount_point, ""),
+      { "--inplace", "--delete" },
+      { "lost+found", "blib", ".git" }
+   )
+   storage.umount_nut()
+end
+--
+
+function storage.backup_nut(backupfile)
+   assert(backupfile)
+   storage.mount_nut()
+   local loopdev = storage.loop_device_open(backupfile)
+   bennu.logdebug("Backup file is %s. Loop device is %s", backupfile, loopdev)
+   local LUKS_device = storage.LUKS_open(loopdev)
+   local LUKS_path = path.join("/dev", "mapper", LUKS_device)
+   local tmp_dir = sys.mktempdir()
+   bennu.logdebug("LUKS path is %s. Temp dir is %s", LUKS_path, tmp_dir)
+   storage.mount(LUKS_path, tmp_dir)
+   storage.rsync(path.join(bennu.nut_mount_point, ""), path.join(tmp_dir, ""), {}, { "lost+found" })
+   storage.umount_nut()
+   storage.umount(tmp_dir)
+   storage.LUKS_close(LUKS_device)
+   storage.loop_device_close(loopdev)
+   path.rmdir(tmp_dir)
+end
+
+--- sync a directory to its backup
+-- @function rsync_dirs
+-- @param string path to directory to be synced
+function storage.rsync_dirs(options, exclusions, source)
+   assert(type(source) == "string")
+   local directory, filename, _ = base.split(source)
+   bennu.logdebug("Source is %s. Directory is: %s. Filename is: %s", source, directory, filename)
+   return storage.rsync(
+      path.join(source, ""),
+      path.join(("%s%s%s"):format(path.join(directory, ""), backup_prefix, filename), ""),
+      options,
+      exclusions
+   )
+end
+
+storage.rsyncmytest = functional.bind(storage.rsync_dirs)
+storage.rsyncmydata = functional.bind(storage.rsync_dirs, { "--delete" }, { "lost+found" })
+storage.rsyncntfs = functional.bind(
+   storage.rsync_dirs,
+   { "--delete" },
+   { "$RECYCLE.BIN", "found.000", "System Volume Information" }
+)
+
+function storage.umount_nut()
+   storage.umount_LUKS(bennu.nut_mount_point)
+   storage.LV_down(bennu.nut_VG, bennu.nut_LV)
+   storage.VG_down(bennu.nut_VG)
+end
+
+function storage.umount_aft()
+   storage.umount(bennu.aft_dir)
+end
+
+function storage.VG_ls()
+   local command = "sudo vgs --no-headings | cut -d\\  -f 3"
+   return sys.execute_OS_command_as_user(false, "string", command, sys.superuser)
+end
+
+function storage.VG_change(vg, activate)
+   assert(vg and activate ~= nil)
+   local action = functional.yon(activate)
+   local vgchange_command = ("vgchange -a%s %s"):format(action, vg)
+   return sys.execute_OS_command_as_user(false, "string", vgchange_command, sys.superuser)
+end
+
+function storage.VG_up(vg)
+   assert(vg)
+   return storage.VG_change(vg, true)
+end
+
+function storage.VG_down(vg)
+   assert(vg)
+   return storage.VG_change(vg, false)
+end
+
+function storage.LV_change(vg, lv, activate)
+   assert(vg and lv and activate ~= nil)
+   local action = functional.yon(activate)
+   local target = path.join("/dev", vg, lv)
+   local lvchange_command = ("lvchange -a%s %s"):format(action, target)
+   return sys.execute_OS_command_as_user(false, "string", lvchange_command, sys.superuser)
+end
+
+function storage.LV_up(vg, lv)
+   assert(vg and lv)
+   return storage.LV_change(vg, lv, true)
+end
+
+function storage.LV_down(vg, lv)
+   assert(vg and lv)
+   return storage.LV_change(vg, lv, false)
+end
+
+function storage.LUKS_open(device)
+   local tmppath = sys.tmpname()
+   local _, luks_device = base.split(tmppath)
+   os.remove(tmppath)
+   local luks_open_command = ("cryptsetup luksOpen %s %s"):format(device, luks_device)
+   sys.execute_OS_command_as_user(false, "string", luks_open_command, sys.superuser)
+   bennu.logdebug("LUKS devices is %s", luks_device)
+   return luks_device
+end
+
+function storage.LUKS_close(luks_device)
+   local luks_close_command = ("cryptsetup luksClose %s"):format(luks_device)
+   return sys.execute_OS_command_as_user(false, "string", luks_close_command, sys.superuser)
+end
+
+function storage.loop_device_open(filename)
+   assert(filename)
+   local losetup_find_command = ("losetup -f %s"):format(filename)
+   sys.execute_OS_command_as_user(false, "string", losetup_find_command, sys.superuser)
+   local loop_device_command = ("losetup -j %s | cut -d: -f 1"):format(filename)
+   local loop_device = sys.execute_OS_command_as_user(false, "string", loop_device_command, sys.superuser)
+   bennu.logdebug("Loop device configured: %s", loop_device)
+   return loop_device
+end
+
+function storage.loop_device_close(loopdevice)
+   local losetup_delete_command = ("losetup -d %s"):format(loopdevice)
+   sys.execute_OS_command_as_user(false, "string", losetup_delete_command, sys.superuser)
+end
+
+return storage

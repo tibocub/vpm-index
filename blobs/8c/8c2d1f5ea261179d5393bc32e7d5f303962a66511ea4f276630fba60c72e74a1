@@ -1,0 +1,208 @@
+-- Single place where NETACEA_* environment variables are read. HAProxy
+-- loads each Lua file once at startup, so callers build their config table
+-- once (via load()) at module load time and thread it down explicitly to
+-- whatever needs it, instead of every module reaching for os.getenv itself
+-- on every request.
+
+local constants = require 'netacea_constants'
+local util = require 'netacea_util'
+
+local function to_bool(value)
+    return value == "1" or value == "true"
+end
+
+local function env(name, default, cast)
+    local value = os.getenv(name)
+    if value == nil or value == "" then
+        return default
+    end
+    if not cast then
+        return value
+    end
+    local casted = cast(value)
+    if casted == nil then
+        return default
+    end
+    return casted
+end
+
+local function positive_number(name, value)
+    assert(type(value) == "number" and value > 0 and value == math.floor(value),
+        name .. " must be a positive integer")
+    return value
+end
+
+-- Unlike env(name, default, tonumber), a non-numeric value passes through as
+-- nil instead of silently falling back to `default`, so positive_number can
+-- catch it as a config error.
+local function env_number(name, default)
+    local raw = env(name)
+    if raw == nil then
+        return default
+    end
+    return tonumber(raw)
+end
+
+local function base_url(url)
+    if url == nil then
+        return nil
+    end
+    local scheme, host, _, err = util.parse_url_authority(url)
+    assert(scheme and host, err)
+    return scheme .. "://" .. host .. "/"
+end
+
+local BYPASS_KINESIS_CONFIG = {
+    debug = false,
+    enabled = false,
+    batch_size = 20,
+    batch_timeout = 5,
+    queue_size = 5000,
+    dead_letter_queue_size = 1000,
+    max_retries = 5,
+    region = "eu-west-1",
+}
+
+local netacea_config = {}
+
+local FAIL_OPEN_MESSAGE = {
+    protection = "netacea lua module: failing open on protection (config error), ingest-only if configured",
+    protector_api_url = "netacea lua module: ignoring invalid NETACEA_PROTECTOR_API_URL, failing open on protection",
+    protector_api_timeout_ms =
+        "netacea lua module: ignoring invalid NETACEA_PROTECTOR_API_TIMEOUT_MS, " ..
+        "failing open on protection (config error)",
+    kinesis = "netacea lua module: disabling kinesis ingest and failing open on protection " ..
+        "(config error) - without ingest there'd be no visibility into any mitigation applied",
+}
+
+local function log_parse_failure(section, err)
+    if core and core.register_init then
+        core.register_init(function()
+            if core.Alert then
+                core.Alert("netacea lua module failed to parse config (" .. section .. "): " .. tostring(err))
+            end
+            if core.Info then
+                core.Info(FAIL_OPEN_MESSAGE[section])
+            end
+        end)
+    end
+end
+
+local function build_protection_config()
+    local config_error = false
+
+    local url_ok, protector_api_url = pcall(base_url, env("NETACEA_PROTECTOR_API_URL"))
+    if not url_ok then
+        log_parse_failure("protector_api_url", protector_api_url)
+        protector_api_url = nil
+        config_error = true
+    end
+
+    local timeout_ok, protector_api_timeout_ms = pcall(
+        positive_number, "NETACEA_PROTECTOR_API_TIMEOUT_MS", env_number("NETACEA_PROTECTOR_API_TIMEOUT_MS", 1000))
+    if not timeout_ok then
+        log_parse_failure("protector_api_timeout_ms", protector_api_timeout_ms)
+        protector_api_timeout_ms = 1000
+        config_error = true
+    end
+
+    return {
+        cookie_name = env("NETACEA_COOKIE_NAME", "netacea_session"),
+        cookie_encryption_key = env("NETACEA_COOKIE_ENCRYPTION_KEY"),
+        customer_session_id_header_name = env("NETACEA_CUSTOMER_SESSION_ID_HEADER_NAME"),
+        real_ip_header = env("NETACEA_REAL_IP_HEADER"),
+        real_ip_header_index = env("NETACEA_REAL_IP_HEADER_INDEX", nil, tonumber),
+        api_key = env("NETACEA_API_KEY"),
+        protector_api_url = protector_api_url,
+        protector_api_timeout_ms = protector_api_timeout_ms,
+    }, config_error
+end
+
+local function build_kinesis_config()
+    -- Kinesis ingest defaults to enabled once its credentials are configured,
+    -- so it doesn't need a separate opt-in once the stream/keys are set up.
+    local kinesis_configured = env("NETACEA_KINESIS_STREAM_NAME") ~= nil
+        and env("NETACEA_KINESIS_ACCESS_KEY") ~= nil
+        and env("NETACEA_KINESIS_SECRET_KEY") ~= nil
+
+    return {
+        debug = env("NETACEA_KINESIS_DEBUG", false, to_bool),
+        enabled = env("NETACEA_INGEST_ENABLED", kinesis_configured, to_bool),
+        -- Clamped to Kinesis PutRecords' 500-record limit and floored to
+        -- a whole number >= 1, so a misconfigured value can't push every
+        -- batch over the API limit or stall batching entirely. This is a
+        -- clamp, not a config error - it can never throw, so it never fails
+        -- open.
+        batch_size = math.max(1, math.min(500, math.floor(env("NETACEA_KINESIS_BATCH_SIZE", 20, tonumber)))),
+        batch_timeout = env("NETACEA_KINESIS_BATCH_TIMEOUT", 5, tonumber),
+        queue_size = positive_number(
+            "NETACEA_KINESIS_QUEUE_SIZE", env_number("NETACEA_KINESIS_QUEUE_SIZE", 5000)),
+        dead_letter_queue_size = positive_number(
+            "NETACEA_KINESIS_DEAD_LETTER_QUEUE_SIZE",
+            env_number("NETACEA_KINESIS_DEAD_LETTER_QUEUE_SIZE", 1000)),
+        max_retries = env("NETACEA_KINESIS_MAX_RETRIES", 5, tonumber),
+        stream_name = env("NETACEA_KINESIS_STREAM_NAME"),
+        region = env("NETACEA_KINESIS_REGION", "eu-west-1"),
+        access_key = env("NETACEA_KINESIS_ACCESS_KEY"),
+        secret_key = env("NETACEA_KINESIS_SECRET_KEY"),
+        endpoint = base_url(env("NETACEA_KINESIS_ENDPOINT")),
+    }
+end
+
+local loaded_config
+function netacea_config.load()
+    if loaded_config then
+        return loaded_config
+    end
+
+    -- The protection and kinesis sections are parsed independently, so a
+    -- mistake in one doesn't also take down the other.
+    local config, protection_config_error = build_protection_config()
+    local kinesis_ok, kinesis_result = pcall(build_kinesis_config)
+
+    if env("NETACEA_BYPASS", false, to_bool) then
+        config.protection_mode = constants.protectionModes.BYPASS
+    else
+        config.protection_mode = constants.protectionModes.INGEST
+    end
+    config.protection_config_error = protection_config_error
+
+    if kinesis_ok then
+        config.kinesis = kinesis_result
+        config.kinesis_config_error = false
+    else
+        log_parse_failure("kinesis", kinesis_result)
+        config.kinesis = BYPASS_KINESIS_CONFIG
+        config.kinesis_config_error = true
+    end
+
+    loaded_config = config
+    return loaded_config
+end
+
+function netacea_config.get(mode)
+    local config = netacea_config.load()
+
+    local effective_mode = config.protection_mode
+    if effective_mode ~= constants.protectionModes.BYPASS then
+        effective_mode = mode or effective_mode
+    end
+
+    if effective_mode == config.protection_mode then
+        return config
+    end
+
+    return setmetatable({ protection_mode = effective_mode }, { __index = config })
+end
+
+function netacea_config.resolve_disposition(mode, config)
+    if mode == constants.protectionModes.BYPASS then
+        return "bypass"
+    end
+    if config.protection_config_error or config.kinesis_config_error then
+        return "error_open"
+    end
+    return "normal"
+end
+
+return netacea_config

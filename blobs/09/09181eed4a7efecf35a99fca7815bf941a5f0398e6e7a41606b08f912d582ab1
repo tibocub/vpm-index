@@ -1,0 +1,22 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+
+--A literal routine node.
+local LiteralRoutine = {}
+LiteralRoutine.__index = LiteralRoutine
+setmetatable(LiteralRoutine, {__index = Terminal})
+package.loaded[...] = LiteralRoutine
+
+--Constructor.
+function LiteralRoutine.new(terminalType, ln, col, async, params, catch, body)
+  return setmetatable(Terminal.new(terminalType, {
+    line = ln,
+    col = col,
+    value = {
+      async = async,
+      params = params,
+      catch = catch,
+      body = body
+    }
+  }), LiteralRoutine)
+end

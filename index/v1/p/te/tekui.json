@@ -1,0 +1,104 @@
+{
+  "kind": "lib",
+  "name": "tekui",
+  "versions": {
+    "1.07-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://tekui.neoscientists.org/",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 01 Mar 2014 22:23:04 GMT",
+        "rockspec": {
+          "date": "Sat, 01 Mar 2014 22:23:04 GMT",
+          "sha256": "7eb86958125e55f607f1d45ec09e08e932276c0196d3e54e95ad61014ecd7e77",
+          "size": 2205
+        },
+        "src": {
+          "date": "Sat, 01 Mar 2014 22:23:06 GMT",
+          "sha256": "e27994fb01bdd728c6e4d6f206c03d8f666d1c340a4ca5157d0f1fa293bad652",
+          "size": 658065,
+          "url": "https://luarocks.org/tekui-1.07-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "platforms"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "platforms": []
+          },
+          "make": {
+            "build_target": "all",
+            "makefile": "Makefile",
+            "platforms": {
+              "macosx": {
+                "variables": {
+                  "MODCFLAGS": "-bundle -undefined dynamic_lookup -L./lib/posix"
+                }
+              },
+              "mingw32": {
+                "variables": {
+                  "CC": "gcc -DWIN32",
+                  "DISPLAY_DRIVER": "windows",
+                  "DLLEXT": ".dll",
+                  "LUA_LIBS": "\"$(LUA_LIBDIR)/$(LUALIB)\"",
+                  "PLATFORM": "winnt",
+                  "PLATFORM_LIBS": "-lmsvcrt -lkernel32 -lwinmm -luser32 -lshell32 -ladvapi32",
+                  "TEKUI_DEFS": "-DENABLE_GRADIENT"
+                }
+              },
+              "unix": {
+                "variables": {
+                  "CC": "gcc -fpic -DTSYS_POSIX",
+                  "FREETYPE_DEFS": "-I$(PREFIX)/include -I$(FREETYPE_INCDIR)/freetype2 -I/usr/X11R6/include/freetype2 -I/usr/X11/include/",
+                  "X11_LIBS": "-L/usr/X11R6/lib -lX11 -lXext -lXxf86vm"
+                }
+              }
+            },
+            "variables": {
+              "CFLAGS": "$(CFLAGS)",
+              "INSTALL_D": "\"$(MKDIR)\" -p",
+              "INSTALL_F": "\"$(CP)\" -a",
+              "INSTALL_S": "\"$(CP)\" -a",
+              "LUA_DEFS": "-I\"$(LUA_INCDIR)\"",
+              "LUA_LIB": "\"$(LIBDIR)\"",
+              "LUA_SHARE": "\"$(LUADIR)\"",
+              "MKDIR": "\"$(MKDIR)\" -p",
+              "PREFIX": "\"$(PREFIX)\"",
+              "RM": "\"$(RM)\"",
+              "RMDIR": "\"$(RM)\" -r"
+            }
+          }
+        },
+        "srcdir": "tekui-1.07"
+      },
+      "origin": {
+        "date": "Sat, 01 Mar 2014 22:23:06 GMT",
+        "sha256": "e27994fb01bdd728c6e4d6f206c03d8f666d1c340a4ca5157d0f1fa293bad652",
+        "size": 658065,
+        "type": "luarocks",
+        "url": "https://luarocks.org/tekui-1.07-1.src.rock"
+      },
+      "summary": "A small, freestanding and portable GUI",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

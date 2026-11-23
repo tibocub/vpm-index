@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "luafcgi",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/mbalmer/luafcgi",
+      "license": "3-clause BSD",
+      "lua": ">= 5.1, < 5.3",
+      "luarocks": {
+        "date": "Mon, 05 Jan 2015 16:43:24 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Jan 2015 16:43:24 GMT",
+          "sha256": "25c815b51c4d316f9f12ff447e2a6edd414fdc71c87043edb847d0d75dad08f2",
+          "size": 698
+        },
+        "src": {
+          "date": "Mon, 05 Jan 2015 16:43:24 GMT",
+          "sha256": "0c74b42c29a643604437439fbce3223f9b90b50628662678c0d6f4592b3b1362",
+          "size": 4393,
+          "url": "https://luarocks.org/luafcgi-1.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "fcgi"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "FCGI"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "FCGI": {
+              "library": "fcgi"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(FCGI_INCDIR)"
+              ],
+              "libdirs": [
+                "$(FCGI_LIBDIR)"
+              ],
+              "libraries": [
+                "fcgi"
+              ],
+              "name": "fcgi",
+              "sources": [
+                "luafcgi.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 05 Jan 2015 16:43:24 GMT",
+        "sha256": "0c74b42c29a643604437439fbce3223f9b90b50628662678c0d6f4592b3b1362",
+        "size": 4393,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luafcgi-1.1.0-1.src.rock"
+      },
+      "summary": "FastCGI Binding for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "kind": "lib",
+  "name": "near-kong-kafka-log",
+  "versions": {
+    "1.0-11": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/kong-kafka-log/basic.lua": {
+          "sha256": "cfb98da18a31748cf77b4e5ec59b86e162bc9c8c2a622c61bf33548bfecf4452",
+          "size": 3982,
+          "url": "blob:cfb98da18a31748cf77b4e5ec59b86e162bc9c8c2a622c61bf33548bfecf4452"
+        },
+        "kong/plugins/kong-kafka-log/handler.lua": {
+          "sha256": "b51de76a9cb246dd658d5d0f51350fb86baa3c46fe7f1d333a39014399e3f8fc",
+          "size": 1322,
+          "url": "blob:b51de76a9cb246dd658d5d0f51350fb86baa3c46fe7f1d333a39014399e3f8fc"
+        },
+        "kong/plugins/kong-kafka-log/producers.lua": {
+          "sha256": "62eef8522c32b81a01def762dbd9ac0120d8867038d664482bfa1d433f9c4ef5",
+          "size": 1462,
+          "url": "blob:62eef8522c32b81a01def762dbd9ac0120d8867038d664482bfa1d433f9c4ef5"
+        },
+        "kong/plugins/kong-kafka-log/schema.lua": {
+          "sha256": "d727de38c68e9133e9fecec4abbece78bebc0af2852820fec43c46ef9f8f13d9",
+          "size": 2239,
+          "url": "blob:d727de38c68e9133e9fecec4abbece78bebc0af2852820fec43c46ef9f8f13d9"
+        },
+        "kong/plugins/kong-kafka-log/types.lua": {
+          "sha256": "3434b5ae2c3bf148a42d2aacf15763d184bd6c0e43793709e1c6062615c775a9",
+          "size": 399,
+          "url": "blob:3434b5ae2c3bf148a42d2aacf15763d184bd6c0e43793709e1c6062615c775a9"
+        }
+      },
+      "homepage": "https://github.com/near/kong-kafka-log",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 12 May 2022 22:12:56 GMT",
+        "rockspec": {
+          "date": "Thu, 12 May 2022 22:12:56 GMT",
+          "sha256": "c7e63f4c65e99184b5ab47cbe7cf06bf828ff56ac5f42421b880bd5c732b3080",
+          "size": 967
+        },
+        "src": {
+          "date": "Thu, 12 May 2022 22:12:57 GMT",
+          "sha256": "9046ae0e48304b98063c405ba288930899ddee2260336ac02d2f36b8424d8fbe",
+          "size": 18904,
+          "url": "https://luarocks.org/near-kong-kafka-log-1.0-11.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-kafka-log.basic",
+        "kong.plugins.kong-kafka-log.handler",
+        "kong.plugins.kong-kafka-log.producers",
+        "kong.plugins.kong-kafka-log.schema",
+        "kong.plugins.kong-kafka-log.types"
+      ],
+      "origin": {
+        "date": "Thu, 12 May 2022 22:12:57 GMT",
+        "sha256": "9046ae0e48304b98063c405ba288930899ddee2260336ac02d2f36b8424d8fbe",
+        "size": 18904,
+        "type": "luarocks",
+        "url": "https://luarocks.org/near-kong-kafka-log-1.0-11.src.rock"
+      },
+      "size": 9404,
+      "summary": "Kong plugin designed to log API transactions to Kafka",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "pl.tablex",
+        "resty.kafka.producer",
+        "resty.sha256",
+        "resty.string"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.tablex",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 5
+      }
+    }
+  }
+}

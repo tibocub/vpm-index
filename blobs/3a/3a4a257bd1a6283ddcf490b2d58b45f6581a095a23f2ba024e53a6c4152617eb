@@ -1,0 +1,178 @@
+
+--
+-- lua-LIVR : <https://fperrad.frama.io/lua-LIVR/>
+--
+
+local assert = assert
+local error = error
+local next = next
+local pairs = pairs
+local setmetatable = setmetatable
+local tostring = tostring
+local type = type
+local unpack = table.unpack or unpack
+local _ENV = nil
+local m = {}
+local mt = {}
+
+m.default_auto_trim = false
+
+function m.new (rules, is_auto_trim)
+    local obj = {
+        rules              = rules,
+        validators         = nil,
+        validator_builders = {},
+        auto_trim          = is_auto_trim or m.default_auto_trim,
+    }
+    setmetatable(obj, { __index = mt })
+    obj:register_rules(m.default_rules)
+    return obj
+end
+
+function m.register_default_rules (rules)
+    for rule_name, rule_builder in pairs(rules) do
+        if type(rule_name) ~= 'string' then
+            error( "RULE_NAME [" .. tostring(rule_name) .. "] SHOULD BE A STRING")
+        end
+        if type(rule_builder) ~= 'function' then
+            error("RULE_BUILDER [" .. rule_name .. "] SHOULD BE A FUNCTION")
+        end
+        m.default_rules[rule_name] = rule_builder
+    end
+end
+
+local function _build_aliased_rule (alias)
+    assert(alias.name, "Alias name required")
+    assert(alias.rules, "Alias rules required")
+    return function (rule_builders)
+        local validator = m.new({ value = alias.rules }):register_rules(rule_builders):prepare()
+        return function (value)
+            local result, err = validator:validate{ value = value }
+            result = result and result.value
+            err = err and (alias.error or err.value)
+            return result, err
+        end
+    end
+end
+
+function m.register_aliased_default_rule (alias)
+    m.default_rules[alias.name] = _build_aliased_rule(alias)
+end
+
+function mt:prepare ()
+    self.validators = {}
+    for field, field_rules in pairs(self.rules) do
+        local validators = {}
+        if type(field_rules) ~= 'table' then
+            validators[#validators+1] = self:_build_validator(field_rules)
+        else
+            for k, v in pairs(field_rules) do
+                local name, args
+                if type(k) == 'number' then
+                    if type(v) == 'table' then
+                        name, args = next(v)
+                    else
+                        name = v
+                        args = {}
+                    end
+                else
+                    name = k
+                    args = v
+                end
+                if type(args) ~= 'table' or (#args == 0 and next(args)) then
+                    args = { args }
+                end
+                validators[#validators+1] = self:_build_validator(name, unpack(args))
+            end
+        end
+        self.validators[field] = validators
+    end
+    return self
+end
+
+local function _auto_trim (data)
+    if type(data) == 'string' then
+        data = data:gsub('^%s+', '')
+        data = data:gsub('%s+$', '')
+    elseif type(data) == 'table' then
+        for k, v in pairs(data) do
+            data[k] = _auto_trim(v)
+        end
+    else
+        data = tostring(data)
+    end
+    return data
+end
+
+function mt:validate (data)
+    if not self.validators then
+        self:prepare()
+    end
+    if type(data) ~= 'table' then
+        return nil, 'FORMAT_ERROR'
+    end
+    if self.auto_trim then
+        _auto_trim(data)
+    end
+    local errors = {}
+    local result = {}
+    local is_ok = true
+    for field_name, validators in pairs(self.validators) do
+        local value = data[field_name]
+        for i = 1, #validators do
+            local validator = validators[i]
+            local field_result, err_code = validator(result[field_name] or value, data)
+            if err_code then
+                errors[field_name] = err_code
+                is_ok = false
+                break
+            else
+                result[field_name] = field_result
+            end
+        end
+    end
+    if is_ok then
+        return result
+    else
+        return nil, errors
+    end
+end
+
+function mt:register_rules (rules)
+    for rule_name, rule_builder in pairs(rules) do
+        if type(rule_name) ~= 'string' then
+            error( "RULE_NAME [" .. tostring(rule_name) .. "] SHOULD BE A STRING")
+        end
+        if type(rule_builder) ~= 'function' then
+            error( "RULE_BUILDER [" .. rule_name .. "] SHOULD BE A FUNCTION")
+        end
+        self.validator_builders[rule_name] = rule_builder
+    end
+    return self
+end
+
+function mt:register_aliased_rule (alias)
+    self.validator_builders[alias.name] = _build_aliased_rule(alias)
+    return self
+end
+
+function mt:get_rules ()
+    return self.validator_builders
+end
+
+function mt:_build_validator (name, ...)
+    local fn = self.validator_builders[name]
+    if not fn then
+        error("Rule [" .. name .."] not registered")
+    end
+    return fn(self.validator_builders, ...)
+end
+
+return m
+
+--
+-- Copyright (c) 2018-2026 Francois Perrad
+--
+-- This library is licensed under the terms of the MIT/X11 license,
+-- like Lua itself.
+--

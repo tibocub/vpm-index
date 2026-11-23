@@ -1,0 +1,68 @@
+{
+  "kind": "lib",
+  "name": "setuid",
+  "versions": {
+    "1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://github.com/mikejsavage/lua-setuid",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 14 Feb 2015 14:07:35 GMT",
+        "rockspec": {
+          "date": "Sat, 14 Feb 2015 14:07:35 GMT",
+          "sha256": "73a40c31c3aa0a0d2424daf5feda0b3f9e55977cf3ada5a5baed22923ccdefcd",
+          "size": 486
+        },
+        "src": {
+          "date": "Sat, 14 Feb 2015 14:07:44 GMT",
+          "sha256": "ec57cdad2ebb74176ef9ebef433b2120a3feb8fe26ed0a0fce355f88a9db66d3",
+          "size": 3339,
+          "url": "https://luarocks.org/setuid-1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "setuid"
+      ],
+      "native": {
+        "build": "make",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "make": {
+            "build_variables": {
+              "LUA_INCDIR": "$(LUA_INCDIR)"
+            },
+            "install": {
+              "lib": {
+                "setuid": "setuid.so"
+              }
+            },
+            "install_pass": false
+          }
+        },
+        "prebuilt": true
+      },
+      "origin": {
+        "date": "Sat, 14 Feb 2015 14:07:44 GMT",
+        "sha256": "ec57cdad2ebb74176ef9ebef433b2120a3feb8fe26ed0a0fce355f88a9db66d3",
+        "size": 3339,
+        "type": "luarocks",
+        "url": "https://luarocks.org/setuid-1.0-1.src.rock"
+      },
+      "summary": "A Lua wrapper around setuid/chroot",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

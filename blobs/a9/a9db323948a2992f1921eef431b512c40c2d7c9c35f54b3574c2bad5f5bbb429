@@ -1,0 +1,59 @@
+local uv = require('luv')
+local M = {}
+function M.close(h) if h and not h:is_closing() then h:close() end end
+function M.timer(ms, fn)
+    local t = uv.new_timer()
+    t:start(ms, 0, function() M.close(t); fn() end)
+    return t
+end
+function M.resume(co)
+    if coroutine.status(co) ~= 'suspended' then return end
+    local ok, err = coroutine.resume(co)
+    if not ok then io.stderr:write('panto-mcp: ', tostring(err), '\n') end
+end
+-- Futures have many awaiters; awaiting must occur in a yieldable coroutine.
+-- A close guard optionally cancels outstanding work on host interruption.
+function M.future(cancel)
+    local f = { done = false, waiters = {} }
+    function f:resolve(value, err)
+        if self.done then return end
+        self.done, self.value, self.err = true, value, err
+        local waiters = self.waiters; self.waiters = {}
+        for co in pairs(waiters) do M.resume(co) end
+    end
+    function f:abandon(value,err)
+        if self.done then return end
+        self.done,self.value,self.err=true,value,err
+        self.waiters={}
+    end
+    function f:cancel() if not self.done and cancel then cancel() end end
+    function f:await()
+        if not self.done then
+            assert(coroutine.isyieldable(), 'MCP await requires a coroutine')
+            local co = coroutine.running()
+            local guard <close> = setmetatable({}, {__close = function()
+                self.waiters[co] = nil
+                if not self.done then self:cancel() end
+            end})
+            self.waiters[co] = true
+            while not self.done do
+                -- std.lua budgets only active instructions, not parked time.
+                local hook,mask,count=debug.gethook(co)
+                if hook then debug.sethook(co) end
+                coroutine.yield()
+                if hook then debug.sethook(co,hook,mask,count) end
+            end
+        end
+        return self.value, self.err
+    end
+    return f
+end
+function M.run(fn, on_error)
+    local co = coroutine.create(function()
+        local ok, err = xpcall(fn, debug.traceback)
+        if not ok then (on_error or function(e) io.stderr:write(tostring(e), '\n') end)(err) end
+    end)
+    M.resume(co)
+    return co
+end
+return M

@@ -1,0 +1,204 @@
+local _module_0 = nil
+local inspect = require('inspect')
+local luatz = require('luatz')
+local M = require('moses')
+local os = require('os')
+local path = require('path')
+local fs = require('path.fs')
+local string = require('string')
+local table = require('table')
+local result = require('elan.result')
+local db = require('elan.db')
+local xtype = require('elan.xtype')
+local config = require('elan.init.config')
+local modules = require('elan.init.modules')
+local load_content, load_file_constrained
+do
+	local _obj_0 = require('elan.init.utils')
+	load_content, load_file_constrained = _obj_0.load_content, _obj_0.load_file_constrained
+end
+local validate_flags
+do
+	local _obj_0 = require('elan.bin.commands.utils')
+	validate_flags = _obj_0.validate_flags
+end
+local apply_meta
+apply_meta = function(conn)
+	return conn:tx(function(conn)
+		return conn:query("CREATE TABLE IF NOT EXISTS elan_migrations (\n		plugin     TEXT NOT NULL PRIMARY KEY,\n		latest     TEXT NOT NULL,\n		updated_at TIMESTAMPTZ\n	)")
+	end)
+end
+local read_last_applied
+read_last_applied = function(conn)
+	return result.unwrap_any(result.map_ok(result.to_result(conn:query("SELECT latest FROM elan_migrations WHERE plugin = $1", ".")), function(res)
+		if #res == 0 then
+			return ""
+		end
+		return res[1].latest
+	end))
+end
+local update_last_applied
+update_last_applied = function(conn, last)
+	return conn:query("INSERT INTO elan_migrations\n		(plugin, latest, updated_at)\n	VALUES\n		($1, $2, now())\n	ON CONFLICT(plugin) DO\n		UPDATE SET\n			latest = excluded.latest,\n			updated_at = excluded.updated_at\n	", ".", last)
+end
+local _anon_func_0 = function(cfg, load_content, load_file_constrained, mig, xtype)
+	local _exp_0 = mig.ext
+	if cfg.lang.ext == _exp_0 then
+		return load_file_constrained(mig.path, cfg.lang, xtype.iscallable)
+	elseif '.sql' == _exp_0 then
+		return load_content(mig.path)
+	end
+end
+local apply_one
+apply_one = function(conn, mig, cfg)
+	return result.unwrap_any(result.map_ok(result.to_result(_anon_func_0(cfg, load_content, load_file_constrained, mig, xtype)), function(v)
+		if type(v) == 'string' then
+			return conn:tx(function(self)
+				return self:query(v)
+			end)
+		else
+			local ok, err = v(conn, cfg)
+			if ok == nil and err == nil then
+				ok = true
+			end
+			return ok, err
+		end
+	end))
+end
+local apply_migrations
+apply_migrations = function(dir)
+	local dburi = os.getenv('ELAN_DATABASE_URI')
+	if not dburi then
+		return nil, "$ELAN_DATABASE_URI environment variable is not set"
+	end
+	local cfg, err = config.build(path(dir, '..'))
+	if not cfg then
+		return nil, err
+	end
+	local ok
+	ok, err = modules.build(path(dir, '..'))
+	if not ok then
+		return nil, err
+	end
+	local migrations = { }
+	for filename, typ in fs.dir(dir) do
+		local _continue_0 = false
+		repeat
+			if not (typ == 'file') then
+				_continue_0 = true
+				break
+			end
+			local stem, ext = path.stem(filename), path.suffix(filename)
+			if not ((cfg.lang.ext == ext or '.sql' == ext)) then
+				_continue_0 = true
+				break
+			end
+			migrations[#migrations + 1] = {
+				path = filename,
+				stem = stem,
+				ext = ext
+			}
+			_continue_0 = true
+		until true
+		if not _continue_0 then
+			break
+		end
+	end
+	if #migrations == 0 then
+		return true
+	end
+	table.sort(migrations, function(a, b)
+		return a.stem < b.stem
+	end)
+	return result.unwrap_any(result.map_ok(result.map_ok(result.to_result(db(dburi)), function(newdb)
+		return newdb()
+	end), function(conn)
+		return conn:with(function(conn)
+			return result.unwrap_any(result.map_ok(result.map_ok(result.map_ok(result.to_result(apply_meta(conn)), function()
+				return read_last_applied(conn)
+			end), function(latest)
+				local last_applied = nil
+				for _index_0 = 1, #migrations do
+					local mig = migrations[_index_0]
+					local _continue_0 = false
+					repeat
+						if not (mig.stem > latest) then
+							_continue_0 = true
+							break
+						end
+						print("Applying migration " .. tostring(mig.stem) .. "...")
+						ok, err = apply_one(conn, mig, cfg)
+						if not ok then
+							return nil, err
+						end
+						last_applied = mig.stem
+						_continue_0 = true
+					until true
+					if not _continue_0 then
+						break
+					end
+				end
+				if last_applied ~= nil then
+					return last_applied
+				else
+					return true
+				end
+			end), function(last_applied)
+				if not (type(last_applied) == 'string') then
+					return last_applied
+				end
+				return update_last_applied(conn, last_applied)
+			end))
+		end)
+	end))
+end
+local _anon_func_1 = function(name)
+	if name ~= nil then
+		return name
+	else
+		return '' ~= ''
+	end
+end
+local create_migration
+create_migration = function(dir, opts)
+	local cfg, err = config.build(path(dir, '..'))
+	if not cfg then
+		return nil, err
+	end
+	local name = opts.new
+	if not (_anon_func_1(name)) then
+		return nil, "the --new NAME flag is required"
+	end
+	local ext
+	if opts.type == 'code' then
+		ext = cfg.lang.ext
+	else
+		ext = '.sql'
+	end
+	name = string.gsub(name, '%s', '_')
+	local now = luatz.now()
+	name = string.format("%04d%02d%02d%02d%02d%02d", now.year, now.month, now.day, now.hour, now.min, now.sec) .. '_' .. name .. ext
+	return fs.touch(path(dir, name))
+end
+local ALLOWED_FLAGS = {
+	'apply',
+	'new',
+	'type'
+}
+_module_0 = function(arg, opts)
+	if not validate_flags('migrate', opts, ALLOWED_FLAGS) then
+		return
+	end
+	local dir = os.getenv('ELAN_DIR')
+	if not dir then
+		return opts:opterr("$ELAN_DIR environment variable is not set")
+	end
+	dir = path(dir, 'migrations')
+	if not path.isdir(dir) then
+		return opts:opterr(tostring(dir) .. " directory does not exist")
+	end
+	return result.unwrap_any(result.handle_err(result.map_ok_if(result.to_result(dir), opts.apply, apply_migrations, M.bind2(create_migration, opts)), function(err)
+		return opts:opterr(err)
+	end))
+end
+return _module_0

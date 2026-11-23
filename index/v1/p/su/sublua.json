@@ -1,0 +1,137 @@
+{
+  "kind": "lib",
+  "name": "sublua",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [
+        "luasocket >= 3.0",
+        "lua-cjson >= 2.1",
+        "luasec >= 1.0"
+      ],
+      "files": {
+        "sublua/bytes.lua": {
+          "sha256": "685085da1ae1eff9338deadb6b534061095a5003f6c1f26b8692618874ffb5c2",
+          "size": 6302,
+          "url": "blob:685085da1ae1eff9338deadb6b534061095a5003f6c1f26b8692618874ffb5c2"
+        },
+        "sublua/call.lua": {
+          "sha256": "4b9ef47741ce2230c8a97d937f5b6212e60da8c7d8cbcb5311f5b4686d3167f5",
+          "size": 1628,
+          "url": "blob:4b9ef47741ce2230c8a97d937f5b6212e60da8c7d8cbcb5311f5b4686d3167f5"
+        },
+        "sublua/init.lua": {
+          "sha256": "ee7a3acc9c8be4fae1547ecc582e42018df72602a626464496589c4429eac4ee",
+          "size": 1545,
+          "url": "blob:ee7a3acc9c8be4fae1547ecc582e42018df72602a626464496589c4429eac4ee"
+        },
+        "sublua/keyring.lua": {
+          "sha256": "8437c24976b8b2045ffe5c17d89a15dc1ff2aff37de31f68b793d3b9d4a24679",
+          "size": 1351,
+          "url": "blob:8437c24976b8b2045ffe5c17d89a15dc1ff2aff37de31f68b793d3b9d4a24679"
+        },
+        "sublua/metadata.lua": {
+          "sha256": "6427879b112d29c3fec15d0d28c8e9ae54c3de1cfcf688014fbab43d322937fb",
+          "size": 10804,
+          "url": "blob:6427879b112d29c3fec15d0d28c8e9ae54c3de1cfcf688014fbab43d322937fb"
+        },
+        "sublua/rpc.lua": {
+          "sha256": "fe3376aa2d943182d1756b219f17c70c489c0b6490b60e4b9719c6ff4e2e6645",
+          "size": 6770,
+          "url": "blob:fe3376aa2d943182d1756b219f17c70c489c0b6490b60e4b9719c6ff4e2e6645"
+        },
+        "sublua/scale.lua": {
+          "sha256": "b4e920c6fd554e9c105097b182668a37606433001a4c52df5a5e89567720dadb",
+          "size": 7265,
+          "url": "blob:b4e920c6fd554e9c105097b182668a37606433001a4c52df5a5e89567720dadb"
+        },
+        "sublua/transaction.lua": {
+          "sha256": "e7312d0c7c3c4de8b5d782f665f14d384bb2f4543f25d41c8253342f1f8063db",
+          "size": 6465,
+          "url": "blob:e7312d0c7c3c4de8b5d782f665f14d384bb2f4543f25d41c8253342f1f8063db"
+        },
+        "sublua/xcm.lua": {
+          "sha256": "34624f9ed1dc63c6e837e9476f5d6df538a4247bf96205a4b0e2e0df12eeca07",
+          "size": 11231,
+          "url": "blob:34624f9ed1dc63c6e837e9476f5d6df538a4247bf96205a4b0e2e0df12eeca07"
+        }
+      },
+      "homepage": "https://github.com/MontaQLabs/sublua",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 17 Feb 2026 12:03:59 GMT",
+        "rockspec": {
+          "date": "Tue, 17 Feb 2026 12:03:59 GMT",
+          "sha256": "781e181c6babdaf3d991dfc3fe43dba1c345cb63943149d302ff809a8de4b67b",
+          "size": 2190
+        },
+        "src": {
+          "date": "Tue, 17 Feb 2026 12:04:01 GMT",
+          "sha256": "7bef81ea6fb6e5cf540c0096457dda7d618007d56d5d8393e627229fcd59ca7a",
+          "size": 315178,
+          "url": "https://luarocks.org/sublua-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "sublua",
+        "sublua.bytes",
+        "sublua.call",
+        "sublua.keyring",
+        "sublua.metadata",
+        "sublua.polkadot_crypto",
+        "sublua.rpc",
+        "sublua.scale",
+        "sublua.transaction",
+        "sublua.xcm"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "c_src/vendor"
+              ],
+              "name": "sublua.polkadot_crypto",
+              "sources": [
+                "c_src/polkadot_crypto.c",
+                "c_src/vendor/monocypher.c",
+                "c_src/vendor/xxhash.c",
+                "c_src/vendor/tweetnacl.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Tue, 17 Feb 2026 12:04:01 GMT",
+        "sha256": "7bef81ea6fb6e5cf540c0096457dda7d618007d56d5d8393e627229fcd59ca7a",
+        "size": 315178,
+        "type": "luarocks",
+        "url": "https://luarocks.org/sublua-1.0.0-1.src.rock"
+      },
+      "size": 53361,
+      "summary": "Lightweight Polkadot/Substrate SDK for Lua — Pure C + Pure Lua, no Rust",
+      "undeclared_requires": [
+        "ltn12",
+        "polkadot.ss58",
+        "polkadot_crypto",
+        "socket.http"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

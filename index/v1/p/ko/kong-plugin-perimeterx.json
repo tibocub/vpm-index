@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-perimeterx",
+  "versions": {
+    "4.0.5-1": {
+      "bin": [],
+      "deps": [
+        "perimeterx-nginx-plugin == 7.3.5"
+      ],
+      "files": {
+        "kong/plugins/perimeterx/handler.lua": {
+          "sha256": "cceabb4e158c0313034c69c2769765475238e0a1e959b5dcc0733f88894519a4",
+          "size": 1754,
+          "url": "https://raw.githubusercontent.com/PerimeterX/perimeterx-kong-plugin/9948300345f2e1c35989d2ac426639ca5180f98e/kong/plugins/perimeterx/handler.lua"
+        },
+        "kong/plugins/perimeterx/schema.lua": {
+          "sha256": "02c6a5061982f0a7d9a16368209176acadd810495b8ed52992805da3e6716853",
+          "size": 6145,
+          "url": "https://raw.githubusercontent.com/PerimeterX/perimeterx-kong-plugin/9948300345f2e1c35989d2ac426639ca5180f98e/kong/plugins/perimeterx/schema.lua"
+        }
+      },
+      "homepage": "http://www.perimeterx.com",
+      "host": "openresty",
+      "license": "MIT/PerimeterX",
+      "luarocks": {
+        "date": "Tue, 16 Dec 2025 14:09:53 GMT",
+        "rockspec": {
+          "date": "Tue, 16 Dec 2025 14:09:53 GMT",
+          "sha256": "781dc225c4f26377e04e3f16d853567b74869e5d77cb6465032450356e7d1d6c",
+          "size": 653
+        },
+        "src": {
+          "date": "Tue, 16 Dec 2025 14:09:55 GMT",
+          "sha256": "a08c9c0fd1885782dcf6b116aa18c2c630a7ee1a39178402667d23179f61f778",
+          "size": 44953,
+          "url": "https://luarocks.org/kong-plugin-perimeterx-4.0.5-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.perimeterx.handler",
+        "kong.plugins.perimeterx.schema"
+      ],
+      "origin": {
+        "commit": "9948300345f2e1c35989d2ac426639ca5180f98e",
+        "ref": "v4.0.5",
+        "type": "git",
+        "url": "https://github.com/PerimeterX/perimeterx-kong-plugin.git"
+      },
+      "size": 7899,
+      "summary": "PerimeterX Kong plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "px.pxconfig",
+        "px.pxnginx",
+        "px.utils.pxconstants",
+        "px.utils.pxtimer"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

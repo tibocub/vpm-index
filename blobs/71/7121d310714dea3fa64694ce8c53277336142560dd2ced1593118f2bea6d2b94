@@ -1,0 +1,142 @@
+local concat = table.concat
+
+local db = {}
+
+db.view = {
+  {'name',"Name"},
+  {'note',"Note",ht = "PAGE"},
+  {"url", "URL",ht = "WWW"},
+  {"ref", "Link",ht = "SHOW"},
+  {'file',"File",ht = "REF",rt="files"},
+  {'folder',   'Folder',ht = 'SELECT',rt = "folders"},
+  {"view","",ht = "SHOW"},
+  {"refid", ht = "REF"},
+  {"refbase"},
+  {"user","User",ht = "SELECT",rt="users",rf={{"login"}}},
+}
+
+db.list = {
+  {'docs.name', "Name",ht="SELF"},
+  {'files.name', "File",ht="REF"},
+  {"url", "URL",ht = "WWW"},
+  {'folders.name', "Folder",ht="REF"},
+  {'docs.file'},
+  {'docs.folder'},
+  {'user'},
+  join = {
+    "file.files on file.docs.file = file.files.rowid",
+    "file.folders on docs.folder = folders.rowid"
+  }
+}
+
+db.field = {
+  ref = function(self,row)
+    if not row then return end
+    local rec = row.rowid
+    if row.refbase and row.refid and tonumber(row.refid) or 0 > 0 then
+      local name = row.refbase == "mail.mails" and "email" or "name"
+      local qry = concat{"select ",name," from ",row.refbase," where rowid = ",row.refid}
+      for name in self.conn:urows(qry) do
+        if not name or name == "" then name = "noname" end
+        local link = self:link(row.refbase,name,{act='show',recno=row.refid})
+        if self.user.admin then -- self:access(row.refbase,row.refid,self.user.id,"view") then -- todo
+          return link
+        else
+          return name
+        end
+      end
+    end
+  end,
+  view = function(self,row)
+    if not row or (params.act == 'edit') or self.conf.cli then return end
+    local rec = row.rowid
+    local mod = params.mod
+    if row.file then
+      local qry = concat{"select rowid,* from file.files where rowid = '",row.file,"'"}
+      for file in self.conn:nrows(qry) do
+        if (file.type or ''):match('text/') then
+          local data = file.data
+          if file.type == 'text/plain' or file.type == '' or not file.type then
+            data = data:gsub('\n','<br/>')
+          end
+          return concat{"<div style='padding:0px;font-size:16px;word-break:break-all;'>",data,"</div>"}
+        elseif (file.type or ''):match("image/") then
+          local img = file.type:match("image/")
+          if img then
+            if mod == 'images' then
+              local get = concat{'mod=file.files&act=download&img=true&recno=',row.file}
+              return concat{'<div style="padding:5px;max-width:800px;text-align:left;" >',
+                      '<img src="',self.conf.idx,'?mod=file.files&act=download&img=true&recno=',row.file,
+                                               '" style="max-width:250px;max-height:250px;" ',
+                       'onclick="tglpopup(this)" onload="dragImg(this)"/>',
+                      '</div>',
+                    }
+            else
+              return concat{'<div style="padding:5px;">',
+                    '<img src="',self.conf.idx,'?mod=file.files&act=download&img=true&recno=',row.file,
+                    '" style="max-width:800px;"/></div>'}
+            end
+          end
+        else
+          return self.util.link(self,'file.files','Download',{act='download',recno=row.file})
+        end
+      end
+    end
+  end,
+  send = function(self,row)
+    if not row then return end
+    if self.conf.apps.mail and row.refbase and row.refid and row.file then
+      local contact = nil
+      local subject = row.name
+      if row.refbase == "sale.sales" and self.conf.apps.firm then
+        for ref in self.conn:nrows(concat{"select person from sale.sales where rowid = ",row.refid}) do
+          contact = ref.person
+        end
+      end
+      return self.util.link(self,'mail.mails','Send',{act='new',contact=contact,subject=subject,file=row.file})
+    end
+  end,
+}
+
+function db:update(row,recno)
+  local refid = params.refid or recno
+  local refbase = params.refbase or "file.files"
+  if refid and refbase then
+    row.refid = refid
+    row.refbase = refbase
+  end
+end
+
+function db:hidden(row,recno)
+  local refid = params.refid
+  local refbase = params.refbase
+  if refid and refbase then
+    return {refid=refid,refbase=refbase}
+  elseif row and row.refid and row.refbase then
+    return {refid=row.refid,refbase=row.refbase}
+  end
+end
+
+function db:menu(row)
+  if not row then return end
+  local menu = {}
+  if row.file then
+      menu = {
+        {"file.files",'Download',{act='download',recno=row.file}}
+      }
+  end
+  if self.conf.apps.mail then
+    local contact = nil
+    local subject = row.name
+    if row.refbase == "sale.sales" and self.conf.apps.firm then
+      for ref in self.conn:nrows(concat{"select person from sale.sales where rowid = ",row.refid}) do
+        contact = ref.person
+      end
+    end
+    menu[#menu+1] = {"mail.mails",'Send',{act='new',contact=contact,subject=subject,file=row.file}}
+  end
+  return menu
+end
+
+
+return db

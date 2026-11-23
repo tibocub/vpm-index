@@ -1,0 +1,54 @@
+{
+  "kind": "lib",
+  "name": "santoku-resty",
+  "versions": {
+    "5.0.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-cjson",
+        "reason": "provided-version"
+      },
+      "deps": [
+        "santoku >= 6.0.0, < 7.0.0",
+        "santoku-jwt >= 1.0.0, < 2.0.0",
+        "lua-resty-http == 0.17.2-0",
+        "lua-resty-openssl == 1.5.1-1",
+        "santoku-sqlite >= 9.0.0, < 10.0.0",
+        "santoku-system >= 3.0.0, < 4.0.0",
+        "santoku-fs >= 2.5.2, < 3.0.0"
+      ],
+      "files": [],
+      "homepage": "https://santoku.dev/santoku-resty",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "== 5.1",
+      "luarocks": {
+        "date": "Thu, 19 Nov 2026 23:43:29 GMT",
+        "rockspec": {
+          "date": "Thu, 19 Nov 2026 23:43:29 GMT",
+          "sha256": "a8ad525ca3d1ae53158d52ab3e4313f5f2b068dc0380f5ed7335f2f131c504e7",
+          "size": 1352
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "build_deps": [
+          "santoku >= 6.0.0, < 7.0.0",
+          "santoku-fs >= 2.5.2, < 3.0.0",
+          "santoku-system >= 3.0.0, < 4.0.0"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "no_plan_reason": "no source rock on luarocks.org"
+      },
+      "origin": {
+        "sha256": "b0c9cd2617969862a8b56890b6f885367ac224f8db82e720700178ddc18ab483",
+        "type": "archive",
+        "url": "https://releases.santoku.dev/santoku-resty/5.0.0-1/santoku-resty-5.0.0-1.tar.gz"
+      }
+    }
+  }
+}

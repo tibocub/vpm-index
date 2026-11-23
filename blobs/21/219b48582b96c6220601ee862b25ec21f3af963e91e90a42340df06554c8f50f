@@ -1,0 +1,80 @@
+local _module_0 = nil
+local inspect = require('inspect')
+local M = require('moses')
+local os = require('os')
+local package = require('package')
+local config = require('elan.init.config')
+local modules = require('elan.init.modules')
+local routes = require('elan.init.routes')
+local templates = require('elan.init.templates')
+local queues = require('elan.init.queues')
+local router = require('elan.http.router')
+local db = require('elan.db')
+local cjson = require('cjson.safe')
+local run
+run = function(elandir)
+	local errs_hash = { }
+	local cfg, err = config.build(elandir)
+	if not cfg then
+		errs_hash.config = err
+	end
+	if not cfg then
+		cfg = config.SUPPORTED_LANGUAGES[1]
+	end
+	local ok
+	ok, err = modules.build(elandir, cfg)
+	if not ok then
+		errs_hash.modules = err
+	end
+	local tpl_inst
+	tpl_inst, err = templates.build(elandir)
+	if not tpl_inst then
+		errs_hash.templates = err
+	end
+	local qs
+	qs, err = queues.build(elandir, cfg)
+	if not qs then
+		errs_hash.queues = err
+	end
+	local rts
+	rts, err = routes.build(elandir, cfg, tpl_inst)
+	if not rts then
+		errs_hash.routes = err
+	end
+	local rtr
+	if rts then
+		rtr = router.new(rts)
+	end
+	local newdb = nil
+	do
+		local dburi = os.getenv('ELAN_DATABASE_URI')
+		if dburi then
+			if dburi ~= '' then
+				newdb, err = db(dburi)
+				if not newdb then
+					errs_hash.db = err
+				end
+			end
+		end
+	end
+	if qs and #qs > 0 and not newdb then
+		errs_hash.queues = "queues are defined, but no database is configured"
+	end
+	if next(errs_hash) == nil then
+		errs_hash = nil
+	end
+	local cjson_inst = cjson.new()
+	cjson_inst.decode_array_with_array_mt(true)
+	cjson_inst.encode_skip_unsupported_value_types(true)
+	package.loaded['elan.built'] = {
+		cjson = cjson_inst,
+		config = cfg,
+		db = newdb,
+		errs = errs_hash,
+		queues = qs,
+		router = rtr,
+		tpl = tpl_inst
+	}
+end
+_module_0 = run
+return _module_0

@@ -1,0 +1,349 @@
+-- kong-plugin-jwt-redis-authz
+--
+-- Checks Redis existence (via a new jurnal-authz endpoint) for a JWT whose
+-- signature Kong's bundled `jwt` plugin has ALREADY verified earlier in the
+-- `access` phase. This plugin does NOT verify signatures itself -- see the
+-- RFC (kong-jwt-redis-plugin-rfc-2026-11-04.md) decision 1.
+--
+-- REVISION (scope change, confirmed by user, same branch/PR): this plugin now
+-- validates ALL of quickbook's JWT classes (browser, internal, service_jwt),
+-- not just service_jwt -- the whole point is to let other services behind
+-- Kong (Caffeine, scm-core, etc.) stop doing their own JWT validation and
+-- trust Kong's resolved identity headers instead. jurnal-authz is being
+-- redesigned (separate, concurrent task) to accept the RAW token, decode it
+-- itself, resolve identity by shape (manage_id for service_jwt vs
+-- user_id+company_id for browser/internal) and do an exact VALUE match
+-- against the three Redis key patterns -- none of that shape-detection lives
+-- here, this plugin only ever forwards the raw token and relays jurnal-authz's
+-- resolved identity. See PR description for the exact contract this was
+-- built against and what's still PROPOSED.
+--
+-- Deliberately does NOT repeat four defects found in the existing
+-- `kong/plugins/authz/handler.lua`:
+--   1. No HTTP timeout            -> explicit httpc:set_timeout(conf.timeout_ms) below.
+--   2. ssl_verify = false         -> TEMPORARILY WAIVED, see conf.ssl_verify
+--      below and the schema comment. Defaults to false (same as `authz`) to
+--      unblock the gateway; the fix is Kong-level trust config, not code.
+--   3. Credential logged via kong.log.notice(basic_auth) -> never logged, here or anywhere.
+--   4. Module-scope user_id/company_id/body_response     -> every per-request
+--      value below is a local inside access(), never a module-level upvalue.
+
+local http = require "resty.http"
+local cjson_safe = require "cjson.safe"
+
+local JwtRedisAuthz = {
+  -- PRIORITY: ASSUMPTION / unverified against this repo's actually-installed
+  -- Kong version. Kong's bundled `jwt` plugin is commonly documented at
+  -- PRIORITY 1005 and the existing `authz` plugin in this repo runs at 1000
+  -- (both HIGHER than this value -- in Kong, a HIGHER priority number runs
+  -- EARLIER within the same phase). 900 is chosen to run after both of those,
+  -- satisfying the "must run after `jwt` has verified the signature"
+  -- requirement with margin. This number has NOT been confirmed against the
+  -- installed Kong version's own plugin priority table in this environment --
+  -- whoever provisions this plugin instance (per RFC open item, config lives
+  -- outside this repo) MUST verify `jwt`'s actual priority on the target Kong
+  -- version before relying on this ordering in production.
+  PRIORITY = 900,
+  VERSION = "1.0.0",
+}
+
+-- Response headers this plugin owns. Naming matches the existing `authz`
+-- plugin's convention for the fields it already has (X-Company-Id, X-User-Id,
+-- X-Consumer-Roles — see kong/plugins/authz/handler.lua:97-99); X-Manage-Id
+-- and X-Kong-Id extend that same "X-<Field>-Id" convention for the two
+-- additional identity fields this plugin's broader token coverage needs.
+local IDENTITY_HEADERS = {
+  "X-Company-Id",
+  "X-User-Id",
+  "X-Manage-Id",
+  "X-Kong-Id",
+  "X-Consumer-Roles",
+}
+
+-- SECURITY-CRITICAL: strips every identity header this plugin owns from the
+-- upstream request BEFORE anything else runs. A client could otherwise send
+-- `X-User-Id` (or any of the others) directly; if this plugin later denies,
+-- or doesn't run at all on some route, or resolves a response that happens
+-- not to include one of these fields (e.g. a browser-token hit never carries
+-- `manage_id`), an unstripped client-supplied header would reach the upstream
+-- service unmodified and be trusted as if Kong had resolved it. Stripping
+-- happens unconditionally, at the very top of access(), independent of
+-- whether the request is ultimately allowed, denied, or whether
+-- conf.forward_identity_headers is even true.
+local function strip_identity_headers()
+  for _, name in ipairs(IDENTITY_HEADERS) do
+    kong.service.request.clear_header(name)
+  end
+end
+
+-- Extracts the bearer token from the configured header. Returns nil, err on
+-- any shape the plugin doesn't recognize -- callers must fail closed on nil.
+local function extract_bearer_token(header_name)
+  local auth_header = kong.request.get_header(header_name)
+
+  if not auth_header then
+    return nil, "missing " .. header_name .. " header"
+  end
+
+  -- A header can arrive as a table if sent multiple times; take the first
+  -- value rather than erroring on string-method calls against a table.
+  if type(auth_header) == "table" then
+    auth_header = auth_header[1]
+  end
+
+  if type(auth_header) ~= "string" then
+    return nil, "malformed " .. header_name .. " header"
+  end
+
+  local token = auth_header:match("^Bearer%s+(.+)$")
+  if not token or token == "" then
+    return nil, "no bearer token in " .. header_name .. " header"
+  end
+
+  return token, nil
+end
+
+-- K2: there are TWO fail-closed exits, not one, and the difference is which
+-- party answered.
+--
+-- Both still fail closed. What changes is the STATUS, and the status is what
+-- every mobile client reacts to: ERP mobile force-logs-out on any 401 without
+-- inspecting the body, and jurnal mobile matches the message text. Under the
+-- previous shape a single exit served everything, so a jurnal-authz wobble was
+-- indistinguishable from a rejected token and an infrastructure blip logged
+-- out the entire mobile fleet. Measured in production 2026-11-10 08:16:42Z: a
+-- real user was rejected because the connection to jurnal-authz dropped while
+-- it sat pinned at 20/20 pods -- their token was never examined at all.
+--
+-- Neither path ever returns an upstream response body or a credential.
+
+-- Statuses this plugin will relay from jurnal-authz. An allowlist rather than
+-- a passthrough: a misconfigured or compromised authz must not be able to make
+-- the gateway answer 200 (allow by accident) or 500 (alarm storm) on a path
+-- whose only legitimate outcomes are "no" and "ask later".
+local ALLOWED_DENY_STATUS = { [401] = true, [403] = true, [503] = true }
+
+-- jurnal-authz ANSWERED and said no. Honour the status and message it chose,
+-- falling back to today's exact 401/"unauthorized" when it sends neither --
+-- which is what makes this plugin and the authz change shippable in either
+-- order, with no flag to coordinate.
+local function deny_from_authz(data)
+  -- An ABSENT status is normal and means "401" -- jurnal-authz omits the field
+  -- whenever its verdict matches the gateway's default, which is what lets an
+  -- authz that predates this contract keep working unchanged.
+  --
+  -- A status that is PRESENT but outside the allowlist is a different thing
+  -- entirely: that envelope came from something misconfigured or tampered
+  -- with, and no part of it has earned trust. Relaying its message while
+  -- overriding its status would emit an incoherent response -- a 401 carrying
+  -- text that describes some other outcome -- and jurnal mobile decides
+  -- whether to destroy the session by MATCHING THAT TEXT. So a rejected status
+  -- discards the whole envelope, not just the number.
+  if data.status ~= nil
+     and not (type(data.status) == "number" and ALLOWED_DENY_STATUS[data.status]) then
+    kong.log.err("jwt-redis-authz: rejecting request -- authz proposed a status ",
+                 "outside the allowlist, envelope discarded: status=",
+                 tostring(data.status), " reason=", tostring(data.deny_reason))
+    return kong.response.exit(401, {
+      message = "unauthorized",
+      deny_source = "jwt-redis-authz",
+    })
+  end
+
+  local status = 401
+  if type(data.status) == "number" then
+    status = data.status
+  end
+
+  local message = "unauthorized"
+  if type(data.message) == "string" and data.message ~= "" then
+    message = data.message
+  end
+
+  kong.log.err("jwt-redis-authz: rejecting request -- authz verdict, reason=",
+               tostring(data.deny_reason), " status=", status)
+
+  -- deny_source names which of the three layers that can emit a 401 on a
+  -- covered route produced this one. Attribution today relies on matching the
+  -- message string, which is guesswork the moment two layers pick the same
+  -- wording.
+  return kong.response.exit(status, {
+    message = message,
+    deny_source = "jwt-redis-authz",
+    deny_reason = data.deny_reason,
+  })
+end
+
+-- jurnal-authz NEVER answered: transport failure, a non-200 from whatever sits
+-- in front of it, or a body that did not parse. This is not an authentication
+-- verdict and must not be dressed up as one. 503 still fails closed -- the
+-- request does not reach the upstream -- but it sits outside every force-logout
+-- trigger, so the client retries instead of destroying the session.
+local function unavailable(reason)
+  kong.log.err("jwt-redis-authz: rejecting request -- authz unavailable, ", reason)
+  return kong.response.exit(503, { message = "service unavailable" })
+end
+
+-- Request-shaped failures (no token, unencodable body) are genuine 401s: the
+-- caller presented nothing usable, and no amount of retrying changes that.
+local function deny_malformed_request(reason)
+  kong.log.err("jwt-redis-authz: rejecting request -- ", reason)
+  return kong.response.exit(401, { message = "unauthorized" })
+end
+
+function JwtRedisAuthz:access(conf)
+  -- Strip first, unconditionally -- see strip_identity_headers() comment.
+  -- This must happen before any early-return path below, not just before the
+  -- eventual allow, so there is no code path that leaves a client-supplied
+  -- identity header in place.
+  strip_identity_headers()
+
+  local token, extract_err = extract_bearer_token(conf.authorization)
+  if not token then
+    return deny_malformed_request(extract_err)
+  end
+
+  local username = conf.username
+  local password = conf.password
+  local basic_auth = "Basic " .. ngx.encode_base64(username .. ":" .. password)
+
+  local httpc = http.new()
+  -- Defect #1 fix: explicit short timeout instead of lua-resty-http's 60s
+  -- default. set_timeout(ms) covers connect/send/read phases.
+  httpc:set_timeout(conf.timeout_ms)
+
+  local url = conf.jurnal_authz_endpoint .. conf.jwt_exists_path
+
+  -- The raw (already signature-verified) token travels in the JSON body, not
+  -- in the URL -- a token in a query string gets written into access logs
+  -- and intermediate proxy logs, which is the same class of problem as
+  -- defect #3 (credential logged on every request). jurnal-authz decodes the
+  -- token's claims itself (unverified decode is fine here -- Kong already
+  -- verified the signature) and resolves identity by shape internally
+  -- (manage_id for service_jwt, user_id+company_id for browser/internal) --
+  -- no shape detection happens in this plugin.
+  -- K1: the body carries the route path and the User-Agent alongside the
+  -- token. Both are for ATTRIBUTION ONLY -- jurnal-authz records them in its
+  -- observe inventory and nothing in either service decides anything on them.
+  -- That distinction is what keeps it safe to send a client-controlled string:
+  -- a caller can forge its User-Agent freely and change no verdict.
+  --
+  -- Why it is needed: the inventory currently records the token shape and
+  -- nothing else, so five issuers that produce unattributable tokens could
+  -- only be traced by correlating against Kong's access logs -- and once those
+  -- rotated, the attribution was gone permanently. Sending the path turns
+  -- structure-to-route from an inference into a measurement.
+  local request_body, encode_err = cjson_safe.encode({
+    token = token,
+    path = kong.request.get_path(),
+    user_agent = kong.request.get_header("User-Agent"),
+  })
+  if not request_body then
+    return deny_malformed_request("failed to encode request body: " .. tostring(encode_err))
+  end
+
+  local res, err = httpc:request_uri(url, {
+    method = "POST",
+    body = request_body,
+    -- TEMPORARY: defaults to false (matching the existing `authz` plugin) --
+    -- Kong 3.1's trust store / verify depth rejects jurnal-authz's chain with
+    -- OpenSSL error 20 (unable to get local issuer certificate), which fails
+    -- closed and 401s every request regardless of token validity. Exposed as
+    -- config rather than hardcoded so re-enabling verification once
+    -- KONG_LUA_SSL_TRUSTED_CERTIFICATE / KONG_LUA_SSL_VERIFY_DEPTH are set
+    -- correctly is a config change, not a new rock revision. Note this call
+    -- carries both the basic-auth credential and the raw JWT in its body.
+    ssl_verify = conf.ssl_verify,
+    headers = {
+      ["Content-Type"] = "application/json",
+      ["Authorization"] = basic_auth,
+    },
+  })
+
+  -- Defect #3 fix: `basic_auth` is never logged, here or anywhere else in
+  -- this file.
+
+  if not res then
+    -- Covers connection refused, DNS failure, and timeout alike -- all fail
+    -- closed per RFC decision 4 ("every failure point ... must resolve to
+    -- deny, not silently pass through").
+    return unavailable("call failed: " .. tostring(err))
+  end
+
+  if res.status ~= 200 then
+    -- The contract documents jurnal-authz as always answering 200 (hit or
+    -- miss alike) -- a non-200 here means something failed at the HTTP/
+    -- gateway layer in front of jurnal-authz itself, not a normal deny
+    -- response. Still fails closed either way.
+    return unavailable("non-200 status: " .. tostring(res.status))
+  end
+
+  local body_response, decode_err = cjson_safe.decode(res.body)
+  if not body_response then
+    return unavailable("malformed JSON: " .. tostring(decode_err))
+  end
+
+  -- Contract (built against the shape documented for this revision -- see PR
+  -- description for the exact assumption and what's still PROPOSED):
+  --   Hit:  {"data": {"exists": true, "kong_id", "manage_id", "user_id", "company_id"}}
+  --   Deny: {"data": {"exists": false}}
+  local data = body_response.data
+  if type(data) ~= "table" then
+    return unavailable("response missing 'data' envelope")
+  end
+
+  if data.exists ~= true then
+    -- Covers both an explicit {"exists": false} deny and any other falsy /
+    -- missing value -- never defaults to allow on an ambiguous body.
+    return deny_from_authz(data)
+  end
+
+  if conf.forward_identity_headers then
+    -- Function-local only (defect #4 fix) -- never assigned at module scope,
+    -- so nothing here can leak into a concurrent request on this worker.
+    --
+    -- Headers were already unconditionally cleared above, so only setting a
+    -- header when its value is present is safe here: for a field jurnal-authz
+    -- didn't return (e.g. a browser/internal hit has no manage_id), the
+    -- client-supplied value is already gone, not silently left in place.
+    local kong_id = data.kong_id
+    local company_id = data.company_id
+    local user_id = data.user_id
+    local manage_id = data.manage_id
+    local roles = data.roles
+
+    if kong_id ~= nil then
+      kong.service.request.set_header("X-Kong-Id", tostring(kong_id))
+    end
+
+    if company_id ~= nil then
+      kong.service.request.set_header("X-Company-Id", tostring(company_id))
+    end
+
+    if user_id ~= nil then
+      kong.service.request.set_header("X-User-Id", tostring(user_id))
+    end
+
+    if manage_id ~= nil then
+      kong.service.request.set_header("X-Manage-Id", tostring(manage_id))
+    end
+
+    -- K3: roles forwarding is its own switch, independent of identity.
+    -- Twelve of the 29 covered jurnal routes run no `authz` plugin today and
+    -- therefore receive no X-Consumer-Roles at all. They should be able to
+    -- start receiving resolved IDENTITY without silently also gaining a roles
+    -- header they have never seen -- a per-binding config decision, not a code
+    -- branch, and not a reason to leave those routes on no plugin at all.
+    --
+    -- X-Consumer-Roles is stripped unconditionally either way (see
+    -- strip_identity_headers), so forward_roles = false means the upstream
+    -- gets nothing, never that a client's own value passes through.
+    if conf.forward_roles and type(roles) == "table" then
+      kong.service.request.set_header("X-Consumer-Roles", table.concat(roles, ","))
+    end
+  end
+
+  -- Allow: fall through, Kong proxies to the upstream service.
+end
+
+return JwtRedisAuthz

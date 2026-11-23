@@ -1,0 +1,61 @@
+local json = require "cjson"
+local http = require "resty.http"
+local kong = kong
+
+local function send_error(status_code, message)
+  ngx.status = status_code
+  ngx.header.content_type = "application/json"
+  local type = "access_denied"
+  if status_code == 403 then
+    type = "forbidden"
+  end
+
+  local port = ""
+  if ngx.var.server_port ~= 80 then
+    port = ":" .. ngx.var.server_port
+  end
+  local error = {
+    meta = {
+      url = ngx.var.scheme .. "://" .. ngx.var.host .. port .. ngx.var.request_uri,
+      type = "object",
+      request_id = kong.ctx.plugin.correlation_id,
+      code = status_code
+    },
+    error = {
+      type = type,
+      message = message
+    }
+  }
+  ngx.say(json.encode(error))
+end
+
+return {
+  send_error = function(status_code, message)
+    send_error(status_code, message)
+  end,
+  get = function(url, error_msg)
+    local api_key = ngx.req.get_headers()["api-key"]
+    local httpc = http.new()
+    local res, err =
+      httpc:request_uri(
+      url,
+      {
+        method = "GET",
+        headers = {
+          accept = "application/json",
+          ["Content-Type"] = "application/json",
+          ["api-key"] = api_key,
+          ["x-request-id"] = kong.ctx.plugin.correlation_id
+        }
+      }
+    )
+
+    httpc:close()
+
+    if not res or res.status ~= 200 then
+      send_error(401, error_msg)
+      return ngx.exit(200), true
+    end
+    return res
+  end
+}

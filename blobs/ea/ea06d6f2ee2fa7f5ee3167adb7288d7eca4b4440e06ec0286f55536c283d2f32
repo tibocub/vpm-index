@@ -1,0 +1,10 @@
+local mytestpkg = require("mytestpkg")
+local socket = require("socket")
+
+print("Running project example... v1.0-27")
+local sin30deg = mytestpkg.sin.deg(60)
+print(sin30deg)
+print("Luasocket version: " .. socket._VERSION)
+
+require("src.a")
+require("src.m")

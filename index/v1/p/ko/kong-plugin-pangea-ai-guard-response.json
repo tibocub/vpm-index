@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-pangea-ai-guard-response",
+  "versions": {
+    "0.2.0-1": {
+      "bin": [],
+      "deps": [
+        "kong-plugin-pangea-ai-guard-shared == 0.2.0"
+      ],
+      "files": {
+        "kong/plugins/pangea-ai-guard-response/handler.lua": {
+          "sha256": "c369b8a4d7007f118af51f383ee114f86d82f3e47bf7e322270f00478f2d94be",
+          "size": 5058,
+          "url": "blob:c369b8a4d7007f118af51f383ee114f86d82f3e47bf7e322270f00478f2d94be"
+        },
+        "kong/plugins/pangea-ai-guard-response/schema.lua": {
+          "sha256": "01bdabd35c771b5b5a7790bc2470fdfec53faa0aa535ac53352081a836edfdfc",
+          "size": 2375,
+          "url": "blob:01bdabd35c771b5b5a7790bc2470fdfec53faa0aa535ac53352081a836edfdfc"
+        }
+      },
+      "homepage": "https://github.com/pangeacyber/pangea-kong",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 04 Aug 2025 22:11:06 GMT",
+        "rockspec": {
+          "date": "Mon, 04 Aug 2025 22:11:06 GMT",
+          "sha256": "419559e0fb717cdda12977f84c39360949527bf00098ba8b330488c890a4a6a0",
+          "size": 1415
+        },
+        "src": {
+          "date": "Mon, 04 Aug 2025 22:11:07 GMT",
+          "sha256": "760d5532bc8e14c4c2ceeb19c43624d0f4852b89697961b406bffaa796c0b1fa",
+          "size": 33403,
+          "url": "https://luarocks.org/kong-plugin-pangea-ai-guard-response-0.2.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.pangea-ai-guard-response.handler",
+        "kong.plugins.pangea-ai-guard-response.schema"
+      ],
+      "origin": {
+        "date": "Mon, 04 Aug 2025 22:11:07 GMT",
+        "sha256": "760d5532bc8e14c4c2ceeb19c43624d0f4852b89697961b406bffaa796c0b1fa",
+        "size": 33403,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-pangea-ai-guard-response-0.2.0-1.src.rock"
+      },
+      "size": 7433,
+      "summary": "Kong Gateway plugin to integrate Pangea AI Guard",
+      "undeclared_requires": [
+        "kong.db.schema",
+        "kong.db.schema.typedefs",
+        "kong.llm.drivers.",
+        "kong.llm.plugin.ctx",
+        "kong.tools.gzip",
+        "resty.http"
+      ],
+      "vlr": {
+        "cause": "needs OpenResty (resty.http)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

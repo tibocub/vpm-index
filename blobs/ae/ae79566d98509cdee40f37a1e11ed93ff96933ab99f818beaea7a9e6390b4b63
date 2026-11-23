@@ -1,0 +1,28 @@
+#!/home/zen/bin/lua
+------------------------------
+-- yoke © luamani@yahoo.com --
+------------------------------
+local home = "."
+
+local conf = {
+  root = home,
+  luarocks = '../../../../',
+  data = "./data",
+  dbf = "yoke",
+  idx = "file.lua",
+  home = "",
+  lang = "en",
+  --debug = true,
+  --trace = true,
+  --log = true,
+  url = "http://localhost:8081",
+  wkhtmltopdf = "/usr/local/bin/wkhtmltopdf",
+}
+
+conf.apps = {
+  {'file','Files'},
+}
+
+require("yoke.site.main")(conf)
+
+

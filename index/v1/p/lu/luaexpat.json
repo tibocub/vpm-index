@@ -1,0 +1,102 @@
+{
+  "kind": "lib",
+  "name": "luaexpat",
+  "versions": {
+    "1.5.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "lxp/lom.lua": {
+          "sha256": "008c2d6c89896924c873ce0160300778f18421fff4d2358e19251f85024f7889",
+          "size": 2754,
+          "url": "blob:008c2d6c89896924c873ce0160300778f18421fff4d2358e19251f85024f7889"
+        },
+        "lxp/threat.lua": {
+          "sha256": "7c598d31959a91d3fad3c7dc7bbce4bd53405c42808e05fae4d20f851bead7c3",
+          "size": 17148,
+          "url": "blob:7c598d31959a91d3fad3c7dc7bbce4bd53405c42808e05fae4d20f851bead7c3"
+        },
+        "lxp/totable.lua": {
+          "sha256": "b17dafc36702eb7fa2ad65500a5fc438abc70ccfc079265cc5e08a2dcd832c8d",
+          "size": 3412,
+          "url": "blob:b17dafc36702eb7fa2ad65500a5fc438abc70ccfc079265cc5e08a2dcd832c8d"
+        }
+      },
+      "homepage": "https://lunarmodules.github.io/luaexpat",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 27 Jun 2024 14:35:16 GMT",
+        "rockspec": {
+          "date": "Thu, 27 Jun 2024 14:35:16 GMT",
+          "sha256": "d7f0e9b9de6698856ca423c4e0e5a9b2072f574ec6e071fddef58bc404bcab71",
+          "size": 1180
+        },
+        "src": {
+          "date": "Thu, 27 Jun 2024 14:35:17 GMT",
+          "sha256": "a88ac147d2ceaf168fddedd2245928f35d4c0218094142b054db7e9bae0b5b82",
+          "size": 71752,
+          "url": "https://luarocks.org/luaexpat-1.5.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "lxp",
+        "lxp.lom",
+        "lxp.threat",
+        "lxp.totable"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "EXPAT"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "EXPAT": {
+              "header": "expat.h"
+            }
+          },
+          "modules": [
+            {
+              "incdirs": [
+                "$(EXPAT_INCDIR)",
+                "src/"
+              ],
+              "libdirs": [
+                "$(EXPAT_LIBDIR)"
+              ],
+              "libraries": [
+                "expat"
+              ],
+              "name": "lxp",
+              "sources": [
+                "src/lxplib.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 27 Jun 2024 14:35:17 GMT",
+        "sha256": "a88ac147d2ceaf168fddedd2245928f35d4c0218094142b054db7e9bae0b5b82",
+        "size": 71752,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luaexpat-1.5.2-1.src.rock"
+      },
+      "size": 23314,
+      "summary": "XML Expat parsing",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-23",
+        "loaded": 4,
+        "status": "ok",
+        "total": 4
+      }
+    }
+  }
+}

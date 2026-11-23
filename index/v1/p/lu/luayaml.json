@@ -1,0 +1,85 @@
+{
+  "kind": "lib",
+  "name": "luayaml",
+  "versions": {
+    "0.5.6-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "yaml.lua": {
+          "sha256": "d97e8a204595d91b1510e12cfe370bbbda85f69ffc7c8827f29c60d719b57c02",
+          "size": 558,
+          "url": "blob:d97e8a204595d91b1510e12cfe370bbbda85f69ffc7c8827f29c60d719b57c02"
+        }
+      },
+      "homepage": "http://luaforge.net/projects/luayaml/",
+      "license": "BSD",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sat, 01 Mar 2014 22:22:30 GMT",
+        "rockspec": {
+          "date": "Sat, 01 Mar 2014 22:22:30 GMT",
+          "sha256": "9e29f43335cb97c4d3323d9c241ae3afdc9975bf500aebf67d8ffd10ffb930a0",
+          "size": 579
+        },
+        "src": {
+          "date": "Sat, 01 Mar 2014 22:22:30 GMT",
+          "sha256": "86cb0938b61ea65cc1fe7dc93bec9f77e0e4e57de077912b2a0a934e3d24caa7",
+          "size": 8889,
+          "url": "https://luarocks.org/luayaml-0.5.6-1.src.rock"
+        }
+      },
+      "modules": [
+        "syck",
+        "yaml"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "SYCK"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "SYCK": {
+              "header": "syck.h",
+              "library": "libsyck.a"
+            }
+          },
+          "modules": [
+            {
+              "libraries": [
+                "syck"
+              ],
+              "name": "syck",
+              "sources": [
+                "syck.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sat, 01 Mar 2014 22:22:30 GMT",
+        "sha256": "86cb0938b61ea65cc1fe7dc93bec9f77e0e4e57de077912b2a0a934e3d24caa7",
+        "size": 8889,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luayaml-0.5.6-1.src.rock"
+      },
+      "size": 558,
+      "summary": "A YAML parser binding for Lua, using the syck library.",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "kind": "lib",
+  "name": "luasyslog",
+  "versions": {
+    "2.0.1-1": {
+      "bin": [],
+      "deps": [
+        "lualogging >= 1.4.0, < 2.0.0"
+      ],
+      "files": {
+        "logging/syslog.lua": {
+          "sha256": "d257ad829343edc3c3b6822b93a602dc4070af3c9585b7fb1c2eff089bcc2a39",
+          "size": 1825,
+          "url": "blob:d257ad829343edc3c3b6822b93a602dc4070af3c9585b7fb1c2eff089bcc2a39"
+        }
+      },
+      "homepage": "https://github.com/lunarmodules/luasyslog",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 24 Mar 2021 10:58:38 GMT",
+        "rockspec": {
+          "date": "Wed, 24 Mar 2021 10:58:38 GMT",
+          "sha256": "34028bdc275d908c5d2b841e83e205268111c2b03d4fb92b4384d6077d673be3",
+          "size": 1016
+        },
+        "src": {
+          "date": "Wed, 24 Mar 2021 10:58:39 GMT",
+          "sha256": "02d2cdf1789e980f8ff735c730bc4ac7cc831f01bb708150d7e65dd2206670ea",
+          "size": 12491,
+          "url": "https://luarocks.org/luasyslog-2.0.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "logging.syslog",
+        "lsyslog"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "lsyslog",
+              "sources": [
+                "lsyslog.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 24 Mar 2021 10:58:39 GMT",
+        "sha256": "02d2cdf1789e980f8ff735c730bc4ac7cc831f01bb708150d7e65dd2206670ea",
+        "size": 12491,
+        "type": "luarocks",
+        "url": "https://luarocks.org/luasyslog-2.0.1-1.src.rock"
+      },
+      "size": 1825,
+      "summary": "Syslog logging for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "tsdevstack-api-prefix",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/tsdevstack-api-prefix/handler.lua": {
+          "sha256": "4875f64a436e1cbf67e8fb0b58c6900e3a1a1ddce62bf4a5ebe92d6b207efe21",
+          "size": 1270,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-api-prefix/handler.lua"
+        },
+        "kong/plugins/tsdevstack-api-prefix/schema.lua": {
+          "sha256": "65a03219776ba22f33ee21e84a1f2b93c88837445093c85e41a995161900a9e7",
+          "size": 585,
+          "url": "https://raw.githubusercontent.com/tsdevstack/kong-plugins/535e69b7cbb24532dd8582197f7e643b306e90ed/kong/plugins/tsdevstack-api-prefix/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/tsdevstack/kong-plugins",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 18 Nov 2026 11:25:29 GMT",
+        "rockspec": {
+          "date": "Wed, 18 Nov 2026 11:25:29 GMT",
+          "sha256": "1b3838d5721738ca24d9c711c61d71474d40184594d6bf9d87705d422c26c1a2",
+          "size": 724
+        },
+        "src": {
+          "date": "Wed, 18 Nov 2026 11:25:30 GMT",
+          "sha256": "ea8e74733ba79fa3eff2a4bf75476000eab2bdeb7fd8c6a98ad3f83203a6a450",
+          "size": 37276,
+          "url": "https://luarocks.org/tsdevstack-api-prefix-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.tsdevstack-api-prefix.handler",
+        "kong.plugins.tsdevstack-api-prefix.schema"
+      ],
+      "origin": {
+        "commit": "535e69b7cbb24532dd8582197f7e643b306e90ed",
+        "ref": "v1.0.0",
+        "type": "git",
+        "url": "https://github.com/tsdevstack/kong-plugins.git"
+      },
+      "size": 1855,
+      "summary": "Removes a public path prefix before a request goes upstream",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.db.schema.typedefs",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

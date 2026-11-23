@@ -1,0 +1,239 @@
+-- ============================================================
+-- Shiva Test — QBCore Mock
+-- Provides a minimal QBCore table for testing qb-* resources
+-- without a running server.
+-- ============================================================
+
+local QBCoreMock = {}
+
+-- ========================
+-- Player data store
+-- ========================
+
+local _players = {}
+
+---@class QBPlayer
+---@field source     integer
+---@field PlayerData table
+
+--- Create a mock player and register it.
+---@param source  integer
+---@param data?   table  Override any PlayerData fields
+---@return QBPlayer
+function QBCoreMock.addPlayer(source, data)
+    local player = {
+        source = source,
+        PlayerData = {
+            source     = source,
+            identifier = 'steam:' .. string.format('%015x', source),
+            citizenid  = string.format('ABC%05d', source),
+            charinfo   = {
+                firstname = 'Test',
+                lastname  = 'Player',
+                birthdate = '01-01-1990',
+                gender    = 0,
+                nationality = 'American',
+            },
+            job = {
+                name   = 'unemployed',
+                label  = 'Civilian',
+                grade  = { level = 0, name = 'recruit' },
+                onduty = false,
+            },
+            gang = {
+                name   = 'none',
+                label  = 'No Gang',
+                grade  = { level = 0, name = 'none' },
+                isboss = false,
+            },
+            money = { cash = 500, bank = 5000, crypto = 0 },
+            metadata = {
+                hunger       = 100,
+                thirst       = 100,
+                stress       = 0,
+                isdead       = false,
+                inlaststand  = false,
+                armor        = 0,
+                hunger       = 100,
+                callsign     = 'NONE',
+                licences     = { driver = false, weapon = false },
+                injail       = 0,
+            },
+            items    = {},
+            position = { x = 0, y = 0, z = 0 },
+        },
+        Functions = {},
+    }
+
+    -- Merge overrides
+    if data then
+        for k, v in pairs(data) do
+            if type(v) == 'table' and type(player.PlayerData[k]) == 'table' then
+                for kk, vv in pairs(v) do
+                    player.PlayerData[k][kk] = vv
+                end
+            else
+                player.PlayerData[k] = v
+            end
+        end
+    end
+
+    -- Player methods
+    function player.Functions.GetPlayerData()
+        return player.PlayerData
+    end
+
+    function player.Functions.GetMetaData(meta)
+        return player.PlayerData.metadata[meta]
+    end
+
+    function player.Functions.SetMetaData(meta, value)
+        player.PlayerData.metadata[meta] = value
+    end
+
+    function player.Functions.GetMoney(account)
+        return player.PlayerData.money[account] or 0
+    end
+
+    function player.Functions.AddMoney(account, amount, _reason)
+        player.PlayerData.money[account] = (player.PlayerData.money[account] or 0) + amount
+    end
+
+    function player.Functions.RemoveMoney(account, amount, _reason)
+        local current = player.PlayerData.money[account] or 0
+        if current < amount then return false end
+        player.PlayerData.money[account] = current - amount
+        return true
+    end
+
+    function player.Functions.GetItemByName(item)
+        for _, v in ipairs(player.PlayerData.items) do
+            if v.name == item then return v end
+        end
+        return nil
+    end
+
+    function player.Functions.AddItem(name, amount, _slot, _info)
+        local existing = player.Functions.GetItemByName(name)
+        if existing then
+            existing.amount = existing.amount + (amount or 1)
+        else
+            table.insert(player.PlayerData.items, { name = name, amount = amount or 1, slot = #player.PlayerData.items + 1 })
+        end
+    end
+
+    function player.Functions.RemoveItem(name, amount)
+        for i, v in ipairs(player.PlayerData.items) do
+            if v.name == name then
+                v.amount = v.amount - (amount or 1)
+                if v.amount <= 0 then table.remove(player.PlayerData.items, i) end
+                return true
+            end
+        end
+        return false
+    end
+
+    _players[source] = player
+    return player
+end
+
+--- Remove all mock players.
+function QBCoreMock.resetPlayers()
+    _players = {}
+end
+
+-- ========================
+-- QBCore table
+-- ========================
+
+local _callbacks = {}
+
+---@type table  The QBCore mock table (mirrors QBCore global in real FiveM)
+local QBCore = {
+    Config  = { Prefix = '/', AdminPermission = 'god', ResetInventoryOnRespawn = false },
+    Shared  = { Jobs = {}, Gangs = {}, Vehicles = {}, Items = {} },
+    Players = _players,
+    Functions = {},
+    Commands  = {},
+    ServerCallbacks = _callbacks,
+}
+
+--- Get a registered mock player.
+---@param source integer
+---@return QBPlayer|nil
+function QBCore.Functions.GetPlayer(source)
+    return _players[source]
+end
+
+--- Find a player by citizenid.
+---@param citizenid string
+---@return QBPlayer|nil
+function QBCore.Functions.GetPlayerByCitizenId(citizenid)
+    for _, p in pairs(_players) do
+        if p.PlayerData.citizenid == citizenid then return p end
+    end
+    return nil
+end
+
+--- Find all online players.
+---@return QBPlayer[]
+function QBCore.Functions.GetPlayers()
+    local list = {}
+    for _, p in pairs(_players) do
+        list[#list + 1] = p
+    end
+    return list
+end
+
+--- Register a server callback.
+---@param name string
+---@param fn   function
+function QBCore.Functions.CreateCallback(name, fn)
+    _callbacks[name] = fn
+end
+
+--- Trigger a registered server callback synchronously.
+---@param name   string
+---@param source integer
+---@param cb     function
+---@param ...    any
+function QBCore.Functions.TriggerCallback(name, source, cb, ...)
+    local fn = _callbacks[name]
+    if not fn then
+        error('QBCore: callback "' .. name .. '" is not registered')
+    end
+    fn(source, cb, ...)
+end
+
+--- Check if player has permission (always true in tests unless overridden).
+---@param source integer
+---@param _perm  string
+---@return boolean
+function QBCore.Functions.HasPermission(source, _perm)
+    return true
+end
+
+--- Get player identifier.
+---@param source integer
+---@return string
+function QBCore.Functions.GetIdentifier(source, _idType)
+    local p = _players[source]
+    return p and p.PlayerData.identifier or ('steam:' .. string.format('%015x', source))
+end
+
+function QBCore.Functions.Notify(source, text, _type, _duration)
+    -- no-op in tests; use event assertions if needed
+end
+
+-- ========================
+-- Install into _G
+-- ========================
+
+---@param G table
+function QBCoreMock.install(G)
+    G.QBCore = QBCore
+end
+
+QBCoreMock.QBCore = QBCore
+
+return QBCoreMock

@@ -1,0 +1,83 @@
+local _module_0 = nil
+local url = require('net.url')
+local Postgres
+do
+	local _obj_0 = require('pgmoon')
+	Postgres = _obj_0.Postgres
+end
+local result = require('elan.result')
+local pg_with
+pg_with = function(self, fn, ...)
+	local ok, err = self:connect()
+	if not ok then
+		return nil, err
+	end
+	local args = {
+		...
+	}
+	return result.defer(function()
+		return result.handle_err(result.pcall_to_result(self.keepalive), function()
+			return self:disconnect()
+		end)
+	end, function()
+		return fn(self, unpack(args))
+	end)
+end
+local pg_tx
+pg_tx = function(self, fn, ...)
+	local ok, err = self:query('BEGIN')
+	if not ok then
+		return nil, err
+	end
+	local args = {
+		...
+	}
+	return result.defer(function(ok)
+		local success
+		success, err = self:query(ok and 'COMMIT' or 'ROLLBACK')
+		if not success then
+			return error("failed to terminate transaction: " .. tostring(err))
+		end
+	end, function()
+		return fn(self, unpack(args))
+	end)
+end
+local _anon_func_0 = function(u)
+	local _exp_0 = u.query.application_name
+	if _exp_0 ~= nil then
+		return _exp_0
+	else
+		return u.query.fallback_application_name
+	end
+end
+_module_0 = function(dburi)
+	local connect_timeout = nil
+	return result.unwrap_any(result.map_ok(result.map_ok(result.to_result(url.parse(dburi)), function(u)
+		if not (u.scheme == 'postgresql') then
+			return nil, "invalid database URI scheme: " .. tostring(u.scheme)
+		end
+		connect_timeout = tonumber(u.query.connect_timeout)
+		local base = Postgres.__base
+		base.with = pg_with
+		base.tx = pg_tx
+		return {
+			host = u.host,
+			port = u.port,
+			user = u.user,
+			password = u.password,
+			database = string.sub(u.path, 2),
+			application_name = _anon_func_0(u),
+			pool_size = tonumber(u.query.pool_size),
+			backlog = tonumber(u.query.backlog)
+		}
+	end), function(cfg)
+		return function()
+			local pg = Postgres(cfg)
+			if connect_timeout then
+				pg:settimeout(connect_timeout * 1000)
+			end
+			return pg
+		end
+	end))
+end
+return _module_0

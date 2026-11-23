@@ -1,0 +1,107 @@
+{
+  "kind": "lib",
+  "name": "kong-consumer-rate-limiting",
+  "versions": {
+    "1.0.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/consumer-rate-limiting/api.lua": {
+          "sha256": "92a3ae589fcb1846344d1186984d1b3f94ee37311109d8084d903cf15c7cc404",
+          "size": 1537,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/api.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/controller.lua": {
+          "sha256": "21ddf5d649eecb6ec9d1ac2f90affe82dbafa44cc1ae90a7db07cedba850ea01",
+          "size": 803,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/controller.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/daos.lua": {
+          "sha256": "051505a7e913f5a89ebe2e7378203a5bec2098c3ebb4cec0f2782ffd6289f9ff",
+          "size": 706,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/daos.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/gateway.lua": {
+          "sha256": "1918638af873ff14bf3227ab01840a6c4c4a1d39f1706d537bfa68e925d9b2ab",
+          "size": 1945,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/gateway.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/handler.lua": {
+          "sha256": "de9871c7b5b7f2ac2eee641881efc6385b818773816880a048e464705e95a021",
+          "size": 1026,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/handler.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/migrations/cassandra.lua": {
+          "sha256": "f95284212d07db014fb2f04344a51cf452a1196dfb8fc2def7c2cd08d0aca5b5",
+          "size": 610,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/migrations/cassandra.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/migrations/postgres.lua": {
+          "sha256": "ec1aebce68660a12874cc9f85c1ed49300872574756344b24820a11b35868356",
+          "size": 623,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/migrations/postgres.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/schema.lua": {
+          "sha256": "6067949cfaf316ab25525108fa64537da4252c0308d2161891a8cb6fc83bbac9",
+          "size": 54,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/schema.lua"
+        },
+        "kong/plugins/consumer-rate-limiting/timeutils.lua": {
+          "sha256": "eda25886dcfb0c5fc82b07cd0418443411f89fb04745698d146b10770833f621",
+          "size": 468,
+          "url": "https://raw.githubusercontent.com/nokia/consumer-rate-limiting/31d70f9056d56fbeae53d11562492c42c0ba38df/kong/plugins/consumer-rate-limiting/timeutils.lua"
+        }
+      },
+      "homepage": "https://github.com/nokia/consumer-rate-limiting",
+      "host": "openresty",
+      "license": "BSD 3-Clause",
+      "luarocks": {
+        "date": "Mon, 09 Oct 2017 18:05:25 GMT",
+        "rockspec": {
+          "date": "Mon, 09 Oct 2017 18:05:25 GMT",
+          "sha256": "8169a1b15dcfabbebcb8ea23a37ead7dc9a62cd4d7abadc470fabf50f4dc2fdf",
+          "size": 1761
+        },
+        "src": {
+          "date": "Mon, 09 Oct 2017 18:05:28 GMT",
+          "sha256": "7dd5da5432715c970ac53e6e74e01795164f5db2ba55cc0716bcb6d13960d208",
+          "size": 14288,
+          "url": "https://luarocks.org/kong-consumer-rate-limiting-1.0.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.consumer-rate-limiting.api",
+        "kong.plugins.consumer-rate-limiting.controller",
+        "kong.plugins.consumer-rate-limiting.daos",
+        "kong.plugins.consumer-rate-limiting.gateway",
+        "kong.plugins.consumer-rate-limiting.handler",
+        "kong.plugins.consumer-rate-limiting.migrations.cassandra",
+        "kong.plugins.consumer-rate-limiting.migrations.postgres",
+        "kong.plugins.consumer-rate-limiting.schema",
+        "kong.plugins.consumer-rate-limiting.timeutils"
+      ],
+      "origin": {
+        "commit": "31d70f9056d56fbeae53d11562492c42c0ba38df",
+        "ref": "1.0.0",
+        "type": "git",
+        "url": "https://github.com/nokia/consumer-rate-limiting"
+      },
+      "size": 7772,
+      "summary": "Consumer Rate Limiting is a Kong plugin, which allows to define request limiting rules",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.singletons",
+        "kong.tools.responses"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.responses",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 7,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

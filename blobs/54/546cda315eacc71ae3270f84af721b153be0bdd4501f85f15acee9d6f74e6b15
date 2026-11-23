@@ -1,0 +1,115 @@
+local User = require("luacord.structures.User")
+local Permissions = require("luacord.utils.Permissions")
+local CDN = require("luacord.utils.CDN")
+
+local Member = {}
+Member.__index = Member
+
+---Create a Member structure from Discord payload data.
+---@param data table
+---@param client table
+---@param guildId? string
+---@return table
+function Member.new(data, client, guildId)
+  assert(type(data) == "table", "Member.new expects a table payload")
+  local self = setmetatable({}, Member)
+  self._client = client
+  self.guild_id = guildId or data.guild_id
+  self:_patch(data)
+  return self
+end
+
+---Patch this member with fresh payload data.
+---@param data table
+function Member:_patch(data)
+  if data.user then
+    if self.user then
+      self.user:_patch(data.user)
+    else
+      self.user = User.new(data.user, self._client)
+    end
+  end
+  self.nick = data.nick or self.nick
+  self.avatar = data.avatar or self.avatar
+  self.roles = data.roles or self.roles or {}
+  self.joined_at = data.joined_at or self.joined_at
+  self.premium_since = data.premium_since or self.premium_since
+  if data.deaf ~= nil then
+    self.deaf = data.deaf
+  elseif self.deaf == nil then
+    self.deaf = false
+  end
+  if data.mute ~= nil then
+    self.mute = data.mute
+  elseif self.mute == nil then
+    self.mute = false
+  end
+  if data.pending ~= nil then
+    self.pending = data.pending
+  elseif self.pending == nil then
+    self.pending = false
+  end
+  self.permissions = tonumber(data.permissions) or self.permissions
+  self.communication_disabled_until = data.communication_disabled_until or self.communication_disabled_until
+end
+
+---Get the member ID.
+---@return string|nil
+function Member:id()
+  return self.user and self.user.id or nil
+end
+
+---Get mention string for this member.
+---@return string
+function Member:mention()
+  return "<@!" .. tostring(self:id()) .. ">"
+end
+
+---Get preferred display name.
+---@return string
+function Member:displayName()
+  if self.nick and self.nick ~= "" then
+    return self.nick
+  end
+  if self.user then
+    return self.user:displayName()
+  end
+  return tostring(self:id())
+end
+
+---Get guild avatar URL for this member.
+---@param size? integer
+---@param extension? string
+---@return string|nil
+function Member:avatarURL(size, extension)
+  if not self.guild_id or not self:id() then
+    return nil
+  end
+  return CDN.memberAvatar(self.guild_id, self:id(), self.avatar, size, extension)
+end
+
+---Get effective permission helper from interaction/member payload.
+---@return table
+function Member:permissionsObject()
+  return Permissions.new(self.permissions or 0)
+end
+
+---Kick this member.
+---@param reason? string
+---@return boolean, string|nil
+function Member:kick(reason)
+  if not self.guild_id or not self:id() then
+    return false, "member missing guild_id or user id"
+  end
+  local ok, err = self._client.rest:delete(
+    "/guilds/" .. tostring(self.guild_id) .. "/members/" .. tostring(self:id()),
+    nil,
+    reason
+  )
+  if not ok then
+    return false, err.message
+  end
+  return true
+end
+
+return Member

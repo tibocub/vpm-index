@@ -1,0 +1,243 @@
+local http = require("socket.http")
+local json = require("dkjson")
+
+-- For faster access, no need to index table
+local httpRequest = http.request
+local jsonDecode = json.decode
+local jsonEncode = json.encode
+
+local version = 6
+local serverUrl = "http://localhost:8765"
+
+local function httpReq(action, params)
+    local table = { action = action, params = params, version = version }
+    local request = jsonEncode(table)
+    local r, c = httpRequest(serverUrl, request)
+    if (not r) then
+        return nil, c
+    end
+    return jsonDecode(r).result, jsonDecode(r).error
+end
+
+
+local ankiConnect = {}
+
+
+-- Config
+function ankiConnect.setVersion(versionNb)
+    version = versionNb
+end
+function ankiConnect.setServerUrl(url)
+    serverUrl = url
+end
+
+
+-- Deck actions
+function ankiConnect.deckNames()
+    return httpReq("deckNames")
+end
+function ankiConnect.deckNamesAndIds()
+    return httpReq("deckNamesAndIds")
+end
+function ankiConnect.getDecks(cards)
+    return httpReq("getDecks", {cards=cards})
+end
+function ankiConnect.createDeck(deck)
+    return httpReq("createDeck", {deck=deck})
+end
+function ankiConnect.changeDeck(cards, deck)
+    return httpReq("changeDeck", {deck=deck, cards=cards})
+end
+function ankiConnect.deleteDecks(decks, cardsToo)
+    return httpReq("deleteDecks", {decks=decks, cardsToo=cardsToo})
+end
+function ankiConnect.getDeckConfig(deck)
+    return httpReq("getDeckConfig", {deck=deck})
+end
+function ankiConnect.saveDeckConfig(config)
+    return httpReq("saveDeckConfig", {config=config})
+end
+function ankiConnect.setDeckConfigId(decks, configId)
+    return httpReq("setDeckConfigId", {decks=decks, configId=configId})
+end
+function ankiConnect.cloneDeckConfigId(name, cloneFrom)
+    return httpReq("cloneDeckConfigId", {name=name, cloneFrom=cloneFrom})
+end
+function ankiConnect.removeDeckConfigId(configId)
+    return httpReq("removeDeckConfigId", {configId=configId})
+end
+
+
+-- Card actions
+function ankiConnect.suspend(cards)
+    return httpReq("suspend", {cards=cards})
+end
+function ankiConnect.unsuspend(cards)
+    return httpReq("unsuspend", {cards=cards})
+end
+function ankiConnect.areSuspended(cards)
+    return httpReq("areSuspended", {cards=cards})
+end
+function ankiConnect.areDue(cards)
+    return httpReq("areDue", {cards=cards})
+end
+function ankiConnect.getIntervals(cards, complete)
+    return httpReq("getIntervals", {cards=cards, complete=complete})
+end
+function ankiConnect.findCards(query)
+    return httpReq("findCards", {query=query})
+end
+function ankiConnect.cardsToNotes(cards)
+    return httpReq("cardsToNotes", {cards=cards})
+end
+function ankiConnect.cardsInfo(cards)
+    return httpReq("cardsInfo", {cards=cards})
+end
+
+
+-- GUI actions
+function ankiConnect.guiBrowse(query)
+    return httpReq("guiBrowse", {query=query})
+end
+function ankiConnect.guiAddCards(note)
+    return httpReq("guiAddCards", {note=note})
+end
+function ankiConnect.guiCurrentCard()
+    return httpReq("guiCurrentCard")
+end
+function ankiConnect.guiStartCardTimer()
+    return httpReq("guiStartCardTimer")
+end
+function ankiConnect.guiShowQuestion()
+    return httpReq("guiShowQuestion")
+end
+function ankiConnect.guiShowAnswer()
+    return httpReq("guiShowAnswer")
+end
+function ankiConnect.guiAnswerCard(ease)
+    return httpReq("guiAnswerCard", {ease=ease})
+end
+function ankiConnect.guiDeckOverview(name)
+    return httpReq("guiDeckOverview", {name=name})
+end
+function ankiConnect.guiDeckBrowser()
+    return httpReq("guiDeckBrowser")
+end
+function ankiConnect.guiDeckReview(name)
+    return httpReq("guiDeckReview", {name=name})
+end
+function ankiConnect.guiExitAnki()
+    return httpReq("guiExitAnki")
+end
+
+
+-- Media actions
+-- If you want to use url don't specify a value for data
+function ankiConnect.storeMediaFile(filename, url, data)
+    return httpReq("storeMediaFile", {filename=filename, url=url, data=data})
+end
+function ankiConnect.retrieveMediaFile(filename)
+    return httpReq("retrieveMediaFile", {filename=filename})
+end
+function ankiConnect.deleteMediaFile(filename)
+    return httpReq("deleteMediaFile", {filename=filename})
+end
+
+
+-- Miscellaneous actions
+function ankiConnect.version()
+    return httpReq("version")
+end
+function ankiConnect.sync()
+    return httpReq("sync")
+end
+function ankiConnect.getProfiles()
+    return httpReq("getProfiles")
+end
+function ankiConnect.loadProfile(name)
+    return httpReq("loadProfile", {name=name})
+end
+function ankiConnect.multi(actions)
+    return httpReq("actions", {actions=actions})
+end
+function ankiConnect.exportPackage(deck, path, includeSched)
+    return httpReq("exportPackage", {deck=deck, path=path, includeSched=includeSched})
+end
+function ankiConnect.importPackage(path)
+    return httpReq("importPackage", {path=path})
+end
+
+
+-- Model actions
+function ankiConnect.modelNames()
+    return httpReq("modelNames")
+end
+function ankiConnect.modelNamesAndIds()
+    return httpReq("modelNamesAndIds")
+end
+function ankiConnect.modelFieldNames(modelName)
+    return httpReq("modelFieldNames", {modelName=modelName})
+end
+function ankiConnect.modelFieldsOnTemplates(modelName)
+    return httpReq("modelFieldsOnTemplates", {modelName=modelName})
+end
+function ankiConnect.createModel(modelName, inOrderFields, cardTemplates, css)
+    return httpReq("createModel", {modelName=modelName, inOrderFields=inOrderFields, cardTemplates=cardTemplates, css=css})
+end
+function ankiConnect.modelTemplates(modelName)
+    return httpReq("modelTemplates", {modelName=modelName})
+end
+function ankiConnect.modelStyling(modelName)
+    return httpReq("modelStyling", {modelName=modelName})
+end
+function ankiConnect.updateModelTemplates(model)
+    return httpReq("updateModelTemplates", {model=model})
+end
+function ankiConnect.updateModelStyling(model)
+    return httpReq("updateModelStyling", {model=model})
+end
+
+
+-- Notes actions
+function ankiConnect.addNote(note)
+    return httpReq("addNote", {note=note})
+end
+function ankiConnect.addNotes(notes)
+    return httpReq("addNotes", {notes=notes})
+end
+function ankiConnect.canAddNotes(notes)
+    return httpReq("canAddNotes", {notes=notes})
+end
+function ankiConnect.updateNoteFields(note)
+    return httpReq("updateNoteFields", {note=note})
+end
+function ankiConnect.addTags(notes, tags)
+    return httpReq("addTags", {notes=notes, tags=tags})
+end
+function ankiConnect.removeTags(notes, tags)
+    return httpReq("removeTags", {notes=notes, tags=tags})
+end
+function ankiConnect.getTags()
+    return httpReq("getTags")
+end
+function ankiConnect.findNotes(query)
+    return httpReq("findNotes", {query=query})
+end
+function ankiConnect.notesInfo(notes)
+    return httpReq("notesInfo", {notes=notes})
+end
+function ankiConnect.deleteNotes(notes)
+    return httpReq("deleteNotes", {notes=notes})
+end
+
+
+-- Statistics actions
+function ankiConnect.getNumCardsReviewedToday()
+    return httpReq("getNumCardsReviewedToday")
+end
+function ankiConnect.getCollectionStatsHTML(wholeCollection)
+    return httpReq("getCollectionStatsHTML", {wholeCollection=wholeCollection})
+end
+
+
+return ankiConnect

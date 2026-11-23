@@ -1,0 +1,113 @@
+-- Codex subscription defaults and quota display. Credentials stay in panto.
+local root = debug.getinfo(1, "S").source:match("^@(.*[/\\])") or "./"
+
+-- Source checkouts keep companions beside init.lua; installed rocks put them
+-- beneath the package namespace. Prefer this checkout over installed copies.
+local function companion(module_name, filename)
+    local path = package.searchpath(filename, root .. "?.lua")
+    if path then return dofile(path) end
+    return require(module_name)
+end
+
+local auth_defaults = {
+    type = "oauth_device",
+    dialect = "codex",
+    client_id = "app_EMoamEEZ73f0CkXaXp7hrann",
+    device_code_url = "https://auth.openai.com/api/accounts/deviceauth/usercode",
+    device_poll_url = "https://auth.openai.com/api/accounts/deviceauth/token",
+    verification_url = "https://auth.openai.com/codex/device",
+    token_url = "https://auth.openai.com/oauth/token",
+    account_id_jwt_claim = "https://api.openai.com/auth",
+}
+
+local provider_defaults = {
+    style = "openai_responses",
+    model_catalog_name = "openai",
+    extra_headers = {
+        ["OpenAI-Beta"] = "responses=experimental",
+        originator = "codex_cli_rs",
+        ["session-id"] = "${session:id}",
+    },
+}
+
+local endpoint_defaults = {
+    openai_responses = {
+        base_url = "https://chatgpt.com/backend-api/codex",
+        dialect = "codex",
+    },
+}
+
+-- Fill only missing values; HTTP header names are case-insensitive.
+local function fill_missing(target, defaults, headers)
+    for key, value in pairs(defaults) do
+        local target_key = key
+        if headers then
+            for existing in pairs(target) do
+                if type(existing) == "string" and existing:lower() == key:lower() then
+                    target_key = existing
+                    break
+                end
+            end
+        end
+        if target[target_key] == nil then
+            target[target_key] = type(value) == "table" and {} or value
+        end
+        if type(value) == "table" and type(target[target_key]) == "table" then
+            fill_missing(target[target_key], value, key == "extra_headers")
+        end
+    end
+end
+
+local function capture_subscriptions(config)
+    local names = {}
+    for name, auth in pairs(config.auth or {}) do
+        if type(name) == "string" and type(auth) == "table" and auth.panto_codex_extension == true then
+            names[name] = true
+        end
+    end
+    for _, provider in pairs(config.providers or {}) do
+        if type(provider) == "table" and provider.panto_codex_extension == true
+            and type(provider.auth) == "string" and provider.auth ~= "" then
+            names[provider.auth] = true
+        end
+    end
+    local result = {}
+    for name in pairs(names) do result[#result + 1] = name end
+    table.sort(result)
+    return result
+end
+
+return {
+    name = "codex",
+    configure = function(config)
+        for _, auth in pairs(config.auth or {}) do
+            if type(auth) == "table" and auth.panto_codex_extension == true then
+                fill_missing(auth, auth_defaults)
+            end
+        end
+        for _, provider in pairs(config.providers or {}) do
+            if type(provider) == "table" and provider.panto_codex_extension == true then
+                fill_missing(provider, provider_defaults)
+                if provider.endpoints == nil then
+                    fill_missing(provider, { base_url = endpoint_defaults.openai_responses.base_url })
+                    if provider.style == "openai_responses" then
+                        fill_missing(provider, { dialect = endpoint_defaults.openai_responses.dialect })
+                    end
+                else
+                    fill_missing(provider, { endpoints = endpoint_defaults })
+                end
+            end
+        end
+    end,
+    activate = function()
+        local panto = require("panto")
+        -- Configuration hooks run in a different, process-lived Lua VM.
+        -- Read this session's raw config rather than retaining hook upvalues.
+        local subscriptions = capture_subscriptions(panto.ext.config or {})
+        if #subscriptions == 0 then return end
+        local footer = companion("panto-codex._usage_footer", "_usage_footer")
+        if type(footer.install) == "function" then pcall(footer.install, panto.ext) end
+        local ok_uv, uv = pcall(require, "luv")
+        companion("panto-codex.quota", "_quota").activate(panto.ext, subscriptions, footer, ok_uv and uv or nil)
+    end,
+}

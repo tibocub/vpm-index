@@ -1,0 +1,82 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-google-cloud-functions",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson",
+        "mimetypes"
+      ],
+      "files": {
+        "kong/plugins/google-cloud-functions/google/oauth.lua": {
+          "sha256": "dd736702cc67617455b6b41e0539f6e82808ce49d65b04945951a241e309940d",
+          "size": 3670,
+          "url": "https://raw.githubusercontent.com/victor-mesquita/kong-plugin-google-cloud-functions/2172c749d93d8a4929f1c727660c1e8763c2e02a/kong/plugins/google-cloud-functions/google/oauth.lua"
+        },
+        "kong/plugins/google-cloud-functions/handler.lua": {
+          "sha256": "a7e3f00c8354351b968976cd32eabb448f8249925c618de828e2d32e1cf09bbf",
+          "size": 4176,
+          "url": "https://raw.githubusercontent.com/victor-mesquita/kong-plugin-google-cloud-functions/2172c749d93d8a4929f1c727660c1e8763c2e02a/kong/plugins/google-cloud-functions/handler.lua"
+        },
+        "kong/plugins/google-cloud-functions/schema.lua": {
+          "sha256": "6fc44784788241481362877bd17f2bd7595990cb2c1868f9586e0aa505eaf952",
+          "size": 1295,
+          "url": "https://raw.githubusercontent.com/victor-mesquita/kong-plugin-google-cloud-functions/2172c749d93d8a4929f1c727660c1e8763c2e02a/kong/plugins/google-cloud-functions/schema.lua"
+        }
+      },
+      "homepage": "http://getkong.org",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 05 May 2021 19:03:45 GMT",
+        "rockspec": {
+          "date": "Wed, 05 May 2021 19:03:45 GMT",
+          "sha256": "8b405f15a08022ee63809900ddf7f495d1c87f3d378f0c5ee04fca0066681ebe",
+          "size": 878
+        },
+        "src": {
+          "date": "Wed, 05 May 2021 19:03:46 GMT",
+          "sha256": "4399251823819808bea11375b7b87afb4c8baa0b534ca81418fd0b3c1f05a849",
+          "size": 19538,
+          "url": "https://luarocks.org/kong-plugin-google-cloud-functions-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.google-cloud-functions.google.oauth",
+        "kong.plugins.google-cloud-functions.handler",
+        "kong.plugins.google-cloud-functions.schema"
+      ],
+      "origin": {
+        "commit": "2172c749d93d8a4929f1c727660c1e8763c2e02a",
+        "ref": "0.1.0",
+        "type": "git",
+        "url": "https://github.com/victor-mesquita/kong-plugin-google-cloud-functions"
+      },
+      "size": 9141,
+      "summary": "Kong plugin for google cloud functions",
+      "undeclared_requires": [
+        "inspect",
+        "kong.constants",
+        "kong.meta",
+        "kong.plugins.jwt.jwt_parser",
+        "mime",
+        "resty.http",
+        "resty.openssl.digest",
+        "resty.openssl.pkey",
+        "socket.url",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "missing module: ssl.https",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

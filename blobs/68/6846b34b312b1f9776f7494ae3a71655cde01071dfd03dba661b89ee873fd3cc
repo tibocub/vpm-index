@@ -1,0 +1,193 @@
+local frame = require 'websocket.frame'
+local mimetypes = require 'mimetypes'
+local pmd3 = require 'pmd3'
+local sfs = require 'sfs'
+local socket = require 'socket'
+
+--
+
+local previewtpl = [[
+<!DOCTYPE html>
+<head>
+	<title>pmd3 Preview</title>
+	<script>
+		let ws = new WebSocket(document.location.protocol == 'https' ? 'wss://{host}:{port}' : 'ws://{host}:{port}', 'live');
+		ws.binaryType = 'arraybuffer';
+
+		let utf8 = new TextDecoder();
+		let mkd;
+		ws.onclose = function() { window.close(); }
+		ws.onmessage = async function(msg) {
+			msg = msg.data;
+			if (!mkd) mkd = document.querySelector('.markdown-body');
+
+			switch ((new Uint8Array(msg))[0]) {
+				case 0:
+				mkd.innerHTML = utf8.decode(msg.slice(1));
+				break;
+
+				case 1:
+				// todo: parseInt(<id or index of XML (html) node to scroll to> => document.scrollIntoView(node)
+				console.log('Scroll-sync is iot implemented yet');
+				break;
+			}
+		}
+	</script>
+	<style>
+	@media (prefers-color-scheme: dark) {
+		:root {
+			background: #1a1a1a;
+			color: #f4f4f4;
+		}
+	}
+	</style>
+]]
+
+--
+
+local M = {}
+
+M.live = function(bufno)
+	local filename = vim.api.nvim_buf_get_name(bufno)
+	local _, htm = pcall(pmd3.render, table.concat(vim.api.nvim_buf_get_lines(bufno, 0, -1, false), '\n'), filename)
+
+	-- web server
+	local srv = assert(socket.bind('127.0.0.1', 0))
+	srv:settimeout(0.01)
+
+	local clients = {}
+	local _webs_run = true
+
+	vim.api.nvim_buf_attach(bufno, false, {
+		on_lines = function(...)
+			pcall(function()
+				htm = pmd3.render(table.concat(vim.api.nvim_buf_get_lines(bufno, 0, -1, false), '\n'),
+					filename)
+				for _, c in ipairs(clients) do
+					c:send(frame.encode('\0' .. htm, frame.BINARY))
+				end
+			end)
+		end
+	})
+
+	vim.api.nvim_create_autocmd('BufDelete', {
+		once = true,
+		buffer = bufno,
+		callback = function()
+			_webs_run = false
+		end
+	})
+
+	local function handle_live(ws)
+		table.insert(clients, ws)
+		--ws:send(frame.encode('\0' .. htm, frame.BINARY))
+
+		while _webs_run do
+			local msg = ws:receive()
+			--[[if msg then
+				print('<< live websocket send command (not implemented yet): ' .. msg)
+			else
+				for i, c in ipairs(clients) do
+					if c == ws then
+						table.remove(clients, i)
+						break
+					end
+				end
+				break
+			end]]
+			coroutine.yield()
+		end
+
+		ws:close()
+	end
+
+	--
+
+	local host, port
+	local threads = {}
+	table.insert(threads, coroutine.create(function()
+		while _webs_run do
+			local c = srv:accept()
+			local headers = {}
+			local method, path
+
+			if c then
+				c:settimeout(0.01)
+				table.insert(threads, coroutine.create(function()
+					local raw_head = {}
+					while c do
+						local lin, err = c:receive '*l'
+						if not lin and err ~= 'timeout' then break end
+
+						if lin then table.insert(raw_head, lin) end
+						if lin and not method then
+							method, path = lin:match '^([A-Za-z]+) (/[^ ]*) HTTP'
+						elseif lin then
+							local k, v = lin:match '^([^:]+):%s*([^\r\n]+)'
+							if not k then break end
+							headers[k:lower()] = v
+						end
+						coroutine.yield()
+					end
+
+					if headers.upgrade == 'websocket' then
+						local resp, proto = require 'websocket.handshake'.accept_upgrade(
+							table.concat(raw_head, '\r\n'), { 'live' })
+
+						if not resp then
+							c:send(proto)
+							c:close()
+							return
+						end
+
+						c:send(resp)
+						handle_live(c)
+					else
+						if path == '/' then
+							c:send('HTTP/1.1 200 OK\nContent-Type: text/html\n\n' ..
+								previewtpl:gsub('{host}', host):gsub('{port}', port) ..
+								pmd3.head .. htm .. pmd3.foot)
+						elseif path then
+							local pth = sfs.combine(sfs.getDir(filename), path:sub(2))
+							local f = io.open(pth, 'r')
+							if f then
+								local mime = mimetypes.guess(path) or 'text/css'
+								c:send('HTTP/1.1 200 OK\nContent-Type: ' ..
+									mime .. '\n\n' .. f:read '*a')
+								f:close()
+							else
+								c:send('HTTP/1.1 404 Not Found\n\n')
+							end
+						end
+						c:close()
+					end
+					coroutine.yield()
+				end))
+			end
+			coroutine.yield()
+		end
+
+		srv:close()
+	end))
+
+	host, port = srv:getsockname()
+	os.execute('xdg-open "http://localhost:' .. port .. '" 2>/dev/null') -- TODO: neovim platform independent way, e.g. ':!open <url>' (but that only seems to work on Linux)
+
+	local thr = vim.uv.new_timer()
+	thr:start(0, 50, function()
+		for i = #threads, 1, -1 do
+			local ok, err = coroutine.resume(threads[i])
+			if not ok then
+				print(debug.traceback(threads[i], err))
+			end
+			if coroutine.status(threads[i]) == 'dead' then
+				table.remove(threads, i)
+			end
+		end
+		if #threads == 0 then
+			thr:stop()
+		end
+	end)
+end
+
+return M

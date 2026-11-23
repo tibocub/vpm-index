@@ -1,0 +1,88 @@
+{
+  "kind": "lib",
+  "name": "pbc",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "protobuf.lua": {
+          "sha256": "dce758d985ab163bb8c02212bedfe368dab651eda30411e7d016ebbaccad26cf",
+          "size": 13259,
+          "url": "blob:dce758d985ab163bb8c02212bedfe368dab651eda30411e7d016ebbaccad26cf"
+        }
+      },
+      "homepage": "https://github.com/reasonMix/pbc",
+      "license": "The MIT License",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 14 Sep 2016 09:26:17 GMT",
+        "rockspec": {
+          "date": "Wed, 14 Sep 2016 09:26:17 GMT",
+          "sha256": "48aa2610374bc5fd4fe0e190eda0da64ffac70a0773aaaed962539c482b860a5",
+          "size": 899
+        },
+        "src": {
+          "date": "Wed, 14 Sep 2016 09:26:18 GMT",
+          "sha256": "5812686e5dad7ede144b0f89620019f2fa9c4a64490a6fb6d29d0af2c3b3ac52",
+          "size": 82982,
+          "url": "https://luarocks.org/pbc-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "protobuf",
+        "protobuf.c"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "."
+              ],
+              "name": "protobuf.c",
+              "sources": [
+                "src/context.c",
+                "src/varint.c",
+                "src/array.c",
+                "src/pattern.c",
+                "src/register.c",
+                "src/proto.c",
+                "src/map.c",
+                "src/alloc.c",
+                "src/rmessage.c",
+                "src/wmessage.c",
+                "src/bootstrap.c",
+                "src/stringpool.c",
+                "src/decode.c",
+                "binding/lua/pbc-lua.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Wed, 14 Sep 2016 09:26:18 GMT",
+        "sha256": "5812686e5dad7ede144b0f89620019f2fa9c4a64490a6fb6d29d0af2c3b3ac52",
+        "size": 82982,
+        "type": "luarocks",
+        "url": "https://luarocks.org/pbc-0.1.0-1.src.rock"
+      },
+      "size": 13259,
+      "summary": "google protocol lua binding used in cocos2d-x project",
+      "vlr": {
+        "d51": true,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

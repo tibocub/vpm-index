@@ -1,0 +1,89 @@
+
+--- Return a comma separated hex string suitable for a C array definition.
+local sfs        = require "sfs"
+local cfmt       = require "lrocket.cfmt"
+local log        = require "lrocket.log"
+local genc       = require "lrocket.genc"
+local lra        = require "lrocket.build.lra"
+
+---@type lrocket.Generator
+---@diagnostic disable-next-line: missing-fields
+local shared_c = {}
+
+local function globtolua(glob)
+	return "^"..glob:gsub("%p", "%%%1"):gsub("%%%*%%%*", ".-"):gsub("%%%*", "[^.]-").."$"
+end
+
+function shared_c.build(src, output, cfg)
+	local lrafile = cfg.keep and sfs.getBaseName(output)..".lra" or sfs.tmppath()
+
+	cfg.modname = cfg.modname or sfs.getBaseName(cfg.output)
+
+	src.mods[1].modname = cfg.modname
+	local pats = { globtolua(cfg.modname) }
+	for _, lib in ipairs(cfg.export --[[@as string[] ]]) do
+		pats[#pats+1] = globtolua(lib)
+	end
+
+	lra.build(src, lrafile, cfg)
+
+	local file = log.assert(sfs.open(output, "wb"))
+	local fmt = cfmt.newformatter(file)
+
+	local moddefs = {}
+	local moddecls = {}
+	local added = {}
+	local function addshared(modname, mode)
+		if added[modname] then return false end
+		added[modname] = true
+
+		table.insert(moddecls, function()
+			genc.clra_shared_ref(fmt, modname)
+		end)
+
+		if mode == 'embed' then
+			table.insert(moddefs, function()
+				genc.clra_shared(fmt, modname)
+			end)
+		end
+		return true
+	end
+
+	local mods = {}
+	for _, mod in ipairs(src.mods) do
+		if mod.entrypoint then
+			if addshared(mod.modname, 'ref') then
+				mods[#mods+1] = mod.modname
+			end
+		elseif mod.lang ~= 'shared' then
+			for _, pat in ipairs(pats) do
+				if mod.modname:find(pat) then
+					if addshared(mod.modname, 'embed') then
+						mods[#mods+1] = mod.modname
+					end
+					break
+				end
+			end
+		end
+	end
+
+	genc.cppsentrybegin(fmt)
+	genc.clra_preamble(fmt)
+	for _, mod in ipairs(moddecls) do
+		mod()
+	end
+	genc.clra_init_definition(fmt, sfs.read(lrafile, true), mods, src.rpath, src.rcpath)
+	for _, mod in ipairs(moddefs) do
+		mod()
+	end
+	genc.cppsentryend(fmt);
+
+	file:close()
+
+	if not cfg.keep then
+		sfs.deltmppath(lrafile)
+	end
+end
+
+return shared_c
+

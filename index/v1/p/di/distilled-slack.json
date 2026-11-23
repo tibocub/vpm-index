@@ -1,0 +1,957 @@
+{
+  "kind": "lib",
+  "name": "distilled-slack",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [
+        "distilled == 0.1.0"
+      ],
+      "files": {
+        "distilled/clients/slack/admin/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/admin/init.lua": {
+          "sha256": "70c298016c9a09f2060f8284875c00fbcad2464823ca7b0d8d0a1041b4482562",
+          "size": 1473,
+          "url": "blob:70c298016c9a09f2060f8284875c00fbcad2464823ca7b0d8d0a1041b4482562"
+        },
+        "distilled/clients/slack/admin/service.lua": {
+          "sha256": "35853fdfae385d079bfc045f6edbd6a062ebfd0cffd24daa5dc3c73bb37357bc",
+          "size": 152422,
+          "url": "blob:35853fdfae385d079bfc045f6edbd6a062ebfd0cffd24daa5dc3c73bb37357bc"
+        },
+        "distilled/clients/slack/admin/types.lua": {
+          "sha256": "00d3403d2e4c7d21a165a2f123553acabb1cabb5967b97ccce0db18a90a4a97c",
+          "size": 335851,
+          "url": "blob:00d3403d2e4c7d21a165a2f123553acabb1cabb5967b97ccce0db18a90a4a97c"
+        },
+        "distilled/clients/slack/agents/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/agents/init.lua": {
+          "sha256": "ad02a5ee65f002ab579fad3a099d1fb8c35f80347a2304814338bf653dff25fa",
+          "size": 1479,
+          "url": "blob:ad02a5ee65f002ab579fad3a099d1fb8c35f80347a2304814338bf653dff25fa"
+        },
+        "distilled/clients/slack/agents/service.lua": {
+          "sha256": "248dfeb7999a55e6eed6b61abb5f3e37c5e4e24a9a221133e04374d49027c81d",
+          "size": 15518,
+          "url": "blob:248dfeb7999a55e6eed6b61abb5f3e37c5e4e24a9a221133e04374d49027c81d"
+        },
+        "distilled/clients/slack/agents/types.lua": {
+          "sha256": "b6fa3520be5f26063f5e50fb39052f82372fda8e8734ca0492f5aa190040ffff",
+          "size": 37695,
+          "url": "blob:b6fa3520be5f26063f5e50fb39052f82372fda8e8734ca0492f5aa190040ffff"
+        },
+        "distilled/clients/slack/api/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/api/init.lua": {
+          "sha256": "91b27b78d3e7504010f99864d9c4345520a68dabb8d4c7c510edc568c754e54c",
+          "size": 1453,
+          "url": "blob:91b27b78d3e7504010f99864d9c4345520a68dabb8d4c7c510edc568c754e54c"
+        },
+        "distilled/clients/slack/api/service.lua": {
+          "sha256": "4379f05127592699f4462acad923296b360c2320b82801bca5d244d2f8b97a87",
+          "size": 1762,
+          "url": "blob:4379f05127592699f4462acad923296b360c2320b82801bca5d244d2f8b97a87"
+        },
+        "distilled/clients/slack/api/types.lua": {
+          "sha256": "6aa9da3e3bdec572e48e439b53835d59dfc244a7b552bd94041e84ae2c099b88",
+          "size": 3313,
+          "url": "blob:6aa9da3e3bdec572e48e439b53835d59dfc244a7b552bd94041e84ae2c099b88"
+        },
+        "distilled/clients/slack/apps/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/apps/init.lua": {
+          "sha256": "9dbbb10f3e75096627fee2e6bc507a60bd0ff5b8e59242615e3b68a20f107bc4",
+          "size": 1463,
+          "url": "blob:9dbbb10f3e75096627fee2e6bc507a60bd0ff5b8e59242615e3b68a20f107bc4"
+        },
+        "distilled/clients/slack/apps/service.lua": {
+          "sha256": "e39f5581fc3ac7b8399c3388a0b12532aa143b64ae3220638da9162de67bf307",
+          "size": 24684,
+          "url": "blob:e39f5581fc3ac7b8399c3388a0b12532aa143b64ae3220638da9162de67bf307"
+        },
+        "distilled/clients/slack/apps/types.lua": {
+          "sha256": "9067047a8c6567e07c1a6e1a64cf894f260830fd9ecdbc9c3f822316d5998250",
+          "size": 60309,
+          "url": "blob:9067047a8c6567e07c1a6e1a64cf894f260830fd9ecdbc9c3f822316d5998250"
+        },
+        "distilled/clients/slack/assistant/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/assistant/init.lua": {
+          "sha256": "d374e830b9b45776b6ea7c7949ac529f6b52fb2fae47a12bb7167ab07a6a809e",
+          "size": 1502,
+          "url": "blob:d374e830b9b45776b6ea7c7949ac529f6b52fb2fae47a12bb7167ab07a6a809e"
+        },
+        "distilled/clients/slack/assistant/service.lua": {
+          "sha256": "9a3a37df9405089123367d5a5981454982fbbae3a7c4cd0c9523d5788698f59d",
+          "size": 13110,
+          "url": "blob:9a3a37df9405089123367d5a5981454982fbbae3a7c4cd0c9523d5788698f59d"
+        },
+        "distilled/clients/slack/assistant/types.lua": {
+          "sha256": "294d72976217f058cee3ac10d413823b37ea3564fadf4f65906b35cb55e906e7",
+          "size": 23886,
+          "url": "blob:294d72976217f058cee3ac10d413823b37ea3564fadf4f65906b35cb55e906e7"
+        },
+        "distilled/clients/slack/auth/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/auth/init.lua": {
+          "sha256": "7e7f03c81c1ad0bbd3069350d19b5dd3ff0c3b06f556806c02e97dff2d6fc23e",
+          "size": 1462,
+          "url": "blob:7e7f03c81c1ad0bbd3069350d19b5dd3ff0c3b06f556806c02e97dff2d6fc23e"
+        },
+        "distilled/clients/slack/auth/service.lua": {
+          "sha256": "2d646e4980fee816a993c00990c8d101e4a9b988b1b1982ae041709e573fa138",
+          "size": 4762,
+          "url": "blob:2d646e4980fee816a993c00990c8d101e4a9b988b1b1982ae041709e573fa138"
+        },
+        "distilled/clients/slack/auth/types.lua": {
+          "sha256": "8e3172cb785584cf3966ca4243f8844bbc61debebe20fa81a570f55fd6982c37",
+          "size": 8189,
+          "url": "blob:8e3172cb785584cf3966ca4243f8844bbc61debebe20fa81a570f55fd6982c37"
+        },
+        "distilled/clients/slack/blocks/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/blocks/init.lua": {
+          "sha256": "071a841993e503a699d3ad5c0d52ebc1e0fb26cefbcdd138fd485c9d12421be6",
+          "size": 1477,
+          "url": "blob:071a841993e503a699d3ad5c0d52ebc1e0fb26cefbcdd138fd485c9d12421be6"
+        },
+        "distilled/clients/slack/blocks/service.lua": {
+          "sha256": "5f874192f06ee2020a2b1515fd49beb58a3384b6eb66bc533205d08196e0f8b0",
+          "size": 2149,
+          "url": "blob:5f874192f06ee2020a2b1515fd49beb58a3384b6eb66bc533205d08196e0f8b0"
+        },
+        "distilled/clients/slack/blocks/types.lua": {
+          "sha256": "bdfafddc2c2f6d2e042801c488fc008f25c2ffcb7135ad3e8a96d6b231a5f102",
+          "size": 5213,
+          "url": "blob:bdfafddc2c2f6d2e042801c488fc008f25c2ffcb7135ad3e8a96d6b231a5f102"
+        },
+        "distilled/clients/slack/bookmarks/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/bookmarks/init.lua": {
+          "sha256": "95b34439620ca9d6b12c8a5a91c0deeecbd582d971d7c873f4ec2afabbf762d0",
+          "size": 1502,
+          "url": "blob:95b34439620ca9d6b12c8a5a91c0deeecbd582d971d7c873f4ec2afabbf762d0"
+        },
+        "distilled/clients/slack/bookmarks/service.lua": {
+          "sha256": "e2f5184efe5d4f991fd64a9f8a37bed0b69a5af0e910c0aa90964e6934f8ed8a",
+          "size": 4410,
+          "url": "blob:e2f5184efe5d4f991fd64a9f8a37bed0b69a5af0e910c0aa90964e6934f8ed8a"
+        },
+        "distilled/clients/slack/bookmarks/types.lua": {
+          "sha256": "236a242ef453c8b95ba84fcbebe95865724e467784770c50d35003b9272f525b",
+          "size": 10607,
+          "url": "blob:236a242ef453c8b95ba84fcbebe95865724e467784770c50d35003b9272f525b"
+        },
+        "distilled/clients/slack/bots/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/bots/init.lua": {
+          "sha256": "28a0e5a410df299e6dcf615857055d323909dbc9bea3d4022004b980dececa15",
+          "size": 1461,
+          "url": "blob:28a0e5a410df299e6dcf615857055d323909dbc9bea3d4022004b980dececa15"
+        },
+        "distilled/clients/slack/bots/service.lua": {
+          "sha256": "c1b7a5e31fdd14bc98e1db02bfec1298ea72ca037ec08dc051036c2c2e9545de",
+          "size": 3948,
+          "url": "blob:c1b7a5e31fdd14bc98e1db02bfec1298ea72ca037ec08dc051036c2c2e9545de"
+        },
+        "distilled/clients/slack/bots/types.lua": {
+          "sha256": "f7af129b192c35c42cd86c00e03fec16dfa8109fb8bd20aae08e4802f0804ae5",
+          "size": 5006,
+          "url": "blob:f7af129b192c35c42cd86c00e03fec16dfa8109fb8bd20aae08e4802f0804ae5"
+        },
+        "distilled/clients/slack/calls/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/calls/init.lua": {
+          "sha256": "048c60838c272e8eb20fd5c2a49aab4c91dd7f2d19a6357a734e41b7f1aa7971",
+          "size": 1470,
+          "url": "blob:048c60838c272e8eb20fd5c2a49aab4c91dd7f2d19a6357a734e41b7f1aa7971"
+        },
+        "distilled/clients/slack/calls/service.lua": {
+          "sha256": "ca8c0c7c1141e94c8158e5379eb3f8a0ee854f6c153c31414ba7e45f724ab580",
+          "size": 5741,
+          "url": "blob:ca8c0c7c1141e94c8158e5379eb3f8a0ee854f6c153c31414ba7e45f724ab580"
+        },
+        "distilled/clients/slack/calls/types.lua": {
+          "sha256": "731f99f7c738134a1c26bf90fdb31f8d0eb67d5a0c43984b94bb8339101c019e",
+          "size": 11570,
+          "url": "blob:731f99f7c738134a1c26bf90fdb31f8d0eb67d5a0c43984b94bb8339101c019e"
+        },
+        "distilled/clients/slack/canvases/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/canvases/init.lua": {
+          "sha256": "dd47451441e1b5504f1a9b169d1349e94c69359e82a483a2a295d33446b14934",
+          "size": 1494,
+          "url": "blob:dd47451441e1b5504f1a9b169d1349e94c69359e82a483a2a295d33446b14934"
+        },
+        "distilled/clients/slack/canvases/service.lua": {
+          "sha256": "b69bd9eccc7f8620065e851d75595b3c681b977715c440b5dcb90d8ca8389899",
+          "size": 7817,
+          "url": "blob:b69bd9eccc7f8620065e851d75595b3c681b977715c440b5dcb90d8ca8389899"
+        },
+        "distilled/clients/slack/canvases/types.lua": {
+          "sha256": "ed2e77e109c408a2a7c886fdceab3263b0bb097e093302dabc8e5fbc3adccb82",
+          "size": 15674,
+          "url": "blob:ed2e77e109c408a2a7c886fdceab3263b0bb097e093302dabc8e5fbc3adccb82"
+        },
+        "distilled/clients/slack/chat/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/chat/init.lua": {
+          "sha256": "351647f635e2a6a0ecde6254c62bf17e85354f5bbb653e0689194db0769e2d81",
+          "size": 1463,
+          "url": "blob:351647f635e2a6a0ecde6254c62bf17e85354f5bbb653e0689194db0769e2d81"
+        },
+        "distilled/clients/slack/chat/service.lua": {
+          "sha256": "a9cf3af45d574d1f2b2fe28043ef30adeb9b07a70c19839a240404718061612b",
+          "size": 21192,
+          "url": "blob:a9cf3af45d574d1f2b2fe28043ef30adeb9b07a70c19839a240404718061612b"
+        },
+        "distilled/clients/slack/chat/types.lua": {
+          "sha256": "a866d899ac4a70728270312f0f7db9758cdd8fe00b5a3d23c4ddcd19102a83da",
+          "size": 62389,
+          "url": "blob:a866d899ac4a70728270312f0f7db9758cdd8fe00b5a3d23c4ddcd19102a83da"
+        },
+        "distilled/clients/slack/conversations/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/conversations/init.lua": {
+          "sha256": "41582c7c82e8ae30f88bee4f78416c41f366023dced5807f821c4c3074ce895e",
+          "size": 1536,
+          "url": "blob:41582c7c82e8ae30f88bee4f78416c41f366023dced5807f821c4c3074ce895e"
+        },
+        "distilled/clients/slack/conversations/service.lua": {
+          "sha256": "586a22cbfc0956a1aff49201430ae2c3a9b44c763645e95c8d3ff575df5493fc",
+          "size": 31516,
+          "url": "blob:586a22cbfc0956a1aff49201430ae2c3a9b44c763645e95c8d3ff575df5493fc"
+        },
+        "distilled/clients/slack/conversations/types.lua": {
+          "sha256": "59e12923d01b0e047c17691e14e04c556828ff529741e87432534fd63bbe63dd",
+          "size": 82806,
+          "url": "blob:59e12923d01b0e047c17691e14e04c556828ff529741e87432534fd63bbe63dd"
+        },
+        "distilled/clients/slack/dialog/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/dialog/init.lua": {
+          "sha256": "234461cd583bd5ab29ba5bac91843a135d49adfa73a06a0c444c89be324a7967",
+          "size": 1477,
+          "url": "blob:234461cd583bd5ab29ba5bac91843a135d49adfa73a06a0c444c89be324a7967"
+        },
+        "distilled/clients/slack/dialog/service.lua": {
+          "sha256": "36c1fb5ff22945ce8518ed6ca2e42976a038645aa2c876fe6f3536a1a98ee28e",
+          "size": 1760,
+          "url": "blob:36c1fb5ff22945ce8518ed6ca2e42976a038645aa2c876fe6f3536a1a98ee28e"
+        },
+        "distilled/clients/slack/dialog/types.lua": {
+          "sha256": "92935d80651ac6f2c61b365ab4fb957959d4499d475c4123286798ae667f77db",
+          "size": 4278,
+          "url": "blob:92935d80651ac6f2c61b365ab4fb957959d4499d475c4123286798ae667f77db"
+        },
+        "distilled/clients/slack/dnd/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/dnd/init.lua": {
+          "sha256": "0994ecf140e404633198b47e3af694a8fcc13e655c61a88ed072fd06dde6c122",
+          "size": 1454,
+          "url": "blob:0994ecf140e404633198b47e3af694a8fcc13e655c61a88ed072fd06dde6c122"
+        },
+        "distilled/clients/slack/dnd/service.lua": {
+          "sha256": "0bbf1106a36c8047ea745b1a8055eff495eb0b25d543a8edbb705f2dcd79ecee",
+          "size": 5008,
+          "url": "blob:0bbf1106a36c8047ea745b1a8055eff495eb0b25d543a8edbb705f2dcd79ecee"
+        },
+        "distilled/clients/slack/dnd/types.lua": {
+          "sha256": "99955ace22d45e8093fa04af3e8cc245c1631707e78a7743fd83cf0eba29c173",
+          "size": 7725,
+          "url": "blob:99955ace22d45e8093fa04af3e8cc245c1631707e78a7743fd83cf0eba29c173"
+        },
+        "distilled/clients/slack/emoji/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/emoji/init.lua": {
+          "sha256": "d5d9c861620a909b40536c9f0ef145df04433b83c3c6ae1477e24c3d8358a7ef",
+          "size": 1469,
+          "url": "blob:d5d9c861620a909b40536c9f0ef145df04433b83c3c6ae1477e24c3d8358a7ef"
+        },
+        "distilled/clients/slack/emoji/service.lua": {
+          "sha256": "a95823d30231b52fd2411c6d90e002b50db771828fb6cecd8253be6c5215c62f",
+          "size": 2485,
+          "url": "blob:a95823d30231b52fd2411c6d90e002b50db771828fb6cecd8253be6c5215c62f"
+        },
+        "distilled/clients/slack/emoji/types.lua": {
+          "sha256": "4e81e76b37c9e1089c4f92a3aca98640fd6b60e802966572f01cbfe1b2bcce8f",
+          "size": 4183,
+          "url": "blob:4e81e76b37c9e1089c4f92a3aca98640fd6b60e802966572f01cbfe1b2bcce8f"
+        },
+        "distilled/clients/slack/entity/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/entity/init.lua": {
+          "sha256": "07ebafe3b7acd200e2a2ddab239a0cdc81c3ff2dd73938c7b26119daad38fe47",
+          "size": 1478,
+          "url": "blob:07ebafe3b7acd200e2a2ddab239a0cdc81c3ff2dd73938c7b26119daad38fe47"
+        },
+        "distilled/clients/slack/entity/service.lua": {
+          "sha256": "219c5f1e16d26092d4340b916b73b75be272d1b132f1b6919f56dcd59cca0a87",
+          "size": 4409,
+          "url": "blob:219c5f1e16d26092d4340b916b73b75be272d1b132f1b6919f56dcd59cca0a87"
+        },
+        "distilled/clients/slack/entity/types.lua": {
+          "sha256": "563ed0e6ee323de56b7e0d7eb3ba8e2242f277f38be07b9a3e0ebc674d7f3b0b",
+          "size": 9933,
+          "url": "blob:563ed0e6ee323de56b7e0d7eb3ba8e2242f277f38be07b9a3e0ebc674d7f3b0b"
+        },
+        "distilled/clients/slack/files/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/files/init.lua": {
+          "sha256": "e5ab8c31b3734b133f5c0f16af08e8a33baa96f8c2735bb1570cc522e3153d4e",
+          "size": 1471,
+          "url": "blob:e5ab8c31b3734b133f5c0f16af08e8a33baa96f8c2735bb1570cc522e3153d4e"
+        },
+        "distilled/clients/slack/files/service.lua": {
+          "sha256": "dc41aa0e81ae982e354d45f5bb9b91b101d0dc98cc9425ad4e8c8a4b65722396",
+          "size": 21396,
+          "url": "blob:dc41aa0e81ae982e354d45f5bb9b91b101d0dc98cc9425ad4e8c8a4b65722396"
+        },
+        "distilled/clients/slack/files/types.lua": {
+          "sha256": "2dc95fd2061f75447b913187d978e80f1a04e15d8d31ef0d25e3d05ce12ea306",
+          "size": 37503,
+          "url": "blob:2dc95fd2061f75447b913187d978e80f1a04e15d8d31ef0d25e3d05ce12ea306"
+        },
+        "distilled/clients/slack/functions/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/functions/init.lua": {
+          "sha256": "87ad40101fbdab33e08e659db1c0b483e39ddeed7e87827d6d66ed6e3bd452df",
+          "size": 1502,
+          "url": "blob:87ad40101fbdab33e08e659db1c0b483e39ddeed7e87827d6d66ed6e3bd452df"
+        },
+        "distilled/clients/slack/functions/service.lua": {
+          "sha256": "56c80773d7e46f8077be94bba2f46cbd49dd724a680e97ceae8cd9605adf702e",
+          "size": 12977,
+          "url": "blob:56c80773d7e46f8077be94bba2f46cbd49dd724a680e97ceae8cd9605adf702e"
+        },
+        "distilled/clients/slack/functions/types.lua": {
+          "sha256": "50b698f97dffa0c84b894a3ce00cc957e51532ea55ac750fd24c78cc2ff794b8",
+          "size": 20557,
+          "url": "blob:50b698f97dffa0c84b894a3ce00cc957e51532ea55ac750fd24c78cc2ff794b8"
+        },
+        "distilled/clients/slack/init.lua": {
+          "sha256": "ba89a1aa3fea57799c2c002708c09d6a01152c20449b5f53ec9931eb4bc43ea7",
+          "size": 1966,
+          "url": "blob:ba89a1aa3fea57799c2c002708c09d6a01152c20449b5f53ec9931eb4bc43ea7"
+        },
+        "distilled/clients/slack/lists/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/lists/init.lua": {
+          "sha256": "266553f086152a8124395ee28bc44d1095cd273fbdac1cf3878c6a2f4cbae391",
+          "size": 1471,
+          "url": "blob:266553f086152a8124395ee28bc44d1095cd273fbdac1cf3878c6a2f4cbae391"
+        },
+        "distilled/clients/slack/lists/service.lua": {
+          "sha256": "9e4effd4c17532b60306740bb0916b871dc4142511f54e991029cf59bfcfa78e",
+          "size": 12839,
+          "url": "blob:9e4effd4c17532b60306740bb0916b871dc4142511f54e991029cf59bfcfa78e"
+        },
+        "distilled/clients/slack/lists/types.lua": {
+          "sha256": "68130e331e98fbc184af1a1a3384c27e9e98943a1f2d676c51e301f142a07e0f",
+          "size": 28192,
+          "url": "blob:68130e331e98fbc184af1a1a3384c27e9e98943a1f2d676c51e301f142a07e0f"
+        },
+        "distilled/clients/slack/migration/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/migration/init.lua": {
+          "sha256": "33e6fd83bc91f89db0a250353fd7f79d2135eba31c29cad41e89e4159194279c",
+          "size": 1501,
+          "url": "blob:33e6fd83bc91f89db0a250353fd7f79d2135eba31c29cad41e89e4159194279c"
+        },
+        "distilled/clients/slack/migration/service.lua": {
+          "sha256": "2cc9639e2c365413669fdf3db1c822802be99aa92c92786d3681db43baf413e6",
+          "size": 2581,
+          "url": "blob:2cc9639e2c365413669fdf3db1c822802be99aa92c92786d3681db43baf413e6"
+        },
+        "distilled/clients/slack/migration/types.lua": {
+          "sha256": "265124afd8cf10eb3b5cb72020ec475e65190010863f756261b746f65e2fbc36",
+          "size": 4557,
+          "url": "blob:265124afd8cf10eb3b5cb72020ec475e65190010863f756261b746f65e2fbc36"
+        },
+        "distilled/clients/slack/oauth/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/oauth/init.lua": {
+          "sha256": "4e988d782b55d248cac860d5392d7874bd00f6628a53dc91121ed2c3a26d6b42",
+          "size": 1453,
+          "url": "blob:4e988d782b55d248cac860d5392d7874bd00f6628a53dc91121ed2c3a26d6b42"
+        },
+        "distilled/clients/slack/oauth/service.lua": {
+          "sha256": "b841613435bc7900acd6e921322bb2d75bca89e481b0ca6e628698a4b02f4769",
+          "size": 15348,
+          "url": "blob:b841613435bc7900acd6e921322bb2d75bca89e481b0ca6e628698a4b02f4769"
+        },
+        "distilled/clients/slack/oauth/types.lua": {
+          "sha256": "9c2c5470230164c46049d398d334ab968682df4477dbca1e4dde564143d0710a",
+          "size": 28094,
+          "url": "blob:9c2c5470230164c46049d398d334ab968682df4477dbca1e4dde564143d0710a"
+        },
+        "distilled/clients/slack/openid/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/openid/init.lua": {
+          "sha256": "6ab84c00336905814c9243e15fc893cef499a4849d5ad424fc5caf6d28195bf4",
+          "size": 1461,
+          "url": "blob:6ab84c00336905814c9243e15fc893cef499a4849d5ad424fc5caf6d28195bf4"
+        },
+        "distilled/clients/slack/openid/service.lua": {
+          "sha256": "4851c26542850d744036ad95a112ceb0d3852b9c1deac835934242a5eea230a2",
+          "size": 6561,
+          "url": "blob:4851c26542850d744036ad95a112ceb0d3852b9c1deac835934242a5eea230a2"
+        },
+        "distilled/clients/slack/openid/types.lua": {
+          "sha256": "35f2e980cc8266aaa80591f81c3140ca90ea4c00a3a966357ceaba8d730a330b",
+          "size": 7823,
+          "url": "blob:35f2e980cc8266aaa80591f81c3140ca90ea4c00a3a966357ceaba8d730a330b"
+        },
+        "distilled/clients/slack/pins/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/pins/init.lua": {
+          "sha256": "ce1bb14a341d74d8a0aaff18c4a2afd106517e481c0b40051b7e95824d601cf4",
+          "size": 1462,
+          "url": "blob:ce1bb14a341d74d8a0aaff18c4a2afd106517e481c0b40051b7e95824d601cf4"
+        },
+        "distilled/clients/slack/pins/service.lua": {
+          "sha256": "bba25bf46a228d79ed25b76264fd2dc13e507f08d363943d986a90f69ada1225",
+          "size": 3616,
+          "url": "blob:bba25bf46a228d79ed25b76264fd2dc13e507f08d363943d986a90f69ada1225"
+        },
+        "distilled/clients/slack/pins/types.lua": {
+          "sha256": "6ac7a32b34fa14e63136ed1158efe1ef2bd9edd9480c03e269cea16f0f7fd777",
+          "size": 7273,
+          "url": "blob:6ac7a32b34fa14e63136ed1158efe1ef2bd9edd9480c03e269cea16f0f7fd777"
+        },
+        "distilled/clients/slack/reactions/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/reactions/init.lua": {
+          "sha256": "520a230700b30a7005dcdc614bad1adc7f8662053acb0f7397709ce7a2f81060",
+          "size": 1502,
+          "url": "blob:520a230700b30a7005dcdc614bad1adc7f8662053acb0f7397709ce7a2f81060"
+        },
+        "distilled/clients/slack/reactions/service.lua": {
+          "sha256": "cd1cabcc1b19215c69c77c38d7ba082433ad6ddc6f294c16d23606d12df3d440",
+          "size": 5295,
+          "url": "blob:cd1cabcc1b19215c69c77c38d7ba082433ad6ddc6f294c16d23606d12df3d440"
+        },
+        "distilled/clients/slack/reactions/types.lua": {
+          "sha256": "586976cc5421d34a01f15899c48e3b4104fce8f59ed19bd7d954da79407fae7f",
+          "size": 12039,
+          "url": "blob:586976cc5421d34a01f15899c48e3b4104fce8f59ed19bd7d954da79407fae7f"
+        },
+        "distilled/clients/slack/reminders/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/reminders/init.lua": {
+          "sha256": "6eefd95c8228c04f9a60bcd8df31c26b6e76e14d47a6124a2db65395e3601a09",
+          "size": 1502,
+          "url": "blob:6eefd95c8228c04f9a60bcd8df31c26b6e76e14d47a6124a2db65395e3601a09"
+        },
+        "distilled/clients/slack/reminders/service.lua": {
+          "sha256": "af0262ba84aa57b6aba4755b5240c629c9a2722e3f85dfb34b54ad063cb2674e",
+          "size": 4645,
+          "url": "blob:af0262ba84aa57b6aba4755b5240c629c9a2722e3f85dfb34b54ad063cb2674e"
+        },
+        "distilled/clients/slack/reminders/types.lua": {
+          "sha256": "32d2a8558499c015535e63dd0681b51e0921efaa48f542ca0d0cd2000660b05e",
+          "size": 8669,
+          "url": "blob:32d2a8558499c015535e63dd0681b51e0921efaa48f542ca0d0cd2000660b05e"
+        },
+        "distilled/clients/slack/rtm/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/rtm/init.lua": {
+          "sha256": "02bdeaa4a2ab3d7f97c0963932da62722fac56399b01cede130850069633393f",
+          "size": 1454,
+          "url": "blob:02bdeaa4a2ab3d7f97c0963932da62722fac56399b01cede130850069633393f"
+        },
+        "distilled/clients/slack/rtm/service.lua": {
+          "sha256": "4b450cd1260dc78669b7b780fa975fccb55bbdfb2fd47222d68ea4c78e8316af",
+          "size": 4340,
+          "url": "blob:4b450cd1260dc78669b7b780fa975fccb55bbdfb2fd47222d68ea4c78e8316af"
+        },
+        "distilled/clients/slack/rtm/types.lua": {
+          "sha256": "81f15a0d39768fa854ff4c11489c685543fe1eeeb1997a8e4277a50766fa0a23",
+          "size": 6644,
+          "url": "blob:81f15a0d39768fa854ff4c11489c685543fe1eeeb1997a8e4277a50766fa0a23"
+        },
+        "distilled/clients/slack/search/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/search/init.lua": {
+          "sha256": "aff25b9f40d437c02ce02b25e2ee100dd304251f9c1b2f78cc298518a2e04fdc",
+          "size": 1478,
+          "url": "blob:aff25b9f40d437c02ce02b25e2ee100dd304251f9c1b2f78cc298518a2e04fdc"
+        },
+        "distilled/clients/slack/search/service.lua": {
+          "sha256": "f00295cdf5e08e36fe7fb2c4ef7e68a4ae9c30835cfecae371699316cd6a896a",
+          "size": 9995,
+          "url": "blob:f00295cdf5e08e36fe7fb2c4ef7e68a4ae9c30835cfecae371699316cd6a896a"
+        },
+        "distilled/clients/slack/search/types.lua": {
+          "sha256": "2ce07e7d426e3e046b518cbd754451ec619a76060973ff319bdad03e56477583",
+          "size": 11642,
+          "url": "blob:2ce07e7d426e3e046b518cbd754451ec619a76060973ff319bdad03e56477583"
+        },
+        "distilled/clients/slack/slackbot/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/slackbot/init.lua": {
+          "sha256": "bcc9db030753bfb432ea48c48b732dcd92348954c45f6007430023f94f0cf471",
+          "size": 1494,
+          "url": "blob:bcc9db030753bfb432ea48c48b732dcd92348954c45f6007430023f94f0cf471"
+        },
+        "distilled/clients/slack/slackbot/service.lua": {
+          "sha256": "f588bc82413822a997fbcd4b47dcd58ce2190822445d7c50cb03d48730387f30",
+          "size": 20297,
+          "url": "blob:f588bc82413822a997fbcd4b47dcd58ce2190822445d7c50cb03d48730387f30"
+        },
+        "distilled/clients/slack/slackbot/types.lua": {
+          "sha256": "3a9fa25102796499a7c4f637c67dd2c0748cbdd45cd24a9c21095a36b99247a1",
+          "size": 36537,
+          "url": "blob:3a9fa25102796499a7c4f637c67dd2c0748cbdd45cd24a9c21095a36b99247a1"
+        },
+        "distilled/clients/slack/stars/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/stars/init.lua": {
+          "sha256": "e3de8894508226ffe6b194bc3ea292c2cb37ec7e4420282ea1f002a472d83a8e",
+          "size": 1470,
+          "url": "blob:e3de8894508226ffe6b194bc3ea292c2cb37ec7e4420282ea1f002a472d83a8e"
+        },
+        "distilled/clients/slack/stars/service.lua": {
+          "sha256": "394374aafbe78e666ae857dd1bd7e16706330486662f1b4edbaa4f75850ff22c",
+          "size": 7124,
+          "url": "blob:394374aafbe78e666ae857dd1bd7e16706330486662f1b4edbaa4f75850ff22c"
+        },
+        "distilled/clients/slack/stars/types.lua": {
+          "sha256": "1d4bd6577b16054abcc35d23c43ff016a76b1e212df7f63be6e1891634360477",
+          "size": 10676,
+          "url": "blob:1d4bd6577b16054abcc35d23c43ff016a76b1e212df7f63be6e1891634360477"
+        },
+        "distilled/clients/slack/team/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/team/init.lua": {
+          "sha256": "1b54ca93e4210ba3ddc04f140bf0d9e217b15c4eb07dfcad283f85753efe317e",
+          "size": 1462,
+          "url": "blob:1b54ca93e4210ba3ddc04f140bf0d9e217b15c4eb07dfcad283f85753efe317e"
+        },
+        "distilled/clients/slack/team/service.lua": {
+          "sha256": "8395611be57bda3433109ce24442988adebf67d2338e88db7d26fd137d618123",
+          "size": 17720,
+          "url": "blob:8395611be57bda3433109ce24442988adebf67d2338e88db7d26fd137d618123"
+        },
+        "distilled/clients/slack/team/types.lua": {
+          "sha256": "991dc43648c70e003a4f0d3cc19febf290cc4f5166761fcdeb17cfb31d70f92a",
+          "size": 27130,
+          "url": "blob:991dc43648c70e003a4f0d3cc19febf290cc4f5166761fcdeb17cfb31d70f92a"
+        },
+        "distilled/clients/slack/tooling/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/tooling/init.lua": {
+          "sha256": "ab48f090b18b5608c7c2abed385818a8533690831d565a96c71e3a3e153f5893",
+          "size": 1485,
+          "url": "blob:ab48f090b18b5608c7c2abed385818a8533690831d565a96c71e3a3e153f5893"
+        },
+        "distilled/clients/slack/tooling/service.lua": {
+          "sha256": "84fbe84569eee3665e1262c2488f58b65b3c648e1b5dd74b9e18ead96f8f15e0",
+          "size": 2166,
+          "url": "blob:84fbe84569eee3665e1262c2488f58b65b3c648e1b5dd74b9e18ead96f8f15e0"
+        },
+        "distilled/clients/slack/tooling/types.lua": {
+          "sha256": "fd106a2073eb191ef4278e7ccb3d638f1ef12d90f434601ba4c7c932de87b19d",
+          "size": 4204,
+          "url": "blob:fd106a2073eb191ef4278e7ccb3d638f1ef12d90f434601ba4c7c932de87b19d"
+        },
+        "distilled/clients/slack/usergroups/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/usergroups/init.lua": {
+          "sha256": "bda6ab85a37b558734a88c77ca77648d106b4f88509c6afe8f585202dd50c3c8",
+          "size": 1510,
+          "url": "blob:bda6ab85a37b558734a88c77ca77648d106b4f88509c6afe8f585202dd50c3c8"
+        },
+        "distilled/clients/slack/usergroups/service.lua": {
+          "sha256": "7675c1ee8a454dd13264da484df7f55c436eccbb4998f8361f85e9e95d31e066",
+          "size": 8363,
+          "url": "blob:7675c1ee8a454dd13264da484df7f55c436eccbb4998f8361f85e9e95d31e066"
+        },
+        "distilled/clients/slack/usergroups/types.lua": {
+          "sha256": "33666684168843d13b373c647f132eb7c85ad4c9b2c0e1325c0e059457583611",
+          "size": 17230,
+          "url": "blob:33666684168843d13b373c647f132eb7c85ad4c9b2c0e1325c0e059457583611"
+        },
+        "distilled/clients/slack/users/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/users/init.lua": {
+          "sha256": "6307718a1bbbb2c342aa7ee9b5e697f447ea0223dcaeccefe956bb90e118b074",
+          "size": 1471,
+          "url": "blob:6307718a1bbbb2c342aa7ee9b5e697f447ea0223dcaeccefe956bb90e118b074"
+        },
+        "distilled/clients/slack/users/service.lua": {
+          "sha256": "e67b968c19a1f809c499f68cff66fbac6d2649db65c6148e72b71c6cf5603b8b",
+          "size": 11601,
+          "url": "blob:e67b968c19a1f809c499f68cff66fbac6d2649db65c6148e72b71c6cf5603b8b"
+        },
+        "distilled/clients/slack/users/types.lua": {
+          "sha256": "e79505abc2ea1069a8358852cbcc035039756c98e9a2a4759e0cadd448afdd82",
+          "size": 23773,
+          "url": "blob:e79505abc2ea1069a8358852cbcc035039756c98e9a2a4759e0cadd448afdd82"
+        },
+        "distilled/clients/slack/views/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/views/init.lua": {
+          "sha256": "54b02d540ca934d5d9e82f2db8b9b8cd0617a38d058ab902519f44634c966d38",
+          "size": 1470,
+          "url": "blob:54b02d540ca934d5d9e82f2db8b9b8cd0617a38d058ab902519f44634c966d38"
+        },
+        "distilled/clients/slack/views/service.lua": {
+          "sha256": "de01142bfe81f6d26f3a610a6a1fcb32c8025959896b2f929557555320c7227c",
+          "size": 4189,
+          "url": "blob:de01142bfe81f6d26f3a610a6a1fcb32c8025959896b2f929557555320c7227c"
+        },
+        "distilled/clients/slack/views/types.lua": {
+          "sha256": "35421cd0f539ec04239389d4c696fdb7ccde28d8c2cd19f07e6eccc43c6efa0f",
+          "size": 8740,
+          "url": "blob:35421cd0f539ec04239389d4c696fdb7ccde28d8c2cd19f07e6eccc43c6efa0f"
+        },
+        "distilled/clients/slack/workflows/glue.lua": {
+          "sha256": "a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea",
+          "size": 7225,
+          "url": "blob:a9820dd7ce92d40ca53b932cde416e5f9c5681549630aa021b5533053396f9ea"
+        },
+        "distilled/clients/slack/workflows/init.lua": {
+          "sha256": "e9786401da8bfcd17c9e9c4a8e30b4d6399631e7564ca374472d9768d7441cf8",
+          "size": 1502,
+          "url": "blob:e9786401da8bfcd17c9e9c4a8e30b4d6399631e7564ca374472d9768d7441cf8"
+        },
+        "distilled/clients/slack/workflows/service.lua": {
+          "sha256": "64d21bcd33bc5b147725f33afc202faf2556a4617de1b8ac6451bc69b092ff2c",
+          "size": 11198,
+          "url": "blob:64d21bcd33bc5b147725f33afc202faf2556a4617de1b8ac6451bc69b092ff2c"
+        },
+        "distilled/clients/slack/workflows/types.lua": {
+          "sha256": "eafa048bb40f93d4d78af97d75436d5ebb88f1a7b087cbcd3aae616152fe0c77",
+          "size": 20332,
+          "url": "blob:eafa048bb40f93d4d78af97d75436d5ebb88f1a7b087cbcd3aae616152fe0c77"
+        }
+      },
+      "homepage": "https://github.com/dmmulroy/distilled-lua",
+      "license": "Apache-2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Thu, 19 Nov 2026 15:29:50 GMT",
+        "rockspec": {
+          "date": "Thu, 19 Nov 2026 15:29:50 GMT",
+          "sha256": "8ae78798b1c661d3bfd248b92cfdb55b563dfca3396975d0ea9c9b83ae64afd6",
+          "size": 12420
+        },
+        "src": {
+          "date": "Thu, 19 Nov 2026 15:29:51 GMT",
+          "sha256": "f6ecb0250ee1aa008333160c45583c9cb3cae800529122a31a966f1e5a68a03f",
+          "size": 299648,
+          "url": "https://luarocks.org/distilled-slack-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "distilled.clients.slack",
+        "distilled.clients.slack.admin",
+        "distilled.clients.slack.admin.glue",
+        "distilled.clients.slack.admin.service",
+        "distilled.clients.slack.admin.types",
+        "distilled.clients.slack.agents",
+        "distilled.clients.slack.agents.glue",
+        "distilled.clients.slack.agents.service",
+        "distilled.clients.slack.agents.types",
+        "distilled.clients.slack.api",
+        "distilled.clients.slack.api.glue",
+        "distilled.clients.slack.api.service",
+        "distilled.clients.slack.api.types",
+        "distilled.clients.slack.apps",
+        "distilled.clients.slack.apps.glue",
+        "distilled.clients.slack.apps.service",
+        "distilled.clients.slack.apps.types",
+        "distilled.clients.slack.assistant",
+        "distilled.clients.slack.assistant.glue",
+        "distilled.clients.slack.assistant.service",
+        "distilled.clients.slack.assistant.types",
+        "distilled.clients.slack.auth",
+        "distilled.clients.slack.auth.glue",
+        "distilled.clients.slack.auth.service",
+        "distilled.clients.slack.auth.types",
+        "distilled.clients.slack.blocks",
+        "distilled.clients.slack.blocks.glue",
+        "distilled.clients.slack.blocks.service",
+        "distilled.clients.slack.blocks.types",
+        "distilled.clients.slack.bookmarks",
+        "distilled.clients.slack.bookmarks.glue",
+        "distilled.clients.slack.bookmarks.service",
+        "distilled.clients.slack.bookmarks.types",
+        "distilled.clients.slack.bots",
+        "distilled.clients.slack.bots.glue",
+        "distilled.clients.slack.bots.service",
+        "distilled.clients.slack.bots.types",
+        "distilled.clients.slack.calls",
+        "distilled.clients.slack.calls.glue",
+        "distilled.clients.slack.calls.service",
+        "distilled.clients.slack.calls.types",
+        "distilled.clients.slack.canvases",
+        "distilled.clients.slack.canvases.glue",
+        "distilled.clients.slack.canvases.service",
+        "distilled.clients.slack.canvases.types",
+        "distilled.clients.slack.chat",
+        "distilled.clients.slack.chat.glue",
+        "distilled.clients.slack.chat.service",
+        "distilled.clients.slack.chat.types",
+        "distilled.clients.slack.conversations",
+        "distilled.clients.slack.conversations.glue",
+        "distilled.clients.slack.conversations.service",
+        "distilled.clients.slack.conversations.types",
+        "distilled.clients.slack.dialog",
+        "distilled.clients.slack.dialog.glue",
+        "distilled.clients.slack.dialog.service",
+        "distilled.clients.slack.dialog.types",
+        "distilled.clients.slack.dnd",
+        "distilled.clients.slack.dnd.glue",
+        "distilled.clients.slack.dnd.service",
+        "distilled.clients.slack.dnd.types",
+        "distilled.clients.slack.emoji",
+        "distilled.clients.slack.emoji.glue",
+        "distilled.clients.slack.emoji.service",
+        "distilled.clients.slack.emoji.types",
+        "distilled.clients.slack.entity",
+        "distilled.clients.slack.entity.glue",
+        "distilled.clients.slack.entity.service",
+        "distilled.clients.slack.entity.types",
+        "distilled.clients.slack.files",
+        "distilled.clients.slack.files.glue",
+        "distilled.clients.slack.files.service",
+        "distilled.clients.slack.files.types",
+        "distilled.clients.slack.functions",
+        "distilled.clients.slack.functions.glue",
+        "distilled.clients.slack.functions.service",
+        "distilled.clients.slack.functions.types",
+        "distilled.clients.slack.lists",
+        "distilled.clients.slack.lists.glue",
+        "distilled.clients.slack.lists.service",
+        "distilled.clients.slack.lists.types",
+        "distilled.clients.slack.migration",
+        "distilled.clients.slack.migration.glue",
+        "distilled.clients.slack.migration.service",
+        "distilled.clients.slack.migration.types",
+        "distilled.clients.slack.oauth",
+        "distilled.clients.slack.oauth.glue",
+        "distilled.clients.slack.oauth.service",
+        "distilled.clients.slack.oauth.types",
+        "distilled.clients.slack.openid",
+        "distilled.clients.slack.openid.glue",
+        "distilled.clients.slack.openid.service",
+        "distilled.clients.slack.openid.types",
+        "distilled.clients.slack.pins",
+        "distilled.clients.slack.pins.glue",
+        "distilled.clients.slack.pins.service",
+        "distilled.clients.slack.pins.types",
+        "distilled.clients.slack.reactions",
+        "distilled.clients.slack.reactions.glue",
+        "distilled.clients.slack.reactions.service",
+        "distilled.clients.slack.reactions.types",
+        "distilled.clients.slack.reminders",
+        "distilled.clients.slack.reminders.glue",
+        "distilled.clients.slack.reminders.service",
+        "distilled.clients.slack.reminders.types",
+        "distilled.clients.slack.rtm",
+        "distilled.clients.slack.rtm.glue",
+        "distilled.clients.slack.rtm.service",
+        "distilled.clients.slack.rtm.types",
+        "distilled.clients.slack.search",
+        "distilled.clients.slack.search.glue",
+        "distilled.clients.slack.search.service",
+        "distilled.clients.slack.search.types",
+        "distilled.clients.slack.slackbot",
+        "distilled.clients.slack.slackbot.glue",
+        "distilled.clients.slack.slackbot.service",
+        "distilled.clients.slack.slackbot.types",
+        "distilled.clients.slack.stars",
+        "distilled.clients.slack.stars.glue",
+        "distilled.clients.slack.stars.service",
+        "distilled.clients.slack.stars.types",
+        "distilled.clients.slack.team",
+        "distilled.clients.slack.team.glue",
+        "distilled.clients.slack.team.service",
+        "distilled.clients.slack.team.types",
+        "distilled.clients.slack.tooling",
+        "distilled.clients.slack.tooling.glue",
+        "distilled.clients.slack.tooling.service",
+        "distilled.clients.slack.tooling.types",
+        "distilled.clients.slack.usergroups",
+        "distilled.clients.slack.usergroups.glue",
+        "distilled.clients.slack.usergroups.service",
+        "distilled.clients.slack.usergroups.types",
+        "distilled.clients.slack.users",
+        "distilled.clients.slack.users.glue",
+        "distilled.clients.slack.users.service",
+        "distilled.clients.slack.users.types",
+        "distilled.clients.slack.views",
+        "distilled.clients.slack.views.glue",
+        "distilled.clients.slack.views.service",
+        "distilled.clients.slack.views.types",
+        "distilled.clients.slack.workflows",
+        "distilled.clients.slack.workflows.glue",
+        "distilled.clients.slack.workflows.service",
+        "distilled.clients.slack.workflows.types"
+      ],
+      "origin": {
+        "sha256": "aba71f1af55eeb5b033cf9f68f42fd51f72c0e106660752def8061e37072d8b9",
+        "type": "archive",
+        "url": "https://github.com/dmmulroy/distilled-lua/releases/download/v0.1.0/distilled-slack-0.1.0.tar.gz"
+      },
+      "size": 1810486,
+      "summary": "Slack API client, generated by distilled-lua",
+      "undeclared_requires": [
+        "slack",
+        "slack.admin",
+        "slack.agents",
+        "slack.api",
+        "slack.apps",
+        "slack.assistant",
+        "slack.auth",
+        "slack.blocks",
+        "slack.bookmarks",
+        "slack.bots",
+        "slack.calls",
+        "slack.canvases",
+        "slack.chat",
+        "slack.conversations",
+        "slack.dialog",
+        "slack.dnd",
+        "slack.emoji",
+        "slack.entity",
+        "slack.files",
+        "slack.functions",
+        "slack.lists",
+        "slack.migration",
+        "slack.oauth",
+        "slack.openid",
+        "slack.pins",
+        "slack.reactions",
+        "slack.reminders",
+        "slack.rtm",
+        "slack.search",
+        "slack.slackbot",
+        "slack.stars",
+        "slack.team",
+        "slack.tooling",
+        "slack.usergroups",
+        "slack.users",
+        "slack.views",
+        "slack.workflows"
+      ],
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 145,
+        "status": "ok",
+        "total": 145
+      }
+    }
+  }
+}

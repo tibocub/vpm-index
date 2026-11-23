@@ -1,0 +1,115 @@
+
+local lua = require 'lrocket.lua'
+local routines = require 'lrocket.routines'
+
+local sfs = require 'sfs'
+local Lua = require 'lrocket.lang.lua'
+local tl = require 'tl'
+
+local pkg = require 'lrocket.package'
+
+local function tealpaths()
+	local path = {}
+	for _, p in ipairs(pkg.searchpaths()) do
+		for subpath in p.path:gmatch"[^;]+" do
+			if p.lang == 'lua' then
+				table.insert(path, subpath)
+			elseif p.lang == 'teal' then
+				table.insert(path, (subpath:gsub("%.d%.tl$", ".lua"):gsub("%.tl$", ".lua")))
+			end
+		end
+	end
+
+	return table.concat(path, ';')
+end
+
+local function scan(sourcemodname, path)
+	---@type lrocket.RequireInfo[]
+	local requires = {}
+	for modname, line, isopt in Lua.scanrequires(path, true, sourcemodname) do
+		requires[#requires+1] = {
+			modname = modname,
+			constraint = isopt and 'opt' or 'required',
+			source = path..(line ~= -1 and ":"..line or '')
+		}
+		requires[modname] = requires[#requires]
+	end
+
+	local embeds = {}
+	for scope, line, lrpath in Lua.scanresources(path) do
+		embeds[#embeds+1] = {
+			lrpath = lrpath,
+			scope = scope,
+			source = path..(line ~= -1 and ":"..line or '')
+		}
+		embeds[scope] = lrpath
+	end
+
+	---@type lrocket.ModInfo
+	return {
+		lang = 'teal',
+		resources = embeds,
+		requires = requires,
+		chunkname = lua.chunkname(path, sourcemodname),
+		embed = function (info, lra, flags)
+			-- declaration files are only used by tl and do not need to be embedded
+			if info.path:find "%.d%.tl$" then return end
+
+			local _os_getenv = os.getenv
+			-- `tlpath` will be needed for teal type error checks, which are not implemented at the moment.
+			-- For the moment we use emptystring "" instead of `tealpaths()`, because this speeds up teal compilation a lot.
+			--
+			-- In the future we can speed up teal compilation by taking care of caching the teal compilation progress.
+			-- It is currently slow because teal re-analyzes every module it has already seen.
+			-- By caching the info teal calculates on the way, we will only need to analyze teal files a single time.
+			local tlpath = "" -- tealpaths()
+---@diagnostic disable-next-line: duplicate-set-field
+			os.getenv = function (name)
+				return name == "TL_PATH" and tlpath or _os_getenv(name)
+			end
+
+			local luadst = sfs.tmppath()
+			-- TODO: implement teal error checks
+			sfs.write(luadst, assert(tl.gen(assert(sfs.read(info.path)))))
+			routines.writelua(lra, luadst, string.format("lua_modules/%s.lua", sourcemodname:gsub("%.", "/")), info.chunkname, not not flags:find 'g')
+			sfs.deltmppath(luadst)
+
+			os.getenv = _os_getenv
+		end,
+		modname = sourcemodname,
+		path = path,
+	}
+end
+
+local teal = {}
+
+function teal.expandpath(path)
+	return (path:gsub("([^;]+)%?%?", "%1/?.tl;%1/?/init.tl"))
+end
+
+function teal.defaultpath(trees)
+	local res = {}
+	for _, p in ipairs(trees) do
+		res[#res+1] = p.."/share/teal/??"
+	end
+	return table.concat(res, ';')
+end
+
+function teal.searchpath(glob, path)
+	for subpath in path:gmatch "[^;]+" do
+		local subpath = sfs.normalize(subpath)
+		local globpath = subpath:gsub("%?", (glob:gsub("%.", "/")))
+		local revglob = subpath:gsub("%p", "%%%1"):gsub("%%%?", "(.-)"):gsub("^.*$", "^%1$")
+
+		-- ignore .d.tl files when searching for .tl files
+		local globignore = not globpath:find "%.d%.tl$" and "!**.d.tl"
+		for file in sfs.glob(globignore, globpath) do
+			local modpart = file:match(revglob)
+			local modname = sfs.normalize(modpart):gsub("^%.[/\\]", ""):gsub("[/\\]+", ".")
+
+			coroutine.yield(modname, scan(modname, file))
+		end
+	end
+end
+
+return teal

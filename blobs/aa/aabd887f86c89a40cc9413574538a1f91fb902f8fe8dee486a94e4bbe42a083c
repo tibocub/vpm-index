@@ -1,0 +1,99 @@
+--imports
+local Id = require("dogma.lex._.Id")
+local TokenType = require("dogma.lex.TokenType")
+
+--A keyword.
+local Keyword = {}
+Keyword.__index = Keyword
+setmetatable(Keyword, {__index = Id})
+package.loaded[...] = Keyword
+
+--Constructor.
+--
+--@param ln:number  Line number.
+--@param col:number Column number.
+--@param id:string  Identifier.
+function Keyword.new(ln, col, id)
+  return setmetatable(Id.new(TokenType.KEYWORD, ln, col, id), Keyword)
+end
+
+--Check whether an identifier is a keyword.
+--
+--@param id:string  Identifier to check.
+--@return bool
+function Keyword.is(id)
+  local KEYWORDS = {
+    ["and"] = true,
+    ["as"] = true,
+    ["async"] = true,
+    ["await"] = true,
+    ["break"] = true,
+    ["cast"] = true,
+    ["catch"] = true,
+    ["const"] = true,
+    ["copy"] = true,
+    ["cwait"] = true,
+    ["defer"] = true,
+    ["do"] = true,
+    ["dogma"] = true,
+    ["each"] = true,
+    ["else"] = true,
+    ["emit"] = true,
+    ["end"] = true,
+    ["enum"] = true,
+    ["event"] = true,
+    ["expect"] = true,
+    ["export"] = true,
+    ["extern"] = true,
+    ["false"] = true,
+    ["finally"] = true,
+    ["fn"] = true,
+    ["for"] = true,
+    ["from"] = true,
+    ["if"] = true,
+    ["impl"] = true,
+    ["in"] = true,
+    ["intf"] = true,
+    ["intl"] = true,
+    ["is"] = true,
+    ["like"] = true,
+    ["native"] = true,
+    ["new"] = true,
+    ["next"] = true,
+    ["nil"] = true,
+    ["nop"] = true,
+    ["not"] = true,
+    ["or"] = true,
+    ["overload"] = true,
+    ["pawait"] = true,
+    ["pcwait"] = true,
+    ["peval"] = true,
+    ["pr"] = true,
+    ["proc"] = true,
+    ["pub"] = true,
+    ["pvt"] = true, --private
+    ["pwait"] = true,
+    ["return"] = true,
+    ["self"] = true,
+    ["static"] = true,
+    ["struct"] = true,
+    ["super"] = true,
+    ["then"] = true,
+    ["throw"] = true,
+    ["true"] = true,
+    ["type"] = true,
+    ["until"] = true,
+    ["use"] = true,
+    ["var"] = true,
+    ["while"] = true,
+    ["with"] = true,
+    ["yield"] = true
+  }
+
+  return KEYWORDS[id] or false
+end
+
+--@override
+function Keyword:__tostring()
+  return string.format("<keyword>%s</keyword>", self.value)
+end

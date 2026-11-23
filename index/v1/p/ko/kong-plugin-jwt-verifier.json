@@ -1,0 +1,77 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-verifier",
+  "versions": {
+    "0.2.1-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.7.4"
+      ],
+      "files": {
+        "kong/plugins/jwt-verifier/handler.lua": {
+          "sha256": "65bc898a9ff1dad2470b089d4eba425e3ae18a3eff40935550553ce6aa208297",
+          "size": 2250,
+          "url": "blob:65bc898a9ff1dad2470b089d4eba425e3ae18a3eff40935550553ce6aa208297"
+        },
+        "kong/plugins/jwt-verifier/log.lua": {
+          "sha256": "1b78f1ab3bd5bb69ee6647396547f86b2379b57829adf9e997d7ce6fb3a6200e",
+          "size": 645,
+          "url": "blob:1b78f1ab3bd5bb69ee6647396547f86b2379b57829adf9e997d7ce6fb3a6200e"
+        },
+        "kong/plugins/jwt-verifier/schema.lua": {
+          "sha256": "0c6d47e9ed35043106cf1e942844c08d8c28b44b5185efc1c71ad6ef62156e4f",
+          "size": 1081,
+          "url": "blob:0c6d47e9ed35043106cf1e942844c08d8c28b44b5185efc1c71ad6ef62156e4f"
+        }
+      },
+      "homepage": "http://getkong.org",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 08 Feb 2021 17:20:02 GMT",
+        "rockspec": {
+          "date": "Mon, 08 Feb 2021 17:20:02 GMT",
+          "sha256": "8595d2532d4b52f800f0745eac8fca7357c0cbf68f108d304e0b26a316ce266e",
+          "size": 1487
+        },
+        "src": {
+          "date": "Mon, 08 Feb 2021 17:20:04 GMT",
+          "sha256": "9e6adeb0a6b4d86d060a842155daa3f383865b9de364b9ed74ffb02795dde28f",
+          "size": 24671,
+          "url": "https://luarocks.org/kong-plugin-jwt-verifier-0.2.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-verifier.handler",
+        "kong.plugins.jwt-verifier.log",
+        "kong.plugins.jwt-verifier.schema"
+      ],
+      "origin": {
+        "date": "Mon, 08 Feb 2021 17:20:04 GMT",
+        "sha256": "9e6adeb0a6b4d86d060a842155daa3f383865b9de364b9ed74ffb02795dde28f",
+        "size": 24671,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-jwt-verifier-0.2.1-1.src.rock"
+      },
+      "size": 3976,
+      "summary": "Kong is a scalable and customizable API Management Layer built on top of Nginx.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "resty.jwt-validators"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

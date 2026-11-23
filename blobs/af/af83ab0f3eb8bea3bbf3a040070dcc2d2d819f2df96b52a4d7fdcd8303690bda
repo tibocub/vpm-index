@@ -1,0 +1,30 @@
+local _module_0 = { }
+local _anon_func_0 = function(getmetatable, v)
+	if v ~= nil then
+		return getmetatable(v)
+	end
+	return nil
+end
+local iscallable
+iscallable = function(v)
+	if type(v) == 'function' then
+		return true
+	end
+	if (_anon_func_0(getmetatable, v) ~= nil) then
+		local call = getmetatable(v).__call
+		return iscallable(call)
+	end
+	return false
+end
+_module_0["iscallable"] = iscallable
+local istable
+istable = function(v)
+	return type(v) == 'table'
+end
+_module_0["istable"] = istable
+local isrunnable
+isrunnable = function(v)
+	return istable(v) and iscallable(v.run)
+end
+_module_0["isrunnable"] = isrunnable
+return _module_0

@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-rewrite",
+  "versions": {
+    "0.3.2-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/rewrite/handler.lua": {
+          "sha256": "35aa7fbd84ef7865dacc9ea2efa4533889845f367b81dd6d571caceba8fb2865",
+          "size": 7094,
+          "url": "https://raw.githubusercontent.com/andy-zhangtao/rewrite/6cd7a3dea81a0c015ab7470f714693bc39f3626a/handler.lua"
+        },
+        "kong/plugins/rewrite/schema.lua": {
+          "sha256": "c69577d4aeb43d368e48626bc489799a8a8b663a29642d15f097483a87999531",
+          "size": 776,
+          "url": "https://raw.githubusercontent.com/andy-zhangtao/rewrite/6cd7a3dea81a0c015ab7470f714693bc39f3626a/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/andy-zhangtao/rewrite",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Wed, 04 Apr 2018 02:32:25 GMT",
+        "rockspec": {
+          "date": "Wed, 04 Apr 2018 02:32:25 GMT",
+          "sha256": "49b0e91b558655059f8e6137ae65c4d3839e1a11518ef2187582f3f317b56a3a",
+          "size": 677
+        },
+        "src": {
+          "date": "Wed, 04 Apr 2018 02:32:26 GMT",
+          "sha256": "37c8b86017fe1e6051b397a31e40f45cab581486cc116daca4ab11a8576d92d0",
+          "size": 7897,
+          "url": "https://luarocks.org/kong-plugin-rewrite-0.3.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.rewrite.handler",
+        "kong.plugins.rewrite.schema"
+      ],
+      "origin": {
+        "commit": "6cd7a3dea81a0c015ab7470f714693bc39f3626a",
+        "ref": "v0.3.2",
+        "type": "git",
+        "url": "https://github.com/andy-zhangtao/rewrite"
+      },
+      "size": 7870,
+      "summary": "Kong Plugin Rewrite use for rewrite querst temporary.",
+      "undeclared_requires": [
+        "kong.cmd.utils.log",
+        "kong.plugins.base_plugin",
+        "kong.tools.utils",
+        "pl.pretty",
+        "pl.stringx"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

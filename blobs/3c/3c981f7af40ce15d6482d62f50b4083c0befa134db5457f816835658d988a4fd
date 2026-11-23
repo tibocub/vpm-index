@@ -1,0 +1,211 @@
+-- ============================================================
+-- Shiva Container
+-- Service container with dependency injection, contracts,
+-- singleton support, and method-level override capabilities.
+-- ============================================================
+
+---@class Container
+local Container = {
+    _services = {},
+    _singletons = {},
+    _instances = {},
+    _contracts = {},
+    _replacements = {},
+}
+
+-- ========================
+-- Registration
+-- ========================
+
+--- Register a service (resolved fresh each time)
+---@param name string Service name
+---@param implementation table|function Table of methods, or factory function
+---@return boolean
+function Container.register(name, implementation)
+    Container._services[name] = implementation
+    return true
+end
+
+--- Register a singleton (factory called once, result cached)
+---@param name string Service name
+---@param factory fun(): table Factory function that returns the service
+---@return boolean
+function Container.singleton(name, factory)
+    Container._singletons[name] = factory
+    return true
+end
+
+-- ========================
+-- Resolution
+-- ========================
+
+--- Resolve a service by name
+---@param name string
+---@return table
+function Container.resolve(name)
+    if Container._instances[name] then
+        return Container._instances[name]
+    end
+
+    if Container._singletons[name] then
+        local instance = Container._singletons[name]()
+        Container._instances[name] = instance
+        return instance
+    end
+
+    if Container._services[name] then
+        return Container._services[name]
+    end
+
+    error('Service "' .. name .. '" is not registered in the container.')
+end
+
+--- Check if a service is registered
+---@param name string
+---@return boolean
+function Container.has(name)
+    return Container._services[name] ~= nil
+        or Container._singletons[name] ~= nil
+        or Container._instances[name] ~= nil
+end
+
+-- ========================
+-- Contracts
+-- ========================
+
+--- Register a contract (interface) for a service
+---@param name string Service name this contract applies to
+---@param contract { server?: string[], client?: string[], methods?: string[] }
+function Container.registerContract(name, contract)
+    Container._contracts[name] = contract
+end
+
+--- Validate that a registered service satisfies its contract
+---@param serviceName string
+---@return boolean valid
+---@return string[] missingMethods
+function Container.validateContract(serviceName)
+    local contract = Container._contracts[serviceName]
+    if not contract then return true, {} end
+
+    local service = Container._services[serviceName]
+    if not service then
+        return false, { 'Service "' .. serviceName .. '" is not registered' }
+    end
+
+    local missing = {}
+    local methods = contract.server or contract.methods or {}
+
+    for _, method in ipairs(methods) do
+        if type(service[method]) ~= 'function' then
+            missing[#missing + 1] = method
+        end
+    end
+
+    return #missing == 0, missing
+end
+
+--- Validate all registered contracts
+---@return boolean allValid
+---@return table<string, string[]> failures Map of service name → missing methods
+function Container.validateAllContracts()
+    local allValid = true
+    local failures = {}
+
+    for name, _ in pairs(Container._contracts) do
+        local valid, missing = Container.validateContract(name)
+        if not valid then
+            allValid = false
+            failures[name] = missing
+        end
+    end
+
+    return allValid, failures
+end
+
+-- ========================
+-- Extensions & Replacements
+-- ========================
+
+--- Add new methods to an existing service (cannot override existing methods)
+---@param serviceName string
+---@param extensions table<string, function>
+---@return boolean
+function Container.extend(serviceName, extensions)
+    local service = Container._services[serviceName]
+    if not service then
+        error('Cannot extend "' .. serviceName .. '": service not registered')
+    end
+
+    for name, fn in pairs(extensions) do
+        if service[name] then
+            error('Cannot extend "' .. serviceName .. '": method "' .. name
+                .. '" already exists. Use replace() instead.')
+        end
+        service[name] = fn
+    end
+
+    return true
+end
+
+--- Replace a specific method on a service (stores original for access)
+---@param serviceName string
+---@param methodName string
+---@param newFn function
+---@return boolean
+function Container.replace(serviceName, methodName, newFn)
+    local service = Container._services[serviceName]
+    if not service then
+        error('Cannot replace on "' .. serviceName .. '": service not registered')
+    end
+    if not service[methodName] then
+        error('Cannot replace "' .. serviceName .. '.' .. methodName .. '": method does not exist')
+    end
+
+    if not Container._replacements[serviceName] then
+        Container._replacements[serviceName] = {}
+    end
+    Container._replacements[serviceName][methodName] = service[methodName]
+
+    service[methodName] = newFn
+    return true
+end
+
+--- Get the original method before it was replaced
+---@param serviceName string
+---@param methodName string
+---@return function|nil
+function Container.original(serviceName, methodName)
+    if Container._replacements[serviceName] then
+        return Container._replacements[serviceName][methodName]
+    end
+    return nil
+end
+
+-- ========================
+-- Lifecycle
+-- ========================
+
+--- Reset all container state (for testing)
+function Container.reset()
+    Container._services = {}
+    Container._singletons = {}
+    Container._instances = {}
+    Container._contracts = {}
+    Container._replacements = {}
+end
+
+--- Get all registered service names
+---@return string[]
+function Container.getRegistered()
+    local names = {}
+    for name, _ in pairs(Container._services) do
+        names[#names + 1] = name
+    end
+    for name, _ in pairs(Container._singletons) do
+        names[#names + 1] = name
+    end
+    return names
+end
+
+return Container

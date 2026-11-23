@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-log-extended",
+  "versions": {
+    "1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/log-extended/handler.lua": {
+          "sha256": "04e6168c8ec5961694ca797012d5a2821aade516c0c357216eb9ac244dcbaf70",
+          "size": 5590,
+          "url": "https://raw.githubusercontent.com/bskiefer/kong-plugin-log-extended/572f6209723ae7632d5a85596249b78cb5b0dd36/handler.lua"
+        },
+        "kong/plugins/log-extended/schema.lua": {
+          "sha256": "efd964f53384a37bef66465ad9808e45d9234333a48b33f5073d5eccd6d2c069",
+          "size": 1279,
+          "url": "https://raw.githubusercontent.com/bskiefer/kong-plugin-log-extended/572f6209723ae7632d5a85596249b78cb5b0dd36/schema.lua"
+        },
+        "kong/plugins/log-extended/serializer.lua": {
+          "sha256": "25343b032d603db65fe72287ae57dfd138e0410d8fb9ca42b92f5971789af056",
+          "size": 2352,
+          "url": "https://raw.githubusercontent.com/bskiefer/kong-plugin-log-extended/572f6209723ae7632d5a85596249b78cb5b0dd36/serializer.lua"
+        }
+      },
+      "homepage": "https://github.com/bskiefer/kong-plugin-log-extended.git",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Fri, 29 Oct 2021 20:18:51 GMT",
+        "rockspec": {
+          "date": "Fri, 29 Oct 2021 20:18:51 GMT",
+          "sha256": "389afcaee3fad3e4b8bf80dc0ba318c889670a5f62edaac4c3353661a79701ee",
+          "size": 542
+        },
+        "src": {
+          "date": "Fri, 29 Oct 2021 20:18:53 GMT",
+          "sha256": "b2715c0ef6542d49942e7f0ece4731e6a23a20a72044fa5d741c1f5af2c03552",
+          "size": 14678,
+          "url": "https://luarocks.org/kong-plugin-log-extended-1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.log-extended.handler",
+        "kong.plugins.log-extended.schema",
+        "kong.plugins.log-extended.serializer"
+      ],
+      "origin": {
+        "commit": "572f6209723ae7632d5a85596249b78cb5b0dd36",
+        "ref": "v1.1",
+        "type": "git",
+        "url": "https://github.com/bskiefer/kong-plugin-log-extended.git"
+      },
+      "size": 9221,
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.base_plugin",
+        "lua_system_constants",
+        "pl.utils",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

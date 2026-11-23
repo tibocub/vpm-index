@@ -1,0 +1,67 @@
+local OptionParser = require 'optparse'
+local VERSION = "0.0.5"
+
+local help = string.format([[
+tulip-cli v%s
+Usage: tulip-cli CMD [<options>]
+
+The following tulip commands are supported:
+
+  $ tulip-cli init DIR
+      Initialize environment for development of a tulip project in DIR,
+      which is a path relative to the current working directory.
+
+  $ tulip-cli db reset
+      Drops and recreates the database, so that no migration has been
+      applied yet. All data will be lost, use with care.
+
+  $ tulip-cli db clean PREFIX
+      Cleans the database by removing any databases and users that start
+      with PREFIX. Useful if database copies are created for tests.
+
+Options:
+
+  -h, --help            Display this help and exit.
+  --port=PORT           Expose the database on that port for the host
+                        (default: 5432). Only used for the 'init' command.
+  --prefix=PREFIX       Clean databases and users that have this prefix.
+                        Only used for the 'db clean' command.
+  -V, --version         Display the version and exit.
+  -y, --yes             Skip confirmation of actions.
+]], VERSION)
+
+local cmds = require 'src.cmds'
+local parser = OptionParser(help)
+
+local defaults = {
+  port = 5432,
+}
+
+return function(args)
+  local arg, opts = parser:parse(args)
+  if #arg == 0 then
+    parser:opterr('the command is required')
+    return
+  end
+
+  local cmd = table.remove(arg, 1)
+  local f = cmds[cmd]
+  if not f then
+    parser:opterr(string.format('unknown command %q', cmd))
+    return
+  end
+
+  -- set the default values for options
+  if opts.port then
+    opts.port = math.tointeger(opts.port)
+    if not opts.port then
+      parser:opterr('the --port option must be a number')
+      return
+    end
+  end
+  opts.port = opts.port or defaults.port
+
+  return f(arg, opts, function(msg, ...)
+    parser:opterr(string.format(msg, ...))
+  end)
+end

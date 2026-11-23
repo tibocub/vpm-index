@@ -1,0 +1,315 @@
+{
+  "kind": "app",
+  "name": "telegram-bot-lua",
+  "versions": {
+    "3.7-0": {
+      "bin": {
+        "tgbot": "bin/tgbot"
+      },
+      "deps": [
+        "dkjson >= 2.5-2",
+        "luasec >= 0.6-1",
+        "luasocket >= 3.0rc1-2",
+        "multipart-post >= 1.1-1",
+        "luautf8 >= 0.1.1-1",
+        "copas >= 4.0"
+      ],
+      "files": {
+        "bin/tgbot": {
+          "sha256": "2d1c0af6543f5152844a411f743d4cecf4557be3ad8f38ff10312c9e2512bca5",
+          "size": 5476,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/bin/tgbot"
+        },
+        "telegram-bot-lua.lua": {
+          "sha256": "270a54c8e2bc008c0ce13f73b88a57f281af7536ef7526df023c724800a3d41b",
+          "size": 10998,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/main.lua"
+        },
+        "telegram-bot-lua/adapters/db.lua": {
+          "sha256": "43ab237f9c489bfb0045f39cf5dfed3695a5284f4b64d7f7d3e6f466dfea4e82",
+          "size": 10464,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/adapters/db.lua"
+        },
+        "telegram-bot-lua/adapters/email.lua": {
+          "sha256": "0ef3d440927b3122bb51534a71573c7f8452a0ac39dbf1b9d8a0d951bc3e3acb",
+          "size": 9945,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/adapters/email.lua"
+        },
+        "telegram-bot-lua/adapters/init.lua": {
+          "sha256": "24a57c22e12b21d3c8ab0ffe5fad1fea502fb26716677e092bbe803b4154f07c",
+          "size": 3432,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/adapters/init.lua"
+        },
+        "telegram-bot-lua/adapters/llm.lua": {
+          "sha256": "3d6daf1ea66dc31b52a068591f4894e40ef3280923d49eb989821994e750efa5",
+          "size": 13331,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/adapters/llm.lua"
+        },
+        "telegram-bot-lua/adapters/redis.lua": {
+          "sha256": "f57e9be3498fd4358d86280f19807e6828154b4a411a8b56f3d03874d44778ec",
+          "size": 16585,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/adapters/redis.lua"
+        },
+        "telegram-bot-lua/async.lua": {
+          "sha256": "5367ab6730e6812fa7b5b4df929b28b5df875587d7ef3cfe879881219da2a1f1",
+          "size": 11199,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/async.lua"
+        },
+        "telegram-bot-lua/b64url.lua": {
+          "sha256": "520b8ee72490f54f509a5e77feeaee201a9e249e548423240cdde120f889da9c",
+          "size": 5131,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/b64url.lua"
+        },
+        "telegram-bot-lua/builders.lua": {
+          "sha256": "5a16409e8e3944c540537d5d441c0d8da2157efa4b55c1edbac19d22954ffc47",
+          "size": 48833,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/builders.lua"
+        },
+        "telegram-bot-lua/builders_rich.lua": {
+          "sha256": "7858e40509f1d51210408dd969ada994b7141c30cf0f47e64e366e4071ee2ba2",
+          "size": 9868,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/builders_rich.lua"
+        },
+        "telegram-bot-lua/compat.lua": {
+          "sha256": "2878d008d77db8a2e4146b606076b64a8f934047c69176a23ed6592e929adb80",
+          "size": 17049,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/compat.lua"
+        },
+        "telegram-bot-lua/config.lua": {
+          "sha256": "46fc9c09c52a70b19d73cfc8972770bd092d15d91948a7752994c97c625b0d4e",
+          "size": 60,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/config.lua"
+        },
+        "telegram-bot-lua/core.lua": {
+          "sha256": "0aff607ee36e5adc968154f05dfed7fc31e6f7d7b429934003316de13f5830f9",
+          "size": 275,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/core.lua"
+        },
+        "telegram-bot-lua/framework.lua": {
+          "sha256": "1cbb0967263bca1f7f43faf5bdb46cc67e93066182e930238e4c3cd5dea74ffe",
+          "size": 8753,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/framework.lua"
+        },
+        "telegram-bot-lua/handlers.lua": {
+          "sha256": "9519ef8ebd1c971814d7ab647625be6ddab0a5c95e343a273c6bc1c7dc9c0e2a",
+          "size": 14542,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/handlers.lua"
+        },
+        "telegram-bot-lua/helpers.lua": {
+          "sha256": "15cb364ca65efcbb1d2b3423c1e6ed2fc822012c7f9463ed21b69a2d8781d21e",
+          "size": 6291,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/helpers.lua"
+        },
+        "telegram-bot-lua/log.lua": {
+          "sha256": "abc18a42137f935e64cf9783ae6f5c53d75db5d8e2cf5d8a2c9b77aaa947c9d7",
+          "size": 2278,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/log.lua"
+        },
+        "telegram-bot-lua/mcp.lua": {
+          "sha256": "dd072069b16c4a9af1c98f063bd00cd76c7424bf23de37a8d3bb9567ec06fe4e",
+          "size": 23540,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/mcp.lua"
+        },
+        "telegram-bot-lua/methods/bot.lua": {
+          "sha256": "c91509b0b8467a5da046a5f43a41cf620d954704aacea5c799e13ea0b5f60b49",
+          "size": 17527,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/bot.lua"
+        },
+        "telegram-bot-lua/methods/business.lua": {
+          "sha256": "d40528ec179a4e2c0f0e5321146cd24d36b9a58ee5e6f4650ab5363ac1dffd3a",
+          "size": 10681,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/business.lua"
+        },
+        "telegram-bot-lua/methods/chat.lua": {
+          "sha256": "9b84fe56e0d652a6b2765340f8e59e8067297b43494d44de336b061d5c4c8bb9",
+          "size": 17634,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/chat.lua"
+        },
+        "telegram-bot-lua/methods/checklists.lua": {
+          "sha256": "aa864e771d0da295f6ba81153f2ff743b5bdaf5d6771154a53afa6647687814c",
+          "size": 4677,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/checklists.lua"
+        },
+        "telegram-bot-lua/methods/forum.lua": {
+          "sha256": "f1820e3db20144d38a6fc5b2c38eeec485b24cc30583e2100cac55fffb31d722",
+          "size": 8260,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/forum.lua"
+        },
+        "telegram-bot-lua/methods/games.lua": {
+          "sha256": "c5c622aa78613ac10d747afee00d6a896f1991b02a5c2f87283c83e3258fb95e",
+          "size": 3400,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/games.lua"
+        },
+        "telegram-bot-lua/methods/gifts.lua": {
+          "sha256": "4deabdef19b1489f901fb6381c6e53b454316fc7dec8896e8ef69d0486bcbbf3",
+          "size": 6137,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/gifts.lua"
+        },
+        "telegram-bot-lua/methods/inline.lua": {
+          "sha256": "3b41271ee1f20f7156eab6fdcd51c09eceb0a7840a4e187488ca90f1faec7cc2",
+          "size": 9573,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/inline.lua"
+        },
+        "telegram-bot-lua/methods/members.lua": {
+          "sha256": "7566d1cf66d64cda33dfb64342578ba498202f2cd072e89df343066331d6c0fe",
+          "size": 9652,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/members.lua"
+        },
+        "telegram-bot-lua/methods/messages.lua": {
+          "sha256": "f34ed5e849fd16306ef643f8c41faa5b477c60464439ea93cb78f0d848da1fe9",
+          "size": 62539,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/messages.lua"
+        },
+        "telegram-bot-lua/methods/passport.lua": {
+          "sha256": "41509eb2578cfec621a48eb3781619ac3fb1b3027791bc83d148859abded0d6f",
+          "size": 907,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/passport.lua"
+        },
+        "telegram-bot-lua/methods/payments.lua": {
+          "sha256": "c1db034cb4b03526432bd54a7dd2f4199484a158ccfe816616c09bfc91466a11",
+          "size": 10661,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/payments.lua"
+        },
+        "telegram-bot-lua/methods/rich.lua": {
+          "sha256": "6ee9f5516c73ad21a8d5d11848cb52a23098d3f1746521dcd48fa1a8a35b8933",
+          "size": 4434,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/rich.lua"
+        },
+        "telegram-bot-lua/methods/stickers.lua": {
+          "sha256": "1c435fc4d2db595689724e10d6c3d2e96bea5d2a8d3bb2cdc4f082bacda03fda",
+          "size": 12182,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/stickers.lua"
+        },
+        "telegram-bot-lua/methods/stories.lua": {
+          "sha256": "bc9e484ff13219b9eb40d541806fcdc643ad61aafdc077122337d6befc91184c",
+          "size": 5395,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/stories.lua"
+        },
+        "telegram-bot-lua/methods/suggested_posts.lua": {
+          "sha256": "e896ed86e00b7b92ea4297f2bb10dc184be25b87a47bd6d00756b3e20d262af2",
+          "size": 1312,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/suggested_posts.lua"
+        },
+        "telegram-bot-lua/methods/updates.lua": {
+          "sha256": "a0ad4191f254b7686347857977872ee4ef5050ec4fa5b7d878c999a30baf66a9",
+          "size": 3050,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/methods/updates.lua"
+        },
+        "telegram-bot-lua/middleware.lua": {
+          "sha256": "2e932ac49494f13fb6c8d364b6f3f7d8431b9c884b7a826f6a8394187a9e616f",
+          "size": 5315,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/middleware.lua"
+        },
+        "telegram-bot-lua/polyfill.lua": {
+          "sha256": "327d3c2041654c505f42403b6b8175cd4f539b5d06885e55beebc7b352d56982",
+          "size": 4814,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/polyfill.lua"
+        },
+        "telegram-bot-lua/session.lua": {
+          "sha256": "c6dd6f32d1db6119b7cffa42ff52afb76c569ecea3726ee23eb720d89fe2fb09",
+          "size": 2098,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/session.lua"
+        },
+        "telegram-bot-lua/tools.lua": {
+          "sha256": "47159a2d3d5237db85d1a7dc427f3c4c30a41c76b896640ab82bff10d294a335",
+          "size": 30623,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/tools.lua"
+        },
+        "telegram-bot-lua/utils.lua": {
+          "sha256": "a4a2993b570be4c4c1581234c43c27948df2e66529e6a15f63c477acac2cbe25",
+          "size": 15061,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/utils.lua"
+        },
+        "telegram-bot-lua/webhook.lua": {
+          "sha256": "d17a5fa216ffd84cd13340dd86e6647f2fb64707e11c5b803a3457b3b0b09a31",
+          "size": 5162,
+          "url": "https://raw.githubusercontent.com/wrxck/telegram-bot-lua/v3.7/src/webhook.lua"
+        }
+      },
+      "homepage": "https://github.com/wrxck/telegram-bot-lua",
+      "license": "GPL-3",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Tue, 23 Jun 2026 08:51:14 GMT",
+        "rockspec": {
+          "date": "Tue, 23 Jun 2026 08:51:14 GMT",
+          "sha256": "7fd9c43b21f2a772165225ec6dc55b0cb05ebe21068461d363e283e66cb212e2",
+          "size": 3582
+        },
+        "src": {
+          "date": "Tue, 23 Jun 2026 08:51:16 GMT",
+          "sha256": "abe52006c159381791fc2753ff21a12f25aac90ae24c59db3ff8feb48c27280d",
+          "size": 226040,
+          "url": "https://luarocks.org/telegram-bot-lua-3.7-0.src.rock"
+        }
+      },
+      "modules": [
+        "telegram-bot-lua",
+        "telegram-bot-lua.adapters",
+        "telegram-bot-lua.adapters.db",
+        "telegram-bot-lua.adapters.email",
+        "telegram-bot-lua.adapters.llm",
+        "telegram-bot-lua.adapters.redis",
+        "telegram-bot-lua.async",
+        "telegram-bot-lua.b64url",
+        "telegram-bot-lua.builders",
+        "telegram-bot-lua.builders_rich",
+        "telegram-bot-lua.compat",
+        "telegram-bot-lua.config",
+        "telegram-bot-lua.core",
+        "telegram-bot-lua.framework",
+        "telegram-bot-lua.handlers",
+        "telegram-bot-lua.helpers",
+        "telegram-bot-lua.log",
+        "telegram-bot-lua.mcp",
+        "telegram-bot-lua.methods.bot",
+        "telegram-bot-lua.methods.business",
+        "telegram-bot-lua.methods.chat",
+        "telegram-bot-lua.methods.checklists",
+        "telegram-bot-lua.methods.forum",
+        "telegram-bot-lua.methods.games",
+        "telegram-bot-lua.methods.gifts",
+        "telegram-bot-lua.methods.inline",
+        "telegram-bot-lua.methods.members",
+        "telegram-bot-lua.methods.messages",
+        "telegram-bot-lua.methods.passport",
+        "telegram-bot-lua.methods.payments",
+        "telegram-bot-lua.methods.rich",
+        "telegram-bot-lua.methods.stickers",
+        "telegram-bot-lua.methods.stories",
+        "telegram-bot-lua.methods.suggested_posts",
+        "telegram-bot-lua.methods.updates",
+        "telegram-bot-lua.middleware",
+        "telegram-bot-lua.polyfill",
+        "telegram-bot-lua.session",
+        "telegram-bot-lua.tools",
+        "telegram-bot-lua.utils",
+        "telegram-bot-lua.webhook"
+      ],
+      "origin": {
+        "sha256": "f509a42f99b7a9711c124e065e66076d3e2107fd5a1a766c0bcd1042710dcbd6",
+        "type": "archive",
+        "url": "https://github.com/wrxck/telegram-bot-lua/archive/refs/tags/v3.7.tar.gz"
+      },
+      "size": 469144,
+      "summary": "A feature-filled Telegram bot API library",
+      "undeclared_requires": [
+        "ltn12",
+        "mime",
+        "socket",
+        "socket.http",
+        "socket.smtp",
+        "ssl.https"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

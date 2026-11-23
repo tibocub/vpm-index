@@ -1,0 +1,109 @@
+{
+  "kind": "lib",
+  "name": "payments",
+  "versions": {
+    "1.5.0-1": {
+      "bin": [],
+      "deps": [
+        "lua-cjson",
+        "luasocket",
+        "luasec",
+        "lapis",
+        "tableshape"
+      ],
+      "files": {
+        "payments/amazon.lua": {
+          "sha256": "9fcc75fadd6fd040d37655fe38029de483c23ae75a8c795dddb33dc59e17cdf5",
+          "size": 10015,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/amazon.lua"
+        },
+        "payments/base_client.lua": {
+          "sha256": "47b4df978ca687934cc37adddfdca9437d63f4f72630e763cd80a2bce30e79c7",
+          "size": 1018,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/base_client.lua"
+        },
+        "payments/paypal.lua": {
+          "sha256": "eb2044bc10c13bc80f449a64767001374551f4b6e0ffa0944f1bc934e5dc1a05",
+          "size": 185,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/paypal.lua"
+        },
+        "payments/paypal/adaptive.lua": {
+          "sha256": "20e262b13dbc56153dcee7603fab4e18dcc9d9e54fde6b2924a6846352e69a65",
+          "size": 6882,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/paypal/adaptive.lua"
+        },
+        "payments/paypal/express_checkout.lua": {
+          "sha256": "3e1574a95fe2c25446283b855caa7383e7dddca5aa38ae685ee0859f78fea47f",
+          "size": 6760,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/paypal/express_checkout.lua"
+        },
+        "payments/paypal/helpers.lua": {
+          "sha256": "df1c4498fb4c99c6558ac1ad6cc4eebc69ede2b2409c9d4627859da2dd34be6e",
+          "size": 1204,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/paypal/helpers.lua"
+        },
+        "payments/paypal/rest.lua": {
+          "sha256": "d3e530a988aa30af33b3fae500de84f019ef937fdd79f4383c61b0d5d56e6b74",
+          "size": 15168,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/paypal/rest.lua"
+        },
+        "payments/stripe.lua": {
+          "sha256": "22ada3fbf4114139c382496aa958da2a999def8e5e3d290dc2691ab6457c608e",
+          "size": 16247,
+          "url": "https://raw.githubusercontent.com/leafo/lua-payments/6572993f97b52856cfb54dd2611db17f03911063/payments/stripe.lua"
+        }
+      },
+      "homepage": "https://github.com/leafo/lua-payments",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 13 Jul 2026 18:57:54 GMT",
+        "rockspec": {
+          "date": "Mon, 13 Jul 2026 18:57:54 GMT",
+          "sha256": "4d7db9f27ebda54b1e2f9cefe2d985d12af28161097d676645e165cab6c1c2ca",
+          "size": 965
+        },
+        "src": {
+          "date": "Mon, 13 Jul 2026 18:57:55 GMT",
+          "sha256": "0c6a79d31d7d45e9ada699fc00decdb5317bbea0a5210ba150c743040677f8fe",
+          "size": 42669,
+          "url": "https://luarocks.org/payments-1.5.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "payments.amazon",
+        "payments.base_client",
+        "payments.paypal",
+        "payments.paypal.adaptive",
+        "payments.paypal.express_checkout",
+        "payments.paypal.helpers",
+        "payments.paypal.rest",
+        "payments.stripe"
+      ],
+      "origin": {
+        "commit": "6572993f97b52856cfb54dd2611db17f03911063",
+        "ref": "v1.5.0",
+        "type": "git",
+        "url": "https://github.com/leafo/lua-payments.git"
+      },
+      "size": 57479,
+      "summary": "Payment APIs for Lua, including Stripe & PayPal. Works with Openresty",
+      "undeclared_requires": [
+        "ltn12",
+        "lxp.lom",
+        "moon",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

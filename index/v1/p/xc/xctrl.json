@@ -1,0 +1,84 @@
+{
+  "kind": "lib",
+  "name": "xctrl",
+  "versions": {
+    "20101026-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://jkp.t35.com/lua/",
+      "license": "GPL2",
+      "luarocks": {
+        "date": "Sat, 01 Mar 2014 22:22:04 GMT",
+        "rockspec": {
+          "date": "Sat, 01 Mar 2014 22:22:04 GMT",
+          "sha256": "e759cac8d7efe9e13708153b117b53d91ee1292b7580c61a99165d310ceca423",
+          "size": 1050
+        },
+        "src": {
+          "date": "Sat, 01 Mar 2014 22:22:04 GMT",
+          "sha256": "bd035b5275037a14155358a6b29cd24dd9f74998a8d28edf77f13c58d928ab63",
+          "size": 28726,
+          "url": "https://luarocks.org/xctrl-20101026-1.src.rock"
+        }
+      },
+      "modules": [
+        "xctrl"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "X11"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "X11": {
+              "header": "X11/Xmu/WinUtil.h"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "VERSION=1.08a"
+              ],
+              "incdirs": [
+                "."
+              ],
+              "libraries": [
+                "X11",
+                "Xmu"
+              ],
+              "name": "xctrl",
+              "sources": [
+                "src/xctrl.c",
+                "src/lxctrl.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "xctrl-2010-10-26"
+      },
+      "origin": {
+        "date": "Sat, 01 Mar 2014 22:22:04 GMT",
+        "sha256": "bd035b5275037a14155358a6b29cd24dd9f74998a8d28edf77f13c58d928ab63",
+        "size": 28726,
+        "type": "luarocks",
+        "url": "https://luarocks.org/xctrl-20101026-1.src.rock"
+      },
+      "summary": "module to query and manipulate X11 managers and windows",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

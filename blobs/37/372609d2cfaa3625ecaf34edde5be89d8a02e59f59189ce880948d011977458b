@@ -1,0 +1,104 @@
+-- ============================================================
+-- Shiva Test — Environment Orchestrator
+-- Wires every mock module together based on setup options.
+-- ============================================================
+
+local Environment = {}
+
+-- Lazy-loaded modules (avoid require cycles at top-level)
+local function load(path)
+    return require(path)
+end
+
+-- Track whether setup has already run (reset on Environment.reset)
+local _installed = false
+
+---@class SetupOptions
+---@field mode       string  'server' | 'client'  (default: 'server')
+---@field framework  string  'shiva' | 'qbcore' | 'esx' | 'ox' | 'none'  (default: 'shiva')
+---@field globals    table?  Extra key→value pairs injected into _G
+
+--- Set up the simulated FiveM environment.
+--- Idempotent — calling twice with the same options is safe.
+---@param opts? SetupOptions
+function Environment.setup(opts)
+    opts = opts or {}
+    local mode      = opts.mode      or 'server'
+    local framework = opts.framework or 'shiva'
+    local G         = _G
+
+    -- ── Core FiveM globals ──────────────────────────────────
+    load('src.mocks.fivem').install(G, mode)
+
+    -- ── Events ──────────────────────────────────────────────
+    load('src.events').install(G, mode)
+
+    -- ── Exports ─────────────────────────────────────────────
+    load('src.exports').install(G)
+
+    -- ── Natives ─────────────────────────────────────────────
+    load('src.natives').install(G)
+
+    -- ── State Bags ──────────────────────────────────────────
+    load('src.statebags').install(G)
+
+    -- ── Database (oxmysql exports) ───────────────────────────
+    load('src.database').installExports(G)
+
+    -- ── Framework mocks ─────────────────────────────────────
+    local fw = framework:lower()
+    if fw == 'qbcore' or fw == 'qb' then
+        load('src.mocks.qbcore').install(G)
+    elseif fw == 'esx' then
+        load('src.mocks.esx').install(G)
+    elseif fw == 'ox' or fw == 'ox_lib' then
+        load('src.mocks.ox_lib').install(G)
+    elseif fw == 'shiva' then
+        load('src.mocks.shiva').install(G)
+    end
+
+    -- ── User-supplied extra globals ──────────────────────────
+    if opts.globals then
+        for k, v in pairs(opts.globals) do G[k] = v end
+    end
+
+    _installed = true
+end
+
+--- Tear down all mocks, restoring a clean state.
+--- Call between tests or test suites.
+function Environment.reset()
+    -- Events
+    local Events = load('src.events')
+    if Events.reset then Events.reset() end
+
+    -- Exports
+    local Exports = load('src.exports')
+    if Exports.reset then Exports.reset() end
+
+    -- Natives
+    local Natives = load('src.natives')
+    if Natives.reset then Natives.reset() end
+
+    -- State bags
+    local StateBags = load('src.statebags')
+    if StateBags.reset then StateBags.reset() end
+
+    -- Database
+    local Database = load('src.database')
+    if Database.reset then Database.reset() end
+
+    -- FiveM timer
+    local FiveMock = load('src.mocks.fivem')
+    if FiveMock.resetTimer then FiveMock.resetTimer() end
+
+    _installed = false
+end
+
+--- Returns true if setup() has been called.
+---@return boolean
+function Environment.isInstalled()
+    return _installed
+end
+
+return Environment

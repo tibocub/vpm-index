@@ -1,0 +1,58 @@
+--A transformer.
+local md5 = require("md5")
+local Trans = {}
+Trans.__index = Trans
+package.loaded[...] = Trans
+
+--Constructor.
+function Trans.new()
+  return setmetatable({
+    _ = {
+
+    }
+  }, Trans)
+end
+
+--Configure the transformer.
+--
+--@param parser:Parser  Parser to use.
+--@param opts:map       Transformer options.
+function Trans:transform(parser, opts)
+  self._.parser = parser
+  self._.opts = opts or {}
+end
+
+--Check whether the noParamCheck is enabled for all the code.
+function Trans:skipParamCheck()
+  return not not self._.opts.noParamCheck
+end
+
+--Return the private prefix.
+function Trans:pvtPrefix()
+  return "_pvt_" .. md5.sumhexa(self._.parser._.lexer._.file) .. "_"
+end
+
+--Return the prefix for the specified visibility.
+function Trans:getVisibPrefix(visib)
+  local prefix
+
+  --(1) get prefix
+  if visib == "pub" or visib == "." then
+    prefix = ""
+  elseif visib == "intl" or visib == ":" then
+    prefix = "_"
+  else
+    prefix = self:pvtPrefix()
+  end
+
+  --(2) return prefix
+  return prefix
+end
+
+--Transform the next sentence or file from the parser configured previously.
+--
+--@abstract
+--@return string
+function Trans:next()
+  error("abstract method.")
+end

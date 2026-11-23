@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-jwt-claims-to-headers",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/jwt-claims-to-headers/handler.lua": {
+          "sha256": "b397087b389eea775781f2375f372ba77b28b64867cb45eae7da814305681e3a",
+          "size": 4432,
+          "url": "https://raw.githubusercontent.com/openwares/kong-plugin-jwt-claims-to-headers/27d2d46356f97592d22aeca6271e6fb2e6bbe407/kong/plugins/jwt-claims-to-headers/handler.lua"
+        },
+        "kong/plugins/jwt-claims-to-headers/schema.lua": {
+          "sha256": "c8de3740cf1f64ec2e0f6dbee2229953d04cc79b6ada4367f599c62a23ca6245",
+          "size": 1415,
+          "url": "https://raw.githubusercontent.com/openwares/kong-plugin-jwt-claims-to-headers/27d2d46356f97592d22aeca6271e6fb2e6bbe407/kong/plugins/jwt-claims-to-headers/schema.lua"
+        }
+      },
+      "homepage": "http://github.com/openwares/kong-plugin-jwt-claims-to-headers",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Sun, 10 Mar 2019 01:23:35 GMT",
+        "rockspec": {
+          "date": "Sun, 10 Mar 2019 01:23:35 GMT",
+          "sha256": "d5ea0ce63492d8c0969500428b242c37b0cc8b6e5fe121ab0ed063b884eff377",
+          "size": 1146
+        },
+        "src": {
+          "date": "Sun, 10 Mar 2019 01:23:38 GMT",
+          "sha256": "8327ed591a7e3c05f82173ebf3f3644a280bca706e9762fc4ce35e541b1f0a71",
+          "size": 193203,
+          "url": "https://luarocks.org/kong-plugin-jwt-claims-to-headers-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.jwt-claims-to-headers.handler",
+        "kong.plugins.jwt-claims-to-headers.schema"
+      ],
+      "origin": {
+        "commit": "27d2d46356f97592d22aeca6271e6fb2e6bbe407",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/openwares/kong-plugin-jwt-claims-to-headers.git"
+      },
+      "size": 5847,
+      "summary": "Extracts JWT claims and adds them as HTTP request headers",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin",
+        "kong.plugins.jwt.jwt_parser"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

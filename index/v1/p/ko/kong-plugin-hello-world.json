@@ -1,0 +1,64 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-hello-world",
+  "versions": {
+    "0.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/hello-world/access.lua": {
+          "sha256": "b500317034db8adb2f38c69ced7006c3c7589f5d4066e282b00c3bd6597b35a5",
+          "size": 364,
+          "url": "https://raw.githubusercontent.com/brndmg/kong-plugin-hello-world/0f4d9021993a968a2f07117bedfa795f15838038/src/access.lua"
+        },
+        "kong/plugins/hello-world/handler.lua": {
+          "sha256": "6f3e08f878b2124d6387b17abe6a2c0751a1463b7bb5f31193f2547584942443",
+          "size": 655,
+          "url": "https://raw.githubusercontent.com/brndmg/kong-plugin-hello-world/0f4d9021993a968a2f07117bedfa795f15838038/src/handler.lua"
+        },
+        "kong/plugins/hello-world/schema.lua": {
+          "sha256": "17964ac8e49fa6fefdc2c995a68bf46c0e304e3b1d85c4f23b5f8f774140428b",
+          "size": 102,
+          "url": "https://raw.githubusercontent.com/brndmg/kong-plugin-hello-world/0f4d9021993a968a2f07117bedfa795f15838038/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/brndmg/kong-plugin-hello-world",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Thu, 25 Aug 2016 19:30:54 GMT",
+        "rockspec": {
+          "date": "Thu, 25 Aug 2016 19:30:54 GMT",
+          "sha256": "df03e94d72df69adc17b3b81f8a5c4e242719b0222bb33c07160a72547e6b9e5",
+          "size": 692
+        }
+      },
+      "modules": [
+        "kong.plugins.hello-world.access",
+        "kong.plugins.hello-world.handler",
+        "kong.plugins.hello-world.schema"
+      ],
+      "origin": {
+        "commit": "0f4d9021993a968a2f07117bedfa795f15838038",
+        "ref": "v0.1-1",
+        "type": "git",
+        "url": "https://github.com/brndmg/kong-plugin-hello-world"
+      },
+      "size": 1121,
+      "summary": "The Hello World Plugin",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 2,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

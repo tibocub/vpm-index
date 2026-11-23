@@ -1,0 +1,90 @@
+{
+  "kind": "lib",
+  "name": "kong-openid-v3",
+  "versions": {
+    "2.0.0-2": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc ~> 1.8.0-1"
+      ],
+      "files": {
+        "kong/plugins/oidc/filter.lua": {
+          "sha256": "1e714dd19e0802539afb534c2b83bcf1640b9a6d66ea29aa62b38e4c74ef67b6",
+          "size": 374,
+          "url": "blob:1e714dd19e0802539afb534c2b83bcf1640b9a6d66ea29aa62b38e4c74ef67b6"
+        },
+        "kong/plugins/oidc/handler.lua": {
+          "sha256": "50c2c8569729f086ffe33c7047619eac3c334cb0381ff30e4593de994610292e",
+          "size": 6601,
+          "url": "blob:50c2c8569729f086ffe33c7047619eac3c334cb0381ff30e4593de994610292e"
+        },
+        "kong/plugins/oidc/schema.lua": {
+          "sha256": "f809acb5a4147620461fd65747629027f0a7a2f7c11dee3843f7c3df69cb43ac",
+          "size": 7280,
+          "url": "blob:f809acb5a4147620461fd65747629027f0a7a2f7c11dee3843f7c3df69cb43ac"
+        },
+        "kong/plugins/oidc/session.lua": {
+          "sha256": "868c7d97e68e2bd9965254fbc50658271775a4a8a441ec5739d9a457e330b7e1",
+          "size": 423,
+          "url": "blob:868c7d97e68e2bd9965254fbc50658271775a4a8a441ec5739d9a457e330b7e1"
+        },
+        "kong/plugins/oidc/utils.lua": {
+          "sha256": "be37c86277249ed1b498efcdfb48b504d9107ae1e69e14b4703273655df7b2bf",
+          "size": 7346,
+          "url": "blob:be37c86277249ed1b498efcdfb48b504d9107ae1e69e14b4703273655df7b2bf"
+        }
+      },
+      "homepage": "https://github.com/ricristian/kong-openid-v3",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Sun, 03 Nov 2024 15:02:27 GMT",
+        "rockspec": {
+          "date": "Sun, 03 Nov 2024 15:02:27 GMT",
+          "sha256": "d3110a996177f6a1d4459b338d88a532ae150ed52e43c419c81edce224dac39c",
+          "size": 1744
+        },
+        "src": {
+          "date": "Sun, 03 Nov 2024 15:02:29 GMT",
+          "sha256": "5ad455098c8bdb0084f869ae8c92c68c7b9e029248c877e98896fc9d40bfcc10",
+          "size": 165378,
+          "url": "https://luarocks.org/kong-openid-v3-2.0.0-2.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.oidc.filter",
+        "kong.plugins.oidc.handler",
+        "kong.plugins.oidc.schema",
+        "kong.plugins.oidc.session",
+        "kong.plugins.oidc.utils"
+      ],
+      "origin": {
+        "date": "Sun, 03 Nov 2024 15:02:29 GMT",
+        "sha256": "5ad455098c8bdb0084f869ae8c92c68c7b9e029248c877e98896fc9d40bfcc10",
+        "size": 165378,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-openid-v3-2.0.0-2.src.rock"
+      },
+      "size": 22024,
+      "summary": "A Kong plugin for implementing the OpenID Connect Relying Party (RP) functionality",
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.schema.typedefs",
+        "resty.jwt-validators"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

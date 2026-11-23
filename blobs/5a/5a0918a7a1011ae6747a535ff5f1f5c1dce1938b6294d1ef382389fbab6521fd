@@ -1,0 +1,27 @@
+--imports
+local Terminal = require("dogma.syn._.Terminal")
+local TerminalType = require("dogma.syn.TerminalType")
+
+--A cast() call.
+local CastFn = {}
+CastFn.__index = CastFn
+setmetatable(CastFn, {__index = Terminal})
+package.loaded[...] = CastFn
+
+--Constructor.
+function CastFn.new(ln, col, to, exp)
+  local self
+
+  --(1) create
+  self = setmetatable(Terminal.new(TerminalType.CAST, {line = ln, col = col}), CastFn)
+  self.to = to
+  self.exp = exp
+
+  --(2) return
+  return self
+end
+
+--@override
+function CastFn:__tostring()
+  return string.format("(cast %s %s)", tostring(self.to), tostring(self.exp))
+end

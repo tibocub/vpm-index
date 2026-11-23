@@ -1,0 +1,79 @@
+{
+  "kind": "lib",
+  "name": "gamecake-tardis",
+  "versions": {
+    "0.9-261005": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "wetgenes/tardis.lua": {
+          "sha256": "e3493dba0ffd38f1fb66332572a636b73b5ed0cfab6010e181401ca84196f1b5",
+          "size": 84639,
+          "url": "blob:e3493dba0ffd38f1fb66332572a636b73b5ed0cfab6010e181401ca84196f1b5"
+        }
+      },
+      "homepage": "https://github.com/xriss/gamecake",
+      "host": "luajit",
+      "license": "MIT",
+      "lua": ">= 5.1 <= 5.2",
+      "luajit": true,
+      "luarocks": {
+        "date": "Mon, 05 Oct 2026 00:25:14 GMT",
+        "rockspec": {
+          "date": "Mon, 05 Oct 2026 00:25:14 GMT",
+          "sha256": "dc4a641bdfce4b99f9cf1712938eb62b7be5b411a920d67816dc9f7d8c9a1e6c",
+          "size": 1729
+        },
+        "src": {
+          "date": "Mon, 05 Oct 2026 00:25:15 GMT",
+          "sha256": "d227909802695530e791ac59923b9694d7d9dd5c2976caa9ae62f11571dfc4ac",
+          "size": 39470,
+          "url": "https://luarocks.org/gamecake-tardis-0.9-261005.src.rock"
+        }
+      },
+      "modules": [
+        "wetgenes.tardis",
+        "wetgenes.tardis.core"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "lua_tardis",
+                "lib_hacks/code"
+              ],
+              "name": "wetgenes.tardis.core",
+              "sources": [
+                "lua_tardis/code/lua_tardis.c"
+              ]
+            }
+          ]
+        },
+        "srcdir": "src"
+      },
+      "origin": {
+        "date": "Mon, 05 Oct 2026 00:25:15 GMT",
+        "sha256": "d227909802695530e791ac59923b9694d7d9dd5c2976caa9ae62f11571dfc4ac",
+        "size": 39470,
+        "type": "luarocks",
+        "url": "https://luarocks.org/gamecake-tardis-0.9-261005.src.rock"
+      },
+      "size": 84639,
+      "summary": "Time and Relative Dimensions In Space",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 2,
+        "status": "ok",
+        "total": 2
+      }
+    }
+  }
+}

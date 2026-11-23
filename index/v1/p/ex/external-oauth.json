@@ -1,0 +1,72 @@
+{
+  "kind": "lib",
+  "name": "external-oauth",
+  "versions": {
+    "1.1-5": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/external-oauth/access.lua": {
+          "sha256": "f13db72071231e23928086bdaab42533fb97fdbdeeac28c9c8f7b592b849f588",
+          "size": 6688,
+          "url": "https://raw.githubusercontent.com/mogui/kong-external-oauth/83921ce4f827b60425f202b7286e4784f885bc54/src/access.lua"
+        },
+        "kong/plugins/external-oauth/handler.lua": {
+          "sha256": "abb8f23add39b96cb780afbe90d3072f7c32306aa4b1090dd5e0f4c71c0a4bda",
+          "size": 967,
+          "url": "https://raw.githubusercontent.com/mogui/kong-external-oauth/83921ce4f827b60425f202b7286e4784f885bc54/src/handler.lua"
+        },
+        "kong/plugins/external-oauth/schema.lua": {
+          "sha256": "6efdd450679196e4f35891f0f448a38c2a43bab26d07b4b5fc4417714ff8ad72",
+          "size": 1022,
+          "url": "https://raw.githubusercontent.com/mogui/kong-external-oauth/83921ce4f827b60425f202b7286e4784f885bc54/src/schema.lua"
+        }
+      },
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Wed, 19 Jul 2017 13:44:24 GMT",
+        "rockspec": {
+          "date": "Wed, 19 Jul 2017 13:44:24 GMT",
+          "sha256": "6368e22defb769df42b56f29ef9c4cf908c27a89c58b2cd03408735c040d9e06",
+          "size": 575
+        },
+        "src": {
+          "date": "Wed, 19 Jul 2017 13:44:25 GMT",
+          "sha256": "f7dc2792cb63ed7447bc057304127c8a55ae57e862cb7b98bc431fb6ac3d6fa6",
+          "size": 12315,
+          "url": "https://luarocks.org/external-oauth-1.1-5.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.external-oauth.access",
+        "kong.plugins.external-oauth.handler",
+        "kong.plugins.external-oauth.schema"
+      ],
+      "origin": {
+        "commit": "83921ce4f827b60425f202b7286e4784f885bc54",
+        "type": "git",
+        "url": "https://github.com/mogui/kong-external-oauth"
+      },
+      "size": 8677,
+      "summary": "A Kong plugin, that let you use an external Oauth 2.0 provider to protect your API",
+      "undeclared_requires": [
+        "crypto",
+        "kong.plugins.base_plugin",
+        "pl.stringx",
+        "resty.http",
+        "socket.url"
+      ],
+      "vlr": {
+        "cause": "missing module: pl.stringx",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 3
+      }
+    }
+  }
+}

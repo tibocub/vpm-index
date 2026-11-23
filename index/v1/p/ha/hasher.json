@@ -1,0 +1,69 @@
+{
+  "kind": "lib",
+  "name": "hasher",
+  "versions": {
+    "0.1.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/edubart/lua-hasher",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 12 Apr 2019 14:18:01 GMT",
+        "rockspec": {
+          "date": "Fri, 12 Apr 2019 14:18:01 GMT",
+          "sha256": "0abe489363d18060d5da1babb390819983d9db556bdd5a6a4df9996d4746ce22",
+          "size": 671
+        },
+        "src": {
+          "date": "Fri, 12 Apr 2019 14:18:02 GMT",
+          "sha256": "600b24c5b6ea719e2bded8267473fe44c90daa28eba15cb123d118192c018254",
+          "size": 8077,
+          "url": "https://luarocks.org/hasher-0.1.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "hasher"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "./src"
+              ],
+              "name": "hasher",
+              "sources": [
+                "lhasher.c",
+                "src/blake2b.c",
+                "src/base58.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Fri, 12 Apr 2019 14:18:02 GMT",
+        "sha256": "600b24c5b6ea719e2bded8267473fe44c90daa28eba15cb123d118192c018254",
+        "size": 8077,
+        "type": "luarocks",
+        "url": "https://luarocks.org/hasher-0.1.0-1.src.rock"
+      },
+      "summary": "A simple library for hashing implemented in C",
+      "vlr": {
+        "d51": true,
+        "d54": true,
+        "date": "2026-11-22",
+        "loaded": 1,
+        "status": "ok",
+        "total": 1
+      }
+    }
+  }
+}

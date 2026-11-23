@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-amqp-rpc",
+  "versions": {
+    "1.0.0-6": {
+      "bin": [],
+      "deps": [
+        "amqp-client-rpc ~> 1.0",
+        "lua-cjson ~> 2.1.0",
+        "lua-resty-uuid ~> 1.1"
+      ],
+      "files": {
+        "kong/plugins/amqp-rpc/handler.lua": {
+          "sha256": "0051f26c76f07e6f3b6ef532f460b0eca9bb5a356233f611852cf38d9d066d4e",
+          "size": 5653,
+          "url": "https://raw.githubusercontent.com/helmutb82/kong-plugin-amqp/319dc203b6a3c54545c1702e5361477805307bbf/kong/plugins/amqp-rpc/handler.lua"
+        },
+        "kong/plugins/amqp-rpc/prepare.lua": {
+          "sha256": "23cc4ece29aed57f58e49b79e626a4ae8155923e0b62f6c52ffd8102a0a0b1ce",
+          "size": 1288,
+          "url": "https://raw.githubusercontent.com/helmutb82/kong-plugin-amqp/319dc203b6a3c54545c1702e5361477805307bbf/kong/plugins/amqp-rpc/prepare.lua"
+        },
+        "kong/plugins/amqp-rpc/schema.lua": {
+          "sha256": "a7bc05f553537909a822ad4a53e14e4efa1d6eee3726038c6bbc557028955a81",
+          "size": 784,
+          "url": "https://raw.githubusercontent.com/helmutb82/kong-plugin-amqp/319dc203b6a3c54545c1702e5361477805307bbf/kong/plugins/amqp-rpc/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/helmutb82/kong-plugin-amqp",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Thu, 04 Feb 2021 15:02:31 GMT",
+        "rockspec": {
+          "date": "Thu, 04 Feb 2021 15:02:31 GMT",
+          "sha256": "0e546a40ccc80baef27b778eebd96d01893ce2e34589181376c34937e3280247",
+          "size": 1050
+        },
+        "src": {
+          "date": "Thu, 04 Feb 2021 15:02:32 GMT",
+          "sha256": "e44d34a5d3b02cdb671631f8c3b2c648b7b9367a1026b44055a248962113c3ec",
+          "size": 13245,
+          "url": "https://luarocks.org/kong-plugin-amqp-rpc-1.0.0-6.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.amqp-rpc.handler",
+        "kong.plugins.amqp-rpc.prepare",
+        "kong.plugins.amqp-rpc.schema"
+      ],
+      "origin": {
+        "commit": "319dc203b6a3c54545c1702e5361477805307bbf",
+        "ref": "master",
+        "type": "git",
+        "url": "https://github.com/helmutb82/kong-plugin-amqp.git"
+      },
+      "size": 7725,
+      "summary": "Kong Plungin to act as an AMQP 0.9.1 client",
+      "undeclared_requires": [
+        "inspect",
+        "kong.constants",
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

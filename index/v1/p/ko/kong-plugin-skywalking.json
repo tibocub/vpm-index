@@ -1,0 +1,78 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-skywalking",
+  "versions": {
+    "0.3.1-0": {
+      "bin": [],
+      "deps": [
+        "skywalking-nginx-lua = 0.3-0"
+      ],
+      "files": {
+        "kong/plugins/skywalking/client.lua": {
+          "sha256": "1398dc42390c9c633fca5835aeaf9e03ad18df80c89a61fa89bddbd801baadf3",
+          "size": 9228,
+          "url": "https://raw.githubusercontent.com/heshang233/kong-plugin-skywalking/9481b840f649da8f3ae0be3c5f18f4754621e074/kong/plugins/skywalking/client.lua"
+        },
+        "kong/plugins/skywalking/handler.lua": {
+          "sha256": "c2c823bdb5d37b4ce6be563e94d41622097bd5e38e3daf756a8f111ed2750759",
+          "size": 1949,
+          "url": "https://raw.githubusercontent.com/heshang233/kong-plugin-skywalking/9481b840f649da8f3ae0be3c5f18f4754621e074/kong/plugins/skywalking/handler.lua"
+        },
+        "kong/plugins/skywalking/schema.lua": {
+          "sha256": "ff17e2051037515cda0d9790dd30d0b7cd2d25d895bab027ccc31eea409fcb1a",
+          "size": 1555,
+          "url": "https://raw.githubusercontent.com/heshang233/kong-plugin-skywalking/9481b840f649da8f3ae0be3c5f18f4754621e074/kong/plugins/skywalking/schema.lua"
+        },
+        "kong/plugins/skywalking/tracer.lua": {
+          "sha256": "e57754e9fd89346107c7908ba08f5fa871667612385431228a5ba4e5b459dbc5",
+          "size": 4577,
+          "url": "https://raw.githubusercontent.com/heshang233/kong-plugin-skywalking/9481b840f649da8f3ae0be3c5f18f4754621e074/kong/plugins/skywalking/tracer.lua"
+        }
+      },
+      "homepage": "https://github.com/heshang233/kong-plugin-skywalking",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Thu, 17 Dec 2020 07:35:16 GMT",
+        "rockspec": {
+          "date": "Thu, 17 Dec 2020 07:35:16 GMT",
+          "sha256": "99a8265b88d491a3d4cf0e299b2be738234403bfaebf536f2bf888b3ebb5edd1",
+          "size": 907
+        },
+        "src": {
+          "date": "Thu, 17 Dec 2020 07:35:21 GMT",
+          "sha256": "24f5d7e3def4330adb4b95dfa17bcec86684005c383bed8fdc4769953e677695",
+          "size": 13275,
+          "url": "https://luarocks.org/kong-plugin-skywalking-0.3.1-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.skywalking.client",
+        "kong.plugins.skywalking.handler",
+        "kong.plugins.skywalking.schema",
+        "kong.plugins.skywalking.tracer"
+      ],
+      "origin": {
+        "commit": "9481b840f649da8f3ae0be3c5f18f4754621e074",
+        "ref": "v0.3.1",
+        "type": "git",
+        "url": "https://github.com/heshang233/kong-plugin-skywalking/"
+      },
+      "size": 17309,
+      "summary": "The Nginx Lua agent for Apache SkyWalking kong-plugin",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "socket"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

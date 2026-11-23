@@ -1,0 +1,387 @@
+-- Pure-Lua TOML parser (no external dependencies).
+--
+-- Supports the subset of TOML 1.0 used by htb configurations:
+--   * comments (# to end of line, including trailing comments)
+--   * [table] and [[array-of-tables]] headers, with dotted and quoted keys
+--   * key = value pairs, with dotted and quoted keys
+--   * values: basic strings ("..."), literal strings ('...'), integers,
+--     floats, booleans, inline tables {..}, and arrays [..]
+--
+-- `decode(text)` returns a nested table. Raises an error (with the offending
+-- line) on malformed input. Written to be Lua 5.1 compatible.
+
+local M = {}
+
+-- Tracks key insertion order for every table the parser produces, so that
+-- consumers can iterate a table in the order its keys appeared in the source
+-- (Lua's `pairs` does not preserve order). Stored in a weak registry keyed by
+-- the table itself, so entries are garbage-collected with their table.
+local keyOrder = setmetatable({}, { __mode = "k" })
+
+local function trackKey(tbl, key)
+    local keys = keyOrder[tbl]
+    if not keys then
+        keys = {}
+        keyOrder[tbl] = keys
+        keys[1] = key
+        return
+    end
+    for _, k in ipairs(keys) do
+        if k == key then
+            return
+        end
+    end
+    keys[#keys + 1] = key
+end
+
+-- Ordered iteration over a table's keys. Falls back to `pairs` for tables the
+-- parser did not create (e.g. built by hand in tests).
+function M.orderedPairs(tbl)
+    local keys = keyOrder[tbl]
+    if keys then
+        local i = 0
+        return function()
+            i = i + 1
+            local k = keys[i]
+            if k ~= nil then
+                return k, tbl[k]
+            end
+        end
+    end
+    return pairs(tbl)
+end
+
+-- Explicitly set the key order for a table (used when building derived tables
+-- that should inherit the source's iteration order).
+function M.setOrder(tbl, keys)
+    keyOrder[tbl] = keys
+end
+
+local function fail(msg, line)
+    error("TOML parse error (line " .. tostring(line) .. "): " .. msg, 0)
+end
+
+local function isWs(c)
+    return c == " " or c == "\t"
+end
+
+-- Encode a Unicode code point as UTF-8.
+local function utf8encode(cp)
+    if cp < 0x80 then
+        return string.char(cp)
+    elseif cp < 0x800 then
+        return string.char(0xC0 + math.floor(cp / 64), 0x80 + (cp % 64))
+    elseif cp < 0x10000 then
+        return string.char(
+            0xE0 + math.floor(cp / 4096),
+            0x80 + math.floor(cp / 64) % 64,
+            0x80 + (cp % 64)
+        )
+    else
+        return string.char(
+            0xF0 + math.floor(cp / 262144),
+            0x80 + math.floor(cp / 4096) % 64,
+            0x80 + math.floor(cp / 64) % 64,
+            0x80 + (cp % 64)
+        )
+    end
+end
+
+local ESCAPES = {
+    b = "\b", t = "\t", n = "\n", f = "\f", r = "\r",
+    ['"'] = '"', ["\\"] = "\\", ["/"] = "/",
+}
+
+local function skipWs(s, pos)
+    while pos <= #s and isWs(s:sub(pos, pos)) do
+        pos = pos + 1
+    end
+    return pos
+end
+
+local function parseString(s, pos, line)
+    local quote = s:sub(pos, pos)
+    pos = pos + 1
+    local buf = {}
+    while pos <= #s do
+        local c = s:sub(pos, pos)
+        if c == "\\" and quote == '"' then
+            local n = s:sub(pos + 1, pos + 1)
+            if n == "u" or n == "U" then
+                local len = (n == "u") and 4 or 8
+                local hex = s:sub(pos + 2, pos + 1 + len)
+                local cp = tonumber(hex, 16)
+                if not cp then
+                    fail("bad unicode escape", line)
+                end
+                buf[#buf + 1] = utf8encode(cp)
+                pos = pos + 2 + len
+            else
+                local v = ESCAPES[n]
+                if not v then
+                    fail("bad escape '\\'" .. n, line)
+                end
+                buf[#buf + 1] = v
+                pos = pos + 2
+            end
+        elseif c == quote then
+            return table.concat(buf), pos + 1
+        else
+            buf[#buf + 1] = c
+            pos = pos + 1
+        end
+    end
+    fail("unterminated string", line)
+end
+
+local function parseNumber(s, pos, line)
+    local start = pos
+    while pos <= #s do
+        local c = s:sub(pos, pos)
+        if c:match("[%d%.%+%-eE_]") then
+            pos = pos + 1
+        else
+            break
+        end
+    end
+    local raw = s:sub(start, pos - 1)
+    if raw == "" then
+        fail("empty number", line)
+    end
+    local clean = (raw:gsub("_", ""))
+    local val = tonumber(clean)
+    if val == nil then
+        fail("invalid number: '" .. raw .. "'", line)
+    end
+    return val, pos
+end
+
+local function parseKey(s, pos, line)
+    local c = s:sub(pos, pos)
+    if c == '"' or c == "'" then
+        return parseString(s, pos, line)
+    end
+    local start = pos
+    while pos <= #s do
+        local ch = s:sub(pos, pos)
+        if ch:match("[%w_%-]") then
+            pos = pos + 1
+        else
+            break
+        end
+    end
+    if pos == start then
+        fail("expected key", line)
+    end
+    return s:sub(start, pos - 1), pos
+end
+
+-- Parse a dotted key path, e.g. a.b."c-d" -> { "a", "b", "c-d" }
+local function parseKeyPath(s, pos, line)
+    local parts = {}
+    pos = skipWs(s, pos)
+    while true do
+        local part, p2 = parseKey(s, pos, line)
+        parts[#parts + 1] = part
+        pos = skipWs(s, p2)
+        local c = s:sub(pos, pos)
+        if c == "." then
+            pos = skipWs(s, pos + 1)
+        else
+            return parts, pos
+        end
+    end
+end
+
+local parseValue, parseInlineTable, parseArray
+
+parseValue = function(s, pos, line)
+    pos = skipWs(s, pos)
+    local c = s:sub(pos, pos)
+    if c == '"' or c == "'" then
+        return parseString(s, pos, line)
+    elseif c == "{" then
+        return parseInlineTable(s, pos, line)
+    elseif c == "[" then
+        return parseArray(s, pos, line)
+    elseif c == "t" or c == "f" then
+        if s:sub(pos, pos + 3) == "true" then
+            return true, pos + 4
+        elseif s:sub(pos, pos + 4) == "false" then
+            return false, pos + 5
+        end
+        fail("invalid value", line)
+    elseif c:match("[%d%+%-%.]") then
+        return parseNumber(s, pos, line)
+    end
+    fail("invalid value near '" .. s:sub(pos, math.min(pos + 10, #s)) .. "'", line)
+end
+
+parseInlineTable = function(s, pos, line)
+    pos = pos + 1 -- consume '{'
+    local tbl = {}
+    pos = skipWs(s, pos)
+    if s:sub(pos, pos) == "}" then
+        return tbl, pos + 1
+    end
+    while true do
+        local key, p2 = parseKey(s, pos, line)
+        local p3 = skipWs(s, p2)
+        if s:sub(p3, p3) ~= "=" then
+            fail("expected '=' in inline table", line)
+        end
+        local val, p4 = parseValue(s, skipWs(s, p3 + 1), line)
+        tbl[key] = val
+        trackKey(tbl, key)
+        pos = skipWs(s, p4)
+        local c = s:sub(pos, pos)
+        if c == "," then
+            pos = skipWs(s, pos + 1)
+        elseif c == "}" then
+            return tbl, pos + 1
+        else
+            fail("expected ',' or '}' in inline table", line)
+        end
+    end
+end
+
+parseArray = function(s, pos, line)
+    pos = pos + 1 -- consume '['
+    local arr = {}
+    pos = skipWs(s, pos)
+    if s:sub(pos, pos) == "]" then
+        return arr, pos + 1
+    end
+    while true do
+        local val, p2 = parseValue(s, pos, line)
+        arr[#arr + 1] = val
+        pos = skipWs(s, p2)
+        local c = s:sub(pos, pos)
+        if c == "," then
+            pos = skipWs(s, pos + 1)
+        elseif c == "]" then
+            return arr, pos + 1
+        else
+            fail("expected ',' or ']' in array", line)
+        end
+    end
+end
+
+-- Walk (creating as needed) the nested table at `path` under `root`.
+-- Tracks each newly created key in its parent so `orderedPairs` can iterate
+-- child tables in source order.
+local function ensureTable(root, path, line)
+    local cur = root
+    for _, key in ipairs(path) do
+        local nxt = cur[key]
+        if nxt == nil then
+            nxt = {}
+            cur[key] = nxt
+            trackKey(cur, key)
+        end
+        if type(nxt) ~= "table" then
+            fail("key '" .. key .. "' is not a table", line)
+        end
+        cur = nxt
+    end
+    return cur
+end
+
+-- Strip a trailing comment (a '#' that is outside of any string).
+local function stripComment(line)
+    local inQuote = nil
+    for i = 1, #line do
+        local c = line:sub(i, i)
+        if inQuote then
+            if c == inQuote then
+                inQuote = nil
+            end
+        elseif c == '"' or c == "'" then
+            inQuote = c
+        elseif c == "#" then
+            return line:sub(1, i - 1)
+        end
+    end
+    return line
+end
+
+function M.decode(text)
+    local root = {}
+    local current = root
+    local lines = {}
+    for line in (text .. "\n"):gmatch("(.-)\n") do
+        lines[#lines + 1] = line
+    end
+
+    local function process(lineno, raw)
+        local line = stripComment(raw):match("^%s*(.-)%s*$")
+        if line == "" then
+            return
+        end
+
+        local first = line:sub(1, 1)
+        if first == "[" then
+            local isAot = (line:sub(2, 2) == "[")
+            local close = isAot and "]]" or "]"
+            local endIdx = line:find(close, 1, true)
+            if not endIdx then
+                fail("unterminated table header", lineno)
+            end
+            local startIdx = isAot and 3 or 2
+            local header = line:sub(startIdx, endIdx - 1)
+            local path = parseKeyPath(header, 1, lineno)
+            if #path == 0 then
+                fail("empty table header", lineno)
+            end
+            if isAot then
+                local parent = ensureTable(root, { path[1] }, lineno)
+                local arr = parent[path[2]]
+                if type(arr) ~= "table" then
+                    arr = {}
+                    parent[path[2]] = arr
+                end
+                local entry = {}
+                table.insert(arr, entry)
+                local sub = {}
+                for i = 3, #path do
+                    sub[#sub + 1] = path[i]
+                end
+                current = (#sub > 0) and ensureTable(entry, sub, lineno) or entry
+            else
+                current = ensureTable(root, path, lineno)
+            end
+        else
+            local eq = line:find("=", 1, true)
+            if not eq then
+                fail("expected 'key = value'", lineno)
+            end
+            local keyPart = line:sub(1, eq - 1)
+            local valPart = line:sub(eq + 1)
+            local path = parseKeyPath(keyPart, 1, lineno)
+            if #path == 0 then
+                fail("empty key", lineno)
+            end
+            local val = parseValue(valPart, 1, lineno)
+            local cur = current
+            for i = 1, #path - 1 do
+                local k = path[i]
+                if type(cur[k]) ~= "table" then
+                    cur[k] = {}
+                    trackKey(cur, k)
+                end
+                cur = cur[k]
+            end
+            local leaf = path[#path]
+            cur[leaf] = val
+            trackKey(cur, leaf)
+        end
+    end
+
+    for lineno, raw in ipairs(lines) do
+        process(lineno, raw)
+    end
+
+    return root
+end
+
+return M

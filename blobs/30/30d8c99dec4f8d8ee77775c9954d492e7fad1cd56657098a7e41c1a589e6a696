@@ -1,0 +1,267 @@
+local async = require('panto_mcp.async')
+local json = require('panto').ext.json
+local results = require('panto_mcp.results')
+
+local M = {}
+local function shell_words(text)
+    local words, i = {}, 1
+    while i <= #text do
+        while text:sub(i,i):match('%s') do i=i+1 end
+        if i > #text then break end
+        local out, quote, started = {}, nil, false
+        while i <= #text do
+            local ch=text:sub(i,i)
+            if quote == "'" then
+                if ch == "'" then quote=nil else out[#out+1]=ch end
+                started=true; i=i+1
+            elseif quote == '"' then
+                if ch == '"' then quote=nil; i=i+1
+                elseif ch == '\\' then
+                    if i == #text then return nil,'trailing escape' end
+                    out[#out+1]=text:sub(i+1,i+1); i=i+2
+                else out[#out+1]=ch; i=i+1 end
+                started=true
+            elseif ch:match('%s') then break
+            elseif ch == "'" or ch == '"' then quote=ch; started=true; i=i+1
+            elseif ch == '\\' then
+                if i == #text then return nil,'trailing escape' end
+                out[#out+1]=text:sub(i+1,i+1); started=true; i=i+2
+            else out[#out+1]=ch; started=true; i=i+1 end
+        end
+        if quote then return nil,'unclosed quote' end
+        if started then words[#words+1]=table.concat(out) end
+    end
+    return words
+end
+M.shell_words = shell_words
+
+local function has_named_token(text,name)
+    local needle=name..'='
+    local cursor=1
+    while true do
+        local start=text:find(needle,cursor,true)
+        if not start then return false end
+        if start==1 or text:sub(start-1,start-1):match('%s') then return true end
+        cursor=start+1
+    end
+end
+function M.parse_arguments(prompt, text)
+    if type(text) ~= 'string' then return nil,'arguments must be text' end
+    local args, definitions = {}, {}
+    for _, argument in ipairs(prompt.arguments or {}) do
+        if type(argument.name) ~= 'string' or argument.name == '' then return nil,'invalid prompt argument metadata' end
+        definitions[argument.name]=argument
+    end
+    local words,err={},nil
+    if #(prompt.arguments or {})==1 then
+        local only=prompt.arguments[1].name
+        local remainder=text:match('^%s*(.-)%s*$') or ''
+        if not has_named_token(remainder,only) then
+            if remainder~='' then args[only]=remainder end
+        else words,err=shell_words(text) end
+    else words,err=shell_words(text) end
+    if not words then return nil,err end
+    for _,word in ipairs(words) do
+        local equals=word:find('=',1,true)
+        if not equals or equals == 1 then return nil,'expected name=value argument' end
+        local name,value=word:sub(1,equals-1),word:sub(equals+1)
+        if not definitions[name] then return nil,'unknown prompt argument: '..name end
+        if args[name] ~= nil then return nil,'duplicate prompt argument: '..name end
+        args[name]=value
+    end
+    local missing={}
+    for _,argument in ipairs(prompt.arguments or {}) do
+        if argument.required and args[argument.name] == nil then missing[#missing+1]=argument.name end
+    end
+    if #missing > 0 then return nil,'missing required arguments: '..table.concat(missing,', ') end
+    return args
+end
+
+local function text_block(text) return {type='text',text=text} end
+local function content_blocks(content, role)
+    if type(content)=='string' then return {text_block(content)} end
+    local entries
+    if type(content)~='table' then return {text_block('[Unsupported MCP prompt content]')} end
+    if type(content.type)=='string' then entries={content} else entries=content end
+    local out={}
+    local function add_image(data,mime)
+        mime=type(mime)=='string' and mime or nil
+        local supported={['image/png']=true,['image/jpeg']=true,['image/webp']=true,['image/bmp']=true,['image/gif']=true}
+        local is_image=mime and supported[mime:lower()]
+        local decoded=is_image and type(data)=='string' and results.decode64(data)
+        if role=='assistant' then out[#out+1]=text_block('[Assistant media omitted: '..tostring(mime or 'image')..']')
+        elseif not is_image then out[#out+1]=text_block('[MCP unsupported attachment omitted: '..tostring(mime or 'unknown MIME type')..']')
+        elseif decoded then out[#out+1]={type='media',data=decoded,media_type=mime}
+        else out[#out+1]=text_block('[Invalid MCP image omitted]') end
+    end
+    for _,block in ipairs(entries) do
+        if type(block)~='table' then out[#out+1]=text_block('[Unsupported MCP prompt content]')
+        elseif block.type=='text' then out[#out+1]=text_block(block.text or '')
+        elseif block.type=='image' then add_image(block.data,block.mimeType)
+        elseif block.type=='audio' then out[#out+1]=text_block('[MCP audio omitted: '..tostring(block.mimeType or 'unknown MIME type')..']')
+        elseif block.type=='resource' and type(block.resource)=='table' then
+            local resource=block.resource
+            if type(resource.text)=='string' then out[#out+1]=text_block((type(resource.uri)=='string' and '['..resource.uri..']\n' or '')..resource.text)
+            elseif resource.blob then add_image(resource.blob,resource.mimeType)
+            else out[#out+1]=text_block('[MCP resource omitted: '..tostring(resource.uri or 'unknown URI')..']') end
+        else out[#out+1]=text_block('[Unsupported MCP prompt content: '..tostring(block.type or 'unknown')..']') end
+    end
+    return out
+end
+function M.map_messages(messages)
+    if type(messages)~='table' then return nil,'invalid prompt messages' end
+    local mapped={}
+    for _,message in ipairs(messages) do
+        if type(message)~='table' or (message.role~='user' and message.role~='assistant') then
+            return nil,'invalid prompt message role'
+        end
+        mapped[#mapped+1]={role=message.role,blocks=content_blocks(message.content,message.role)}
+    end
+    return mapped
+end
+local function preflight(mapped)
+    local has_media=false
+    for _,message in ipairs(mapped) do
+        for _,block in ipairs(message.blocks) do if block.type=='media' then has_media=true end end
+    end
+    if not has_media then return end
+    local probe=require('panto').conversation()
+    for _,message in ipairs(mapped) do
+        if message.role=='user' then probe:add_user_blocks(message.blocks)
+        else probe:add_assistant_message({blocks=message.blocks}) end
+    end
+end
+function M.append_to(agent, messages)
+    local mapped,err=M.map_messages(messages)
+    if not mapped then return nil,err end
+    local ok=pcall(preflight,mapped)
+    if not ok then return nil,'MCP prompt image could not be decoded' end
+    local trailing_user=mapped[#mapped] and mapped[#mapped].role=='user'
+    local conv=agent:conversation()
+    local stop=trailing_user and #mapped-1 or #mapped
+    for i=1,stop do
+        local message=mapped[i]
+        if message.role=='user' then conv:add_user_blocks(message.blocks)
+        else conv:add_assistant_message({blocks=message.blocks}) end
+    end
+    if trailing_user then agent:submit(mapped[#mapped].blocks); return true end
+    return false
+end
+
+local function log(err) io.stderr:write('panto-mcp: prompt command: ',tostring(err),'\n') end
+local function unregister(ext,name)
+    local ok,value,err=pcall(ext.unregister_command,name)
+    if not ok or not value then log(ok and (err or ('cannot unregister '..name)) or value); return false end
+    return true
+end
+local function prompt_description(prompt)
+    local parts={}
+    if type(prompt.title)=='string' and prompt.title~='' then parts[#parts+1]=prompt.title end
+    if type(prompt.description)=='string' and prompt.description~='' then parts[#parts+1]=prompt.description end
+    local names={}
+    for _,argument in ipairs(prompt.arguments or {}) do names[#names+1]=argument.name end
+    if #names>0 then parts[#parts+1]='Arguments: '..table.concat(names,', ') end
+    return #parts>0 and table.concat(parts,' — ') or ('MCP prompt '..prompt.name)
+end
+function M.commands(ext, manager, turn, dynamic, warnings)
+    local registered, warned={},{}
+    local error_mount,error_text
+    local function clear_error()
+        if error_mount then
+            pcall(function() if error_mount:alive() then error_mount:unmount() end end)
+            error_mount=nil; error_text=nil
+        end
+    end
+    local function show_error(err)
+        error_text='MCP prompt failed: '..tostring(err):gsub('[%z\1-\8\11\12\14-\31\127]','?'):sub(1,800)
+        if error_mount then
+            local ok=pcall(error_mount.invalidate,error_mount)
+            if ok then return end
+            error_mount=nil
+        end
+        if type(ext.mount)=='function' then
+            local ok,handle=pcall(ext.mount,{render=function() return error_text end},'above_input')
+            if ok then error_mount=handle; return end
+        end
+        log(error_text)
+    end
+    if type(ext.on)=='function' then
+        ext.on('command_start',clear_error); ext.on('turn_start',clear_error)
+    end
+    local function warning(key,text)
+        if warned[key] then return end
+        warned[key]=true
+        local message='prompt '..text
+        if warnings then warnings[#warnings+1]=message end
+        log(message)
+    end
+    local function reconcile(server, metadata, warm)
+        local wanted={}
+        for _,prompt in ipairs((metadata and metadata.catalog and metadata.catalog.prompts) or {}) do
+            if type(prompt.name)=='string' and not prompt.name:find('[/%s]') then
+                local name='mcp:'..server..':'..prompt.name
+                local description=prompt_description(prompt)
+                wanted[name]={server=server,prompt=prompt,signature=json.encode({description=description,arguments=prompt.arguments})}
+            else warning(server..':'..tostring(prompt.name),'command skipped because its name contains slash or whitespace: '..tostring(prompt.name)) end
+        end
+        if dynamic then
+            for name,old in pairs(registered) do
+                if old.server==server then
+                    local next_prompt=wanted[name]
+                    if not next_prompt or next_prompt.signature~=old.signature then
+                        if unregister(ext,name) then registered[name]=nil end
+                    end
+                end
+            end
+        end
+        for name,current in pairs(wanted) do
+            if not registered[name] and (dynamic or warm) then
+                local handler=function(text)
+                    if turn.busy then return 'Cannot run an MCP prompt while a turn is in progress.' end
+                    local args,why=M.parse_arguments(current.prompt,text or '')
+                    if not args then return 'MCP prompt arguments: '..why end
+                    async.run(function()
+                        local messages,err=manager:prompt(current.server,current.prompt.name,args)
+                        if not messages then show_error(err); return end
+                        if turn.busy then show_error('result discarded because a turn started while the prompt was loading'); return end
+                        local submitted,append_err=M.append_to(require('panto').ext.agent,messages)
+                        if submitted==nil then show_error(append_err)
+                        elseif not submitted and type(ext.emit)=='function' then
+                            local emitted,emit_err=pcall(ext.emit,'agent_submission')
+                            if not emitted then show_error(emit_err) end
+                        end
+                    end,show_error)
+                    return 'Fetching MCP prompt…'
+                end
+                local ok,value,err=pcall(ext.register_command,{name=name,description=prompt_description(current.prompt),handler=handler})
+                if ok and (value or (not dynamic and err==nil)) then registered[name]=current
+                else
+                    local reason=ok and (err or ('register_command failed for '..name)) or value
+                    warning(name..':registration','command registration failed for '..name..': '..tostring(reason))
+                end
+            end
+        end
+    end
+    return {reconcile=reconcile,registered=registered}
+end
+function M.track_busy(ext,turn,prompt_commands)
+    local in_turn,commands,prompt_dispatch=false,0,false
+    local function update() turn.busy=in_turn or commands>0 end
+    local function event_name(event)
+        return type(event)=='table' and type(event.command_name)=='string' and event.command_name or '<unknown command>'
+    end
+    ext.on('turn_start',function() in_turn=true; update() end)
+    ext.on('turn_end',function() in_turn=false; update() end)
+    ext.on('command_start',function(event)
+        local name=event_name(event)
+        prompt_dispatch=prompt_commands.registered[name]~=nil
+        if not prompt_dispatch then commands=commands+1 end
+        update()
+    end)
+    ext.on('command_end',function(event)
+        if not prompt_dispatch then commands=math.max(0,commands-1) end
+        prompt_dispatch=false
+        update()
+    end)
+end
+return M

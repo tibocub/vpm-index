@@ -1,0 +1,109 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-response-cache",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/response-cache/cache.lua": {
+          "sha256": "8a4b06b191b68d7a65751c4e183dd72b0231b0852197e4d7459d2ce95929200a",
+          "size": 4006,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/cache.lua"
+        },
+        "kong/plugins/response-cache/handler.lua": {
+          "sha256": "027f930f7b6fa0b811cbe4be7cbdbd9ac7acd71f9fdee63c3a021975ee963e83",
+          "size": 3089,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/handler.lua"
+        },
+        "kong/plugins/response-cache/http/header.lua": {
+          "sha256": "23750308b280e2538134aa7d0d2ac8f9bf970f2f87b30abe5ae111c955c69fe8",
+          "size": 837,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/http/header.lua"
+        },
+        "kong/plugins/response-cache/http/request.lua": {
+          "sha256": "9983ac5f438225a2825511237e3d35d1d300dcfeaf1601b6a0c006655d0a2f8a",
+          "size": 728,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/http/request.lua"
+        },
+        "kong/plugins/response-cache/http/response.lua": {
+          "sha256": "c40c750798b7615907c9fb114ff254b8bc5c1181d24709d287f9cdd712448a8c",
+          "size": 859,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/http/response.lua"
+        },
+        "kong/plugins/response-cache/schema.lua": {
+          "sha256": "deffa9633266a29ef528b931ad47e138b58e8c98e373be6f16c3b9914dbf7ade",
+          "size": 3247,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/schema.lua"
+        },
+        "kong/plugins/response-cache/strategies/init.lua": {
+          "sha256": "a27bfb3c5dac0465e69281afb47eb43f7cf41ade091662986462b30147b288df",
+          "size": 611,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/strategies/init.lua"
+        },
+        "kong/plugins/response-cache/strategies/memory.lua": {
+          "sha256": "0f789f6d464bac48fb46a76a4906ef8863ec05e333710906bdbf88b5f270a132",
+          "size": 1947,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/strategies/memory.lua"
+        },
+        "kong/plugins/response-cache/strategies/redis.lua": {
+          "sha256": "539bd848a671e1838b69328fff3cd574e9f59d82e58e3e2fa739c4a7b42c45ae",
+          "size": 5227,
+          "url": "https://raw.githubusercontent.com/allbarbos/kong-response-cache/0d3ae0f7d01988614732b815258c50c90cd5c4b7/kong/plugins/response-cache/strategies/redis.lua"
+        }
+      },
+      "homepage": "https://allbarbos.github.io/kong-response-cache",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 24 Mar 2023 13:47:29 GMT",
+        "rockspec": {
+          "date": "Fri, 24 Mar 2023 13:47:29 GMT",
+          "sha256": "f54426408f92bbaab31c5164d1ce1d76c005bfc56d82e16e07f1833da9511f3b",
+          "size": 1845
+        },
+        "src": {
+          "date": "Fri, 24 Mar 2023 13:47:30 GMT",
+          "sha256": "a9ceb9ce13a47ed1617477a950c238f0f627604fd915880e491e042b81a1af8b",
+          "size": 27086,
+          "url": "https://luarocks.org/kong-plugin-response-cache-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.response-cache.cache",
+        "kong.plugins.response-cache.handler",
+        "kong.plugins.response-cache.http.header",
+        "kong.plugins.response-cache.http.request",
+        "kong.plugins.response-cache.http.response",
+        "kong.plugins.response-cache.schema",
+        "kong.plugins.response-cache.strategies",
+        "kong.plugins.response-cache.strategies.memory",
+        "kong.plugins.response-cache.strategies.redis"
+      ],
+      "origin": {
+        "commit": "0d3ae0f7d01988614732b815258c50c90cd5c4b7",
+        "ref": "1.0.0",
+        "type": "git",
+        "url": "https://github.com/allbarbos/kong-response-cache.git"
+      },
+      "size": 20551,
+      "summary": "This plugin provides a reverse proxy cache implementation for Kong.",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.response-cache.strategies.",
+        "kong.tools.utils",
+        "resty.redis"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.tools.utils",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 9
+      }
+    }
+  }
+}

@@ -1,0 +1,155 @@
+-- `/fork-subagent <id>`: take over one of this session's children yourself.
+--
+-- The child's session file is copied into `<child catalog>/forks/` under a
+-- fresh id, and panto is asked to switch the TUI to the copy with the child's
+-- stored system prompt kept (`panto.ext.resume{ keep_system_prompt = true }`).
+-- The original is never written, so the primary can still continue that child
+-- by id, and replaying the primary still shows the child's own history.
+-- Progress replay lists only the catalog's top level, so the copy never shows
+-- up there as a duplicate card.
+--
+-- Refused while any child turn is in flight: switching sessions tears this one
+-- down, which cancels running children, and a child mid-turn has a session
+-- file still being written. Every failure is returned as the command's output;
+-- on success the switch replaces the transcript, so nothing is returned.
+
+local jobs = require("subagents.jobs")
+local paths = require("subagents.paths")
+
+local ok_uv, uv = pcall(require, "luv")
+
+local M = {}
+
+local function host()
+    return require("panto").ext
+end
+
+-- A UUIDv7: 48 bits of Unix milliseconds, version 7, RFC 4122 variant, and
+-- random bits, so a fork sorts by creation time like every other session.
+function M.uuid_v7(ms)
+    if not ms then
+        if ok_uv then
+            local sec, usec = uv.gettimeofday()
+            ms = sec * 1000 + usec // 1000
+        else
+            ms = os.time() * 1000
+        end
+    end
+    local hex = string.format("%012x", ms)
+    local function rand(digits)
+        local out = {}
+        for i = 1, digits do
+            out[i] = string.format("%x", math.random(0, 15))
+        end
+        return table.concat(out)
+    end
+    return string.format("%s-%s-7%s-%x%s-%s",
+        hex:sub(1, 8), hex:sub(9, 12), rand(3), 8 + math.random(0, 3), rand(3), rand(12))
+end
+
+-- The unique `<id>.jsonl` in `dir` whose id starts with `prefix`.
+local function resolve_child(dir, prefix)
+    if not ok_uv then
+        return nil, "the 'luv' module is required to list stored children"
+    end
+    local scan = uv.fs_scandir(dir)
+    if not scan then
+        return nil, "this session has no stored subagents"
+    end
+    local match
+    while true do
+        local name, kind = uv.fs_scandir_next(scan)
+        if not name then break end
+        if kind == "file" and name:sub(-6) == ".jsonl" and name:sub(1, #prefix) == prefix then
+            if match then
+                return nil, string.format("'%s' matches more than one subagent", prefix)
+            end
+            match = name:sub(1, -7)
+        end
+    end
+    if not match then
+        return nil, string.format("no subagent of this session matches '%s'", prefix)
+    end
+    return match
+end
+
+-- `text` with its session header re-identified as `new_id`, recording where
+-- it came from. Messages are kept byte for byte.
+function M.rewrite_header(text, new_id)
+    local json = host().json
+    local nl = text:find("\n", 1, true)
+    local ok, header = pcall(json.decode, nl and text:sub(1, nl - 1) or text)
+    if not ok or type(header) ~= "table" or header.type ~= "session" or type(header.id) ~= "string" then
+        return nil, "the subagent's session file has no valid header"
+    end
+    local from = header.id
+    header.id = new_id
+    if type(header.metadata) ~= "table" then header.metadata = {} end
+    header.metadata.forked_from = from
+    return json.encode(header) .. (nl and text:sub(nl) or "\n")
+end
+
+-- Copy the child matching `prefix` into the forks directory. Returns the new
+-- file's path, or nil, err.
+function M.copy(prefix)
+    local store_dir, info = paths.child_store_dir()
+    if not store_dir then
+        return nil, tostring(info)
+    end
+    local id, err = resolve_child(store_dir, prefix)
+    if not id then
+        return nil, err
+    end
+    local text, read_err = paths.read_file(store_dir .. "/" .. id .. ".jsonl")
+    if not text then
+        return nil, tostring(read_err)
+    end
+    local new_id = M.uuid_v7()
+    local copied, rewrite_err = M.rewrite_header(text, new_id)
+    if not copied then
+        return nil, rewrite_err
+    end
+    local forks = store_dir .. "/forks"
+    local made, mkdir_err = paths.ensure_dir(forks)
+    if not made then
+        return nil, tostring(mkdir_err)
+    end
+    local path = forks .. "/" .. new_id .. ".jsonl"
+    local fh, open_err = io.open(path, "wb")
+    if not fh then
+        return nil, tostring(open_err)
+    end
+    local wrote, write_err = fh:write(copied)
+    fh:close()
+    if not wrote then
+        os.remove(path)
+        return nil, tostring(write_err)
+    end
+    return path
+end
+
+-- The `/fork-subagent <id>` handler body.
+function M.command(args)
+    local prefix = (args or ""):match("^%s*(%S+)%s*$")
+    if not prefix then
+        return "usage: /fork-subagent <id>"
+    end
+    local ext = host()
+    if type(ext.resume) ~= "function" then
+        return "[fork failed: this panto cannot switch sessions (panto.ext.resume is missing)]"
+    end
+    if jobs.any_active() then
+        return "[fork failed: subagents are still running; switching sessions would cancel them]"
+    end
+    local path, err = M.copy(prefix)
+    if not path then
+        return "[fork failed: " .. err .. "]"
+    end
+    local switched, resume_err = ext.resume({ path = path, keep_system_prompt = true })
+    if not switched then
+        os.remove(path)
+        return "[fork failed: " .. tostring(resume_err) .. "]"
+    end
+end
+
+return M

@@ -1,0 +1,36 @@
+local tokens_schema = kong.db.oauth2_tokens.schema
+local fmt           = string.format
+
+local SELECT_OAUTH_TOKEN_QUERY = [[
+  SELECT 
+    ot.id,
+    ot.credential_id,
+    ot.access_token,
+    ot.refresh_token,
+    ot.authenticated_userid,
+    oc.client_id
+  FROM oauth2_tokens ot
+  JOIN oauth2_credentials oc on oc.id = ot.credential_id
+  WHERE ot.authenticated_userid = %s
+    AND oc.client_id = %s
+    ORDER BY ot.created_at DESC
+]]
+
+return {
+  ["/jurnal-oauth2-tokens/:autenticated_userid/client_id/:client_id"] = {
+    schema = tokens_schema,
+    methods = {
+      GET = function(self)
+        local prepared_params1 = kong.db.connector:escape_literal(self.params["autenticated_userid"])
+        local prepared_params2 = kong.db.connector:escape_literal(self.params["client_id"])
+
+        local prepared_query = fmt(SELECT_OAUTH_TOKEN_QUERY, prepared_params1 
+                                                           , prepared_params2)
+
+        local oauth2_tokens = kong.db.connector:query(prepared_query) or {}
+
+        return kong.response.exit(200, {data = oauth2_tokens})
+      end
+    }
+  }
+}

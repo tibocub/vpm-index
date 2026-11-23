@@ -1,0 +1,89 @@
+{
+  "kind": "lib",
+  "name": "lrexlib-tre",
+  "versions": {
+    "2.9.4-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "https://github.com/rrthomas/lrexlib",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 17 Aug 2026 16:55:21 GMT",
+        "rockspec": {
+          "date": "Mon, 17 Aug 2026 16:55:21 GMT",
+          "sha256": "4c4331980da693d80919fb3bbe8d22dafa85860075b28922e3d24d2d3e850860",
+          "size": 1004
+        },
+        "src": {
+          "date": "Mon, 17 Aug 2026 16:55:22 GMT",
+          "sha256": "5d54579b2ea0800a48ca4e2bdaf594ff18ecbb21f199665688eaa7d4841f952a",
+          "size": 94964,
+          "url": "https://luarocks.org/lrexlib-tre-2.9.4-1.src.rock"
+        }
+      },
+      "modules": [
+        "rex_tre"
+      ],
+      "native": {
+        "build": "builtin",
+        "external": [
+          "TRE"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "TRE": {
+              "header": "tre/tre.h",
+              "library": "tre"
+            }
+          },
+          "modules": [
+            {
+              "defines": [
+                "VERSION=\"2.9.4\"",
+                "LUA_LIB=",
+                "PCRE2_CODE_UNIT_WIDTH=8"
+              ],
+              "incdirs": [
+                "$(TRE_INCDIR)"
+              ],
+              "libdirs": [
+                "$(TRE_LIBDIR)"
+              ],
+              "libraries": [
+                "tre"
+              ],
+              "name": "rex_tre",
+              "sources": [
+                "src/common.c",
+                "src/tre/ltre.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Mon, 17 Aug 2026 16:55:22 GMT",
+        "sha256": "5d54579b2ea0800a48ca4e2bdaf594ff18ecbb21f199665688eaa7d4841f952a",
+        "size": 94964,
+        "type": "luarocks",
+        "url": "https://luarocks.org/lrexlib-tre-2.9.4-1.src.rock"
+      },
+      "summary": "Regular expression library binding (TRE flavour).",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

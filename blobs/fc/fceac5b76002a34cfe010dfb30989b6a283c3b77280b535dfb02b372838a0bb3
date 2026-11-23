@@ -1,0 +1,347 @@
+local util = require"lacord.util"
+local monotime = require"cqueues".monotime
+local setm = setmetatable
+local getm = getmetatable
+local getlocal = debug.getlocal
+local iter = pairs
+local iiter = ipairs
+local pak = table.pack
+local insert = table.insert
+local typ = type
+local to_s = tostring
+local _ENV = {}
+
+--luacheck: ignore 111
+
+--- Component types.
+-- `action_row` is a container for a row of buttons,
+-- `button` is the actual button ui element.
+local types = {
+    'action_row', 'button';
+}
+
+for k, v in iiter(types) do types[v] = k end
+
+_ENV.types = types
+
+--- Component styles.
+-- `primary` is a blurple color,
+-- `secondary` is a grey color,
+-- `success` is a green color,
+-- `danger` is a red color,
+-- `link` is a grey color and is only set when a button has a url field.
+local styles = {
+    'primary', 'secondary', 'success', 'destructive', 'link'
+}
+
+for k, v in iiter(styles) do styles[v] = k end
+
+_ENV.styles = styles
+
+--- Interaction types.
+-- The kinds of interaction INTERACTION_CREATE will describe,
+-- `button_press` is sent went a user clicks a button.
+local interaction_types = {
+    'ping', 'application_command', 'button_press'
+}
+
+for k, v in iiter(interaction_types) do interaction_types[v] = k end
+
+_ENV.interaction_types = interaction_types
+
+--- Interaction responses.
+-- The different ways you can respond to an interaction.
+local interaction_responses = {
+    [4] = 'channel_message_with_source',
+    [5] = 'deferred_channel_message_with_source',
+    [6] = 'deferred_message_update',
+    [7] = 'update_message'
+}
+
+for i = 4, 7 do interaction_responses[interaction_responses[i]] = i end
+
+_ENV.interaction_responses = interaction_responses
+
+--- Button object.
+local button = {__name = "lacord.x.component.button"}
+
+button.__index = button
+
+local function map(f, t)
+    local out = {}
+    for _, v in iiter(t) do
+        insert(out, f(v))
+    end
+    return out
+end
+
+local function clone_component(obj)
+    return setm({
+        type = obj.type,
+        style = obj.url and styles.link or obj.style,
+        custom_id = obj.custom_id,
+        label = obj.label,
+        url = not obj.custom_id and obj.url or nil,
+        emoji = obj.emoji,
+        disabled = obj.disabled,
+        components = obj.components and map(clone_component, obj.components) or nil
+    }, getm(obj))
+end
+
+local function commit_component(obj)
+    local new = clone_component(obj)
+    if typ(new.custom_id) == 'function' then new.custom_id = new.custom_id() end
+    return new
+end
+
+local function and_commit(new)
+    if typ(new.custom_id) == 'function' then new.custom_id = new.custom_id() end
+    return new
+end
+
+--- Constructs a button with the given configuration.
+-- Accepts a table of options and returns a **new button**.
+function a_button_with(options)
+    local new = {
+        type = types.button,
+        style = options.url and styles.link or options.style,
+        custom_id = options.custom_id,
+        label = options.label,
+        url = not options.custom_id and options.url,
+        emoji = options.emoji,
+        disabled = options.disabled
+    }
+    return setm(new, button)
+end
+
+--- Extend a button object with more options, creating a **new button**.
+function button:with(more_options)
+    local this = clone_component(self)
+    this.custom_id = more_options.custom_id or this.custom_id
+    this.label = more_options.label or this.label
+    if this.custom_id then this.url = nil else this.url = more_options.url or this.url end
+    if this.url then this.style = styles.link end
+    this.emoji = more_options.emoji or this.emoji
+    this.disabled = more_options.disabled or this.disabled
+    return setm(this, button)
+end
+
+
+--- Shortcut to return a disabled version of a button.
+function button:disable() return self:with{disabled = true} end
+
+local function nonce() return ("%x"):format(util.hash(to_s(monotime()))) end
+
+--- Returns a new copy of the button with a unique custom_id & a function which you can pass to event:await() to
+-- listen for the button being pressed.
+-- The custom id is just a FNV-1a hash of monotime(),
+-- if you need ids to be generated more rapidly you will need to use :await_with(your_id_here)
+function button:awaitable()
+    local _id = nonce()
+    local this = self:with{custom_id = _id}
+    return this, function(ctx)
+        local e = ctx.event
+        local d = e.data
+        return d and
+        d.component_type == types.button
+        and d.custom_id == _id
+        and e.type == interaction_types.button_press
+    end
+end
+
+--- Like :awaitable(), but accepts the custom id to use.
+function button:awaitable_with(_id)
+    local this = self:with{custom_id = _id}
+    return this, function(ctx)
+        local e = ctx.event
+        local d = e.data
+        return d and
+        d.component_type == types.button
+        and d.custom_id == _id
+        and e.type == interaction_types.button_press
+    end
+end
+
+local row = {__name = "lacord.x.component.row"}
+
+row.__index = row
+
+--- Creates a new action_row component, essentially a row you can put buttons in.
+local function new_row()
+    local new = {
+        type = types.action_row,
+        components = {}
+    }
+    return setm(new, row)
+end
+
+_ENV.new_row = new_row
+
+--- Add some buttons to the action_row, returning a **new** action_row
+function row:with_buttons(...)
+    local btns = pak(...)
+    local new = clone_component(self)
+    for i = 1, btns.n do
+        insert(new.components, clone_component(btns[i]))
+    end
+    return setm(new, row)
+end
+
+--- Attach the row to a message_create payload, inserting it into the components array **or** creating one if it doesn't exist.
+function row:attach(payload)
+    payload = payload or {}
+    if payload.components then
+        insert(payload.components, commit_component(self))
+    else
+        payload.components = {commit_component(self)}
+    end
+    return payload
+end
+
+--- Shortcut to attach a single button to a message payload.
+function button:attach(payload)
+    payload = payload or {}
+    local the_row = new_row()
+    the_row.components[1] = commit_component(self)
+    if payload.components then
+        insert(payload.components, the_row)
+    else
+        payload.components = {the_row}
+    end
+    return payload
+end
+
+function button:mount()
+    local the_row = new_row()
+    the_row.components[1] = clone_component(self)
+    return the_row
+end
+
+local function respond_to(api, ctx, resp)
+    return api:create_interaction_response(ctx.event.id, ctx.event.token, resp)
+end
+
+_ENV.respond_to = respond_to
+
+--- Acknowledge an INTERACTION_CREATE event, causing the user to see it as successful.
+function acknowledge(api, ctx)
+    return respond_to(api, ctx, {
+        type = interaction_responses.deferred_message_update
+    })
+end
+
+--- Reply to an INTERACTION_CREATE event, posting a message.
+function acknowledge_and_reply(api, ctx, msg)
+    return respond_to(api, ctx, {
+        type = interaction_responses.channel_message_with_source,
+        data = {
+            content = msg.content,
+            tts = msg.tts,
+            embeds = msg.embeds or msg.embed and {msg.embed},
+            allowed_mentions = msg.allowed_mentions,
+        }
+    })
+end
+
+
+function acknowledge_and_say(api, ctx, msg)
+    return respond_to(api, ctx, {
+        type = interaction_responses.channel_message_with_source,
+        data = {
+            content = msg,
+        }
+    })
+end
+
+--- Reply to an INTERACTION_CREATE event, posting an ephemeral message.
+function acknowledge_and_reply_ephemerally(api, ctx, msg)
+    return respond_to(api, ctx, {
+        type = interaction_responses.channel_message_with_source,
+        data = {
+            content = msg.content,
+            tts = msg.tts,
+            embeds = msg.embeds or msg.embed and {msg.embed},
+            allowed_mentions = msg.allowed_mentions,
+            flags = 64
+        }
+    })
+end
+
+--- Acknowledge an INTERACTION_CREATE event, removing any components from the message.
+function acknowledge_and_clear(api, ctx)
+    return respond_to(api, ctx, {
+        type = interaction_responses.update_message,
+        data = {
+            components = {}
+        }
+    })
+end
+
+--- Acknowledge an INTERACTION_CREATE event, disabling all the buttons.
+local function acknowledge_and_disable_all(api, ctx, _row)
+    local new = map(function(B)
+        return and_commit(B:disable())
+    end, _row.components)
+    return respond_to(api, ctx, {
+        type = interaction_responses.update_message,
+        data = {
+            components = {
+                {
+                    type = _row.type,
+                    components = new
+                }
+            }
+        }
+    })
+end
+
+_ENV.acknowledge_and_disable_all = acknowledge_and_disable_all
+
+--- Acknowledge an INTERACTION_CREATE event, disabling the button that was pressed.
+function acknowledge_and_disable(api, ctx, _row)
+    local id = ctx.event.data.custom_id
+    if not id then return acknowledge_and_disable_all(api, ctx, _row)
+    else
+        local new = map(function(B)
+            if B.custom_id == id then return and_commit(B:disable())
+            else return commit_component(B)
+            end
+        end, _row.components)
+        return respond_to(api, ctx, {
+            type = interaction_responses.update_message,
+            data = {
+                components = {
+                    {
+                        type = _row.type,
+                        components = new
+                    }
+                }
+            }
+        })
+    end
+end
+
+--- Send a follow up message to the INTERACTION_CREATE event.
+function followup_and_reply(api, ctx, msg)
+    return api:create_followup_message(ctx.event.application_id, ctx.event.token, msg)
+end
+
+--- Send a follow up message to the INTERACTION_CREATE event, accepts a string parameter as the message content.
+function followup_and_say(api, ctx, msg)
+    return api:create_followup_message(ctx.event.application_id, ctx.event.token, {
+        content = msg
+    })
+end
+
+--- Send a follow up ephemeral message to the INTERACTION_CREATE event.
+function followup_and_reply_ephemerally(api, ctx, msg)
+    return api:create_followup_message(ctx.event.application_id, ctx.event.token,  {
+        content = msg.content,
+        tts = msg.tts,
+        embeds = msg.embeds or msg.embed and {msg.embed},
+        allowed_mentions = msg.allowed_mentions,
+        flags = 64
+    })
+end
+
+return _ENV

@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-xml-threat-protection",
+  "versions": {
+    "1.0-0": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/xml-threat-protection/handler.lua": {
+          "sha256": "fc75b35e1a837da1af7b43e9f943b2484771827643ebe56f5269b1b423c7da85",
+          "size": 2215,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-xml-threat-protection/0d1da9e14bde72d01fd70d02d8e08db12de4f54a/src/handler.lua"
+        },
+        "kong/plugins/xml-threat-protection/schema.lua": {
+          "sha256": "30d7a0a7a4bbba63e4763d62916c4a7342096d383eca95b09771597272a98213",
+          "size": 1252,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-xml-threat-protection/0d1da9e14bde72d01fd70d02d8e08db12de4f54a/src/schema.lua"
+        },
+        "kong/plugins/xml-threat-protection/xml_validator.lua": {
+          "sha256": "4780722b2c43a835ce206d58fef6090c159dd56c0e541377551ae499302f1e17",
+          "size": 9456,
+          "url": "https://raw.githubusercontent.com/Trust1Team/kong-plugin-xml-threat-protection/0d1da9e14bde72d01fd70d02d8e08db12de4f54a/src/xml_validator.lua"
+        }
+      },
+      "homepage": "http://www.trust1team.com",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": "~> 5.1",
+      "luarocks": {
+        "date": "Wed, 17 Aug 2016 07:03:32 GMT",
+        "rockspec": {
+          "date": "Wed, 17 Aug 2016 07:03:32 GMT",
+          "sha256": "1eb03d4cd7171ea887a78fe8ed6063edd53592362a01a5d48f5e0c1470db7a91",
+          "size": 1062
+        },
+        "src": {
+          "date": "Wed, 17 Aug 2016 07:03:34 GMT",
+          "sha256": "729555eeba281c1960d38d610dc8d70bffe1a9718ea5daf730382951ae3ef8a1",
+          "size": 39941,
+          "url": "https://luarocks.org/kong-plugin-xml-threat-protection-1.0-0.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.xml-threat-protection.handler",
+        "kong.plugins.xml-threat-protection.schema",
+        "kong.plugins.xml-threat-protection.xml_validator"
+      ],
+      "origin": {
+        "commit": "0d1da9e14bde72d01fd70d02d8e08db12de4f54a",
+        "ref": "1.0.0",
+        "type": "git",
+        "url": "https://github.com/Trust1Team/kong-plugin-xml-threat-protection"
+      },
+      "size": 12923,
+      "summary": "The Kong XML Threat Protection plugin.",
+      "undeclared_requires": [
+        "LuaXML",
+        "kong.plugins.base_plugin",
+        "kong.tools.responses",
+        "stringy"
+      ],
+      "vlr": {
+        "cause": "missing module: stringy",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 3
+      }
+    }
+  }
+}

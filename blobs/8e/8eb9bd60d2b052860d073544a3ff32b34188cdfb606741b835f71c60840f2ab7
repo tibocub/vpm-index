@@ -1,0 +1,288 @@
+-- schema: declare tool arguments once, get a JSON Schema for
+-- tools/list and a validator for tools/call out of the same table.
+--
+-- a spec is a plain table with a kind and constraints. each
+-- constructor is also usable bare, so both forms work:
+--   { path = schema.str, count = schema.int{ default = 10 } }
+
+local json = require("mcptk.json")
+
+---@class mcptk.Spec one declared argument
+---@field kind string "string", "integer", "number", "boolean", "array", "object" or "any"
+---@field desc string|nil what the model is told the argument means
+---@field optional boolean|nil the call may leave it out
+---@field default any|nil value used when it is left out, which also makes it not required
+---@field enum any[]|nil the only values accepted
+---@field min number|nil minimum number, string length or item count
+---@field max number|nil maximum number, string length or item count
+---@field of mcptk.Spec|nil item type, for an array
+---@field fields table<string, mcptk.Spec>|nil field types, for an object
+---@field open boolean|nil an object accepts fields it did not declare
+
+---@alias mcptk.Args table<string, mcptk.Spec>
+
+---@class mcptk.schema
+local M = {}
+
+local to_schema, validate
+
+local function spec(kind, opts)
+	local s = {}
+
+	for k, v in pairs(opts or {}) do
+		s[k] = v
+	end
+	s.kind = kind
+	return s
+end
+
+-- a constructor doubles as a finished spec: mcptk.str works, and
+-- mcptk.str{ desc = "..." } works.
+---@param kind string
+---@return mcptk.Spec|fun(opts: table): mcptk.Spec
+local function ctor(kind)
+	return setmetatable({ kind = kind }, {
+		__call = function(_, opts) return spec(kind, opts) end,
+	})
+end
+
+M.str = ctor("string")
+M.int = ctor("integer")
+M.num = ctor("number")
+M.bool = ctor("boolean")
+M.arr = ctor("array")
+M.obj = ctor("object")
+M.any = ctor("any")
+
+-- ---- spec -> JSON Schema ----
+
+local function props_schema(fields, open)
+	local props = {}
+	local required = {}
+
+	for name, f in pairs(fields) do
+		props[name] = to_schema(f)
+		if f.optional ~= true and f.default == nil then
+			required[#required + 1] = name
+		end
+	end
+	table.sort(required)
+
+	local out = { type = "object", properties = props }
+
+	if #required > 0 then
+		out.required = required
+	end
+	if not open then
+		out.additionalProperties = false
+	end
+	return out
+end
+
+to_schema = function(s)
+	local out = {}
+
+	if s.kind == "any" then
+		-- no type key at all: any JSON value is acceptable
+	elseif s.kind == "array" then
+		out.type = "array"
+		out.items = s.of and to_schema(s.of) or nil
+		out.minItems = s.min
+		out.maxItems = s.max
+	elseif s.kind == "object" then
+		out = props_schema(s.fields or {}, s.open)
+	elseif s.kind == "string" then
+		out.type = "string"
+		out.minLength = s.min
+		out.maxLength = s.max
+	else
+		out.type = s.kind
+		out.minimum = s.min
+		out.maximum = s.max
+	end
+	out.description = s.desc
+	if s.enum then
+		out.enum = s.enum
+	end
+	if s.default ~= nil then
+		out.default = s.default
+	end
+	return out
+end
+
+---Builds the JSON Schema for one spec.
+---@type fun(s: mcptk.Spec): table
+M.to_schema = to_schema
+
+---Builds the inputSchema a client reads from a whole args table.
+---@param args mcptk.Args|nil
+---@param open boolean|nil accept undeclared arguments
+---@return table schema
+function M.args_schema(args, open)
+	if args == nil or next(args) == nil then
+		return { type = "object", properties = {} }
+	end
+	return props_schema(args, open)
+end
+
+-- ---- validation ----
+
+---Models send arguments as JSON, and sometimes send "7" where the
+---schema says integer. Coercing an unambiguous string beats bouncing
+---the call back for the model to guess at.
+---@param s mcptk.Spec
+---@param v any
+---@return any
+local function coerce(s, v)
+	if type(v) ~= "string" then
+		return v
+	end
+	if s.kind == "integer" or s.kind == "number" then
+		return tonumber(v) or v
+	elseif s.kind == "boolean" then
+		if v == "true" then
+			return true
+		elseif v == "false" then
+			return false
+		end
+	end
+	return v
+end
+
+local function fail(path, msg)
+	return nil, path .. ": " .. msg
+end
+
+validate = function(s, v, path)
+	if v == json.null then
+		v = nil
+	end
+	if v == nil then
+		if s.default ~= nil then
+			return s.default
+		end
+		if s.optional then
+			return nil
+		end
+		return fail(path, "required")
+	end
+	v = coerce(s, v)
+
+	local t = type(v)
+
+	if s.kind == "any" then
+		return v
+	elseif s.kind == "string" then
+		if t ~= "string" then
+			return fail(path, "expected string, got " .. t)
+		end
+		if s.min and #v < s.min then
+			return fail(path, "shorter than " .. s.min)
+		end
+		if s.max and #v > s.max then
+			return fail(path, "longer than " .. s.max)
+		end
+	elseif s.kind == "integer" or s.kind == "number" then
+		if t ~= "number" then
+			return fail(path, "expected number, got " .. t)
+		end
+		if s.kind == "integer" and v % 1 ~= 0 then
+			return fail(path, "expected a whole number")
+		end
+		if s.min and v < s.min then
+			return fail(path, "below minimum " .. s.min)
+		end
+		if s.max and v > s.max then
+			return fail(path, "above maximum " .. s.max)
+		end
+	elseif s.kind == "boolean" then
+		if t ~= "boolean" then
+			return fail(path, "expected boolean, got " .. t)
+		end
+	elseif s.kind == "array" then
+		if t ~= "table" then
+			return fail(path, "expected array, got " .. t)
+		end
+
+		local out = {}
+
+		for i = 1, #v do
+			local item, err = validate(s.of or M.any, v[i],
+			    path .. "[" .. i .. "]")
+
+			if err then
+				return nil, err
+			end
+			out[i] = item
+		end
+		if s.min and #out < s.min then
+			return fail(path, "fewer than " .. s.min .. " items")
+		end
+		if s.max and #out > s.max then
+			return fail(path, "more than " .. s.max .. " items")
+		end
+		return out
+	elseif s.kind == "object" then
+		if t ~= "table" then
+			return fail(path, "expected object, got " .. t)
+		end
+		return M.check(s.fields or {}, v, s.open, path .. ".")
+	end
+
+	if s.enum then
+		local found = false
+
+		for _, e in ipairs(s.enum) do
+			if e == v then
+				found = true
+				break
+			end
+		end
+		if not found then
+			return fail(path, "not one of " ..
+			    table.concat(s.enum, ", "))
+		end
+	end
+	return v
+end
+
+---Checks one value against one spec.
+---@type fun(s: mcptk.Spec, v: any, path: string): any, string|nil
+M.validate = validate
+
+---Checks a whole arguments table against an args spec.
+---@param args mcptk.Args declared arguments
+---@param given table|nil what the call sent
+---@param open boolean|nil accept undeclared arguments
+---@param prefix string|nil prepended to the name in an error message
+---@return table|nil args coerced arguments, or nil when one is bad
+---@return string|nil err one message naming the bad argument
+function M.check(args, given, open, prefix)
+	prefix = prefix or ""
+	given = given or {}
+	if type(given) ~= "table" then
+		return nil, "arguments must be an object"
+	end
+
+	local out = {}
+
+	for name, s in pairs(args) do
+		local v, err = validate(s, given[name], prefix .. name)
+
+		if err then
+			return nil, err
+		end
+		out[name] = v
+	end
+	if not open then
+		for name in pairs(given) do
+			if args[name] == nil then
+				return nil, prefix .. tostring(name) ..
+				    ": unknown argument"
+			end
+		end
+	end
+	return out
+end
+
+return M

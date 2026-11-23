@@ -1,0 +1,8 @@
+local hooks = require('luatest.hooks')
+local mod = {}
+
+mod.suite = require('lutest.suite')
+mod.beforeEach = hooks.beforeEach
+mod.afterEach = hooks.afterEach
+
+return mod

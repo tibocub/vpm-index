@@ -1,0 +1,398 @@
+local resty_http = require 'resty.http'
+local cjson = require "cjson"
+
+-- AWS IMDS endpoints
+local AWS_TOKEN_URL = "http://169.254.169.254/latest/api/token"
+local AWS_INSTANCE_ID_URL = "http://169.254.169.254/latest/meta-data/instance-id"
+local AWS_IDENTITY_DOC_URL = "http://169.254.169.254/latest/dynamic/instance-identity/document"
+local AWS_TOKEN_TTL_HEADER = "X-aws-ec2-metadata-token-ttl-seconds"
+local AWS_TOKEN_HEADER = "X-aws-ec2-metadata-token"
+
+-- ECS metadata
+local ECS_CONTAINER_METADATA_URI_V4 = "ECS_CONTAINER_METADATA_URI_V4"
+local ECS_CONTAINER_METADATA_URI = "ECS_CONTAINER_METADATA_URI"
+local ECS_TASK_METADATA_PATH_SUFFIX = "/task"
+
+local METADATA_TIMEOUT = 2000 -- 2 seconds in milliseconds
+
+-- Cached metadata
+local cached_metadata = nil
+local cached_attributes = nil
+local cache_initialized = false
+
+-- Cache ECS environment variables at module load time (before ngx.timer context)
+-- os.getenv() doesn't work reliably in ngx.timer context
+local ECS_METADATA_URI_CACHED = os.getenv(ECS_CONTAINER_METADATA_URI_V4) or os.getenv(ECS_CONTAINER_METADATA_URI)
+
+local function make_http_request(url, method, headers, timeout)
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Making ", method or "GET", " request to: ", url)
+
+  local httpc = resty_http.new()
+  httpc:set_timeout(timeout or METADATA_TIMEOUT)
+
+  local res, err = httpc:request_uri(url, {
+    method = method or "GET",
+    headers = headers,
+  })
+
+  if not res then
+    ngx.log(ngx.WARN, "[cloud_metadata] Request failed for ", url, ": ", err)
+    return nil, err
+  end
+
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Response status for ", url, ": ", res.status)
+
+  if res.status >= 200 and res.status < 300 then
+    ngx.log(ngx.DEBUG, "[cloud_metadata] Response body length: ", #res.body)
+    return res.body, nil
+  end
+
+  ngx.log(ngx.WARN, "[cloud_metadata] Non-2xx response for ", url, ": HTTP ", res.status)
+  return nil, "HTTP " .. res.status
+end
+
+-- AWS IMDS v2 fetcher
+local function fetch_aws_imdsv2()
+  ngx.log(ngx.INFO, "[cloud_metadata] Attempting to fetch AWS metadata via IMDSv2")
+
+  -- Get token
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Requesting IMDSv2 token")
+  local token, err = make_http_request(
+    AWS_TOKEN_URL,
+    "PUT",
+    {[AWS_TOKEN_TTL_HEADER] = "300"}
+  )
+
+  if not token then
+    ngx.log(ngx.WARN, "[cloud_metadata] Failed to get IMDSv2 token: ", err or "unknown error")
+    return nil, "failed to get AWS token: " .. (err or "unknown error")
+  end
+
+  ngx.log(ngx.INFO, "[cloud_metadata] Successfully obtained IMDSv2 token")
+
+  -- Get instance ID
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Requesting instance ID with token")
+  local instance_id, err = make_http_request(
+    AWS_INSTANCE_ID_URL,
+    "GET",
+    {[AWS_TOKEN_HEADER] = token}
+  )
+
+  if not instance_id then
+    ngx.log(ngx.ERR, "[cloud_metadata] Failed to get AWS instance ID with IMDSv2: ", err or "unknown error")
+    return nil, "failed to get AWS instance ID: " .. (err or "unknown error")
+  end
+
+  ngx.log(ngx.INFO, "[cloud_metadata] Successfully retrieved instance ID: ", instance_id)
+
+  -- Get instance identity document for additional metadata
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Requesting identity document")
+  local identity_doc = make_http_request(
+    AWS_IDENTITY_DOC_URL,
+    "GET",
+    {[AWS_TOKEN_HEADER] = token}
+  )
+
+  local account_id = nil
+  local region = nil
+  local az = nil
+  local instance_type = nil
+  local architecture = nil
+  local image_id = nil
+  local private_ip = nil
+
+  if identity_doc then
+    local ok, doc = pcall(cjson.decode, identity_doc)
+    if ok then
+      account_id = doc.accountId
+      region = doc.region
+      az = doc.availabilityZone
+      instance_type = doc.instanceType
+      architecture = doc.architecture
+      image_id = doc.imageId
+      private_ip = doc.privateIp
+      ngx.log(ngx.INFO, "[cloud_metadata] Successfully retrieved AWS metadata from identity document")
+    else
+      ngx.log(ngx.WARN, "[cloud_metadata] Failed to decode identity document")
+    end
+  else
+    ngx.log(ngx.DEBUG, "[cloud_metadata] Identity document unavailable (non-critical)")
+  end
+
+  return {
+    instance_id = instance_id,
+    vendor = "aws",
+    region = region,
+    account_id = account_id,
+    az = az,
+    instance_type = instance_type,
+    architecture = architecture,
+    image_id = image_id,
+    private_ip = private_ip,
+  }, nil
+end
+
+-- AWS IMDS v1 fetcher (fallback)
+local function fetch_aws_imdsv1()
+  ngx.log(ngx.INFO, "[cloud_metadata] Attempting to fetch AWS metadata via IMDSv1 (fallback)")
+
+  -- Get instance ID
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Requesting instance ID without token")
+  local instance_id, err = make_http_request(AWS_INSTANCE_ID_URL, "GET", {})
+
+  if not instance_id then
+    ngx.log(ngx.WARN, "[cloud_metadata] Failed to get AWS instance ID with IMDSv1: ", err or "unknown error")
+    return nil, "failed to get AWS instance ID: " .. (err or "unknown error")
+  end
+
+  ngx.log(ngx.INFO, "[cloud_metadata] Successfully retrieved instance ID via IMDSv1: ", instance_id)
+
+  -- Get instance identity document for additional metadata
+  local identity_doc = make_http_request(AWS_IDENTITY_DOC_URL, "GET", {})
+
+  local account_id = nil
+  local region = nil
+  local az = nil
+  local instance_type = nil
+  local architecture = nil
+  local image_id = nil
+  local private_ip = nil
+
+  if identity_doc then
+    local ok, doc = pcall(cjson.decode, identity_doc)
+    if ok then
+      account_id = doc.accountId
+      region = doc.region
+      az = doc.availabilityZone
+      instance_type = doc.instanceType
+      architecture = doc.architecture
+      image_id = doc.imageId
+      private_ip = doc.privateIp
+      ngx.log(ngx.INFO, "[cloud_metadata] Successfully retrieved AWS metadata from identity document")
+    end
+  end
+
+  return {
+    instance_id = instance_id,
+    vendor = "aws",
+    region = region,
+    account_id = account_id,
+    az = az,
+    instance_type = instance_type,
+    architecture = architecture,
+    image_id = image_id,
+    private_ip = private_ip,
+  }, nil
+end
+
+-- ECS metadata fetcher
+local function fetch_ecs_metadata()
+  -- Use cached env var from module load time
+  local base_url = ECS_METADATA_URI_CACHED
+
+  if not base_url or base_url == "" then
+    return nil, "not running in ECS environment"
+  end
+
+  ngx.log(ngx.INFO, "[cloud_metadata] Found ECS metadata endpoint: ", base_url)
+
+  local task_url = base_url .. ECS_TASK_METADATA_PATH_SUFFIX
+  local body, err = make_http_request(task_url, "GET", {})
+
+  if not body then
+    return nil, "failed to get ECS metadata: " .. (err or "unknown error")
+  end
+
+  local ok, metadata = pcall(cjson.decode, body)
+  if not ok then
+    return nil, "failed to decode ECS metadata"
+  end
+
+  -- Extract task ID from TaskARN
+  -- TaskARN format: arn:aws:ecs:region:account-id:task/cluster-name/task-id
+  local task_id = metadata.TaskARN
+  if task_id then
+    local parts = {}
+    for part in string.gmatch(task_id, "[^/]+") do
+      table.insert(parts, part)
+    end
+    if #parts > 0 then
+      task_id = parts[#parts]
+    end
+  end
+
+  return {
+    instance_id = metadata.TaskARN, -- Use Task ARN as the resource ID
+    vendor = "aws",
+    task_id = task_id,
+    task_arn = metadata.TaskARN,
+    cluster = metadata.Cluster,
+    family = metadata.Family,
+  }, nil
+end
+
+-- Try AWS metadata (check ECS first, then EC2)
+local function fetch_aws_metadata()
+  ngx.log(ngx.INFO, "[cloud_metadata] Starting AWS metadata detection")
+
+  -- Try ECS first
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Checking for ECS environment")
+  local ecs_meta, ecs_err = fetch_ecs_metadata()
+  if ecs_meta then
+    ngx.log(ngx.INFO, "[cloud_metadata] Detected ECS environment")
+    return ecs_meta, nil
+  end
+  ngx.log(ngx.DEBUG, "[cloud_metadata] Not in ECS environment: ", ecs_err or "unknown")
+
+  -- Try EC2 IMDS v2
+  local meta = fetch_aws_imdsv2()
+  if meta then
+    ngx.log(ngx.INFO, "[cloud_metadata] Successfully fetched metadata via IMDSv2")
+    return meta, nil
+  end
+  ngx.log(ngx.WARN, "[cloud_metadata] IMDSv2 failed, trying IMDSv1 fallback")
+
+  -- Fallback to IMDS v1
+  local meta_v1, err = fetch_aws_imdsv1()
+  if meta_v1 then
+    ngx.log(ngx.INFO, "[cloud_metadata] Successfully fetched metadata via IMDSv1")
+    return meta_v1, nil
+  end
+
+  ngx.log(ngx.ERR, "[cloud_metadata] All AWS metadata fetch attempts failed")
+  return nil, "failed to fetch AWS metadata: " .. (err or "unknown error")
+end
+
+-- Initialize and cache metadata
+local function initialize_metadata()
+  if cache_initialized then
+    return cached_metadata
+  end
+
+  ngx.log(ngx.INFO, "[cloud_metadata] Initializing cloud metadata")
+  cache_initialized = true
+
+  local aws_meta, err = fetch_aws_metadata()
+  if not aws_meta then
+    ngx.log(ngx.WARN, "[cloud_metadata] Failed to fetch AWS metadata: ", err)
+    cached_metadata = nil
+    return nil
+  end
+
+  cached_metadata = {
+    instance_id = aws_meta.instance_id,
+    vendor = aws_meta.vendor,
+    -- AWS EC2 specific attributes
+    region = aws_meta.region,
+    account_id = aws_meta.account_id,
+    az = aws_meta.az,
+    instance_type = aws_meta.instance_type,
+    architecture = aws_meta.architecture,
+    image_id = aws_meta.image_id,
+    private_ip = aws_meta.private_ip,
+    -- ECS specific (if present)
+    task_id = aws_meta.task_id,
+    task_arn = aws_meta.task_arn,
+    cluster = aws_meta.cluster,
+    family = aws_meta.family,
+  }
+
+  ngx.log(ngx.INFO, "[cloud_metadata] ✓ Cloud metadata initialized successfully: vendor=aws, instance_id=", aws_meta.instance_id)
+
+  return cached_metadata
+end
+
+-- Public API
+local function get_cloud_resource_id()
+  local metadata = initialize_metadata()
+  if metadata then
+    -- Return instance_id (not ARN) to match dc-common/hostmetadata behavior
+    -- For EC2: returns instance ID (e.g., i-xxxxx)
+    -- For ECS: returns Task ARN (already stored in instance_id)
+    return metadata.instance_id
+  end
+  return nil
+end
+
+local function get_cloud_vendor()
+  local metadata = initialize_metadata()
+  if metadata then
+    return metadata.vendor
+  end
+  return nil
+end
+
+local function get_metadata()
+  return initialize_metadata()
+end
+
+-- Build attributes table from metadata (cached)
+local function get_attributes()
+  if cached_attributes then
+    return cached_attributes
+  end
+
+  local metadata = initialize_metadata()
+  if not metadata then
+    -- Cache empty table to avoid rebuilding on every request
+    cached_attributes = {}
+    return cached_attributes
+  end
+
+  local attributes = {}
+
+  -- Core cloud attributes
+  if metadata.instance_id then
+    attributes["cloud.resource_id"] = metadata.instance_id
+  end
+  if metadata.vendor then
+    attributes["cloud.provider"] = metadata.vendor
+  end
+
+  -- AWS EC2 specific attributes (matching dc-common/hostmetadata)
+  if metadata.account_id then
+    attributes["instance.aws.account.id"] = metadata.account_id
+  end
+  if metadata.region then
+    attributes["instance.aws.region"] = metadata.region
+  end
+  if metadata.az then
+    attributes["instance.aws.az"] = metadata.az
+  end
+  if metadata.instance_type then
+    attributes["instance.aws.type"] = metadata.instance_type
+  end
+  if metadata.architecture then
+    attributes["instance.aws.arch"] = metadata.architecture
+  end
+  if metadata.image_id then
+    attributes["instance.aws.image.id"] = metadata.image_id
+  end
+  if metadata.private_ip then
+    attributes["instance.aws.private.ip"] = metadata.private_ip
+  end
+
+  -- AWS ECS specific attributes
+  if metadata.task_id then
+    attributes["instance.ecs.task.id"] = metadata.task_id
+  end
+  if metadata.task_arn then
+    attributes["instance.ecs.task.arn"] = metadata.task_arn
+  end
+  if metadata.cluster then
+    attributes["instance.ecs.task.cluster"] = metadata.cluster
+  end
+  if metadata.family then
+    attributes["instance.ecs.task.family"] = metadata.family
+  end
+
+  cached_attributes = attributes
+  return attributes
+end
+
+return {
+  get_cloud_resource_id = get_cloud_resource_id,
+  get_cloud_vendor = get_cloud_vendor,
+  get_metadata = get_metadata,
+  get_attributes = get_attributes,
+}

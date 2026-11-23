@@ -1,0 +1,76 @@
+{
+  "kind": "lib",
+  "name": "ffi-hyperparser",
+  "versions": {
+    "1.0.4-2": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "ffi-hyperparser.lua": {
+          "sha256": "d7344d6b05e40b254703209b7fb0c37674437fc61719fff013f9a24de119387f",
+          "size": 8161,
+          "url": "blob:d7344d6b05e40b254703209b7fb0c37674437fc61719fff013f9a24de119387f"
+        }
+      },
+      "homepage": "https://github.com/lalawue/ffi-hyperparser",
+      "host": "luajit",
+      "license": "MIT/X11",
+      "lua": ">= 5.1",
+      "luajit": true,
+      "luarocks": {
+        "date": "Sun, 21 Nov 2021 17:03:59 GMT",
+        "rockspec": {
+          "date": "Sun, 21 Nov 2021 17:03:59 GMT",
+          "sha256": "175b43f1a4ffe74dfe0e4423d712ca93351f96843a155e5e22895d7d74248f7b",
+          "size": 680
+        },
+        "src": {
+          "date": "Sun, 21 Nov 2021 17:04:01 GMT",
+          "sha256": "a728888b669917166f8c5f9c8fc2e9b4c1c83f84e8ed732ff61de13bb2ed49b2",
+          "size": 35412,
+          "url": "https://luarocks.org/ffi-hyperparser-1.0.4-2.src.rock"
+        }
+      },
+      "modules": [
+        "ffi-hyperparser",
+        "hyperparser"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "name": "hyperparser",
+              "sources": [
+                "src/http_parser.c",
+                "src/pull_style_api.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Sun, 21 Nov 2021 17:04:01 GMT",
+        "sha256": "a728888b669917166f8c5f9c8fc2e9b4c1c83f84e8ed732ff61de13bb2ed49b2",
+        "size": 35412,
+        "type": "luarocks",
+        "url": "https://luarocks.org/ffi-hyperparser-1.0.4-2.src.rock"
+      },
+      "size": 8161,
+      "summary": "Socket utilities",
+      "vlr": {
+        "cause": "needs LuaJIT (ffi)",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

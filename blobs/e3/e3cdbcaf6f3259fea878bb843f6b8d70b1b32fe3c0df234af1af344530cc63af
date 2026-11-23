@@ -1,0 +1,897 @@
+--[[--
+Presentation generator module.
+
+This module contains all functions to generate HTML pages and all other assets
+required to run a static site from an archive.
+
+All internal links in all the pages are relative and thus the pages can be
+served under any webroot, either from an HTTP server or by direct local file
+access.
+
+Each template is compiled with a `webroot` variable that is prepended to all
+the internal links. This changes based on the URL of the page that the template
+serves. If it's at the top of the webroot (e.g., `<web root>/page.html`), this
+value is `.`. If it's in a subfolder, it points to the web root (e.g. for `<web
+root>/my/subfolder/page1.html`, it would be `../..`).
+
+@module pocket_archive.presentation
+]]
+
+
+local csv = require "ftcsv"
+local datafile = require "datafile"
+local dir = require "pl.dir"
+local etlua = require "etlua"
+local json = require "cjson"
+local markdown = require "discount"
+local path = require "pl.path"
+local pp = require "pl.pretty"
+
+local nsm = require "volksdata.namespace"
+local term = require "volksdata.term"
+local triple = require "volksdata.triple"
+local graph = require "volksdata.graph"
+
+local pkar = require "pocket_archive"
+local flags = require "pocket_archive.flags"
+local fs = require "pocket_archive.fs"
+local logger = pkar.logger
+local model = require "pocket_archive.model"
+local repo = require "pocket_archive.repo"
+local get_single_v = repo.get_single_v
+local transformers = require "pocket_archive.transformers"
+local tree = require "pocket_archive.tree"
+local vocab = require "pocket_archive.vocab"
+
+local NT = pkar.NT
+local uri_to_id = model.uri_to_id
+
+-- Extension for type-based icon files.
+local ICON_EXT = ".svg"
+
+-- Label to use for resources without one.
+local UNT_LABEL = pkar.config.pres_gen.untitled_label
+
+-- From configuration.
+local OUT_DIR = pkar.config.pres_gen.out_dir
+local USER_TPL_ROOT = pkar.config.pres_gen.tpl_root
+if USER_TPL_ROOT then logger:info("User template dir: "  .. USER_TPL_ROOT) end
+
+
+local index_path = path.join(OUT_DIR, "js", "fuse_index.json")
+local keys_path = path.join(OUT_DIR, "js", "fuse_keys.json")
+-- Collector for all search term keys.
+local idx_keys
+
+-- HTML templates. Compile them only once.
+-- TODO Add override for user-maintained templates.
+local templates = {
+    coll    = {file = "coll.html"},
+    dres    = {file = "dres.html"},
+    head    = {file = "head_common.html"},
+    header  = {file = "header.html"},
+    md      = {file = "metadata.html"},
+    idx     = {file = "index.html"},
+    ores    = {file = "ores.html"},
+    search  = {file = "search.html"},
+}
+
+
+--- Numeric properties. They will be entered as numbers in the search index.
+local number_props = {
+    datetime = true,
+    decimal = true,
+    float = true,
+    integer = true,
+}
+
+--- Properties that accept resources as values but don't show as links.
+local no_link = {
+    content_type = true,
+    sub_id = true,
+}
+
+
+-- Presentation generator module.
+local M = {
+    TITLE = pkar.config.pres_gen.title,
+    OUT_DIR = OUT_DIR,
+    res_dir = path.join(OUT_DIR, "res"),
+    src_asset_dir = datafile.path("templates/pres/assets"),
+    user_src_asset_dir = pkar.config.pres_gen.tpl_root and
+            path.join(pkar.config.pres_gen.tpl_root , "assets"),
+    asset_dir = OUT_DIR,
+    icon_dir = path.join(OUT_DIR, "icons"),
+    media_dir = path.join(OUT_DIR, "media"),
+}
+
+local MEDIA_WEB_PATH = M.media_dir:gsub(
+        pkar.escape_ptn(OUT_DIR), "")
+local TN_FS_PATH = path.join(M.media_dir, "thumbnail")
+local TN_WEB_PATH = TN_FS_PATH:gsub(
+        pkar.escape_ptn(OUT_DIR), "")
+
+
+-- Get model configuration from subject URI.
+local function get_schema(s)
+    local ctype = get_single_v(s, "content_type")
+
+    return model.schemata[model.cname_map[nsm.denormalize_uri(ctype.data)]]
+end
+
+
+local function get_breadcrumbs(schema)
+    -- Breadcrumbs, from top class to current class.
+    -- Also verify if it's a File subclass.
+    local breadcrumbs = {}
+    for i = 1, #schema.lineage do
+        breadcrumbs[i] = {
+            schema.lineage[i],
+            model.schemata[schema.lineage[i]].label
+        }
+    end
+
+    return breadcrumbs
+end
+
+
+--[[--
+Infer thumbnail web path from the resource subject URI.
+
+If the resource is not a file and as such does not have a thumbnail of
+its own, traverse the list of first children and use the first one found
+with a thumbnail.
+
+@tparam Term s Subject (resource) URI.
+@tparam string ext Optional extension to add, including the extension
+    separator (`.`). If not provided, `.jpg` is used.
+@tparam bool shallow If `true`, only return a thumbnail if the subject has one
+    directly attached.
+]]
+local function get_tn_url(s, ext, shallow)  -- TODO caller needs to pass correct ext
+    logger:debug("Getting thumbnail for " .. s.data)
+    if repo.gr:contains(triple.new(s, pkar.RDF_TYPE, model.uri_map.file))
+    then
+        -- The subject is a file.
+        return fs.gen_pairtree(
+                TN_WEB_PATH, uri_to_id(s.data), ext or ".jpg", true)
+    end
+    if shallow then return end
+
+    local pref_rep = get_single_v(s, "pref_rep")
+    if pref_rep then return get_tn_url(pref_rep, ext) end
+
+    -- Loop over all members.
+    -- TODO This is a random choice, it could scan through the tree again...
+    for member_s in repo.get_members(s):iter() do
+        local member_tn = get_tn_url(member_s, ext)
+        if member_tn then return member_tn end
+    end
+end
+
+
+--[[--
+Process Markdown text.
+
+This adds some pre- and post- processing to the default Markdown library to
+address domain-specific needs.
+
+@tparam str src Markdown text source.
+@tparam str webroot Webroot to prepend to generated links.
+
+@treturn str HTML output.
+]]
+local function process_md(src, webroot)
+    local out = markdown(src)
+
+    -- Fix double-encoded URLs. Workaround for
+    -- https://github.com/asb/lua-discount/issues/3
+    -- Easier to do after conversion because of the href attribute.
+    out = out:gsub(
+        '(href%s*=%s*")(.-%%25[0-9a-fA-F][0-9a-fA-F][^"]*")',
+        function(pre, url)
+            return pre .. url:gsub("%%25([0-9a-fA-F][0-9a-fA-F])", "%%%1")
+        end
+    )
+
+    -- Convert links to `par:…` URIs to internal resource links.
+    out = out:gsub(
+        'href%s*=%s*"' .. model.RSRC_PFX .. '([^"]+)',
+        function(id)
+            return fs.gen_pairtree(
+                'href="' .. webroot .. "/res", id, ".html", true
+            )
+        end
+    )
+
+    return out
+end
+
+
+--[[ Find closest available type icon to the given type.
+--]]
+local function get_icon_url(lineage)
+    for i = #lineage, 1, -1 do
+        if path.isfile(path.join(M.icon_dir, lineage[i] .. ICON_EXT)) then
+            return "/icons/" .. lineage[i] .. ICON_EXT
+        end
+    end
+end
+
+
+local function generate_coll(s, schema)
+    local webroot = "../../.."
+
+    local id = uri_to_id(s.data)
+    local members = {}  -- Members ordered for presentation.
+    local pref_rep_uri = get_single_v(s, "pref_rep")
+    local pref_rep_id = pref_rep_uri and model.uri_to_id(pref_rep_uri.data)
+    local pref_rep
+
+    -- Generate tree presentation if it exists.
+    local tree = tree.Tree.get(id)
+    if tree then
+        tree:structure(
+            function(el, ctx)
+                -- Skip non-referencing branches.
+                if not el.id then return end
+
+                local s = model.id_to_uri(el.id)
+                local schema = get_schema(s)
+                local member = {
+                    id = el.id,
+                    icon = get_icon_url(schema.lineage),
+                    tn = get_tn_url(s),
+                    href = fs.gen_pairtree("/res", el.id, ".html", true),
+                    label = el.label,
+                    ctype_label = schema.label,
+                }
+                -- Collection members are shown in a flat list.
+                table.insert(ctx.members, member)
+
+                if ctx.pref_rep_id == member.id then ctx.pref_rep = member end
+            end,
+            {
+                members = members,
+                pref_rep_id = pref_rep_id,
+                pref_rep = pref_rep
+            }
+        )
+    else
+        -- If the collection has no tree, order members by their labels.
+        for m_uri in repo.get_members(s):iter() do
+            local m_id = model.uri_to_id(m_uri.data)
+            local schema = get_schema(m_uri)
+            local member = {
+                id = m_id,
+                icon = get_icon_url(schema.lineage),
+                tn = get_tn_url(m_uri),
+                href = fs.gen_pairtree("/res", m_id, ".html", true),
+                label = repo.get_single_v(m_uri, "label", true).data,
+                ctype_label = schema.label,
+            }
+            table.insert(members, member)
+            if pref_rep_id == member.id then pref_rep = member end
+        end
+        table.sort(members, function(a, b) return a.label < b.label end)
+    end
+    if not pref_rep then
+        if pref_rep_uri then
+            -- If there is a pref_rep reference but was not found in the
+            -- direct members, look into the DB.
+            pref_rep = {
+                id = pref_rep_id,
+                tn = get_tn_url(pref_rep_uri),
+            }
+        else
+            -- Else, use first child as pref representation.
+            pref_rep = members[1]
+        end
+    end
+
+    -- Collection page uses full size image, shrunk to size if necessary.
+    if pref_rep then
+        pref_rep.file = pref_rep.tn and pref_rep.tn:gsub(
+                pkar.escape_ptn(TN_WEB_PATH), MEDIA_WEB_PATH)
+                or "#"
+    end
+
+    local title = get_single_v(s, "label", true)
+    local description = get_single_v(s, "description", true)
+    local body_rel = get_single_v(s, "pres_content")
+
+    local body
+    if body_rel then
+        local body_res_path = get_single_v(body_rel, "archive_path").data
+        local bfh = assert(io.open(
+                path.join(pkar.config.fs.ores_path, body_res_path), "r"))
+        body = process_md(bfh:read("a"), webroot)
+        bfh:close()
+    else body = description and process_md(description.data, webroot) end
+
+    out_html = templates.coll.data({
+        webroot = webroot,
+        site_title = M.TITLE,
+        title = (title or NT).data or "[No title]",
+        description = (description or NT).data,
+        body = body,
+        head_tpl = templates.head.data,
+        header_tpl = templates.header.data,
+        schema = schema,
+        uid = path.basename(s.data),
+        members = members,
+        permalink = fs.gen_pairtree("/res", id, ".html", true),
+        tn_url = get_tn_url(s),
+        pref_rep = pref_rep,
+        icon_url = get_icon_url(schema.lineage, webroot),
+        rdf_href = fs.gen_pairtree("/res", id, ".ttl", true),
+    })
+
+    local res_path = fs.gen_pairtree(M.res_dir, id, ".html")
+    local ofh = assert(io.open(res_path, "w"))
+    ofh:write(out_html)
+    ofh:close()
+
+   return true
+end
+
+
+--- Collect and order DRes or ORes metadata.
+local function collate_metadata(s, schema, webroot)
+    local metadata, index = {}, {}
+
+    local attrs = repo.gr:connections(s, term.LINK_OUTBOUND)
+    for p, ots in attrs:iter() do
+        local pname = model.cname_map[nsm.denormalize_uri(p.data)] or p.data
+        logger:debug("Procesing property: " .. pname)
+        local pconf = ((schema.properties or NT)[pname] or NT)
+        -- RDF types are shown in in breadcrumbs.
+        if pname == pkar.RDF_TYPE.data then goto skip end
+
+        -- Descriptive metadata.
+        local attr = {
+            label = pconf.label or pname,
+            description = pconf.description,
+            uri = pconf.uri,
+            type = pconf.type,
+            list = pconf.flags & flags.PROP_NO_MDLIST == 0,
+            multilang = pconf.flags & flags.PROP_MULTILANG ~= 0,
+            -- Markup means do not escape HTML characters. Markdown will be
+            -- converted to HTML further down in this function.
+            markup = pconf.flags & flags.PROP_HTML ~= 0,
+        }
+        logger:debug(
+            "Prop " .. pname .. " is " .. (attr.list and "" or "NOT ")
+            .. "listed"
+        )
+        if pconf.type == "resource" and not no_link[pname] then
+            for o in ots do
+                table.insert(attr, {
+                    url = fs.gen_pairtree(
+                        webroot .. "/res", uri_to_id(o.data), ".html", true
+                    ),
+                    label = (get_single_v(o, "label", true) or NT).data
+                            or UNT_LABEL,
+                    tn = get_tn_url(o),
+                    icon = pconf.type == "resource" and
+                            get_icon_url(get_schema(o).lineage)
+                })
+            end
+            table.sort(attr, function(a, b)
+                return a.label < b.label
+            end)
+        elseif pconf.type == "vocab" then
+            local vkey = pconf.range
+            local ns = vocab.index[vkey].ns
+            logger:debug(("Namespace for %s: %s"):format(pconf.label, ns))
+            for o in ots do
+                local tkey = o.data:gsub("^" .. ns, "")
+                local _, tlabel = vocab.get(vkey, tkey)
+                table.insert(attr, {
+                    url = ("%s/search.html?qkey=%s&q=%%3D%s"):format(
+                        webroot, pname, tkey
+                    ),
+                    label = tlabel,
+                })
+            end
+            table.sort(attr, function(a, b)
+                return a.label < b.label
+            end)
+        elseif attr.multilang then
+            for o in ots do
+                local v =
+                        (pconf.flags & flags.PROP_MARKDOWN ~= 0) and
+                        process_md(o.data, webroot) or o.data
+                table.insert(attr, {data = v, lang = o.lang})
+            end
+            table.sort(attr, function(a, b)
+                return
+                        a.lang == b.lang
+                        and a.data < b.data
+                        or (a.lang or "") < (b.lang or "")
+            end)
+        else
+            for o in ots do
+                table.insert(
+                    attr, (pconf.flags & flags.PROP_MARKDOWN ~= 0) and
+                            process_md(o.data, webroot) or o.data)
+            end
+            table.sort(attr)
+        end
+        metadata[pname] = attr
+        table.insert(index, attr)
+        ::skip::
+    end
+    table.sort(index, function(a, b) return a.label < b.label end)
+
+    return metadata, index
+end
+
+
+local function generate_dres(s, schema)
+    local webroot = "../../.."
+    -- Descriptive metadata.
+    local dmd, dmd_idx = collate_metadata(s, schema, webroot)
+    local res_path = fs.gen_pairtree(M.res_dir, uri_to_id(s.data), ".html")
+    local label = (get_single_v(s, "label", true) or s)["data"]
+
+    logger:debug("Lineage:", pp.write(schema.lineage))
+    logger:debug("DMD:", pp.write(dmd))
+    logger:debug("Breadcrumbs:", pp.write(get_breadcrumbs(schema)))
+    local tree_obj = tree.Tree.get(model.uri_to_id(s.data))
+    local tree = tree_obj and tree_obj:structure(function (el)
+        el.uri = nil  -- Delete proxy URI as it's confusing.
+        local el_uri = el.ref_id and model.id_to_uri(el.ref_id)
+        el.href = el.ref_id and fs.gen_pairtree("/res", el.ref_id, ".html", true)
+        el.tn = el_uri and get_tn_url(el_uri, nil)
+        el.icon = el_uri and get_icon_url(get_schema(el_uri).lineage)
+                or "/icons/branch" .. ICON_EXT
+    end)
+    local tree_path
+    if tree then
+        -- Adjust tree root not affected by branch processing.
+        tree.root.href = fs.gen_pairtree(
+                "/res", tree.root.ref_id, ".html", true)
+        tree.root.tn = get_tn_url(s, nil)
+        tree.root.icon = get_icon_url(schema.lineage)
+        tree.root.label = label
+
+        -- Write tree JSON.
+        tree_path = res_path:gsub(".html$", "_tree.json")
+        tree_fh = io.open(tree_path, "w")
+        tree_fh:write(json.encode(tree))
+        tree_fh:close()
+        logger:debug("Tree path: " .. tree_path)
+    end
+
+    -- Members are ordered by label, then ID.
+    local members = {}
+    for m in repo.get_members(s):iter() do
+        local mid = model.uri_to_id(m.data)
+        table.insert(members, {
+            uri = m,
+            label = (repo.get_single_v(m, "label") or NT).data or UNT_LABEL,
+            sort_label = (repo.get_single_v(m, "label") or NT).data or m.data,
+            href = fs.gen_pairtree("/res", mid, ".html", true),
+            tn = get_tn_url(m),
+            icon = get_icon_url(get_schema(m).lineage),
+        })
+    end
+    table.sort(members, function(a, b) return a.sort_label < b.sort_label end)
+
+    local pref_rep
+    local pref_rep_uri = get_single_v(s, "pref_rep") or (members[1] or NT).uri
+    if pref_rep_uri then
+        local id = model.uri_to_id(pref_rep_uri.data)
+        pref_rep = {
+            id = id,
+            href = fs.gen_pairtree("/res", id, ".html", true),
+            file = (get_tn_url(pref_rep_uri) or ""):gsub(
+                    pkar.escape_ptn(TN_WEB_PATH), MEDIA_WEB_PATH),
+        }
+    end
+
+    out_html = templates.dres.data({
+        webroot = webroot,
+        site_title = M.TITLE,
+        title = label,
+        head_tpl = templates.head.data,
+        header_tpl = templates.header.data,
+        md_tpl = templates.md.data,
+        schema = schema,
+        uid = path.basename(s.data),
+        dmd = dmd_idx,
+        tree_url = tree_path and tree_path:gsub(OUT_DIR, webroot),
+        ls_next = ls_next,
+        tn_url = get_tn_url(s),
+        members = members,
+        pref_rep = pref_rep,
+        icon_url = get_icon_url(schema.lineage),
+        breadcrumbs = get_breadcrumbs(schema),
+        rdf_href = fs.gen_pairtree(
+                "/res", model.uri_to_id(s.data), ".ttl", true),
+        permalink = fs.gen_pairtree(
+                "/res", model.uri_to_id(s.data), ".html", true),
+        gen_pairtree = fs.gen_pairtree,
+    })
+
+    local ofh = assert(io.open(res_path, "w"))
+    ofh:write(out_html)
+    ofh:close()
+
+   return true
+end
+
+
+local function generate_ores(s, schema)
+    local webroot = "../../.."
+    local techmd, techmd_idx = collate_metadata(s, schema, webroot)
+
+    logger:debug("Lineage:", pp.write(schema.lineage))
+    logger:debug("Breadcrumbs:", pp.write(get_breadcrumbs(schema)))
+    logger:debug("techmd:", pp.write(techmd))
+
+    -- Transform and move media assets.
+    local tconf, dest_bname, dest_base  -- Reused for thumbnail.
+    logger:debug("Transforming resource file.")
+    local res_path = techmd.archive_path
+    if not res_path then error("No file path for File resource!") end
+    res_path = path.join(pkar.config.fs.ores_path,  res_path[1])
+
+    -- Set file name to resource ID + source extension.
+    dest_bname = uri_to_id(s.data)
+    dest_base = fs.gen_pairtree(M.media_dir, dest_bname)
+    local pres, tn
+    local mimetype = repo.get_single_v(s, "mimetype").data
+    -- Missing main transformer is a blocker.
+    tconf = assert(transformers.find(mimetype, "main"))
+    local ok, msg = transformers.process(tconf, res_path, dest_base)
+    if ok then
+        pres = msg:gsub(pkar.escape_ptn(OUT_DIR), "")
+        logger:debug("Presentation file: ", pres)
+    else
+        logger:warn(
+            ("Transformer `%s` for file %s failed with error: %s")
+            :format(tconf.fn, res_path, msg)
+        )
+        logger:info(
+            "No presentation file generated for " .. path.basename(res_path)
+        )
+    end
+    local pres_type = tconf.render_as  -- tconf may be set to nil next.
+
+    -- Thumbnail.
+    -- Missing thumbnail transformer is not a blocker.
+    tconf, err = transformers.find(mimetype, "thumbnail")
+    if tconf then
+        dest_base = fs.gen_pairtree(TN_FS_PATH, dest_bname)
+        ok, msg = transformers.process(tconf, res_path, dest_base)
+        if ok then
+            tn = msg:gsub(pkar.escape_ptn(M.media_dir), TN_WEB_PATH)
+            logger:debug("Thumbnail: ", tn)
+        else
+            logger:warn(
+                ("Transformer `%s` for file %s failed with error: %s")
+                :format(tconf.fn, res_path, err)
+            )
+        end
+    else
+        logger:info("No thumbnail generated for " .. path.basename(res_path))
+    end
+
+    out_html = templates.ores.data({
+        webroot = webroot,
+        site_title = M.TITLE,
+        fname = path.basename(techmd.source_path[1]),
+        head_tpl = templates.head.data,
+        header_tpl = templates.header.data,
+        md_tpl = templates.md.data,
+        schema = schema,
+        uid = path.basename(s.data),
+        techmd = techmd_idx,
+        ls_next = ls_next,
+        icon_url = get_icon_url(schema.lineage),
+        breadcrumbs = get_breadcrumbs(schema),
+        pres = pres,
+        pres_type = pres_type,
+        thumbnail = tn,
+        permalink = fs.gen_pairtree("/res", uri_to_id(s.data), ".html", true),
+        rdf_href = fs.gen_pairtree("/res", uri_to_id(s.data), ".ttl", true),
+    })
+
+    local html_path = fs.gen_pairtree(M.res_dir, uri_to_id(s.data), ".html")
+    local ofh = assert(io.open(html_path, "w"))
+    ofh:write(out_html)
+    ofh:close()
+
+   return true
+end
+
+
+M.generate_search_idx = function(s, schema)
+    local rrep = {
+        id = s.data:gsub("^.*/", ""),
+        tn = get_tn_url(s),
+        href = fs.gen_pairtree("/res", uri_to_id(s.data), ".html", true),
+        content_type = schema.id,
+        type = schema.lineage,
+        icon = "." .. get_icon_url(schema.lineage),
+    }
+
+    local function format_value(pname, o)
+        logger:debug("Adding value to " .. pname .. ": " .. ((o or NT).data or "nil"))
+        local v
+        local ptype = schema.properties[pname].type
+        if ptype == "resource" then
+            v = model.cname_map[o.data]
+        elseif ptype == "vocab" then
+            local vkey = schema.properties[pname].range
+            local ns = vocab.index[vkey].ns
+            v = o.data:gsub("^" .. ns, "")
+        elseif number_props[ptype] then
+            v = tonumber(o.data)
+        elseif ptype == "boolean" then
+            v = o.data == "true" and true or false
+        else v = o.data end
+        return v
+    end
+
+    local attrs = repo.gr:connections(s, term.LINK_OUTBOUND)
+    local fpath
+
+    for p, ots, ots_size in attrs:iter() do
+        local pname
+        if p == model.uri_map.content_type then goto skip end
+        if p == model.uri_map.source_path then
+            if schema.types.file then
+                fpath = ots()
+                rrep.fname = path.basename(fpath.data)
+            end
+            goto skip
+        end
+        pname = model.cname_map[nsm.denormalize_uri(p.data)]
+        if not pname then goto skip end
+        local pconf = (schema.properties or NT)[pname] or NT
+        -- TODO dereference & index resource values.
+        if pconf.flags & flags.PROP_INDEX == 0 then goto skip end
+
+        local attr
+        -- Quick check if it's multi-valued
+        if ots_size > 1 then
+            attr = {}
+            for o in ots do
+                table.insert(attr, format_value(pname, o))
+            end
+        else
+            attr = format_value(pname, ots())
+        end
+
+        rrep[pname] = attr  -- Add to search index.
+        idx_keys[pname] = true  -- Add to search keys.
+        ::skip::
+    end
+    return rrep
+end
+
+
+M.generate_resource = function(s)
+    logger:info("Generating resource: " .. uri_to_id(s.data))
+    local res_type
+    res_type = get_single_v(s, "content_type")
+    local schema = model.from_uri(res_type)
+
+    -- Generate RDF/Turtle doc.
+    local res_path = fs.gen_pairtree(M.res_dir, uri_to_id(s.data), ".ttl")
+    dir.makepath(path.dirname(res_path))
+    local ofh = assert(io.open(res_path, "w"))
+    for chunk in repo.serialize_rsrc(s) do ofh:write(chunk) end
+    ofh:close()
+
+    -- Generate HTML doc.
+    if schema.types.collection then assert(generate_coll(s, schema))
+    elseif schema.types.file then assert(generate_ores(s, schema))
+    else assert(generate_dres(s, schema)) end
+
+    -- Generate JSON rep and append to search index.
+    idx_rep = M.generate_search_idx(s, schema)
+    json_rep = "  " .. json.encode(idx_rep)
+    ofh = assert(io.open(index_path, "a"))
+    ofh:write(json_rep)
+    ofh:write(",\n")  -- Hack together the JSON objects in a list.
+    ofh:close()
+
+    return s
+end
+
+
+M.generate_resources = function(coll_id)
+    -- TODO implement update only for one collection.
+    -- Each member in the collection must be scanned recursively for outbound
+    -- links and visited links must be added to a set to avoid loops.
+    --[[
+    if coll_id then
+        subject_ts = repo.gr:term_set(
+            model.id_to_uri(coll_id), triple.POS_S,
+            model.uri_map.has_member, triple.POS_P
+        )
+    else subjects_ts = repo.gr:unique_terms(triple.POS_S) end
+    --]]
+    subjects_ts = repo.gr:term_set(
+        pkar.RDF_TYPE, triple.POS_P,
+        model.uri_map.resource, triple.POS_O
+    )
+
+    -- Initialize the JSON template with an opening bracket.
+    local ofh = assert(io.open(index_path, "w"))
+    ofh:write("[\n")
+    ofh:close()
+
+    -- TODO parallelize
+    for s in subjects_ts:iter() do assert(M.generate_resource(s)) end
+
+    -- Close the open list brace in the JSON template after all the resources
+    -- have been added.
+    ofh = assert(io.open(index_path, "a"))
+    ofh:write("  {}\n]")  -- Add empty object to validate the last comma
+    ofh:close()
+
+    -- Write index keys.
+    ofh = assert(io.open(keys_path, "w"))
+    idx_keys_ls = {}
+    for k in pairs(idx_keys) do table.insert(idx_keys_ls, k) end
+    ofh:write(json.encode(idx_keys_ls))
+    ofh:close()
+
+    return true
+end
+
+
+M.generate_homepage = function()
+    local idx_data = {items = {}, collections = {}}
+    -- Get all subjects of the types indicated for the "recent items" section.
+    items_by_ts = {}
+    for ctype in pairs(pkar.config.pres_gen.recent_item_types) do
+        -- Collect all items of the requested type ahead of sorting.
+        for s in repo.list_resources(ctype):iter() do
+            table.insert(items_by_ts, {s, get_single_v(s, "last_modified").data})
+        end
+    end
+    table.sort(items_by_ts, function(a, b) return a[2] > b[2] end)
+    for i, res in ipairs(items_by_ts) do
+        if i > pkar.config.pres_gen.max_homepage_items then break end
+        local s, ts = table.unpack(res)
+        local title = get_single_v(s, "label", true) or {data = UNT_LABEL}
+
+        table.insert(idx_data.items, {
+            href = fs.gen_pairtree("/res", uri_to_id(s.data), ".html", true),
+            title = title,
+            submitted = ts,
+            tn = get_tn_url(s),
+            icon = get_icon_url(get_schema(s).lineage),
+        })
+    end
+
+    -- Loop through collections.
+    local coll_by_ts = {}
+    for s in repo.list_resources("collection"):iter() do
+        table.insert(coll_by_ts, {s, get_single_v(s, "last_modified").data})
+    end
+    table.sort(coll_by_ts, function(a, b) return a[2] > b[2] end)
+    for i, res in ipairs(coll_by_ts) do
+        if i > pkar.config.pres_gen.max_homepage_items then break end
+        local s, ts = table.unpack(res)
+        table.insert(idx_data.collections, {
+            href = fs.gen_pairtree("/res", uri_to_id(s.data), ".html", true),
+            title = get_single_v(s, "label", true),
+            submitted = ts,
+            tn = get_tn_url(s),
+        })
+    end
+
+    logger:debug(pp.write(idx_data))
+
+    out_html = templates.idx.data({
+        webroot = ".",
+        site_title = M.TITLE,
+        head_tpl = templates.head.data,
+        header_tpl = templates.header.data,
+        nsm = nsm,
+        idx_data = idx_data,
+    })
+
+    local idx_path = path.join(OUT_DIR, "index.html")
+    local ofh = assert(io.open(idx_path, "w"))
+    ofh:write(out_html)
+    ofh:close()
+
+    logger:info("Homepage generated at ", idx_path)
+
+    return true
+end
+
+
+function M.generate_search_page()
+    out_html = templates.search.data({
+        webroot = ".",
+        site_title = M.TITLE,
+        head_tpl = templates.head.data,
+        header_tpl = templates.header.data,
+        prop_md = model.properties,
+    })
+
+    local idx_path = path.join(OUT_DIR, "search.html")
+    local ofh = assert(io.open(idx_path, "w"))
+    ofh:write(out_html)
+    ofh:close()
+
+    return true
+end
+
+
+M.reset_site = function()
+    -- Reset target folders.
+    -- TODO for larger sites, a selective update should be implemented by
+    -- comparing RDF resource timestamps with HTML page timestamps. Post-MVP.
+    if path.isdir(OUT_DIR) then
+        logger:warn("Removing existing web site.")
+        dir.rmtree(OUT_DIR)
+    end
+
+    -- Recreate asset dir.
+    if path.isdir(M.asset_dir) then
+        logger:warn("Removing existing web assets.")
+        dir.rmtree(M.asset_dir)
+    end
+    dir.makepath(M.asset_dir)
+
+    -- Copy static assets.
+    logger:info(
+        "Copying templates dir " .. M.src_asset_dir .. " to " .. M.asset_dir)
+    assert(fs.clonetree(M.src_asset_dir, M.asset_dir, dir.copyfile))
+    -- User assets overwrite default ones.
+    if M.user_src_asset_dir and path.isdir(M.user_src_asset_dir) then
+        assert(fs.clonetree(M.user_src_asset_dir, M.asset_dir, dir.copyfile))
+    end
+end
+
+
+M.generate_site = function(keep)
+    -- Compile templates if not yet present.
+    for _, tpl in pairs(templates) do
+        if not tpl.data then
+            local fh
+            if USER_TPL_ROOT and
+                    path.isfile(path.join(USER_TPL_ROOT, tpl.file)) then
+                fh = io.open(path.join(USER_TPL_ROOT, tpl.file))
+                logger:debug (
+                        "compiling user template for " ..
+                        path.join(USER_TPL_ROOT, tpl.file))
+            else
+                fh = datafile.open(path.join("templates", "pres", tpl.file))
+                logger:debug (
+                        "compiling template for stock file " ..
+                        path.join("templates", "pres", tpl.file))
+            end
+            tpl.data = assert(etlua.compile(fh:read("a")))
+        end
+    end
+    if not keep then M.reset_site() end
+
+    -- Clear local search index keys.
+    idx_keys = {
+        id = true,
+        content_type = true,
+        type = true,
+        fname = true,
+    }
+
+    -- Generate individual resource pages, RDF, and JSON index.
+    assert(M.generate_resources())
+    -- Generate search page.
+    assert(M.generate_search_page())
+    -- Generate index page.
+    assert(M.generate_homepage())
+    logger:info("Archive site generated at " .. M.OUT_DIR)
+end
+
+return M

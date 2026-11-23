@@ -1,0 +1,62 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-user-profile-validation",
+  "versions": {
+    "1.0-5": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/user-profile-validation/handler.lua": {
+          "sha256": "5e851058de27b542f96be66ec026e05ceaed7ba3e8a8046acc0dee8c0abf89ca",
+          "size": 1469,
+          "url": "https://raw.githubusercontent.com/alisonjf/kong-user-profile-validation-plugin/9d606d251a3cf726304f90b41937daaf11f6ff8a/src/handler.lua"
+        },
+        "kong/plugins/user-profile-validation/schema.lua": {
+          "sha256": "4174eb9b36e3fe9e2953435facc9bf734d9d8ef464b4879f1bff0e38d408c179",
+          "size": 372,
+          "url": "https://raw.githubusercontent.com/alisonjf/kong-user-profile-validation-plugin/9d606d251a3cf726304f90b41937daaf11f6ff8a/src/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/alisonjf/kong-user-profile-validation-plugin.git",
+      "host": "openresty",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Sat, 31 Jul 2021 18:08:27 GMT",
+        "rockspec": {
+          "date": "Sat, 31 Jul 2021 18:08:27 GMT",
+          "sha256": "6c0c3c11bcf79aaba1f4124c0baf21f00f7fc07be7bfc2ef21e175876237e99f",
+          "size": 677
+        },
+        "src": {
+          "date": "Sat, 31 Jul 2021 18:08:28 GMT",
+          "sha256": "0d313becf6e90bad37f389ce6493573988a6db05d752b725d82bcff53fc831db",
+          "size": 5537,
+          "url": "https://luarocks.org/kong-plugin-user-profile-validation-1.0-5.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.user-profile-validation.handler",
+        "kong.plugins.user-profile-validation.schema"
+      ],
+      "origin": {
+        "commit": "9d606d251a3cf726304f90b41937daaf11f6ff8a",
+        "type": "git",
+        "url": "https://github.com/alisonjf/kong-user-profile-validation-plugin.git"
+      },
+      "size": 1841,
+      "summary": "A plugin for Kong which validate the profile ID specified in header to verify if user can acess the route.",
+      "undeclared_requires": [
+        "kong.plugins.base_plugin"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.base_plugin",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 1,
+        "status": "partial",
+        "total": 2
+      }
+    }
+  }
+}

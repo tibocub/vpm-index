@@ -1,0 +1,246 @@
+-- Lua 5.4 support for the native modules. No JavaScript engine is used.
+local env=setmetatable({}, {__index=_G})
+local _ENV=env
+local M = {environment=env}
+local original_tostring=tostring
+-- ECMAScript WhiteSpace and LineTerminator characters (String.prototype.trim).
+local color_space = {
+    [0x20] = true, [0xA0] = true, [0x1680] = true, [0x2028] = true,
+    [0x2029] = true, [0x202F] = true, [0x205F] = true, [0x3000] = true, [0xFEFF] = true,
+}
+function M.trim(value)
+    local first, last
+    for byte, codepoint in utf8.codes(value) do
+        local whitespace = color_space[codepoint]
+            or (codepoint >= 0x09 and codepoint <= 0x0D)
+            or (codepoint >= 0x2000 and codepoint <= 0x200A)
+        if not whitespace then
+            first = first or byte
+            last = byte + #utf8.char(codepoint) - 1
+        end
+    end
+    return first and value:sub(first, last) or ''
+end
+function M.number_string(value)
+ value=value+0.0
+ if value==0 then return '0' end
+ if value~=value then return 'NaN' end
+ if value==math.huge then return 'Infinity' elseif value==-math.huge then return '-Infinity' end
+ local text
+ for precision=1,17 do
+  local candidate=string.format('%.'..precision..'g',value)
+  if tonumber(candidate)==value then text=candidate;break end
+ end
+ text=text or string.format('%.17g',value)
+ local mantissa,exponent=text:match('^(.-)[eE]([+-]?%d+)$')
+ if not mantissa then return text:gsub('%.0$','') end
+ exponent=tonumber(exponent)
+ if math.abs(value)>=1e21 or math.abs(value)<1e-6 then return mantissa..'e'..(exponent>=0 and '+' or '-')..string.format('%d',math.abs(exponent)) end
+ local sign=mantissa:sub(1,1)=='-' and '-' or ''
+ mantissa=mantissa:gsub('^-','')
+ local point=(mantissa:find('%.') or (#mantissa+1))-1+exponent
+ local digits=mantissa:gsub('%.','')
+ if point<=0 then return sign..'0.'..string.rep('0',-point)..digits end
+ if point>=#digits then return sign..digits..string.rep('0',point-#digits) end
+ return sign..digits:sub(1,point)..'.'..digits:sub(point+1)
+end
+env.tostring=function(value) if type(value)=='number' then return M.number_string(value) end;return original_tostring(value) end
+local object_mt, array_mt = {}, {}
+local object_keys = setmetatable({}, { __mode = 'k' })
+function M.object_entries(value)
+    local keys, seen = {}, {}
+    for _, key in ipairs(object_keys[value] or {}) do
+        if value[key] ~= nil and not seen[key] then
+            keys[#keys + 1], seen[key] = key, true
+        end
+    end
+    local remaining = {}
+    for key in pairs(value) do
+        if not seen[key] then remaining[#remaining + 1] = key end
+    end
+    table.sort(remaining, function(a, b) return tostring(a) < tostring(b) end)
+    for _, key in ipairs(remaining) do keys[#keys + 1] = key end
+    local indices, names = {}, {}
+    for _, key in ipairs(keys) do
+        local index = type(key) == 'string' and tonumber(key)
+        if index and index >= 0 and index < 4294967295
+            and index % 1 == 0 and tostring(index) == key then
+            indices[#indices + 1] = key
+        else
+            names[#names + 1] = key
+        end
+    end
+    table.sort(indices, function(a, b) return tonumber(a) < tonumber(b) end)
+    local entries = {}
+    for _, list in ipairs({indices, names}) do
+        for _, key in ipairs(list) do entries[#entries + 1] = {key, value[key]} end
+    end
+    return entries
+end
+NULL = setmetatable({}, {__tostring=function() return 'null' end})
+function markArray(_, value) return setmetatable(value, array_mt) end
+function markObject(_, value) return setmetatable(value, object_mt) end
+M.null = NULL
+M.object = function(value, keys)
+    value = markObject(nil, value or {})
+    if keys then object_keys[value] = keys end
+    return value
+end
+M.array = function(value) return markArray(nil, value or {}) end
+function nativeCoalesce(_,v,f) if v==nil or v==NULL then return f(nil) end;return v end
+function nativeCoalesceAssign(_,value,key,fallback)
+ if value[key]==nil or value[key]==NULL then value[key]=fallback(nil) end
+ return value[key]
+end
+function nativeTruthy(_,value)
+ return value~=nil and value~=NULL and value~=false and value~='' and value~=0 and value==value
+end
+function nativeHasOwn(_, value, key) return rawget(value,key) ~= nil end
+function nativeDefineProperty(_,value,key,descriptor) rawset(value,key,descriptor.value);return value end
+function nativeByteLength(_,value) return #value end
+function nativeArray(_, length)
+ if length<0 or length%1~=0 then error('Invalid array length') end
+ local t=markArray(nil,{}) for i=1,length do t[i]=NULL end return t
+end
+function nativeZeroArray(_,length) local t=nativeArray(nil,length) for i=1,length do t[i]=0 end return t end
+function nativePathSegments(_,value)
+ local t=markArray(nil,{})
+ for key in value:gmatch('%.([%a_][%w_]*)') do t[#t+1]=markArray(nil,{'',key}) end
+ -- Preserve order for mixed object and array segments.
+ t=markArray(nil,{}) local pos=5
+ while pos<=#value do
+  local tail=value:sub(pos)
+  local key=tail:match('^%.([%a_][%w_]*)')
+  if key then t[#t+1]=markArray(nil,{key}); pos=pos+#key+1
+  else local index=tail:match('^%[(%d+)%]'); if not index then break end; t[#t+1]=markArray(nil,{nil,index}); pos=pos+#index+2 end
+ end
+ return t
+end
+local function path_ok(value, dotted_only)
+ if type(value)~='string' or value:sub(1,4)~='data' then return false end
+ local rest=value:sub(5); if dotted_only and rest=='' then return false end
+ while rest~='' do
+  local segment=rest:match('^%.[A-Za-z_][A-Za-z0-9_]*')
+  if not segment and not dotted_only then segment=rest:match('^%[%d+%]') end
+  if not segment then return false end rest=rest:sub(#segment+1)
+ end return true
+end
+function nativePresent(_,value) return value~=nil and value~=NULL end
+function nativeCodePoint(_,value) return utf8.codepoint(value) end
+function regexp(_,pattern,flags)
+ local r={pattern=pattern}
+ function r:exec(value)
+  if type(value)~='string' then return NULL end
+  local captures
+  if pattern:find('0%-9a%-fA%-F') or pattern:find('0%-9a%-f') then
+   local s=value:gsub('^#',''); local valid=s:match('^[0-9a-fA-F]+$') and (#s==6 or #s==8 or (#s==3 and pattern:find('{3}',1,true)))
+   if valid then captures={value,s} end
+  elseif pattern:find('d{4}',1,true) then local y,m,d=value:match('^(%d%d%d%d)%-(%d%d)%-(%d%d)$'); if y then captures={value,y,m,d} end
+  elseif pattern:find('data',1,true) then if path_ok(value,pattern:find('*)+',1,true)~=nil) then captures={value} end
+  elseif pattern=='^[A-Za-z0-9]$' then if value:match('^[A-Za-z0-9]$') then captures={value} end
+  elseif pattern=='^[#.]*$' then if not value:find('[^#%.]') then captures={value} end
+  elseif pattern=='^\\d+$' then if value:match('^%d+$') then captures={value} end
+  elseif pattern:find('A-Za-z_',1,true) then if value:match('^[A-Za-z_][A-Za-z0-9_]*$') then captures={value} end
+  else error('Unknown SDK pattern: '..pattern) end
+  return captures and markArray(nil,captures) or NULL
+ end
+ function r:test(value) return self:exec(value)~=NULL end
+ return r
+end
+local cjson=require('cjson')
+local function encode(v, seen)
+ local typ=type(v)
+ if v==NULL or v==nil or v==cjson.null then return 'null' end
+ if typ=='string' then return cjson.encode(v) end
+ if typ=='number' then if v~=v or math.abs(v)==math.huge then error('Nonfinite JSON number') end; return M.number_string(v) end
+ if typ=='boolean' then return v and 'true' or 'false' end
+ if typ~='table' then error('Unsupported JSON value') end
+ seen=seen or {}; if seen[v] then error('Cyclic JSON') end; seen[v]=true
+ local a={}; local mt=getmetatable(v)
+ if mt==array_mt or (mt~=object_mt and (v[1]~=nil or next(v)==nil)) then
+  for i=1,#v do a[#a+1]=encode(v[i],seen) end; seen[v]=nil;return '['..table.concat(a,',')..']'
+ end
+ local keys={} for k in pairs(v) do if type(k)=='string' then keys[#keys+1]=k end end table.sort(keys)
+ for _,k in ipairs(keys) do a[#a+1]=cjson.encode(k)..':'..encode(v[k],seen) end
+ seen[v]=nil; return '{'..table.concat(a,',')..'}'
+end
+local function decode(s)
+ local p=1
+ local function skip() local _,e=s:find('^%s*',p); p=(e or p-1)+1 end
+ local parse
+ parse=function()
+  skip(); local ch=s:sub(p,p)
+  if ch=='{' or ch=='[' then
+   local obj=ch=='{'; local t=obj and markObject(nil,{}) or markArray(nil,{}); p=p+1;skip()
+   if obj then object_keys[t] = {} end
+   if s:sub(p,p)==(obj and '}' or ']') then p=p+1;return t end
+   while true do
+    local key
+    if obj then key=parse();skip();assert(s:sub(p,p)==':','Expected colon');p=p+1 end
+    local value=parse(); if obj then
+     if t[key] == nil then object_keys[t][#object_keys[t] + 1] = key end
+     t[key]=value
+    else t[#t+1]=value end
+    skip();local c=s:sub(p,p);p=p+1;if c==(obj and '}' or ']') then break end;assert(c==',','Expected comma')
+   end return t
+  elseif ch=='"' then
+   local start=p;p=p+1;while p<=#s do local c=s:sub(p,p);p=p+1;if c=='\\' then p=p+1 elseif c=='"' then break end end
+   return cjson.decode(s:sub(start,p-1))
+  else
+   local token=s:match('^[^,%]%}%s]+',p);assert(token,'Invalid JSON');p=p+#token
+   if token=='null' then return NULL elseif token=='true' then return true elseif token=='false' then return false end
+   local n=tonumber(token); assert(n,'Invalid JSON token');return n
+  end
+ end
+ local v=parse();skip();assert(p>#s,'Trailing JSON');return v
+end
+M.encode,M.decode=encode,decode
+JSON={stringify=function(_,v) return encode(v) end,parse=function(_,s) return decode(s) end}
+function structuredClone(_,value)
+ if value==NULL or type(value)~='table' then return value end
+ local result=setmetatable({},getmetatable(value));object_keys[result]=object_keys[value];for k,v in pairs(value) do result[k]=structuredClone(nil,v) end return result
+end
+-- Exact binary64 fixed decimal formatting, including halfway cases.
+function M.to_fixed(value, decimals)
+ decimals=math.floor(decimals or 0);if decimals<0 or decimals>100 then error('Invalid decimals') end
+ if math.abs(value)>=1e21 then return M.number_string(value) end
+ local bits=string.unpack('<I8',string.pack('<d',math.abs(value)))
+ local exponent=(bits>>52)&0x7ff
+ local mantissa=bits&0xfffffffffffff
+ local power=exponent==0 and -1074 or exponent-1023-52
+ if exponent~=0 then mantissa=mantissa+0x10000000000000 end
+ local raw=tostring(mantissa)
+ local function multiply(s,n)
+  local carry,out=0,{}
+  for i=#s,1,-1 do local d=tonumber(s:sub(i,i))*n+carry;out[i]=tostring(d%10);carry=math.floor(d/10) end
+  return (carry>0 and tostring(carry) or '')..table.concat(out)
+ end
+ for _=1,math.abs(power) do raw=multiply(raw,power<0 and 5 or 2) end
+ local scale=math.max(0,-power)
+ if #raw<=scale then raw=string.rep('0',scale-#raw+1)..raw end
+ local whole=raw:sub(1,#raw-scale)
+ local frac=raw:sub(#raw-scale+1)..string.rep('0',decimals+1)
+ local digits=whole..frac:sub(1,decimals)
+ if tonumber(frac:sub(decimals+1,decimals+1))>=5 then
+  local carry=1;local out={}
+  for i=#digits,1,-1 do local d=tonumber(digits:sub(i,i))+carry;out[i]=tostring(d%10);carry=math.floor(d/10) end
+  digits=(carry>0 and '1' or '')..table.concat(out)
+ end
+ if decimals>0 then digits=digits:sub(1,#digits-decimals)..'.'..digits:sub(#digits-decimals+1) end
+ return (value<0 and '-' or '')..digits
+end
+local function days_from_civil(y,m,d)
+ y=y-(m<=2 and 1 or 0);local era=math.floor(y/400);local yo=y-era*400;local mp=m+(m>2 and -3 or 9)
+ return era*146097+yo*365+math.floor(yo/4)-math.floor(yo/100)+math.floor((153*mp+2)/5)+d-1-719468
+end
+Date={prototype={}}
+Date.prototype.__index=Date.prototype
+function Date:UTC(y,m,d) if y>=0 and y<=99 then y=y+1900 end;return days_from_civil(y,m+1,d)*86400000 end
+function Date:now() return os.time()*1000 end
+function Date.prototype:____constructor(ms) self.ms=ms end
+function Date.prototype:getUTCFullYear() return os.date('!*t',self.ms/1000).year end
+function Date.prototype:getUTCMonth() return os.date('!*t',self.ms/1000).month-1 end
+function Date.prototype:getUTCDate() return os.date('!*t',self.ms/1000).day end
+function Date.prototype:getUTCDay() return os.date('!*t',self.ms/1000).wday-1 end
+M.object_mt,M.array_mt=object_mt,array_mt
+return M

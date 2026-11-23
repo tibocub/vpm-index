@@ -1,0 +1,56 @@
+local CDN = require("luacord.utils.CDN")
+
+local User = {}
+User.__index = User
+
+---Create a User structure from Discord payload data.
+---@param data table
+---@param client table
+---@return table
+function User.new(data, client)
+  assert(type(data) == "table", "User.new expects a table payload")
+  local self = setmetatable({}, User)
+  self._client = client
+  self:_patch(data)
+  return self
+end
+
+---Patch this user with fresh payload data.
+---@param data table
+function User:_patch(data)
+  self.id = data.id or self.id
+  self.username = data.username or self.username
+  self.discriminator = data.discriminator or self.discriminator
+  self.global_name = data.global_name or self.global_name
+  self.avatar = data.avatar or self.avatar
+  self.banner = data.banner or self.banner
+  self.accent_color = data.accent_color or self.accent_color
+  self.bot = data.bot or false
+  self.system = data.system or false
+end
+
+---Get mention string for this user.
+---@return string
+function User:mention()
+  return "<@" .. tostring(self.id) .. ">"
+end
+
+---Get display name for this user.
+---@return string
+function User:displayName()
+  return self.global_name or self.username or tostring(self.id)
+end
+
+---Build avatar URL for this user.
+---@param size? integer
+---@param extension? string
+---@return string
+function User:avatarURL(size, extension)
+  if self.avatar then
+    return CDN.userAvatar(self.id, self.avatar, size, extension)
+  end
+  return CDN.defaultUserAvatar(self.discriminator)
+end
+
+return User
+

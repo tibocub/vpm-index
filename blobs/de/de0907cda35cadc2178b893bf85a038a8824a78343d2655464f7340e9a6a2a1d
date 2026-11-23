@@ -1,0 +1,417 @@
+-- panto-subagents: the `subagents` extension entry point.
+--
+-- Activation happens once per panto session (a new session, `/new`, or
+-- `/resume` rebuilds the whole Lua state and runs this again). It reads the
+-- layered `[subagents]` settings, discovers the subagent profiles once, registers
+-- the model-facing tools, registers `/fork-subagent <id>`, and registers a
+-- `/workflow:<name>` command for every valid workflow profile.
+--
+-- Discovery order is deterministic and side-effect free apart from
+-- registration, because pantograph evaluates every candidate extension file
+-- but only activates the ones its allow/deny policy permits.
+--
+-- The discovered profile set is captured here and threaded into the run
+-- handler and namespace, so they resolve exactly the profiles
+-- available in the loadable documentation. Static tool descriptions retain
+-- inventories and bounded warnings: activation cannot yet confirm std.lua's
+-- policy-filtered availability.
+--
+-- Activation also subscribes to the session lifecycle: interruption cancels
+-- live work, ordinary turn boundaries reap only settled jobs so background
+-- workflows survive, session teardown cancels everything, and session_ready
+-- re-reports stored child spend into the session totals. Settled progress
+-- cards remain attached to their transcript entries until the host destroys
+-- those components.
+--
+-- If the host predates the model-resolution seam, activation fails loudly
+-- instead of registering tools that cannot work.
+
+local fork = require("subagents.fork")
+local jobs = require("subagents.jobs")
+local namespace = require("subagents.namespace")
+local models = require("subagents.models")
+local paths = require("subagents.paths")
+local progress = require("subagents.progress")
+local run = require("subagents.run")
+local spawn = require("subagents.spawn")
+local toml_workflows = require("subagents.toml_workflows")
+local workflow_api = require("subagents.workflow")
+
+local MAX_SHOWN_WARNINGS = 5
+local DEFAULT_MAX_CONCURRENT = 5
+
+local function host()
+    return require("panto").ext
+end
+
+local function warn(message)
+    pcall(function() io.stderr:write("panto-subagents: ", tostring(message), "\n") end)
+end
+
+-- Render callbacks are optional: a host without the bus or components (as in
+-- print mode) skips wrapping, while lifecycle handlers still run when available.
+local function subscribe(ext, name, handler)
+    if type(ext.on) == "function" then
+        pcall(ext.on, name, handler)
+    end
+end
+
+local function install_header(ext, profiles, workflows)
+    local profile_names, workflow_names = {}, {}
+    for _, profile in ipairs(profiles.list) do
+        profile_names[#profile_names + 1] = profile.name
+    end
+    for _, workflow in ipairs(workflows.list) do
+        if workflow.definition then workflow_names[#workflow_names + 1] = workflow.name end
+    end
+    table.sort(profile_names)
+    table.sort(workflow_names)
+    local listed_commands = {}
+    for _, name in ipairs(workflow_names) do listed_commands["workflow:" .. name] = true end
+
+    subscribe(ext, "render_header", function(event)
+        if event.commands then
+            local visible = {}
+            for _, name in ipairs(event.commands) do
+                if not listed_commands[name] then visible[#visible + 1] = name end
+            end
+            event.commands = visible
+        end
+        local inner = event:get_component()
+        event:set_component({
+            render = function(_, width)
+                local lines = inner:render(width)
+                local style = ext.style()
+                local extras = {}
+                for _, inventory in ipairs({
+                    { "subagents", profile_names },
+                    { "workflows", workflow_names },
+                }) do
+                    local value = #inventory[2] == 0 and "(none)" or table.concat(inventory[2], ", ")
+                    extras[#extras + 1] = style.dim .. " " .. inventory[1] .. ": " .. value .. style.reset
+                end
+                local at = (#lines > 0 and lines[#lines] == "") and #lines or (#lines + 1)
+                for index = #extras, 1, -1 do
+                    table.insert(lines, at, extras[index])
+                end
+                return lines
+            end,
+        })
+    end)
+end
+
+-- "  name — description" lines, for profile and workflow inventories.
+local function append_entries(lines, entries)
+    for _, entry in ipairs(entries) do
+        if entry.description and entry.description ~= "" then
+            lines[#lines + 1] = string.format("  %s — %s", entry.name, entry.description)
+        else
+            lines[#lines + 1] = "  " .. entry.name
+        end
+    end
+end
+
+local function append_warnings(lines, heading, warnings)
+    if #warnings == 0 then return end
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = heading
+    for index, warning in ipairs(warnings) do
+        if index > MAX_SHOWN_WARNINGS then
+            lines[#lines + 1] = string.format("  (%d more)", #warnings - MAX_SHOWN_WARNINGS)
+            break
+        end
+        lines[#lines + 1] = "  " .. warning
+    end
+end
+
+local function run_description(profiles, std_registered)
+    local has_profiles = #profiles.list > 0
+    local lines = {
+        "Start a background subagent and return its session-scoped name immediately. Start a new child from "
+            .. (has_profiles and "a subagent profile or " or "")
+            .. "an inline system prompt, or continue a child you started earlier in this session.",
+    }
+    if has_profiles then
+        lines[#lines + 1] = ""
+        lines[#lines + 1] = "Subagent profiles:"
+        append_entries(lines, profiles.list)
+    end
+
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = "Rules:"
+    lines[#lines + 1] = has_profiles
+        and "- Pass exactly one of `profile` (start from a profile), `system_prompt` (start without a profile), or `id` (continue a child). `prompt` is always required and must be non-empty."
+        or "- Pass exactly one of `system_prompt` (start a new child) or `id` (continue a child). `prompt` is always required and must be non-empty."
+    lines[#lines + 1] = "- Empty optional strings are treated as omitted."
+    lines[#lines + 1] = "- Omit `model` and `reasoning` and a child inherits yours. Call subagents.models before choosing an unfamiliar model or reasoning level."
+    lines[#lines + 1] = "- A child shares your workspace and tools but not your conversation, and cannot ask the user questions. Put every piece of task context it needs into `prompt`."
+    lines[#lines + 1] = "- Completion wakes you with the child's output. The returned name also identifies a field-read-only record in `subagents.agents[name]`." ..
+        (std_registered and " If `std.lua` is enabled, inspect it with a script." or "")
+    lines[#lines + 1] = "- Every completed child record reports its durable `id`. Pass that id back to continue the same conversation."
+
+    if std_registered then
+        lines[#lines + 1] = 'If std.lua is enabled, load reference with return require("subagents.docs").delegation or `.inventory`.'
+    end
+    append_warnings(lines, "Profile warnings:", profiles.warnings)
+    return table.concat(lines, "\n")
+end
+
+local function workflow_description(workflows, std_registered)
+    local lines = {
+        "Start a discovered workflow profile by `profile` in the background: a fixed dependency graph of subagents. Every step receives `prompt` as the workflow input, and a step with `needs` also receives those steps' outputs. Returns a workflow id immediately; completion wakes you with its report. " ..
+            (std_registered and "If `std.lua` is enabled, use a script for dynamic graphs." or "Dynamic graphs require the optional `std.lua` tool."),
+    }
+    local usable = {}
+    for _, workflow in ipairs(workflows.list) do
+        if workflow.definition then usable[#usable + 1] = workflow.definition end
+    end
+    if #usable > 0 then
+        lines[#lines + 1] = ""
+        lines[#lines + 1] = "Workflow profiles:"
+        append_entries(lines, usable)
+    end
+    if std_registered then
+        lines[#lines + 1] = 'If std.lua is enabled, load reference with return require("subagents.docs").workflow or `.inventory`.'
+    end
+    append_warnings(lines, "Workflow warnings:", workflows.warnings)
+    return table.concat(lines, "\n")
+end
+
+local SUBAGENTS_GUIDANCE = [=[## Subagents
+Use `subagents.run` for one background delegation; use `std.lua` for dynamic workflows.
+Before orchestrating, load `return require("subagents.docs").workflow` in `std.lua`;
+other topics: `.delegation` (run/models), `.recipes`, `.inventory` (profiles/workflows/warnings).
+Children share your workspace, not your conversation; give each complete task context.
+Delegation tools, the Lua namespace, and these docs are primary-only; children cannot delegate.
+Workflow callbacks cannot call `tools.*` or `panto.ext.call_tool`/`start_tool`; use the top-level script.
+Completion wakes you with the child's output; `subagents.agents`/`subagents.workflows` hold more detail.
+Never poll or sleep waiting for children; do other work or end your turn.
+]=]
+
+local function install_guidance(ext, std_registered)
+    subscribe(ext, "session_ready", function()
+        if not namespace.called_by_primary() then return end
+        local primary = ext.agent
+        if primary and type(primary.add_system_message) == "function" then
+            -- Tool sources are installed after extension activation. A loaded
+            -- _std module alone does not mean policy enabled the std.lua tool.
+            local available = false
+            if std_registered then
+                local ok, tools = pcall(function() return primary:tools() end)
+                if ok and type(tools) == "table" then
+                    for _, tool in ipairs(tools) do
+                        if tool.name == "std.lua" then available = true; break end
+                    end
+                end
+            end
+            local guidance = available and SUBAGENTS_GUIDANCE or
+                "## Subagents\nUse `subagents.run` for one background delegation. `std.lua` namespace workflows and record inspection are unavailable in this session."
+            primary:add_system_message(guidance)
+        end
+    end)
+end
+
+local function configured_max_concurrent(ext)
+    local value = DEFAULT_MAX_CONCURRENT
+    local layers = ext.dirs and ext.dirs.layers
+    if type(layers) ~= "table" then
+        return value
+    end
+
+    local ok_toml, toml = pcall(require, "toml")
+    if not ok_toml or type(toml) ~= "table" or type(toml.parse) ~= "function" then
+        error("panto-subagents: the 'toml2lua' rock is required to read configuration")
+    end
+
+    for _, layer in ipairs(layers) do
+        if type(layer) == "table" and type(layer.dir) == "string" then
+            local path = layer.dir .. "/config.toml"
+            local text = paths.read_file(path)
+            if text then
+                local parsed_ok, parsed = pcall(toml.parse, text, { strict = true })
+                if not parsed_ok or type(parsed) ~= "table" then
+                    error("panto-subagents: could not parse " .. path)
+                end
+                local section = parsed.subagents
+                if section ~= nil and type(section) ~= "table" then
+                    error("panto-subagents: [subagents] must be a table in " .. path)
+                end
+                local configured = section and section.max_concurrent
+                if configured ~= nil then
+                    if type(configured) ~= "number" or configured < 1 or configured ~= math.floor(configured) then
+                        error("panto-subagents: subagents.max_concurrent must be a positive integer in " .. path)
+                    end
+                    value = configured
+                end
+            end
+        end
+    end
+    return value
+end
+
+local function activate()
+    local ext = host()
+    if type(ext.resolve_model) ~= "function" or type(require("panto").agent) ~= "function" then
+        error("panto-subagents: this pantograph is too old for subagents (panto.ext.resolve_model is missing)")
+    end
+
+    jobs.MAX_CONCURRENT = configured_max_concurrent(ext)
+    ext.workflows = workflow_api.workflows
+    ext.agents = workflow_api.agents
+
+    -- Discover through spawn so the workflow lanes, which resolve profiles
+    -- lazily, share the exact set the documentation inventory advertises.
+    local profiles = spawn.profiles()
+    local std_ok, std = pcall(require, "_std")
+    local std_registered = std_ok and type(std) == "table" and type(std.lua_namespace) == "function"
+    if std_registered then
+        local registered, err = pcall(std.lua_namespace, "subagents", function(context)
+            return namespace.factory(context, profiles)
+        end)
+        if not registered then
+            warn("could not register std.lua namespace: " .. tostring(err))
+            std_registered = false
+        end
+    end
+
+    -- Escape reaches the children through the turn, not through a tool: the
+    -- primary is parked inside a tool call when they are running.
+    progress.begin_replay()
+    -- Startup transcript replay fires render tool events before the first
+    -- live turn. After that boundary, progress.claim must stay presentation-
+    -- only and never rescan the child catalog for ordinary calls.
+    subscribe(ext, "turn_start", function()
+        progress.begin_live_turn()
+    end)
+    subscribe(ext, "turn_interrupt", function()
+        workflow_api.cancel_all(false, true)
+        jobs.cancel_all(true)
+    end)
+    subscribe(ext, "turn_end", function()
+        jobs.reap()
+        progress.reset()
+    end)
+    -- Rehydrate settled workflow and direct-agent records from the same
+    -- per-primary store used for child sessions; this also reserves old ids.
+    subscribe(ext, "session_ready", function()
+        workflow_api.rehydrate()
+    end)
+    -- The host zeroes reported usage when it opens a session; put the stored
+    -- children's spend back into the session totals.
+    subscribe(ext, "session_ready", function()
+        spawn.report_stored_usage()
+    end)
+    -- Teardown would cancel running children and lose their work, so refuse
+    -- it while any is running. The host shows the reason instead of
+    -- switching; `/reload!` skips this check.
+    subscribe(ext, "session_end_request", function(event)
+        local n = workflow_api.running_count()
+        if n == 0 then return end
+        local reason = n == 1
+            and "a subagent workflow is still running; wait for it to finish, or ask the agent to cancel it"
+            or (n .. " subagent workflows are still running; wait for them to finish, or ask the agent to cancel them")
+        if event.action == "reload" then reason = reason .. " (/reload! forces)" end
+        event.veto = reason
+    end)
+    subscribe(ext, "session_end", function()
+        workflow_api.cancel_all(true)
+        jobs.cancel_all()
+        jobs.close_all()
+        progress.reset()
+    end)
+    -- During seedFromConversation, call-complete is replayed before the tool
+    -- result. Cache the bounded child board now so std.lua can attach it there.
+    subscribe(ext, "render_tool_call_complete", function(event)
+        if event.tool_name == "std.lua" then
+            local component = progress.replay_component(event.id)
+            if component and std_ok and type(std) == "table" and type(std.lua_component) == "function" then
+                pcall(std.lua_component, event.id, component)
+            end
+        else
+            progress.claim(event)
+        end
+    end)
+    subscribe(ext, "render_tool_result", function(event)
+        progress.settle(event)
+    end)
+    subscribe(ext, "render_tool_collapse", function(event)
+        progress.collapse(event)
+    end)
+
+    ext.register_tool {
+        name = "subagents.run",
+        description = run_description(profiles, std_registered),
+        schema = {
+            type = "object",
+            properties = {
+                profile = { type = "string", description = "Subagent profile name for a new child. Mutually exclusive with `system_prompt` and `id`." },
+                system_prompt = { type = "string", description = "System prompt for a new child without a profile. Mutually exclusive with `profile` and `id`." },
+                id = { type = "string", description = "Id of a child started earlier in this session, to continue it. Mutually exclusive with `profile` and `system_prompt`." },
+                prompt = { type = "string", description = "The complete task for the child. It sees none of this conversation." },
+                model = { type = "string", description = "Optional `provider:model` override. Omit to inherit; query available options with `subagents.models`." },
+                reasoning = { type = "string", description = "Optional reasoning level override. Omit to inherit." },
+            },
+            required = { "prompt" },
+        },
+        handler = function(input, context)
+            progress.bind(context)
+            local result = run.handle(input, profiles, context)
+            progress.settle(context)
+            return result
+        end,
+    }
+
+    ext.register_tool {
+        name = "subagents.models",
+        description = "Query the configured model catalog: no arguments for the inherited model plus provider counts, `model` for an exact lookup including valid reasoning levels, or `provider`/`query` for a bounded search.",
+        schema = {
+            type = "object",
+            properties = {
+                provider = { type = "string", description = "Restrict a search to one provider." },
+                query = { type = "string", description = "Substring to search model names for." },
+                limit = { type = "integer", description = "Maximum matches to return (1-50, default 10).", minimum = 1, maximum = 50 },
+                model = { type = "string", description = "Exact `provider:model` to look up." },
+            },
+        },
+        handler = function(input)
+            return models.handle(input)
+        end,
+    }
+
+    local workflows = toml_workflows.discover_and_register(profiles)
+    -- With no workflow profile discovered the tool stays out of the prompt.
+    if #workflows.list > 0 then
+        ext.register_tool {
+            name = "subagents.workflow",
+            description = workflow_description(workflows, std_registered),
+            schema = {
+                type = "object",
+                properties = {
+                    profile = { type = "string", description = "Name of a discovered workflow profile." },
+                    prompt = { type = "string", description = "The workflow input, given to every step." },
+                },
+                required = { "profile", "prompt" },
+            },
+            handler = function(input, context)
+                progress.bind(context)
+                local result = toml_workflows.handle(input, profiles, context)
+                progress.settle(context)
+                return result
+            end,
+        }
+    end
+
+    ext.register_command({
+        name = "fork-subagent",
+        description = "Continue a copy of one of this session's subagents yourself: /fork-subagent <id>.",
+        handler = fork.command,
+    })
+
+    install_guidance(ext, std_registered)
+    install_header(ext, profiles, workflows)
+end
+
+return {
+    name = "subagents",
+    activate = activate,
+}

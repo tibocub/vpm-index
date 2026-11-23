@@ -1,0 +1,47 @@
+
+local toolchain = require "lrocket.toolchain"
+local shared = require "lrocket.lang.shared"
+local routines = require "lrocket.routines"
+local lua = require "lrocket.lua"
+
+local sfs = require "sfs"
+
+local spath = {}
+
+local function prepare(symbol, modname, file)
+	---@type lrocket.ModInfo
+	local res = {
+		lang = "static",
+		entrypoint = symbol,
+		chunkname = modname,
+		modname = modname,
+		path = file,
+		configure = function (info, conf)
+			if not conf.added.library[info.path] then
+				routines.configurenativelibs(conf, info.path, info.modname)
+			end
+		end
+	}
+
+	return res
+end
+
+function spath.expandpath(path)
+	return path:gsub("([^;]+)%?%?", "%1/?"..toolchain.EXT_ARCHIVE)
+end
+
+function spath.searchpath(glob, path)
+	return shared._searchpath(glob, path, prepare)
+end
+
+function spath.defaultpath(trees)
+	local extra = {}
+	for _, tree in ipairs(trees) do
+		extra[#extra+1] = sfs.combine(tree, "lib/lua", lua.PUC_LUA_VERSION, "??")
+	end
+
+	return lua.insertdefaults(lua.LUA_CPATH:gsub("%"..toolchain.EXT_SHARED, toolchain.EXT_ARCHIVE), extra)
+end
+
+return spath
+

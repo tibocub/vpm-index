@@ -1,0 +1,81 @@
+local typedefs = require "kong.db.schema.typedefs"
+
+
+local PLUGIN_NAME = "impart"
+
+---@class PluginConfig
+---@field inspector_rpc_addr string
+---@field max_body_size integer
+---@field timeout_ms integer
+---@field settings_enabled boolean
+---@field settings_interval_ms integer
+
+local schema = {
+  name = PLUGIN_NAME,
+  fields = {
+    { consumer = typedefs.no_consumer },
+    { protocols = typedefs.protocols_http },
+    {
+      config = {
+        type = "record",
+        fields = {
+          {
+            inspector_rpc_addr = {
+              type = "string",
+              required = true,
+              default = "/tmp/impart.sock",
+              description = "Socket to communicate with the Impart inspector."
+            }
+          },
+          {
+            max_body_size = {
+              type = "integer",
+              required = true,
+              default = 10000,
+              gt = 0,
+              description = "Maximum number of request/response body bytes captured for "
+                .. "inspection. Larger bodies are truncated. Raise this for LLM/MCP "
+                .. "traffic, which carries bodies well over the 10 KB default."
+            }
+          },
+          {
+            timeout_ms = {
+              type = "integer",
+              required = true,
+              default = 100,
+              gt = 0,
+              description = "Per-call timeout (milliseconds) for the inspector RPC "
+                .. "send/receive. Raise for slow LLM/MCP inspection. Mirrors the "
+                .. "nginx module's impart_send_timeout / impart_read_timeout. Used as "
+                .. "the fallback when no inspection profile resolves a per-route timeout."
+            }
+          },
+          {
+            settings_enabled = {
+              type = "boolean",
+              required = true,
+              default = true,
+              description = "Poll the inspector for per-route inspection profiles "
+                .. "(SettingsRPC) so request inspection sends the resolved inspection "
+                .. "mode and honors per-route body-size / timeout overrides. When "
+                .. "disabled, the static max_body_size / timeout_ms apply to all routes."
+            }
+          },
+          {
+            settings_interval_ms = {
+              type = "integer",
+              required = true,
+              default = 30000,
+              gt = 0,
+              description = "Interval (milliseconds) between inspection-profile "
+                .. "(SettingsRPC) polls. Mirrors the nginx module's 30s settings poll. "
+                .. "Ignored when settings_enabled is false."
+            }
+          },
+        },
+      },
+    },
+  },
+}
+
+return schema

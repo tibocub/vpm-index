@@ -1,0 +1,75 @@
+-- Timing policy for session warming: WHEN a transient request may fire.
+--
+-- The semantics mirror opencode's warming feature. `interval` is the idle
+-- time before a warm request fires after real activity (and again after each
+-- warm attempt); `duration` is the warming window measured from the latest
+-- non-warming activity. Warm attempts never extend the window:
+--
+--     00:00  real activity        window = [00:00, 00:30]
+--     00:04  warm                 next due 00:08
+--     00:08  warm                 ...
+--     00:30  window expired, warming stops
+--
+-- A turn in flight (`turn_started` without `turn_ended`) blocks warm
+-- requests: the live conversation is changing under us. With
+-- `interval >= duration` the window always expires before the first warm
+-- request is due, so warming never fires -- a documented consequence of the
+-- opencode semantics, not a special case.
+--
+-- Every entry point takes `now` (monotonic milliseconds) so the policy is
+-- pure and selfcheck-able; scheduling and IO live elsewhere.
+
+local M = {}
+
+local Policy = {}
+Policy.__index = Policy
+
+-- interval_ms and duration_ms are validated positive by config parsing.
+function M.new(interval_ms, duration_ms)
+    return setmetatable({
+        interval = interval_ms,
+        duration = duration_ms,
+        last_real = nil, -- ms of the latest non-warming activity
+        next_warm = nil, -- ms before which no warm request may fire
+        deadline = nil, -- ms at which the warming window closes
+        busy = false, -- a real turn is in flight
+    }, Policy)
+end
+
+function Policy:activity(now)
+    self.last_real = now
+    self.next_warm = now + self.interval
+    self.deadline = now + self.duration
+end
+
+function Policy:turn_started(now)
+    self.busy = true
+    self:activity(now)
+end
+
+function Policy:turn_ended(now)
+    self.busy = false
+    self:activity(now)
+end
+
+-- May a warm request start right now?
+function Policy:due(now)
+    return (not self.busy)
+        and self.next_warm ~= nil
+        and now >= self.next_warm
+        and now < self.deadline
+end
+
+-- A warm attempt settled (success or failure): schedule the next one. A
+-- failure waits out the same interval and the original window keeps running.
+function Policy:attempted(now)
+    self.next_warm = now + self.interval
+end
+
+-- Nothing left to do until real activity reopens the window. Lets the
+-- caller stop its timer instead of ticking forever.
+function Policy:expired(now)
+    return self.deadline == nil or now >= self.deadline
+end
+
+return M

@@ -1,0 +1,103 @@
+
+local toolchain = require "lrocket.toolchain"
+local sfs = require "sfs"
+local log = require "lrocket.log"
+local utils = require "lrocket.utils"
+local lua = require "lrocket.lua"
+
+local BLACKLIST = {
+	["ntdll.dll"] = true,
+	["KERNEL32.DLL"] = true,
+	["KERNELBASE.dll"] = true,
+	["msvcrt.dll"] = true,
+
+	"/lib%d*/ld-linux-*.so.%d*",
+	"linux-vdso.so.%d*"
+}
+
+local function wantlink(lib)
+	if BLACKLIST[lib] then return false end
+
+	for _, item in ipairs(BLACKLIST) do
+---@diagnostic disable-next-line: undefined-field
+		local pattern = item:gsub("%p", "%%%1"):gsub("%%%%d%%%*", "%%d*"):gsub("%%%*", "%%S*")
+		if lib:find(pattern) then
+			return false
+		end
+	end
+
+	return true
+end
+
+---@param modname string
+---@param conf lrocket.CompilerConf
+local function dynlink(modname, conf)
+	local pkg = require "lrocket.package"
+	local ok, dynlib = pkg.searchmodules(modname, { shared = true })()
+	if not ok then return end
+
+	local deps = log.assert(toolchain.libdeps(dynlib.path))
+	for _, dynlib in ipairs(deps) do
+		if wantlink(dynlib) then
+			conf:addlib(dynlib)
+		end
+	end
+end
+
+---@class lrocket.routines
+local routines = {}
+
+routines.LINK_SIBLING_DEPS = false
+
+---comment
+---@param conf lrocket.CompilerConf
+---@param cmodpath string
+---@param modname string
+function routines.configurenativelibs(conf, cmodpath, modname)
+	conf:addlib(cmodpath)
+	if routines.LINK_SIBLING_DEPS then
+		dynlink(modname, conf)
+	end
+end
+
+local function extend(path, attr)
+	local stat = sfs.attributes(path)
+	attr.modification = stat.modification
+	--[[
+	attr.access = stat.access
+	attr.change = stat.change
+	--]]
+	return attr
+end
+
+--- This is a large function to correctly write a node to the internal format... It has too many arguments, yes
+---@param f lrocket.LRAW
+---@param src string
+---@param dst string
+---@param keepdbg boolean?
+function routines.writelua(f, src, dst, chunkname, keepdbg)
+	f:newnode(dst, extend(src, { chunkname = chunkname }))
+	f:write(lua.readascode(src, chunkname, keepdbg))
+end
+
+---@param map lrocket.Package
+---@param dir string
+function routines.copynativelibs(map, liblua, dir)
+	for _, modinfo in ipairs(map.mods) do
+		if modinfo.lang == 'shared' then
+			local modname = modinfo.modname
+			local dest = dir
+			for subitem in modname:gmatch "[^.]+" do
+				dest = sfs.combine(dest, subitem)
+			end
+			sfs.mkdir(sfs.getDir(dest))
+			sfs.copy(modinfo.path, dest..toolchain.EXT_SHARED)
+		end
+	end
+
+	if liblua then
+		sfs.copy(liblua, sfs.combine(dir, sfs.getName(liblua)))
+	end
+end
+
+return routines

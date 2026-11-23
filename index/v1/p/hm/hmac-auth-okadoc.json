@@ -1,0 +1,105 @@
+{
+  "kind": "lib",
+  "name": "hmac-auth-okadoc",
+  "versions": {
+    "0.1.1-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "access.lua": {
+          "sha256": "d5fc0d8fd4f754e9f5b841258ecb201b9c7d4930180106c9b27599bba681135c",
+          "size": 11083,
+          "url": "blob:d5fc0d8fd4f754e9f5b841258ecb201b9c7d4930180106c9b27599bba681135c"
+        },
+        "daos.lua": {
+          "sha256": "641cc6d955a49f0de36053ce5935f8fb285ef3bb470e8734cf8b9214fb8bf88c",
+          "size": 700,
+          "url": "blob:641cc6d955a49f0de36053ce5935f8fb285ef3bb470e8734cf8b9214fb8bf88c"
+        },
+        "handler.lua": {
+          "sha256": "6035df13c3d6662f60acbc864c1790922ebf371e3c9baa4d3657a2b274a2cf44",
+          "size": 244,
+          "url": "blob:6035df13c3d6662f60acbc864c1790922ebf371e3c9baa4d3657a2b274a2cf44"
+        },
+        "migrations/000_base_hmac_auth.lua": {
+          "sha256": "e3d777739b2d15af7fc736c10473bd7c60307050fc01453ab1cc68197fa9a67f",
+          "size": 1109,
+          "url": "blob:e3d777739b2d15af7fc736c10473bd7c60307050fc01453ab1cc68197fa9a67f"
+        },
+        "migrations/002_130_to_140.lua": {
+          "sha256": "398546dbe9810c099c0c60994d2a5202a644ac0c4dca07f7633df5285254c73c",
+          "size": 989,
+          "url": "blob:398546dbe9810c099c0c60994d2a5202a644ac0c4dca07f7633df5285254c73c"
+        },
+        "migrations/003_200_to_210.lua": {
+          "sha256": "4257b984acb488e7505c2e98f3af50b0a4a80853b4dcdb01d47696a007128858",
+          "size": 331,
+          "url": "blob:4257b984acb488e7505c2e98f3af50b0a4a80853b4dcdb01d47696a007128858"
+        },
+        "migrations/init.lua": {
+          "sha256": "8af791c02b742e3198e619d50973cb9302a4ca332a6a20a06aa3506f6b8c718b",
+          "size": 75,
+          "url": "blob:8af791c02b742e3198e619d50973cb9302a4ca332a6a20a06aa3506f6b8c718b"
+        },
+        "schema.lua": {
+          "sha256": "66ee1a1a5206da8ee70f17a5722894bfadd3e1c573308c002ba916e72ede933b",
+          "size": 1002,
+          "url": "blob:66ee1a1a5206da8ee70f17a5722894bfadd3e1c573308c002ba916e72ede933b"
+        }
+      },
+      "homepage": "https://github.com/fajarhide/hmac-auth-okadoc",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "luarocks": {
+        "date": "Mon, 26 Apr 2021 06:39:11 GMT",
+        "rockspec": {
+          "date": "Mon, 26 Apr 2021 06:39:11 GMT",
+          "sha256": "fcef4210c4fc395682e730a86e74d2965d34a8a0380145e1f22521efc4d5f209",
+          "size": 704
+        },
+        "src": {
+          "date": "Mon, 26 Apr 2021 06:39:13 GMT",
+          "sha256": "cd8ef51d942a6d11ea58d91b0f3a551c4e86b668a51fde48de0df516a286042d",
+          "size": 8131,
+          "url": "https://luarocks.org/hmac-auth-okadoc-0.1.1-1.src.rock"
+        }
+      },
+      "modules": [
+        "access",
+        "daos",
+        "handler",
+        "migrations",
+        "migrations.000_base_hmac_auth",
+        "migrations.002_130_to_140",
+        "migrations.003_200_to_210",
+        "schema"
+      ],
+      "origin": {
+        "date": "Mon, 26 Apr 2021 06:39:13 GMT",
+        "sha256": "cd8ef51d942a6d11ea58d91b0f3a551c4e86b668a51fde48de0df516a286042d",
+        "size": 8131,
+        "type": "luarocks",
+        "url": "https://luarocks.org/hmac-auth-okadoc-0.1.1-1.src.rock"
+      },
+      "size": 15533,
+      "undeclared_requires": [
+        "kong.constants",
+        "kong.db.migrations.operations.200_to_210",
+        "kong.db.schema.typedefs",
+        "kong.plugins.hmac-auth.access",
+        "kong.tools.utils",
+        "resty.openssl.hmac",
+        "resty.sha256"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.constants",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 3,
+        "status": "partial",
+        "total": 8
+      }
+    }
+  }
+}

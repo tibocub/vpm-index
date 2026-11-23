@@ -1,0 +1,232 @@
+{
+  "kind": "app",
+  "name": "teal-language-server",
+  "versions": {
+    "0.3.0-1": {
+      "bin": {
+        "teal-language-server": "bin/teal-language-server"
+      },
+      "deps": [
+        "tl == 0.24.8",
+        "lua-cjson",
+        "argparse",
+        "luv == 1.52.1",
+        "lusc_luv >= 4.0",
+        "ltreesitter == 0.3.0"
+      ],
+      "files": {
+        "bin/teal-language-server": {
+          "sha256": "142d6f745496010203409106f935565ef0716c236541539762e6db9cecb229d4",
+          "size": 4125,
+          "url": "blob:142d6f745496010203409106f935565ef0716c236541539762e6db9cecb229d4"
+        },
+        "teal_language_server/analysis/document.lua": {
+          "sha256": "b850afb027d663d06978468465789a0b548db4fd810a0c8f6d3e43c588c0beaf",
+          "size": 19394,
+          "url": "blob:b850afb027d663d06978468465789a0b548db4fd810a0c8f6d3e43c588c0beaf"
+        },
+        "teal_language_server/analysis/document_manager.lua": {
+          "sha256": "1f8fd6719762861ea6aedc71a82dc3521de07187a159ce0904e7fd175f69154c",
+          "size": 1652,
+          "url": "blob:1f8fd6719762861ea6aedc71a82dc3521de07187a159ce0904e7fd175f69154c"
+        },
+        "teal_language_server/analysis/env_updater.lua": {
+          "sha256": "29719b16c6cb004e2d6faa4b1c0d066dd17ec85b1d6817a029e77f366db7dd90",
+          "size": 5495,
+          "url": "blob:29719b16c6cb004e2d6faa4b1c0d066dd17ec85b1d6817a029e77f366db7dd90"
+        },
+        "teal_language_server/analysis/lua_env.lua": {
+          "sha256": "dc82325068d116d0ae6da3b7ff10e623ad186e38d288d25f1173940484481723",
+          "size": 2269,
+          "url": "blob:dc82325068d116d0ae6da3b7ff10e623ad186e38d288d25f1173940484481723"
+        },
+        "teal_language_server/args_parser.lua": {
+          "sha256": "706ef8f655ccf9e674ea014bab26f9461af5a080afe5ad06c01eb8aa5510e2d3",
+          "size": 1188,
+          "url": "blob:706ef8f655ccf9e674ea014bab26f9461af5a080afe5ad06c01eb8aa5510e2d3"
+        },
+        "teal_language_server/handlers/definitions.lua": {
+          "sha256": "9f314ca7c1a5d5c228b1a86f728b0e0f5ea15f84fc9a81200369ce5d2087e3a2",
+          "size": 5139,
+          "url": "blob:9f314ca7c1a5d5c228b1a86f728b0e0f5ea15f84fc9a81200369ce5d2087e3a2"
+        },
+        "teal_language_server/handlers/document_sync.lua": {
+          "sha256": "26f0cfa6d5100c94a180a6a48228eec154a33df3289217bb866f742655c2878a",
+          "size": 2743,
+          "url": "blob:26f0cfa6d5100c94a180a6a48228eec154a33df3289217bb866f742655c2878a"
+        },
+        "teal_language_server/handlers/handler_helper.lua": {
+          "sha256": "7a91c5e8d7533ea2754a72da74564e77b608cc5d4907376401ad581938680dfa",
+          "size": 1685,
+          "url": "blob:7a91c5e8d7533ea2754a72da74564e77b608cc5d4907376401ad581938680dfa"
+        },
+        "teal_language_server/handlers/language_features.lua": {
+          "sha256": "1af8c5a32a2f90a9ea78e756fb4e4a4d97d3d0947efe6e8cc9153dee0412f9af",
+          "size": 13018,
+          "url": "blob:1af8c5a32a2f90a9ea78e756fb4e4a4d97d3d0947efe6e8cc9153dee0412f9af"
+        },
+        "teal_language_server/handlers/misc_handlers.lua": {
+          "sha256": "097f313f5ad4da5bc37323e2e89e94357909cc9b50a482c82c8c53979b8b5a06",
+          "size": 4024,
+          "url": "blob:097f313f5ad4da5bc37323e2e89e94357909cc9b50a482c82c8c53979b8b5a06"
+        },
+        "teal_language_server/log_file.lua": {
+          "sha256": "a9b3c587a681f22107e58567f949dc5acee6bd9f29295fa6a93bf343093bed13",
+          "size": 2117,
+          "url": "blob:a9b3c587a681f22107e58567f949dc5acee6bd9f29295fa6a93bf343093bed13"
+        },
+        "teal_language_server/logging.lua": {
+          "sha256": "b2ec04741357fdd124aa732db6d2b4413fa2019895f63128ce324d1530d79a60",
+          "size": 3117,
+          "url": "blob:b2ec04741357fdd124aa732db6d2b4413fa2019895f63128ce324d1530d79a60"
+        },
+        "teal_language_server/lsp/events_manager.lua": {
+          "sha256": "3c2854a93075a525ceeef9959e21755295ddc657900ae023982c241a1fa05323",
+          "size": 2842,
+          "url": "blob:3c2854a93075a525ceeef9959e21755295ddc657900ae023982c241a1fa05323"
+        },
+        "teal_language_server/lsp/formatter.lua": {
+          "sha256": "32b2af25d84c94d7cae4ee818ade6d2994c500712cf6158b70d9c77f42fe5c7c",
+          "size": 4125,
+          "url": "blob:32b2af25d84c94d7cae4ee818ade6d2994c500712cf6158b70d9c77f42fe5c7c"
+        },
+        "teal_language_server/lsp/protocol.lua": {
+          "sha256": "c5510958fce7ac5f9834ab881e9ff24f9dfbad6898863417504f2243bc91c2f2",
+          "size": 2953,
+          "url": "blob:c5510958fce7ac5f9834ab881e9ff24f9dfbad6898863417504f2243bc91c2f2"
+        },
+        "teal_language_server/lsp/reader_writer.lua": {
+          "sha256": "e27bb81a12406ef4c3e9fa865b3abd1e8b767c81ece3c29b550f9ddf7a9ae03c",
+          "size": 4574,
+          "url": "blob:e27bb81a12406ef4c3e9fa865b3abd1e8b767c81ece3c29b550f9ddf7a9ae03c"
+        },
+        "teal_language_server/lsp/stdin_reader.lua": {
+          "sha256": "6977dc08d2548a06e700570e7c61f068d92554b60873d2a89d52bf44d161b517",
+          "size": 3000,
+          "url": "blob:6977dc08d2548a06e700570e7c61f068d92554b60873d2a89d52bf44d161b517"
+        },
+        "teal_language_server/main.lua": {
+          "sha256": "c891532c84db12bbcdbd9f31ab79fbd0f2fa6fe87bf13a241f7ba09f08ee7a64",
+          "size": 5003,
+          "url": "blob:c891532c84db12bbcdbd9f31ab79fbd0f2fa6fe87bf13a241f7ba09f08ee7a64"
+        },
+        "teal_language_server/server_state.lua": {
+          "sha256": "5174baad9b9b2e24a909f7fc1fe5275014d23746b04602fb196e4e961447f580",
+          "size": 7040,
+          "url": "blob:5174baad9b9b2e24a909f7fc1fe5275014d23746b04602fb196e4e961447f580"
+        },
+        "teal_language_server/util/asserts.lua": {
+          "sha256": "14aae7858e2cb6ba78a54bfa46d9414b5df50b157a78e30b37c5768efff2cf1a",
+          "size": 1171,
+          "url": "blob:14aae7858e2cb6ba78a54bfa46d9414b5df50b157a78e30b37c5768efff2cf1a"
+        },
+        "teal_language_server/util/class.lua": {
+          "sha256": "4d638076214e75ce9500527c17ab0a05394a6729b4b0f2cd5dbb3c84c1764f3f",
+          "size": 5804,
+          "url": "blob:4d638076214e75ce9500527c17ab0a05394a6729b4b0f2cd5dbb3c84c1764f3f"
+        },
+        "teal_language_server/util/path.lua": {
+          "sha256": "a956a173c484c365bfcfe957cde74157d153249c221c6efb9b11b0dedcdd7106",
+          "size": 7575,
+          "url": "blob:a956a173c484c365bfcfe957cde74157d153249c221c6efb9b11b0dedcdd7106"
+        },
+        "teal_language_server/util/uri.lua": {
+          "sha256": "9ccf7ecd376208d3bb9a74adf0f585be1de905b00b525f837982d9d41b928dba",
+          "size": 2584,
+          "url": "blob:9ccf7ecd376208d3bb9a74adf0f585be1de905b00b525f837982d9d41b928dba"
+        },
+        "teal_language_server/util/util.lua": {
+          "sha256": "3a937a4558bbd1620f72562cc7991b82e3b20496fec75eefbeb620477fcfb80d",
+          "size": 2054,
+          "url": "blob:3a937a4558bbd1620f72562cc7991b82e3b20496fec75eefbeb620477fcfb80d"
+        }
+      },
+      "homepage": "https://github.com/teal-language/teal-language-server",
+      "license": "MIT",
+      "luarocks": {
+        "date": "Thu, 19 Nov 2026 04:27:28 GMT",
+        "rockspec": {
+          "date": "Thu, 19 Nov 2026 04:27:28 GMT",
+          "sha256": "0a0878d3e216347a4ece1383e5284a1fd86d0ad76a8124ea0119b4627ab3f911",
+          "size": 3448
+        },
+        "src": {
+          "date": "Thu, 19 Nov 2026 04:27:29 GMT",
+          "sha256": "c1035721de42838ae456deae9f16726b132c1ad2e8daea7f6b49ef882e7be57c",
+          "size": 235217,
+          "url": "https://luarocks.org/teal-language-server-0.3.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "teal",
+        "teal_language_server.analysis.document",
+        "teal_language_server.analysis.document_manager",
+        "teal_language_server.analysis.env_updater",
+        "teal_language_server.analysis.lua_env",
+        "teal_language_server.args_parser",
+        "teal_language_server.handlers.definitions",
+        "teal_language_server.handlers.document_sync",
+        "teal_language_server.handlers.handler_helper",
+        "teal_language_server.handlers.language_features",
+        "teal_language_server.handlers.misc_handlers",
+        "teal_language_server.log_file",
+        "teal_language_server.logging",
+        "teal_language_server.lsp.events_manager",
+        "teal_language_server.lsp.formatter",
+        "teal_language_server.lsp.protocol",
+        "teal_language_server.lsp.reader_writer",
+        "teal_language_server.lsp.stdin_reader",
+        "teal_language_server.main",
+        "teal_language_server.server_state",
+        "teal_language_server.util.asserts",
+        "teal_language_server.util.class",
+        "teal_language_server.util.path",
+        "teal_language_server.util.uri",
+        "teal_language_server.util.util"
+      ],
+      "native": {
+        "build": "builtin",
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "modules": [
+            {
+              "incdirs": [
+                "tree-sitter-teal/src"
+              ],
+              "name": "teal",
+              "sources": [
+                "tree-sitter-teal/src/parser.c",
+                "tree-sitter-teal/src/scanner.c",
+                "tree-sitter-teal/src/lua_stub.c"
+              ]
+            }
+          ]
+        }
+      },
+      "origin": {
+        "date": "Thu, 19 Nov 2026 04:27:29 GMT",
+        "sha256": "c1035721de42838ae456deae9f16726b132c1ad2e8daea7f6b49ef882e7be57c",
+        "size": 235217,
+        "type": "luarocks",
+        "url": "https://luarocks.org/teal-language-server-0.3.0-1.src.rock"
+      },
+      "size": 114691,
+      "summary": "A language server for the Teal language",
+      "undeclared_requires": [
+        "luv"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-22",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

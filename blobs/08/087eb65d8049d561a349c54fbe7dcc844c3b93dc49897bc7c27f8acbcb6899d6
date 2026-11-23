@@ -1,0 +1,144 @@
+#!/usr/bin/env lua
+
+---
+-- DuckDB code generator and insert_id handling logic.
+--
+local duckdb = {}
+
+
+---
+-- Generates a DuckDB-syntax placeholder.
+--
+function duckdb.placeholder( num )
+	return '$' .. tostring(num)
+end
+
+
+---
+-- Generates a DuckDB select statement.
+--
+function duckdb.select_all( tablename )
+	return "select * from " .. tablename
+end
+
+
+---
+-- Generates a DuckDB select with where clause.
+--
+function duckdb.select_where( tablename, keyname )
+	return string.format(
+			"select * from %s where %s = %s",
+				tablename,
+				keyname,
+				duckdb.placeholder(1)
+			)
+end
+
+
+---
+-- Generates a DuckDB insert statement.
+--
+function duckdb.insert( tablename, keyname, columns )
+
+	local value_placeholders = {}
+
+	for i, column in ipairs( columns ) do	-- luacheck: ignore 213
+		table.insert(
+			value_placeholders,
+			duckdb.placeholder( #value_placeholders + 1 )
+		)
+	end
+
+	return string.format(
+			"insert into %s ( %s ) values ( %s ) returning %s",
+				tablename,
+				table.concat(columns, ', '),
+				table.concat(value_placeholders, ', '),
+				keyname
+		)
+end
+
+
+---
+-- Generates a DuckDB update statement.
+--
+function duckdb.update( tablename, keyname, columns )
+
+	local column_lines = {}
+
+	for i, column in ipairs( columns ) do	-- luacheck: ignore 213
+		local placeholder = duckdb.placeholder( #column_lines + 1 )
+
+		table.insert(
+			column_lines,
+			tostring(column) .. ' = ' .. placeholder
+		)
+	end
+
+	return string.format(
+			"update %s set %s where %s = %s",
+				tablename,
+				table.concat(column_lines, ', '),
+				keyname,
+				duckdb.placeholder( #column_lines + 1 )
+		)
+end
+
+
+---
+-- Generates a DuckDB delete statement.
+--
+function duckdb.delete( tablename, keyname )
+	return string.format(
+			"delete from %s where %s = %s",
+				tablename,
+				keyname,
+				duckdb.placeholder(1)
+		)
+end
+
+
+---
+-- Generates a DuckDB size-of-table query.
+--
+function duckdb.count( tablename )
+	return string.format("select count(*) as num from %s", tablename)
+end
+
+
+---
+-- Generates a DuckDB version number request.
+--
+function duckdb.version( )
+	return "select version();"
+end
+
+
+---
+-- Extracts the new row ID from an insert statement. Every database
+-- has different ways of handling this.
+--
+function duckdb.get_last_key( keyname, connection, statement )	-- luacheck: ignore 212
+	--if statement:rowcount() == 1 then
+		local row = statement:fetch(true)
+		return row[ keyname ]
+	--end
+
+	--return nil
+end
+
+
+---
+-- DuckDB's needs no post-processing (at this time)
+--
+function duckdb.post_processor( vendor_data, data )	-- luacheck: ignore 212
+	return data
+end
+
+
+---
+--
+--
+
+
+return duckdb

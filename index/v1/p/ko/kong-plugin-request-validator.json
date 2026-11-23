@@ -1,0 +1,67 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-request-validator",
+  "versions": {
+    "1.0.0-1": {
+      "bin": [],
+      "deps": [],
+      "files": {
+        "kong/plugins/request-validator/handler.lua": {
+          "sha256": "a8b8f56def586fe0ce182de999d2545f123a7b12c03ed44c437b2b4a7361e5c8",
+          "size": 246,
+          "url": "blob:a8b8f56def586fe0ce182de999d2545f123a7b12c03ed44c437b2b4a7361e5c8"
+        },
+        "kong/plugins/request-validator/schema.lua": {
+          "sha256": "be419bc7bc3d0a0c84e2a522ff24f8cb0991a34e3b9ac87de030e41cd26d09fd",
+          "size": 1919,
+          "url": "blob:be419bc7bc3d0a0c84e2a522ff24f8cb0991a34e3b9ac87de030e41cd26d09fd"
+        }
+      },
+      "homepage": "https://github.com/ResultadosDigitais/kong-plugin-request-validator",
+      "host": "openresty",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Mon, 22 Jan 2024 21:48:17 GMT",
+        "rockspec": {
+          "date": "Mon, 22 Jan 2024 21:48:17 GMT",
+          "sha256": "7138333dc536c8251b1cc44a4af39af36bf42dff8e8f49bb0d09bd0896ea64cb",
+          "size": 1085
+        },
+        "src": {
+          "date": "Mon, 22 Jan 2024 21:48:18 GMT",
+          "sha256": "1533c87cd8eefc7f05b937f7b8ae250ac0e5925b9009e280092ca06eaad44931",
+          "size": 19371,
+          "url": "https://luarocks.org/kong-plugin-request-validator-1.0.0-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.request-validator.handler",
+        "kong.plugins.request-validator.schema"
+      ],
+      "origin": {
+        "date": "Mon, 22 Jan 2024 21:48:18 GMT",
+        "sha256": "1533c87cd8eefc7f05b937f7b8ae250ac0e5925b9009e280092ca06eaad44931",
+        "size": 19371,
+        "type": "luarocks",
+        "url": "https://luarocks.org/kong-plugin-request-validator-1.0.0-1.src.rock"
+      },
+      "size": 2165,
+      "summary": "Validate preconditions to allow or deny a request based on rules defined in config section",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs",
+        "kong.plugins.request-validator.access",
+        "kong.tools.utils"
+      ],
+      "vlr": {
+        "cause": "missing module: kong.plugins.request-validator.access",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "fail",
+        "total": 2
+      }
+    }
+  }
+}

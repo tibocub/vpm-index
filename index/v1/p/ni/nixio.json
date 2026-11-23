@@ -1,0 +1,74 @@
+{
+  "kind": "lib",
+  "name": "nixio",
+  "versions": {
+    "0.3-1": {
+      "bin": [],
+      "deps": [],
+      "files": [],
+      "homepage": "http://luci.subsignal.org",
+      "license": "Apache 2.0",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Sun, 02 Mar 2014 03:07:25 GMT",
+        "rockspec": {
+          "date": "Sun, 02 Mar 2014 03:07:25 GMT",
+          "sha256": "61e4b8deac26d2fb7f09fa94a6d5d85bac4f5581ecaa566e1ef2993718b6ef22",
+          "size": 1047
+        },
+        "src": {
+          "date": "Sun, 02 Mar 2014 03:07:26 GMT",
+          "sha256": "3b8ac3e7e431536e2f3b914ca3a9975775781e6ebd25370acbb1b58c400b9659",
+          "size": 1450161,
+          "url": "https://luarocks.org/nixio-0.3-1.src.rock"
+        }
+      },
+      "modules": [],
+      "native": {
+        "build": "make",
+        "external": [
+          "OPENSSL"
+        ],
+        "langs": [
+          "c"
+        ],
+        "native": "c",
+        "plan": {
+          "external": {
+            "OPENSSL": {
+              "header": "openssl/ssl.h"
+            }
+          },
+          "make": {
+            "build_variables": {
+              "LUA_CFLAGS": "$(CFLAGS) -I$(LUA_INCDIR)",
+              "NIXIO_LDFLAGS": "-lcrypt -L$(OPENSSL_LIBDIR) -I$(OPENSSL_INCDIR)"
+            },
+            "install_variables": {
+              "LUA_LIBRARYDIR": "$(LIBDIR)",
+              "LUA_MODULEDIR": "$(LUADIR)"
+            }
+          }
+        },
+        "prebuilt": true
+      },
+      "origin": {
+        "date": "Sun, 02 Mar 2014 03:07:26 GMT",
+        "sha256": "3b8ac3e7e431536e2f3b914ca3a9975775781e6ebd25370acbb1b58c400b9659",
+        "size": 1450161,
+        "type": "luarocks",
+        "url": "https://luarocks.org/nixio-0.3-1.src.rock"
+      },
+      "summary": "System, Networking and I/O library for Lua",
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

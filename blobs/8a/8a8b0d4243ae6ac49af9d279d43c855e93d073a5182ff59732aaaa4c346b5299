@@ -1,0 +1,30 @@
+--imports
+local Sent = require("dogma.syn._.Sent")
+local SentType = require("dogma.syn.SentType")
+
+--A XML expression: multiple XML literals.
+local XmlExp = {}
+XmlExp.__index = XmlExp
+setmetatable(XmlExp, {__index = Sent})
+package.loaded[...] = XmlExp
+
+--Constructor.
+--
+--@param ln:number      Line number.
+--@param col:number     Column number.
+--@param ele:XmlLiteral XML element.
+function XmlExp.new(ln, col, ele)
+  local self
+
+  --(1) create
+  self = setmetatable(Sent.new(SentType.XML_EXP, ln, col), XmlExp)
+  self.tree = {root = ele}
+
+  --(2) return
+  return self
+end
+
+--@override
+function XmlExp:__tostring()
+  return string.format("(%s)", tostring(self.tree.root))
+end

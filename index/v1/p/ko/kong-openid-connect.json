@@ -1,0 +1,73 @@
+{
+  "kind": "lib",
+  "name": "kong-openid-connect",
+  "versions": {
+    "1.1.0-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "lua-resty-jwt",
+        "reason": "missing-file:third-party/lua-resty-hmac/lib/resty/hmac.lua"
+      },
+      "deps": [
+        "lua-resty-openidc >= 1.7.0",
+        "lua-resty-session >= 2.24",
+        "lua-resty-http >= 0.15",
+        "lua-cjson >= 2.1.0"
+      ],
+      "files": {
+        "kong/plugins/kong-openid-connect/handler.lua": {
+          "sha256": "a0154ef187da3a585d339e7a54652763c935d753ed150326bea3e46a83f6e9b9",
+          "size": 3186,
+          "url": "https://raw.githubusercontent.com/cuongntr/kong-openid-connect-plugin/a4ff261eac3f76b23d564f8e399804fd7ded1eb8/kong/plugins/kong-openid-connect/handler.lua"
+        },
+        "kong/plugins/kong-openid-connect/schema.lua": {
+          "sha256": "978422e9e9c285ca2387e9600e418e85bb85ced5a22fbef272e41c583251c4f5",
+          "size": 4596,
+          "url": "https://raw.githubusercontent.com/cuongntr/kong-openid-connect-plugin/a4ff261eac3f76b23d564f8e399804fd7ded1eb8/kong/plugins/kong-openid-connect/schema.lua"
+        },
+        "kong/plugins/kong-openid-connect/utils.lua": {
+          "sha256": "9e3e18ba4361b8f7b10d3da6d45aded4686b7a3908fd02d5ad1b99300c78f4ff",
+          "size": 11306,
+          "url": "https://raw.githubusercontent.com/cuongntr/kong-openid-connect-plugin/a4ff261eac3f76b23d564f8e399804fd7ded1eb8/kong/plugins/kong-openid-connect/utils.lua"
+        }
+      },
+      "homepage": "https://github.com/cuongntr/kong-openid-connect-plugin",
+      "host": "openresty",
+      "license": "MIT",
+      "lua": ">= 5.1",
+      "luarocks": {
+        "date": "Fri, 18 Jul 2025 08:39:32 GMT",
+        "rockspec": {
+          "date": "Fri, 18 Jul 2025 08:39:32 GMT",
+          "sha256": "bec1364d386aa9518475e08eb6d2dd27d665a4765b8cdd565c7af713e8e0b414",
+          "size": 1574
+        }
+      },
+      "modules": [
+        "kong.plugins.kong-openid-connect.handler",
+        "kong.plugins.kong-openid-connect.schema",
+        "kong.plugins.kong-openid-connect.utils"
+      ],
+      "origin": {
+        "commit": "a4ff261eac3f76b23d564f8e399804fd7ded1eb8",
+        "ref": "v1.1.0",
+        "type": "git",
+        "url": "https://github.com/cuongntr/kong-openid-connect-plugin.git"
+      },
+      "size": 19088,
+      "summary": "A Kong plugin for OpenID Connect authentication with group-based authorization",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}

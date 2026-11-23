@@ -1,0 +1,81 @@
+
+local sfs = require 'sfs'
+local routines = require 'lrocket.routines'
+-- local log = require 'lrocket.log'
+
+local C = {}
+
+--[[
+local function scanresources(path)
+	local str = log.assert(sfs.read(path, true))
+
+	local comments = str
+		:gsub("%[(%=*)%[.-%](%1)%]", "")
+
+	local function eachembed()
+		for description in comments:gmatch "//lr:embed([^\n]+)" do
+			local mod, embedpath = description:match "^%s*(@[^:]*):%s*(.-)%s*$"
+			if not mod then
+				mod, embedpath = "", description:match "^%s*(.-)%s*$"
+			end
+			coroutine.yield(mod, embedpath)
+		end
+	end
+
+	return coroutine.wrap(eachembed)
+end
+--]]
+
+local function scan(modname, path)
+	local embeds = {}
+	--[[
+	for scope, lrpath in scanresources(path) do
+		embeds[#embeds+1] = {
+			lrpath = lrpath,
+			scope = scope,
+		}
+		embeds[scope] = lrpath
+	end
+	--]]
+
+	---@type lrocket.ModInfo
+	return {
+		lang = 'c',
+		configure = function(info, compiler)
+			compiler:addarg('c', info.path)
+		end,
+		resources = embeds,
+		chunkname = modname,
+		modname = modname,
+		path = path,
+		entrypoint = modname:gsub("%.", "_"),
+	}
+end
+
+C.scan = scan
+
+function C.expandpath(path)
+	return (path:gsub("([^;]+)%?%?", "%1/?.c"))
+end
+
+function C.searchpath(glob, path)
+	for subpath in path:gmatch "[^;]+" do
+		local subpath = sfs.normalize(subpath)
+		local globpath = subpath:gsub("%?", (glob:gsub("%.", "/")))
+		local revglob = subpath:gsub("%p", "%%%1"):gsub("%%%?", "(.-)"):gsub("^.*$", "^%1$")
+
+		for file in sfs.glob(globpath) do
+			local modpart = file:match(revglob)
+			local modname = sfs.normalize(modpart):gsub("^%.[/\\]", ""):gsub("[/\\]+", ".")
+
+			coroutine.yield(modname, scan(modname, file))
+		end
+	end
+end
+
+function C.defaultpath()
+	return "./?.c"
+end
+
+return C
+

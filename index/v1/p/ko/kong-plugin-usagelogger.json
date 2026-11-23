@@ -1,0 +1,70 @@
+{
+  "kind": "lib",
+  "name": "kong-plugin-usagelogger",
+  "versions": {
+    "0.1.2-1": {
+      "bin": [],
+      "blocked_by": {
+        "name": "kong",
+        "reason": "syntax-5.4"
+      },
+      "deps": [
+        "kong",
+        "resurfaceio-logger"
+      ],
+      "files": {
+        "kong/plugins/usagelogger/handler.lua": {
+          "sha256": "da5506513182a6e6cb1cc3ab69a1ccdc2e0a3334aa50038c3467774da8d27428",
+          "size": 2330,
+          "url": "https://raw.githubusercontent.com/resurfaceio/kong-plugin/64a6ee1b68728673b361486b95f15536a77673ea/kong/plugins/usagelogger/handler.lua"
+        },
+        "kong/plugins/usagelogger/schema.lua": {
+          "sha256": "23fb365dc5b57a27c6b9325b7e59228b604a9aef06440e68afafc8f4e466c14e",
+          "size": 354,
+          "url": "https://raw.githubusercontent.com/resurfaceio/kong-plugin/64a6ee1b68728673b361486b95f15536a77673ea/kong/plugins/usagelogger/schema.lua"
+        }
+      },
+      "homepage": "https://github.com/resurfaceio/kong-plugin",
+      "host": "openresty",
+      "license": "Apache-2.0",
+      "luarocks": {
+        "date": "Fri, 21 Oct 2022 22:44:56 GMT",
+        "rockspec": {
+          "date": "Fri, 21 Oct 2022 22:44:56 GMT",
+          "sha256": "3657c430264bd4d1eb145e0ad91f9dba1c5962c2c0a6d04a88ae15d238184f51",
+          "size": 1166
+        },
+        "src": {
+          "date": "Fri, 21 Oct 2022 22:44:57 GMT",
+          "sha256": "f0fe42d08e97859e292f471e6faa47cbcf7c600346b33a2d3ac57156842d1040",
+          "size": 3949,
+          "url": "https://luarocks.org/kong-plugin-usagelogger-0.1.2-1.src.rock"
+        }
+      },
+      "modules": [
+        "kong.plugins.usagelogger.handler",
+        "kong.plugins.usagelogger.schema"
+      ],
+      "origin": {
+        "commit": "64a6ee1b68728673b361486b95f15536a77673ea",
+        "ref": "logger-lua",
+        "type": "git",
+        "url": "https://github.com/resurfaceio/kong-plugin"
+      },
+      "size": 2684,
+      "summary": "Capture API requests and responses to your own data lake",
+      "undeclared_requires": [
+        "kong.db.schema.typedefs"
+      ],
+      "vlr": {
+        "cause": "install failed",
+        "d51": false,
+        "d54": false,
+        "date": "2026-11-23",
+        "loaded": 0,
+        "status": "untested",
+        "total": 1
+      }
+    }
+  }
+}
